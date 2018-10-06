@@ -34,7 +34,7 @@ INT_TYPE spaces( struct field * f1, enum division label){
 
 
 INT_TYPE name ( struct field * f1, enum division label){
-    return f1->sinc.tulip[label].name;
+    return f1->sinc.tulip[f1->sinc.tulip[f1->sinc.tulip[label].name].name].name;
 }
 
 
@@ -53,16 +53,16 @@ INT_TYPE part ( struct field * f1 , enum division label ){
 
 
 INT_TYPE species ( struct field * f1 , enum division label ){
-    return f1->sinc.tulip[f1->sinc.tulip[label].name].species;
+    return f1->sinc.tulip[name(f1,label)].species;
 }
 
 enum body bodies ( struct field * f1 , enum division label ){
-    return f1->sinc.tulip[f1->sinc.tulip[label].name].NBody;
+    return f1->sinc.tulip[name(f1,label)].NBody;
 }
 
 
 INT_TYPE header ( struct field * f1 , enum division label ){
-    return f1->sinc.tulip[f1->sinc.tulip[label].name].header;
+    return f1->sinc.tulip[name(f1,label)].header;
 }
 
 INT_TYPE purpose ( struct field * f1, enum division label){
@@ -458,14 +458,14 @@ Stream_Type* myStreams ( struct field * f1, enum division label ,INT_TYPE spin )
             printf("fixme\n");
             exit(0);
         }
-        return f1->sinc.rose[SPACE].stream+f1->sinc.tulip[f1->sinc.tulip[label].name].myAddress + leng * partit * spin  ;
+        return f1->sinc.rose[SPACE].stream+f1->sinc.tulip[name(f1,label)].myAddress + leng * partit * spin  ;
         
     }
     
     else{
         if ( purpose(f1, label ) == ptObject ){
             INT_TYPE len[SPACE];
-            length(f1, f1->sinc.tulip[label].name, len);
+            length(f1, name(f1,label), len);
             
             ///        printf("%lld -%lld %lld %lld\n", label,name(f1,label),len[space],f1->sinc.tulip[label].ptRank[spin]);
             // / printf("%lld %lld\n", len[space]*part(f1,label), len[space]*f1->sinc.tulip[label].ptRank[spin]);
@@ -502,10 +502,10 @@ Stream_Type* streams ( struct field * f1, enum division label ,INT_TYPE spin, IN
             INT_TYPE len[SPACE];
             length(f1, name(f1, label), len);
             
-            return f1->sinc.rose[space].stream+f1->sinc.tulip[f1->sinc.tulip[label].name].Address + leng * partit * spin + len[space]*f1->sinc.tulip[label].ptRank[spin] ;
+            return f1->sinc.rose[space].stream+f1->sinc.tulip[name(f1,label)].Address + leng * partit * spin + len[space]*f1->sinc.tulip[label].ptRank[spin] ;
         }
         else
-            return f1->sinc.rose[space].stream+f1->sinc.tulip[f1->sinc.tulip[label].name].Address + leng * partit * spin  ;
+            return f1->sinc.rose[space].stream+f1->sinc.tulip[name(f1,label)].Address + leng * partit * spin  ;
         
     }
     
@@ -513,7 +513,7 @@ Stream_Type* streams ( struct field * f1, enum division label ,INT_TYPE spin, IN
         
         if ( purpose(f1, label ) == ptObject ){
             INT_TYPE len[SPACE];
-            length(f1, f1->sinc.tulip[label].name, len);
+            length(f1, name(f1,label), len);
             
             ///        printf("%lld -%lld %lld %lld\n", label,name(f1,label),len[space],f1->sinc.tulip[label].ptRank[spin]);
             // / printf("%lld %lld\n", len[space]*part(f1,label), len[space]*f1->sinc.tulip[label].ptRank[spin]);
@@ -549,10 +549,10 @@ Stream_Type* streams ( struct field * f1, enum division label ,INT_TYPE spin, IN
             INT_TYPE len[SPACE];
             length(f1, name(f1, label), len);
             
-            return f1->sinc.rose[space].stream+f1->sinc.tulip[f1->sinc.tulip[label].name].Address + leng * partit * spin + len[space]*f1->sinc.tulip[label].ptRank[spin] ;
+            return f1->sinc.rose[space].stream+f1->sinc.tulip[name(f1,label)].Address + leng * partit * spin + len[space]*f1->sinc.tulip[label].ptRank[spin] ;
         }
         else
-            return f1->sinc.rose[space].stream+f1->sinc.tulip[f1->sinc.tulip[label].name].Address + leng * partit * spin  ;
+            return f1->sinc.rose[space].stream+f1->sinc.tulip[name(f1,label)].Address + leng * partit * spin  ;
         
     }
     
@@ -560,7 +560,7 @@ Stream_Type* streams ( struct field * f1, enum division label ,INT_TYPE spin, IN
         
         if ( purpose(f1, label ) == ptObject ){
             INT_TYPE len[SPACE];
-            length(f1, f1->sinc.tulip[label].name, len);
+            length(f1, name(f1,label), len);
             
             ///        printf("%lld -%lld %lld %lld\n", label,name(f1,label),len[space],f1->sinc.tulip[label].ptRank[spin]);
             // / printf("%lld %lld\n", len[space]*part(f1,label), len[space]*f1->sinc.tulip[label].ptRank[spin]);
@@ -590,16 +590,18 @@ enum division rivers(INT_TYPE rank, struct field * f1, enum division A, INT_TYPE
         if ( category == 0 ){
             f1->sinc.tulip[lanes+rank].ptRank[spin] = 0;
             f1->sinc.tulip[lanes+rank].Current[spin] = f1->sinc.tulip[name(f1,A)].stop[spin][category];
+#if VERBOSE
             //            if ( A != oneBody)
-            //     printf("%d %d r%d [%d %d] -- %d %d\n",name(f1,A),category,rank, f1->sinc.tulip[lanes+rank].ptRank[spin],f1->sinc.tulip[lanes+rank].Current[spin],f1->sinc.tulip[name(f1,A)].stop[spin][category],0);
-            
+            printf("%d %d r%d [%d %d] -- %d %d\n",name(f1,A),category,rank, f1->sinc.tulip[lanes+rank].ptRank[spin],f1->sinc.tulip[lanes+rank].Current[spin],f1->sinc.tulip[name(f1,A)].stop[spin][category],0);
+#endif
         }
         else{
             f1->sinc.tulip[lanes+rank].ptRank[spin] = f1->sinc.tulip[name(f1,A)].stop[spin][category-1];
             f1->sinc.tulip[lanes+rank].Current[spin] = f1->sinc.tulip[name(f1,A)].stop[spin][category]-f1->sinc.tulip[name(f1,A)].stop[spin][category-1];
+#if VERBOSE
             //            if ( A != oneBody)
-            //    printf("%d %d r%d [%d %d] -- %d %d\n",name(f1,A),category,rank, f1->sinc.tulip[lanes+rank].ptRank[spin],f1->sinc.tulip[lanes+rank].Current[spin],f1->sinc.tulip[name(f1,A)].stop[spin][category],f1->sinc.tulip[name(f1,A)].stop[spin][category-1]);
-            
+                printf("%d %d r%d [%d %d] -- %d %d\n",name(f1,A),category,rank, f1->sinc.tulip[lanes+rank].ptRank[spin],f1->sinc.tulip[lanes+rank].Current[spin],f1->sinc.tulip[name(f1,A)].stop[spin][category],f1->sinc.tulip[name(f1,A)].stop[spin][category-1]);
+#endif
         }
     
     return lanes+rank;

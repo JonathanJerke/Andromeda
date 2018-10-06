@@ -309,7 +309,7 @@ INT_TYPE tFilter(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division us
 #endif
     for ( ii = 0; ii < Ve ; ii++)
     {
-        
+        //printf("rank %d %d\n", ii+1,CanonicalRank(f1, usr+ii, 0) );
 #ifdef OMP
         rank = omp_get_thread_num();
 #else
@@ -345,7 +345,7 @@ INT_TYPE tFilter(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division us
 }
 
 INT_TYPE tSelect(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division usr, enum division usa, INT_TYPE testFlag){
-    INT_TYPE info,rank,maxEV = f1->mem1->rt->maxEV,stride = maxEV,n,m;;
+    INT_TYPE info,rank,maxEV = f1->sinc.maxEV,stride = maxEV,n,m;;
     double value;
     
     tClear(f1, usr+Ve);
@@ -443,7 +443,7 @@ INT_TYPE tCollect (struct field * f1, INT_TYPE type,enum division usz, INT_TYPE 
         printf("bod)");
         exit(0);
     }
-    if ( f1->body < four ){
+    if ( f1->body < four+1 ){
         
         INT_TYPE mmm[3];
         INT_TYPE *n1 = vectorLen(f1, eigen);
@@ -473,10 +473,12 @@ INT_TYPE tCollect (struct field * f1, INT_TYPE type,enum division usz, INT_TYPE 
                     // tAddUpComponents(0, f1, diagonalVectorA, 0, diagonalVectorA, 0, up);
                     //printf("Y%f\n", up[type]);
                     //if ( fabs(up[type]) > 1e-3 )
-                    {
-                        Ve += tSelect(f1, Ve, type, usz, diagonalVectorA, 1);
-                    }
-                   // printf("***%d %d\n",Ve,target);
+                    
+                    tEquals(f1, usz+Ve++, diagonalVectorA);
+                //    {
+                  //      Ve += tSelect(f1, Ve, type, usz, diagonalVectorA, 1);
+                   // }
+                   /// printf("***%d %d\n",Ve,target);
                     if ( Ve == target )
                         return Ve;
                 }
@@ -527,13 +529,15 @@ INT_TYPE tCollect (struct field * f1, INT_TYPE type,enum division usz, INT_TYPE 
                         tOuterProductSu(f1, diagonalVectorA, 0, diagonalVectorB, 0, copyVector, 0);
                         tOuterProductSu(f1, diagonalVectorA, 1, diagonalVectorB, 1, copyVector, 1);
                         
-                        for (c = -1 ; c +c0 <= c1 ; c++)
+//                        for (c = -1 ; c +c0 <= c1 ; c++)
                         {
                             // tAddUpComponents(0, f1, diagonalVectorA, 0, diagonalVectorA, 0, up);
                             //printf("Y%f\n", up[type]);
                             //if ( fabs(up[type]) > 1e-3 )
                             {
-                                Ve += tSelect(f1, Ve, type, usz, copyVector, 1);
+                                tEquals(f1, usz+Ve++, diagonalVectorA);
+
+                             //   Ve += tSelect(f1, Ve, type, usz, copyVector, 1);
                             }
                             // printf("***%d %d\n",Ve,target);
                             if ( Ve == target )
@@ -697,7 +701,7 @@ INT_TYPE tGreatDivideIteration ( struct field * f1, enum division A , INT_TYPE I
     INT_TYPE expon,info;
     INT_TYPE rank ,i;
     //time_t start_t, lapse_t;
-    double temp;
+    double temp,temp2, sum = 0;
     //time(&start_t);
     INT_TYPE iii = 0;
     assignCores(f1, 1);
@@ -705,7 +709,7 @@ INT_TYPE tGreatDivideIteration ( struct field * f1, enum division A , INT_TYPE I
     for( expon = 1 ; foundation*expon < nMult  ; expon++){
         
 #ifdef OMP
-#pragma omp parallel for private (iii,rank,temp) schedule(dynamic,1)
+#pragma omp parallel for private (iii,rank,temp,temp2) schedule(dynamic,1) reduction(+:sum)
 #endif
         for ( iii = 0; iii < foundation ; iii++)
         {
@@ -718,13 +722,15 @@ INT_TYPE tGreatDivideIteration ( struct field * f1, enum division A , INT_TYPE I
             
             
             {
-                
+                //printf("%d: %d %d %d %1.15f\n", rank,iii+1,part(f1,usz+(expon)*foundation+iii),part(f1,usz+(expon-1)*foundation+iii) ,f1->mem1->rt->vCANON);
                 tEquals(f1,usz+iii+expon*foundation,usz+(expon-1)*foundation+iii );
                 tHXpX(rank, f1, A, 0, 1.0, 0.0, usz+iii+expon*foundation, f1->mem1->rt->vCANON , part(f1,usz+(expon)*foundation+iii));
                 
                 temp = inner(rank, f1, usz+(expon)*foundation+iii, 0)+inner(rank, f1, usz+(expon)*foundation+iii, 1);
+                temp2 = temp- sqr( tMultiplyMP(rank, &info, f1, 1.0, -1, nullVector, 0, 'T', usz+(expon)*foundation+iii, 0, 'N', usz+(expon-1)*foundation+iii, 0) + tMultiplyMP(rank, &info, f1, 1.0, -1, nullVector, 0, 'T', usz+(expon)*foundation+iii, 1, 'N', usz+(expon-1)*foundation+iii, 1));
                 
-               // printf("%d(%d) -> %d(%d)::[%f]\n",(expon-1)*foundation+iii,part(f1,usz+(expon-1)*foundation+iii ), expon*foundation+iii,part(f1,usz+(expon)*foundation+iii ), temp- sqr( tMultiplyMP(rank, &info, f1, 1.0, -1, nullVector, 0, 'T', usz+(expon)*foundation+iii, 0, 'N', usz+(expon-1)*foundation+iii, 0) + tMultiplyMP(rank, &info, f1, 1.0, -1, nullVector, 0, 'T', usz+(expon)*foundation+iii, 1, 'N', usz+(expon-1)*foundation+iii, 1)) );
+               // printf("%d(%d) -> %d(%d)::[%f]\n",(expon-1)*foundation+iii,part(f1,usz+(expon-1)*foundation+iii ), expon*foundation+iii,part(f1,usz+(expon)*foundation+iii ),temp2  );
+                sum += temp2;
                 tScale(f1, usz+iii+expon*foundation, 1./sqrt(temp));
 
 //                if ( expon == 1 )
@@ -739,8 +745,10 @@ INT_TYPE tGreatDivideIteration ( struct field * f1, enum division A , INT_TYPE I
         }
     }
     
-    
-    return nMult;
+    if ( sum < nMult )
+        return 0;
+    else
+        return nMult;
 }
 
 INT_TYPE tEdges(struct calculation *c1){
@@ -765,7 +773,7 @@ INT_TYPE tEdges(struct calculation *c1){
                 bx = tv3;
             else if ( bootBodies == four )
                 bx = tv4;
-                printf("Edge%d:\t%d\t",jjj++,type);
+                printf("Edge%d:\t%d:%d:\t",jjj++,type,f1->sinc.N1);
             for ( b = tv1 ; b <= bx; b++){
                 printf("%d:\t",b+1);
                 
@@ -897,13 +905,13 @@ INT_TYPE tEdges(struct calculation *c1){
 
 
 
-INT_TYPE tEigenLoad (struct field * f1, enum division A ,INT_TYPE type,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE foundation, INT_TYPE flag,  enum division outputSpace, enum division outputValues){
+INT_TYPE tEigenLoad (struct field * f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE foundation, INT_TYPE flag,  enum division outputSpace, enum division outputValues){
     INT_TYPE gvOut,prevBuild;
     time_t start_t, lapse_t;
     time(&start_t);
     INT_TYPE countLam = 0,countTot = 0,cl;
     enum division Mat;
-    INT_TYPE cmpl,cmpl2,cmpl3,cat,iii = 0,maxEV = f1->mem1->rt->maxEV,rank;
+    INT_TYPE cmpl,cmpl2,cmpl3,cat,iii = 0,maxEV = f1->sinc.maxEV,rank;
     double * ritz = myStreams(f1, outputValues, 0);
     enum division el ;
     DCOMPLEX co ;
@@ -920,8 +928,11 @@ INT_TYPE tEigenLoad (struct field * f1, enum division A ,INT_TYPE type,  INT_TYP
     stride = maxEV;
     prevBuild = CanonicalRank(f1, matrixHbuild, 0);
     tClear  (f1, copyTwoVector);
-    for ( n = prevBuild; n < quantumBasisSize ; n++)
+    for ( n = 0; n < quantumBasisSize ; n++)
     {
+#if VERBOSE
+        printf("%d %f\n", usz+n,magnitude(f1, usz+n) );
+#endif
         tScale(f1, usz+n, 1./magnitude(f1, usz+n));
         H[n] = 1.;
     }
@@ -943,10 +954,10 @@ INT_TYPE tEigenLoad (struct field * f1, enum division A ,INT_TYPE type,  INT_TYP
 
                 for ( m = 0 ; m <= n   ; m++)    {
                     S[n*stride+m] =
-                    (tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, CDT, usz+m,0,'N', usz+n,0)
-                    +tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, CDT, usz+m,1,'N', usz+n,1)
-                    +I*tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, CDT, usz+m,1,'N', usz+n,0)
-                    -I*tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, CDT, usz+m,0,'N', usz+n,1)
+                    (tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, permutation, usz+m,0,'N', usz+n,0)
+                    +tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, permutation, usz+m,1,'N', usz+n,1)
+                    +I*tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, permutation, usz+m,1,'N', usz+n,0)
+                    -I*tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, permutation, usz+m,0,'N', usz+n,1)
                      )/H[n]/H[m];
 
                     S[m*stride+n] = conj(S[n*stride+m]);
@@ -991,9 +1002,10 @@ INT_TYPE tEigenLoad (struct field * f1, enum division A ,INT_TYPE type,  INT_TYP
                                         co *= I;
                                     if ( cmpl2 )
                                         co *= I;
-
+#if VERBOSE
                                     printf("%d-%d-%d\t%d\t%d\t%d \t %d\n",name(f1,Mat),cmpl,cmpl2, bodies(f1, Mat),f1->sinc.tulip[Mat].blockType,CanonicalRank(f1, name(f1,Mat), cmpl), cat );
                                     fflush(stdout);
+#endif
     #ifdef OMP
     #pragma omp parallel for private (m,rank,n) schedule(dynamic,1)
     #endif
@@ -1006,8 +1018,7 @@ INT_TYPE tEigenLoad (struct field * f1, enum division A ,INT_TYPE type,  INT_TYP
                                         rank = 0;
 #endif
                                         for ( m = 0 ; m <=n   ; m++){
-                                            (T+maxEV*maxEV)[n*stride+m] = matrixElements(rank, f1, usz+m, 0, 'N', Mat, cmpl, usz+n, cmpl2);
-                                            (T+maxEV*maxEV)[n*stride+m] += -I*matrixElements(rank, f1, usz+m, 1, 'N', Mat, cmpl, usz+n, cmpl2);
+                                            (T+maxEV*maxEV)[n*stride+m] = matrixElements(rank, f1, permutation,usz+m, 'N', Mat, cmpl, usz+n, cmpl2);
                                             (T+maxEV*maxEV)[n*stride+m] *= co/H[m]/H[n];
                                         }
                                         
@@ -1077,21 +1088,28 @@ INT_TYPE tEigenLoad (struct field * f1, enum division A ,INT_TYPE type,  INT_TYP
 
         tzheev(0, f1, 'N', quantumBasisSize, S+maxEV*maxEV, stride, ritz);
         
-        if ( 1e-13 < ritz[quantumBasisSize-1]/ritz[0] && ritz[quantumBasisSize-1]/ritz[0] < 1e13 )
+        if ( 1e-13 < ritz[quantumBasisSize-1]/ritz[0] && ritz[quantumBasisSize-1]/ritz[0] < 1./f1->mem1->rt->TARGET )
             printf("Condition Krylov \t %f \n",  ritz[quantumBasisSize-1]/ritz[0]);
         else {
-            printf("Linear dependent!\n");
+            printf("Linear dependent! %f\t%f\n",ritz[quantumBasisSize-1],ritz[0]);
             return -1;
         }
         
         cblas_zcopy(maxEV*maxEV , S , 1 , S+maxEV*maxEV , 1);
         gvOut = tzhegv (0,f1,Job,quantumBasisSize,T+maxEV*maxEV,S+maxEV*maxEV,stride,ritz);
+        printf("eigenSolved\n");
+        fflush(stdout);
         assignCores(f1, 1);
-
+#ifdef OMP
+#pragma omp parallel for private (iii) schedule(dynamic,1)
+#endif
         for ( iii = 0; iii < maxEV*maxEV ; iii++){
             vectors[0][iii] = creal((T+maxEV*maxEV)[iii]);
             vectors[1][iii] = cimag((T+maxEV*maxEV)[iii]);
         }
+//        printf("copied\n");
+//        fflush(stdout);
+
     }
     
     time(&lapse_t);
@@ -1108,7 +1126,7 @@ INT_TYPE tEigenLoad (struct field * f1, enum division A ,INT_TYPE type,  INT_TYP
         fflush(stdout);
     }
     if (flag > 1 ){
-        double norms;
+        double norms,*pointers[MaxCore];
         if (1){
             f1->sinc.tulip[eigenList].name = usz;
             f1->sinc.tulip[eigenList].purpose = ptObject;
@@ -1127,7 +1145,8 @@ INT_TYPE tEigenLoad (struct field * f1, enum division A ,INT_TYPE type,  INT_TYP
                 for ( powerMat = 1 ; powerMat <= 1 ; powerMat++){
                     
                     el = outputSpace + (powerMat-1)*Ne;
-                    
+//                    printf("begin\n");
+//                    fflush(stdout);
 #ifdef OMP
 #pragma omp parallel for private (iii,rank,rr,g,r,cmpl2,norms) schedule(dynamic,1)
 #endif
@@ -1139,21 +1158,22 @@ INT_TYPE tEigenLoad (struct field * f1, enum division A ,INT_TYPE type,  INT_TYP
 #else
                         rank = 0;
 #endif
-                        
+                        pointers[rank] = myStreams(f1, canonicalBuffersC, rank);
+
                         rr = 0;
                         norms = 0.;
                         for( g = 0; g < quantumBasisSize ; g++){
                             for ( cmpl2 = 0; cmpl2 < spins(f1, usz+g) ; cmpl2++)
                                 for ( r = 0; r < part(f1, usz+g); r++){
                                     if (  r >= CanonicalRank(f1, usz+g, cmpl2)){
-                                        myStreams(f1, canonicalBuffersC, rank)[rr++] = 0.0;
+                                        pointers[rank][rr++] = 0.0;
                                     }else{
                                         if( cmpl2 == cmpl ){
                                             norms += sqr((vectors[cmpl]+(iii)*stride)[g]);
-                                            myStreams(f1, canonicalBuffersC, rank)[rr++] = (vectors[cmpl]+(iii)*stride)[g];
+                                            pointers[rank][rr++] = (vectors[cmpl]+(iii)*stride)[g];
                                         }
                                         else
-                                            myStreams(f1, canonicalBuffersC, rank)[rr++] = 0.0;//mask off other *SPIN*( or complex vector).
+                                            pointers[rank][rr++] = 0.0;//mask off other *SPIN*( or complex vector).
                                     }
                                 //    printf("%d %d %d %f\n", usz+g,cmpl2,r,myStreams(f1, canonicalBuffersC, rank)[rr-1] );
                                 }
@@ -1163,9 +1183,9 @@ INT_TYPE tEigenLoad (struct field * f1, enum division A ,INT_TYPE type,  INT_TYP
                             printf("crap!\n %lld %lld",rr , part(f1, canonicalBuffersC));
                             exit(0);
                         }
-                        f1->sinc.tulip[el+iii].Current[cmpl] = 0;
+                        //f1->sinc.tulip[el+iii].Current[cmpl] = 0;
                      //   printf("\n%d %d %d %d\n", iii+1, cmpl, rr,CanonicalRank(f1, eigenList,0));
-                        tCycleDecompostionListOneMP(rank,f1, eigenList, myStreams(f1, canonicalBuffersC,rank), el+iii, cmpl, f1->mem1->rt->vCANON, part(f1, el+iii), 1.);
+                        tCycleDecompostionListOneMP(rank,f1, eigenList, pointers[rank], el+iii, cmpl, f1->mem1->rt->vCANON, part(f1, el+iii), 1.);
                         
                        // printf("%d -> %f (%f)\n", iii+1, norms,H[iii]);
                     }

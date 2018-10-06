@@ -104,28 +104,41 @@ struct calculation initCal (void ) {
     i.rt.runFlag = 0;
     i.i.bRank = 5;
     i.i.vectorMomentum = 0.;
-    i.i.decomposeRankMatrix = 1;
+    i.i.decomposeRankMatrix = 3;
+    i.i.iGroup = 1;
     i.i.iRank = 1;
     i.i.qFloor = 0;
     i.i.Angstroms = 0;
-    i.i.cycles = 64;
+    i.i.cycles = 1;
+    i.i.Iterations = 1;
     i.rt.printFlag = 0;
     i.i.heliumFlag = 1;
     i.i.body = 1;
     i.i.iCharge = i.i.body;
-    i.p.iCondition = 5;
-    i.p.iTolerance = 1;
-    i.p.iThreshold = 2;
-    i.p.iTarget = 5;
-    i.p.iConvergence = 1;
-    i.p.iEntropy = 1;
-    i.p.vectorThreshold = 1;
-    i.p.vectorConvergence = 1;
+    
+    i.rt.TARGET = 1e-3;
+    i.rt.ALPHA = 1e-6;
+    i.rt.CANON = 1e-7;
+    i.rt.vCANON = 1e-6;
+    i.rt.TOL = 1e-6;
+    i.rt.CONVERGENCE = 1e-6;
+    i.rt.vCONVERGENCE = 1e-6;
+    i.rt.maxEntropy = 1e-6;
+    
+    
+//    i.p.iCondition = 5;
+//    i.p.iTolerance = 1;
+//    i.p.iThreshold = 2;
+//    i.p.iTarget = 5;
+//    i.p.iConvergence = 1;
+//    i.p.iEntropy = 1;
+//    i.p.vectorThreshold = 1;
+//    i.p.vectorConvergence = 1;
     
     i.i.sectors = 0;
     i.i.d = 1;
-    i.i.epi = 12;
-    i.i.M1 = 25;
+    i.i.epi = 4;
+    i.i.M1 = 4;
     resetExternal(&i, 1, 2.);
     
     for( space = 0 ; space <= SPACE ; space++){
@@ -272,7 +285,7 @@ INT_TYPE iModel( struct calculation * c1){
         EV = FV;
         
         maxEV = EV*(imax(c1->i.Iterations,1));//slip Nb into spectra...
-        f1->mem1->rt->maxEV = maxEV;
+        f1->sinc.maxEV = maxEV;
         enum division end  = eigenVectors +  c1->i.nStates+maxEV;
         f1->sinc.end = end;
         f1->sinc.tulip = malloc ( (end+1) * sizeof(struct name_label));
@@ -302,17 +315,28 @@ INT_TYPE iModel( struct calculation * c1){
             }
         }
         
-        {
-            f1->mem1->rt->TARGET = pow(0.1,c1->p.iTarget);
-            f1->mem1->rt->CANON = f1->mem1->rt->TARGET*pow(0.1,c1->p.iThreshold);
-            //f1->mem1->rt->BUILD = pow(0.1,c1->p.iBuild);
-            f1->mem1->rt->vCANON =  f1->mem1->rt->TARGET*pow(0.1,c1->p.vectorThreshold);
-            f1->mem1->rt->ALPHA =  f1->mem1->rt->TARGET*pow(0.1,c1->p.iCondition);
-            f1->mem1->rt->CONVERGENCE =  f1->mem1->rt->TARGET*pow(0.1,c1->p.iConvergence);
-            f1->mem1->rt->vCONVERGENCE =  f1->mem1->rt->TARGET*pow(0.1,c1->p.vectorConvergence);
+        if(0){
+            printf("TARGET %f\n", log(c1->rt.TARGET)/log(10));
+            printf("TOL %f\n", log(c1->rt.TOL)/log(10));
+            printf("CANON %f\n", log(c1->rt.CANON)/log(10));
+            printf("vCANON %f\n", log(c1->rt.vCANON)/log(10));
+            printf("CONVERGENCE %f\n", log(c1->rt.CONVERGENCE )/log(10));
+            printf("vCONVERGENCE %f\n", log(c1->rt.vCONVERGENCE )/log(10));
+            printf("ALPHA %f\n", log(c1->rt.ALPHA )/log(10));
+
             
-            f1->mem1->rt->TOL = pow(0.1, c1->p.iTolerance);
-            f1->mem1->rt->maxEntropy = pow(0.1, c1->p.iEntropy);
+            
+            
+          //  f1->mem1->rt->TARGET = pow(0.1,c1->p.iTarget);
+           // f1->mem1->rt->CANON = f1->mem1->rt->TARGET*pow(0.1,c1->p.iThreshold);
+            //f1->mem1->rt->BUILD = pow(0.1,c1->p.iBuild);
+          //  f1->mem1->rt->vCANON =  f1->mem1->rt->TARGET*pow(0.1,c1->p.vectorThreshold);
+          //  f1->mem1->rt->ALPHA =  f1->mem1->rt->TARGET*pow(0.1,c1->p.iCondition);
+          //  f1->mem1->rt->CONVERGENCE =  f1->mem1->rt->TARGET*pow(0.1,c1->p.iConvergence);
+           // f1->mem1->rt->vCONVERGENCE =  f1->mem1->rt->TARGET*pow(0.1,c1->p.vectorConvergence);
+            
+            //f1->mem1->rt->TOL = pow(0.1, c1->p.iTolerance);
+            //f1->mem1->rt->maxEntropy = pow(0.1, c1->p.iEntropy);
 
         }
         
@@ -367,12 +391,12 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[build].spinor = none;
             f1->sinc.tulip[build].Address = fromBegining(f1,overlap);
             
-            enum body runBodies = two;
-            if ( bootBodies == one ){
-                runBodies = one;
-            }else if ( bootBodies == three){
-                runBodies = three;
-            }
+            enum body runBodies = bootBodies;
+//            if ( bootBodies == one ){
+//                runBodies = one;
+//            }else if ( bootBodies == three){
+//                runBodies = three;
+//            }
             
             f1->sinc.tulip[build].Partition = c1->i.sectors*runBodies*((part(f1, kinetic)+part(f1, harmonium)) + matrixNumber * f1->Na);//easily reduce in cheaper ways!
             if ( runBodies == two )
@@ -939,7 +963,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[trainMatrix3].name = trainMatrix3;
         
         f1->sinc.tulip[trainMatrix4].Address = fromBegining(f1,trainMatrix3);
-        f1->sinc.tulip[trainMatrix4].Partition = 0;
+        f1->sinc.tulip[trainMatrix4].Partition = (bootBodies == four ) *maxVector*c1->i.sectors;
         f1->sinc.tulip[trainMatrix4].parallel = 0;
         f1->sinc.tulip[trainMatrix4].species = matrix;
         f1->sinc.tulip[trainMatrix4].NBody = four;
@@ -1145,9 +1169,9 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[canonicalBuffersBM].spinor = none;
         f1->sinc.tulip[canonicalBuffersBM].parallel = 0;
         f1->sinc.tulip[canonicalBuffersBM].myAddress = fromMyBegining(f1,canonicalBuffersBX);
-        f1->sinc.tulip[canonicalBuffersBM].Partition = bootBodies > one;
-        if ( bootBodies == four )
-            f1->sinc.tulip[canonicalBuffersBM].NBody = two;
+        f1->sinc.tulip[canonicalBuffersBM].Partition = 1;
+//        if ( bootBodies == four )
+//            f1->sinc.tulip[canonicalBuffersBM].NBody = two;
         f1->sinc.tulip[canonicalBuffersBM].species = matrix;
         f1->sinc.tulip[canonicalBuffersBM].memory = oneObject;
         f1->sinc.tulip[canonicalBuffersBM].name = canonicalBuffersBM;

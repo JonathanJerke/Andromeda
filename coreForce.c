@@ -186,6 +186,7 @@ void gaussianSincFunc(void * arg,size_t n,const double * x,double * y)
     for ( i=0;i<n;i++)
     {
         y[i] = gaussianSinc(x[i],af);
+       // printf("%d %f %f\n", i, x[i],y[i]);
     }
     
 }
@@ -225,11 +226,10 @@ double collective( double beta ,struct general_2index * pa){
         
         options.abs_tolerance = 1.0e-9;                    // Requested absolute tolerance on result
         options.max_intervals = 20;                        // Max number of intervals
-        //options.qag_points_per_interval = 25;
+        options.qag_points_per_interval = 25;
         quadrature_status status;
         double value,abs_error;
         value =  quadrature_integrate(&g, -2.*pi/pa->d, 2.*pi/pa->d, &options, &status, &abs_error, 0, NULL);
-        
 #else
         double abs_error;
         gsl_function F;
@@ -319,11 +319,12 @@ double elementCal (double a, double b,struct general_2index * aAf ){
     gsl_integration_workspace * workspace= gsl_integration_workspace_alloc (1000);
 
     if ( b < a)
-        gsl_integration_qagiu(&F, 0, 1e-8, 1e-8,1000,workspace, &value, &abs_error);
+        gsl_integration_qagiu(&F, a, 1e-8, 1e-8,1000,workspace, &value, &abs_error);
     else
         gsl_integration_qag (&F,  a,  b, 1e-8, 1e-8,1000,4,workspace, &value, &abs_error);
     gsl_integration_workspace_free(workspace);
 
+    
 #endif
     return value*(2*pi);
 
@@ -373,6 +374,19 @@ void mySeparateExactOne (struct field * f1, double scalar, enum division basis){
 
 void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  enum division basis){
     //https://keisan.casio.com/exec/system/1329114617
+    
+    double gk3X [] = {
+    -0.7745966692414833770359,
+    0,
+    0.7745966692414833770359
+    };
+    
+    double gk3W [] = {
+    0.5555555555555555555556,
+    0.8888888888888888888889,
+    0.555555555555555555556
+    };
+    
     double gk7X [] = {
         0.949107912342759
         ,0.741531185599394
@@ -391,7 +405,36 @@ void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  e
         ,0.381830050505119
         ,0.279705391489277
         ,0.129484966168870};
-
+    
+    
+    double gk10X[] = {
+        -0.9840853600948424644962,
+        -0.9061798459386639927976,
+        -0.7541667265708492204408,
+        -0.5384693101056830910363,
+        -0.2796304131617831934135,
+        0,
+        0.2796304131617831934135,
+        0.5384693101056830910363,
+        0.7541667265708492204408,
+        0.9061798459386639927976
+    };
+    
+    double gk10W[]= {
+        0.04258203675108183286451,
+        0.1152333166224733940246,
+        0.186800796556492657468,
+        0.2410403392286475866999,
+        0.272849801912558922341,
+        0.2829874178574912132043,
+        0.272849801912558922341,
+        0.2410403392286475866999,
+        0.1868007965564926574678,
+        0.1152333166224733940246
+    };
+    
+    
+    
     
     double gk15X [] = {
         0.991455371120813
@@ -855,7 +898,8 @@ void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  e
                 tAddTw(f1, interactionExchange, 0,quadCube,0);
             }
         }
-    //printf("RMS %15.15f @ %d\n", tRMSDevRandom( f1, interactionExchange, periodic ,10000),10000);
+//    printf("RMS %15.15f @ %d %d\n", tRMSDevRandom( f1, interactionExchange, periodic ,10000),10000,CanonicalRank(f1, interactionExchange, 0));
+//    exit(0);
 }
 
 INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis ){
@@ -1359,7 +1403,9 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
                 }
                 
                 f1->sinc.tulip[linear].stop[0][a] = CanonicalRank(f1, linear,0);
-                
+#if VERBOSE
+            printf("stop %d %d\n", a, f1->sinc.tulip[linear].stop[0][a]);
+#endif
             }
     }
     f1->sinc.tulip[linear].stop[0][f1->Na+1] = CanonicalRank(f1, linear,0);
@@ -1551,10 +1597,9 @@ double tTestTwoBody( struct field * f1, enum division mat,INT_TYPE periodic, INT
     for ( r = 0; r < CanonicalRank(f1, mat, 0 );r++){
         product = 1;
         for ( space = 0 ; space < SPACE ; space++)
-            product *= myStreams(f1, mat, 0)[p[4*space] + N1*p[4*space+1]+ N1*N1*p[4*space+2]+N1*N1*N1*p[4*space+3]];
+            product *= streams(f1, mat, 0,space)[p[4*space] + N1*p[4*space+1]+ N1*N1*p[4*space+2]+N1*N1*N1*p[4*space+3]+r*N1*N1*N1*N1];
         sum += product;
     }
-    
     INT_TYPE i ;
     struct general_2index g3[3];
     for ( i = 0; i < 3; i++){
@@ -1563,6 +1608,8 @@ double tTestTwoBody( struct field * f1, enum division mat,INT_TYPE periodic, INT
         g3[i].i[0].m = p[i*4+2];
         g3[i].i[1].n = p[i*4+1];
         g3[i].i[1].m = p[i*4+3];
+        g3[i].fl = & f1->twoBody.func;
+
         if ( i == 0 )
             g3[i].periodic = ( periodic ) % 2;
         else if ( i == 1 )
@@ -1577,8 +1624,16 @@ double tTestTwoBody( struct field * f1, enum division mat,INT_TYPE periodic, INT
         g3[i].body = 2;
         g3[i].N1 = N1;
     }
-  //  printf("%1.15f \t %1.15f\n", sum, elementCal(0, -1, g3));
-    return sum - elementCal(0, -1, g3);
+   // printf("%1.15f \t %1.15f\n", sum, elementCal(1e-3,-1, g3));
+    {
+        double value;
+        value = sum - elementCal(1e-3,-1, g3);
+        if ( isnan(value)){
+            printf(".");
+            return 0.;
+        } else
+            return sqr(value);
+    }
 }
 
 double tRMSDevRandom( struct field * f1, enum division mat, INT_TYPE periodic ,INT_TYPE Nc){

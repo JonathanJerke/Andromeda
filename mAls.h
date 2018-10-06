@@ -29,16 +29,17 @@
 #include "coreUtil.h"
 #include "coreMath.h"
 #include "interfaceMath.h"
+double tLanczosConvergence (struct field * f1 ,enum division Ha, enum division Vec, enum division usr);
 double tCycleMultiplyMP ( INT_TYPE rank,struct field * f1 , char mc,enum division mat,INT_TYPE ms, enum division vec, INT_TYPE vs,   enum division alloy ,  INT_TYPE spin ,double tolerance, INT_TYPE maxRun, double power);
 double tInnerVectorListMP( INT_TYPE rank, struct field * f1 , enum division origin, double * coeff, enum division vector,INT_TYPE spin );
 double tInnerListMP( INT_TYPE rank, struct field * f1 , enum division origin, double * coeff );
-double matrixElements ( INT_TYPE rank,struct field * f1 , enum division uec,INT_TYPE us, char mc, enum division mat,INT_TYPE ms, enum division vec,INT_TYPE vs);
+DCOMPLEX matrixElements ( INT_TYPE rank,struct field * f1 ,char perm, enum division uec, char mc, enum division mat,INT_TYPE ms, enum division vec,INT_TYPE vs);
 double canonicalMultiplyMP( INT_TYPE rank,struct field * f1 , char mc,enum division mat,INT_TYPE ms, enum division vec, INT_TYPE vs,   enum division alloy ,  INT_TYPE spin ,double tolerance);
 INT_TYPE normalize (struct field * f1,  enum division alloy, INT_TYPE spin, INT_TYPE space);
 INT_TYPE spread (struct field * f1, enum division origin, INT_TYPE os, enum division alloy, INT_TYPE spin, INT_TYPE space, Stream_Type * output,Stream_Type * output2);
 INT_TYPE balance (struct field * f1,  enum division alloy, INT_TYPE spin);
 double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division origin,INT_TYPE os,   enum division alloy ,  INT_TYPE spin ,double tolerance);
-double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Type * cofact, enum division origin,INT_TYPE os,   enum division alloy ,  INT_TYPE spin ,double tolerance);
+double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Type * cofact, enum division origin,INT_TYPE os,   enum division alloy ,  INT_TYPE spin ,double tolerance,double magn);
 double tCycleDecompostionOneMP ( INT_TYPE rank, struct field * f1 , enum division origin, INT_TYPE os, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  );
 double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum division origin, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  );
 INT_TYPE tOuterProductSu( struct field * f1,enum division vector , INT_TYPE a, enum division vector2,INT_TYPE b, enum division proj, INT_TYPE c);
@@ -51,4 +52,6 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
 double positioningElectrons2 (INT_TYPE rank, struct field * f1 , enum division oneVector, enum division wavefunction,double x1, double y1, double z1, double x2, double y2, double z2);
 INT_TYPE ready ( struct calculation * c );
 INT_TYPE tConstructDensity(struct calculation * calc , INT_TYPE ct );
+INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, INT_TYPE UR, struct calculation * calc2, enum division usz, INT_TYPE UZ ,INT_TYPE mx);
+
 #endif /* mAls_h */

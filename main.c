@@ -45,6 +45,8 @@ struct calculation bootShell (INT_TYPE argc , char * argv[]){
     char str[MAXSTRING];
     initCalculation(&c1);
     broke = readInput(&c1,in );
+    if ( broke )
+        exit(1);
     finalizeInit(&c1);
 #else
     struct calculation c1 =initCal();
@@ -58,14 +60,13 @@ INT_TYPE exec (struct calculation *c ){
     struct calculation *c1 = malloc(sizeof(struct calculation));
     *c1 = *c;
     
-    INT_TYPE a;
+    INT_TYPE a,plusSize,nStatesTrans=0;
     FILE * out = stdout;
     struct runTime * rt = & c1->rt;
 
     struct field *f1 = &(c1->i.c);
     if ( c1->i.iCharge > 0 )
         f1->Ne = c1->i.iCharge;
-
     
     
     
@@ -130,8 +131,6 @@ INT_TYPE exec (struct calculation *c ){
     fflush(stdout);
 
 #endif
-    f1->twoBody.num = c1->i.canonRank;
-    f1->oneBody.num = c1->i.canonRank;
     
     if ( !(!c1->rt.printFlag)){
         
@@ -164,10 +163,12 @@ INT_TYPE exec (struct calculation *c ){
         INT_TYPE RdsSize = 0,space;
         enum division usz;
         if ( c1->i.sectors ){
+            c1->i.Iterations = 1;
+            c1->rt.maxEntropy = 10;
             iModel(c1);
             tNBodyConstruction ( c1, build,  eigen);
             usz = eigenVectors+c1->i.nStates;
-            if ( tCollect(f1,c1->i.type,usz,c1->i.qFloor) != c1->i.qFloor ){
+            if ( tCollect(f1,0,usz,c1->i.qFloor) != c1->i.qFloor ){
                 printf("could not muster \n");
                 exit(0);
             }
@@ -183,70 +184,56 @@ INT_TYPE exec (struct calculation *c ){
             }
 #endif
             usz = eigenVectors+c1->i.nStates;
-            EV = xConstructFoundation (c1 , usz, c1->i.qFloor, c1,   eigenVectors,   c1->i.nStates ,c1->i.iRank);
+            EV = xConstructFoundation (c1 , usz, c1->i.qFloor, c1,   eigenVectors,   c1->i.nStates ,c1->i.iGroup);
         }
         RdsSize = EV;
-
-        for ( iteration = 1 ; iteration < c1->i.Iterations; iteration++){
-            if ( ! RdsSize ){
-                printf("lost my marbles!\n");
-                exit(0);
-            }
-            RdsSize += tGreatDivideIteration(f1,Ha, 1,0,usz+RdsSize-EV,EV,2*EV,0.0)-EV;
-            tFilter(f1,EV, c1->i.type,usz+RdsSize-EV);
-            while (tEigenLoad(&c1->i.c,Ha,c1->i.type, c1->i.nStates, usz,RdsSize,EV, 0,eigenVectors,twoBodyRitz)){
-                INT_TYPE i,cmpl,mini = 999;
-                for ( i = 0 ; i < EV ; i++){
-                    for ( cmpl = 0; cmpl < 2 ;cmpl++)
-                        if(f1->sinc.tulip[usz+RdsSize-EV+i].Current[cmpl]){
-                            f1->sinc.tulip[usz+RdsSize-EV+i].Current[cmpl]--;
-                        }
-                    mini = imin(mini,CanonicalRank(f1, usz+RdsSize-EV+i, 0)+CanonicalRank(f1, usz+RdsSize-EV+i, 1));
-                }
-                if ( ! mini ){
-                    iteration = c1->i.Iterations;
-                    RdsSize -= EV;
-                    break;
-                }
-            }
-            {
-                fprintf(out , " lattice\t%1.3f\t%d\t-Box\t body \t%d\n", c1->i.d,2*c1->i.epi+1, c1->i.body);
-                
-                INT_TYPE ii = 0,iii;
-                for ( iii = 0; iii < imin(RdsSize,c1->i.nStates) ; iii++)
-                {
-                    if (1 ){
-                        printf("Condition%d:%d:,%d ,%1.15f\n", ii+1, f1->sinc.N1,ii+1,f1->sinc.tulip[eigenVectors+iii].value);
-                        ii++;
-                    }
-                }
-                fflush(stdout);
-            }
+        if ( tEigenLoad(&c1->i.c,Ha,'T', c1->i.nStates, usz,RdsSize,EV, 2,eigenVectors,twoBodyRitz))
+        {
+            printf("ld\n");
+            exit(0);
         }
-        tEigenLoad(&c1->i.c,Ha,c1->i.type, c1->i.nStates, usz,RdsSize,EV, 2,eigenVectors,twoBodyRitz);
         {
             fprintf(out , " lattice\t%1.3f\t%d\t-Box\t body \t%d\n", c1->i.d,2*c1->i.epi+1, c1->i.body);
 
             INT_TYPE ii = 0,iii,type;
             for ( type = 1 ; type <= 24 ; type++){
                 ii= 0;
-            for ( iii = 0; iii < imin(RdsSize,c1->i.nStates) ; iii++)
-            {
-                if (f1->sinc.tulip[eigenVectors+iii].symmetry == type && (! c1->i.type || type == c1->i.type) ){
-                    printf("State%d:%d:,%d ,%1.15f, %d, %d , %1.1f\n", ii+1, f1->sinc.N1,ii+1,f1->sinc.tulip[eigenVectors+iii].value,bodies(f1,eigenVectors+iii),type, deg(f1, type));
-                    ii++;
+                for ( iii = 0; iii < imin(RdsSize,c1->i.nStates) ; iii++)
+                {
+                    if (f1->sinc.tulip[eigenVectors+iii].symmetry == type && (! c1->i.type || type == c1->i.type) ){
+                        printf("Foundation%d:%d:,%d ,%1.15f, %d, %d , %1.1f\n", ii+1, f1->sinc.N1,ii+1,f1->sinc.tulip[eigenVectors+iii].value,bodies(f1,eigenVectors+iii),f1->sinc.tulip[eigenVectors+iii].symmetry, deg(f1, f1->sinc.tulip[eigenVectors+iii].symmetry));
+                        ii++;
+                        if ( ii-1 <= c->i.nTargets)
+                            nStatesTrans = iii;
+                    }
                 }
-            }}
-            
+            }
+        }
             tEdges(c1);
             fflush(stdout);
-        }
+        
         c1->i.sectors = 0;
+        
         for ( cycle = 0; cycle < c1->i.cycles ; cycle++)
         {
 
             struct calculation *c2 = malloc(sizeof(struct calculation ));
             *c2 = *c1;
+            c2->i.Iterations = c->i.Iterations;
+            c2->rt.maxEntropy = c->rt.maxEntropy;
+            c2->i.heliumFlag = c->i.nTargets;
+            c2->i.nStates = c->i.nTargets;
+
+            if ( cycle ){
+                c2->i.iGroup = c->i.iGroup;
+            }
+            else{
+                c1->i.nStates = nStatesTrans;
+                c2->i.iGroup = 1;
+            }
+            c2->i.bRank ;
+
+            
             c2->i.c.mem1->bootedMemory =0;
             c2->i.c.sinc.tulip = NULL;
             for ( space = 0; space <= SPACE ; space++)
@@ -260,35 +247,101 @@ INT_TYPE exec (struct calculation *c ){
                 c2->i.vectorMomentum *= (c1->i.d* (2.* c1->i.epi + 1.) )/(c1->i.d*(2.*c2->i.epi + 1. ));
 
             }
-            c2->i.iRank = c1->i.bRank;//ADDED
-            c2->i.bRank += 1;
-            {
-                c2->i.qFloor = 0;
-                   for ( i = 0 ; i < imin(RdsSize,c1->i.nStates) ; i++)
-                       if ( f1->sinc.tulip[eigenVectors+i].symmetry == c1->i.type|| ! c1->i.type){
-                           c2->i.qFloor++;
-                       }
-            }
-            fprintf(out , " lattice\t%1.3f\t%d\t-Box\t body \t%d\n", c2->i.d,2*c2->i.epi+1, c2->i.body);
-            fflush(out);
+            do {
+                
+                
 
-            iModel(c2);
-            enum division usz = eigenVectors+c2->i.nStates;
-            EV = xConstructFoundation (c2 , usz, c2->i.qFloor, c1,   eigenVectors,   c1->i.nStates ,c2->i.iRank);
+                
+                c2->i.qFloor =  xConstructFoundation (c2 , 0, 0,            c1,eigenVectors,c1->i.nStates ,c2->i.iGroup);
+                c2->i.iRank =  imax(1,xConstructFoundation (c2 , 0, -1,            c1,eigenVectors,c1->i.nStates ,c2->i.iGroup));
+                printf("%d -> %d :%d,%d\n",c1->i.nStates,c2->i.qFloor,c2->i.nStates , c2->i.iRank);
+                fprintf(out , " lattice\t%1.3f\t%d\t-Box\t body \t%d\n", c2->i.d,2*c2->i.epi+1, c2->i.body);
+                fflush(out);
+                iModel(c2);
+                usz = eigenVectors+c2->i.nStates;
+                printf("usz %d\n", usz);
+                EV =            xConstructFoundation (c2 , usz, c2->i.qFloor, c1,eigenVectors,c1->i.nStates ,c2->i.iGroup);
+                RdsSize= EV;
+
+                if ( EV ){
+                    printf("EV %d %d\n", EV,usz);
+                    //HERE
+                    while (tEigenLoad(&c2->i.c,Ha,'T', c2->i.nStates, usz,RdsSize,EV, 0,eigenVectors,twoBodyRitz)){
+                        INT_TYPE i,cmpl,mini = 999;
+                        for ( i = 0 ; i < EV ; i++){
+                            printf("%d %d %d %f\n", i, CanonicalRank(f1, usz+RdsSize-EV+i, 0), CanonicalRank(f1, usz+RdsSize-EV+i, 1),magnitude(f1, usz+RdsSize-EV+i));
+                            for ( cmpl = 0; cmpl < 2 ;cmpl++)
+                                if(c2->i.c.sinc.tulip[usz+RdsSize-EV+i].Current[cmpl]){
+                                    c2->i.c.sinc.tulip[usz+RdsSize-EV+i].Current[cmpl]--;
+                                }
+                            mini = imin(mini,CanonicalRank(&c2->i.c, usz+RdsSize-EV+i, 0)+CanonicalRank(&c2->i.c, usz+RdsSize-EV+i, 1));
+                        }
+                        if ( ! mini ){
+                            RdsSize -= EV;
+                            break;
+                        }
+                    }
+                }
+                if ( ! RdsSize ){
+                    fModel(c2);
+                    c2->i.iGroup = imax(1, c2->i.iGroup-1);
+                    printf("group %d\n",c2->i.iGroup);
+                }
+            } while (! RdsSize);
+
+            {
+                INT_TYPE ii = 0,iii,type;
+                for ( type = 1 ; type <= 24 ; type++){
+                    for ( iii = 0; iii < c1->i.nStates ; iii++)
+                    {
+                        if (f1->sinc.tulip[eigenVectors+iii].symmetry == type && (! c1->i.type || type == c1->i.type) ){
+                            xEqua(&c2->i.c, eigenVectors+ii, 0, &c1->i.c, eigenVectors+iii, 0);
+                            xEqua(&c2->i.c, eigenVectors+ii, 1, &c1->i.c, eigenVectors+iii, 1);
+                            ii++;
+                        }
+                    }
+                }
+            }
+            
+            
+            
+            
             fModel(c1);
             free(c1);
             c1 = c2;
             f1 = &c1->i.c;
             
+                //HERE
+                {
+                    fprintf(out , " lattice\t%1.3f\t%d\t-Box\t body \t%d\n", c1->i.d,2*c1->i.epi+1, c1->i.body);
+                    
+                    INT_TYPE ii = 0,iii;
+                    for ( iii = 0; iii < imin(RdsSize,c1->i.nStates) ; iii++)
+                    {
+                        if (1 ){
+                            printf("Condition%d:%d:,%lld ,%1.15f\n", ii+1, f1->sinc.N1,ii+1,f1->sinc.tulip[eigenVectors+iii].value);
+                            ii++;
+                        }
+                    }
+                    fflush(stdout);
+                }
             
-            RdsSize= EV;
+            
             for ( iteration = 1 ; iteration < c1->i.Iterations; iteration++){
-                RdsSize += tGreatDivideIteration(f1,Ha, 1,0,usz+RdsSize-EV,EV,2*EV,0.0)-EV;
+                plusSize = tGreatDivideIteration(f1,Ha, 1,0,usz+RdsSize-EV,EV,2*EV,0.0);
+                printf("EV %d ; type %d ; offset %d\n", EV, c1->i.type,RdsSize-EV);
+                fflush(stdout);
+                if ( ! plusSize )
+                    break;
+                RdsSize += plusSize - EV;
+
+                
                 tFilter(f1,EV, c1->i.type,usz+RdsSize-EV);
                 
-                while (tEigenLoad(&c1->i.c,Ha,c1->i.type, c1->i.nStates, usz,RdsSize,EV, 0,eigenVectors,twoBodyRitz)){
+                while (tEigenLoad(&c1->i.c,Ha,'T', c1->i.nStates, usz,RdsSize,EV, 0,eigenVectors,twoBodyRitz)){
                     INT_TYPE i,cmpl,mini = 999;
                     for ( i = 0 ; i < EV ; i++){
+                       // printf("%d %d %d\n", i, CanonicalRank(f1, usz+RdsSize-EV+i, 0), CanonicalRank(f1, usz+RdsSize-EV+i, 1));
                         for ( cmpl = 0; cmpl < 2 ;cmpl++)
                             if(f1->sinc.tulip[usz+RdsSize-EV+i].Current[cmpl]){
                                 f1->sinc.tulip[usz+RdsSize-EV+i].Current[cmpl]--;
@@ -296,7 +349,6 @@ INT_TYPE exec (struct calculation *c ){
                         mini = imin(mini,CanonicalRank(f1, usz+RdsSize-EV+i, 0)+CanonicalRank(f1, usz+RdsSize-EV+i, 1));
                     }
                     if ( ! mini ){
-                        iteration = c1->i.Iterations;
                         RdsSize -= EV;
                         break;
                     }
@@ -315,7 +367,13 @@ INT_TYPE exec (struct calculation *c ){
                     fflush(stdout);
                 }
             }
-            tEigenLoad(&c1->i.c,Ha,c1->i.type, c1->i.nStates, usz,RdsSize,EV, 2,eigenVectors,twoBodyRitz);
+            printf("Rds %d usz %d\n" , RdsSize, usz);
+            
+            if ( tEigenLoad(&c1->i.c,Ha,'T', c1->i.nStates, usz,RdsSize,EV, 2,eigenVectors,twoBodyRitz))
+            {
+                printf("ld\n");
+                exit(0);
+            }
             {
                 fprintf(out , " lattice\t%1.3f\t%d\t-Box\t body \t%d\n", c1->i.d,2*c1->i.epi+1, c1->i.body);
                 

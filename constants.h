@@ -550,6 +550,8 @@ struct name_label {
 
 struct sinc_label {
     double volume;
+    INT_TYPE maxEV;
+
     INT_TYPE N1;
     double d;//input lattice spacing
     struct canon rose[SPACE+1];
@@ -638,7 +640,6 @@ struct runTime {
     INT_TYPE samples;
     INT_TYPE printFlag;
 
-    INT_TYPE maxEV;
     double maxEntropy;
     double TARGET ;
     double ALPHA ; //condition
@@ -647,7 +648,7 @@ struct runTime {
     double CONVERGENCE;
     double vCANON;
     double vCONVERGENCE;
-
+    double targetCondition;
 };
 
 struct MEM {
@@ -658,19 +659,6 @@ struct MEM {
     struct runTime * rt;
 };
 
-struct Params {
-    double iEntropy;
-    double iExternal;
-    double iCondition;
-    double iTolerance;
-    double iThreshold;
-    double iTarget;
-   // double iBuild;
-    double iConvergence;
-    double vectorThreshold;
-    double vectorConvergence;
-};
-
 
 struct input {
     INT_TYPE type;
@@ -678,6 +666,8 @@ struct input {
   //  INT_TYPE traffic;
     INT_TYPE omp;
 #endif
+    INT_TYPE iGroup;
+    INT_TYPE nTargets;
     double scalar;
     double turn;
     double param1;
@@ -716,7 +706,6 @@ struct input {
 struct calculation {
 	char name[MAXSTRING];
 	struct input i;
-	struct Params p;
     struct runTime rt;
     struct MEM mem;
 };

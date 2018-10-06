@@ -108,7 +108,7 @@ INT_TYPE tdsyev( INT_TYPE rank, struct field * f1, char job , INT_TYPE n, double
     dsyev_ ( &job, &charU, &n , ar , &ns , w , myStreams(f1, dsyBuffers,rank ), &lbuffer, &info );
     return info;
 #else
-    return LAPACKE_dsyev_work(LAPACK_COL_MAJOR, job, 'U', n, ar, ns , w , myStreams(f1, dsyBuffers,rank ),part(f1, dsyBuffers));
+    return LAPACKE_dsyev(LAPACK_COL_MAJOR, job, 'U', n, ar, ns , w);
 #endif
 }
 
@@ -120,7 +120,7 @@ INT_TYPE tzheev( INT_TYPE rank, struct field * f1, char job , INT_TYPE n, DCOMPL
   zheev_ (&job, &charU, &n , (__CLPK_doublecomplex *)ar , &ns , w ,(__CLPK_doublecomplex *) (myStreams(f1, dsyBuffers,rank )+3*n), &lbuffer,  myStreams(f1, dsyBuffers,rank ),&info );
     return info;
 #else
-    return LAPACKE_zheev_work(LAPACK_COL_MAJOR, job, 'U', n, (DCOMPLEX_PRIME *)ar, ns , w , (DCOMPLEX_PRIME *)(myStreams(f1, dsyBuffers,rank )+3*n),part(f1, dsyBuffers)/2,(myStreams(f1, dsyBuffers,rank)));
+    return LAPACKE_zheev(LAPACK_COL_MAJOR, job, 'U', n, (DCOMPLEX_PRIME *)ar, ns , w );
 #endif
 }
 
@@ -133,7 +133,7 @@ INT_TYPE tdsygv( INT_TYPE rank, struct field * f1, char job , INT_TYPE n, double
     INT_TYPE lbuffer = part(f1, dsyBuffers);
     dsygv_(&type, &job, &charU,&n,sr,&ns,ar,&ns, w,myStreams(f1, dsyBuffers,rank ),&lbuffer, &info );
 #else
-    info =  LAPACKE_dsygv_work(LAPACK_COL_MAJOR,1, job, 'U', n,sr,ns, ar, ns , w , myStreams(f1, dsyBuffers,rank ),part(f1, dsyBuffers));
+    info =  LAPACKE_dsygv(LAPACK_COL_MAJOR,1, job, 'U', n,sr,ns, ar, ns , w );
 #endif
     return info;
 
@@ -148,7 +148,7 @@ INT_TYPE tzhegv( INT_TYPE rank, struct field * f1, char job , INT_TYPE n,DCOMPLE
     INT_TYPE lbuffer = part(f1, dsyBuffers);
     zhegv_(&type, &job, &charU,&n,(__CLPK_doublecomplex *)sr,&ns,(__CLPK_doublecomplex *)ar,&ns, w,(__CLPK_doublecomplex *) (myStreams(f1, dsyBuffers,rank )+6*n), &lbuffer,  myStreams(f1, dsyBuffers,rank ),&info );
 #else
-    info =  LAPACKE_zhegv_work(LAPACK_COL_MAJOR,1, job, 'U', n,(DCOMPLEX_PRIME *)sr,ns,(DCOMPLEX_PRIME *) ar, ns , w , (DCOMPLEX_PRIME *)(myStreams(f1, dsyBuffers,rank )+3*n),part(f1, dsyBuffers)/2,(myStreams(f1, dsyBuffers,rank)));
+    info =  LAPACKE_zhegv(LAPACK_COL_MAJOR,1, job, 'U', n,(DCOMPLEX_PRIME *)sr,ns,(DCOMPLEX_PRIME *) ar, ns , w );
 #endif
     
     return info;
@@ -173,8 +173,8 @@ INT_TYPE tdgeqr( INT_TYPE rank, struct field * f1,INT_TYPE len, INT_TYPE n, doub
     dgeqrf_(&n,& len, ar, &ns, w, myStreams(f1, dsyBuffers,rank ), &lbuffer, &info);
     dorgqr_(&n, &len, &len, ar, &ns, w, myStreams(f1, dsyBuffers,rank ), &lbuffer, &info2);
 #else
-    info = LAPACKE_dgeqrf_work(LAPACK_COL_MAJOR, n,len, ar, ns, w, myStreams(f1, dsyBuffers,rank ),part(f1, dsyBuffers));
-    info2 = LAPACKE_dorgqr_work(LAPACK_COL_MAJOR,n,len,len,ar,ns,w,myStreams(f1,dsyBuffers,rank),part(f1,dsyBuffers));
+    info = LAPACKE_dgeqrf(LAPACK_COL_MAJOR, n,len, ar, ns, w);
+    info2 = LAPACKE_dorgqr(LAPACK_COL_MAJOR,n,len,len,ar,ns,w);
 #endif
     return info * 100000 + info2;
 
@@ -235,7 +235,7 @@ double tdpocon (INT_TYPE rank,struct field * f1,  INT_TYPE L1 , double * Matrix 
     INT_TYPE info;
     char charU = 'U';
     double rcond;
-    return 1.0;
+  // return 1.0;
 #if VERBOSE
     printf("pop\n");
     fflush(stdout);
@@ -248,7 +248,7 @@ double tdpocon (INT_TYPE rank,struct field * f1,  INT_TYPE L1 , double * Matrix 
     dpocon_( &charU, &L1, myStreams(f1, dsyBuffers,rank ), &L1, &norm1, &rcond, myStreams(f1, dsyBuffers,rank )+L1*L1,&lbuffer ,&info );
 #else
     INT_TYPE lbuffer = part(f1, dsyBuffers)-L1*L1;
-    info =  LAPACKE_dpocon_work(LAPACK_COL_MAJOR,charU,L1,  myStreams(f1, dsyBuffers,rank ), L1, norm1, &rcond,myStreams(f1, dsyBuffers,rank )+L1*L1,&lbuffer );
+    info =  LAPACKE_dpocon(LAPACK_COL_MAJOR,charU,L1,  myStreams(f1, dsyBuffers,rank ), L1, norm1, &rcond);
 #endif
     if ( info != 0 ){
         printf ("pop corn ! %lld\n",info);

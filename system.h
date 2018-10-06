@@ -38,6 +38,11 @@
 
 
 #define MaxCore 2
+
+
+
+
+
 //need NOT define.
 //#define PARAMETER_PATH ""
 #ifndef GSL_LIB

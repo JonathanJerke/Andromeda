@@ -117,13 +117,13 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
     INT_TYPE i,d,ivalue;
     char test_line [MAXSTRING];
     double value;
-    INT_TYPE NINT_TYPE = 98;
+    INT_TYPE NINT_TYPE = 100;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",
         "process", "NB", "MB", "percentFull","general",
         "center","xTranslate","yTranslate","zTranslate","postCalc",
         "goK","goV","goC","goX","goS",
-        "iGold","condition", "LOST2" ,"core","canon",
+        "iGold","LOST", "LOST2" ,"core","canon",
         "pseudo","minDIIS","iCharge","weylet", "nWeylet",
         "mWeylet","helium","correlation","initRank","LOST3",
         "spinBlocks","LOST5", "LOST6", "maxLevelShift","diis",
@@ -138,9 +138,9 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "sectors","body","LOST100","rds1","rds2",
         "rds3","interactionOne","interactionTwo","oCycle","interactionZero",
         "breakBody","interval","RAM","monteCarlo","samples",
-        "hartreeFock","basisStage","iterations"
+        "hartreeFock","basisStage","iterations","group","states"
     };
-    INT_TYPE NDOUBLE = 60;
+    INT_TYPE NDOUBLE = 62;
     char *list_DOUBLE []= {"#",
         "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST"        ,
         "xB", "yB", "zB", "xyRange" , "zRange",
@@ -153,8 +153,8 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "beta","EMPTY10","ceilValue","floorValue","electronGasDensity",
         "shift","kineticShift","crystal","jelliumRadius","spring",
         "REMOVEREMOVE", "maxDomain", "parcel","minDomain","param",
-        "entropy","attack","scalar","turn","augment"
-        
+        "entropy","attack","scalar","turn","augment",
+        "linearDependence","condition"
         
     };
     
@@ -302,10 +302,11 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
 //                        return i;
                     
                 case 22 :
-                    c->p.iCondition = ivalue;
+                    
+                    //c->p.iCondition = ivalue;
                     return i;
                 case 23 :
-                    c->p.iThreshold = ivalue;
+                   // c->p.iThreshold = ivalue;
                     return i;
                 case 24 :
                 //   c->i.qCore  = ivalue;
@@ -690,7 +691,13 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                 case 98:
                     c->i.Iterations = ivalue;
                     return i;
-                    
+                case 99:
+                    c->i.iGroup = ivalue;
+                    return i;
+                case 100:
+                    c->i.nTargets = ivalue;
+                    return i;
+
             }
         
         }
@@ -798,22 +805,22 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                  //   c->i.levelShift = value;
                     return d;
                 case 23 :
-                    c->p.iTolerance = value;
+                    c->rt.TOL = c->rt.TARGET*pow(0.1, value);
                     return d;
                 case 24 :
-                    c->p.iThreshold = value;
+                    c->rt.CANON = c->rt.TARGET*pow(0.1, value);
                     return d;
                 case 25 :
-                    c->p.iTarget = value;
+                    c->rt.TARGET = pow(0.1,value);
                     return d;
                 case 26 :
-                    c->p.iConvergence = value;
+                    c->rt.CONVERGENCE = c->rt.TARGET*pow(0.1, value);
                     return d;
                 case 27 :
-                    c->p.iExternal = value;
+                   // c->p.iExternal = value;
                     return d;
                 case 28 :
-                    c->p.vectorThreshold = value;
+                    c->rt.vCANON = c->rt.TARGET*pow(0.1, value);
                     return d;
                 case 29 :
                   //  c->p.iBuild = value;
@@ -828,7 +835,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     //                    c->i.fPi = value;
                     //                    return d;
                 case 33 :
-                    c->p.vectorConvergence = value;
+                    c->rt.vCONVERGENCE = c->rt.TARGET*pow(0.1, value);
                     return d;
                 case 34 :
                 //    c->i.powState = value;
@@ -911,7 +918,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     c->i.param1 = value;
                     return d;
                 case 56:
-                    c->p.iEntropy = value;
+                    c->rt.maxEntropy = pow(0.1,value);
                     return d;
                 case 57:
                       c->i.attack = value;
@@ -925,9 +932,13 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                 case 60:
                     c->i.param2 = value;
                     return d;
-
-
-
+                case 61:
+                   // c->rt.condition = pow(10., value);
+                    return d;
+                case 62:
+                    c->rt.targetCondition =  value;
+                    c->rt.ALPHA = 1e-9;
+                    return d;
             }
 
         }
@@ -1562,7 +1573,6 @@ INT_TYPE readInput(struct calculation *c , FILE * in){
 
 
 INT_TYPE initCalculation(struct calculation * c ){
-    c->i.c.Na = 0;
     c->i.RAMmax = 0;//Gb  needs updating
     c->rt.printFlag = 0;
     c->i.potentialFlag = 0;
@@ -1570,8 +1580,7 @@ INT_TYPE initCalculation(struct calculation * c ){
     c->i.c.rds.flag = 0;
     c->i.outputFlag = 0;
     c->i.M1 = 0;
-
-    
+    c->i.c.Na = 0;
 #ifdef PARAMETER_PATH
     FILE * same;
     char filename[MAXSTRING];
@@ -1597,5 +1606,9 @@ INT_TYPE finalizeInit(struct calculation * c ){
         }
     }
     c->i.c.Ne = nc-c->i.charge;//set charges
+    
+    c->i.c.twoBody.num = c->i.canonRank;
+    c->i.c.oneBody.num = c->i.canonRank;
+
     return 0;
 }
