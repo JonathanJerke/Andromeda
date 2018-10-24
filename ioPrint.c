@@ -835,24 +835,31 @@ double evaluateVectorBracket( double x [], size_t dim , void * params ){
 INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename){
     INT_TYPE ct = 0,ct2,number,bod,class,weight,cmpl;
     FILE * in = fopen(filename, "r");
-    size_t ms = MAXSTRING,read;
+    if ( in == NULL ){
+        printf("file of occupations is missing\n");
+        exit(0);
+    }
+    size_t ms = MAXSTRING,read,si;
     char input_line[MAXSTRING];
+    char str0[MAXSTRING];
     char * mask = input_line;
     double Occ,Ceg;
     char name[MAXSTRING];
     while (1){
         if (  getline(&mask,&ms,in) > 0 ){
             if ( (!comment(input_line)) && (strlen(input_line) > 1) )  {
-                read = (4==sscanf ( input_line, "%d %d %d %lf", &ct2,&number,&class, &Occ ));
+                si = sscanf ( input_line, "\"%d\",%d,%d,%lf",&str0,&number,&class, &Occ );
+                read = (4== si);
                 if ( read && fabs(Occ) > 1e-5){
                     tClear(&c1->i.c, eigenVectors+ct);
                     for ( cmpl = 0; cmpl < 2; cmpl++)
                     {
-                        sprintf(name,"%s.%d.eigen-%d.%d_mac",c1->name,number,class,cmpl);
+                        sprintf(name,"%s.%d.eigen-%d.%d_mac",c1->cycleName,number,class,cmpl);
                         printf("%d\t%s\t%f\n", ct, name, fabs(Occ));
                         inputFormat(&c1->i.c, name, eigenVectors+ct, 1);
                     }
                     tScale(&c1->i.c, eigenVectors+ct, sqrt(fabs(Occ/c1->i.c.Ne))/magnitude(&c1->i.c, eigenVectors+ct));
+                    c1->i.c.sinc.tulip[eigenVectors+ct].symmetry = class;
                     ct++;
                 }
                 }
@@ -931,7 +938,7 @@ INT_TYPE tLoadEigenWeightsWithConstraints (struct calculation * c1, char * filen
                     tClear(&c1->i.c, highBall);
                     for ( cmpl = 0; cmpl < 2; cmpl++)
                     {
-                        sprintf(name,"%s.%d.eigen-%d.%d_mac",c1->name,number,class,cmpl);
+                        sprintf(name,"%s.%d.eigen-%d.%d_mac",c1->cycleName,number,class,cmpl);
                         printf("%d\t%s\t%f\n", ct, name, fabs(Occ));
                         inputFormat(&c1->i.c, name, highBall, 1);
                     }

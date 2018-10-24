@@ -93,40 +93,6 @@ INT_TYPE tFil ( struct field * f1, enum division A, enum division v , INT_TYPE *
     return 0;
 }
 
-INT_TYPE defineSA( enum body ba, INT_TYPE sa ){
-    if ( ba == two ){
-        return sa;
-    }
-    else if ( ba == three ){
-        if ( sa <= 4 )//or maybe the other way??
-            return sa;
-        else if ( sa == 5 ){
-            return 4;
-        }else if ( sa == 6 ){
-            return 3;
-        }
-    }
-    else if ( ba == four ){
-        if ( sa <= 3 ){
-            return sa;
-        }
-        
-        //...
-        
-    }
-    
-    return 0;
-}
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -486,16 +452,16 @@ double deg(struct field *f1, INT_TYPE cl ){
         if ( cl == 2 )
             deg = 5.;//5
         else if ( cl ==3 )
-            deg = 0.5*2;//2
+            deg = 0.5;//2
         else if ( cl == 4 )
-            deg = 1.*3;//9
+            deg = 1.;//9
         //2^4 = 16 = 5+2+9
     }else
         if ( Ns == 3 ){
             if( cl == 2 )
                 deg = 4.;
             else if ( cl == 3 )
-                deg = 1.*2;//8
+                deg = 1.;//8
             //2^3 =  8 = 4+4
         }else
             if ( Ns == 2 ){//
@@ -517,7 +483,10 @@ double get(enum body bd , INT_TYPE type , INT_TYPE i ){
     INT_TYPE nsyp=0 ,msyp=0;
     const static double syp2 [] = {
         sr2,sr2,
-        sr2,-sr2};
+        sr2,-sr2,
+        1.,1.,
+        1.,-1.
+    };
     const static double syp3 [] = {
         /********/
         sr6,sr6,sr6, sr6, sr6, sr6,
@@ -526,10 +495,20 @@ double get(enum body bd , INT_TYPE type , INT_TYPE i ){
         hf, -hf,0.,-hf, hf , 0.,
         hf*sr3,hf*sr3, -sr3,-hf*sr3,-hf*sr3,sr3,
         hf, -hf,0.,hf, -hf , 0.,
-        /********/
-        sr3/sr2, sr3/sr2, sr3/sr2,0.,0.,0.,  //  projection into A
-        1. + sr3 , -1.+sr3, -sr3/sr2,0.,0.,0, //projection into E
-        1., -1., 0.,0.,0.,0.  //projection to E2-A  E1-B  (Same) as E
+        //////////////////////////////////
+        /////////////////////////////////
+        ////////////////////////////////
+        ///////////////////////////////
+        //////////////////////////////
+
+        /* 7:: A1 */
+        1.,1.,1., 1., 1., 1.,
+        
+        /* 8:: A2*/
+        1.,1.,1.,-1.,-1.,-1.,
+
+        /* 9 :: E*/
+        2., -1., -1.,0.,0.,0.
     };
     
     const static double syp4[] = {
@@ -542,7 +521,7 @@ double get(enum body bd , INT_TYPE type , INT_TYPE i ){
         sr6*hf,-sr6*hf,-sr6*hf,sr6*hf,    sr6*hf,-sr6*hf,-sr6*hf,sr6*hf,    sr6*hf,-sr6*hf,-sr6*hf,sr6*hf,
         
         /*3: E-1*/
-        sr6,    0.,0.,-sr6*hf,     -sr6*hf,0.,0., sr6,    -sr6*hf,0.,0.,-sr6*hf,
+        sr6,    0.,0.,-sr6*hf,      -sr6*hf,0.,0., sr6,       -sr6*hf,0.,0.,-sr6*hf,
         -sr6*hf,0.,0.,-sr6*hf,       sr6,   0.,0.,-sr6*hf,    -sr6*hf,0.,0.,sr6,
         
         /*4: E-2*/
@@ -695,55 +674,69 @@ double get(enum body bd , INT_TYPE type , INT_TYPE i ){
         0.,0.,0.,0.,
         hf*sr3,hf*sr3,hf*sr3,hf*sr3,
         hf*sr3,hf*sr3,-hf*sr3,-hf*sr3,
-        -hf*sr3,-hf*sr3,-hf*sr3,-hf*sr3
+        -hf*sr3,-hf*sr3,-hf*sr3,-hf*sr3,
+        
+        //////////////////////////////////
+        /////////////////////////////////
+        ////////////////////////////////
+        ///////////////////////////////
+        //////////////////////////////
+        /* 25:: A1*/
+        1.,1.,1.,1.,
+        1.,1.,1.,1.,
+        1.,1.,1.,1.,
+        1.,1.,1.,1.,
+        1.,1.,1.,1.,
+        1.,1.,1.,1.,
         
         
-        //25::E
-        
-        ,0.000000,  0.000000,  0.000000,  0.353553,
-        -0.353553,  0.000000,  0.000000,  0.000000,
-        -0.353553,  0.000000,  0.000000,  0.353553,
-        0.353553,  0.000000,  0.000000,  -0.353553,
-        0.000000,  0.000000,  0.000000,  -0.353553,
-        0.353553,  0.000000,  0.000000,  0.000000
-        
-        //26::E-B
-        ,0.000000,  0.000000,  0.353553,  0.000000,
-        0.000000,  -0.353553,  0.000000,  0.000000,
-        0.000000,  -0.353553,  0.353553,  0.000000,
-        0.000000,  0.353553,  -0.353553,  0.000000,
-        0.000000,  0.000000,  -0.353553,  0.000000,
-        0.000000,  0.353553,  0.000000,  0.000000
-        
-        //27::T1
-        ,0.000000,  0.000000,  0.000000,  0.000000,
-        0.000000,  0.000000,  0.000000,  0.000000,
-        0.000000,  0.000000,  0.000000,  0.000000,
-        0.288675,  -0.288675,  -0.288675,  0.288675,
-        0.288675,  -0.288675,  0.288675,  -0.288675,
-        -0.288675,  0.288675,  0.288675,  -0.288675
-        
-        
-        
-        
-        //28::T1+E == FERMIONIC DEG = 1
-        ,0.612372,  0.204124,  -0.408248,  0.000000,
-        0.000000,  -0.408248,  0.204124,  -0.204124,
-        0.000000,  0.000000,  0.000000,  0.000000,
-        0.000000,  0.000000,  -0.408248,  0.000000,
-        -0.204124,  0.612372,  0.000000,  0.000000,
-        0.000000,  -0.408248,  0.612372,  -0.204124
-        
-        
-        //29:: T1-B
-        ,0.612372,  0.204124,  0.204124,  0.000000,
-        0.000000,  0.204124,  0.204124,  -0.204124,
-        0.000000,  -0.204124,  -0.204124,  0.000000,
-        0.000000,  -0.204124,  0.204124,  0.000000,
-        -0.204124,  -0.204124,  -0.204124,  0.000000,
-        0.000000,  0.204124,  -0.204124,  -0.204124
-        
-        
+        /* 26:: A2*/
+        1.,-1.,-1.,1.,
+        1.,-1.,-1.,1.,
+        -1.,-1.,1.,1.,
+        1.,1.,-1.,-1.,
+        1.,-1.,-1.,-1.,
+        1.,-1.,1.,1.,
+
+        /* 27:: E */
+        2.,0.,0.,-1.,
+        -1.,0.,0.,2.,
+        0.,0.,-1.,-1.,
+        -1.,-1.,0.,0.,
+        2.,0.,0.,0.,
+        -1.,0.,-1.,2.,
+
+        /* 28:: T1 */
+        3.,-1.,-1.,0.,
+        0.,-1.,-1.,-1.,
+        1.,1.,0.,0.,
+        0.,0.,-1.,1.,
+        -1.,1.,1.,1.,
+        0.,-1.,0.,-1.,
+
+        /* 29:: T2 */
+        3.,1.,1.,0.,
+        0.,1.,1.,-1.,
+        -1.,-1.,0.,0.,
+        0.,0.,1.,-1.,
+        -1.,-1.,-1.,-1.,
+        0.,1.,0.,-1.
+
+      /*
+       
+       * 6 sigd
+       / 6 S4
+       : 3 C2
+         8 C3
+       ()1 E
+       
+            (){i, j, k, l},   *{i, j, l, k},  *{i, k, j, l},   {i, k, l, j},
+            {i, l, j, k},   *{i, l, k, j},  *{j, i, k, l},   :{j, i, l, k},
+            /{j, k, i, l},   /{j, k, l, i},  {j, l, i, k},   {j, l, k, i},
+            {k, i, j, l},   {k, i, l, j},   *{k, j, i, l},     /{k, j, l, i},
+            :{k, l, i, j},  /{k, l, j, i},   /{l, i, j,k},    /{l, i, k, j},
+            {l, j, i, k},   *{l, j, k, i},   {l, k, i, j},   :{l, k,j, i}}
+       */
     };
 
     if ( bd == one ){
@@ -752,14 +745,14 @@ double get(enum body bd , INT_TYPE type , INT_TYPE i ){
     }
     else    if ( bd == two ){
         nsyp = 2;
-        msyp = 2;
+        msyp = 4;
     }
     else if ( bd == three ){
         nsyp = 6;
         msyp = 9;
     }else if ( bd == four ){
         nsyp = 24;
-        msyp = 30;
+        msyp = 29;
     }
     else {
         printf("bod\n");
@@ -840,8 +833,7 @@ INT_TYPE tClassify(INT_TYPE rank, struct field * f1 , enum division label){
     for ( i = 0; i < 48 ; i++)
         up[i] = 0.;
     
-    tAddUpComponents(rank, f1, label, label, up);
-//    printf("bk-%d\t", label);
+    tTabulateProjection(rank, f1, label, label, up);
     type =  tClassifyComponents(f1, up,&entropy);
     f1->sinc.tulip[label].value2 =entropy;
     return type;
@@ -862,15 +854,19 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char type/*1..6 (3b)*/ , 
         printf("nop!");
         exit(0);
     }
-    INT_TYPE i,nPerm=0;
+    INT_TYPE i,nPerm=0,nDeg=0,d;
     char train[24];
-    
+    double sum;
     if ( bodies(f1, origin ) == two ){
         nPerm = 2;
+        nDeg = 1;
         train[0] = 'T';
         train[1] = 'N';
         map[1] = 1;
-        map[2] = 2;
+        if ( type == 2 ){
+            nDeg = 1;
+            map[1] = 2;
+        }
     }
     if ( bodies(f1, origin ) == three ){
         train[0] = 'T';
@@ -881,17 +877,53 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char type/*1..6 (3b)*/ , 
         train[5] = 'E';
         nPerm = 6;
         map[1] = 1;
-        map[2] = 2;
-        map[3] = 3;
-        
+        if ( type == 2 ){
+            map[2] = 2;
+            nDeg = 1;
+        } else {
+            nDeg = 4;
+            map[1] = 3;
+            map[2] = 4;
+            map[3] = 5;
+            map[4] = 6;
+        }
     }
     else if ( bodies(f1, origin ) == four ){
         //
-        map[1] = 1;
-        map[2] = 2;
-        map[3] = 3;
-        map[4] = 10;
-        map[5] = 20;
+        nDeg = 1;
+        map [1] = 1;
+        if ( type == 2 ){
+            map[1] = 2;
+            nDeg = 1;
+        } else if ( type == 3 ){
+            map[1] = 3;
+            map[2] = 4;
+            map[3] = 5;
+            map[4] = 6;
+            nDeg = 4;
+        } else if ( type == 4){
+            map[1] = 7;
+            map[2] = 8;
+            map[3] = 9;
+            map[4] = 10;
+            map[5] = 11;
+            map[6] = 12;
+            map[7] = 13;
+            map[8] = 14;
+            map[9] = 15;
+            nDeg = 9;
+        }else if ( type == 5 ){
+            map[1] = 16;
+            map[2] = 17;
+            map[3] = 18;
+            map[4] = 19;
+            map[5] = 20;
+            map[6] = 21;
+            map[7] = 22;
+            map[8] = 23;
+            map[9] = 24;
+            nDeg = 9;
+        }
         train[0] = 'T';
         train[1] = 'a';
         train[2] = 'b';
@@ -923,13 +955,20 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char type/*1..6 (3b)*/ , 
         exit(0);
     }
     for ( i = 0; i < nPerm ; i++){
-        if ( fabs(get(bodies(f1, origin ),map[type],i)) > 1e-6  ){
+        sum = 0.;
+        for ( d = 1 ; d <= nDeg ; d++)
+            sum += get(bodies(f1, origin ),map[d],i);
+        
+        
+        if ( fabs(sum) > 1e-6  ){
             f1->sinc.tulip[diagonalVector].Current[rank] = 0;
-            
             tPermute(rank,f1, train[i], origin, ospin, diagonalVector, rank);
-            tScaleOne(f1, diagonalVector, rank, get(bodies(f1, origin ),map[type],i));
+//		printf("+%d\n", CanonicalRank(f1,diagonalVector,rank));
+            tScaleOne(f1, diagonalVector, rank, sum);
             tAddTw(f1, targ, tspin, diagonalVector, rank);
-        }
+//	printf( "%d %f\n", i, sum);
+ 
+       }
     }
     
     return 0;
@@ -1480,24 +1519,6 @@ INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum divisio
 }
 
 
-double tPermMultiply( INT_TYPE rank, struct field * f1 , char type , enum division left ,INT_TYPE lspin, enum division right ,INT_TYPE rspin){
-    
-    if ( type == 0)
-        return 0;
-    double sequ[24],sy[24];
-    INT_TYPE i,nPerm;
-    
-    nPerm = tAllCompPermMultiplyMP(rank, f1, left, lspin, right, rspin, sequ);
-    
-    for ( i = 0; i < nPerm; i++)
-        sy[i] = get(bodies(f1, left ) ,type,i);
-    
-    
-    return cblas_ddot(nPerm, sy, 1, sequ,1);
-    
-    
-    
-}
 
 
 INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct field * f1 , enum division left ,INT_TYPE lspin, enum division right ,INT_TYPE rspin, double * sequ){
@@ -1565,200 +1586,292 @@ INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct field * f1 , enum divisio
 }
 
 
-INT_TYPE tAddUpComponents( INT_TYPE rank, struct field * f1 , enum division left , enum division right ,  double *up){
-    
-//    if ( bodies(f1, left ) > two )
-//        printf ( "auktung!\n");
+//INT_TYPE tAddUpComponents( INT_TYPE rank, struct field * f1 , enum division left , enum division right ,  double *up){
+//
+////    if ( bodies(f1, left ) > two )
+////        printf ( "auktung!\n");
+//
+//    if ( bodies(f1,left ) == one ){
+//        return 1;
+//    }
+//    double rMA[24*24], iMA[24*24], buff[24];
+//    INT_TYPE sumj,i,j,i2,i1,nPerm=0,nGroup=0,Pe[24][24];
+//    char c,c0;
+//
+//    for ( i = 0; i < 24*24 ; i++)
+//    {
+//        rMA[i] = 0.;
+//        iMA[i] = 0.;
+//    }
+//
+//    for ( i = 0 ; i < 24 ; i++)
+//        for ( j = 0 ; j < 24 ; j++)
+//            Pe[i][j] = 0;
+//
+//
+//    if ( bodies(f1, left ) == two ){
+//        nPerm = 2;
+//        nGroup = 2;
+//        c0 = 'N';
+//
+//
+//
+//        Pe[0][0] = 1;
+//
+//        Pe[1][0] = 2;
+//
+//
+//
+//    }
+//    else if ( bodies ( f1, left ) == three ){
+//        nPerm = 6;
+//        nGroup = 3;//JLJ:HERE
+//        c0 = 'A';
+//        Pe[0][0] = 1;
+//
+//        Pe[1][0] = 2;
+//
+//        Pe[2][0] = 3;
+//        Pe[2][1] = 4;
+//        Pe[2][2] = 5;
+//        Pe[2][3] = 6;
+//
+//
+////        for ( i = 0 ; i < 6 ; i++)
+////            Pe[i][0] = i+1;
+//
+//
+//    }
+//    else if ( bodies (f1, left ) == four  ){
+//        nPerm = 24;
+//        nGroup = 24;//JLJ:HERE
+//        c0 = 'a';
+////        for ( i = 0 ; i < 24 ; i++)
+////            //for ( j = 0; j < 24 ; j++)
+////                Pe[i][0] = i+1;
+//
+//
+//        Pe[0][0] = 1;
+//
+//        Pe[1][0] = 2;
+//
+//        Pe[2][0] = 3;
+//        Pe[2][1] = 4;
+//        Pe[2][2] = 5;
+//        Pe[2][3] = 6;
+//
+//        Pe[3][0] = 7;
+//        Pe[3][1] = 8;
+//        Pe[3][2] = 9;
+//        Pe[3][3] = 10;
+//        Pe[3][4] = 11;
+//        Pe[3][5] = 12;
+//        Pe[3][6] = 13;
+//        Pe[3][7] = 14;
+//        Pe[3][8] = 15;
+//
+//        Pe[4][0] = 16;
+//        Pe[4][1] = 17;
+//        Pe[4][2] = 18;
+//        Pe[4][3] = 19;
+//        Pe[4][4] = 20;
+//        Pe[4][5] = 21;
+//        Pe[4][6] = 22;
+//        Pe[4][7] = 23;
+//        Pe[4][8] = 24;
+//
+//    }else {
+//        printf("opps\n");
+//        exit(0);
+//    }
+//    double cmpl,cmpl2;
+//    enum division alloy = right;
+//    enum division alloyBak;
+//    if ( species (f1, alloy ) == vector && bodies(f1,alloy) == one){
+//        alloyBak = trainVector;
+//    }
+//    else     if ( species (f1, alloy ) == vector && bodies(f1,alloy) == two){
+//        alloyBak = trainVector2;
+//    }
+//    else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == one){
+//
+//        f1->sinc.tulip[trainMatrix].header = header(f1,alloy);
+//
+//        alloyBak = trainMatrix;
+//    }else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == two){
+//
+//        f1->sinc.tulip[trainMatrix2].header = header(f1,alloy);
+//
+//        alloyBak = trainMatrix2;
+//    }
+//    else if ( species(f1, alloy ) == vector && bodies(f1,alloy) == three){
+//
+//        f1->sinc.tulip[trainVector3].header = header(f1,alloy);
+//
+//        alloyBak = trainVector3;
+//    }
+//    else if ( species(f1, alloy ) == vector && bodies(f1,alloy) == four){
+//
+//        f1->sinc.tulip[trainVector4].header = header(f1,alloy);
+//
+//        alloyBak = trainVector4;
+//    }
+//    else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == three){
+//
+//        f1->sinc.tulip[trainMatrix3].header = header(f1,alloy);
+//
+//        alloyBak = trainMatrix3;
+//    }
+//    else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == four){
+//
+//        f1->sinc.tulip[trainMatrix4].header = header(f1,alloy);
+//
+//        alloyBak = trainMatrix4;
+//    }
+//    else if ( species(f1, alloy ) == quartic ){
+//        f1->sinc.tulip[trainQuartic].header = header(f1,alloy);
+//
+//        alloyBak = trainQuartic;
+//    } else{
+//        printf("cd: tObject species %d \n", alloy);
+//
+//        exit(0);
+//
+//    }
+//    for ( cmpl = 0; cmpl < 2 ; cmpl++){
+//        cmpl2 = cmpl;
+//       // for ( cmpl2 = 0; cmpl2 < 2; cmpl2++){
+//
+//        for (c = 0; c < nPerm ; c++){
+//            if ( c ){
+//                tPermute(rank, f1,(c-1)+c0, right, cmpl, alloyBak, rank);
+//                tAllCompPermMultiplyMP(rank, f1, left, cmpl2, alloyBak,rank, buff);
+//            }
+//
+//            else {
+//                tAllCompPermMultiplyMP(rank, f1, left, cmpl2, right,cmpl, buff);
+//            }
+//            if ( cmpl == 0 && cmpl2 == 0 )
+//                cblas_daxpy(nPerm, 1.0, buff, 1, rMA+c*nPerm, 1);
+////            if ( cmpl == 1 && cmpl2 == 0 )
+////                cblas_daxpy(nPerm, 1.0, buff, 1, iMA+c*nPerm, 1);
+////            if ( cmpl == 0 && cmpl2 == 1 )
+////                cblas_daxpy(nPerm, -1.0, buff, 1, iMA+c*nPerm, 1);
+//            if ( cmpl == 1 && cmpl2 == 1 )
+//                cblas_daxpy(nPerm, 1.0, buff, 1, rMA+c*nPerm, 1);
+//        }
+//    }
+////    printf("mag %f\n", magnitude(f1, left));
+////    for ( i = 0; i < 2; i++){
+////        for ( j = 0 ; j < 2 ; j++)
+////            printf("(%1.2f)", rMA[i*nPerm+j]);
+////        printf("\n");
+////    }
+//    for (  i = 0 ; i < nGroup ; i++){
+//        sumj = 0;
+//        for ( j = 0; j < nPerm ; j++)
+//            if ( Pe[i][j] ){
+//                sumj++;
+//                for ( i1 = 0 ; i1 < nPerm ; i1++)
+//                    for ( i2 = 0; i2 < nPerm ; i2++)
+//                        up[i] += get(bodies(f1, left ), Pe[i][j], i1)* rMA[i1*nPerm+i2]* get(bodies(f1, left ), Pe[i][j], i2);
+//        }
+//        up[i] /= nPerm;
+//    }
+//
+//    return nGroup;
+//}
 
+
+INT_TYPE tTabulateProjection( INT_TYPE rank, struct field * f1 , enum division left , enum division right ,  double *up){
+    
     if ( bodies(f1,left ) == one ){
         return 1;
     }
-    double rMA[24*24], iMA[24*24], buff[24];
-    INT_TYPE sumj,i,j,i2,i1,nPerm=0,nGroup=0,Pe[24][24];
-    char c,c0;
-    
-    for ( i = 0; i < 24*24 ; i++)
-    {
-        rMA[i] = 0.;
-        iMA[i] = 0.;
-    }
-    
-    for ( i = 0 ; i < 24 ; i++)
-        for ( j = 0 ; j < 24 ; j++)
-            Pe[i][j] = 0;
+    INT_TYPE i,g,p,nPerm=0,nGroup=0;
     
     
     if ( bodies(f1, left ) == two ){
         nPerm = 2;
         nGroup = 2;
-        c0 = 'N';
-        
-        
-        
-        Pe[0][0] = 1;
-        
-        Pe[1][0] = 2;
-        
-        
-        
     }
     else if ( bodies ( f1, left ) == three ){
         nPerm = 6;
-        nGroup = 3;//JLJ:HERE
-        c0 = 'A';
-        Pe[0][0] = 1;
-
-        Pe[1][0] = 2;
-
-        Pe[2][0] = 3;
-        Pe[2][1] = 4;
-        Pe[2][2] = 5;
-        Pe[2][3] = 6;
-
-        
-//        for ( i = 0 ; i < 6 ; i++)
-//            Pe[i][0] = i+1;
-
+        nGroup = 3;
         
     }
     else if ( bodies (f1, left ) == four  ){
         nPerm = 24;
-        nGroup = 24;//JLJ:HERE
-        c0 = 'a';
-//        for ( i = 0 ; i < 24 ; i++)
-//            //for ( j = 0; j < 24 ; j++)
-//                Pe[i][0] = i+1;
-
-        
-        Pe[0][0] = 1;
-
-        Pe[1][0] = 2;
-
-        Pe[2][0] = 3;
-        Pe[2][1] = 4;
-        Pe[2][2] = 5;
-        Pe[2][3] = 6;
-
-        Pe[3][0] = 7;
-        Pe[3][1] = 8;
-        Pe[3][2] = 9;
-        Pe[3][3] = 10;
-        Pe[3][4] = 11;
-        Pe[3][5] = 12;
-        Pe[3][6] = 13;
-        Pe[3][7] = 14;
-        Pe[3][8] = 15;
-
-        Pe[4][0] = 16;
-        Pe[4][1] = 17;
-        Pe[4][2] = 18;
-        Pe[4][3] = 19;
-        Pe[4][4] = 20;
-        Pe[4][5] = 21;
-        Pe[4][6] = 22;
-        Pe[4][7] = 23;
-        Pe[4][8] = 24;
-
+        nGroup = 5;
     }else {
         printf("opps\n");
         exit(0);
     }
-    double cmpl,cmpl2;
-    enum division alloy = right;
-    enum division alloyBak;
-    if ( species (f1, alloy ) == vector && bodies(f1,alloy) == one){
-        alloyBak = trainVector;
-    }
-    else     if ( species (f1, alloy ) == vector && bodies(f1,alloy) == two){
-        alloyBak = trainVector2;
-    }
-    else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == one){
-        
-        f1->sinc.tulip[trainMatrix].header = header(f1,alloy);
-        
-        alloyBak = trainMatrix;
-    }else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == two){
-        
-        f1->sinc.tulip[trainMatrix2].header = header(f1,alloy);
-        
-        alloyBak = trainMatrix2;
-    }
-    else if ( species(f1, alloy ) == vector && bodies(f1,alloy) == three){
-        
-        f1->sinc.tulip[trainVector3].header = header(f1,alloy);
-        
-        alloyBak = trainVector3;
-    }
-    else if ( species(f1, alloy ) == vector && bodies(f1,alloy) == four){
-        
-        f1->sinc.tulip[trainVector4].header = header(f1,alloy);
-        
-        alloyBak = trainVector4;
-    }
-    else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == three){
-        
-        f1->sinc.tulip[trainMatrix3].header = header(f1,alloy);
-        
-        alloyBak = trainMatrix3;
-    }
-    else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == four){
-        
-        f1->sinc.tulip[trainMatrix4].header = header(f1,alloy);
-        
-        alloyBak = trainMatrix4;
-    }
-    else if ( species(f1, alloy ) == quartic ){
-        f1->sinc.tulip[trainQuartic].header = header(f1,alloy);
-        
-        alloyBak = trainQuartic;
-    } else{
-        printf("cd: tObject species %d \n", alloy);
-        
-        exit(0);
-        
-    }
-    for ( cmpl = 0; cmpl < 2 ; cmpl++){
-        cmpl2 = cmpl;
-       // for ( cmpl2 = 0; cmpl2 < 2; cmpl2++){
-        
-        for (c = 0; c < nPerm ; c++){
-            if ( c ){
-                tPermute(rank, f1,(c-1)+c0, right, cmpl, alloyBak, rank);
-                tAllCompPermMultiplyMP(rank, f1, left, cmpl2, alloyBak,rank, buff);
-            }
-            
-            else {
-                tAllCompPermMultiplyMP(rank, f1, left, cmpl2, right,cmpl, buff);
-            }
-            if ( cmpl == 0 && cmpl2 == 0 )
-                cblas_daxpy(nPerm, 1.0, buff, 1, rMA+c*nPerm, 1);
-//            if ( cmpl == 1 && cmpl2 == 0 )
-//                cblas_daxpy(nPerm, 1.0, buff, 1, iMA+c*nPerm, 1);
-//            if ( cmpl == 0 && cmpl2 == 1 )
-//                cblas_daxpy(nPerm, -1.0, buff, 1, iMA+c*nPerm, 1);
-            if ( cmpl == 1 && cmpl2 == 1 )
-                cblas_daxpy(nPerm, 1.0, buff, 1, rMA+c*nPerm, 1);
-        }
-    }
-//    printf("mag %f\n", magnitude(f1, left));
-//    for ( i = 0; i < 2; i++){
-//        for ( j = 0 ; j < 2 ; j++)
-//            printf("(%1.2f)", rMA[i*nPerm+j]);
-//        printf("\n");
-//    }
-    for (  i = 0 ; i < nGroup ; i++){
-        sumj = 0;
-        for ( j = 0; j < nPerm ; j++)
-            if ( Pe[i][j] ){
-                sumj++;
-                for ( i1 = 0 ; i1 < nPerm ; i1++)
-                    for ( i2 = 0; i2 < nPerm ; i2++)
-                        up[i] += get(bodies(f1, left ), Pe[i][j], i1)* rMA[i1*nPerm+i2]* get(bodies(f1, left ), Pe[i][j], i2);
-        }
-        up[i] /= nPerm;
-    }
+
+    double buff[24];
+    DCOMPLEX gup[24];
+    for ( i = 0; i< 24 ;i++)
+        gup[i] = 0.;
+
+    tAllCompPermMultiplyMP(rank, f1, left, 0, right,0, buff);
+    for ( g = 0; g < nGroup ; g++)
+        for ( p = 0; p < nPerm ; p++)
+            gup[g] += get(bodies(f1,right), g+nPerm+1, p)*buff[p];
+
+    tAllCompPermMultiplyMP(rank, f1, left, 1, right,1, buff);
+    for ( g = 0; g < nGroup ; g++)
+        for ( p = 0; p < nPerm ; p++)
+            gup[g] += get(bodies(f1,right), g+nPerm+1, p)*buff[p];
+
+    tAllCompPermMultiplyMP(rank, f1, left, 0, right,1, buff);
+    for ( g = 0; g < nGroup ; g++)
+        for ( p = 0; p < nPerm ; p++)
+            gup[g] += I*get(bodies(f1,right), g+nPerm+1, p)*buff[p];
+
+    tAllCompPermMultiplyMP(rank, f1, left, 1, right,0, buff);
+    for ( g = 0; g < nGroup ; g++)
+        for ( p = 0; p < nPerm ; p++)
+            gup[g] += -I*get(bodies(f1,right), g+nPerm+1, p)*buff[p];
     
+    for ( g = 0; g < 24 ; g++)
+        up[g] = cabs(gup[g])/nPerm;
+        
     return nGroup;
 }
 
 
+INT_TYPE tVeto ( enum body bd , INT_TYPE type , INT_TYPE *a){
+    if ( bd == two ){
+        if ( type == 2 )
+            if ( a[0] != a[1] )
+                return 1;
+    } else if ( bd == three ){
+        if ( type == 1 )
+            return 1;
+        if (type == 2 ){
+            if ( a[0] != a[1] && a[1] != a[2] && a[2] != a[0])
+                return 1;
+        }
+        if ( type ==3  ){
+            if ( a[0] != a[1] || a[1] != a[2] || a[2] != a[0])
+                return 1;
+        }
+    }else if ( bd == four ){
+        if ( type == 1 )
+            return 1;
+        if ( type == 2)
+            if ( (a[0] != a[1] + a[1] != a[2] + a[2] != a[0] + a[0] != a[3] + a[1] != a[3] + a[2] != a[3] ) == 0)
+                return 1;
+        if ( type == 3 )
+            if ( ( (a[0] != a[1]) + (a[1] != a[2]) + (a[2] != a[0]) + (a[0] != a[3]) + (a[1] != a[3]) + (a[2] != a[3])) < 3)
+                return 1;
+        if ( type == 4 )
+            if ( ( (a[0] != a[1]) + (a[1] != a[2]) + (a[2] != a[0]) + (a[0] != a[3]) + (a[1] != a[3]) + (a[2] != a[3])) < 2)
+                return 1;
+        if ( type == 5 )
+            if ( ( (a[0] != a[1]) + (a[1] != a[2]) + (a[2] != a[0]) + (a[0] != a[3]) + (a[1] != a[3]) + (a[2] != a[3])) < 6)
+                return 1;
+    }
+    
+    return 0;
+}

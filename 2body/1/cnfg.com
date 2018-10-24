@@ -1,5 +1,6 @@
 *Body print
 	*Parameters
+	# A1 = SINGLET
 	type 1
 	.Parameters
 

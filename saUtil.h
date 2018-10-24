@@ -48,5 +48,6 @@ INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum divisio
 double tPermMultiply( INT_TYPE rank, struct field * f1 , char type , enum division left ,INT_TYPE lspin, enum division right ,INT_TYPE rspin);
 INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct field * f1 , enum division left ,INT_TYPE lspin, enum division right ,INT_TYPE rspin, double * sequ);
 INT_TYPE tAddUpComponents( INT_TYPE rank, struct field * f1 , enum division left , enum division right ,  double *up);
-
+INT_TYPE tTabulateProjection( INT_TYPE rank, struct field * f1 , enum division left , enum division right ,  double *up);
+INT_TYPE tVeto ( enum body bd , INT_TYPE type , INT_TYPE *a);
 #endif /* saUtil_h */

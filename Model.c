@@ -105,7 +105,6 @@ struct calculation initCal (void ) {
     i.i.bRank = 5;
     i.i.vectorMomentum = 0.;
     i.i.decomposeRankMatrix = 3;
-    i.i.iGroup = 1;
     i.i.iRank = 1;
     i.i.qFloor = 0;
     i.i.Angstroms = 0;
@@ -227,7 +226,6 @@ INT_TYPE iModel( struct calculation * c1){
         struct field * f1  =&(c1->i.c);
         {
             c1->mem.rt = rt;
-            c1->mem.f1 = f1;
             f1->mem1 = &c1->mem;
             
         }
@@ -238,9 +236,9 @@ INT_TYPE iModel( struct calculation * c1){
         if ( bootBodies == two )
             ra = 2;
         else if ( bootBodies == three )
-            ra = 6;
+            ra = 12;
         else if ( bootBodies == four )
-            ra = 24;
+            ra = 24*3;
         
 
         c1->i.nStates = abs(c1->i.heliumFlag)+0;
@@ -268,7 +266,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.Basis4[2] = f1->sinc.Basis[2]*f1->sinc.Basis[2]*f1->sinc.Basis[2]*f1->sinc.Basis[2];
         
         enum shape bootShape;
-        INT_TYPE maxVector = imax(c1->i.decomposeRankMatrix, imax(c1->i.bRank,imax(1+c1->i.iRank,c1->i.Iterations+c1->i.iRank)));
+        INT_TYPE maxVector = c1->i.group*imax(c1->i.decomposeRankMatrix, imax(c1->i.bRank,imax(1+c1->i.iRank,c1->i.Iterations+c1->i.iRank)));
         
         //rds defined in input.c
         
@@ -437,7 +435,7 @@ INT_TYPE iModel( struct calculation * c1){
 
             {
                 INT_TYPE di,d0=1;
-
+                
                 f1->sinc.tulip[eigenVectors].Address = fromBegining(f1,density);
                 f1->sinc.tulip[eigenVectors].Partition = c1->i.bRank;
                 f1->sinc.tulip[eigenVectors].species = vector;
@@ -453,22 +451,27 @@ INT_TYPE iModel( struct calculation * c1){
                     }
                     else if ( di < c1->i.nStates+maxEV){
                         {
-                            //f1->sinc.tulip[eigenVectors+di].NBody = runBodies;
-                            f1->sinc.tulip[eigenVectors+di].Partition = c1->i.iRank + (di-d0)/EV;
-                           // printf("%d %d\n",eigenVectors+di, part(f1, eigenVectors+di) );
+                            INT_TYPE nextRank = ((di-d0)/EV)+c1->i.iRank;
+                            if ( (c1->i.iRank > 12) ){
+                                if ( !(((di-d0)/EV) % 2) ){
+                                   }
+                                else
+                                    nextRank--;
+                            }
+                            
+                            f1->sinc.tulip[eigenVectors+di].Partition = c1->i.group*nextRank;
+                            //printf("%d %d\n",eigenVectors+di, part(f1, eigenVectors+di) );
                             NV += 2*f1->sinc.tulip[eigenVectors+di].Partition;
-                        }
+                        }}
+                        f1->sinc.tulip[eigenVectors+di].header = Cube;
+                        f1->sinc.tulip[eigenVectors+di].species = vector;
+                        f1->sinc.tulip[eigenVectors+di].purpose = tObject;
+                        f1->sinc.tulip[eigenVectors+di].name = eigenVectors+di;
+                        
                     }
-                    
-                    f1->sinc.tulip[eigenVectors+di].header = Cube;
-                    f1->sinc.tulip[eigenVectors+di].species = vector;
-                    f1->sinc.tulip[eigenVectors+di].purpose = tObject;
-                    f1->sinc.tulip[eigenVectors+di].name = eigenVectors+di;
+                    f1->sinc.tulip[diagonalVectorA].Address = fromBegining(f1,eigenVectors+di-1);
                     
                 }
-                f1->sinc.tulip[diagonalVectorA].Address = fromBegining(f1,eigenVectors+di-1);
-
-            }
             
             f1->sinc.tulip[diagonalVectorA].Partition = !(!(c1->i.sectors));
             f1->sinc.tulip[diagonalVectorA].species = vector;
@@ -645,7 +648,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[permutationVector].species = vector;
         f1->sinc.tulip[permutationVector].header = Cube;
         f1->sinc.tulip[permutationVector].parallel = 2;
-        f1->sinc.tulip[permutationVector].purpose = tObject;
+        f1->sinc.tulip[permutationVector].purpose = Object;
         f1->sinc.tulip[permutationVector].symmetryType = nullSymmetry;
         f1->sinc.tulip[permutationVector].name = permutationVector;
         
@@ -770,7 +773,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         f1->sinc.tulip[diagonal2VectorB].spinor = none;
         f1->sinc.tulip[diagonal2VectorB].Address = fromBegining(f1,diagonal2VectorA);
-        f1->sinc.tulip[diagonal2VectorB].Partition =c1->rt.printFlag;
+        f1->sinc.tulip[diagonal2VectorB].Partition =!(!c1->rt.printFlag);
         f1->sinc.tulip[diagonal2VectorB].parallel = 2;
         f1->sinc.tulip[diagonal2VectorB].species = vector;
         f1->sinc.tulip[diagonal2VectorB].header = Cube;
@@ -963,7 +966,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[trainMatrix3].name = trainMatrix3;
         
         f1->sinc.tulip[trainMatrix4].Address = fromBegining(f1,trainMatrix3);
-        f1->sinc.tulip[trainMatrix4].Partition = (bootBodies == four ) *maxVector*c1->i.sectors;
+        f1->sinc.tulip[trainMatrix4].Partition = (bootBodies == four )*c1->i.sectors;
         f1->sinc.tulip[trainMatrix4].parallel = 0;
         f1->sinc.tulip[trainMatrix4].species = matrix;
         f1->sinc.tulip[trainMatrix4].NBody = four;
@@ -988,7 +991,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[canonicalBuffers].spinor = none;
         f1->sinc.tulip[canonicalBuffers].parallel = 1;
         f1->sinc.tulip[canonicalBuffers].Address = fromBegining(f1,trainQuartic);
-        f1->sinc.tulip[canonicalBuffers].Partition = ra*ra*maxVector*maxVector+ imax(len[0],imax(NV,part(f1,totalVector)))*maxVector;
+        f1->sinc.tulip[canonicalBuffers].Partition = maxVector*maxVector+ imax(len[0],imax(NV,part(f1,totalVector)))*maxVector;
         f1->sinc.tulip[canonicalBuffers].species = scalar;
         f1->sinc.tulip[canonicalBuffers].purpose = Object;
         f1->sinc.tulip[canonicalBuffers].symmetryType = nullSymmetry;
@@ -1063,7 +1066,7 @@ INT_TYPE iModel( struct calculation * c1){
             
             f1->sinc.tulip[interactionExchange].Address = fromBegining(f1,foundationStructure);
             f1->sinc.tulip[interactionExchange].spinor = none;
-            f1->sinc.tulip[interactionExchange].Partition = f1->twoBody.num;
+            f1->sinc.tulip[interactionExchange].Partition = f1->twoBody.num*( bootBodies > one );
             f1->sinc.tulip[interactionExchange].species = matrix;
             f1->sinc.tulip[interactionExchange].NBody = two;
             f1->sinc.tulip[interactionExchange].header = Cube;
@@ -1073,7 +1076,7 @@ INT_TYPE iModel( struct calculation * c1){
             
             f1->sinc.tulip[interactionDirect].Address = fromBegining(f1,interactionExchange);
             f1->sinc.tulip[interactionDirect].spinor = none;
-            f1->sinc.tulip[interactionDirect].Partition = (!(!c1->i.hartreeFockFlag))*f1->twoBody.num;
+            f1->sinc.tulip[interactionDirect].Partition = (!(!c1->i.hartreeFockFlag))*f1->twoBody.num*( bootBodies > one );
             f1->sinc.tulip[interactionDirect].species = matrix;
             f1->sinc.tulip[interactionDirect].NBody = two;
             f1->sinc.tulip[interactionDirect].header = Cube;
@@ -1201,8 +1204,17 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[twoBodyRitz].memory = oneObject;
         f1->sinc.tulip[twoBodyRitz].name = twoBodyRitz;
         
+        f1->sinc.tulip[conditionOverlapNumbers].spinor = none;
+        f1->sinc.tulip[conditionOverlapNumbers].myAddress = fromMyBegining(f1,twoBodyRitz);
+        f1->sinc.tulip[conditionOverlapNumbers].Partition = maxEV;
+        f1->sinc.tulip[conditionOverlapNumbers].parallel = 0;
+        f1->sinc.tulip[conditionOverlapNumbers].species = scalar;
+        f1->sinc.tulip[conditionOverlapNumbers].header = Cube;
+        f1->sinc.tulip[conditionOverlapNumbers].memory = oneObject;
+        f1->sinc.tulip[conditionOverlapNumbers].name = conditionOverlapNumbers;
+
         f1->sinc.tulip[twoBodyProjector].spinor = none;
-        f1->sinc.tulip[twoBodyProjector].myAddress = fromMyBegining(f1,twoBodyRitz);
+        f1->sinc.tulip[twoBodyProjector].myAddress = fromMyBegining(f1,conditionOverlapNumbers);
         f1->sinc.tulip[twoBodyProjector].Partition = 0*maxEV;
         f1->sinc.tulip[twoBodyProjector].parallel = 0;
         f1->sinc.tulip[twoBodyProjector].species = scalar;
@@ -1240,7 +1252,11 @@ INT_TYPE iModel( struct calculation * c1){
         
         f1->sinc.tulip[dsyBuffers].spinor = none;
         f1->sinc.tulip[dsyBuffers].myAddress = fromMyBegining(f1,matrixSbuild);
+#ifdef APPLE
         f1->sinc.tulip[dsyBuffers].Partition = 8*(8*(imax(vectorLen(f1,eigenVectors)[0],maxEV))+72*c1->i.nStates*c1->i.nStates+ 8 * vectorLen(f1, squareVector)[0])+3*maxEV;
+#else
+        f1->sinc.tulip[dsyBuffers].Partition = maxVector*maxVector;
+#endif
         f1->sinc.tulip[dsyBuffers].parallel = 1;
         f1->sinc.tulip[dsyBuffers].species = scalar;
         f1->sinc.tulip[dsyBuffers].header = Cube;
@@ -1301,13 +1317,12 @@ INT_TYPE iModel( struct calculation * c1){
                 mySeparateExactOne(f1,-1.,0);
                 tScale(f1, interactionDirect, c1->i.hartreeFockFlag);
             }
-            else
+            else if ( bootBodies > one )
                 mySeparateExactTwo(f1,c1->rt.runFlag, 1. , 0);
             
             separateKinetic(f1, c1->rt.runFlag,c1->i.vectorMomentum);
-            if ( c1->rt.runFlag == 7 )
-                buildElectronProtonInteraction(f1,linear);
-            
+            if ( c1->rt.runFlag > 0  && bootBodies > one)
+                buildElectronFreeInteraction(c1,linear);
             if (f1->Na != 0 )
                 separateExternal(c1,c1->rt.runFlag,0,1.0,4,0);
             if ( c1->i.springFlag )

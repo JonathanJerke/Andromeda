@@ -21,11 +21,18 @@ ANDROMEDA 1.4 RELEASED SEPTEMBER 25th 2018
 		reduce wasteful running
 		added code to handle linear dependent situations.
 	*SA BP corrected my weights 
+
 ANDROMEDA 1.5 RELEASED OCTOBER 5th 2018
 	*Significantly improved the handing and boot up process.
 		-by removing Symmetry Adaption from the Foundational build,
 		one maintains balance of speed and good initial subspace.
 					
+ANDROMEDA 1.6 RELEASED October 24th 2018
+	*Improved persistence of driving Lanczos in spite of Linear Dependence by Cycling the computation.
+	*Various improvements to Symmetry Adaption including proper use of projections.
+	*Still booting in unadapted subspace.
+
+
 
 
 

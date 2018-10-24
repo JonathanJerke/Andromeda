@@ -203,7 +203,7 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
             exit(0);
         }
         
-        if( (species(f1, alloy ) == vector && bodies(f1, alloy ) == bodies(f1,canonicalBuffersB )) ||(species(f1, alloy ) == matrix && bodies(f1, alloy ) == one)){
+        if( (species(f1, alloy ) == vector && bodies(f1, alloy ) == bodies(f1,canonicalBuffersB )) ||(species(f1, alloy ) == matrix && bodies(f1, alloy ) == one && f1->body > one)){
             canonicalStore = canonicalBuffersB;
         }else if( species(f1, alloy ) == vector && bodies(f1, alloy ) == bodies(f1,canonicalBuffersBX ) ){
             canonicalStore = canonicalBuffersBX;
@@ -381,7 +381,7 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
             }
             rcond = tdpocon(rank, f1, L1, array[space1] );
 //            if ( f1->mem1->rt->targetCondition > 0 )
-//                ALPHA *= min(1e1,max(1e-1, 1 - log(rcond*f1->mem1->rt->targetCondition) ));
+//                ALPHA /= min(1e1,max(1e-1, 1 - log(rcond*f1->mem1->rt->targetCondition) ));
 
             if (  isnan(rcond) || isinf(rcond) || rcond < 1e-12){
 #if VERBOSE
@@ -457,13 +457,14 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
 }
 
 double tCycleDecompostionOneMP ( INT_TYPE rank, struct field * f1 , enum division origin, INT_TYPE os, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
-    double value , value2 = inner(rank, f1, origin, os);
+    double value , value2 = sqrt(inner(rank, f1, origin, os));
     if ( maxRun >= CanonicalRank(f1, origin, os)){
         tEqua(f1, alloy,spin, origin, os );
-        return 0.;
+     //   printf("echo %d\n", CanonicalRank(f1, origin, os));
+		return 0.;
     }
     
-    {
+   while (1){
         if (canonicalDecompositionMP(rank, f1, origin, os,alloy, spin, tolerance) ){
 #if 1
             printf("bailed %d %d %d %d -- %d\n",origin,0,alloy,spin , CanonicalRank(f1, alloy, spin));
@@ -473,7 +474,8 @@ double tCycleDecompostionOneMP ( INT_TYPE rank, struct field * f1 , enum divisio
             return 1;
         }
         value = distanceOne(rank, f1, alloy, spin, origin, os);
-        if ( fabs(value ) > f1->mem1->rt->TARGET*value2 && CanonicalRank(f1, alloy, spin ) < maxRun )
+    //	printf("%1.15f \t %1.15f : %d <%d %d\n", value, f1->mem1->rt->TARGET*value2,CanonicalRank(f1, alloy, spin ),part(f1, alloy),maxRun);
+	    if ( fabs(value ) > f1->mem1->rt->TARGET*value2 && CanonicalRank(f1, alloy, spin ) < maxRun )
             tId(f1, alloy, spin);
         else
             return 0;
@@ -544,6 +546,7 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
             canonicalStore = canonicalBuffersB;
         }else {
             printf("dow!\n");
+            printf("%d %d %d %d\n", origin, alloy,species(f1, alloy ),bodies(f1, alloy ));
             exit(0);
         }
         if ( part(f1, canonicalStore) < L1 || alloc(f1, canonicalStore) < alloc(f1, alloy) )
@@ -714,8 +717,10 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
                 return 1;
             }
             rcond = tdpocon(rank, f1, L1, array[space1] );
-//            if ( f1->mem1->rt->targetCondition > 0 )
-//                ALPHA *= min(1e1,max(1e-1, 1 - log(rcond*f1->mem1->rt->targetCondition) ));
+           // printf("%f %d %f\n", rcond,L1,ALPHA);
+//
+//            if ( f1->mem1->rt->targetCondition > 0 && L1 > 1 )
+//                ALPHA /= min(1e1,max(1e-1, 1 - log(rcond*f1->mem1->rt->targetCondition) ));
 
             if (  isnan(rcond) || isinf(rcond) || rcond < 1e-12){
 #if 1
@@ -820,7 +825,7 @@ DCOMPLEX matrixElements ( INT_TYPE rank,struct field * f1 , char perm, enum divi
     for ( r = 0 ; r < CanonicalRank(f1, mat, ms);r++){
         tMultiplyMP(rank, &info, f1, 1., -1, productVector, rank, mc, ocean(rank, f1, mat, r, ms) ,ms, 'N', vec, vs);
         sum += tMultiplyMP(rank, &info, f1, 1., -1, nullVector, 0, 'T', uec ,0, 'N', productVector,rank );
-        sum += -I*tMultiplyMP(rank, &info, f1, 1., -1, nullVector, 0, 'T', uec ,1, 'N', productVector,rank );
+        sum += I*tMultiplyMP(rank, &info, f1, 1., -1, nullVector, 0, 'T', uec ,1, 'N', productVector,rank );
     }
     return sum;
 }
@@ -1042,10 +1047,9 @@ double canonicalMultiplyMP( INT_TYPE rank,struct field * f1 , char mc,enum divis
                 return 1;
             }
             rcond = tdpocon(rank, f1, L1, array[space1] );
-         //   printf("%f %d\n", rcond,L1);
 //            if ( f1->mem1->rt->targetCondition > 0 )
-//
-//            ALPHA *= min(1e1,max(1e-1, 1 - log(rcond*f1->mem1->rt->targetCondition) ));
+////
+//            ALPHA /= min(1e1,max(1e-1, 1 - log(rcond*f1->mem1->rt->targetCondition) ));
             
             
             if (  isnan(rcond) || isinf(rcond) || rcond < 1e-12){
@@ -1233,7 +1237,7 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
     if (MM+beta*MM +gamma*CanonicalRank(f1,equals,espin) > part(f1, equals) && species(f1, equals) != scalar && purpose(f1, equals)!= ptObject){
         //get allocation!
         printf("tMultiply name %d %d %d\n", equals, left, right);
-        printf("%lld >  %lld\n",MM+beta*MM+gamma*CanonicalRank(f1,equals,espin) , part(f1, equals) );
+        printf("%lld >  %lld: %d %d %u\n",MM+beta*MM+gamma*CanonicalRank(f1,equals,espin) , part(f1, equals),LL,LR, streams(f1, left,0,0) );
         printf("%lld %lld %lld %lld\n",part(f1, equals), LL, LR,species(f1, equals));
         printf("%lld %lld \n",part(f1, left),part(f1, right) );
         printf("%c %d %d\n", leftChar, lspin, rspin);
@@ -2712,8 +2716,17 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                         product = 1.;
                         for ( space = 0; space < spaces(f1,left) ;space++){//check they have same lengths...
                             product *= cblas_ddot( LN2[space] , pleft[space]+l*LN2[space],1 , pright[space]+r*RN2[space], 1);
-                        }
+//                            INT_TYPE i ;
+//                            if ( left ==lanesc)
+//                            {
+//                            for ( i = 0; i < LN2[space];i++)
+//                                printf("%1.3f:",pleft[space][i]);
+//                            printf("\n");
+//                            }
+                            }
                         sum += product;
+//                        if ( left ==lanesc)
+//                        printf("%d %d %f %d %u\n", l,r,product,LN2[0],pleft[0]);
                     }
                 }
             }
@@ -3372,12 +3385,12 @@ INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, IN
         if ( CanonicalRank(&calc2->i.c, usz+i, 0)+CanonicalRank(&calc2->i.c, usz+i, 1))
         if ( calc2->i.c.sinc.tulip[usz+i].symmetry == calc2->i.type|| ! calc2->i.type){
 //            fflush(stdout);
-            if ( mx <= imax(CanonicalRank(&calc2->i.c,usz+i,0),CanonicalRank(&calc2->i.c,usz+i,1)) ){
+            if ( mx <= (CanonicalRank(&calc2->i.c,usz+i,0)+CanonicalRank(&calc2->i.c,usz+i,1)) ){
                 f[ii++]  = i ;
 
                 iii += mx ;
-                iv = imax(iv , imax(CanonicalRank(&calc2->i.c,usz+i,0),CanonicalRank(&calc2->i.c,usz+i,1))/mx + !(!(imax(CanonicalRank(&calc2->i.c,usz+i,0),CanonicalRank(&calc2->i.c,usz+i,1)%mx ))) ) ;
-               // printf("%d -%d - %d - %d\n",iv, iii,ii,i);
+                iv = imax(iv , (CanonicalRank(&calc2->i.c,usz+i,0)+CanonicalRank(&calc2->i.c,usz+i,1))/mx + !(!((CanonicalRank(&calc2->i.c,usz+i,0)+CanonicalRank(&calc2->i.c,usz+i,1)%mx ))) ) ;
+              // printf("%d -%d - %d - %d\n",iv, iii,ii,i);
 
             }
         }
@@ -3388,23 +3401,23 @@ INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, IN
         return iv;
 
     if ( iii != UR ){
-        printf ("oopsy \n");
-        exit(0);
+       // printf ("oopsy %d %d\n",iii,UR);
+       // exit(0);
     }
     
-    for ( cmpl = 0; cmpl < 2 ; cmpl++){
 #ifdef OMP
-#pragma omp parallel for private (rank,i,j,mdi) schedule(dynamic,1)
+#pragma omp parallel for private (rank,i,j,mdi,cmpl) schedule(dynamic,1)
 #endif
-        for ( i = 0; i < ii ; i++){
+    for ( i = 0; i < ii ; i++){
 #ifdef OMP
-            rank = omp_get_thread_num();
+        rank = omp_get_thread_num();
 #else
-            rank = 0;
+        rank = 0;
 #endif
-//            printf("%d %d \n", cmpl,i);
-//            fflush(stdout);
-
+        ///            printf("%d %d \n", cmpl,i);
+        //            fflush(stdout);
+        for ( cmpl = 0; cmpl < 2 ; cmpl++){
+            
             zero(&calc->i.c, copyVector,rank);
             calc->i.c.sinc.tulip[copyVector].Current[rank] = 0;
             if ( bodies(&calc2->i.c, usz+f[i]) == two )
@@ -3413,37 +3426,35 @@ INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, IN
                 xThreeBand(rank,&calc2->i.c, usz+f[i], cmpl, &calc->i.c, copyVector,rank,calc->rt.runFlag );
             else if ( bodies(&calc2->i.c, usz+f[i]) == four )
                 xFourBand(rank,&calc2->i.c, usz+f[i], cmpl, &calc->i.c, copyVector,rank,calc->rt.runFlag );
-
-            for ( mdi = 0; mdi < mx ; mdi++)
-                calc->i.c.sinc.tulip[usr+i*mx+mdi].Current[cmpl] = 0;
+            
+//            for ( mdi = 0; mdi < mx ; mdi++)
+//                calc->i.c.sinc.tulip[usr+i*mx+mdi].Current[cmpl] = 0;
             mdi = 0;
-            if  ( mx != 1 ){
-                for ( j = 0; j < CanonicalRank(&calc->i.c,copyVector,rank);j++){
-                    //   printf("%d %d %d %d %d ::%f::",i,f[i],j,((mdi)%mx),CanonicalRank(&calc->i.c,copyVector,rank),magnitude(&calc->i.c,ocean(rank, &calc->i.c, copyVector, j, rank)));
-                    
-                    tEqua(&calc->i.c, copyTwoVector,rank, ocean(rank, &calc->i.c, copyVector, j, rank),rank);
-                    //                fflush(stdout);
-                    tAddTw(&calc->i.c, usr+i*mx+((mdi)%mx), cmpl, copyTwoVector, rank);
-                    
-                    //    printf("\n");
-                    mdi++;
-                }
-            } else {
-                tAddTw(&calc->i.c, usr+i*mx+((mdi)%mx), cmpl, copyVector, rank);
-            }
-//LOST VECTORS
-//            if( CanonicalRank(&calc->i.c, copyVector, rank) > part(&calc->i.c, usr+i)){
-//                la = CanonicalRank(&calc->i.c, copyVector, rank);
-//                calc->i.c.sinc.tulip[copyVector].Current[rank] = part(&calc->i.c,usr+i);
-//                tEqua(&calc->i.c, usr+i,cmpl, copyVector ,rank);
-//                calc->i.c.sinc.tulip[copyVector].Current[rank] = la;
-//                canonicalDecompositionMP(rank, &calc->i.c, copyVector, rank, usr+i, cmpl, calc->rt.vCONVERGENCE);
+//            if  ( mx != 1 ){
+//                for ( j = 0; j < CanonicalRank(&calc->i.c,copyVector,rank);j++){
+//                    printf("%d %d %d %d %d ::%f::\n",i,f[i],j,((mdi)%mx),CanonicalRank(&calc->i.c,copyVector,rank),magnitude(&calc->i.c,ocean(rank, &calc->i.c, copyVector, j, rank)));
+//
+//                    tEqua(&calc->i.c, copyTwoVector,rank, ocean(rank, &calc->i.c, copyVector, j, rank),rank);
+//                    //                fflush(stdout);
+//                    tAddTw(&calc->i.c, usr+i*mx+((mdi)%mx), cmpl, copyTwoVector, rank);
+//                    mdi++;
+//                }
 //            } else {
-//                tEqua(&calc->i.c, usr+i,cmpl, copyVector ,rank);
+                tEqua(&calc->i.c, usr+i*mx+((mdi)%mx), cmpl, copyVector, rank);
 //            }
+            //LOST VECTORS
+            //            if( CanonicalRank(&calc->i.c, copyVector, rank) > part(&calc->i.c, usr+i)){
+            //                la = CanonicalRank(&calc->i.c, copyVector, rank);
+            //                calc->i.c.sinc.tulip[copyVector].Current[rank] = part(&calc->i.c,usr+i);
+            //                tEqua(&calc->i.c, usr+i,cmpl, copyVector ,rank);
+            //                calc->i.c.sinc.tulip[copyVector].Current[rank] = la;
+            //                canonicalDecompositionMP(rank, &calc->i.c, copyVector, rank, usr+i, cmpl, calc->rt.vCONVERGENCE);
+            //            } else {
+            //                tEqua(&calc->i.c, usr+i,cmpl, copyVector ,rank);
+            //            }
         }
+        
     }
-    
     for ( i = 0; i < ii*mx ; i++){
         tScale(&calc->i.c , usr+i,1./magnitude(&calc->i.c, usr+i));
     }

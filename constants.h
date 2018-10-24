@@ -469,6 +469,7 @@ enum division{
     twoVector,
     hartree,
     twoBodyRitz,
+    conditionOverlapNumbers,
     manyElectronsRitz,//
     foundationStructure,
     uszCanon,
@@ -655,7 +656,6 @@ struct MEM {
     INT_TYPE bootedMemory;
     char fileList [MAXSTRING];
     char constraintFile [MAXSTRING];
-    struct field * f1;
     struct runTime * rt;
 };
 
@@ -666,7 +666,7 @@ struct input {
   //  INT_TYPE traffic;
     INT_TYPE omp;
 #endif
-    INT_TYPE iGroup;
+    INT_TYPE group;
     INT_TYPE nTargets;
     double scalar;
     double turn;
@@ -705,6 +705,7 @@ struct input {
 
 struct calculation {
 	char name[MAXSTRING];
+    char cycleName[MAXSTRING];
 	struct input i;
     struct runTime rt;
     struct MEM mem;

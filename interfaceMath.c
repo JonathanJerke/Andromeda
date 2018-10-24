@@ -159,6 +159,7 @@ INT_TYPE tzhegv( INT_TYPE rank, struct field * f1, char job , INT_TYPE n,DCOMPLE
 INT_TYPE tdgeqr( INT_TYPE rank, struct field * f1,INT_TYPE len, INT_TYPE n, double * ar, INT_TYPE ns ,double *w){
     INT_TYPE info,info2;
     if ( len > n ){
+        printf("%d -> %d\n", len, n);
         len = n;
     }
     //len is number of elements to consider, if len > n, then you may as well remove some of len...its over-linear dependent.

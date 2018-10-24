@@ -29,6 +29,9 @@
 #include "Model.h"
 #include "input.h"
 #include "eigen.h"
+INT_TYPE buildElectronFreeInteraction ( struct calculation * c1, enum division mat);
 struct calculation bootShell (INT_TYPE argc , char * argv[]);
 INT_TYPE exec (struct calculation *c1 );
+INT_TYPE print(struct calculation *c );
+INT_TYPE buildElectronFreeInteraction ( struct calculation * c1, enum division mat);
 #endif /* main_h */

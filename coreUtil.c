@@ -1513,6 +1513,15 @@ double xTwoBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE
     INT_TYPE L12 = (L1-1)/2;
     f2->sinc.tulip[out].Current[s2] = 0;
     zero(f1,out,s2);
+    
+//    for ( r= 0 ; r < 3 ;r++){
+//    for ( l= 0 ; l < 9 ; l++)
+//        printf("%f:", streams(f1, vector1,s1,0)[l]);
+//        printf("\n");
+//    }
+//        printf("%d %f : %d %f\n", L1, D, N1, f2->sinc.d);
+//
+    
     for ( i = 0; i < N1 ; i++)
         for ( i2 = 0; i2 < N1 ; i2++){
             
@@ -1545,11 +1554,15 @@ double xTwoBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE
             }
             for ( space = 0;space < SPACE; space++){
                 
-                for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++)
+                for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
                     streams(f2, out, s2,space)[r*N1*N1 + (i+i2*N1)] = cblas_ddot(L1*L1, streams(f1, foundationStructure,rank, space ),1,streams(f1, vector1,s1,space)+r*L1*L1,1);
+              //      printf("%1.3f:", streams(f2, out, s2,space)[r*N1*N1 + (i+i2*N1)]);
+                }
+             //   printf("\n");
                 //
             }
-            
+          //  printf("\n");
+
             
             
         }

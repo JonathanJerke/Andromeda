@@ -692,7 +692,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     c->i.Iterations = ivalue;
                     return i;
                 case 99:
-                    c->i.iGroup = ivalue;
+                    c->i.group = ivalue;
                     return i;
                 case 100:
                     c->i.nTargets = ivalue;
@@ -805,7 +805,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                  //   c->i.levelShift = value;
                     return d;
                 case 23 :
-                    c->rt.TOL = c->rt.TARGET*pow(0.1, value);
+                    c->rt.TOL = pow(10., value);
                     return d;
                 case 24 :
                     c->rt.CANON = c->rt.TARGET*pow(0.1, value);
@@ -936,8 +936,8 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                    // c->rt.condition = pow(10., value);
                     return d;
                 case 62:
-                    c->rt.targetCondition =  value;
-                    c->rt.ALPHA = 1e-9;
+                    c->rt.targetCondition =  pow(0.1,value);
+                    c->rt.ALPHA = 1e-6;
                     return d;
             }
 
@@ -1163,11 +1163,11 @@ INT_TYPE intervalGeometry(struct calculation * c, const char * input_line ){
 
 INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
     INT_TYPE io;
-    INT_TYPE Nio = 36;
+    INT_TYPE Nio = 37;
     char test_line [MAXSTRING];
     char *list_IO[] = {"#",
         "densityIn","hartreeIn", "densityOut" ,//3
-        "hartreeOut", "fileOut" , "pAtomicTSW",//6
+        "hartreeOut", "LOST" , "pAtomicTSW",//6
         "pWhen", "pAlt" , "read" ,//9
         "chdir","mkdir","externalIn",//12
         "externalOut","pMEM","pPotential",//15
@@ -1177,7 +1177,8 @@ INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
         "component","byHand","Spec",//27
         "momentum","offSet","LOST100",//30
         "radial","vector","print", //33
-        "cycle","operator","constraints"
+        "cycle","operator","constraints",//36
+        "file"
     };
     char filename[MAXSTRING];
     FILE * mid;
@@ -1436,6 +1437,11 @@ INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
                 if ( (c->rt.printFlag/8 ) % 2 == 0 )
                     c->rt.printFlag += 8;
                 sprintf(c->mem.constraintFile,"%s", filename);
+                return io;
+            }
+            case 37:
+            {
+                sprintf(c->cycleName,"%s", filename);
                 return io;
             }
 
