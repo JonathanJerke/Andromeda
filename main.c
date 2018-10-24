@@ -84,7 +84,7 @@ INT_TYPE print(struct calculation *c ){
     return 0;
 }
 
-> data <- transform ( data , WEIGHT = ifelse ( data$BODY == 4 , (ifelse ( data$CLASS == 4 , 1. ,0) + ifelse( data$CLASS == 3 , 0.5, 0 ) + ifelse( data$CLASS == 2 , 5., 0 ) ),0)+ ifelse ( data$BODY == 3 , (ifelse ( data$CLASS == 2 , 4. ,0) + ifelse( data$CLASS == 3 , 1., 0 ) ),0)+ ifelse ( data$BODY == 2 , (ifelse ( data$CLASS == 1 , 1. ,0) + ifelse( data$CLASS == 2 , 3., 0 ) ),0))
+
 INT_TYPE exec (struct calculation *c ){
     
     struct calculation *c1 = malloc(sizeof(struct calculation));
