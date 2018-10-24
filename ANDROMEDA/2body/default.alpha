@@ -1,0 +1,26 @@
+*Body default
+	*Parameters
+	#whatever your confortable with
+	maxRAM 4	
+	#extra matrix terms 
+	matrix 1
+	# Bohr
+	Angstroms 0
+	#basis tolerance
+	target 	5
+	#some matrix solving thresholds
+	threshold 2
+	#some vecotr solving thresholds
+	vectorThreshold 3
+	#some build solving thresholds
+	buildThreshold -1
+	#maximum linear dependence
+	tolerance 6
+	#defining matrix convergence
+	convergence 1
+	#defining vector convergence
+	vectorConvergence 4  
+	# ## terms in 1 labeled matrix
+	canon 25
+.Body
+

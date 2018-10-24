@@ -1,0 +1,25 @@
+*Body default
+	*Parameters
+	maxRAM 40
+	type 0
+	entropy 1
+	sectors 0
+	lanes 1	
+	initRank 1
+	matrix 1
+	runFlag 0
+	iCycle 12
+	beta -1
+	Angstroms 1
+	target 	4
+	external 9
+	threshold 2
+	vectorThreshold 3
+	buildThreshold -1
+	tolerance 1
+	condition 5
+	convergence 1
+	vectorConvergence 4  
+	canon 42
+.Body
+

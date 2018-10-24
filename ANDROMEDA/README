@@ -1,0 +1,24 @@
+##  ANDROMEDA
+
+
+
+
+************
+edit system.h to adjust system settings.  
+	set MaxCore = ## cores available
+	//undefine  MKL and adjust Makefile
+	//undefine  OMP
+	...
+make 
+************
+
+
+examples executed in lowest directory i.e. 2body/2
+cat ../tw.exe | ../../andromeda
+
+2,3,and 4 body examples inclosed
+
+
+2body = molecular hydrogen
+3body = soft central core 3-electrons
+4body = correlated electron gas a 1 bohr = Wigner Seitz
