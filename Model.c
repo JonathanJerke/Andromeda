@@ -3,8 +3,8 @@
  *
  *
  *  Copyright 2018 Jonathan Jerke and Bill Poirier.
- *  We acknowledge the generous support of Texas Tech University
- *  and the Robert A. Welch Foundation.
+ *  We acknowledge the generous support of Texas Tech University,
+ *  the Robert A. Welch Foundation, and Army Research Office.
  *
  
  *   *   This file is part of Andromeda.
@@ -134,7 +134,7 @@ struct calculation initCal (void ) {
 //    i.p.vectorThreshold = 1;
 //    i.p.vectorConvergence = 1;
     
-    i.i.sectors = 0;
+    i.i.sectors = 1;
     i.i.d = 1;
     i.i.epi = 4;
     i.i.M1 = 4;
@@ -165,6 +165,14 @@ struct calculation initCal (void ) {
     i.mem.bootedMemory = 0;
     return i;
 }
+
+
+struct calculation gas (void ) {
+    struct calculation c = initCal();
+    c.rt.runFlag = 3;
+    return c;
+}
+
 
 
 INT_TYPE fModel ( struct calculation * c1 ){
@@ -232,16 +240,9 @@ INT_TYPE iModel( struct calculation * c1){
         
         enum body bootBodies = c1->i.body;
         c1->i.c.body = bootBodies;
-        INT_TYPE ra = 1;
-        if ( bootBodies == two )
-            ra = 2;
-        else if ( bootBodies == three )
-            ra = 12;
-        else if ( bootBodies == four )
-            ra = 24*3;
-        
-
-        c1->i.nStates = abs(c1->i.heliumFlag)+0;
+        INT_TYPE ra = tPerms(bootBodies),nG = tSize(bootBodies);
+        c1->i.paths = tPaths(bootBodies, c1->i.type);
+        printf("'states' %d\n helium %d \n floor %d\n", c1->i.nStates,c1->i.heliumFlag,c1->i.qFloor);
         INT_TYPE N12 = c1->i.epi;
         f1->sinc.N1 = 2*N12+1;
         INT_TYPE N1 = f1->sinc.N1;
@@ -266,7 +267,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.Basis4[2] = f1->sinc.Basis[2]*f1->sinc.Basis[2]*f1->sinc.Basis[2]*f1->sinc.Basis[2];
         
         enum shape bootShape;
-        INT_TYPE maxVector = c1->i.group*imax(c1->i.decomposeRankMatrix, imax(c1->i.bRank,imax(1+c1->i.iRank,c1->i.Iterations+c1->i.iRank)));
+        INT_TYPE maxVector = imax(c1->i.decomposeRankMatrix, imax(c1->i.bRank,imax(1+c1->i.iRank,c1->i.Iterations+c1->i.iRank)));
         
         //rds defined in input.c
         
@@ -277,13 +278,14 @@ INT_TYPE iModel( struct calculation * c1){
         
         
         INT_TYPE FloorV = imax(0, c1->i.qFloor), CeilV = imax(0,0);
-        INT_TYPE EV,maxEV,NV = 0,FV = FloorV+CeilV ;
+        INT_TYPE maxArray,EV,maxEV,NV = 0,FV = FloorV+CeilV ;
         
         
         EV = FV;
+        maxEV =EV*(imax(c1->i.Iterations,1));
+        maxArray = imax(c1->i.nStates,maxEV);//slip Nb into spectra...
         
-        maxEV = EV*(imax(c1->i.Iterations,1));//slip Nb into spectra...
-        f1->sinc.maxEV = maxEV;
+        f1->sinc.maxEV = maxArray;
         enum division end  = eigenVectors +  c1->i.nStates+maxEV;
         f1->sinc.end = end;
         f1->sinc.tulip = malloc ( (end+1) * sizeof(struct name_label));
@@ -404,6 +406,7 @@ INT_TYPE iModel( struct calculation * c1){
             else if ( runBodies == four )
                 f1->sinc.tulip[build].Partition += 6*c1->i.sectors;
             
+            f1->sinc.tulip[build].Partition = imax(nG*c1->i.sectors,part(f1, build));
             
             // B2 :  2*(1+S)*3 + 1*sector +  Na*matrixNumber*2
             // B3 :  3*(1+S)*3 + 3*sector  + Na*matrixNumber*3
@@ -423,7 +426,17 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[eigen].symmetryType = nullSymmetry;
             f1->sinc.tulip[eigen].name = eigen;
             
-            f1->sinc.tulip[density].Address = fromBegining(f1,eigen);
+            f1->sinc.tulip[spam].Address = fromBegining(f1,eigen);
+            f1->sinc.tulip[spam].Partition = c1->i.sectors;
+            f1->sinc.tulip[spam].NBody = runBodies;
+            f1->sinc.tulip[spam].species = matrix;
+            f1->sinc.tulip[spam].header = Cube;
+            f1->sinc.tulip[spam].purpose = tObject;
+            f1->sinc.tulip[spam].symmetryType = nullSymmetry;
+            f1->sinc.tulip[spam].name = spam;
+
+            
+            f1->sinc.tulip[density].Address = fromBegining(f1,spam);
             f1->sinc.tulip[density].Partition = (!(!c1->rt.printFlag))*c1->i.decomposeRankMatrix;
             f1->sinc.tulip[density].NBody = two;
             f1->sinc.tulip[density].species = matrix;
@@ -433,9 +446,17 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[density].symmetryType = nullSymmetry;
             f1->sinc.tulip[density].name = density;
 
-            {
+            
+            INT_TYPE si = 0,g;
+            for ( g = 0; g < nSAG*nSAG*nSAG ; g++)
+                si += c1->i.cSA[g];
+            
+            
+            
+            
+            if(! si){
                 INT_TYPE di,d0=1;
-                
+                printf("std USERs\n\n");
                 f1->sinc.tulip[eigenVectors].Address = fromBegining(f1,density);
                 f1->sinc.tulip[eigenVectors].Partition = c1->i.bRank;
                 f1->sinc.tulip[eigenVectors].species = vector;
@@ -451,6 +472,7 @@ INT_TYPE iModel( struct calculation * c1){
                     }
                     else if ( di < c1->i.nStates+maxEV){
                         {
+
                             INT_TYPE nextRank = ((di-d0)/EV)+c1->i.iRank;
                             if ( (c1->i.iRank > 12) ){
                                 if ( !(((di-d0)/EV) % 2) ){
@@ -459,10 +481,14 @@ INT_TYPE iModel( struct calculation * c1){
                                     nextRank--;
                             }
                             
-                            f1->sinc.tulip[eigenVectors+di].Partition = c1->i.group*nextRank;
-                            //printf("%d %d\n",eigenVectors+di, part(f1, eigenVectors+di) );
-                            NV += 2*f1->sinc.tulip[eigenVectors+di].Partition;
-                        }}
+                            f1->sinc.tulip[eigenVectors+di].Partition = nextRank;
+                            printf("new %d %d\n",eigenVectors+di, part(f1, eigenVectors+di) );
+                          //  f1->sinc.tulip[eigenVectors+di].spinor = none;
+
+                            NV += spins(f1,eigenVectors+di )*f1->sinc.tulip[eigenVectors+di].Partition;
+                        }
+                        
+                    }
                         f1->sinc.tulip[eigenVectors+di].header = Cube;
                         f1->sinc.tulip[eigenVectors+di].species = vector;
                         f1->sinc.tulip[eigenVectors+di].purpose = tObject;
@@ -471,10 +497,71 @@ INT_TYPE iModel( struct calculation * c1){
                     }
                     f1->sinc.tulip[diagonalVectorA].Address = fromBegining(f1,eigenVectors+di-1);
                     
+            }else
+            {
+                INT_TYPE di,d0=1,ii,jj,kk,h,i,last,fpath,v;
+                printf("path USERs\n\n");
+
+                f1->sinc.tulip[eigenVectors].Address = fromBegining(f1,density);
+                f1->sinc.tulip[eigenVectors].Partition = c1->i.bRank;
+                f1->sinc.tulip[eigenVectors].species = vector;
+                f1->sinc.tulip[eigenVectors].header = Cube;//READ AND WRITE | => CUBE
+                f1->sinc.tulip[eigenVectors].purpose = tObject;
+                f1->sinc.tulip[eigenVectors].name = eigenVectors;
+                
+                for ( di = 1 ; di < c1->i.nStates; di++){
+                    f1->sinc.tulip[eigenVectors+di].Address = fromBegining(f1,eigenVectors+di-1);
+                    f1->sinc.tulip[eigenVectors+di].Partition = c1->i.bRank;
+                    f1->sinc.tulip[eigenVectors+di].species = vector;
+                    f1->sinc.tulip[eigenVectors+di].header = Cube;//READ AND WRITE | => CUBE
+                    f1->sinc.tulip[eigenVectors+di].purpose = tObject;
+                    f1->sinc.tulip[eigenVectors+di].name = eigenVectors+di;
+                    d0++;
                 }
+                
+                last = d0 -1;
+                fpath = 0;
+                v=0;
+                for ( v = 0 ; v < nG*nG*nG ; v++ )
+                {
+                    ii = v % nG;
+                    jj = (v/nG)%nG;
+                    kk = (v/(nG*nG))%nG;
+                    if ( tIR(bootBodies, ii, jj, kk, c1->i.type)){
+                        for ( h = 0; h < c1->i.cSA[v] ;h++)
+                            for ( i = 0; i < c1->i.Iterations ; i++)//ORDER IN MEMORY
+                                
+                            {
+                                enum division nm = eigenVectors+d0+ h+fpath + i*si;//ORDER IN USR
+                                
+  //                             printf("new %d rank %d last %d path %d \n",nm, i+c1->i.iRank,eigenVectors+last,v);//
+//                               fflush(stdout);
+                                f1->sinc.tulip[nm].Address = fromBegining(f1,eigenVectors+last);
+                              //   f1->sinc.tulip[nm].spinor = none;
+
+                                last = nm-eigenVectors;
+                                f1->sinc.tulip[nm].Partition = i+c1->i.iRank;
+                                NV += spins(f1,nm)*(i+c1->i.iRank);
+                               // printf("spines %d\n",spins(f1,nm));
+                                f1->sinc.tulip[nm].header = Cube;
+                                f1->sinc.tulip[nm].species = vector;
+                                f1->sinc.tulip[nm].purpose = tObject;
+                                f1->sinc.tulip[nm].name = nm;
+                                f1->sinc.tulip[nm].path = v;
+                            }
+                        fpath+=c1->i.cSA[v];
+                    }
+                    f1->sinc.tulip[diagonalVectorA].Address = fromBegining(f1,eigenVectors+last );
+                    
+                }
+            }
+                
+            
+            
             
             f1->sinc.tulip[diagonalVectorA].Partition = !(!(c1->i.sectors));
             f1->sinc.tulip[diagonalVectorA].species = vector;
+            f1->sinc.tulip[diagonalVectorA].parallel = 2;
             f1->sinc.tulip[diagonalVectorA].header = Cube;
             f1->sinc.tulip[diagonalVectorA].NBody = runBodies;
             f1->sinc.tulip[diagonalVectorA].purpose = tObject;
@@ -484,6 +571,7 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[diagonalVectorB].Address = fromBegining(f1,diagonalVectorA);
             f1->sinc.tulip[diagonalVectorB].Partition =  !(!(c1->i.sectors));
             f1->sinc.tulip[diagonalVectorB].species = vector;
+            f1->sinc.tulip[diagonalVectorB].parallel = 2;
             f1->sinc.tulip[diagonalVectorB].header = Cube;
             f1->sinc.tulip[diagonalVectorB].NBody = runBodies;
             f1->sinc.tulip[diagonalVectorB].purpose = tObject;
@@ -751,7 +839,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         f1->sinc.tulip[diagonal1VectorA].spinor = none;
         f1->sinc.tulip[diagonal1VectorA].Address = fromBegining(f1,diagonalCube);
-        f1->sinc.tulip[diagonal1VectorA].Partition =!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal1VectorA].Partition =1+!(!c1->rt.printFlag);
         f1->sinc.tulip[diagonal1VectorA].parallel = 2;
         f1->sinc.tulip[diagonal1VectorA].species = vector;
         f1->sinc.tulip[diagonal1VectorA].header = Cube;
@@ -762,7 +850,7 @@ INT_TYPE iModel( struct calculation * c1){
                 
         f1->sinc.tulip[diagonal2VectorA].spinor = none;
         f1->sinc.tulip[diagonal2VectorA].Address = fromBegining(f1,diagonal1VectorA);
-        f1->sinc.tulip[diagonal2VectorA].Partition =!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal2VectorA].Partition =1+!(!c1->rt.printFlag);
         f1->sinc.tulip[diagonal2VectorA].parallel = 2;
         f1->sinc.tulip[diagonal2VectorA].species = vector;
         f1->sinc.tulip[diagonal2VectorA].header = Cube;
@@ -773,7 +861,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         f1->sinc.tulip[diagonal2VectorB].spinor = none;
         f1->sinc.tulip[diagonal2VectorB].Address = fromBegining(f1,diagonal2VectorA);
-        f1->sinc.tulip[diagonal2VectorB].Partition =!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal2VectorB].Partition =1+!(!c1->rt.printFlag);
         f1->sinc.tulip[diagonal2VectorB].parallel = 2;
         f1->sinc.tulip[diagonal2VectorB].species = vector;
         f1->sinc.tulip[diagonal2VectorB].header = Cube;
@@ -784,7 +872,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         f1->sinc.tulip[diagonal1VectorB].spinor = none;
         f1->sinc.tulip[diagonal1VectorB].Address = fromBegining(f1,diagonal2VectorB);
-        f1->sinc.tulip[diagonal1VectorB].Partition =!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal1VectorB].Partition =1+!(!c1->rt.printFlag);
         f1->sinc.tulip[diagonal1VectorB].parallel = 2;
         f1->sinc.tulip[diagonal1VectorB].species = vector;
         f1->sinc.tulip[diagonal1VectorB].header = Cube;
@@ -796,7 +884,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         f1->sinc.tulip[diagonal1VectorC].spinor = none;
         f1->sinc.tulip[diagonal1VectorC].Address = fromBegining(f1,diagonal1VectorB);
-        f1->sinc.tulip[diagonal1VectorC].Partition =!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal1VectorC].Partition =1+!(!c1->rt.printFlag);
         f1->sinc.tulip[diagonal1VectorC].parallel = 2;
         f1->sinc.tulip[diagonal1VectorC].species = vector;
         f1->sinc.tulip[diagonal1VectorC].header = Cube;
@@ -808,7 +896,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         f1->sinc.tulip[diagonal1VectorD].spinor = none;
         f1->sinc.tulip[diagonal1VectorD].Address = fromBegining(f1,diagonal1VectorC);
-        f1->sinc.tulip[diagonal1VectorD].Partition = !(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal1VectorD].Partition = 1+!(!c1->rt.printFlag);
         f1->sinc.tulip[diagonal1VectorD].parallel = 2;
         f1->sinc.tulip[diagonal1VectorD].species = vector;
         f1->sinc.tulip[diagonal1VectorD].header = Cube;
@@ -1053,18 +1141,25 @@ INT_TYPE iModel( struct calculation * c1){
         
         
         f1->sinc.tulip[foundationStructure].Address =  fromBegining(f1,highBallVector4);
-        f1->sinc.tulip[foundationStructure].Partition = 1;
+        f1->sinc.tulip[foundationStructure].Partition = nG;
         f1->sinc.tulip[foundationStructure].parallel = 1;
         f1->sinc.tulip[foundationStructure].species = vector;
         f1->sinc.tulip[foundationStructure].header = Cube;
         f1->sinc.tulip[foundationStructure].purpose = Object;
         f1->sinc.tulip[foundationStructure].name = foundationStructure;
         
-        
+        f1->sinc.tulip[foundationEquals].Address =  fromBegining(f1,foundationStructure);
+        f1->sinc.tulip[foundationEquals].Partition = 1;
+        f1->sinc.tulip[foundationEquals].parallel = 1;
+        f1->sinc.tulip[foundationEquals].species = vector;
+        f1->sinc.tulip[foundationEquals].header = Cube;
+        f1->sinc.tulip[foundationEquals].purpose = Object;
+        f1->sinc.tulip[foundationEquals].name = foundationEquals;
+
         {
             
             
-            f1->sinc.tulip[interactionExchange].Address = fromBegining(f1,foundationStructure);
+            f1->sinc.tulip[interactionExchange].Address = fromBegining(f1,foundationEquals);
             f1->sinc.tulip[interactionExchange].spinor = none;
             f1->sinc.tulip[interactionExchange].Partition = f1->twoBody.num*( bootBodies > one );
             f1->sinc.tulip[interactionExchange].species = matrix;
@@ -1197,7 +1292,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         f1->sinc.tulip[twoBodyRitz].spinor = none;
         f1->sinc.tulip[twoBodyRitz].myAddress = fromMyBegining(f1,canonicalBuffersD);
-        f1->sinc.tulip[twoBodyRitz].Partition = maxEV;
+        f1->sinc.tulip[twoBodyRitz].Partition = maxArray;
         f1->sinc.tulip[twoBodyRitz].parallel = 0;
         f1->sinc.tulip[twoBodyRitz].species = scalar;
         f1->sinc.tulip[twoBodyRitz].header = Cube;
@@ -1206,7 +1301,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         f1->sinc.tulip[conditionOverlapNumbers].spinor = none;
         f1->sinc.tulip[conditionOverlapNumbers].myAddress = fromMyBegining(f1,twoBodyRitz);
-        f1->sinc.tulip[conditionOverlapNumbers].Partition = maxEV;
+        f1->sinc.tulip[conditionOverlapNumbers].Partition = maxArray;
         f1->sinc.tulip[conditionOverlapNumbers].parallel = 0;
         f1->sinc.tulip[conditionOverlapNumbers].species = scalar;
         f1->sinc.tulip[conditionOverlapNumbers].header = Cube;
@@ -1224,7 +1319,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         f1->sinc.tulip[matrixHbuild].spinor = none;
         f1->sinc.tulip[matrixHbuild].myAddress = fromMyBegining(f1,twoBodyProjector);
-        f1->sinc.tulip[matrixHbuild].Partition = imax(6*maxEV*maxEV, 2*vectorLen(f1, eigenVectors)[0]*vectorLen(f1, eigenVectors)[0]  );
+        f1->sinc.tulip[matrixHbuild].Partition = imax(6*maxArray*maxArray, 2*vectorLen(f1, eigenVectors)[0]*vectorLen(f1, eigenVectors)[0]  );
         f1->sinc.tulip[matrixHbuild].parallel = 0;
         f1->sinc.tulip[matrixHbuild].species = scalar;
         f1->sinc.tulip[matrixHbuild].header = Cube;
@@ -1233,7 +1328,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         f1->sinc.tulip[vectorHbuild].spinor = none;
         f1->sinc.tulip[vectorHbuild].myAddress = fromMyBegining(f1,matrixHbuild);
-        f1->sinc.tulip[vectorHbuild].Partition = maxEV;
+        f1->sinc.tulip[vectorHbuild].Partition = maxArray;
         f1->sinc.tulip[vectorHbuild].parallel = 0;
         f1->sinc.tulip[vectorHbuild].species = scalar;
         f1->sinc.tulip[vectorHbuild].header = Cube;
@@ -1243,7 +1338,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         f1->sinc.tulip[matrixSbuild].spinor = none;
         f1->sinc.tulip[matrixSbuild].myAddress = fromMyBegining(f1,vectorHbuild);
-        f1->sinc.tulip[matrixSbuild].Partition = 4*maxEV*maxEV;
+        f1->sinc.tulip[matrixSbuild].Partition = 4*maxArray*maxArray;
         f1->sinc.tulip[matrixSbuild].parallel = 0;
         f1->sinc.tulip[matrixSbuild].species = scalar;
         f1->sinc.tulip[matrixSbuild].header = Cube;

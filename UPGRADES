@@ -31,8 +31,15 @@ ANDROMEDA 1.6 RELEASED October 24th 2018
 	*Improved persistence of driving Lanczos in spite of Linear Dependence by Cycling the computation.
 	*Various improvements to Symmetry Adaption including proper use of projections.
 	*Still booting in unadapted subspace.
+ANDROMEDA 1.7 RELEASED October 26th 2018
+	*final testing completed. With Sinc substratum basis
+ANDROMEDA 2.0 RELEASED October 29th 2018
+	*serious improvements to SA
+ANDROMEDA final	RELEASED December 2nd 2018
+	*added another iteration mechanism.
+	New mechanism can overcome previous issues with convergence of nearly solved systems by repeatedly cycling with step = 0.  ALL IO is perfect(which was also fixed, sorry!). 
 
 
 
-
-
+	THE next program will be much better with more electrons!
+Finis.

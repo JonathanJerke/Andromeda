@@ -3,8 +3,8 @@
  *  
  *
  *  Copyright 2018 Jonathan Jerke and Bill Poirier.
- *  We acknowledge the generous support of Texas Tech University
- *  and the Robert A. Welch Foundation.
+ *  We acknowledge the generous support of Texas Tech University,
+ *  the Robert A. Welch Foundation, and Army Research Office.
  *
  
 *   *   This file is part of Andromeda.
@@ -34,11 +34,6 @@
 #include <stdlib.h>
 #include <math.h>
 #define VERBOSE 0 
-
-
-
-
-
 
 #ifdef APPLE
 #include "Accelerate/Accelerate.h"
@@ -129,7 +124,8 @@ typedef double __complex__ DCOMPLEX_PRIME;
 
 #define CDT 'T'
 #define MaxSpin 2
-#define MaxCycle 16
+#define nSAG 5
+
 //pseudo-potentials
 
 struct canon {
@@ -296,6 +292,10 @@ enum functionType{
 
 
 
+
+
+
+
 enum division{
     kinetic,//0
     linear,
@@ -367,6 +367,7 @@ enum division{
     symmBasis,//62
     edgeMatrix,//63
     eigen,//64
+    spam,
     sectors,
     vectors2,//65
     gammas,//66
@@ -472,6 +473,7 @@ enum division{
     conditionOverlapNumbers,
     manyElectronsRitz,//
     foundationStructure,
+    foundationEquals,
     uszCanon,
     opCanon,
     totalVector,
@@ -529,10 +531,13 @@ struct name_label {
     INT_TYPE ptRank[MaxCore];
     ADDRESS_TYPE Address;
     ADDRESS_TYPE myAddress;
-    INT_TYPE center ;
+    INT_TYPE path ;
     enum body NBody;
+    
     double value;
     double value2;
+    double value3;
+
     INT_TYPE parallel;
     unsigned int stop[MaxSpin][MAXATOM+1];
     INT_TYPE signature;
@@ -596,6 +601,7 @@ struct field {
     INT_TYPE Na;
     INT_TYPE Ne;
     enum body body;
+    INT_TYPE ir;
 	struct sinc_label sinc;
     struct rds_label rds;
     //struct band_label band;
@@ -605,7 +611,12 @@ struct field {
 };
 
 struct general_index{//one dimension
-	
+    double b0;
+    double b1;
+    INT_TYPE l0;
+    INT_TYPE l1;
+    double x1;
+
 	double x0;//gaussain1 position in 1-d
 	
     INT_TYPE action ;//0 = no derivative.  1 derivative.
@@ -620,10 +631,12 @@ struct general_2index{//one dimension
 	struct general_index i[2];
     double d ;
     double alpha;
+    double boundary;
     double k;
     INT_TYPE N1;
     INT_TYPE body;
     INT_TYPE periodic;
+    INT_TYPE gaussianAccelerationFlag;
     struct function_label * fl;
 };
 
@@ -661,11 +674,16 @@ struct MEM {
 
 
 struct input {
+    INT_TYPE cycleStep;
+    INT_TYPE lookBack;
+    INT_TYPE filter;
     INT_TYPE type;
 #ifdef OMP
   //  INT_TYPE traffic;
     INT_TYPE omp;
 #endif
+    double seekPower;
+    INT_TYPE l2;
     INT_TYPE group;
     INT_TYPE nTargets;
     double scalar;
@@ -675,6 +693,8 @@ struct input {
     INT_TYPE interval;
     INT_TYPE sectors;
     double attack;
+    INT_TYPE cSA[nSAG*nSAG*nSAG];
+    INT_TYPE side;
     
     INT_TYPE hartreeFockFlag;
     INT_TYPE M1;
@@ -695,6 +715,7 @@ struct input {
     INT_TYPE charge;
     INT_TYPE canonRank;
     INT_TYPE heliumFlag;
+    INT_TYPE paths;
     INT_TYPE nStates;
     INT_TYPE iRank ;
     INT_TYPE bRank;

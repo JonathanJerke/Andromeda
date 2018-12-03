@@ -3,8 +3,8 @@
  *
  *
  *  Copyright 2018 Jonathan Jerke and Bill Poirier.
- *  We acknowledge the generous support of Texas Tech University
- *  and the Robert A. Welch Foundation.
+ *  We acknowledge the generous support of Texas Tech University,
+ *  the Robert A. Welch Foundation, and Army Research Office.
  *
  
  *   *   This file is part of Andromeda.
@@ -152,37 +152,89 @@ INT_TYPE inputFormat(struct field * f1,char * name,  enum division buffer, enum 
             return pow(M[0],1./4.);
     }
     
+//    ct = 0;
+//    while ( 1 ){
+//        if ( EOF == getline(&inputPt,&maxRead, in   ))
+//            break;
+//        if ( strstr(inputPt, "}") || strstr(inputPt, "{") || strstr(inputPt, ",") ){
+//            //skip
+//        }else  if ( sscanf (inputPt,"%lf\n",&( value))  ){
+//            space = (ct / M[0]) % 3;
+//            r = ( ct / ( M[0]*3 ) ) % 3;
+//            l = ct % M[0];
+//            streams(f1, buffer, sp, space)[ M[space] * r+ l ] = value;
+//            ct++;
+//        } else if ( sscanf (inputPt,"-%lf\n",&( value)) ){
+//            space = (ct / M[0]) % 3;
+//            r = ( ct / ( M[0]*3 ) ) % 3;
+//            l = ct % M[0];
+//            streams(f1, buffer, sp, space)[ M[space] * r+ l ] = value;
+//            ct++;
+//  //          if ( value > 0 ){
+//              printf("wtf\n");
+//     //       }
+//
+//
+//        }
+//       // printf("%lld %s\n", ct, inputPt);
+//    }
+//
+//    printf("%lld : %lld\n", ct, 3*M[0]*r1);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
     for ( r = 0; r < r1 ; r++){
-        if ( ! flag2 ){
-            flag2 =1 ;
-        }else
-            getline(&inputPt,&maxRead, in   );
+//        if ( ! flag2 ){
+//            flag2 =1 ;
+//        }else
+//            getline(&inputPt,&maxRead, in   );
         getline(&inputPt,&maxRead, in   );
         flag3 = 0;
-        
+
         for ( space = 0; space < SPACE ; space++){
-            if ( ! flag3 ){
-                flag3 = 1 ;
-            }else     getline(&inputPt,&maxRead, in   );
-            
+//            if ( ! flag3 ){
+//                flag3 = 1 ;
+//            }else     getline(&inputPt,&maxRead, in   );
+
             getline(&inputPt,&maxRead, in   );
             flag4 = 0;
-            
+
             for ( l = 0 ; l < M[space] ;l++){
-                if ( ! flag4 ){
-                    flag4 = 1 ;
-                }else
-                    getline(&inputPt,&maxRead, in   );
-                
+//                if ( ! flag4 ){
+//                    flag4 = 1 ;
+//                }else
+//                    getline(&inputPt,&maxRead, in   );
+
                 getline(&inputPt,&maxRead, in   );
                 if ( ! sscanf (inputPt,"%lf\n",&( value)) ){
-                    printf("--%lld\n",ct);
+                    printf("--%lld :%s:\n",ct,inputPt);
                 };
+
                 ct++;
-                if ( value == lvalue )
-                    printf("%lld %1.15f %lld %lld\n", ct,value,r,l);
+//                if ( value == lvalue )
+//                    printf("%lld %1.15f %lld %lld\n", ct,value,r,l);
                 lvalue = value;
                 streams(f1, buffer, sp, space)[ M[space] * r+ l ] = value;
+                getline(&inputPt,&maxRead, in   );
+            //    printf(":%s:\n",inputPt);
+
             }
             getline(&inputPt,&maxRead, in   );
         }
@@ -315,16 +367,21 @@ INT_TYPE printVectorOutput ( struct field * f1,INT_TYPE number){
         
         for ( l = 0; l < NC*NC*NC ; l++)
         {
-            i = l % NC - (NC-1)/2;
-            j = (l/NC) % NC - (NC-1)/2;
-            k = (l/(NC*NC)) % NC - (NC-1)/2;
+            i = (l % NC) - (NC-1)/2;
+            j = ((l/NC) % NC) - (NC-1)/2;
+            k = ((l/(NC*NC)) % NC) - (NC-1)/2;
 
             displacement[0] = f1->sinc.N1*f1->sinc.d*(i*(1./NC));
             displacement[1] = f1->sinc.N1*f1->sinc.d*(j*(1./NC));
             displacement[2] = f1->sinc.N1*f1->sinc.d*(k*(1./NC));
 
+#ifdef Bill
+            if ( i != 0 )
+                continue;
+#endif
+            
             res =  tComputeVectorPlot( f1 ,number,f1->mem1->rt->runFlag,displacement ,numC);
-            fprintf(printOut,"%d,%d,%d,%d,%12.6f,%12.6f,%12.6f,%d,%d,%d,%12.16f\n",bodies(f1,eigenVectors),(f1->mem1->rt->runFlag)%2,(f1->mem1->rt->runFlag/2)%2, (f1->mem1->rt->runFlag/4)%2, displacement[0],displacement[1],displacement[2],i+1,j+1,k+1,res);
+            fprintf(printOut,"%d,%d,%d,%d,%12.6f,%12.6f,%12.6f,%d,%d,%d,%12.16f\n",bodies(f1,eigenVectors),(f1->mem1->rt->runFlag)%2,(f1->mem1->rt->runFlag/2)%2, (f1->mem1->rt->runFlag/4)%2, displacement[0],displacement[1],displacement[2],i,j,k,res);
             fflush(printOut);
         }
     }
@@ -437,7 +494,7 @@ double tComputeRadialPlot(struct field * f1,INT_TYPE number,  INT_TYPE class,  d
         {
             gsl_monte_vegas_integrate ( & G , xl, xu, dim , numC, r,s,&res, &err );
             //    printf("%f %f %f\n", res,err, gsl_monte_vegas_chisq (s));
-        } while (fabs ((gsl_monte_vegas_chisq (s) - 1.0) > 0.1 || err/max(1.,res) > f1->mem1->rt->TARGET)&& num++ < 100);
+        } while (fabs ((gsl_monte_vegas_chisq (s) - 1.0) > 0.1 || max(1.,fabs(res)) > f1->mem1->rt->TARGET)&& num++ < 100);
         
         gsl_monte_vegas_free(s);
         gsl_rng_free(r);
@@ -494,8 +551,8 @@ double tComputeVectorPlot(struct field * f1,INT_TYPE number,  INT_TYPE class,  d
         
         
         if ( class % 2 ){
-            xl[space+2] = - N12*f1->sinc.d;
-            xu[space+2] =   N12*f1->sinc.d;
+            xl[space] = - N12*f1->sinc.d;
+            xu[space] =   N12*f1->sinc.d;
             //
             //        xl[space] = - pi/f1->sinc.d;
             //        xu[space] =   pi/f1->sinc.d;
@@ -508,8 +565,8 @@ double tComputeVectorPlot(struct field * f1,INT_TYPE number,  INT_TYPE class,  d
         }
         space = 1;
         if ( (class/2) % 2 ){
-            xl[space+2] = - N12*f1->sinc.d;
-            xu[space+2] =   N12*f1->sinc.d;
+            xl[space] = - N12*f1->sinc.d;
+            xu[space] =   N12*f1->sinc.d;
             
             //        xl[space] = - pi/f1->sinc.d;
             //        xu[space] =   pi/f1->sinc.d;
@@ -522,8 +579,8 @@ double tComputeVectorPlot(struct field * f1,INT_TYPE number,  INT_TYPE class,  d
         }
         space = 2;
         if ( (class/4) % 2 ){
-            xl[space+2] = - N12*f1->sinc.d;
-            xu[space+2] =   N12*f1->sinc.d;
+            xl[space] = - N12*f1->sinc.d;
+            xu[space] =   N12*f1->sinc.d;
             
             //        xl[space] = - pi/f1->sinc.d;
             //        xu[space] =   pi/f1->sinc.d;
@@ -538,8 +595,12 @@ double tComputeVectorPlot(struct field * f1,INT_TYPE number,  INT_TYPE class,  d
         
         
         INT_TYPE rank = 0,dim = 3;
+#ifndef APPLE
 #ifdef OMP
         rank = omp_get_thread_num();
+#else
+        rank = 0;
+#endif
         gsl_monte_function G;
         G.f = &evaluateVectorBracket;
         G.dim = 3;
@@ -557,15 +618,24 @@ double tComputeVectorPlot(struct field * f1,INT_TYPE number,  INT_TYPE class,  d
         r = gsl_rng_alloc(T);
         s = gsl_monte_vegas_alloc(G.dim);
         
+#ifdef BILL
+        double x0[3];
+        x0[0] = 0.;
+        x0[1] = 0.;
+        x0[2] = 0.;
+        res = evaluateVectorBracket(x0,3,&fA );
+#else
+        
         gsl_monte_vegas_integrate ( & G , xl, xu, dim , numC, r,s,&res, &err );
         do
         {
             gsl_monte_vegas_integrate ( & G , xl, xu, dim , numC, r,s,&res, &err );
             // printf("%f %f %f\n", res,err, gsl_monte_vegas_chisq (s));
-        } while ((fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.1 || err/max(1.,res)  > f1->mem1->rt->TARGET) && num++ < 100);
+        } while ((fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.1 || err/max(1.,fabs(res))  > f1->mem1->rt->TARGET) && num++ < 100);
         
         gsl_monte_vegas_free(s);
         gsl_rng_free(r);
+#endif
 #else
         
         //    {
@@ -852,7 +922,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename){
                 read = (4== si);
                 if ( read && fabs(Occ) > 1e-5){
                     tClear(&c1->i.c, eigenVectors+ct);
-                    for ( cmpl = 0; cmpl < 2; cmpl++)
+                    for ( cmpl = 0; cmpl < spins(&c1->i.c, eigenVectors); cmpl++)
                     {
                         sprintf(name,"%s.%d.eigen-%d.%d_mac",c1->cycleName,number,class,cmpl);
                         printf("%d\t%s\t%f\n", ct, name, fabs(Occ));
