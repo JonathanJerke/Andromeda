@@ -3,8 +3,8 @@
  *
  *
  *  Copyright 2018 Jonathan Jerke and Bill Poirier.
- *  We acknowledge the generous support of Texas Tech University
- *  and the Robert A. Welch Foundation.
+ *  We acknowledge the generous support of Texas Tech University,
+ *  the Robert A. Welch Foundation, and Army Research Office.
  *
  
  *   *   This file is part of Andromeda.
@@ -24,6 +24,7 @@
  */
 
 #include "interfaceMath.h"
+
 
 
 double Sinc( double d , double x){

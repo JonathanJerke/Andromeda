@@ -3,8 +3,8 @@
  *
  *
  *  Copyright 2018 Jonathan Jerke and Bill Poirier.
- *  We acknowledge the generous support of Texas Tech University
- *  and the Robert A. Welch Foundation.
+ *  We acknowledge the generous support of Texas Tech University,
+ *  the Robert A. Welch Foundation, and Army Research Office.
  *
  
  *   *   This file is part of Andromeda.
@@ -27,15 +27,25 @@
 #define coreForce_h
 
 #include "constants.h"
-#include "coreUtil.h"
 #include "coreMath.h"
 #include "mAls.h"
 
+double c10c00 ( double a, double bd, double xd, double b1, double x1, double b2, double x2, double b3 ,double x3 );
+double c11c00 ( double a, double bd1, double xd1, double bd2, double xd2, double b2, double x2, double b3 ,double x3 );
+double c11c00 ( double a, double bd1, double xd1, double bd2, double xd2, double b2, double x2, double b3 ,double x3 );
+double c10c10 (  double a, double bd1, double xd1,  double b2, double x2, double bd2, double xd2,double b3 ,double x3 );
+double c11c10 ( double a , double bd1, double  xd1,double  bd2,double  xd2, double bd3,double xd3,double  b1,double x1);
+double c11c11 (double a, double bd1,double xd1,  double bd2, double xd2, double bd3, double xd3,double bd4, double xd4);
+double aGGCGG(double a , struct general_2index * pa);
+
 
 DCOMPLEX ei ( double arg );
+double No(double beta1);
+double GoG( double beta1, double beta2 , double x );
 double test ( double p , struct general_index * pa );
 DCOMPLEX FSS ( double p , struct general_index * pa );
 DCOMPLEX FDD ( double p , struct general_index * pa );
+DCOMPLEX FGG ( double p , struct general_index * pa);
 double periodicSSGSSa( double alpha ,struct general_2index * pa);
 double periodicSGSa( double alpha ,struct general_2index * pa);
 double periodicSGS ( double a, double x0, INT_TYPE power, double d , INT_TYPE n, INT_TYPE m, INT_TYPE N1  );
@@ -49,7 +59,7 @@ double elementCal (double a, double b,struct general_2index * aAf );
 void myBuildOne (struct field * f1,double beta ,   enum division transfer, INT_TYPE periodic);
 void myBuildTwo (struct field * f1,double beta ,   enum division transfer, INT_TYPE periodic);
 void getDescription ( struct function_label *fn ,double scalar,FILE * outString);
-
+double monteCarloElementCal (double beta, struct general_2index *aAf  );
 double findMyInterval1 ( struct field * f1  , double gamma , struct interaction_label lab,double lvl, INT_TYPE periodic);
 double findMyInterval2 ( struct field * f1  , double gamma , struct interaction_label lab,double lvl,INT_TYPE periodic);
 void mySeparateExactOne (struct field * f1, double scalar, enum division basis);

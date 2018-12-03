@@ -1,8 +1,15 @@
 *Body default
 	*Parameters
 	#whatever your confortable with
+	seek 1.0
+	filter 1
+	side 81
 	maxRAM 4	
-	#extra matrix terms 
+	#basis size increase PER cycle: to really converge set step = 0 and cycle repeatedly.
+	step 1
+	#number of iterations stored for next cycle.  Recommend leaving alone.
+	lookBack 999
+	#extra matrix terms in build.
 	matrix 1
 	# Bohr
 	Angstroms 0

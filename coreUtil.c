@@ -3,8 +3,8 @@
  *
  *
  *  Copyright 2018 Jonathan Jerke and Bill Poirier.
- *  We acknowledge the generous support of Texas Tech University
- *  and the Robert A. Welch Foundation.
+ *  We acknowledge the generous support of Texas Tech University,
+ *  the Robert A. Welch Foundation, and Army Research Office.
  *
  
  *   *   This file is part of Andromeda.
@@ -35,6 +35,10 @@ INT_TYPE spaces( struct field * f1, enum division label){
 
 INT_TYPE name ( struct field * f1, enum division label){
     return f1->sinc.tulip[f1->sinc.tulip[f1->sinc.tulip[label].name].name].name;
+}
+
+INT_TYPE tPath ( struct field * f1, enum division label){
+    return f1->sinc.tulip[label].path;
 }
 
 
@@ -301,7 +305,7 @@ INT_TYPE tClear ( struct field * f1 , enum division label ){
 
 INT_TYPE CanonicalRank( struct field * f1 , enum division label , INT_TYPE spin ){
     if ( label > f1->sinc.end ){
-        printf("rank past end\n");
+        printf("Can rank past end\n");
     }
     
     
@@ -314,6 +318,14 @@ INT_TYPE CanonicalRank( struct field * f1 , enum division label , INT_TYPE spin 
         return 0;
     }
 }
+
+INT_TYPE Rank( struct field * f1 , enum division label ){
+    INT_TYPE sp,ra=0;;
+    for ( sp = 0 ; sp < spins(f1, label);sp++)
+        ra += CanonicalRank(f1, label, sp);
+    return ra;
+}
+
 
 double getPosition(struct field * f1, INT_TYPE at , INT_TYPE space ){
     return f1->atoms[at].position[space];
@@ -642,7 +654,7 @@ enum division ocean(INT_TYPE rank, struct field * f1, enum division A, INT_TYPE 
 }
 
 double xEqua ( struct field * f1 , enum division targ ,INT_TYPE tspin,struct field * f2 , enum division orig,INT_TYPE ospin ){
-    INT_TYPE space;
+    INT_TYPE space,rank=0;
     INT_TYPE eb = CanonicalRank(f2,orig,ospin);
     INT_TYPE M2[3];
     length(f2, orig, M2);
@@ -660,8 +672,21 @@ double xEqua ( struct field * f1 , enum division targ ,INT_TYPE tspin,struct fie
         exit(0);
     }
     
+    if ( f1->sinc.N1 != f2->sinc.N1 ){
+        if ( bodies(f2, orig) == two )
+            xTwoBand(rank,f2, orig,  ospin, f1, targ,tspin,f1->mem1->rt->runFlag );
+        else if ( bodies(f2, orig) == three )
+            xThreeBand(rank,f2, orig,  ospin, f1, targ,tspin,f1->mem1->rt->runFlag );
+        else if ( bodies(f2, orig) == four )
+            xFourBand(rank,f2, orig,  ospin, f1, targ,tspin,f1->mem1->rt->runFlag );
+    }
+    else {
+    
+    
+    
     for ( space = 0; space < SPACE; space++){
         cblas_dcopy(eb*M2[space], streams(f2,orig,ospin,space),1,streams(f1,targ,tspin,space),1);
+    }
     }
     f1->sinc.tulip[targ].Current[tspin] = f2->sinc.tulip[orig].Current[ospin];
     f1->sinc.tulip[name(f1,targ)].header = header(f2, name(f2,orig));
@@ -673,7 +698,6 @@ double xEqua ( struct field * f1 , enum division targ ,INT_TYPE tspin,struct fie
 double tEqua ( struct field * f1 , enum division targ ,INT_TYPE tspin, enum division orig,INT_TYPE ospin ){
     return xEqua(f1, targ,tspin, f1, orig,ospin);
 }
-
 
 INT_TYPE tEquals( struct field * f1 , enum division left , enum division right){
     enum spinType spl,spr;
@@ -690,8 +714,9 @@ INT_TYPE tEquals( struct field * f1 , enum division left , enum division right){
             tEqua(f1, left, 1, right , 1);
         return 0;
     }else {
+        tEqua(f1, left, 0, right , 0);
         printf("cmpl!\n");
-        exit(0);
+      //  exit(0);
     }
     return 0;
     
@@ -714,8 +739,10 @@ INT_TYPE tAddTwo( struct field * f1 , enum division left , enum division right){
             tAddTw(f1, left, 1, right , 1);
         return 0;
     }else {
+        tAddTw(f1, left, 0, right , 0);
+
         printf("cmpl!\n");
-        exit(0);
+       // exit(0);
     }
     return 0;
 }
@@ -1298,7 +1325,7 @@ INT_TYPE tBoot ( struct field *f1 , enum division label,INT_TYPE spin ){
                 Stream_Type  * stream = streams(f1,label,spin,space)+Current*B1[space];
                 for ( I1 = 0 ; I1< B1[space] ; I1++)
                     for ( I2 = 0 ; I2 < B1[space] ; I2++){
-                        stream[I1*B1[space]+I2] = exp(-fabs(I1-(B1[space]-1)/2)*0.01)*exp(-sqr(I2-(B1[space]-1)/2)*0.01);
+                        stream[I1*B1[space]+I2] = exp(-abs(I1-(B1[space]-1)/2)*0.01)*exp(-sqr(I2-(B1[space]-1)/2)*0.01);
                 }
             }
         }

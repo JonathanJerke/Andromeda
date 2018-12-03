@@ -3,8 +3,8 @@
  *
  *
  *  Copyright 2018 Jonathan Jerke and Bill Poirier.
- *  We acknowledge the generous support of Texas Tech University
- *  and the Robert A. Welch Foundation.
+ *  We acknowledge the generous support of Texas Tech University,
+ *  the Robert A. Welch Foundation, and Army Research Office.
  *
  
  *   *   This file is part of Andromeda.
@@ -48,6 +48,242 @@ DCOMPLEX ei ( double arg ){
     return cexp(I*arg);
 }
 
+double No(double beta1){
+    return 1./sqrt(sqrt(pi / 2. / beta1 ) ) ;
+};//single dimensions of guassian
+
+
+
+double GoG( double beta1, double beta2 , double x ){
+    double va = sqrt(pi/(beta1+beta2))*No(beta1)*No(beta2)*exp(-(beta1*beta2)/(beta1+beta2)*x*x);
+    return va;
+}
+
+
+DCOMPLEX FGG ( double p , struct general_index * pa){
+    double xc1,xc2;
+    DCOMPLEX fgg;
+    double b0,b1,x0,x1;
+    INT_TYPE l0,l1;
+    double x;
+    
+    
+    if ( pa->l0 < pa->l1 ){
+        b0 = pa->b1;
+        b1 = pa->b0;
+        l0 = pa->l1;
+        l1 = pa->l0;
+        x0 = pa->x1;
+        x1 = pa->x0;
+        
+    }else {
+        b1 = pa->b1;
+        b0 = pa->b0;
+        l1 = pa->l1;
+        l0 = pa->l0;
+        x1 = pa->x1;
+        x0 = pa->x0;
+
+    }
+    x = x1-x0;
+    xc1 =GoG(b0, b1, x)*exp(-sqr(p /2.)/(b0+b1));
+        
+    xc2 = ((b0*x0+ b1*x1)/(b0+b1));
+    fgg = xc1 * ei( p * xc2 );
+
+    if ( l0 == 1 ){
+        fgg /= pow(b0,0.5*l0);
+    }else if ( l0 == 2 ){
+        fgg /= sqrt(3.)*pow(b0,0.5*l0);
+    }else if ( l0 == 3 ){
+        fgg /= sqrt(15.)*pow(b0,0.5*l0);
+    }else if ( l0 == 4 ){
+        fgg /= sqrt(105.)*pow(b0,0.5*l0);
+    }
+    
+    if ( l1 == 1 ){
+        fgg /= pow(b1,0.5*l1);
+    }else if ( l1 == 2 ){
+        fgg /= sqrt(3.)*pow(b1,0.5*l1);
+    }else if ( l1 == 3 ){
+        fgg /= sqrt(15.)*pow(b1,0.5*l1);
+    }else if ( l1 == 4 ){
+        fgg /= sqrt(105.)*pow(b1,0.5*l1);
+    }
+
+    if ( l0 == 0 && l1 == 0 ){
+        return fgg;
+    }
+    else if ( l0 == 1 && l1 == 0 ){
+        return fgg*(b0)/(b0+b1) * (  2. * b1 * x +I* p  );
+    } else if ( l0 == 1 && l1 == 1 ){
+        return -fgg*(b0*b1)/sqr(b0+b1) * (( p*p - 2.*(b1+b0)+4.*b0*b1*x*x -I*( 2. * ( b1 - b0 ) * x * p)));
+        
+        
+    }  else if ( l0 == 2 && l1 ==    0 ){
+        return fgg*(b0*(-2*b1*b1 - b0*(p*p - 4*b1*b1*x*x + b1*(2 - 4*I*p*x))))/(b0 + b1)/(b0 + b1);
+    }  else if ( l0 == 2 && l1 ==    1 ){
+        return (fgg/(b0 + b1)*(b0 + b1)*(b0 + b1))*(b0*b1*(-2*I*b1*b1*p + b0*((-I)*p*p*p + 2*b1*p*(I - 2*p*x) +
+                                                                              4*b1*b1*x*(3 + I*p*x)) + 2*b0*b0*(p*p*x + 2*b1*x*(3 - 2*b1*x*x) -
+                                                                                                                2*I*p*(-1 + 2*b1*x*x))));
+    }  else if ( l0 == 2 && l1 ==    2 ){
+
+        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b1*(2*b1*b1*b1*p*p+ b0*b1*(p*p*p*p + 2*b1*p*p*(-3 - 2*I*p*x) -
+                                                           4*b1*b1*(-3 - 6*I*p*x + p*p*x*x)) +
+                                       2*b0*b0*b0*(p*p + 8*b1*b1*b1*x*x*x*x + 8*I*b1*b1*x*x*(3*I + p*x) -
+                                               2*b1*(-3 + 6*I*p*x + p*p*x*x)) + 2*b0*b0*b1*(8*b1*b1*x*x*(-3 - I*p*x) +
+                                                                                            p*p*(-3 + 2*I*p*x) + 4*b1*(3 + 2*p*p*x*x))));
+        
+        
+    }  else if ( l0 == 3 && l1 ==    0 ){
+        return fgg*(b0*b0*(I*p + 2*b1*x)*(-6*b1*b1 -
+                                      b0*(p*p - 4*b1*b1*x*x + b1*(6 - 4*I*p*x))))/(b0 + b1)/(b0 + b1)/(b0 + b1);
+        
+    }  else if ( l0 == 3 && l1 ==    1 ){
+       return  (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*(6*b1*b1*(p*p + b1*(-2 - 2*I*p*x)) +
+                                  b0*(p*p*p*p - 6*I*b1*p*p*p*x + 8*b1*b1*b1*x*x*(6 + I*p*x) -
+                                      12*b1*b1*(2 - 2*I*p*x + p*p*x*x)) - 2*b0*b0*(8*b1*b1*b1*x*x*x*x + p*p*(3 - I*p*x) +
+                                                                                   12*I*b1*b1*x*x*(2*I + p*x) - 6*b1*(-1 + 3*I*p*x + p*p*x*x))));
+    }  else if ( l0 == 3 && l1 ==    2 ){
+        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*(6*b1*b1*b1*p*(I*p*p + 2*b1*(-2*I + p*x)) +
+                                             b0*b1*(I*p*p*p*p*p + 6*b1*p*p*p*(-I + p*x) + 8*b1*b1*b1*x*(15 + 12*I*p*x - p*p*x*x) -
+                                                    12*I*b1*b1*p*(1 - 5*I*p*x + p*p*x*x)) +
+                                             2*b0*b0*b0*(I*p*p*p + 16*b1*b1*b1*b1*x*x*x*x*x + 8*b1*b1*b1*x*x*x*(-10 + 3*I*p*x) +
+                                                     2*b1*p*(9*I + 9*p*x - I*p*p*x*x) - 12*b1*b1*x*(-5 + 6*I*p*x + p*p*x*x)) +
+                                             2*b0*b0*b1*(16*b1*b1*b1*x*x*x*(-5 - I*p*x) - p*p*p*(5*I + 2*p*x) +
+                                                        24*b1*b1*x*(5 - I*p*x + p*p*x*x) + 6*I*b1*p*(4 + 3*I*p*x + 2*p*p*x*x))));
+        
+    }  else if ( l0 == 3 && l1 ==    3 ){
+        return -((fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*b1*(6*b1*b1*b1*p*p*(p*p+ b1*(-6 - 2*I*p*x)) -
+                                            6*b0*b0*b1*(p*p*p*p*(2 - I*p*x) - 6*b1*p*p*(4 + p*p*x*x) +
+                                                       8*b1*b1*b1*x*x*(-15 - 10*I*p*x + p*p*x*x) +
+                                                       12*b1*b1*(5 + 5*I*p*x + 4*p*p*x*x +
+                                                                I*p*p*p*x*x*x)) +
+                                            b0*b1*(p*p*p*p*p*p + 6*b1*p*p*p*p*(-2 - I*p*x) -
+                                                   12*b1*b1*p*p*(-3 - 8*I*p*x + p*p*x*x) +
+                                                   8*b1*b1*b1*(-15 - 45*I*p*x + 18*p*p*x*x +
+                                                           I*p*p*p*x*x*x)) +
+                                            4*b0*b0*b0*b0*(16*b1*b1*b1*b1*x*x*x*x*x*x + 3*I*p*p*(3*I + p*x) +
+                                                    24*I*b1*b1*b1*x*x*x*x*(5*I + p*x) -
+                                                    12*b1*b1*x*x*(-15 + 10*I*p*x + p*p*x*x) +
+                                                    b1*(-30 + 90*I*p*x + 36*p*p*x*x - 2*I*p*p*p*x*x*x)) +
+                                            
+                                            6*b0*b0*b0*(p*p*p*p + 16*b1*b1*b1*b1*x*x*x*x*(-5 - I*p*x) +
+                                                    24*b1*b1*b1*x*x*(10 + p*p*x*x) -
+                                                    2*b1*p*p*(-3 + 8*I*p*x + p*p*x*x) +
+                                                    12*I*b1*b1*(5*I + 5*p*x + 4*I*p*p*x*x +
+                                                                p*p*p*x*x*x)))));
+
+    }  else if ( l0 == 4 && l1 ==    0 ){
+        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*(12*b1*b1*b1*b1 -
+                                      12*b0*b1*b1*(-p*p + 4*b1*b1*x*x + b1*(-2 + 4*I*p*x)) +
+                                      b0*b0*(p*p*p*p + 16*b1*b1*b1*b1*x*x*x*x + 4*b1*p*p*(3 - 2*I*p*x) +
+                                            16*b1*b1*b1*x*x*(-3 + 2*I*p*x) -
+                                             12*b1*b1*(-1 + 4*I*p*x + 2*p*p*x*x))));
+        
+    }  else if ( l0 == 4 && l1 ==    1 ){
+        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*
+                                b1*(12*I*b1*b1*b1*b1*p + 12*b0*b1*b1*(I*p*p*p + 2*b1*b1*x*(-5 - 2*I*p*x) +
+                                                              2*b1*p*(-I + 2*p*x)) +
+                                    I*b0*b0*(p*p*p*p*p + 4*b1*p*p*p*(1 - 2*I*p*x) +
+                                            16*b1*b1*b1*b1*x*x*x*(-10*I + p*x) +
+                                            16*b1*b1*b1*x*(15*I + 9*p*x + 2*I*p*p*x*x) -
+                                            12*b1*b1*p*(7 - 2*I*p*x + 2*p*p*x*x)) -
+                                    2*
+                                    b0*b0*b0*(16*b1*b1*b1*b1*x*x*x*x*x + 16*b1*b1*b1*x*x*x*(-5 + 2*I*p*x) +
+                                          p*p*p*(4*I + p*x) +
+                                          4*b1*p*(6*I + 9*p*x - 2*I*p*p*x*x) -
+                                          12*b1*b1*x*(-5 + 8*I*p*x + 2*p*p*x*x))));
+        
+    }  else if ( l0 == 4 && l1 ==    2 ){
+        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*(-12*b1*b1*b1*b1*b1*p*p + 12*b0*b1*b1*b1*(-p*p*p*p + 2*b1*p*p*(3 + 2*I*p*x) +
+                                                                    2*b1*b1*(-5 - 10*I*p*x + 2*p*p*x*x)) +
+                                         2*b0*b0*b0*b0*(-p*p*p*p + 32*b1*b1*b1*b1*b1*x*x*x*x*x*x + 16*b1*b1*b1*b1*x*x*x*x*(-15 + 4*I*p*x) +
+                                                 2*b1*p*p*(-18 + 12*I*p*x + p*p*x*x) - 8*b1*b1*b1*x*x*(-45 + 40*I*p*x + 6*p*p*x*x) +
+                                                 4*b1*b1*(-15 + 60*I*p*x + 36*p*p*x*x - 4*I*p*p*p*x*x*x)) -
+                                         b0*b0*b1*(p*p*p*p*p*p + 4*b1*p*p*p*p*(-1 - 2*I*p*x) + 16*b1*b1*b1*b1*x*x*(-45 - 20*I*p*x + p*p*x*x) -
+                                                  12*b1*b1*p*p*(9 - 8*I*p*x + 2*p*p*x*x) + 8*b1*b1*b1*(45 + 42*p*p*x*x + 4*I*p*p*p*x*x*x)) +
+                                         2*b0*b0*b0*b1*(16*b1*b1*b1*b1*x*x*x*x*(-15 - 2*I*p*x) + p*p*p*p*(7 - 2*I*p*x) -
+                                                    8*b1*p*p*(3 + 6*I*p*x + 2*p*p*x*x) + 16*b1*b1*b1*x*x*(45 - 10*I*p*x + 4*p*p*x*x) +
+                                                        12*I*b1*b1*(15*I + 30*p*x + 4*I*p*p*x*x+ 4*p*p*p*x*x*x))));
+    }  else if ( l0 == 4 && l1 ==    3 ){
+
+        return -((fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*b1*(12*I*b1*b1*b1*b1*b1*p*p*p + 12*b0*b1*b1*b1*p*
+                                      (I*p*p*p*p + 2*b1*p*p*(-5*I + 2*p*x) +
+                                       b1*b1*(30*I - 30*p*x - 4*I*p*p*x*x)) +
+                                      
+                                      4*b0*b0*b0*b0*b0*(32*b1*b1*b1*b1*b1*x*x*x*x*x*x*x + 16*b1*b1*b1*b1*x*x*x*x*x*(-21 + 4*I*p*x) -
+                                              3*p*p*p*(4*I + p*x) -
+                                              24*b1*b1*b1*x*x*x*(-35 + 20*I*p*x + 2*p*p*x*x) +
+                                              
+                                              4*b1*b1*x*(-105 + 180*I*p*x + 60*p*p*x*x - 4*I*p*p*p*x*x*x) +
+                                              2*b1*p*(-60*I - 90*p*x + 24*I*p*p*x*x + p*p*p*x*x*x)) +
+                                      I*b0*b0*b1*(p*p*p*p*p*p*p + 4*b1*p*p*p*p*p*(-3 - 2*I*p*x) - 12*b1*b1*p*p*p*
+                                                 (5 - 14*I*p*x + 2*p*p*x*x) +
+                                                 8*b1*b1*b1*p*(75 - 90*I*p*x + 66*p*p*x*x +
+                                                           4*I*p*p*p*x*x*x) +
+                                                 16*b1*b1*b1*b1*x*(105*I - 135*p*x - 30*I*p*p*x*x + p*p*p*x*x*x)) -
+                                      
+                                      6*b0*b0*b0*b1*(p*p*p*p*p*(3*I + p*x) +
+                                                 4*b1*p*p*p*(-10*I + 3*p*x - 2*I*p*p*x*x) +
+                                                 16*b1*b1*b1*b1*x*x*x*(-35 - 15*I*p*x + p*p*x*x) +
+                                                 8*b1*b1*b1*x*(105 + 30*I*p*x + 30*p*p*x*x +
+                                                           4*I*p*p*p*x*x*x) -
+                                                 12*b1*b1*p*(-5*I + 25*p*x - 4*I*p*p*x*x + 2*p*p*p*x*x*x)) +
+                                      6*b0*b0*b0*b0*(I*p*p*p*p*p - 32*I*b1*b1*b1*b1*b1*x*x*x*x*x*(-7*I + p*x) +
+                                              2*b1*p*p*p*(10*I + 11*p*x - I*p*p*x*x) +
+                                              16*b1*b1*b1*b1*x*x*x*(70 - 5*I*p*x + 4*p*p*x*x) -
+                                              4*b1*b1*p*(45*I + 28*I*p*p*x*x + 4*p*p*p*x*x*x) +
+                                              
+                                                     8*I*b1*b1*b1*x*(105*I + 75*p*x + 20*I*p*p*x*x + 6*p*p*p*x*x*x)))));
+    }  else if ( l0 == 4 && l1 ==    4 ){
+
+        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*b1*(12*b1*b1*b1*b1*b1*b1*p*p*p*p - 12*b0*b1*b1*b1*b1*p*p*
+                                           (-p*p*p*p + 2*b1*p*p*(7 + 2*I*p*x) +
+                                            4*b1*b1*(-15 - 10*I*p*x + p*p*x*x)) +
+                                           4*b0*b0*b0*b1*b1*(p*p*p*p*p*p*(-5 + 2*I*p*x) + 8*b1*p*p*p*p*(15 + 2*p*p*x*x) +
+                                                        
+                                                        16*b1*b1*b1*b1*x*x*(-210 - 210*I*p*x + 45*p*p*x*x + 2*I*p*p*p*x*x*x) -
+                                                        
+                                                        24*I*b1*b1*p*p*(-30*I + 25*p*x - 10*I*p*p*x*x + 2*p*p*p*x*x*x) +
+                                                        
+                                                        16*b1*b1*b1*(105 + 210*I*p*x + 45*p*p*x*x + 50*I*p*p*p*x*x*x -
+                                                                 4*p*p*p*p*x*x*x*x)) +
+                                           b0*b0*
+                                           b1*b1*(p*p*p*p*p*p*p*p + 4*b1*p*p*p*p*p*p*(-5 - 2*I*p*x) +
+                                                 12*b1*b1*p*p*p*p*(5 + 20*I*p*x - 2*p*p*x*x) +
+                                                 
+                                                 16*b1*b1*b1*p*p*(15 - 120*I*p*x + 45*p*p*x*x + 2*I*p*p*p*x*x*x) +
+                                                 
+                                                 16*b1*b1*b1*b1*(105 + 420*I*p*x - 270*p*p*x*x - 40*I*p*p*p*x*x*x +
+                                                          p*p*p*p*x*x*x*x)) +
+                                           4*b0*b0*b0*b0*b0*b0*(3*p*p*p*p+ 64*b1*b1*b1*b1*b1*b1*x*x*x*x*x*x*x*x + 128*I*b1*b1*b1*b1*b1*x*x*x*x*x*x*(7*I + p*x) -
+                                                   12*b1*p*p*(-15 + 10*I*p*x + p*p*x*x) -
+                                                   96*b1*b1*b1*b1*x*x*x*x*(-35 + 14*I*p*x + p*p*x*x)) +
+                                                   
+                                                   16*b1*b1*b1*x*x*(-210 + 210*I*p*x + 45*p*p*x*x - 2*I*p*p*p*x*x*x) +
+                                                   
+                                                   4*b1*b1*(105 - 420*I*p*x - 270*p*p*x*x + 40*I*p*p*p*x*x*x +
+                                                           p*p*p*p*x*x*x*x)) -
+                                           12*b0*b0*b0*b0*b1*(-p*p*p*p*p*p + 32*b1*b1*b1*b1*b1*x*x*x*x*(-35 - 14*I*p*x + p*p*x*x) +
+                                                       b1*p*p*p*p*(-5 + 20*I*p*x + 2*p*p*x*x) +
+                                                       8*b1*b1*p*p*(30 - 25*I*p*x + 10*p*p*x*x -
+                                                                   2*I*p*p*p*x*x*x) +
+                                                       16*b1*b1*b1*b1*x*x*(210 + 70*I*p*x + 25*p*p*x*x + 4*I*p*p*p*x*x*x) -
+                                                       24*b1*b1*b1*(35 + 50*p*p*x*x + 2*p*p*p*p*x*x*x*x)) +
+                                           8*b0*b0*b0*b0*b0*
+                                           b1*(3*p*p*p*p*(-7 + 2*I*p*x) - 64*I*b1*b1*b1*b1*b1*x*x*x*x*x*x*(-7*I + p*x) +
+                                               32*b1*b1*b1*b1*x*x*x*x*(105 + 4*p*p*x*x) +
+                                               2*b1*p*p*(15 + 120*I*p*x + 45*p*p*x*x -
+                                                         2*I*p*p*p*x*x*x +
+                                               24*I*b1*b1*b1*x*x*(210*I + 70*p*x + 25*I*p*p*x*x + 4*p*p*p*x*x*x) -
+                                               
+                                               8*b1*b1*(-105 + 210*I*p*x - 45*p*p*x*x + 50*I*p*p*p*x*x*x +
+                                                        4*p*p*p*p*x*x*x*x))));
+    }
+        
+        return 0;
+}
 
 
 DCOMPLEX FSSprev ( double p , struct general_index * pa ){
@@ -151,29 +387,46 @@ double periodicSdS ( INT_TYPE arg, INT_TYPE N ){
     }
 }
 
+
 double gaussianSinc ( double k, void * arg ){
     struct general_2index *pa = (struct general_2index *) arg;
 
     double value = 0, alpha = pa->alpha ;
     pa->i[0].d = pa->d;
     pa->i[1].d = pa->d;
-    if ( test(k,&pa->i[0]) > 1e-6)
-        printf( "%f\n", test(k,&pa->i[0]));
+//    if ( test(k,&pa->i[0]) > 1e-6)
+//        printf( "%f\n", test(k,&pa->i[0]));
     
     if ( pa->body ==2 ){
-        value = exp(-sqr(k /2./ alpha))/alpha * creal( FSS(-k,&pa->i[0])*FSS(k,&pa->i[1]));
-        
+        if ( sincFlag)
+            value = exp(-sqr(k /2./ alpha))/alpha * creal( FSS(-k,&pa->i[0])*FSS(k,&pa->i[1]));
+        else
+            value = exp(-sqr(k /2./ alpha))/alpha * creal( FGG(-k,&pa->i[0])*FGG(k,&pa->i[1]));
+
     } else if ( pa->body == 1 ){
-        if ( pa->i[1].action == 0 )
-            value = exp(-sqr(k /2./ alpha))/alpha * creal( FSS( -k ,&pa->i[0]) * FDD( k ,&pa->i[1]));
-        else if ( pa->i[1].action == 1 )
-            value = exp(-sqr(k /2./ alpha))/alpha * creal( FSS( -k ,&pa->i[0]) * (I * k * FDD( k ,&pa->i[1])));
-        else{
-            printf("blah\n");
-            exit(0);
+        if ( sincFlag )
+        {
+            if ( pa->i[1].action == 0 )
+                value = exp(-sqr(k /2./ alpha))/alpha * creal( FSS( -k ,&pa->i[0]) * FDD( k ,&pa->i[1]));
+            else if ( pa->i[1].action == 1 )
+                value = exp(-sqr(k /2./ alpha))/alpha * creal( FSS( -k ,&pa->i[0]) * (I * k * FDD( k ,&pa->i[1])));
+            else{
+                printf("blah\n");
+                exit(0);
+            }
+        }else
+        {
+            if ( pa->i[1].action == 0 )
+                value = exp(-sqr(k /2./ alpha))/alpha * creal( FGG( -k ,&pa->i[0]) * FDD( k ,&pa->i[1]));
+            else if ( pa->i[1].action == 1 )
+                value = exp(-sqr(k /2./ alpha))/alpha * creal( FGG( -k ,&pa->i[0]) * (I * k * FDD( k ,&pa->i[1])));
+            else{
+                printf("blah\n");
+                exit(0);
+            }
         }
     } else{
-        printf("gs");
+        printf("gs %d",pa->body);
         exit(0);
     }
     return value/(2.*pi);
@@ -191,11 +444,322 @@ void gaussianSincFunc(void * arg,size_t n,const double * x,double * y)
     
 }
 
+double mcGS ( double x [], size_t dim , void * params ){
+    struct general_2index* ga = (struct general_2index*)(params);
+    ga[0].alpha = x[0];
+    ga[1].alpha = x[0];
+    ga[2].alpha = x[0];
+    
+    return gaussianSinc(x[1], ga)*gaussianSinc(x[2], ga+1)*gaussianSinc(x[3], ga+2);
+    
+    
+}
+
+
+double c10c00 ( double a, double bd, double xd, double b1, double x1, double b2, double x2, double b3 ,double x3 ){
+    return (2*sqrt(bd)*(b1*(b2 + b3)*(x1 - xd) + a*a*(b2*x2 + b3*x3 + b1*(x1 - xd) -
+                                                      b2*xd - b3*xd)))/((b2 + b3)*(b1 + bd) + a*a*(b1 + b2 + b3 + bd));
+};
+
+double c11c00 ( double a, double bd1, double xd1, double bd2, double xd2, double b2, double x2, double b3 ,double x3 ){
+    
+    return -((2*sqrt(bd1*bd2)*
+              (sqr(b2 + b3)*(-bd2 + bd1*(-1 + 2*bd2*sqr(xd1 - xd2))) -
+               a*a*(b2 + b3)*(b3 + 2*(bd1 + bd2) +
+                              b2*(1 + 2*(xd1 - xd2)*(bd1*(x2 - xd1) + bd2*(-x2 + xd2))) +
+                              2*(xd1 - xd2)*(2*bd1*bd2*(-xd1 + xd2) +
+                                             b3*(bd1*(x3 - xd1) + bd2*(-x3 + xd2)))) -
+               a*a*a*a*(b3 + bd1 + bd2 + 2*b2*b2*(x2 - xd1)*(x2 - xd2) +
+                        2*(b3*x3 + bd1*xd1 - (b3 + bd1)*xd2)*(b3*(x3 - xd1) +
+                                                              bd2*(-xd1 + xd2)) + b2*(1 + 2*(xd1 - xd2)*(bd1*(x2 - xd1) +
+                                                                                                         bd2*(-x2 + xd2)) - 2*b3*(-2*xd1*xd2 + x3*(xd1 + xd2) +
+                                                                                                                                  x2*(-2*x3 + xd1 + xd2))))))/
+             sqr((b2 + b3)*(bd1 + bd2) + a*a*(b2 + b3 + bd1 + bd2)));
+    
+    
+    
+    
+}
+
+
+double c10c10 (  double a, double bd1, double xd1,  double b2, double x2, double bd2, double xd2,double b3 ,double x3 ){
+    double result= (2*sqrt(bd1*bd2)*(2*b2*b3*(b2 + bd1)*(b3 + bd2)*(x2 - xd1)*(x3 - xd2) +
+                                     a*a*(2*b2*b2*(x2 - xd1)*(b3*(x2 + x3 - 2*xd2) + bd2*(x2 - xd2)) +
+                                          b2*(bd2*(1 + 2*bd1*(x2 - xd1)*(xd1 - xd2)) + 2*b3*b3*(x2 + x3 - 2*xd1)*
+                                              (x3 - xd2) + b3*(1 + 2*bd1*(x2 - xd1)*(x3 + xd1 - 2*xd2) +
+                                                               2*bd2*(x3 - xd2)*(x2 - 2*xd1 + xd2))) +
+                                          bd1*(bd2 + 2*b3*b3*(x3 - xd1)*(x3 - xd2) +
+                                               b3*(1 + 2*bd2*(x3 - xd2)*(-xd1 + xd2)))) +
+                                     a*a*a*a*(bd1 + bd2 - 2*bd1*bd2*xd1*xd1 + 2*b2*b2*(x2 - xd1)*(x2 - xd2) +
+                                              2*b3*b3*(x3 - xd1)*(x3 - xd2) + 4*bd1*bd2*xd1*xd2 - 2*bd1*bd2*xd2*xd2 +
+                                              b3*(1 + 2*bd1*(x3 - xd1)*(xd1 - xd2) + 2*bd2*(x3 - xd2)*(-xd1 + xd2)) +
+                                              b2*(1 - 2*bd2*x2*xd1 + 2*bd1*(x2 - xd1)*(xd1 - xd2) + 2*bd2*x2*xd2 +
+                                                  2*bd2*xd1*xd2 - 2*bd2*xd2*xd2 + b3*(x2*(4*x3 - 2*(xd1 + xd2)) -
+                                                                                      2*(-2*xd1*xd2 + x3*(xd1 + xd2)))))))/
+    sqr((b2 + bd1)*(b3 + bd2) + a*a*(b2 + b3 + bd1 + bd2));
+    return result;
+    
+}
+
+double c11c10 ( double a , double bd1, double  xd1,double  bd2,double  xd2, double bd3,double xd3,double  b1,double x1){
+    return (sqrt(bd1*bd2*bd3)*(4*(a*a + b1 + bd3)*((bd1 + bd2)*(b1 + bd3) +
+                                                   a*a*(b1 + bd1 + bd2 + bd3))*(b1*(bd1 + bd2)*(x1 - xd3) +
+                                                                                a*a*(bd1*xd1 + bd2*xd2 + b1*(x1 - xd3) - bd1*xd3 - bd2*xd3)) -
+                               (1/bd1)*(2*a*a*((bd1 + bd2)*(b1 + bd3) + a*a*(b1 + bd1 + bd2 + bd3))*
+                                        (2*bd1*bd2*(b1 + bd3)*(xd1 - xd2) - 2*a*a*bd1*(b1*(x1 - xd1) - bd2*xd1 -
+                                                                                       bd3*xd1 + bd2*xd2 + bd3*xd3))) -
+                               (1/bd2)*(2*a*a*((bd1 + bd2)*(b1 + bd3) + a*a*(b1 + bd1 + bd2 + bd3))*
+                                        (-2*bd1*bd2*(b1 + bd3)*(xd1 - xd2) - 2*a*a*bd2*(bd1*xd1 + b1*(x1 - xd2) -
+                                                                                        bd1*xd2 - bd3*xd2 + bd3*xd3))) - (1/(bd1*bd2))*
+                               (2*(2*bd1*bd2*(b1 + bd3)*(xd1 - xd2) - 2*a*a*bd1*(b1*(x1 - xd1) -
+                                                                                 bd2*xd1 - bd3*xd1 + bd2*xd2 + bd3*xd3))*
+                                (-2*bd1*bd2*(b1 + bd3)*(xd1 - xd2) - 2*a*a*bd2*(bd1*xd1 + b1*(x1 - xd2) -
+                                                                                bd1*xd2 - bd3*xd2 + bd3*xd3))*((-b1)*(bd1 + bd2)*(x1 - xd3) +
+                                                                                                               a*a*((-bd1)*xd1 - bd2*xd2 + bd1*xd3 + bd2*xd3 + b1*(-x1 + xd3))))))/
+    cube((bd1 + bd2)*(b1 + bd3) + a*a*(b1 + bd1 + bd2 + bd3));
+    
+}
+
+double c11c11 (double a, double bd1,double xd1,  double bd2, double xd2, double bd3, double xd3,double bd4, double xd4){
+    return (sqrt(bd1*bd2*bd3*bd4)*
+            (8*a*a*a*a*sqr((bd1 + bd2)*(bd3 + bd4) + a*a*(bd1 + bd2 + bd3 + bd4)) +
+             4*(a*a + bd1 + bd2)*(a*a + bd3 + bd4)*
+             sqr((bd1 + bd2)*(bd3 + bd4) + a*a*(bd1 + bd2 + bd3 + bd4)) +
+             (1/bd4)*(4*a*a*((bd1 + bd2)*(bd3 + bd4) + a*a*(bd1 + bd2 + bd3 + bd4))*
+                      (-2*(bd1 + bd2)*bd3*bd4*(xd3 - xd4) - 2*a*a*bd4*(bd2*xd2 + bd3*xd3 +
+                                                                       bd1*(xd1 - xd4) - bd2*xd4 - bd3*xd4))*(bd2*(bd3 + bd4)*(xd1 - xd2) +
+                                                                                                              a*a*(bd3*xd1 + bd4*xd1 + bd2*(xd1 - xd2) - bd3*xd3 - bd4*xd4))) -
+             8*(a*a + bd3 + bd4)*((bd1 + bd2)*(bd3 + bd4) + a*a*(bd1 + bd2 + bd3 + bd4))*
+             ((bd1 + bd2)*bd3*(xd3 - xd4) + a*a*(bd2*xd2 + bd3*xd3 + bd1*(xd1 - xd4) -
+                                                 bd2*xd4 - bd3*xd4))*((bd1 + bd2)*bd4*(xd3 - xd4) +
+                                                                      a*a*((-bd2)*xd2 + bd2*xd3 + bd4*xd3 + bd1*(-xd1 + xd3) - bd4*xd4)) +
+             8*a*a*((bd1 + bd2)*(bd3 + bd4) + a*a*(bd1 + bd2 + bd3 + bd4))*
+             (bd2*(bd3 + bd4)*(xd1 - xd2) + a*a*(bd3*xd1 + bd4*xd1 + bd2*(xd1 - xd2) -
+                                                 bd3*xd3 - bd4*xd4))*((bd1 + bd2)*bd4*(xd3 - xd4) +
+                                                                      a*a*((-bd2)*xd2 + bd2*xd3 + bd4*xd3 + bd1*(-xd1 + xd3) - bd4*xd4)) +
+             (1/(bd2*bd4))*(2*a*a*((bd1 + bd2)*(bd3 + bd4) +
+                                   a*a*(bd1 + bd2 + bd3 + bd4))*(-2*(bd1 + bd2)*bd3*bd4*(xd3 - xd4) -
+                                                                 2*a*a*bd4*(bd2*xd2 + bd3*xd3 + bd1*(xd1 - xd4) - bd2*xd4 - bd3*xd4))*
+                            (-2*bd1*bd2*(bd3 + bd4)*(xd1 - xd2) - 2*a*a*bd2*(bd1*(xd1 - xd2) -
+                                                                             bd3*xd2 - bd4*xd2 + bd3*xd3 + bd4*xd4))) +
+             (1/bd2)*(4*(a*a + bd1 + bd2)*((bd1 + bd2)*(bd3 + bd4) +
+                                           a*a*(bd1 + bd2 + bd3 + bd4))*(bd2*(bd3 + bd4)*(xd1 - xd2) +
+                                                                         a*a*(bd3*xd1 + bd4*xd1 + bd2*(xd1 - xd2) - bd3*xd3 - bd4*xd4))*
+                      (-2*bd1*bd2*(bd3 + bd4)*(xd1 - xd2) - 2*a*a*bd2*(bd1*(xd1 - xd2) -
+                                                                       bd3*xd2 - bd4*xd2 + bd3*xd3 + bd4*xd4))) +
+             (1/bd2)*(4*a*a*((bd1 + bd2)*(bd3 + bd4) + a*a*(bd1 + bd2 + bd3 + bd4))*
+                      ((bd1 + bd2)*bd4*(xd3 - xd4) + a*a*((-bd2)*xd2 + bd2*xd3 + bd4*xd3 +
+                                                          bd1*(-xd1 + xd3) - bd4*xd4))*(-2*bd1*bd2*(bd3 + bd4)*(xd1 - xd2) -
+                                                                                        2*a*a*bd2*(bd1*(xd1 - xd2) - bd3*xd2 - bd4*xd2 + bd3*xd3 + bd4*xd4))) +
+             (1/(bd2*bd4))*(4*(-2*(bd1 + bd2)*bd3*bd4*(xd3 - xd4) -
+                               2*a*a*bd4*(bd2*xd2 + bd3*xd3 + bd1*(xd1 - xd4) - bd2*xd4 - bd3*xd4))*
+                            (bd2*(bd3 + bd4)*(xd1 - xd2) + a*a*(bd3*xd1 + bd4*xd1 + bd2*(xd1 - xd2) -
+                                                                bd3*xd3 - bd4*xd4))*((bd1 + bd2)*bd4*(xd3 - xd4) +
+                                                                                     a*a*((-bd2)*xd2 + bd2*xd3 + bd4*xd3 + bd1*(-xd1 + xd3) - bd4*xd4))*
+                            (-2*bd1*bd2*(bd3 + bd4)*(xd1 - xd2) - 2*a*a*bd2*(bd1*(xd1 - xd2) -
+                                                                             bd3*xd2 - bd4*xd2 + bd3*xd3 + bd4*xd4)))))/
+    sqr(sqr((bd1 + bd2)*(bd3 + bd4) + a*a*(bd1 + bd2 + bd3 + bd4)));
+}
+
+
+double c20c00 (double a, double b0, double x0, double b1, double x1, double b2, double x2, double b3, double x3){
+    x1-= x0;
+    x2-= x0;
+    x3-= x0;
+
+    return 1./b0*(2*a*b0*sqrt((b0 + b1)*(b2 + b3)*(1/a/a +
+                                             4*(1/(b0 + b1) + 1/(b2 + b3))))*
+            (-(4*a*a*(b2 + b3) + b1*(4*a*a + b2 + b3))*(4*a*a*(b2 + b3) + b1*(4*a*a + b2 + b3)) +
+             b0*(2*b1*b1*(4*a*a + b2 + b3)*(4*a*a + b2 + b3)*x1*x1 - b1*(4*a*a + b2 + b3)*
+                 (4*a*a + b2 + b3 + 16*a*a*b2*x1*x2 +
+                  16*a*a*b3*x1*x3) +
+                 4*a*a*(-4*a*a*b2 - 4*a*a*b3 + b2*b2*(-1 + 8*a*a*x2*x2) +
+                        2*b2*b3*(-1 + 8*a*a*x2*x3) +
+                        b3*b3*(-1 + 8*a*a*x3*x3)))))/
+    pow(4*a*a*(b2 + b3) + b0*(4*a*a + b2 + b3) + b1*(4*a*a + b2 + b3),5./2.);
+}
+
+
+double c22c00 (double a, double b0, double x0, double b1, double x1, double b2, double x2, double b3, double x3){
+    x1-= x0;
+    x2-= x0;
+    x3-= x0;
+
+
+    return (4*b0*b1*sqrt(b0 + b1)*sqrt(b2 + b3)*
+ sqrt((b0 + b1)*(b2 + b3)*(4*(1/(b0 + b1) + 1/(b2 + b3)) + 1/(a*a)))*a*
+ (-4*(4*(b2 + b3)*a*a*a + b1*a*(b2 + b3 + 4*a*a))*(4*(b2 + b3)*a*a*a + b1*a*(b2 + b3 + 4*a*a))*(-4*(b2 + b3)*(b2 + b3)*a*a +
+                                                                        b1*(-4*b2*a*a - 4*b3*a*a + b2*b2*(-1 + 8*x1*x1*a*a + 16*x1*x2*a*a +
+                                                                                                                       8*x2*x2*a*a) + b3*b3*(-1 + 8*x1*x1*a*a + 16*x1*x3*a*a + 8*x3*x3*a*a) +
+                                                                            2*b2*b3*(-1 + 8*x1*x1*a*a + 8*x2*x3*a*a + 8*x1*(x2 + x3)*a*a))) +
+  b0*b0*b0*(b2 + b3 + 4*a*a)*(b2 + b3 + 4*a*a)*(4*b1*b1*b1*x1*x1*x1*x1*(b2 + b3 + 4*a*a)*(b2 + b3 + 4*a*a) -
+                                   4*b1*b1*x1*x1*(b2 + b3 + 4*a*a)*(12*a*a + b2*(3 + 8*x1*x2*a*a) +
+                                                                         b3*(3 + 8*x1*x3*a*a)) + 4*a*a*(b2*b2*(1 - 8*x2*x2*a*a) +
+                                                                                                                      2*b2*(b3 + 2*a*a - 8*b3*x2*x3*a*a) + b3*(b3 + 4*a*a - 8*b3*x3*x3*a*a)) +
+                                   b1*(48*a*a*a*a - 8*b3*a*a*(-3 + 4*x1*x1*a*a - 24*x1*x3*a*a) +
+                                       b2*b2*(3 + 48*x1*x2*a*a + 8*x1*x1*a*a*(-1 + 8*x2*x2*a*a)) +
+                                       b3*b3*(3 + 48*x1*x3*a*a + 8*x1*x1*a*a*(-1 + 8*x3*x3*a*a)) +
+                                       2*b2*(4*a*a*(3 - 4*x1*x1*a*a + 24*x1*x2*a*a) +
+                                             b3*(3 + 24*x1*(x2 + x3)*a*a + 8*x1*x1*a*a*(-1 + 8*x2*x3*a*a))))) +
+  2*b0*b0*(b2 + b3 + 4*a*a)*(2*b1*b1*b1*x1*x1*(b2 + b3 + 4*a*a)*(b2 + b3 + 4*a*a)*
+                                   (-12*a*a + b2*(-3 + 8*x1*x1*a*a + 8*x1*x2*a*a) +
+                                    b3*(-3 + 8*x1*x1*a*a + 8*x1*x3*a*a)) - 8*(b2 + b3)*a*a*a*a*
+                                   (b2*b2*(-3 + 16*x2*x2*a*a) + 2*b2*(-6*a*a + b3*(-3 + 16*x2*x3*a*a)) +
+                                    b3*(-12*a*a + b3*(-3 + 16*x3*x3*a*a))) - b1*b1*(b2 + b3 + 4*a*a)*
+                                   (-48*a*a*a*a + 8*b3*a*a*(-3 + 28*x1*x1*a*a) + b2*b2*(-3 + 128*x1*x1*x1*x2*a*a*a*a +
+                                                                                                       8*x1*x1*a*a*(7 + 16*x2*x2*a*a)) + b3*b3*(-3 + 128*x1*x1*x1*x3*a*a*a*a +
+                                                                                                                                                           8*x1*x1*a*a*(7 + 16*x3*x3*a*a)) + 2*b2*(4*a*a*(-3 + 28*x1*x1*a*a) +
+                                                                                                                                                                                                               b3*(-3 + 64*x1*x1*x1*(x2 + x3)*a*a*a*a + 8*x1*x1*a*a*(7 + 16*x2*x3*a*a)))) +
+                                   2*b1*a*a*(b2*b2*b2*(9 + 24*x2*x2*a*a + 16*x1*x2*a*a*(5 + 8*x2*x2*a*a) +
+                                                          8*x1*x1*a*a*(-3 + 16*x2*x2*a*a)) +
+                                                    b2*b2*(8*a*a*(9 - 12*x1*x1*a*a + 40*x1*x2*a*a + 12*x2*x2*a*a) +
+                                                          b3*(3*(9 + 8*x2*x2*a*a + 16*x2*x3*a*a) + 8*x1*x1*a*a*(-9 + 16*x2*x2*a*a +
+                                                                                                                                   32*x2*x3*a*a) + 16*x1*a*a*(10*x2 + 5*x3 + 24*x2*x2*x3*a*a))) +
+                                                    b3*(144*a*a*a*a + 8*b3*a*a*(9 - 12*x1*x1*a*a + 40*x1*x3*a*a + 12*x3*x3*a*a) +
+                                                        b3*b3*(9 + 24*x3*x3*a*a + 16*x1*x3*a*a*(5 + 8*x3*x3*a*a) +
+                                                              8*x1*x1*a*a*(-3 + 16*x3*x3*a*a))) +
+                                                    b2*(144*a*a*a*a - 16*b3*(-9*a*a + 4*(3*x1*x1 - 3*x2*x3 - 5*x1*(x2 + x3))*a*a*a*a) +
+                                                        b3*b3*(3*(9 + 16*x2*x3*a*a + 8*x3*x3*a*a) + 8*x1*x1*a*a*(-9 + 32*x2*x3*a*a +
+                                                                                                                                   16*x3*x3*a*a) + 16*x1*a*a*(5*x2 + 10*x3 + 24*x2*x3*x3*a*a))))) +
+  b0*(-64*(b2 + b3)*(b2 + b3)*a*a*a*a*a*a*(b2*b2*(-3 + 8*x2*x2*a*a) +
+                                  2*b2*(-6*a*a + b3*(-3 + 8*x2*x3*a*a)) +
+                                  b3*(-12*a*a + b3*(-3 + 8*x3*x3*a*a))) + b1*b1*b1*(b2 + b3 + 4*a*a)*(b2 + b3 + 4*a*a)*
+      (48*a*a*a*a - 8*b3*a*a*(-3 + 28*x1*x1*a*a + 24*x1*x3*a*a) +
+       b2*b2*(3 - 48*x1*x2*a*a + 64*x1*x1*x1*x1*a*a*a*a + 128*x1*x1*x1*x2*a*a*a*a +
+             8*x1*x1*a*a*(-7 + 8*x2*x2*a*a)) + b3*b3*(3 - 48*x1*x3*a*a + 64*x1*x1*x1*x1*a*a*a*a +
+                                                                 128*x1*x1*x1*x3*a*a*a*a + 8*x1*x1*a*a*(-7 + 8*x3*x3*a*a)) +
+       2*b2*(-4*a*a*(-3 + 28*x1*x1*a*a + 24*x1*x2*a*a) +
+             b3*(3 - 24*x1*(x2 + x3)*a*a + 64*x1*x1*x1*x1*a*a*a*a + 64*x1*x1*x1*(x2 + x3)*a*a*a*a +
+                 8*x1*x1*a*a*(-7 + 8*x2*x3*a*a)))) - 4*b1*b1*a*a*(b2 + b3 + 4*a*a)*
+      (b2*b2*b2*(128*x1*x1*x1*x2*a*a*a*a - 3*(3 + 8*x2*x2*a*a) + 16*x1*x1*a*a*
+             (5 + 16*x2*x2*a*a) + 32*x1*(x2*a*a + 4*x2*x2*x2*a*a*a*a)) +
+       b2*b2*(8*a*a*(-9 + 40*x1*x1*a*a + 16*x1*x2*a*a - 12*x2*x2*a*a) +
+             b3*(128*x1*x1*x1*(2*x2 + x3)*a*a*a*a - 3*(9 + 8*x2*x2*a*a + 16*x2*x3*a*a) +
+                 16*x1*x1*a*a*(15 + 16*x2*x2*a*a + 32*x2*x3*a*a) +
+                 32*x1*a*a*(2*x2 + x3 + 12*x2*x2*x3*a*a))) +
+       b2*(-144*a*a*a*a + 16*b3*(-9*a*a + 4*(10*x1*x1 - 3*x2*x3 + 2*x1*(x2 + x3))*a*a*a*a) +
+           b3*b3*(128*x1*x1*x1*(x2 + 2*x3)*a*a*a*a - 3*(9 + 16*x2*x3*a*a + 8*x3*x3*a*a) +
+                 16*x1*x1*a*a*(15 + 32*x2*x3*a*a + 16*x3*x3*a*a) +
+                 32*x1*a*a*(x2 + 2*x3 + 12*x2*x3*x3*a*a))) +
+       b3*(-144*a*a*a*a + 8*b3*a*a*(-9 + 40*x1*x1*a*a + 16*x1*x3*a*a - 12*x3*x3*a*a) +
+           b3*b3*(128*x1*x1*x1*x3*a*a*a*a - 3*(3 + 8*x3*x3*a*a) + 16*x1*x1*a*a*
+                 (5 + 16*x3*x3*a*a) + 32*x1*(x3*a*a + 4*x3*x3*x3*a*a*a*a)))) +
+      16*b1*a*a*a*a*(b2*b2*b2*b2*(9 + 16*x2*x2*a*a + 64*x2*x2*x2*x2*a*a*a*a + 8*x1*x1*a*a*
+                              (-3 + 8*x2*x2*a*a) + 16*x1*(x2*a*a + 8*x2*x2*x2*a*a*a*a)) +
+                        4*b2*b2*b2*(2*a*a*(9 - 12*x1*x1*a*a + 8*x1*x2*a*a + 8*x2*x2*a*a) +
+                                b3*(9 + 8*x2*x2*a*a + 8*x2*x3*a*a + 64*x2*x2*x2*x3*a*a*a*a +
+                                    8*x1*x1*a*a*(-3 + 4*x2*x2*a*a + 4*x2*x3*a*a) + 4*x1*a*a*
+                                    (3*x2 + x3 + 8*x2*x2*x2*a*a + 24*x2*x2*x3*a*a))) +
+                        4*b2*b3*(72*a*a*a*a + 2*b3*a*a*(27 - 36*x1*x1*a*a + 16*x2*x3*a*a + 8*x3*x3*a*a +
+                                                                  8*x1*(x2 + 2*x3)*a*a) + b3*b3*(9 + 8*x2*x3*a*a + 8*x3*x3*a*a +
+                                                                                                       64*x2*x3*x3*x3*a*a*a*a + 8*x1*x1*a*a*(-3 + 4*x2*x3*a*a + 4*x3*x3*a*a) +
+                                                                                                       4*x1*a*a*(x2 + 3*x3 + 24*x2*x3*x3*a*a + 8*x3*x3*x3*a*a))) +
+                        2*b2*b2*(72*a*a*a*a + 4*b3*a*a*(27 - 36*x1*x1*a*a + 8*x2*x2*a*a + 16*x2*x3*a*a +
+                                                                 8*x1*(2*x2 + x3)*a*a) + b3*b3*(27 + 32*x2*x3*a*a + 8*x3*x3*a*a +
+                                                                                                      8*x1*x1*a*a*(-9 + 4*x2*x2*a*a + 16*x2*x3*a*a + 4*x3*x3*a*a) +
+                                                                                                      24*x1*a*a*(x2 + x3 + 8*x2*x2*x3*a*a + 8*x2*x3*x3*a*a) +
+                                                                                                      8*x2*x2*(a*a + 24*x3*x3*a*a*a*a))) +
+                        b3*b3*(144*a*a*a*a + 8*b3*a*a*(9 - 12*x1*x1*a*a + 8*x1*x3*a*a + 8*x3*x3*a*a) +
+                              b3*b3*(9 + 16*x3*x3*a*a + 64*x3*x3*x3*x3*a*a*a*a + 8*x1*x1*a*a*(-3 + 8*x3*x3*a*a) +
+                                    16*x1*(x3*a*a + 8*x3*x3*x3*a*a*a*a)))))))/
+(sqrt(((b0 + b1)*(b2 + b3))/(4*(b2 + b3)*a*a + b0*(b2 + b3 + 4*a*a) +
+                             b1*(b2 + b3 + 4*a*a)))*pow(4*(b2 + b3)*a*a + b0*(b2 + b3 + 4*a*a) +
+                                                        b1*(b2 + b3 + 4*a*a),5));
+
+
+}
+double aGGCGG(double a , struct general_2index * pa){
+    
+    double b0 = pa->i[0].b0;
+    double b1 = pa->i[0].b1;
+    double x0 = pa->i[0].x0;
+    double x1 = pa->i[0].x1;
+    unsigned short l0 = pa->i[0].l0;
+    unsigned short l1 = pa->i[0].l1;
+    
+    double b2 = pa->i[1].b0;
+    double b3 = pa->i[1].b1;
+    double x2 = pa->i[1].x0;
+    double x3 = pa->i[1].x1;
+    unsigned short l2 = pa->i[1].l0;
+    unsigned short l3 = pa->i[1].l1;
+    
+    
+    
+    double f00 =  1./a* (4.*1.7724538509055159)/exp((b0*(b1*(b2 + b3)*sqr (x0 - x1) + b2*b3*sqr(x2 - x3)) + a*a*(b0*(b1*sqr(x0 - x1) + b2*sqr(x0 - x2) + b3*sqr(x0 - x3)) +   b1*(b2*sqr(x1 - x2) + b3*sqr(x1 - x3)) + b2*b3*sqr(x2 - x3)) +  b1*b2*b3*sqr(x2 - x3))/((b0 + b1)*(b2 + b3) + a*a*(b0 + b1 + b2 + b3)))/sqrt( sqrt( 1./b0/b1/b2/b3) * (b0+b1)*(b2+b3) *((b0 + b1)*(b2 + b3) + a*a*(b0 + b1 + b2 + b3))/(a*a*(b0 + b1)*(b2 + b3)));
+    
+    if ( l0 == 0 && l1 == 0 && l2 == 0 && l3 == 0 )
+        return f00;
+    /*signs added*/    /*now signed removed*/
+    
+    /*removed minus signs in this block*/
+    if ( l0 == 1 && l1 == 0 && l2 == 0 && l3 == 0 )
+        return c10c00(a,b0,x0,b1,x1,b2,x2,b3,x3)*f00;
+    if ( l0 == 0 && l1 == 1 && l2 == 0 && l3 == 0 )
+        return c10c00(a,b1,x1,b0,x0,b2,x2,b3,x3)*f00;
+    if ( l0 == 0 && l1 == 0 && l2 == 1 && l3 == 0 )
+        return c10c00(a,b2,x2,b3,x3,b0,x0,b1,x1)*f00;
+    if ( l0 == 0 && l1 == 0 && l2 == 0 && l3 == 1 )
+        return c10c00(a,b3,x3,b2,x2,b0,x0,b1,x1)*f00;
+    
+    
+    
+    if ( l0 == 1 && l1 == 1 && l2 == 0 && l3 == 0 )
+        return c11c00(a,b0,x0,b1,x1, b2,x2,b3,x3 )*f00;
+    if ( l0 == 0 && l1 == 0 && l2 == 1 && l3 == 1 )
+        return c11c00(a, b2,x2,b3,x3,b0,x0,b1,x1 )*f00;
+    
+    if ( l0 == 1 && l1 == 0 && l2 == 1 && l3 == 0 )
+        return c10c10(a, b0,x0,b1,x1,b2,x2,b3,x3 )*f00;
+    if ( l0 == 1 && l1 == 0 && l2 == 0 && l3 == 1 )
+        return c10c10(a, b0,x0,b1,x1,b3,x3,b2,x2 )*f00;
+    if ( l0 == 0 && l1 == 1 && l2 == 1 && l3 == 0 )
+        return c10c10(a, b1,x1,b0,x0,b2,x2,b3,x3 )*f00;
+    if ( l0 == 0 && l1 == 1 && l2 == 0 && l3 == 1 )
+        return c10c10(a, b1,x1,b0,x0,b3,x3,b2,x2 )*f00;
+    
+    
+    /*removed minus signs in this block*/
+    if(  l0 == 1 && l1 == 1 && l2 == 1 && l3 == 0 )
+        return c11c10(a,b1,x1,b0,x0,b2,x2,b3,x3)*f00;
+    if(  l0 == 1 && l1 == 1 && l2 == 0 && l3 == 1 )
+        return c11c10(a,b1,x1,b0,x0,b3,x3,b2,x2)*f00;
+    if(  l0 == 1 && l1 == 0 && l2 == 1 && l3 == 1 )
+        return c11c10(a,b2,x2,b3,x3,b0,x0,b1,x1)*f00;
+    if(  l0 == 0 && l1 == 1 && l2 == 1 && l3 == 1 )
+        return c11c10(a,b2,x2,b3,x3,b1,x1,b0,x0)*f00;
+    if ( l0 == 1 && l1 == 1 && l2 == 1 && l3 == 1 )
+        return c11c11(a,b0,x0,b1,x1,b2,x2,b3,x3)*f00;
+    
+    
+    if ( l0 == 2 && l1 == 0 && l2 == 0 && l3 == 0 )
+        return c20c00(a,b0,x0,b1,x1,b2,x2,b3,x3)*f00;
+    if ( l0 == 0 && l1 == 2 && l2 == 0 && l3 == 0 )
+        return c20c00(a,b1,x1,b0,x0,b2,x2,b3,x3)*f00;
+    if ( l0 == 0 && l1 == 0 && l2 == 2 && l3 == 0 )
+        return c20c00(a,b2,x2,b3,x3,b0,x0,b1,x1)*f00;
+    if ( l0 == 0 && l1 == 0 && l2 == 0 && l3 == 2 )
+        return c20c00(a,b3,x3,b2,x2,b0,x0,b1,x1)*f00;
+
+    
+    if ( l0 == 2 && l1 == 2 && l2 == 0 && l3 == 0 )
+        return c20c00(a,b0,x0,b1,x1,b2,x2,b3,x3)*f00;
+    if ( l0 == 0 && l1 == 0 && l2 == 2 && l3 == 2 )
+        return c20c00(a,b2,x2,b3,x3,b0,x0,b1,x1)*f00;
+
+    return 0;
+}
 
 
 double collective( double beta ,struct general_2index * pa){
+    
+    if ( pa->gaussianAccelerationFlag && ! sincFlag ){
+        return aGGCGG(beta,pa)/(2*pi);
+    }
+
+    
     pa->alpha = beta;
-    double value= 0.,value2=0.;
+    double value= 0.,value2=0.,value1;
     if ( pa->periodic ){
         
         if ( beta < 1e-9 ){
@@ -229,7 +793,13 @@ double collective( double beta ,struct general_2index * pa){
         options.qag_points_per_interval = 25;
         quadrature_status status;
         double value,abs_error;
-        value =  quadrature_integrate(&g, -2.*pi/pa->d, 2.*pi/pa->d, &options, &status, &abs_error, 0, NULL);
+        
+        if ( sincFlag )
+
+            value =  quadrature_integrate(&g, -2.*pi/pa->d, 2.*pi/pa->d, &options, &status, &abs_error, 0, NULL);
+//        else
+//            value =  quadrature_integrate(&g, -2.*pi/pa->d, 2.*pi/pa->d, &options, &status, &abs_error, 0, NULL);
+
 #else
         double abs_error;
         gsl_function F;
@@ -237,9 +807,15 @@ double collective( double beta ,struct general_2index * pa){
         F.params = pa;
         
         gsl_integration_workspace * workspace= gsl_integration_workspace_alloc (1000);
-        
-        gsl_integration_qag (&F,  -2.*pi/pa->d,  2.*pi/pa->d, 1e-9, 1e-9,1000,6,workspace, &value, &abs_error);
-        
+        if ( sincFlag )
+            gsl_integration_qag (&F,  -2.*pi/pa->d,  2.*pi/pa->d, 1e-9, 1e-9,1000,6,workspace, &value, &abs_error);
+        else{
+            gsl_integration_qagi (&F, 1e-9, 1e-9,1000,workspace, &value, &abs_error);
+
+//            gsl_integration_qagiu (&F, pa->boundary, 1e-9, 1e-9,1000,workspace, &value1, &abs_error);
+//            gsl_integration_qagil (&F, -pa->boundary,1e-9, 1e-9,1000,workspace, &value2, &abs_error);
+//            value = value1+value2;
+        }
         gsl_integration_workspace_free(workspace);
 #endif
 
@@ -293,6 +869,79 @@ void elementFunc(void * arg,size_t n,const double * x,double * y)
     
 }
 
+double monteCarloElementCal (double beta, struct general_2index *aAf  ){
+    double res= 0.,err=1.;
+    
+    INT_TYPE dim,rank,num=0;
+    double xl[4],xu[4];
+    
+    xl[0] = 1e-6;
+    xu[0] = beta;
+    
+    xl[1] = -aAf[0].boundary;
+    xu[1] = aAf[0].boundary;
+    
+    xl[2] = -aAf[1].boundary;
+    xu[2] = aAf[1].boundary;
+    
+    xl[3] = -aAf[2].boundary;
+    xu[3] = aAf[2].boundary;
+    
+    dim = 4;
+#ifndef APPLE
+    rank = 0;
+    gsl_monte_function G;
+    G.f = &mcGS;
+    G.dim = dim;
+    G.params = aAf;
+    
+    INT_TYPE iter = 0;
+    const gsl_rng_type * T;
+    gsl_rng  * r;
+    gsl_monte_vegas_state * s;
+    gsl_rng_env_setup();
+    T = gsl_rng_default;
+    r = gsl_rng_alloc(T);
+    s = gsl_monte_vegas_alloc(G.dim);
+    
+    gsl_monte_vegas_integrate ( & G , xl, xu, dim , 1000, r,s,&res, &err );
+    do
+    {
+        gsl_monte_vegas_integrate ( & G , xl, xu, dim , 1000, r,s,&res, &err );
+        printf("%f %f %f\n", res,err, gsl_monte_vegas_chisq (s));
+    } while (fabs ((gsl_monte_vegas_chisq (s) - 1.0) > 0.1 || err/max(1.,res) > 1e-9)&& num++ < 100);
+    
+    gsl_monte_vegas_free(s);
+    gsl_rng_free(r);
+#else
+    
+    //    {
+    //        gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (3);
+    //
+    //        gsl_monte_vegas_integrate (&G, xl, xu, 3, 10000, r, s,
+    //                                   &res, &err);
+    //        display_results ("vegas warm-up", res, err);
+    //
+    //        printf ("converging...\n");
+    //
+    //        do
+    //        {
+    //            gsl_monte_vegas_integrate (&G, xl, xu, 3, calls/5, r, s,
+    //                                       &res, &err);
+    //            printf ("result = % .6f sigma = % .6f "
+    //                    "chisq/dof = %.1f\n", res, err, gsl_monte_vegas_chisq (s));
+    //        }
+    //        while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
+    //
+    //        display_results ("vegas final", res, err);
+    //
+    //        gsl_monte_vegas_free (s);
+    //    }
+#endif
+    
+    return res;
+}
+
 double elementCal (double a, double b,struct general_2index * aAf ){
 #ifdef APPLE
     quadrature_integrate_function g;
@@ -324,11 +973,15 @@ double elementCal (double a, double b,struct general_2index * aAf ){
         gsl_integration_qag (&F,  a,  b, 1e-8, 1e-8,1000,4,workspace, &value, &abs_error);
     gsl_integration_workspace_free(workspace);
 
-    
 #endif
     return value*(2*pi);
 
 }
+
+
+
+
+
 
 void mySeparateExactOne (struct field * f1, double scalar, enum division basis){
     
@@ -756,6 +1409,7 @@ void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  e
     
     struct general_2index g2;
 
+    g2.gaussianAccelerationFlag = 0;
     double value,d = f1->sinc.d,g,x;
     double constant;
     INT_TYPE interval = f1->twoBody.func.interval;
@@ -1248,6 +1902,8 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
     Stream_Type  *stream[3];
     
     struct general_2index g2;
+    g2.gaussianAccelerationFlag = 0;
+
     f1->sinc.tulip[diagonalCube].header = Cube;
     for ( i = 0; i < SPACE ; i++)
         stream[i] =  streams( f1, diagonalCube,0,i  );
@@ -1473,6 +2129,7 @@ INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic, double vectorMom
     f1->sinc.tulip[kinetic].Current[0]  = SPACE+(fabs(vectorMomentum) > 1e-6);
     f1->sinc.tulip[kinetic].Current[1]  = (fabs(vectorMomentum) > 1e-6);
    
+    tScale(f1, kinetic, 1./mass);
 #if VERBOSE
     printf("kinetic %f\n", traceOne(f1, kinetic, 0));
 #endif

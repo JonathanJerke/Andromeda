@@ -3,8 +3,9 @@
  *
  *
  *  Copyright 2018 Jonathan Jerke and Bill Poirier.
- *  We acknowledge the generous support of Texas Tech University
- *  and the Robert A. Welch Foundation.
+ *  We acknowledge the generous support of Texas Tech University,
+ *  the Robert A. Welch Foundation, and Army Research Office.
+ *
  *
  
  *   *   This file is part of Andromeda.
@@ -29,6 +30,9 @@
 #include "Model.h"
 #include "input.h"
 #include "eigen.h"
+#ifndef APPLE
+#include "ioPrint.h"
+#endif
 INT_TYPE buildElectronFreeInteraction ( struct calculation * c1, enum division mat);
 struct calculation bootShell (INT_TYPE argc , char * argv[]);
 INT_TYPE exec (struct calculation *c1 );

@@ -3,8 +3,8 @@
  *
  *
  *  Copyright 2018 Jonathan Jerke and Bill Poirier.
- *  We acknowledge the generous support of Texas Tech University
- *  and the Robert A. Welch Foundation.
+ *  We acknowledge the generous support of Texas Tech University,
+ *  the Robert A. Welch Foundation, and Army Research Office.
  *
  
  *   *   This file is part of Andromeda.
@@ -117,30 +117,31 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
     INT_TYPE i,d,ivalue;
     char test_line [MAXSTRING];
     double value;
-    INT_TYPE NINT_TYPE = 100;
+    INT_TYPE NINT_TYPE = 104;
     char *list_INT_TYPE []= {"#",
-        "LOST1","maxCycle" , "spinor", "charge","fineStr",
-        "process", "NB", "MB", "percentFull","general",
-        "center","xTranslate","yTranslate","zTranslate","postCalc",
-        "goK","goV","goC","goX","goS",
-        "iGold","LOST", "LOST2" ,"core","canon",
-        "pseudo","minDIIS","iCharge","weylet", "nWeylet",
-        "mWeylet","helium","correlation","initRank","LOST3",
-        "spinBlocks","LOST5", "LOST6", "maxLevelShift","diis",
-        "minSPC","maxEV","inverseQuad","maxSPC","maxDIIS",
-        "intDIIS", "trace","basisRank","LUMO","floorFlag",
-        "Angstroms","train", "ceilFlag","iSymm","type",
-        "zone","eZone","cycles","weightRank","printConvergence",
-        "runFlag","LOST10","annulus","exclusion","runType",
-        "SpinSqr","setRange","range","golden","bandStage",
-        "matrix","jCycle","fermi","signature","filter",
+        "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
+        "process", "NB", "MB", "percentFull","general",//10
+        "center","xTranslate","yTranslate","zTranslate","postCalc",//15
+        "goK","goV","goC","goX","goS",//20
+        "iGold","LOST", "LOST2" ,"core","canon",//25
+        "pseudo","minDIIS","iCharge","weylet", "nWeylet",//30
+        "mWeylet","helium","correlation","initRank","LOST3",//35
+        "spinBlocks","LOST5", "LOST6", "maxLevelShift","diis",//40
+        "minSPC","maxEV","inverseQuad","maxSPC","maxDIIS",//45
+        "intDIIS", "trace","basisRank","LUMO","floorFlag",//50
+        "Angstroms","train", "ceilFlag","iSymm","type",//55
+        "zone","eZone","cycles","weightRank","printConvergence",//60
+        "runFlag","LOST10","annulus","exclusion","runType",//65
+        "SpinSqr","setRange","range","golden","bandStage",//70
+        "matrix","jCycle","fermi","signature","filter",//75
         "minRank","skipBuild","printLevel","stack","lanes",
         "sectors","body","LOST100","rds1","rds2",
         "rds3","interactionOne","interactionTwo","oCycle","interactionZero",
         "breakBody","interval","RAM","monteCarlo","samples",
-        "hartreeFock","basisStage","iterations","group","states"
+        "hartreeFock","basisStage","iterations","group","states",
+        "length","side","lookBack","step"
     };
-    INT_TYPE NDOUBLE = 62;
+    INT_TYPE NDOUBLE = 64;
     char *list_DOUBLE []= {"#",
         "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST"        ,
         "xB", "yB", "zB", "xyRange" , "zRange",
@@ -154,7 +155,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "shift","kineticShift","crystal","jelliumRadius","spring",
         "REMOVEREMOVE", "maxDomain", "parcel","minDomain","param",
         "entropy","attack","scalar","turn","augment",
-        "linearDependence","condition"
+        "linearDependence","condition","seek","width"
         
     };
     
@@ -502,7 +503,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     return i;
 
                 case 75:
-             //       c->i.singleFilter = ivalue;
+                    c->i.filter = ivalue;
                     return i;
                     
                 case 76:
@@ -523,23 +524,23 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     return 0;
                     
                 case 79:
-                    if ( c->i.iCharge){
-                        if ( c->i.iCharge == 2 ){
-                            c->i.heliumFlag = ivalue * (ivalue-1)/2;
-                            c->i.iCharge = 2 * ivalue;
-                        }else if ( c->i.iCharge == 3 ){
-                            c->i.heliumFlag = ivalue * (ivalue-1)* (ivalue-2)/6;
-                            c->i.iCharge = 3 * ivalue;
-                        }
+//                    if ( c->i.iCharge){
+//                        if ( c->i.iCharge == 2 ){
+//                            c->i.heliumFlag = ivalue * (ivalue-1)/2;
+//                            c->i.iCharge = 2 * ivalue;
+//                        }else if ( c->i.iCharge == 3 ){
+//                            c->i.heliumFlag = ivalue * (ivalue-1)* (ivalue-2)/6;
+//                            c->i.iCharge = 3 * ivalue;
+//                        }
+//
+//
+//
+                    
                         
                         
                         
-                        
-                        
-                        
-                        
-                        return i;
-                    }
+//                        return i;
+//                    }
                     return 0;
                     
                 case 80:
@@ -696,6 +697,18 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     return i;
                 case 100:
                     c->i.nTargets = ivalue;
+                    return i;
+                case 101:
+                    c->i.l2 = ivalue;
+                    return i;
+                case 102:
+                    c->i.side = ivalue;
+                    return i;
+                case 103:
+                    c->i.lookBack = ivalue;
+                    return i;
+                case 104:
+                    c->i.cycleStep = ivalue;
                     return i;
 
             }
@@ -939,6 +952,15 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     c->rt.targetCondition =  pow(0.1,value);
                     c->rt.ALPHA = 1e-6;
                     return d;
+                case 63:
+                    c->i.seekPower = value;
+                    return d;
+                case 64:
+                    c->i.springFlag = 1;
+                    c->i.springConstant = 1./sqr(c->i.d*value);
+                    printf("spring %f (%f,%f)\n",c->i.springConstant,c->i.d,value);
+                    return d;
+
             }
 
         }
@@ -1579,6 +1601,7 @@ INT_TYPE readInput(struct calculation *c , FILE * in){
 
 
 INT_TYPE initCalculation(struct calculation * c ){
+    INT_TYPE g;
     c->i.RAMmax = 0;//Gb  needs updating
     c->rt.printFlag = 0;
     c->i.potentialFlag = 0;
@@ -1587,6 +1610,8 @@ INT_TYPE initCalculation(struct calculation * c ){
     c->i.outputFlag = 0;
     c->i.M1 = 0;
     c->i.c.Na = 0;
+    for ( g = 0; g < nSAG*nSAG*nSAG ; g++)
+        c->i.cSA[g] = 0;
 #ifdef PARAMETER_PATH
     FILE * same;
     char filename[MAXSTRING];
