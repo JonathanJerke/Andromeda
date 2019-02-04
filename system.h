@@ -33,10 +33,6 @@
 //KEEP THESE present.
 #define sincFlag 1
 
-//change mass of quantum mover.
-#define mass 1
-//KEEP THESE...
-
 #define MAXATOM 16
 //#define OMP
 //#define MKL
