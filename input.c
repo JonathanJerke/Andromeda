@@ -117,7 +117,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
     INT_TYPE i,d,ivalue;
     char test_line [MAXSTRING];
     double value;
-    INT_TYPE NINT_TYPE = 104;
+    INT_TYPE NINT_TYPE = 106;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -139,16 +139,17 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "rds3","interactionOne","interactionTwo","oCycle","interactionZero",
         "breakBody","interval","RAM","monteCarlo","samples",
         "hartreeFock","basisStage","iterations","group","states",
-        "length","side","lookBack","step"
+        "length","side","lookBack","step","theory",
+        "configuration"
     };
     INT_TYPE NDOUBLE = 64;
     char *list_DOUBLE []= {"#",
-        "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST"        ,
-        "xB", "yB", "zB", "xyRange" , "zRange",
-        "XX", "scfTolerance","boundTolerance","cycleTolerance","oExternal",
-        "LOST","LOST", "XXz" ,"LOST4", "aWeylet" ,
-        "bWeylet","levelShift","tolerance","threshold","target",
-        "convergence","external","vectorThreshold","buildThreshold","maxPi",
+        "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST" ,//1-5
+        "xB", "yB", "zB", "xyRange" , "zRange",//6-10
+        "XX", "scfTolerance","boundTolerance","cycleTolerance","oExternal",//11-15
+        "LOST","LOST", "XXz" ,"LOST4", "aWeylet" ,//16-20
+        "bWeylet","levelShift","tolerance","threshold","target",//21-25
+        "convergence","external","vectorThreshold","buildThreshold","maxPi",//26
         "EMPTY","EMPTY", "vectorConvergence","powState", "powVacuum",
         "mass1", "mass2","Charge1", "Charge2","Charge3",
         "beta","EMPTY10","ceilValue","floorValue","electronGasDensity",
@@ -400,7 +401,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
               //      c->i.inversionSymm = ivalue;
                     return i;
                 case 55 :
-                    c->i.type = ivalue;
+                    c->i.irrep = ivalue;
                     return i;
                 case 56 :
                 //    c->i.zone = ivalue;
@@ -710,6 +711,21 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                 case 104:
                     c->i.cycleStep = ivalue;
                     return i;
+                case 105:
+                    c->i.theory = ivalue;
+                    return i;
+                case 106:
+                    if ( ivalue == 0 )
+                        c->i.bodyType = electron;
+                    else if ( ivalue == 1 )
+                        c->i.bodyType = h2plus;
+                    else if ( ivalue == 2 )
+                        c->i.bodyType = h2  ;
+                    else
+                    {
+                        return 0;
+                    }
+                    return i;
 
             }
         
@@ -949,15 +965,15 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                    // c->rt.condition = pow(10., value);
                     return d;
                 case 62:
-                    c->rt.targetCondition =  pow(0.1,value);
-                    c->rt.ALPHA = 1e-6;
+                   // c->rt.targetCondition =  pow(0.1,value);
+                    c->rt.ALPHA = pow(0.1,value);
                     return d;
                 case 63:
                     c->i.seekPower = value;
                     return d;
                 case 64:
                     c->i.springFlag = 1;
-                    c->i.springConstant = 1./sqr(c->i.d*value);
+                    c->i.springConstant = 1./(c->i.d*value)/(c->i.d*value);
                     printf("spring %f (%f,%f)\n",c->i.springConstant,c->i.d,value);
                     return d;
 

@@ -53,7 +53,7 @@ double periodicSSGSS ( double a, double d , INT_TYPE n  , INT_TYPE m ,INT_TYPE n
 
 double eeFunc ( double k , double alpha , struct general_2index * pa );
 double potFunc ( double k, double alpha, struct general_2index * pa );
-
+double collectives (double beta , struct general_2index * pa );
 void cubicFunc(void * arg,size_t n,const double * x,double * y);
 double elementCal (double a, double b,struct general_2index * aAf );
 void myBuildOne (struct field * f1,double beta ,   enum division transfer, INT_TYPE periodic);
@@ -63,10 +63,10 @@ double monteCarloElementCal (double beta, struct general_2index *aAf  );
 double findMyInterval1 ( struct field * f1  , double gamma , struct interaction_label lab,double lvl, INT_TYPE periodic);
 double findMyInterval2 ( struct field * f1  , double gamma , struct interaction_label lab,double lvl,INT_TYPE periodic);
 void mySeparateExactOne (struct field * f1, double scalar, enum division basis);
-void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  enum division basis);
+void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  enum division basis,INT_TYPE plus);
 INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis );
 INT_TYPE separateBackground( struct calculation * c1,INT_TYPE periodic, INT_TYPE Ns,INT_TYPE background, INT_TYPE dim, enum division basis );
-INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,double gamma );
+INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division akinetic, double mass,double gamma );
 INT_TYPE separateBoost( struct field * f1, enum division in,INT_TYPE dim ,double vectorMomentum );
 INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat);
 INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE atom, double scalar, INT_TYPE dim, enum division basis );

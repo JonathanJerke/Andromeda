@@ -810,10 +810,59 @@ double tInnerListMP( INT_TYPE rank, struct field * f1 , enum division origin, do
     return sum;
 }
 
+INT_TYPE printExpectationValues (struct field * f1 , enum division ha  , enum division vector){
+    INT_TYPE cat = 0,cmpl,cmpl2,totcan[2];
+    DCOMPLEX co,expat,totx=0.;
+    enum division leftP = ha,Mat;
+    totcan[0] = 0;
+    totcan[1] = 0;
+    double norm2 = inner(0, f1, vector, 0)+inner(0, f1, vector, 1);
+    do {
+        
+        if ( linear == name(f1,leftP) ){
+            Mat = rivers(0, f1, linear, cat );
+            f1->sinc.tulip[Mat].blockType = f1->sinc.tulip[leftP].blockType;
+        }else {
+            Mat = leftP;
+        }
+        for ( cmpl = 0; cmpl < spins(f1,Mat)  ;cmpl++)
+            if ( CanonicalRank(f1, name(f1,Mat), cmpl)){
+                expat = 0.;
+                for ( cmpl2 = 0 ; cmpl2 < spins(f1,vector)  ;cmpl2++)
+                    if ( CanonicalRank(f1,  Mat, cmpl)){
+                        co = 1.;
+                        if ( cmpl )
+                            co *= I;
+                        if ( cmpl2 )
+                            co *= -I;
+                        totcan[cmpl] += CanonicalRank(f1, Mat, cmpl);
+                        expat += co* matrixElements(0, f1, 'T', vector, 'N', Mat, cmpl, vector, cmpl2);
+                        
+                    }
+                totx += expat/(DCOMPLEX)norm2;
+                printf("**%d-%d-%d-%d\t%d\t%d\t%d-%d\t%d\t%f\t%f\n",Mat,name(f1,Mat),cmpl,cmpl2, bodies(f1, Mat),f1->sinc.tulip[Mat].blockType,CanonicalRank(f1, Mat, cmpl),f1->sinc.tulip[Mat].ptRank[cmpl], cat,creal(expat/norm2),cimag(expat/norm2));
+            }
+        
+        if (name(f1, leftP) == linear ){
+            cat++;
+            
+            if ( cat > f1->Na ){
+                leftP = f1->sinc.tulip[leftP].linkNext;
+                cat = 0;
+            }
+            
+        } else {
+            leftP = f1->sinc.tulip[leftP].linkNext;
+        }
+    } while ( leftP != nullName);
+    printf("**%d-%d-%d-%d\t%d\t%d\t%d-%d\t%d\t%f\t%f\n",0,0,0,0, bodies(f1, vector),0,totcan[0],totcan[1], 0,creal(totx),cimag(totx));
 
+    return 0;
+}
 
 DCOMPLEX matrixElements ( INT_TYPE rank,struct field * f1 , char perm, enum division uec, char mc, enum division mat,INT_TYPE ms, enum division vec,INT_TYPE vs){
     INT_TYPE info,r;
+    double value;
     if ( CanonicalRank(f1, vec, vs) * (CanonicalRank(f1, uec, 0 ) +CanonicalRank(f1, uec,1)  )== 0 )
         return 0.;
     if ( vec == productVector || uec == productVector){
@@ -821,12 +870,13 @@ DCOMPLEX matrixElements ( INT_TYPE rank,struct field * f1 , char perm, enum divi
         exit(0);
     }
     DCOMPLEX sum = 0.;
-
+    
     for ( r = 0 ; r < CanonicalRank(f1, mat, ms);r++){
         tMultiplyMP(rank, &info, f1, 1., -1, productVector, rank, mc, ocean(rank, f1, mat, r, ms) ,ms, 'N', vec, vs);
-        sum += tMultiplyMP(rank, &info, f1, 1., -1, nullVector, 0, 'T', uec ,0, 'N', productVector,rank );
+        value = tMultiplyMP(rank, &info, f1, 1., -1, nullVector, 0, 'T', uec ,0, 'N', productVector,rank );
         if ( CanonicalRank(f1, uec,1 ))
-            sum += I*tMultiplyMP(rank, &info, f1, 1., -1, nullVector, 0, 'T', uec ,1, 'N', productVector,rank );
+            value += I*tMultiplyMP(rank, &info, f1, 1., -1, nullVector, 0, 'T', uec ,1, 'N', productVector,rank );
+        sum += value;
     }
     return sum;
 }
@@ -841,6 +891,7 @@ double canonicalMultiplyMP( INT_TYPE rank,struct field * f1 , char mc,enum divis
         //   exit(0);
     }
     if ( vec == productVector || alloy == productVector ){
+        printf("canonicalMulMP\n");
         exit(0);
     }
     INT_TYPE ns = 9;
@@ -1236,7 +1287,7 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
     Stream_Type * array[SPACE][5];
     
     if (MM+beta*MM +gamma*CanonicalRank(f1,equals,espin) > part(f1, equals) && species(f1, equals) != scalar && purpose(f1, equals)!= ptObject){
-        //get allocation!
+        //tGetType allocation!
         printf("tMultiply name %d %d %d\n", equals, left, right);
         printf("%lld >  %lld: %d %d %u\n",MM+beta*MM+gamma*CanonicalRank(f1,equals,espin) , part(f1, equals),LL,LR, streams(f1, left,0,0) );
         printf("%lld %lld %lld %lld\n",part(f1, equals), LL, LR,species(f1, equals));
@@ -3138,24 +3189,17 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
                     )
                 {
                     enum division leftP = left;
+                    alist = 0;
+                    skipFlag = 0;
                     do {
-                        skipFlag = 0;
-                        remainFlag = 0;
-                        if (linear == name(f1,leftP)  )
-                        {
+                        if ( linear == name(f1,leftP) ){
                             Mat = rivers(rank, f1, linear, alist );
-                            if ( alist <= f1->Na )
-                            {
-                                remainFlag = 1;
-                            }else{
-                                skipFlag = 1;
-                                alist = 0;
-                            }
-                            f1->sinc.tulip[Mat].blockType = f1->sinc.tulip[leftP].blockType;//do not want to make this internal , as pointers OWN properties.
-                            alist++;
-                        }  else {
+                            f1->sinc.tulip[Mat].blockType = f1->sinc.tulip[leftP].blockType;
+                        }else {
                             Mat = leftP;
                         }
+
+                    
                         if ( cmpl2 == 0 ){
                             Vec = copyThreeVector;
                         }else if ( cmpl2 == 1 ){
@@ -3164,8 +3208,12 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
                             printf("cmpl2 %d\n", cmpl2);
                             exit(0);
                         }
-                    
-                        if ( CanonicalRank(f1,Mat, cmpl)&&CanonicalRank(f1, Vec, rank) && ! skipFlag ){
+#if VERBOSE
+                        printf("%d-%d-%d-%d\t%d\t%d\t%d-%d-%d\t %d %f\n",Mat,name(f1,Mat),cmpl,cmpl2, bodies(f1, Mat),f1->sinc.tulip[Mat].blockType,CanonicalRank(f1, name(f1,Mat), cmpl),CanonicalRank(f1, Mat, cmpl),f1->sinc.tulip[Mat].ptRank[cmpl], alist,traceOne(f1, Mat, cmpl) );
+                        fflush(stdout);
+#endif
+
+                        if ( CanonicalRank(f1,Mat, cmpl)&& CanonicalRank(f1, name(f1,Mat), cmpl)&&CanonicalRank(f1, Vec, rank) ){
                             tEqua(f1, copyTwoVector, rank, Vec, rank);
                             tCycleMultiplyMP(rank, f1, 'N',Mat, cmpl,Vec,rank, copyTwoVector, rank, f1->mem1->rt->vCANON, maxRun, -1.);
                             {
@@ -3178,7 +3226,7 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
                                         tEqua(f1, copyVector, rank,copyTwoVector,rank);
                                         tScaleOne(f1, copyVector,rank, product);
                                         tAddTw(f1, totalVector,rank, copyVector,rank);
-                                        
+
                                     }
                                 }
                                 if(((!spin && cmpl != cmpl2) || (spin && cmpl == cmpl2 )) && (fabs(productCmpl) > 1e-6) )
@@ -3201,11 +3249,22 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
 
                             }
                         }
-                        if  ( ! remainFlag )
+                        if (name(f1, leftP) == linear ){
+                            alist++;
+                            
+                            if ( alist > f1->Na ){
+                                leftP = f1->sinc.tulip[leftP].linkNext;
+                                alist = 0;
+                            }
+                            
+                        } else {
                             leftP = f1->sinc.tulip[leftP].linkNext;
+                        }
+
 #if VERBOSE
-                        printf("[%f:%d]", inner(0, f1, totalVector, rank),name(f1,Mat));
-                        printf("]%f__%d[" ,inner(0,f1,copyTwoVector,rank),name(f1,Mat));
+                        if (CanonicalRank(f1, totalVector, rank) ){
+                        printf("[%f:%d]\n", inner(rank, f1, totalVector, rank),CanonicalRank(f1, totalVector, rank));
+                        }
 #endif
 
                     } while ( leftP != nullName);
@@ -3397,14 +3456,14 @@ INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, IN
     iv = 0;
     for ( i = 0; i < UZ ; i++)
         if ( CanonicalRank(&calc2->i.c, usz+i, 0)+CanonicalRank(&calc2->i.c, usz+i, 1))
-        if ( calc2->i.c.sinc.tulip[usz+i].symmetry == calc2->i.type|| ! calc2->i.type){
+        if ( calc2->i.c.sinc.tulip[usz+i].symmetry == calc2->i.irrep|| ! calc2->i.irrep){
 //            fflush(stdout);
             if ( mx <= (CanonicalRank(&calc2->i.c,usz+i,0)+CanonicalRank(&calc2->i.c,usz+i,1)) ){
                 f[ii++]  = i ;
 
                 iii += mx ;
                 iv = imax(iv , (CanonicalRank(&calc2->i.c,usz+i,0)+CanonicalRank(&calc2->i.c,usz+i,1))/mx + !(!((CanonicalRank(&calc2->i.c,usz+i,0)+CanonicalRank(&calc2->i.c,usz+i,1)%mx ))) ) ;
-              // printf("%d -%d - %d - %d\n",iv, iii,ii,i);
+               printf("%d -%d - %d - %d\n",iv, iii,ii,i);
 
             }
         }
@@ -3441,7 +3500,9 @@ INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, IN
                 xThreeBand(rank,&calc2->i.c, usz+f[i], cmpl, &calc->i.c, copyVector,rank,calc->rt.runFlag );
             else if ( bodies(&calc2->i.c, usz+f[i]) == four )
                 xFourBand(rank,&calc2->i.c, usz+f[i], cmpl, &calc->i.c, copyVector,rank,calc->rt.runFlag );
-            
+            else if ( bodies(&calc2->i.c, usz+f[i]) == one )
+                xOneBand(rank,&calc2->i.c, usz+f[i], cmpl, &calc->i.c, copyVector,rank,calc->rt.runFlag );
+
 //            for ( mdi = 0; mdi < mx ; mdi++)
 //                calc->i.c.sinc.tulip[usr+i*mx+mdi].Current[cmpl] = 0;
             mdi = 0;

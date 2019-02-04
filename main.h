@@ -33,7 +33,7 @@
 #ifndef APPLE
 #include "ioPrint.h"
 #endif
-INT_TYPE buildElectronFreeInteraction ( struct calculation * c1, enum division mat);
+
 struct calculation bootShell (INT_TYPE argc , char * argv[]);
 INT_TYPE exec (struct calculation *c1 );
 INT_TYPE print(struct calculation *c );

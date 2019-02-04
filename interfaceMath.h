@@ -37,6 +37,14 @@ double Sinc( double d , double x);
 double periodicSinc ( double d , double x, INT_TYPE N1 );
 double SS( double d1 , double x , double d2, double y ) ;
 double periodicSS( double d1 , double x ,INT_TYPE N1, double d2, double y,INT_TYPE N2 )    ;
+//double OVERLAP ( struct basisElement *b1,  struct basisElement *b2);
+//
+//INT_TYPE dimBasisElement  (struct field * f1, INT_TYPE body );
+//INT_TYPE assocBasisElement (struct field * f1  );
+//INT_TYPE lenBasisElement   (struct field * f1, INT_TYPE body ,INT_TYPE dim, INT_TYPE assoc);
+//void arrayBasis(struct field * f1,INT_TYPE *B );
+//struct basisElement * getBasisElement (struct field * f1, INT_TYPE body ,INT_TYPE dim , INT_TYPE assoc, INT_TYPE l );
+
 INT_TYPE tdpotrf ( INT_TYPE L1, double * array ) ;
 INT_TYPE tdpotrs ( INT_TYPE L1, INT_TYPE M2, double * array, double * arrayo );
 double tdpocon (INT_TYPE rank,struct field * f1,  INT_TYPE L1 , double * Matrix );

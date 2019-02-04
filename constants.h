@@ -132,17 +132,24 @@ struct canon {
     Stream_Type *stream ;// C_F*F
 };
 
-enum symmetry {
-    nullSymmetry,
-    symmetricalMatrices,
-};
-
+//enum symmetry {
+//    nullSymmetry,
+//    symmetricalMatrices,
+//};
+//
 enum body {
     nada,
     one,
     two,
     three,
     four
+};
+
+enum bodyType{
+    electron,
+    proton,
+    h2plus,//for labeling purposes
+    h2//for labeling purposes
 };
 
 enum block{
@@ -209,47 +216,40 @@ enum spinType {
 };
 
 enum functionType{
-    nullFunction,
-    Pseudo,
-    Yukawa,
-    Coulomb,
-    Morse,
-    LJ
+    nullFunction,//0
+    Pseudo,//1
+    Yukawa,//2
+    Coulomb,//3
+    Morse,//4
+    LJ,//5
+    LDA,//6
+    BLYP//7
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//enum basisElementType {
+//    nullBasisElement,
+//    SincBasisElement,
+//    ShannonWaveletBasisElement,
+//    GaussianBasisElement,
+//    periodicSincBasisElement,
+//    periodicShannonWaveletBasisElement,
+//    periodicGaussianBasisElement
+//};
+//
+//
+//struct basisElement {
+//    enum basisElementType basis;
+//    INT_TYPE index;
+//    double length;
+//    double origin;
+//    
+//    INT_TYPE auxIndex; //for periodic Sincs
+//    double auxLength;
+//    INT_TYPE association;
+//    INT_TYPE dim;
+//    INT_TYPE body;
+//};
+//
 
 
 
@@ -298,9 +298,12 @@ enum functionType{
 
 enum division{
     kinetic,//0
+    kineticMass,
     linear,
     interactionExchange,//22
+    interactionExchangePlus,
     X,//
+    harmonium,
     direct,//2
     exchange,//3
     total,//4
@@ -367,7 +370,6 @@ enum division{
     symmBasis,//62
     edgeMatrix,//63
     eigen,//64
-    spam,
     sectors,
     vectors2,//65
     gammas,//66
@@ -400,7 +402,6 @@ enum division{
     da3,
     da4,//86,87,88,89
     vectors3,//90
-    harmonium,//91
     basis,
     subBasis,//92,93
     edges,//94
@@ -506,6 +507,7 @@ enum division{
     interaction14,
     interaction24,
     interaction34, //-157
+    interaction12Plus,
     lanes,
     lanes2,
     lanes3,
@@ -533,22 +535,21 @@ struct name_label {
     ADDRESS_TYPE myAddress;
     INT_TYPE path ;
     enum body NBody;
-    
+    enum bodyType TBody;
     double value;
     double value2;
     double value3;
 
     INT_TYPE parallel;
-    unsigned int stop[MaxSpin][MAXATOM+1];
+    INT_TYPE stop[MaxSpin][MAXATOM+1];
     INT_TYPE signature;
-    INT_TYPE symmetry;
-    INT_TYPE symmetry2;
+    int symmetry;
+    int symmetry2;
     enum division name;
     enum genus species;
     enum shape header;
     enum purposeType purpose;
     enum memoryType memory;
-    enum symmetry symmetryType;
     enum block blockType;
     enum spinType spinor;
     enum division linkNext;
@@ -602,9 +603,10 @@ struct field {
     INT_TYPE Ne;
     enum body body;
     INT_TYPE ir;
+//    INT_TYPE boaL;
+//    struct basisElement boa[MAXBOA];
 	struct sinc_label sinc;
     struct rds_label rds;
-    //struct band_label band;
     struct interaction_label twoBody;
     struct interaction_label oneBody;
     struct MEM * mem1;
@@ -615,6 +617,8 @@ struct general_index{//one dimension
     double b1;
     INT_TYPE l0;
     INT_TYPE l1;
+    INT_TYPE pointer;
+    
     double x1;
 
 	double x0;//gaussain1 position in 1-d
@@ -622,8 +626,8 @@ struct general_index{//one dimension
     INT_TYPE action ;//0 = no derivative.  1 derivative.
     
 	double d;
-	INT_TYPE n;//function index.
-	INT_TYPE m;
+	double n;//function index.
+	double m;
     
 };
 
@@ -633,6 +637,8 @@ struct general_2index{//one dimension
     double alpha;
     double boundary;
     double k;
+    INT_TYPE point;
+    INT_TYPE powSpace;//r^2*pow in Gaussian term!!
     INT_TYPE N1;
     INT_TYPE body;
     INT_TYPE periodic;
@@ -674,10 +680,11 @@ struct MEM {
 
 
 struct input {
+    INT_TYPE theory;//1 normal schrodinger.  2 N-body theory.
     INT_TYPE cycleStep;
     INT_TYPE lookBack;
     INT_TYPE filter;
-    INT_TYPE type;
+    int irrep;
 #ifdef OMP
   //  INT_TYPE traffic;
     INT_TYPE omp;
@@ -700,6 +707,7 @@ struct input {
     INT_TYPE M1;
     double vectorMomentum;
     enum body body;
+    enum bodyType bodyType;
     double springConstant;
     INT_TYPE springFlag;
     INT_TYPE potentialFlag;

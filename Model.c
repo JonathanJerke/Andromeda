@@ -95,7 +95,7 @@ void resetExternal(struct calculation * i, INT_TYPE number, double scale ){
 struct calculation initCal (void ) {
     INT_TYPE space;
     struct calculation i;
-    i.i.type = 0;
+    i.i.irrep = 0;
     i.i.hartreeFockFlag = 0;
     i.i.springConstant = 0.;
     i.i.springFlag = 0;
@@ -204,11 +204,15 @@ INT_TYPE iModel( struct calculation * c1){
     {
         INT_TYPE space ;
         if ( f1->sinc.tulip != NULL ){
+            printf("iModel\n");
             exit(0);
         }
         for ( space = 0; space <= SPACE  ; space++)
-            if ( f1->sinc.rose[space].stream != NULL )
+            if ( f1->sinc.rose[space].stream != NULL ){
+                printf("iModel rose\n");
+
                 exit(0);
+            }
     }
     
 
@@ -239,9 +243,10 @@ INT_TYPE iModel( struct calculation * c1){
         }
         
         enum body bootBodies = c1->i.body;
+        enum bodyType bootType = c1->i.bodyType;
         c1->i.c.body = bootBodies;
         INT_TYPE ra = tPerms(bootBodies),nG = tSize(bootBodies);
-        c1->i.paths = tPaths(bootBodies, c1->i.type);
+        c1->i.paths = tPaths(bootBodies, c1->i.irrep);
         printf("'states' %d\n helium %d \n floor %d\n", c1->i.nStates,c1->i.heliumFlag,c1->i.qFloor);
         INT_TYPE N12 = c1->i.epi;
         f1->sinc.N1 = 2*N12+1;
@@ -286,8 +291,10 @@ INT_TYPE iModel( struct calculation * c1){
         maxArray = imax(c1->i.nStates,maxEV);//slip Nb into spectra...
         
         f1->sinc.maxEV = maxArray;
+        
         enum division end  = eigenVectors +  c1->i.nStates+maxEV;
         f1->sinc.end = end;
+        printf("end %d\n", end);
         f1->sinc.tulip = malloc ( (end+1) * sizeof(struct name_label));
 
 
@@ -308,6 +315,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[label1].linkNext = nullName;
                 f1->sinc.tulip[label1].blockType = tv1;
                 f1->sinc.tulip[label1].NBody = bootBodies;
+                f1->sinc.tulip[label1].TBody = electron;
                 f1->sinc.tulip[label1].Partition = 0;
                 f1->sinc.tulip[label1].parallel = 0;
                 tClear(f1,label1);
@@ -315,14 +323,14 @@ INT_TYPE iModel( struct calculation * c1){
             }
         }
         
-        if(0){
-            printf("TARGET %f\n", log(c1->rt.TARGET)/log(10));
-            printf("TOL %f\n", log(c1->rt.TOL)/log(10));
-            printf("CANON %f\n", log(c1->rt.CANON)/log(10));
-            printf("vCANON %f\n", log(c1->rt.vCANON)/log(10));
-            printf("CONVERGENCE %f\n", log(c1->rt.CONVERGENCE )/log(10));
-            printf("vCONVERGENCE %f\n", log(c1->rt.vCONVERGENCE )/log(10));
-            printf("ALPHA %f\n", log(c1->rt.ALPHA )/log(10));
+        if(1){
+            printf("TARGET \t\t%f\n", log(c1->rt.TARGET)/log(10));
+            printf("TOL \t\t%f\n", log(c1->rt.TOL)/log(10));
+            printf("CANON \t\t%f\n", log(c1->rt.CANON)/log(10));
+            printf("vCANON \t\t%f\n", log(c1->rt.vCANON)/log(10));
+            printf("CONVERGENCE \t%f\n", log(c1->rt.CONVERGENCE )/log(10));
+            printf("vCONVERGENCE\t %f\n", log(c1->rt.vCONVERGENCE )/log(10));
+            printf("ALPHA\t\t %f\n", log(c1->rt.ALPHA )/log(10));
 
             
             
@@ -340,22 +348,31 @@ INT_TYPE iModel( struct calculation * c1){
 
         }
         
-        f1->sinc.tulip[kinetic].spinor = cmpl;
+//  f1->sinc.tulip[kinetic].spinor = cmpl;
         f1->sinc.tulip[kinetic].Address =0;
-        f1->sinc.tulip[kinetic].Partition = SPACE+1;//
+        f1->sinc.tulip[kinetic].Partition = SPACE;//
         f1->sinc.tulip[kinetic].NBody = one;
         f1->sinc.tulip[kinetic].species = matrix;
         f1->sinc.tulip[kinetic].header = Cube;
-        f1->sinc.tulip[kinetic].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[kinetic].symmetryType = nullSymmetry;
         f1->sinc.tulip[kinetic].name = kinetic;
         
+ //       f1->sinc.tulip[kineticMass].spinor = cmpl;
+        f1->sinc.tulip[kineticMass].Address =fromBegining(f1,kinetic);
+        f1->sinc.tulip[kineticMass].Partition = SPACE;//
+        f1->sinc.tulip[kineticMass].NBody = one;
+        f1->sinc.tulip[kineticMass].species = matrix;
+        f1->sinc.tulip[kineticMass].header = Cube;
+//        f1->sinc.tulip[kineticMass].symmetryType = nullSymmetry;
+        f1->sinc.tulip[kineticMass].name = kineticMass;
+
         f1->sinc.tulip[harmonium].spinor = none;
-        f1->sinc.tulip[harmonium].Address =fromBegining(f1,kinetic);
+        f1->sinc.tulip[harmonium].Address =fromBegining(f1,kineticMass);
         f1->sinc.tulip[harmonium].Partition = c1->i.springFlag*SPACE;//
         f1->sinc.tulip[harmonium].NBody = one;
         f1->sinc.tulip[harmonium].species = matrix;
         f1->sinc.tulip[harmonium].header = Cube;
-        f1->sinc.tulip[harmonium].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[harmonium].symmetryType = nullSymmetry;
         f1->sinc.tulip[harmonium].name = harmonium;
         
         f1->sinc.tulip[X].spinor = none;
@@ -365,7 +382,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[X].species = matrix;
         f1->sinc.tulip[X].header = Cube;
         f1->sinc.tulip[X].purpose = Object;
-        f1->sinc.tulip[X].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[X].symmetryType = nullSymmetry;
         f1->sinc.tulip[X].name = X;
         
         
@@ -375,7 +392,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[linear].NBody = one;
         f1->sinc.tulip[linear].species = matrix;
         f1->sinc.tulip[linear].header = Cube;
-        f1->sinc.tulip[linear].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[linear].symmetryType = nullSymmetry;
         f1->sinc.tulip[linear].name = linear;
         
         f1->sinc.tulip[overlap].spinor = none;
@@ -383,7 +400,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[overlap].Partition = 0;//
         f1->sinc.tulip[overlap].species = matrix;
         f1->sinc.tulip[overlap].header = bootShape;
-        f1->sinc.tulip[overlap].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[overlap].symmetryType = nullSymmetry;
         f1->sinc.tulip[overlap].name = overlap;
         
         
@@ -414,7 +431,7 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[build].species = matrix;
             f1->sinc.tulip[build].header = Cube;
             f1->sinc.tulip[build].purpose = Object;
-            f1->sinc.tulip[build].symmetryType = nullSymmetry;
+//            f1->sinc.tulip[build].symmetryType = nullSymmetry;
             f1->sinc.tulip[build].name = build;
             
             f1->sinc.tulip[eigen].Address = fromBegining(f1,build);
@@ -423,27 +440,18 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[eigen].species = matrix;
             f1->sinc.tulip[eigen].header = Cube;
             f1->sinc.tulip[eigen].purpose = tObject;
-            f1->sinc.tulip[eigen].symmetryType = nullSymmetry;
+//            f1->sinc.tulip[eigen].symmetryType = nullSymmetry;
             f1->sinc.tulip[eigen].name = eigen;
             
-            f1->sinc.tulip[spam].Address = fromBegining(f1,eigen);
-            f1->sinc.tulip[spam].Partition = c1->i.sectors;
-            f1->sinc.tulip[spam].NBody = runBodies;
-            f1->sinc.tulip[spam].species = matrix;
-            f1->sinc.tulip[spam].header = Cube;
-            f1->sinc.tulip[spam].purpose = tObject;
-            f1->sinc.tulip[spam].symmetryType = nullSymmetry;
-            f1->sinc.tulip[spam].name = spam;
-
             
-            f1->sinc.tulip[density].Address = fromBegining(f1,spam);
+            f1->sinc.tulip[density].Address = fromBegining(f1,eigen);
             f1->sinc.tulip[density].Partition = (!(!c1->rt.printFlag))*c1->i.decomposeRankMatrix;
             f1->sinc.tulip[density].NBody = two;
             f1->sinc.tulip[density].species = matrix;
             f1->sinc.tulip[density].blockType = e12;
             f1->sinc.tulip[density].header = Cube;
             f1->sinc.tulip[density].purpose = tObject;
-            f1->sinc.tulip[density].symmetryType = nullSymmetry;
+//            f1->sinc.tulip[density].symmetryType = nullSymmetry;
             f1->sinc.tulip[density].name = density;
 
             
@@ -527,7 +535,7 @@ INT_TYPE iModel( struct calculation * c1){
                     ii = v % nG;
                     jj = (v/nG)%nG;
                     kk = (v/(nG*nG))%nG;
-                    if ( tIR(bootBodies, ii, jj, kk, c1->i.type)){
+                    if ( tIR(bootBodies, ii, jj, kk, c1->i.irrep)){
                         for ( h = 0; h < c1->i.cSA[v] ;h++)
                             for ( i = 0; i < c1->i.Iterations ; i++)//ORDER IN MEMORY
                                 
@@ -565,7 +573,7 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[diagonalVectorA].header = Cube;
             f1->sinc.tulip[diagonalVectorA].NBody = runBodies;
             f1->sinc.tulip[diagonalVectorA].purpose = tObject;
-            f1->sinc.tulip[diagonalVectorA].symmetryType = nullSymmetry;
+//            f1->sinc.tulip[diagonalVectorA].symmetryType = nullSymmetry;
             f1->sinc.tulip[diagonalVectorA].name = diagonalVectorA;
             
             f1->sinc.tulip[diagonalVectorB].Address = fromBegining(f1,diagonalVectorA);
@@ -575,7 +583,7 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[diagonalVectorB].header = Cube;
             f1->sinc.tulip[diagonalVectorB].NBody = runBodies;
             f1->sinc.tulip[diagonalVectorB].purpose = tObject;
-            f1->sinc.tulip[diagonalVectorB].symmetryType = nullSymmetry;
+//            f1->sinc.tulip[diagonalVectorB].symmetryType = nullSymmetry;
             f1->sinc.tulip[diagonalVectorB].name = diagonalVectorB;
 
         }
@@ -586,7 +594,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[diagonalVector].header = Cube;
         f1->sinc.tulip[diagonalVector].parallel = 2;
         f1->sinc.tulip[diagonalVector].purpose = tObject;
-        f1->sinc.tulip[diagonalVector].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[diagonalVector].symmetryType = nullSymmetry;
         f1->sinc.tulip[diagonalVector].name = diagonalVector;
 
         
@@ -598,7 +606,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[entropyVector].species = vector;
         f1->sinc.tulip[entropyVector].header = Cube;
         f1->sinc.tulip[entropyVector].purpose = Object;
-        f1->sinc.tulip[entropyVector].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[entropyVector].symmetryType = nullSymmetry;
         f1->sinc.tulip[entropyVector].name = entropyVector;
         
         f1->sinc.tulip[entropyUnit].spinor = none;
@@ -608,7 +616,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[entropyUnit].species = vector;
         f1->sinc.tulip[entropyUnit].header = Cube;
         f1->sinc.tulip[entropyUnit].purpose = tObject;
-        f1->sinc.tulip[entropyUnit].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[entropyUnit].symmetryType = nullSymmetry;
         f1->sinc.tulip[entropyUnit].name = entropyUnit;
         
         f1->sinc.tulip[complement].Address = fromBegining(f1,entropyUnit);
@@ -617,7 +625,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[complement].species = vector;
         f1->sinc.tulip[complement].header = Cube;
         f1->sinc.tulip[complement].purpose = Object;
-        f1->sinc.tulip[complement].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[complement].symmetryType = nullSymmetry;
         f1->sinc.tulip[complement].name = complement;
         
         f1->sinc.tulip[MomentumDot].spinor = none;
@@ -627,7 +635,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[MomentumDot].species = matrix;
         f1->sinc.tulip[MomentumDot].header = Cube;
         f1->sinc.tulip[MomentumDot].purpose = Object;
-        f1->sinc.tulip[MomentumDot].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[MomentumDot].symmetryType = nullSymmetry;
         f1->sinc.tulip[MomentumDot].name = MomentumDot;
         
         f1->sinc.tulip[edgeMatrix].spinor = none;
@@ -637,7 +645,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[edgeMatrix].species = matrix;
         f1->sinc.tulip[edgeMatrix].header = Cube;
         f1->sinc.tulip[edgeMatrix].purpose = Object;
-        f1->sinc.tulip[edgeMatrix].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[edgeMatrix].symmetryType = nullSymmetry;
         f1->sinc.tulip[edgeMatrix].name = edgeMatrix;
         
         f1->sinc.tulip[nullVector].Address = fromBegining(f1,edgeMatrix);
@@ -668,7 +676,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[secondVector].header = Cube;
         f1->sinc.tulip[secondVector].parallel = 1;
         f1->sinc.tulip[secondVector].purpose = tObject;
-        f1->sinc.tulip[secondVector].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[secondVector].symmetryType = nullSymmetry;
         f1->sinc.tulip[secondVector].name = secondVector;
                 
         f1->sinc.tulip[edges].Partition = 0;
@@ -684,7 +692,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[basis].species = matrix;
         f1->sinc.tulip[basis].header = RdsBasis;
         f1->sinc.tulip[basis].purpose = Object;
-        f1->sinc.tulip[basis].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[basis].symmetryType = nullSymmetry;
         f1->sinc.tulip[basis].name = basis;
         
         f1->sinc.tulip[bandBasis].spinor = none;
@@ -693,7 +701,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[bandBasis].species = matrix;
         f1->sinc.tulip[bandBasis].header = BandBasis;
         f1->sinc.tulip[bandBasis].purpose = Object;
-        f1->sinc.tulip[bandBasis].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[bandBasis].symmetryType = nullSymmetry;
         f1->sinc.tulip[bandBasis].name = bandBasis;
         
         
@@ -728,7 +736,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[productVector].header = Cube;
         f1->sinc.tulip[productVector].parallel = 2;
         f1->sinc.tulip[productVector].purpose = tObject;
-        f1->sinc.tulip[productVector].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[productVector].symmetryType = nullSymmetry;
         f1->sinc.tulip[productVector].name = productVector;
         
         f1->sinc.tulip[permutationVector].Address = fromBegining(f1,productVector);
@@ -737,7 +745,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[permutationVector].header = Cube;
         f1->sinc.tulip[permutationVector].parallel = 2;
         f1->sinc.tulip[permutationVector].purpose = Object;
-        f1->sinc.tulip[permutationVector].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[permutationVector].symmetryType = nullSymmetry;
         f1->sinc.tulip[permutationVector].name = permutationVector;
         
         f1->sinc.tulip[copyVector].Address = fromBegining(f1,permutationVector);
@@ -749,7 +757,7 @@ INT_TYPE iModel( struct calculation * c1){
         }
         f1->sinc.tulip[copyVector].parallel = 2;
         f1->sinc.tulip[copyVector].purpose = tObject;
-        f1->sinc.tulip[copyVector].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[copyVector].symmetryType = nullSymmetry;
         f1->sinc.tulip[copyVector].name = copyVector;
         
         
@@ -762,7 +770,7 @@ INT_TYPE iModel( struct calculation * c1){
         }
         f1->sinc.tulip[copyTwoVector].parallel = 1;
         f1->sinc.tulip[copyTwoVector].purpose = tObject;
-        f1->sinc.tulip[copyTwoVector].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[copyTwoVector].symmetryType = nullSymmetry;
         f1->sinc.tulip[copyTwoVector].name = copyTwoVector;
         
         f1->sinc.tulip[copyThreeVector].Address = fromBegining(f1,copyTwoVector);
@@ -788,17 +796,17 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[oneVector].header = Cube;
         f1->sinc.tulip[oneVector].parallel = 2;
         f1->sinc.tulip[oneVector].purpose = Object;
-        f1->sinc.tulip[oneVector].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[oneVector].symmetryType = nullSymmetry;
         f1->sinc.tulip[oneVector].name = oneVector;
         
-        f1->sinc.tulip[twoVector].Address = fromBegining(f1,copyFourVector);
+        f1->sinc.tulip[twoVector].Address = fromBegining(f1,oneVector);
         f1->sinc.tulip[twoVector].Partition = !(!c1->rt.printFlag) * c1->i.bRank;;
         f1->sinc.tulip[twoVector].NBody = two;
         f1->sinc.tulip[twoVector].species = vector;
         f1->sinc.tulip[twoVector].header = Cube;
         f1->sinc.tulip[twoVector].parallel = 2;
         f1->sinc.tulip[twoVector].purpose = Object;
-        f1->sinc.tulip[twoVector].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[twoVector].symmetryType = nullSymmetry;
         f1->sinc.tulip[twoVector].name = twoVector;
 
         
@@ -824,7 +832,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[diagonal].NBody = one;
         f1->sinc.tulip[diagonal].header = Cube;
         f1->sinc.tulip[diagonal].purpose = tObject;
-        f1->sinc.tulip[diagonal].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[diagonal].symmetryType = nullSymmetry;
         f1->sinc.tulip[diagonal].name = diagonal;
         
         f1->sinc.tulip[diagonalCube].spinor = none;
@@ -834,7 +842,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[diagonalCube].species = matrix;
         f1->sinc.tulip[diagonalCube].header = Cube;
         f1->sinc.tulip[diagonalCube].purpose = tObject;
-        f1->sinc.tulip[diagonalCube].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[diagonalCube].symmetryType = nullSymmetry;
         f1->sinc.tulip[diagonalCube].name = diagonalCube;
         
         f1->sinc.tulip[diagonal1VectorA].spinor = none;
@@ -845,7 +853,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[diagonal1VectorA].header = Cube;
         f1->sinc.tulip[diagonal1VectorA].NBody = one;
         f1->sinc.tulip[diagonal1VectorA].purpose = tObject;
-        f1->sinc.tulip[diagonal1VectorA].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[diagonal1VectorA].symmetryType = nullSymmetry;
         f1->sinc.tulip[diagonal1VectorA].name = diagonal1VectorA;
                 
         f1->sinc.tulip[diagonal2VectorA].spinor = none;
@@ -856,7 +864,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[diagonal2VectorA].header = Cube;
         f1->sinc.tulip[diagonal2VectorA].NBody = two;
         f1->sinc.tulip[diagonal2VectorA].purpose = tObject;
-        f1->sinc.tulip[diagonal2VectorA].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[diagonal2VectorA].symmetryType = nullSymmetry;
         f1->sinc.tulip[diagonal2VectorA].name = diagonal2VectorA;
         
         f1->sinc.tulip[diagonal2VectorB].spinor = none;
@@ -867,7 +875,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[diagonal2VectorB].header = Cube;
         f1->sinc.tulip[diagonal2VectorB].NBody = two;
         f1->sinc.tulip[diagonal2VectorB].purpose = tObject;
-        f1->sinc.tulip[diagonal2VectorB].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[diagonal2VectorB].symmetryType = nullSymmetry;
         f1->sinc.tulip[diagonal2VectorB].name = diagonal2VectorB;
         
         f1->sinc.tulip[diagonal1VectorB].spinor = none;
@@ -878,7 +886,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[diagonal1VectorB].header = Cube;
         f1->sinc.tulip[diagonal1VectorB].NBody = one;
         f1->sinc.tulip[diagonal1VectorB].purpose = tObject;
-        f1->sinc.tulip[diagonal1VectorB].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[diagonal1VectorB].symmetryType = nullSymmetry;
         f1->sinc.tulip[diagonal1VectorB].name = diagonal1VectorB;
         //setBoxLimits(f1, diagonal1VectorB,N1);
         
@@ -890,7 +898,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[diagonal1VectorC].header = Cube;
         f1->sinc.tulip[diagonal1VectorC].NBody = one;
         f1->sinc.tulip[diagonal1VectorC].purpose = tObject;
-        f1->sinc.tulip[diagonal1VectorC].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[diagonal1VectorC].symmetryType = nullSymmetry;
         f1->sinc.tulip[diagonal1VectorC].name = diagonal1VectorC;
         //setBoxLimits(f1, diagonal1VectorC,N1);
         
@@ -902,7 +910,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[diagonal1VectorD].header = Cube;
         f1->sinc.tulip[diagonal1VectorD].NBody = one;
         f1->sinc.tulip[diagonal1VectorD].purpose = tObject;
-        f1->sinc.tulip[diagonal1VectorD].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[diagonal1VectorD].symmetryType = nullSymmetry;
         f1->sinc.tulip[diagonal1VectorD].name = diagonal1VectorD;
         //setBoxLimits(f1, diagonal1VectorD,N1);
         
@@ -914,7 +922,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[seconds].header = Cube;
         f1->sinc.tulip[seconds].NBody = one;
         f1->sinc.tulip[seconds].purpose = tObject;
-        f1->sinc.tulip[seconds].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[seconds].symmetryType = nullSymmetry;
         f1->sinc.tulip[seconds].name = seconds;
         
         f1->sinc.tulip[copy].Address = fromBegining(f1,seconds);
@@ -924,7 +932,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[copy].header = Cube;
         f1->sinc.tulip[copy].NBody = one;
         f1->sinc.tulip[copy].purpose = tObject;
-        f1->sinc.tulip[copy].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[copy].symmetryType = nullSymmetry;
         f1->sinc.tulip[copy].name = copy;
         
         f1->sinc.tulip[copyTwo].Address = fromBegining(f1,copy);
@@ -938,7 +946,7 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[copyTwo].Partition = 2*c1->i.bRank * c1->i.bRank;
         }
         f1->sinc.tulip[copyTwo].purpose = tObject;
-        f1->sinc.tulip[copyTwo].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[copyTwo].symmetryType = nullSymmetry;
         f1->sinc.tulip[copyTwo].name = copyTwo;
         
         
@@ -953,7 +961,7 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[copyThree].Partition = c1->i.decomposeRankMatrix;
         }
         f1->sinc.tulip[copyThree].purpose = tObject;
-        f1->sinc.tulip[copyThree].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[copyThree].symmetryType = nullSymmetry;
         f1->sinc.tulip[copyThree].name = copyThree;
         
         f1->sinc.tulip[square].Address = fromBegining(f1,copyThree);
@@ -963,7 +971,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[square].NBody = one;
         f1->sinc.tulip[square].parallel = 0;
         f1->sinc.tulip[square].purpose = Object;
-        f1->sinc.tulip[square].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[square].symmetryType = nullSymmetry;
         f1->sinc.tulip[square].name = square;
         
         
@@ -975,7 +983,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[squareTwo].NBody = two;
         f1->sinc.tulip[squareTwo].parallel = 0;
         f1->sinc.tulip[squareTwo].purpose = tObject;
-        f1->sinc.tulip[squareTwo].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[squareTwo].symmetryType = nullSymmetry;
         f1->sinc.tulip[squareTwo].name = squareTwo;
         
         
@@ -990,7 +998,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[trainVector].species = vector;
         f1->sinc.tulip[trainVector].header = Cube;
         f1->sinc.tulip[trainVector].purpose = tObject;
-        f1->sinc.tulip[trainVector].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[trainVector].symmetryType = nullSymmetry;
         f1->sinc.tulip[trainVector].name = trainVector;
         
         f1->sinc.tulip[trainVector2].Address = fromBegining(f1,trainVector);
@@ -1000,7 +1008,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[trainVector2].species = vector;
         f1->sinc.tulip[trainVector2].header = Cube;
         f1->sinc.tulip[trainVector2].purpose = tObject;
-        f1->sinc.tulip[trainVector2].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[trainVector2].symmetryType = nullSymmetry;
         f1->sinc.tulip[trainVector2].name = trainVector2;
         
         f1->sinc.tulip[trainVector3].Address = fromBegining(f1,trainVector2);
@@ -1010,7 +1018,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[trainVector3].species = vector;
         f1->sinc.tulip[trainVector3].header = Cube;
         f1->sinc.tulip[trainVector3].purpose = tObject;
-        f1->sinc.tulip[trainVector3].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[trainVector3].symmetryType = nullSymmetry;
         f1->sinc.tulip[trainVector3].name = trainVector3;
         
         f1->sinc.tulip[trainVector4].Address = fromBegining(f1,trainVector3);
@@ -1020,7 +1028,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[trainVector4].species = vector;
         f1->sinc.tulip[trainVector4].header = Cube;
         f1->sinc.tulip[trainVector4].purpose = tObject;
-        f1->sinc.tulip[trainVector4].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[trainVector4].symmetryType = nullSymmetry;
         f1->sinc.tulip[trainVector4].name = trainVector4;
         
         f1->sinc.tulip[trainMatrix].Address = fromBegining(f1,trainVector4);
@@ -1030,7 +1038,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[trainMatrix].NBody = one;
         f1->sinc.tulip[trainMatrix].header = Cube;
         f1->sinc.tulip[trainMatrix].purpose = Object;
-        f1->sinc.tulip[trainMatrix].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[trainMatrix].symmetryType = nullSymmetry;
         f1->sinc.tulip[trainMatrix].name = trainMatrix;
         
         f1->sinc.tulip[trainMatrix2].Address = fromBegining(f1,trainMatrix);
@@ -1040,7 +1048,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[trainMatrix2].NBody = two;
         f1->sinc.tulip[trainMatrix2].header = Cube;
         f1->sinc.tulip[trainMatrix2].purpose = Object;
-        f1->sinc.tulip[trainMatrix2].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[trainMatrix2].symmetryType = nullSymmetry;
         f1->sinc.tulip[trainMatrix2].name = trainMatrix2;
         
         f1->sinc.tulip[trainMatrix3].Address = fromBegining(f1,trainMatrix2);
@@ -1050,7 +1058,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[trainMatrix3].NBody = three;
         f1->sinc.tulip[trainMatrix3].header = Cube;
         f1->sinc.tulip[trainMatrix3].purpose = Object;
-        f1->sinc.tulip[trainMatrix3].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[trainMatrix3].symmetryType = nullSymmetry;
         f1->sinc.tulip[trainMatrix3].name = trainMatrix3;
         
         f1->sinc.tulip[trainMatrix4].Address = fromBegining(f1,trainMatrix3);
@@ -1060,7 +1068,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[trainMatrix4].NBody = four;
         f1->sinc.tulip[trainMatrix4].header = Cube;
         f1->sinc.tulip[trainMatrix4].purpose = Object;
-        f1->sinc.tulip[trainMatrix4].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[trainMatrix4].symmetryType = nullSymmetry;
         f1->sinc.tulip[trainMatrix4].name = trainMatrix4;
         
         f1->sinc.tulip[trainQuartic].Address = fromBegining(f1,trainMatrix4);
@@ -1069,7 +1077,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[trainQuartic].species = quartic;
         f1->sinc.tulip[trainQuartic].header = Cube;
         f1->sinc.tulip[trainQuartic].purpose = Object;
-        f1->sinc.tulip[trainQuartic].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[trainQuartic].symmetryType = nullSymmetry;
         f1->sinc.tulip[trainQuartic].name = trainQuartic;
         
         {
@@ -1082,7 +1090,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[canonicalBuffers].Partition = maxVector*maxVector+ imax(len[0],imax(NV,part(f1,totalVector)))*maxVector;
         f1->sinc.tulip[canonicalBuffers].species = scalar;
         f1->sinc.tulip[canonicalBuffers].purpose = Object;
-        f1->sinc.tulip[canonicalBuffers].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[canonicalBuffers].symmetryType = nullSymmetry;
         f1->sinc.tulip[canonicalBuffers].name = canonicalBuffers;
         }
         INT_TYPE eigenNeeds = imax(maxEV*maxEV,4*maxEV) + 1;
@@ -1093,7 +1101,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[eigenBuffers].Partition = 0*eigenNeeds;
         f1->sinc.tulip[eigenBuffers].species = scalar;
         f1->sinc.tulip[eigenBuffers].purpose = Object;
-        f1->sinc.tulip[eigenBuffers].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[eigenBuffers].symmetryType = nullSymmetry;
         f1->sinc.tulip[eigenBuffers].name = eigenBuffers;
         
         f1->sinc.tulip[tensorBuffers].spinor = none;
@@ -1103,7 +1111,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[tensorBuffers].species = vector;
         f1->sinc.tulip[tensorBuffers].header = Cube;
         f1->sinc.tulip[tensorBuffers].purpose = Object;
-        f1->sinc.tulip[tensorBuffers].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[tensorBuffers].symmetryType = nullSymmetry;
         f1->sinc.tulip[tensorBuffers].name = tensorBuffers;
         
         f1->sinc.tulip[highBallVector].Address =  fromBegining(f1,tensorBuffers);
@@ -1142,6 +1150,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         f1->sinc.tulip[foundationStructure].Address =  fromBegining(f1,highBallVector4);
         f1->sinc.tulip[foundationStructure].Partition = nG;
+        f1->sinc.tulip[foundationStructure].NBody = bootBodies;
         f1->sinc.tulip[foundationStructure].parallel = 1;
         f1->sinc.tulip[foundationStructure].species = vector;
         f1->sinc.tulip[foundationStructure].header = Cube;
@@ -1159,24 +1168,14 @@ INT_TYPE iModel( struct calculation * c1){
         {
             
             
-            f1->sinc.tulip[interactionExchange].Address = fromBegining(f1,foundationEquals);
-            f1->sinc.tulip[interactionExchange].spinor = none;
-            f1->sinc.tulip[interactionExchange].Partition = f1->twoBody.num*( bootBodies > one );
-            f1->sinc.tulip[interactionExchange].species = matrix;
-            f1->sinc.tulip[interactionExchange].NBody = two;
-            f1->sinc.tulip[interactionExchange].header = Cube;
-            f1->sinc.tulip[interactionExchange].purpose = Object;
-            f1->sinc.tulip[interactionExchange].symmetryType = nullSymmetry;
-            f1->sinc.tulip[interactionExchange].name = interactionExchange;
-            
-            f1->sinc.tulip[interactionDirect].Address = fromBegining(f1,interactionExchange);
+            f1->sinc.tulip[interactionDirect].Address = fromBegining(f1,foundationEquals);
             f1->sinc.tulip[interactionDirect].spinor = none;
             f1->sinc.tulip[interactionDirect].Partition = (!(!c1->i.hartreeFockFlag))*f1->twoBody.num*( bootBodies > one );
             f1->sinc.tulip[interactionDirect].species = matrix;
             f1->sinc.tulip[interactionDirect].NBody = two;
             f1->sinc.tulip[interactionDirect].header = Cube;
             f1->sinc.tulip[interactionDirect].purpose = Object;
-            f1->sinc.tulip[interactionDirect].symmetryType = nullSymmetry;
+//            f1->sinc.tulip[interactionDirect].symmetryType = nullSymmetry;
             f1->sinc.tulip[interactionDirect].name = interactionDirect;
             
             
@@ -1226,8 +1225,31 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[basisBuffers].name = basisBuffers;
             
         }
+        
+        f1->sinc.tulip[interactionExchange].myAddress = fromMyBegining(f1,basisBuffers);
+        f1->sinc.tulip[interactionExchange].spinor = none;
+        f1->sinc.tulip[interactionExchange].Partition = f1->twoBody.num*( bootBodies > one );
+        f1->sinc.tulip[interactionExchange].species = matrix;
+        f1->sinc.tulip[interactionExchange].NBody = two;
+        f1->sinc.tulip[interactionExchange].memory = oneObject;
+        f1->sinc.tulip[interactionExchange].header = Cube;
+        f1->sinc.tulip[interactionExchange].purpose = Object;
+//        f1->sinc.tulip[interactionExchange].symmetryType = nullSymmetry;
+        f1->sinc.tulip[interactionExchange].name = interactionExchange;
+        
+        f1->sinc.tulip[interactionExchangePlus].myAddress = fromMyBegining(f1,interactionExchange);
+        f1->sinc.tulip[interactionExchangePlus].spinor = none;
+        f1->sinc.tulip[interactionExchangePlus].Partition = f1->twoBody.num*( bootBodies >= two && bootType > electron );
+        f1->sinc.tulip[interactionExchangePlus].species = matrix;
+        f1->sinc.tulip[interactionExchangePlus].NBody = two;
+        f1->sinc.tulip[interactionExchangePlus].memory = oneObject;
+        f1->sinc.tulip[interactionExchangePlus].header = Cube;
+        f1->sinc.tulip[interactionExchangePlus].purpose = Object;
+//        f1->sinc.tulip[interactionExchangePlus].symmetryType = nullSymmetry;
+        f1->sinc.tulip[interactionExchangePlus].name = interactionExchangePlus;
+
         f1->sinc.tulip[oneArray].parallel = 0;
-        f1->sinc.tulip[oneArray].myAddress = fromMyBegining(f1,basisBuffers);
+        f1->sinc.tulip[oneArray].myAddress = fromMyBegining(f1,interactionExchangePlus);
         f1->sinc.tulip[oneArray].Partition = c1->i.M1*3+c1->i.M1*c1->i.M1;
         f1->sinc.tulip[oneArray].species = scalar;
         f1->sinc.tulip[oneArray].memory = oneObject;
@@ -1370,6 +1392,7 @@ INT_TYPE iModel( struct calculation * c1){
         printf("\tG%f\n",(fromMyBegining(f1,end ))/(1000000000./(sizeof(Stream_Type))));
 
         
+        
         fflush(stdout);
         for ( space = 0; space < SPACE ; space++){
             f1->sinc.rose[space].stream = malloc( fromBegining(f1,end )*sizeof(Stream_Type));
@@ -1377,6 +1400,7 @@ INT_TYPE iModel( struct calculation * c1){
 
         f1->sinc.rose[SPACE].stream = malloc( fromMyBegining(f1,end )*sizeof(Stream_Type));
         c1->mem.bootedMemory = 1;
+        assignCores(f1, 2);
 
         tClear(f1, linear);
 
@@ -1408,21 +1432,29 @@ INT_TYPE iModel( struct calculation * c1){
             
             
             if ( c1->i.hartreeFockFlag ){
-                mySeparateExactTwo(f1,c1->rt.runFlag, -1. , 0);
+                mySeparateExactTwo(f1,c1->rt.runFlag, -1. , 0,0);
                 mySeparateExactOne(f1,-1.,0);
                 tScale(f1, interactionDirect, c1->i.hartreeFockFlag);
             }
             else if ( bootBodies > one )
-                mySeparateExactTwo(f1,c1->rt.runFlag, 1. , 0);
+                mySeparateExactTwo(f1,c1->rt.runFlag, 1. , 0,0);
             
-            separateKinetic(f1, c1->rt.runFlag,c1->i.vectorMomentum);
-            if ( c1->rt.runFlag > 0  && bootBodies > one)
+            if ( bootType > electron  ){
+                mySeparateExactTwo(f1,c1->rt.runFlag, 1. , 0,1);
+                separateKinetic(f1, c1->rt.runFlag,kineticMass, 1836.15267245/8.  ,c1->i.vectorMomentum);
+            }
+            separateKinetic(f1, c1->rt.runFlag,kinetic, 1.,c1->i.vectorMomentum);
+            if ( c1->rt.runFlag == 7   && bootBodies > one && bootType == electron){
+                buildElectronProtonInteraction(f1, linear);
+            }else if (c1->rt.runFlag > 0 && c1->rt.runFlag < 7 && bootBodies > one && bootType == electron ){
                 buildElectronFreeInteraction(c1,linear);
+                tScale(f1, linear, -bootBodies);
+            }
             if (f1->Na != 0 )
                 separateExternal(c1,c1->rt.runFlag,0,1.0,4,0);
-            if ( c1->i.springFlag )
+            if ( c1->i.springFlag ){
                 separateHarmonicExternal(c1,c1->rt.runFlag,1.,4,0);
-            
+            }
         }
         
         
@@ -1434,7 +1466,7 @@ INT_TYPE iModel( struct calculation * c1){
             
             
             
-            if ( bootBodies == one ){
+            if ( bootBodies == one && bootType == electron){
                 
                 //FOR LINEAR
                 f1->sinc.tulip[external1].spinor = none;
@@ -1457,7 +1489,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[kinetic1].purpose = ptObject;
                 f1->sinc.tulip[kinetic1].Current[0] = part(f1, kinetic);
                 f1->sinc.tulip[kinetic1].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic1].Current[1] = 1;
+                f1->sinc.tulip[kinetic1].Current[1] = 0;
                 f1->sinc.tulip[kinetic1].ptRank[1] = 0;
 
                 
@@ -1488,16 +1520,16 @@ INT_TYPE iModel( struct calculation * c1){
                     f1->sinc.tulip[Iterator].linkNext = kinetic1;
                 
                 
-            } else if ( bootBodies == two ){
+            } else if ( bootBodies == two && bootType == electron){
                 
                 
                 
                 f1->sinc.tulip[interaction12].species = matrix;
                 f1->sinc.tulip[interaction12].name = interactionExchange;
-                f1->sinc.tulip[interaction12].linkNext = hartree;
+                if ( c1->i.hartreeFockFlag )
+                    f1->sinc.tulip[interaction12].linkNext = hartree;
                 f1->sinc.tulip[interaction12].blockType = e12;
                 f1->sinc.tulip[interaction12].NBody = two;
-                f1->sinc.tulip[interaction12].memory = threeObject;
                 f1->sinc.tulip[interaction12].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction12].ptRank[0] = 0;
                 f1->sinc.tulip[interaction12].header = Cube;
@@ -1615,13 +1647,13 @@ INT_TYPE iModel( struct calculation * c1){
                 
                     f1->sinc.tulip[Iterator].linkNext = kinetic1;
                 
-            }else if ( bootBodies == three ){
+            }else if ( bootBodies == three && bootType == electron){
                 
                 f1->sinc.tulip[interaction12].species = matrix;
                 f1->sinc.tulip[interaction12].name = interactionExchange;
                 f1->sinc.tulip[interaction12].blockType = e12;
                 f1->sinc.tulip[interaction12].NBody = two;
-                f1->sinc.tulip[interaction12].memory = threeObject;
+                f1->sinc.tulip[interaction12].memory = oneObject;
                 f1->sinc.tulip[interaction12].Current[0] =CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction12].ptRank[0] = 0;
                 f1->sinc.tulip[interaction12].linkNext = interaction13;
@@ -1631,7 +1663,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction13].name = interactionExchange;
                 f1->sinc.tulip[interaction13].blockType = e13;
                 f1->sinc.tulip[interaction13].NBody = two;
-                f1->sinc.tulip[interaction13].memory = threeObject;
+                f1->sinc.tulip[interaction13].memory = oneObject;
                 f1->sinc.tulip[interaction13].Current[0] =CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction13].ptRank[0] = 0;
                 f1->sinc.tulip[interaction13].linkNext = interaction23;
@@ -1641,7 +1673,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction23].name = interactionExchange;
                 f1->sinc.tulip[interaction23].blockType = e23;
                 f1->sinc.tulip[interaction23].NBody = two;
-                f1->sinc.tulip[interaction23].memory = threeObject;
+                f1->sinc.tulip[interaction23].memory = oneObject;
                 f1->sinc.tulip[interaction23].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction23].ptRank[0] = 0;
                 f1->sinc.tulip[interaction23].header = Cube;
@@ -1759,13 +1791,13 @@ INT_TYPE iModel( struct calculation * c1){
                 
             }
             
-            else if ( bootBodies == four ){
+            else if ( bootBodies == four && bootType == electron){
                 
                 f1->sinc.tulip[interaction12].species = matrix;
                 f1->sinc.tulip[interaction12].name = interactionExchange;
                 f1->sinc.tulip[interaction12].blockType = e12;
                 f1->sinc.tulip[interaction12].NBody = two;
-                f1->sinc.tulip[interaction12].memory = threeObject;
+                f1->sinc.tulip[interaction12].memory = oneObject;
                 f1->sinc.tulip[interaction12].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction12].ptRank[0] = 0;
                 f1->sinc.tulip[interaction12].linkNext = interaction13;
@@ -1775,7 +1807,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction13].name = interactionExchange;
                 f1->sinc.tulip[interaction13].blockType = e13;
                 f1->sinc.tulip[interaction13].NBody = two;
-                f1->sinc.tulip[interaction13].memory = threeObject;
+                f1->sinc.tulip[interaction13].memory = oneObject;
                 f1->sinc.tulip[interaction13].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction13].ptRank[0] = 0;
                 f1->sinc.tulip[interaction13].linkNext = interaction23;
@@ -1785,7 +1817,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction23].name = interactionExchange;
                 f1->sinc.tulip[interaction23].blockType = e23;
                 f1->sinc.tulip[interaction23].NBody = two;
-                f1->sinc.tulip[interaction23].memory = threeObject;
+                f1->sinc.tulip[interaction23].memory = oneObject;
                 f1->sinc.tulip[interaction23].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction23].ptRank[0] = 0;
                 f1->sinc.tulip[interaction23].linkNext = interaction14;
@@ -1795,7 +1827,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction14].name = interactionExchange;
                 f1->sinc.tulip[interaction14].blockType = e14;
                 f1->sinc.tulip[interaction14].NBody = two;
-                f1->sinc.tulip[interaction14].memory = threeObject;
+                f1->sinc.tulip[interaction14].memory = oneObject;
                 f1->sinc.tulip[interaction14].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction14].ptRank[0] = 0;
                 f1->sinc.tulip[interaction14].linkNext = interaction24;
@@ -1805,7 +1837,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction24].name = interactionExchange;
                 f1->sinc.tulip[interaction24].blockType = e24;
                 f1->sinc.tulip[interaction24].NBody = two;
-                f1->sinc.tulip[interaction24].memory = threeObject;
+                f1->sinc.tulip[interaction24].memory = oneObject;
                 f1->sinc.tulip[interaction24].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction24].ptRank[0] = 0;
                 f1->sinc.tulip[interaction24].linkNext = interaction34;
@@ -1815,7 +1847,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction34].name = interactionExchange;
                 f1->sinc.tulip[interaction34].blockType = e34;
                 f1->sinc.tulip[interaction34].NBody = two;
-                f1->sinc.tulip[interaction34].memory = threeObject;
+                f1->sinc.tulip[interaction34].memory = oneObject;
                 f1->sinc.tulip[interaction34].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction34].ptRank[0] = 0;
                 f1->sinc.tulip[interaction34].header = Cube;
@@ -1963,10 +1995,99 @@ INT_TYPE iModel( struct calculation * c1){
                     f1->sinc.tulip[Iterator].linkNext = external1;
                 
             }
-            
+            else if (bootType == h2plus && bootBodies == two){
+                
+                
+                
+                f1->sinc.tulip[interaction12].species = matrix;
+                f1->sinc.tulip[interaction12].name = interactionExchange;
+                f1->sinc.tulip[interaction12].linkNext = interaction12Plus;
+                f1->sinc.tulip[interaction12].blockType = e12;
+                f1->sinc.tulip[interaction12].NBody = two;
+                f1->sinc.tulip[interaction12].memory = oneObject;
+                f1->sinc.tulip[interaction12].Current[0] = CanonicalRank(f1, interactionExchange,0);
+                f1->sinc.tulip[interaction12].ptRank[0] = 0;
+                f1->sinc.tulip[interaction12].header = Cube;
+                
+                f1->sinc.tulip[interaction12Plus].species = matrix;
+                f1->sinc.tulip[interaction12Plus].name = interactionExchangePlus;
+                f1->sinc.tulip[interaction12Plus].linkNext = harmonium1;
+                f1->sinc.tulip[interaction12Plus].blockType = e12;
+                f1->sinc.tulip[interaction12Plus].NBody = two;
+                f1->sinc.tulip[interaction12Plus].memory = oneObject;
+                f1->sinc.tulip[interaction12Plus].Current[0] = CanonicalRank(f1, interactionExchangePlus,0);
+                f1->sinc.tulip[interaction12Plus].ptRank[0] = 0;
+                f1->sinc.tulip[interaction12Plus].header = Cube;
+                
+                f1->sinc.tulip[harmonium1].spinor = none;
+                f1->sinc.tulip[harmonium1].NBody = one;
+                f1->sinc.tulip[harmonium1].species = matrix;
+                f1->sinc.tulip[harmonium1].blockType = tv1;
+                f1->sinc.tulip[harmonium1].name = harmonium;
+                f1->sinc.tulip[harmonium1].purpose = ptObject;
+                f1->sinc.tulip[harmonium1].Current[0] = part(f1, harmonium1)-1;
+                f1->sinc.tulip[harmonium1].ptRank[0] = 1;//nock out one dimension!!!...make it a cylindrical R axis
+
+
+                f1->sinc.tulip[Ha].Partition = 0;//
+                f1->sinc.tulip[Ha].species = matrix;
+                f1->sinc.tulip[Ha].TBody = h2plus;
+                f1->sinc.tulip[Ha].header = bootShape;
+                f1->sinc.tulip[Ha].name = Ha;
+                
+                
+                //FOR LINEAR
+                f1->sinc.tulip[external1].spinor = none;
+                f1->sinc.tulip[external1].linkNext = interaction12;
+                f1->sinc.tulip[external1].NBody = one;
+                f1->sinc.tulip[external1].TBody = proton;
+                f1->sinc.tulip[external1].species = matrix;
+                f1->sinc.tulip[external1].blockType = tv1;
+                f1->sinc.tulip[external1].name = linear;
+                f1->sinc.tulip[external1].purpose = ptObject;
+                f1->sinc.tulip[external1].Current[0] = part(f1, linear);
+                f1->sinc.tulip[external1].ptRank[0] = 0;
+                
+                f1->sinc.tulip[kinetic1].linkNext = kinetic2;
+                f1->sinc.tulip[kinetic1].NBody = one;
+                f1->sinc.tulip[kinetic1].TBody = proton;
+                f1->sinc.tulip[kinetic1].species = matrix;
+                f1->sinc.tulip[kinetic1].blockType = tv1;
+                f1->sinc.tulip[kinetic1].name = kineticMass;
+                f1->sinc.tulip[kinetic1].purpose = ptObject;
+                f1->sinc.tulip[kinetic1].Current[0] = part(f1, kinetic);
+                f1->sinc.tulip[kinetic1].ptRank[0] = 0;
+                f1->sinc.tulip[kinetic1].Current[1] = 1;
+                f1->sinc.tulip[kinetic1].ptRank[1] = 0;
+                
+                //FOR LINEAR
+                
+//                if ( c1->i.springFlag )
+//                    f1->sinc.tulip[kinetic2].linkNext = harmonium1;
+//                else
+                
+                f1->sinc.tulip[kinetic2].linkNext = external1;
+                f1->sinc.tulip[kinetic2].NBody = one;
+                f1->sinc.tulip[kinetic2].species = matrix;
+                f1->sinc.tulip[kinetic2].blockType = tv2;
+                f1->sinc.tulip[kinetic2].name = kinetic;
+                f1->sinc.tulip[kinetic2].purpose = ptObject;
+                f1->sinc.tulip[kinetic2].Current[0] = part(f1, kinetic);
+                f1->sinc.tulip[kinetic2].ptRank[0] = 0;
+                f1->sinc.tulip[kinetic2].Current[1] = 1;
+                f1->sinc.tulip[kinetic2].ptRank[1] = 0;
+                
+                
+                //active assignment
+                f1->sinc.tulip[Ha].linkNext = kinetic1;
+                
+                f1->sinc.tulip[Iterator].linkNext = kinetic1;
+                
+            }
         }
         
     }
+
 //    if ( 0)
 //        tInnerTest(f1, kinetic, copy);
     return 0;

@@ -478,7 +478,7 @@ double deg(struct field *f1, INT_TYPE cl ){
 }
 
 //Bill's work,  3component breakdown
-double get(enum body bd , INT_TYPE type , INT_TYPE i ){
+double tGetType(enum body bd , INT_TYPE type , INT_TYPE perm ){
     
     INT_TYPE nsyp=0 ,msyp=0;
     const static double syp2 [] = {
@@ -701,26 +701,26 @@ double get(enum body bd , INT_TYPE type , INT_TYPE i ){
         printf("he\n %lld", type);
         exit(0);
     }
-    if ( i < 0 || i >= nsyp ){
+    if ( perm < 0 || perm >= nsyp ){
         printf("hm\n");
         exit(0);
     }
     
     
     if ( bd == two ){
-        return syp2[(type-1)*nsyp+i];
+        return syp2[(type-1)*nsyp+perm];
     }
     else if ( bd == three ){
-        return syp3[(type-1)*nsyp+i];
+        return syp3[(type-1)*nsyp+perm];
     }
     else if ( bd == four ){
-        return syp4[(type-1)*nsyp+i];
+        return syp4[(type-1)*nsyp+perm];
     }
     return 0.;
 };
 
 //one-component breakdown
-double getter(enum body bd , INT_TYPE type , INT_TYPE i ){
+double get1(enum body bd , INT_TYPE irrep1 , INT_TYPE perm1 ){
     
     INT_TYPE nsyp=0 ,msyp=0;
     const static double syp2 [] = {
@@ -770,25 +770,27 @@ double getter(enum body bd , INT_TYPE type , INT_TYPE i ){
     }
     
     
-    if ( type <= 0 || type > msyp )
+    if ( irrep1 <= 0 || irrep1 > msyp )
     {
-        printf("he\n %lld", type);
+        printf("he\n %lld", irrep1);
         exit(0);
     }
-    if ( i < 0 || i >= nsyp ){
+    if ( perm1 < 0 || perm1 >= nsyp ){
         printf("hm\n");
         exit(0);
     }
-    
-    
+    if ( bd == one ){
+        return 1;
+    }
+    else 
     if ( bd == two ){
-        return syp2[(type-1)*nsyp+i];
+        return syp2[(irrep1-1)*nsyp+perm1];
     }
     else if ( bd == three ){
-        return syp3[(type-1)*nsyp+i];
+        return syp3[(irrep1-1)*nsyp+perm1];
     }
     else if ( bd == four ){
-        return syp4[(type-1)*nsyp+i];
+        return syp4[(irrep1-1)*nsyp+perm1];
     }
     return 0.;
 }
@@ -803,7 +805,7 @@ INT_TYPE tClassifyComponents( struct field * f1 , double * up, double * entropy)
         return 1;
     }
     double entr,sum;
-    INT_TYPE nPerm=0,nGroup=0,xt,type;
+    INT_TYPE nPerm=0,nGroup=0,xt,irrep;
     
     if ( bodies(f1, eigenVectors ) == two ){
         nGroup = 2;
@@ -816,25 +818,25 @@ INT_TYPE tClassifyComponents( struct field * f1 , double * up, double * entropy)
         nPerm = 24;
         nGroup = 5;
     }
-    xt=0;
+    xt=1;
     entr = 0.;
     sum = 0.;
-    for ( type = 0 ; type < nGroup ; type++ ){
-        sum += fabs(up[type]);
-        if ( fabs(up[type])> fabs(up[xt]))
-            xt = type;
+    for ( irrep = 1 ; irrep <= nGroup ; irrep++ ){
+        sum += fabs(up[irrep]);
+        if ( fabs(up[irrep])> fabs(up[xt]))
+            xt = irrep;
     }
-    for ( type = 0 ; type < nGroup ; type++ ){
-        if ( fabs(up[type]) > 1e-6 ){
-            entr += -(fabs(up[type])/sum)*log(fabs(up[type])/sum);
+    for ( irrep = 1 ; irrep <= nGroup ; irrep++ ){
+        if ( fabs(up[irrep]) > 1e-6 ){
+            entr += -(fabs(up[irrep])/sum)*log(fabs(up[irrep])/sum);
         }
-//        printf("%1.3f,", up[type]);
+     //   printf("%1.3f,", up[irrep]);
     }
     *entropy = entr;
     if ( entr < f1->mem1->rt->maxEntropy ){
 //        printf("**\n");
 
-        return xt+1;
+        return xt;
 
     }
 //    printf("\n");
@@ -844,14 +846,14 @@ INT_TYPE tClassifyComponents( struct field * f1 , double * up, double * entropy)
 
 INT_TYPE tClassify(INT_TYPE rank, struct field * f1 , enum division label){
     double up[48],entropy;
-    INT_TYPE i,type;
+    INT_TYPE i,irrep;
     for ( i = 0; i < 48 ; i++)
         up[i] = 0.;
-    
     tTabulateProjection(rank, f1, label, label, up);
-    type =  tClassifyComponents(f1, up,&entropy);
+    irrep =  tClassifyComponents(f1, up,&entropy);
     f1->sinc.tulip[label].value2 =entropy;
-    return type;
+    //printf ("sym %d, %f\n", irrep, entropy);
+    return irrep;
 }
 
 INT_TYPE tSizeUp(INT_TYPE rank, struct field * f1 , INT_TYPE type, enum division label){
@@ -1489,10 +1491,10 @@ INT_TYPE t1Permute( INT_TYPE rank, struct field * f1, char leftChar, enum divisi
 
 
 
-INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char type/*1..6 (3b)*/ , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin){
-    INT_TYPE map[24];
+INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin){
+    INT_TYPE map[24],perm,irrep;
 
-    if ( type == 0 ){
+    if ( meta == 0 ){
         tEqua(f1, targ, tspin, origin, ospin);
         return 0;
     }
@@ -1512,7 +1514,7 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char type/*1..6 (3b)*/ , 
         train[0] = 'T';
         train[1] = 'N';
         map[1] = 1;
-        if ( type == 2 ){
+        if ( meta == 2 ){
             nDeg = 1;
             map[1] = 2;
         }
@@ -1526,7 +1528,7 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char type/*1..6 (3b)*/ , 
         train[5] = 'E';
         nPerm = 6;
         map[1] = 1;
-        if ( type == 2 ){
+        if ( meta == 2 ){
             map[1] = 2;
             nDeg = 1;
         } else {
@@ -1541,16 +1543,16 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char type/*1..6 (3b)*/ , 
         //
         nDeg = 1;
         map [1] = 1;
-        if ( type == 2 ){
+        if ( meta == 2 ){
             map[1] = 2;
             nDeg = 1;
-        } else if ( type == 3 ){
+        } else if ( meta == 3 ){
             map[1] = 3;
             map[2] = 4;
             map[3] = 5;
             map[4] = 6;
             nDeg = 4;
-        } else if ( type == 4){
+        } else if ( meta == 4){
             map[1] = 7;
             map[2] = 8;
             map[3] = 9;
@@ -1561,7 +1563,7 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char type/*1..6 (3b)*/ , 
             map[8] = 14;
             map[9] = 15;
             nDeg = 9;
-        }else if ( type == 5 ){
+        }else if ( meta == 5 ){
             map[1] = 16;
             map[2] = 17;
             map[3] = 18;
@@ -1604,26 +1606,26 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char type/*1..6 (3b)*/ , 
         exit(0);
     }
     
-    if ( type < 0 ){
-        
+    if ( meta < 0 ){
         for ( i = 0; i < nPerm ; i++){
             f1->sinc.tulip[diagonalVector].Current[rank] = 0;
             tPermute(rank,f1, train[i], origin, ospin, diagonalVector, rank);
             tAddTw(f1, targ, tspin, diagonalVector, rank);
         }
-        
-    }else if ( type <= nPerm ){
+    }else if ( meta <= nPerm ){
         for ( i = 0; i < nPerm ; i++){
+            perm = meta;
             f1->sinc.tulip[diagonalVector].Current[rank] = 0;
             tPermute(rank,f1, train[i], origin, ospin, diagonalVector, rank);
-            tScaleOne(f1, diagonalVector, rank, get(bodies(f1, origin), type, i));
+            tScaleOne(f1, diagonalVector, rank, tGetType(bodies(f1, origin), perm, i));
             tAddTw(f1, targ, tspin, diagonalVector, rank);
             }
     }else {
         for ( i = 0; i < nPerm ; i++){
+            irrep = meta-nPerm;
             f1->sinc.tulip[diagonalVector].Current[rank] = 0;
             tPermute(rank,f1, train[i], origin, ospin, diagonalVector, rank);
-            tScaleOne(f1, diagonalVector, rank, tGetGet(bodies(f1, origin), type-nPerm, i));
+            tScaleOne(f1, diagonalVector, rank, tGetIrrep(bodies(f1, origin), irrep, i));
             tAddTw(f1, targ, tspin, diagonalVector, rank);
         }
 
@@ -2186,7 +2188,7 @@ INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct field * f1 , enum divisio
         return 0;
     
     if ( bodies(f1, left ) != bodies(f1,right)){
-        printf("get real!\n");
+        printf("tGetType real!\n");
         exit(0);
     }
     char train[24];
@@ -2251,203 +2253,6 @@ INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct field * f1 , enum divisio
 }
 
 
-//INT_TYPE tAddUpComponents( INT_TYPE rank, struct field * f1 , enum division left , enum division right ,  double *up){
-//
-////    if ( bodies(f1, left ) > two )
-////        printf ( "auktung!\n");
-//
-//    if ( bodies(f1,left ) == one ){
-//        return 1;
-//    }
-//    double rMA[24*24], iMA[24*24], buff[24];
-//    INT_TYPE sumj,i,j,i2,i1,nPerm=0,nGroup=0,Pe[24][24];
-//    char c,c0;
-//
-//    for ( i = 0; i < 24*24 ; i++)
-//    {
-//        rMA[i] = 0.;
-//        iMA[i] = 0.;
-//    }
-//
-//    for ( i = 0 ; i < 24 ; i++)
-//        for ( j = 0 ; j < 24 ; j++)
-//            Pe[i][j] = 0;
-//
-//
-//    if ( bodies(f1, left ) == two ){
-//        nPerm = 2;
-//        nGroup = 2;
-//        c0 = 'N';
-//
-//
-//
-//        Pe[0][0] = 1;
-//
-//        Pe[1][0] = 2;
-//
-//
-//
-//    }
-//    else if ( bodies ( f1, left ) == three ){
-//        nPerm = 6;
-//        nGroup = 3;//JLJ:HERE
-//        c0 = 'A';
-//        Pe[0][0] = 1;
-//
-//        Pe[1][0] = 2;
-//
-//        Pe[2][0] = 3;
-//        Pe[2][1] = 4;
-//        Pe[2][2] = 5;
-//        Pe[2][3] = 6;
-//
-//
-////        for ( i = 0 ; i < 6 ; i++)
-////            Pe[i][0] = i+1;
-//
-//
-//    }
-//    else if ( bodies (f1, left ) == four  ){
-//        nPerm = 24;
-//        nGroup = 24;//JLJ:HERE
-//        c0 = 'a';
-////        for ( i = 0 ; i < 24 ; i++)
-////            //for ( j = 0; j < 24 ; j++)
-////                Pe[i][0] = i+1;
-//
-//
-//        Pe[0][0] = 1;
-//
-//        Pe[1][0] = 2;
-//
-//        Pe[2][0] = 3;
-//        Pe[2][1] = 4;
-//        Pe[2][2] = 5;
-//        Pe[2][3] = 6;
-//
-//        Pe[3][0] = 7;
-//        Pe[3][1] = 8;
-//        Pe[3][2] = 9;
-//        Pe[3][3] = 10;
-//        Pe[3][4] = 11;
-//        Pe[3][5] = 12;
-//        Pe[3][6] = 13;
-//        Pe[3][7] = 14;
-//        Pe[3][8] = 15;
-//
-//        Pe[4][0] = 16;
-//        Pe[4][1] = 17;
-//        Pe[4][2] = 18;
-//        Pe[4][3] = 19;
-//        Pe[4][4] = 20;
-//        Pe[4][5] = 21;
-//        Pe[4][6] = 22;
-//        Pe[4][7] = 23;
-//        Pe[4][8] = 24;
-//
-//    }else {
-//        printf("opps\n");
-//        exit(0);
-//    }
-//    double cmpl,cmpl2;
-//    enum division alloy = right;
-//    enum division alloyBak;
-//    if ( species (f1, alloy ) == vector && bodies(f1,alloy) == one){
-//        alloyBak = trainVector;
-//    }
-//    else     if ( species (f1, alloy ) == vector && bodies(f1,alloy) == two){
-//        alloyBak = trainVector2;
-//    }
-//    else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == one){
-//
-//        f1->sinc.tulip[trainMatrix].header = header(f1,alloy);
-//
-//        alloyBak = trainMatrix;
-//    }else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == two){
-//
-//        f1->sinc.tulip[trainMatrix2].header = header(f1,alloy);
-//
-//        alloyBak = trainMatrix2;
-//    }
-//    else if ( species(f1, alloy ) == vector && bodies(f1,alloy) == three){
-//
-//        f1->sinc.tulip[trainVector3].header = header(f1,alloy);
-//
-//        alloyBak = trainVector3;
-//    }
-//    else if ( species(f1, alloy ) == vector && bodies(f1,alloy) == four){
-//
-//        f1->sinc.tulip[trainVector4].header = header(f1,alloy);
-//
-//        alloyBak = trainVector4;
-//    }
-//    else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == three){
-//
-//        f1->sinc.tulip[trainMatrix3].header = header(f1,alloy);
-//
-//        alloyBak = trainMatrix3;
-//    }
-//    else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == four){
-//
-//        f1->sinc.tulip[trainMatrix4].header = header(f1,alloy);
-//
-//        alloyBak = trainMatrix4;
-//    }
-//    else if ( species(f1, alloy ) == quartic ){
-//        f1->sinc.tulip[trainQuartic].header = header(f1,alloy);
-//
-//        alloyBak = trainQuartic;
-//    } else{
-//        printf("cd: tObject species %d \n", alloy);
-//
-//        exit(0);
-//
-//    }
-//    for ( cmpl = 0; cmpl < 2 ; cmpl++){
-//        cmpl2 = cmpl;
-//       // for ( cmpl2 = 0; cmpl2 < 2; cmpl2++){
-//
-//        for (c = 0; c < nPerm ; c++){
-//            if ( c ){
-//                tPermute(rank, f1,(c-1)+c0, right, cmpl, alloyBak, rank);
-//                tAllCompPermMultiplyMP(rank, f1, left, cmpl2, alloyBak,rank, buff);
-//            }
-//
-//            else {
-//                tAllCompPermMultiplyMP(rank, f1, left, cmpl2, right,cmpl, buff);
-//            }
-//            if ( cmpl == 0 && cmpl2 == 0 )
-//                cblas_daxpy(nPerm, 1.0, buff, 1, rMA+c*nPerm, 1);
-////            if ( cmpl == 1 && cmpl2 == 0 )
-////                cblas_daxpy(nPerm, 1.0, buff, 1, iMA+c*nPerm, 1);
-////            if ( cmpl == 0 && cmpl2 == 1 )
-////                cblas_daxpy(nPerm, -1.0, buff, 1, iMA+c*nPerm, 1);
-//            if ( cmpl == 1 && cmpl2 == 1 )
-//                cblas_daxpy(nPerm, 1.0, buff, 1, rMA+c*nPerm, 1);
-//        }
-//    }
-////    printf("mag %f\n", magnitude(f1, left));
-////    for ( i = 0; i < 2; i++){
-////        for ( j = 0 ; j < 2 ; j++)
-////            printf("(%1.2f)", rMA[i*nPerm+j]);
-////        printf("\n");
-////    }
-//    for (  i = 0 ; i < nGroup ; i++){
-//        sumj = 0;
-//        for ( j = 0; j < nPerm ; j++)
-//            if ( Pe[i][j] ){
-//                sumj++;
-//                for ( i1 = 0 ; i1 < nPerm ; i1++)
-//                    for ( i2 = 0; i2 < nPerm ; i2++)
-//                        up[i] += get(bodies(f1, left ), Pe[i][j], i1)* rMA[i1*nPerm+i2]* get(bodies(f1, left ), Pe[i][j], i2);
-//        }
-//        up[i] /= nPerm;
-//    }
-//
-//    return nGroup;
-//}
-
-
 INT_TYPE tTabulateProjection( INT_TYPE rank, struct field * f1 , enum division left , enum division right ,  double *up){
     
     if ( bodies(f1,left ) == one ){
@@ -2462,50 +2267,62 @@ INT_TYPE tTabulateProjection( INT_TYPE rank, struct field * f1 , enum division l
     }
     else if ( bodies ( f1, left ) == three ){
         nPerm = 6;
-        nGroup = 3;
+        nGroup = 6;
         
     }
     else if ( bodies (f1, left ) == four  ){
         nPerm = 24;
-        nGroup = 5;
+        nGroup = 24;
     }else {
         printf("opps\n");
         exit(0);
     }
-
-    double buff[24];
+    enum body bd = bodies(f1, left);
+    double buff[24],sum2;
     DCOMPLEX gup[24];
-    for ( i = 0; i< 24 ;i++)
+    for ( i = 0; i<= 24 ;i++)
         gup[i] = 0.;
 
     tAllCompPermMultiplyMP(rank, f1, left, 0, right,0, buff);
-    for ( g = 0; g < nGroup ; g++)
-        for ( p = 0; p < nPerm ; p++)
-            gup[g] += tGetGet(bodies(f1,right), g+1, p)*buff[p];
-
+    for ( g = 1; g <= nGroup ; g++){
+        sum2 = 0.;
+        for ( p = 0; p < nPerm ; p++){
+            sum2  += (tGetType(bodies(f1,right), g, p)*buff[p]);
+        }
+        gup[tDefineIrrep(bd,g)] += sqr(sum2) ;
+    }
     tAllCompPermMultiplyMP(rank, f1, left, 1, right,1, buff);
-    for ( g = 0; g < nGroup ; g++)
+    for ( g = 1; g <= nGroup ; g++){
+        sum2 = 0.;
         for ( p = 0; p < nPerm ; p++)
-            gup[g] += tGetGet(bodies(f1,right), g+1, p)*buff[p];
-
-    tAllCompPermMultiplyMP(rank, f1, left, 0, right,1, buff);
-    for ( g = 0; g < nGroup ; g++)
-        for ( p = 0; p < nPerm ; p++)
-            gup[g] += I*tGetGet(bodies(f1,right), g+1, p)*buff[p];
-
-    tAllCompPermMultiplyMP(rank, f1, left, 1, right,0, buff);
-    for ( g = 0; g < nGroup ; g++)
-        for ( p = 0; p < nPerm ; p++)
-            gup[g] += -I*tGetGet(bodies(f1,right), g+1, p)*buff[p];
-    
-    for ( g = 0; g < 24 ; g++)
-        up[g] = cabs(gup[g])/nPerm;
+            sum2 += (tGetType(bodies(f1,right), g, p)*buff[p]);
+        gup[tDefineIrrep(bd,g)] += sqr(sum2) ;
         
+    }
+    tAllCompPermMultiplyMP(rank, f1, left, 0, right,1, buff);
+    for ( g = 1; g <= nGroup ; g++){
+        sum2 = 0;
+        for ( p = 0; p < nPerm ; p++)
+            sum2 += (tGetType(bodies(f1,right), g, p)*buff[p]);
+        gup[tDefineIrrep(bd,g)] += sqr(sum2) ;
+    }
+    
+    tAllCompPermMultiplyMP(rank, f1, left, 1, right,0, buff);
+    for ( g = 1; g <= nGroup ; g++){
+        sum2 = 0.;
+        for ( p = 0; p < nPerm ; p++)
+            sum2 += (tGetType(bodies(f1,right), g, p)*buff[p]);
+        gup[tDefineIrrep(bd,g)] += sqr(sum2) ;
+    }
+    
+    for ( g = 1; g <= 24 ; g++)
+        up[g] = (cabs(gup[g]))/(nPerm);
+
     return nGroup;
 }
 
 INT_TYPE tTabulateComponentProjection( INT_TYPE rank, struct field * f1 , enum division left , enum division right ,  double *up){
-    
+    double sum2 = 0.;
     if ( bodies(f1,left ) == one ){
         return 1;
     }
@@ -2535,80 +2352,52 @@ INT_TYPE tTabulateComponentProjection( INT_TYPE rank, struct field * f1 , enum d
         gup[i] = 0.;
     
     tAllCompPermMultiplyMP(rank, f1, left, 0, right,0, buff);
-    for ( g = 0; g < nGroup ; g++)
+    for ( g = 0; g < nGroup ; g++){
+        sum2 = 0.;
         for ( p = 0; p < nPerm ; p++){
-            gup[g] += get(bodies(f1,right), g+1, p)*buff[p];
-       //     printf("%f = %f *%f\n", cabs(gup[g]),get(bodies(f1,right), g+1, p),buff[p] );
+            sum2  += (get1(bodies(f1,right), g+1, p)*buff[p]);
+       //     printf("%f = %f *%f\n", cabs(gup[g]),tGetType(bodies(f1,right), g+1, p),buff[p] );
         }
-    
+        gup[g] += sqr(sum2) ;
+    }
     tAllCompPermMultiplyMP(rank, f1, left, 1, right,1, buff);
-    for ( g = 0; g < nGroup ; g++)
+    for ( g = 0; g < nGroup ; g++){
+        sum2 = 0.;
         for ( p = 0; p < nPerm ; p++)
-            gup[g] += get(bodies(f1,right), g+1, p)*buff[p];
+            sum2 += sqr(get1(bodies(f1,right), g+1, p)*buff[p]);
+        gup[g] += sqr(sum2) ;
 
+    }
     tAllCompPermMultiplyMP(rank, f1, left, 0, right,1, buff);
-    for ( g = 0; g < nGroup ; g++)
+    for ( g = 0; g < nGroup ; g++){
+        sum2 = 0;
         for ( p = 0; p < nPerm ; p++)
-            gup[g] += I*get(bodies(f1,right), g+1, p)*buff[p];
+            sum2 += sqr(get1(bodies(f1,right), g+1, p)*buff[p]);
+        gup[g] += sqr(sum2) ;
+    }
 
     tAllCompPermMultiplyMP(rank, f1, left, 1, right,0, buff);
-    for ( g = 0; g < nGroup ; g++)
+    for ( g = 0; g < nGroup ; g++){
+        sum2 = 0.;
         for ( p = 0; p < nPerm ; p++)
-            gup[g] += -I*get(bodies(f1,right), g+1, p)*buff[p];
+            sum2 += sqr(get1(bodies(f1,right), g+1, p)*buff[p]);
+        gup[g] += sqr(sum2) ;
+    }
     
     for ( g = 0; g < 24 ; g++)
-        up[g] = sqr(cabs(gup[g]))/(nPerm);
+        up[g] = (cabs(gup[g]))/(nPerm);
     
     return nGroup;
 }
 
-INT_TYPE tVeto ( enum body bd , INT_TYPE type , INT_TYPE eq){
-    if ( bd == one )
-        return 1;
-    if ( bd == two ){
-        if ( type == 2 )
-            if ( eq == 0)
-                return 1;
-        if ( type ==1 )
-            return 1;
-    } else if ( bd == three ){
-        if (type == 2 ){
-            if ( eq == 0 ){
-                return 1;
-            }
-        }
-        if ( type ==3  ){
-            if ( eq <= 1)
-                return 1;
-        }
-        if ( type == 1 )
-            return 1;
-    }else if ( bd == four ){
-        if ( type == 2)
-            if ( eq == 0)
-                return 1;
-        if ( type == 4 )
-            if ( eq <= 1)
-                return 1;
-        if ( type == 3 )
-            if ( eq <= 2)
-                return 1;
-        if ( type == 5 )
-            if ( eq <= 5)
-                return 1;
-        if ( type == 1 )
-            return 1;
-
-    }
-    
-    return 0;
-}
 
 
-
-double tGetGet ( enum body bd, INT_TYPE i , INT_TYPE j ){
+//HERE
+double tGetIrrep ( enum body bd, INT_TYPE irrep , INT_TYPE perm ){
     INT_TYPE a,nPerm=0;
     double sum =0.;
+    if ( bd == one )
+        return 1;
     if ( bd == two )
         nPerm = 2;
     if ( bd == three )
@@ -2616,21 +2405,23 @@ double tGetGet ( enum body bd, INT_TYPE i , INT_TYPE j ){
     if ( bd == four )
         nPerm = 24;
     
-    if ( i == 1 )
-        return get ( bd , i , j );
-    if ( i == 2 )
-        return get ( bd , i , j );
-    if ( i == 3 )
+    if ( irrep == 0 )
+        return 1;
+    if ( irrep == 1 )
+        return tGetType ( bd , irrep , perm );
+    if ( irrep == 2 )
+        return tGetType ( bd , irrep , perm );
+    if ( irrep == 3 )
         for  ( a = 3 ; a <= 6 ; a++)
-            sum += get(bd, a,j);
+            sum += tGetType(bd, a,perm);
     if ( bd == three )
         return sum;
-    if ( i == 4 )
+    if ( irrep == 4 )
         for  ( a = 7 ; a <= 15 ; a++)
-            sum += get(bd, a,j);
-    if ( i == 5 )
+            sum += tGetType(bd, a,perm);
+    if ( irrep == 5 )
         for  ( a = 16 ; a <= 24 ; a++)
-            sum += get(bd, a,j);
+            sum += tGetType(bd, a,perm);
 
     return sum;
 }
@@ -2645,7 +2436,7 @@ double tGetInner ( enum body bd, INT_TYPE i , INT_TYPE j ){
     if ( bd == four )
         nPerm = 24;
     for  ( a = 0 ; a < nPerm ; a++)
-        sum += get(bd, i,a)*get(bd, j,a );
+        sum += tGetType(bd, i,a)*tGetType(bd, j,a );
     
     return sum;
 }
@@ -2670,7 +2461,7 @@ INT_TYPE tTest ( enum body bd ){
 //                if ( b % 3 == 0 )
 //                    printf("\n");
 //
-//                printf("%f,", tGetGet(bd, a, b));
+//                printf("%f,", tGetIrrep(bd, a, b));
 //
 //            }
 //
@@ -2681,7 +2472,7 @@ INT_TYPE tTest ( enum body bd ){
 //            if ( b % 4 == 0 )
 //                printf("\n");
 //
-//            printf("%f,", tGetGet(bd, a, b));
+//            printf("%f,", tGetIrrep(bd, a, b));
 //
 //        }
     
@@ -2740,19 +2531,6 @@ INT_TYPE nEqua(enum body bd, INT_TYPE *a ){
     return s;
 }
 
-
-void tIntr ( enum body bd , INT_TYPE eq , double * a){
-    INT_TYPE n=0,i ;
-    
-    n = tSize(bd);
-    
-    for ( i = 0; i < 5 ; i++)
-        a[i] = 0;
-    
-    for ( i = 0 ; i < n ; i++)
-        a[i] = tVeto(bd, i+1, eq);
-
-}
 
 
 INT_TYPE tSA (enum body bd, INT_TYPE  X, INT_TYPE Y, INT_TYPE Z,INT_TYPE T ){
@@ -2840,6 +2618,28 @@ void tTestSA (enum body bd, INT_TYPE n){
     return;
 }
 
+INT_TYPE tDefineIrrep(enum body bd, INT_TYPE type ){
+    if ( bd == two )
+        return type;
+    if (bd == three ){
+        if ( type <= 2 )
+            return type;
+        else
+            return 3;
+    }
+    if ( bd == four ){
+        if ( type <= 2 )
+            return type;
+        else if (type <= 6 )
+            return 3;
+        else if ( type <= 15 )
+            return 4;
+        else
+            return 5;
+    }
+    return 0;
+}
+
 
 INT_TYPE tSize(enum body bd){
     
@@ -2870,7 +2670,7 @@ INT_TYPE tPerms(enum body bd){
 }
 
 
-INT_TYPE tPaths(enum body bd , INT_TYPE type ){
+INT_TYPE tPaths(enum body bd , INT_TYPE irrep ){
     INT_TYPE nG,x,v,ii,jj,kk;
     if( bd == one )
         return 1;
@@ -2881,14 +2681,14 @@ INT_TYPE tPaths(enum body bd , INT_TYPE type ){
         ii = v % nG;
         jj = (v/nG)%nG;
         kk = (v/(nG*nG))%nG;
-        if ( tIR ( bd,ii,jj,kk,type))
+        if ( tIR ( bd,ii,jj,kk,irrep))
             x++;
     }
     return x;
 }
 
-INT_TYPE tIR (enum body bd, INT_TYPE  X, INT_TYPE Y, INT_TYPE Z,INT_TYPE T ){
-    if ( bd == one )
+INT_TYPE tIR (enum body bd, INT_TYPE  ir1X, INT_TYPE ir1Y, INT_TYPE ir1Z,INT_TYPE irT ){
+    if ( bd == one || irT == 0 )
         return 1;
     double x[nSAG],y[nSAG],z[nSAG],a[nSAG],b[nSAG];
     INT_TYPE i;
@@ -2898,15 +2698,14 @@ INT_TYPE tIR (enum body bd, INT_TYPE  X, INT_TYPE Y, INT_TYPE Z,INT_TYPE T ){
         z[i] = 0.;
     }
     
-    x[X] = 1.;
+    x[ir1X] = 1.;
     
-    y[Y] = 1.;
+    y[ir1Y] = 1.;
     
-    z[Z] = 1.;
+    z[ir1Z] = 1.;
     
     
     gm(bd, a, y, z);
     gm(bd, b, x, a);
-    
-    return b[T-1];
+    return b[irT-1];
 }

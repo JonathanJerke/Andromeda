@@ -905,6 +905,7 @@ double evaluateVectorBracket( double x [], size_t dim , void * params ){
 INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename){
     INT_TYPE ct = 0,ct2,number,bod,class,weight,cmpl;
     FILE * in = fopen(filename, "r");
+    struct field *f1 = &c1->i.c;
     if ( in == NULL ){
         printf("file of occupations is missing\n");
         exit(0);
@@ -922,11 +923,21 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename){
                 read = (4== si);
                 if ( read && fabs(Occ) > 1e-5){
                     tClear(&c1->i.c, eigenVectors+ct);
+                    tClear(&c1->i.c, totalVector);
                     for ( cmpl = 0; cmpl < spins(&c1->i.c, eigenVectors); cmpl++)
                     {
                         sprintf(name,"%s.%d.eigen-%d.%d_mac",c1->cycleName,number,class,cmpl);
-                        printf("%d\t%s\t%f\n", ct, name, fabs(Occ));
-                        inputFormat(&c1->i.c, name, eigenVectors+ct, 1);
+                        inputFormat(&c1->i.c, name, totalVector, 1);
+                        if ( part(f1, eigenVectors + ct ) >= CanonicalRank(f1, totalVector, cmpl)){
+                            tEqua(f1, eigenVectors + ct, cmpl, totalVector, cmpl);
+                            printf("%d\t%s\t%f\n", ct, name, fabs(Occ));
+                    }
+                        else{
+                            tScale(&c1->i.c, totalVector, sqrt(fabs(Occ/c1->i.c.Ne))/magnitude(&c1->i.c, totalVector));
+
+                            tCycleDecompostionOneMP(0, f1,totalVector, cmpl, eigenVectors + ct, cmpl, f1->mem1->rt->CANON, part(f1,eigenVectors + ct), -1);
+                            printf("%d\t%s\t%f -> %f\n", ct, name, fabs(Occ),distanceOne(0, f1, totalVector, cmpl, eigenVectors+ct, cmpl));
+                        }
                     }
                     tScale(&c1->i.c, eigenVectors+ct, sqrt(fabs(Occ/c1->i.c.Ne))/magnitude(&c1->i.c, eigenVectors+ct));
                     c1->i.c.sinc.tulip[eigenVectors+ct].symmetry = class;

@@ -33,6 +33,7 @@ INT_TYPE part ( struct field * f1 , enum division label );
 INT_TYPE property ( struct field * f1, enum division label);
 INT_TYPE species ( struct field * f1 , enum division label );
 enum body bodies ( struct field * f1 , enum division label );
+enum bodyType bodyType ( struct field * f1 , enum division label );
 INT_TYPE header ( struct field * f1 , enum division label );
 INT_TYPE purpose ( struct field * f1, enum division label);
 INT_TYPE memory ( struct field * f1, enum division label);
@@ -68,7 +69,7 @@ INT_TYPE tAddTw( struct field* f1 , enum division left, INT_TYPE lspin, enum div
 INT_TYPE tEquals( struct field * f1 , enum division left , enum division right);
 INT_TYPE tAddTwo( struct field * f1 , enum division left , enum division right);
 INT_TYPE tSumMatrices(struct field *f1, enum division sum , enum division mat  );
-INT_TYPE tPartialSumMatrices(struct field *f1, enum division sum , enum division mat ,INT_TYPE get );
+INT_TYPE tPartialSumMatrices(struct field *f1, enum division sum , enum division mat ,INT_TYPE tGetType );
 INT_TYPE tAlt(struct field * f1 , enum division label, INT_TYPE spin , INT_TYPE space1);
 INT_TYPE tEnd(struct field * f1 , enum division label, INT_TYPE spin , INT_TYPE space1);
 INT_TYPE tPauli ( struct field * f1  );
@@ -85,5 +86,6 @@ double xEqua ( struct field * f1 , enum division targ ,INT_TYPE tspin,struct fie
 double xTwoBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
 double xThreeBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
 double xFourBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
-
+double xOneBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
+void printVectorAllocations(struct field *f1);
 #endif /* coreUtil_h */

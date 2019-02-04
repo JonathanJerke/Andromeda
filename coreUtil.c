@@ -64,6 +64,10 @@ enum body bodies ( struct field * f1 , enum division label ){
     return f1->sinc.tulip[name(f1,label)].NBody;
 }
 
+enum bodyType bodyType ( struct field * f1 , enum division label ){
+    return f1->sinc.tulip[name(f1,label)].TBody;
+}
+
 
 INT_TYPE header ( struct field * f1 , enum division label ){
     return f1->sinc.tulip[name(f1,label)].header;
@@ -207,7 +211,7 @@ INT_TYPE * vectorLen ( struct field * f1 , enum division label ){
             return f1->sinc.Basis;
     }
     
-    if ( bodies(f1,label) == two){
+    if ( bodies(f1,label) == two ){
         if ( header(f1, label ) == Rds)
             return f1->rds.Basis2;
 //        else
@@ -642,7 +646,7 @@ enum division ocean(INT_TYPE rank, struct field * f1, enum division A, INT_TYPE 
     tClear(f1, lanesc+rank);
     f1->sinc.tulip[lanesc+rank].spinor =f1->sinc.tulip[A].spinor;
     f1->sinc.tulip[lanesc+rank].name = name(f1,A);
-    f1->sinc.tulip[lanesc+rank].ptRank[spin] = l;
+    f1->sinc.tulip[lanesc+rank].ptRank[spin] = l+f1->sinc.tulip[A].ptRank[spin];
     f1->sinc.tulip[lanesc+rank].Current[spin] = 1;
     f1->sinc.tulip[lanesc+rank].parallel = f1->sinc.tulip[A].parallel;
     f1->sinc.tulip[lanesc+rank].header = header(f1 ,A);
@@ -784,16 +788,12 @@ INT_TYPE tAddTw( struct field* f1 , enum division left, INT_TYPE lspin,  enum di
 
 INT_TYPE xAddTw( struct field* f1 , enum division left, INT_TYPE lspin,struct field* f2 ,  enum division right , INT_TYPE rspin){
     if ( CanonicalRank(f2,right,rspin) ){
-        //        if ( f1->sinc.tulip[left].coeffStatus[lspin]){
-        //            resetVector(f1, left);
-        //            printf("WARNING, I just forgot my coefficients\n");
-        //        }
         INT_TYPE LL = f1->sinc.tulip[left].Current[lspin];
         INT_TYPE LR = f2->sinc.tulip[right].Current[rspin];
-        //        printf("++ %lld %lld %lld %lld\n", spin , LL,LR,f1->sinc.tulip[left].Partition);
+        //printf("++ %lld %lld\n", LL,LR);
         INT_TYPE MM = LL+LR;
         if ( MM > f1->sinc.tulip[left].Partition ){
-            //get allocation!
+            //tGetType allocation!
             printf("%lld >  %lld\n",MM, f1->sinc.tulip[left].Partition );
             printf("tAdd more money!\n");
             printf("%d %d\n", left, right);
@@ -801,11 +801,11 @@ INT_TYPE xAddTw( struct field* f1 , enum division left, INT_TYPE lspin,struct fi
         }
         INT_TYPE M2[SPACE],space;
         length(f1, left, M2);
-        
+        //printf("M2 %d s%d %d\n", M2[0],lspin,rspin);
         for ( space = 0; space < SPACE; space++){
-            if ( ( memory(f2,right) == oneObject )  && space )
+            if ( ( memory(f2,right) == oneObject )  && space ){
                 continue;
-            
+            }
             
             cblas_dcopy(LR*M2[space], streams(f2,right,rspin,space),1,streams(f1,left,lspin,space)+LL*M2[space],1);
         }
@@ -827,8 +827,7 @@ INT_TYPE tSumMatrices(struct field *f1, enum division sum , enum division mat  )
             printf("eh?");
             //exit(0);
         }
-    }else if ( bodies ( f1 , sum )== two ){
-        
+    }else if ( bodies ( f1 , sum )== two && bodyType( f1, sum ) == electron){
         if (bodies(f1, mat ) == two ){
             tAddTwo(f1, sum , mat );
         }else if ( bodies ( f1, mat ) == one ){
@@ -866,7 +865,50 @@ INT_TYPE tSumMatrices(struct field *f1, enum division sum , enum division mat  )
             printf("hey!\n");
             exit(0);
         }
-    } else if ( bodies ( f1, sum ) == three ){
+    }else if ( bodies ( f1 , sum )== two  && bodyType( f1, sum ) == h2plus){
+        if (bodies(f1, mat ) == two ){
+            tAddTwo(f1, sum , mat );
+        }else if ( bodies ( f1, mat ) == one ){
+            INT_TYPE I1,I2, I3, I4,body,r,space;
+            INT_TYPE *n1 = vectorLen(f1, mat);
+            double value;
+            for ( r = 0; r < CanonicalRank(f1, mat , 0 ); r++)
+            {
+                body = 0;
+                if ( bodyType ( f1, mat ) == electron)
+                    body = 1;
+
+                
+                for ( space = 0; space < SPACE ; space++){
+                        Stream_Type * stream = streams(f1,sum,0,space)+n2[space]*CanonicalRank(f1, sum, 0);
+                        if ( CanonicalRank(f1, sum, 0) > part(f1, sum )){
+                            printf("part sum\n");
+                            exit(0);
+                        }
+                        
+                        for ( I1 = 0 ; I1 < n1[space] ; I1++)//body 0
+                            for ( I2 = 0 ; I2 < n1[space] ; I2++)//body 0
+                                for ( I3 = 0 ; I3 < n1[space] ; I3++)//body 1
+                                    for ( I4 = 0 ; I4 < n1[space] ; I4++)//body 1
+                                    {
+                                        if ( body == 0 ){
+                                            value  = streams(f1,mat,0,space)[ I1*n1[space]+I2 + r*n1[space]*n1[space] ] * delta(I3-I4);
+                                        }else {
+                                            value  = streams(f1,mat,0,space)[ I3*n1[space]+I4 + r*n1[space]*n1[space] ] * delta(I1-I2);
+                                        }
+                                        stream[ (I1+I3*n1[space])+ ( I2+I4*n1[space])*n1[space]*n1[space] ] = value;
+                                    }
+                    }
+                    f1->sinc.tulip[sum].Current[0]++;
+                    
+                    //  tAddTwo(f1, sum , quadCube);
+                }
+        }else {
+            printf("hey!\n");
+            exit(0);
+        }
+    }
+    else if ( bodies ( f1, sum ) == three && bodyType(f1, sum ) == electron){
         
         if (bodies(f1, mat ) == three ){
             tAddTwo(f1, sum , mat );
@@ -956,6 +998,9 @@ INT_TYPE tSumMatrices(struct field *f1, enum division sum , enum division mat  )
             exit(0);
         }
         
+    }    else if ( bodies ( f1, sum ) == three && bodyType(f1, sum ) == h2){
+        printf("summatrices\n");
+        exit(0);
     }else if (bodies(f1,sum) == four){
         
         if ( bodies ( f1, mat ) == one ){
@@ -1182,27 +1227,26 @@ INT_TYPE tId ( struct field *f1 , enum division label,INT_TYPE spin ){
             }
         }
         
-        //        else if ( ( f1->sinc.tulip[label].species == matrix && bodies(f1,label)== two) ||  (f1->sinc.tulip[label].species == quartic && bodies(f1,label) == one)){
-        //            for ( space = 0; space < SPACE ; space++){
-        //                INT_TYPE * B1;
-        //                B1 = vectorLen(f1,label);
-        //
-        //
-        //                Stream_Type * stream = streams(f1,label,spin,space)+Current*B1[space]*B1[space]*B1[space]*B1[space];
-        //                for ( I1 = 0 ; I1 < B1[space]*B1[space] ; I1++)
-        //                    for ( I2 = 0 ; I2 < B1[space]*B1[space] ; I2++)
-        //                        stream[I1*B1[space]*B1[space]+I2] =0.;
-        //
-        //                for ( I1 = 0 ; I1 < B1[space]*B1[space] ; I1++)
-        //                    for ( I2 = 0 ; I2 < B1[space]*B1[space] ; I2++)
-        //                    {
-        //
-        //                        if ( I1==I2  )
-        //                            stream[I1*B1[space]*B1[space]+I2] = 1;
-        //
-        //                    }
-        //            }
-        //        }
+                else if ( ( f1->sinc.tulip[label].species == matrix && bodies(f1,label)== two) ){
+                    for ( space = 0; space < SPACE ; space++){
+                        INT_TYPE B1[3];
+                        B1[0] = f1->sinc.N1;
+                        B1[1] = f1->sinc.N1;
+                        B1[2] = f1->sinc.N1;
+
+        
+                        Stream_Type * stream = streams(f1,label,spin,space)+Current*B1[space]*B1[space]*B1[space]*B1[space];
+                        for ( I1 = 0 ; I1 < B1[space]*B1[space] ; I1++)
+                            for ( I2 = 0 ; I2 < B1[space]*B1[space] ; I2++)
+                                stream[I1*B1[space]*B1[space]+I2] =0.;
+        
+                        for ( I1 = 0 ; I1 < B1[space] ; I1++)
+                            for ( I2 = 0 ; I2 < B1[space] ; I2++)
+                            {
+                                stream[I1 + I2 * B1[space] + B1[space]*B1[space]*(I1 + I2 * B1[space])] = 1;
+                            }
+                    }
+                }
         else if  ( f1->sinc.tulip[label].species == matrix ) {
             INT_TYPE * B1;
             B1 = vectorLen(f1,label);
@@ -1217,11 +1261,9 @@ INT_TYPE tId ( struct field *f1 , enum division label,INT_TYPE spin ){
                         stream[I1*B1[space]+I2] =0.;
                 
                 for ( I1 = 0 ; I1 < B1[space] ; I1++)
-                    for ( I2 = 0 ; I2 < B1[space] ; I2++)
                     {
                         
-                        if ( I1==I2  )
-                            stream[I1*B1[space]+I2] = 1;
+                            stream[I1*B1[space]+I1] = 1;
                         
                     }
             }
@@ -1445,6 +1487,7 @@ void vectorArray (struct field * f1, enum division oneVector,  enum division arr
     double * oneDim = myStreams(f1, oneArray,0);
     double * tempArea = oneDim + 3 * M1;
     if ( part(f1, oneArray ) < 3*M1+M1*M1){
+        printf("vectorArray\n");
         exit(0);
     }
     for ( i = 0; i < M1*M1*M1 ; i++)
@@ -1458,8 +1501,11 @@ void vectorArray (struct field * f1, enum division oneVector,  enum division arr
         stride[0] = n1[0]+1;
         stride[1] = n1[1]+1;
         stride[2] = n1[2]+1;
-    }else
+    }else{
+        printf("vectorArray2\n");
+
         exit(0);
+    }
     for ( r = 0;  r< CanonicalRank(f1, oneVector, 0); r++){
         
       // oneBasis = (i,ii)  ii in M1
@@ -1523,13 +1569,82 @@ INT_TYPE assignCores(struct field * f1, INT_TYPE parallel ){
     }
     omp_set_num_threads(omp);
 #endif
-#ifdef MKL
-    mkl_set_num_threads(nSlot/omp);
-#endif
+//#ifdef MKL
+//    mkl_set_num_threads(nSlot/omp);
+//#endif
 
     return 0;
 
 }
+
+double xOneBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic){
+    double D = f1->sinc.d;
+    INT_TYPE space,i,l,i2,l2,r,aPeriodic;
+    INT_TYPE N1 = f2->sinc.N1;
+    INT_TYPE N12 = (N1-1)/2;
+    INT_TYPE L1 =  f1->sinc.N1;
+    INT_TYPE L12 = (L1-1)/2;
+    f2->sinc.tulip[out].Current[s2] = 0;
+    zero(f1,out,s2);
+    
+    //    for ( r= 0 ; r < 3 ;r++){
+    //    for ( l= 0 ; l < 9 ; l++)
+    //        printf("%f:", streams(f1, vector1,s1,0)[l]);
+    //        printf("\n");
+    //    }
+    //        printf("%d %f : %d %f\n", L1, D, N1, f2->sinc.d);
+    //
+    
+    for ( i = 0; i < N1 ; i++)
+    {
+            
+            //build
+            for ( space = 0;space < SPACE; space++){
+                if ( space == 0 )
+                    aPeriodic = periodic%2;
+                else if ( space == 1 )
+                    aPeriodic = (periodic/2)%2;
+                else
+                    aPeriodic = (periodic/4)%2;
+                
+                
+                for ( l = 0 ; l < L1 ; l++)
+                {
+                    if ( aPeriodic ){
+                            streams(f1, foundationStructure,rank, space )[l] =
+                        periodicSS ( D,D*(l-L12),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i-N12 ) ,f2->sinc.N1);
+                            //                            periodicSS ( D,D*(l),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i ) ,f2->sinc.N1)*
+                            //                            periodicSS ( D,D*(l2),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i2 ),f2->sinc.N1 );
+                            
+                        }else {
+                            streams(f1, foundationStructure,rank, space )[l] =
+                            SS ( D,D*(l-L12), f2->sinc.d, f2->sinc.d*( i-N12 ) );
+                            
+                        }
+                    }
+            }
+            for ( space = 0;space < SPACE; space++){
+                
+                for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
+                    streams(f2, out, s2,space)[r*N1 + (i)] = cblas_ddot(L1*L1, streams(f1, foundationStructure,rank, space ),1,streams(f1, vector1,s1,space)+r*L1,1);
+                    //      printf("%1.3f:", streams(f2, out, s2,space)[r*N1*N1 + (i+i2*N1)]);
+                }
+                //   printf("\n");
+                //
+            }
+            //  printf("\n");
+            
+            
+            
+        }
+    f2->sinc.tulip[out].Current[s2] = CanonicalRank(f1, vector1, s1);
+    
+    
+    
+    
+    return 0.;
+}
+
 
 double xTwoBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic){
     double D = f1->sinc.d;
@@ -1716,3 +1831,9 @@ double xFourBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYP
     return 0.;
 }
 
+
+
+void printVectorAllocations(struct field *f1){
+    INT_TYPE vecG = 3*(f1->sinc.tulip[f1->sinc.end].Address -  f1->sinc.tulip[eigenVectors].Address);
+    printf("vector Contribution \t G%f",vecG/1000000000./(sizeof(Stream_Type)));
+}

@@ -43,8 +43,8 @@ double periodicSinc ( double d , double x, INT_TYPE N1 ){
     
     if ( arg != 0.0 )
         dimless = sin( arg )/2./N1 *(1./tan(arg/2./N1)+tan(arg/2./N1));
-    if (  isnan(dimless) ||  isinf(dimless))
-        return 1.;
+//    if (  isnan(dimless) ||  isinf(dimless))
+//        return 1.;
     
     
     return dimless;;
@@ -77,6 +77,102 @@ double periodicSS( double d1 , double x ,INT_TYPE N1, double d2, double y , INT_
         return periodicSinc(d2,x-y,N2) * sqrt(d1/d2);
     return 0;
 }
+
+//double OVERLAP ( struct basisElement *b1,  struct basisElement *b2){
+//    if ( b1->basis == SincBasisElement && b2->basis == SincBasisElement)
+//        return SS(b1->length, b1->length*b1->index - b1->origin, b2->length, b2->length*b2->index - b2->origin);
+//    else if ( b1->basis == periodicSincBasisElement && b2->basis == periodicSincBasisElement)
+//            return periodicSS(b1->length, b1->length*b1->index - b1->origin, b1->auxIndex,b2->length, b2->length*b2->index - b2->origin,b2->auxIndex);
+//    else
+//        return 0;
+//}
+//
+//INT_TYPE dimBasisElement  (struct field * f1, INT_TYPE body ){
+//    INT_TYPE ibe,i,ct;
+//    if ( body > f1->body )
+//        return 0;
+//    INT_TYPE count[SPACE] ;
+//    for ( i = 0;i < SPACE ; i++)
+//        count[i] = 0;
+//    
+//    for ( ibe = 0 ; ibe < f1->boaL   ; ibe++)
+//    {
+//        if ( f1->boa[ibe].body == body )
+//            count[f1->boa[ibe].dim]++;
+//        
+//    }
+//    ct = 0;
+//    for ( i = 0;i < SPACE ; i++)
+//        if ( count[i] )
+//            ct++;
+//
+//    return ct;
+//    
+//}
+//
+//INT_TYPE assocBasisElement (struct field * f1 ){
+//    INT_TYPE count[MAXASSOC];
+//    INT_TYPE ibe,i,ct;
+//    for ( i = 0;i < MAXASSOC ; i++)
+//        count[i] = 0;
+//    
+//    for ( ibe = 0 ; ibe < f1->boaL   ; ibe++)
+//    {
+//        {
+//            if (f1->boa[ibe].association < 0 || f1->boa[ibe].association >= MAXASSOC )
+//                exit(0);
+//            else
+//                count[f1->boa[ibe].association]++;
+//        }
+//    }
+//    ct = 0;
+//    for ( i = 0;i < MAXASSOC ; i++)
+//        if ( count[i] )
+//            ct++;
+//    return ct;
+//    
+//}
+//INT_TYPE lenBasisElement   (struct field * f1, INT_TYPE body ,INT_TYPE dim, INT_TYPE assoc){
+//    INT_TYPE count=0;
+//    INT_TYPE ibe;
+//    if ( body > f1->body )
+//        return 0;
+//    for ( ibe = 0; ibe < f1->boaL; ibe++)
+//    {
+//        if ( f1->boa[ibe].body == body && f1->boa[ibe].association == assoc && f1->boa[ibe].dim == dim ){
+//            count++;
+//        }
+//    }
+//    return count;
+//}
+//
+//struct basisElement * getBasisElement (struct field * f1, INT_TYPE body ,INT_TYPE dim , INT_TYPE assoc, INT_TYPE l ){
+//    INT_TYPE count=0;
+//    INT_TYPE ibe;
+//    if ( body > f1->body )
+//        return 0;
+//    for ( ibe = 0; ibe < f1->boaL; ibe++)
+//    {
+//        if ( f1->boa[ibe].body == body && f1->boa[ibe].association == assoc && f1->boa[ibe].dim == dim ){
+//            if ( l == count ){
+//                return &f1->boa[ibe];
+//            }
+//            count++;
+//        }
+//    }
+//    return NULL;
+//}
+//
+//void arrayBasis(struct field * f1,INT_TYPE *B ){
+//    INT_TYPE ibe,i,space,ct;
+//    for ( space = 0; space < SPACE ; space++)
+//        B[space] = 0;
+//    for ( ibe = 0 ; ibe < f1->boaL   ; ibe++)
+//    {
+//        B[f1->boa[ibe].dim]++;
+//    }
+//    return;
+//}
 
 
 void transpose(INT_TYPE N, INT_TYPE M, Stream_Type * orig, Stream_Type* targ){
@@ -114,13 +210,25 @@ INT_TYPE tdsyev( INT_TYPE rank, struct field * f1, char job , INT_TYPE n, double
 }
 
 INT_TYPE tzheev( INT_TYPE rank, struct field * f1, char job , INT_TYPE n, DCOMPLEX * ar, INT_TYPE ns , double * w ){
+    INT_TYPE i;
+
 #ifdef APPLE
-    
     char charU = 'U';
     INT_TYPE info,lbuffer = part(f1, dsyBuffers);
   zheev_ (&job, &charU, &n , (__CLPK_doublecomplex *)ar , &ns , w ,(__CLPK_doublecomplex *) (myStreams(f1, dsyBuffers,rank )+3*n), &lbuffer,  myStreams(f1, dsyBuffers,rank ),&info );
     return info;
 #else
+    for ( i = 0 ; i < n*ns ;i++)
+        if ( isinf ( ar[i]) || isnan(ar[i]) ){
+            printf ("error with inptu to heev\n");
+            exit(0);
+        }
+    
+    if ( n == 0 ||ns == 0 )
+    {
+        printf ( "empty lists \n");
+        exit(0);
+    }
     return LAPACKE_zheev(LAPACK_COL_MAJOR, job, 'U', n, (DCOMPLEX_PRIME *)ar, ns , w );
 #endif
 }
@@ -217,11 +325,11 @@ dpotrs_(&charU,&L1,  &M2, array, &L1, arrayo, &L1, &info );
 #else
     INT_TYPE i;
     for ( i = 0; i < L1*M2 ; i++){
-        if ( isnan(arrayo[i]) || isinf(arrayo[i])){
-            printf("warning inf, try reducing the rank of vectors\n");
-            fflush(stdout);
-            exit(0);
-        }
+//        if ( isnan(arrayo[i]) || isinf(arrayo[i])){
+//            printf("warning inf, try reducing the rank of vectors\n");
+//            fflush(stdout);
+//            exit(0);
+//        }
     }
     info =  LAPACKE_dpotrs(LAPACK_COL_MAJOR,'U',L1,  M2, array, L1, arrayo, L1 );
 #endif

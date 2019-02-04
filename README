@@ -21,8 +21,12 @@ add OMPFLAG in Makefile
 make 
 ************
 
+2 body examples inclosed
 
 examples executed in lowest directory i.e. 2body/2
-cat ../tw.exe | ../../andromeda
+cat ../scriptSolid | ../../andromeda
 
-2 body examples inclosed
+OR
+
+cat ../scriptVacuum | ../../andromeda
+

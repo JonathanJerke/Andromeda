@@ -28,6 +28,7 @@
 #define input_h
 
 #include"constants.h"
+#include"coreMath.h"
 #include <dirent.h>
 INT_TYPE defineSpinors (struct field *f1 );
 INT_TYPE rotateGeometry (struct calculation * c, double * u  );

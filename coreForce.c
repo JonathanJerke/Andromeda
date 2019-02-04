@@ -286,44 +286,59 @@ DCOMPLEX FGG ( double p , struct general_index * pa){
 }
 
 
-DCOMPLEX FSSprev ( double p , struct general_index * pa ){
-    INT_TYPE n = pa->n;
-    INT_TYPE m = pa->m;
-    double d = pa->d;
-    if ( fabs( p * d) >= 2 * pi )
-        return 0.;
-    if ( n == m )
-        return (2 * pi-fabs(p*d))*ei( p * d * n )/ (2*pi );
-    if ( p > 0 )
-        return (I/(-m+n)/ (2*pi)) *  ei( n * p*d ) *( -ei( (m-n)*(d*p-pi) ) +  sign(n-m)   ) ;
-    if ( p < 0 )
-        return (-I/(-m+n)/ (2*pi))  * ei( n * p*d ) *(  sign(n-m) - ei((m-n)*(d*p+pi) ) );
-    return 0.;
-};
+//DCOMPLEX FSSprev ( double p , struct general_index * pa ){
+//    INT_TYPE n = pa->n;
+//    INT_TYPE m = pa->m;
+//    double d = pa->d;
+//    if ( fabs( p * d) >= 2 * pi )
+//        return 0.;
+//    if ( n == m )
+//        return (2 * pi-fabs(p*d))*ei( p * d * n )/ (2*pi );
+//    if ( p > 0 )
+//        return (I/(-m+n)/ (2*pi)) *  ei( n * p*d ) *( -ei( (m-n)*(d*p-pi) ) +  sign(n-m)   ) ;
+//    if ( p < 0 )
+//        return (-I/(-m+n)/ (2*pi))  * ei( n * p*d ) *(  sign(n-m) - ei((m-n)*(d*p+pi) ) );
+//    return 0.;
+//};
 
 DCOMPLEX FSS ( double p , struct general_index * pa ){
-    INT_TYPE n = pa->n;
-    INT_TYPE m = pa->m;
+    double n = pa->n;
+    double m = pa->m;
     double d = pa->d;
-    if ( fabs( p * d) > 2 * pi ){
-       // printf(">%f\n",p * d/2./pi);
-        
+    INT_TYPE pt = pa->pointer;
+    
+    
+    
+    if ( fabs( p * d) > imax(1,pt) * pi ){
         return 0.;
-
     }
-    return ei((n+m)*(1./2.*p*d+pi)) *( delta(n-m) -fabs( p * d / 2./pi ) * Sinc(1., (p*d/2./pi) *(n-m)));
+    if ( pt < 2){
+        if ( pt == 0 )
+            return ei( n * p*d );
+        else
+            return ei( m * p*d);
+    }else if ( pt == 2 ){
+        //return ei((n+m)*(1./2.*p*d+pi)) *( delta(n-m) -fabs( p * d / 2./pi ) * Sinc(1., (p*d/2./pi) *(n-m)));
+        return ei((n+m)*(1./2.*p*d+pi)) *( Sinc(1. ,(n-m)) -fabs( p * d / 2./pi ) * Sinc(1., (p*d/2./pi) *(n-m)));
+
+    }else
+    {
+        printf("pointy");
+        exit(0);
+    }
 };
-double test ( double p , struct general_index * pa ){
-//    printf("%f %f\n", cabs(FSSnew(p,pa)),cabs(FSS(p,pa)));
-//    printf("%f %f %f %f\n", creal(FSSnew(p,pa)),cimag(FSSnew(p,pa)),creal(FSS(p,pa)),cimag(FSS(p,pa)));
-    return cabs(FSS(p,pa)-FSSprev(p, pa));
-}
+
+//double test ( double p , struct general_index * pa ){
+////    printf("%f %f\n", cabs(FSSnew(p,pa)),cabs(FSS(p,pa)));
+////    printf("%f %f %f %f\n", creal(FSSnew(p,pa)),cimag(FSSnew(p,pa)),creal(FSS(p,pa)),cimag(FSS(p,pa)));
+//    return cabs(FSS(p,pa)-FSSprev(p, pa));
+//}
 
 
 
 
 DCOMPLEX FDD ( double p , struct general_index * pa ){
-    return cexp( (I* p*pa->x0 ));//changed sign
+    return ei( p*pa->x0 );
 };
 
 
@@ -388,14 +403,40 @@ double periodicSdS ( INT_TYPE arg, INT_TYPE N ){
 }
 
 
+DCOMPLEX poly( double k ,double beta, INT_TYPE powSpace ){
+    if ( ! powSpace )
+        return 1.;
+    else if ( powSpace == 1 )
+        return 0.50*(-I * k)/ beta;
+    else if ( powSpace == 2 )
+        return -0.250*(k*k - 2. *beta )/ beta/beta;
+    else if ( powSpace == 3 )
+        return 0.5*0.250*(I * k)*(-6. *beta + k*k )/ beta/beta/beta;
+    else if ( powSpace == 4 )
+        return 0.250*0.250*(k*k*k*k -12. * k*k * beta  + 12. * beta * beta ) / beta/beta/beta/beta;
+    else if ( powSpace == 5 )
+        return 0.5*0.250*0.250*(-I * k)*(k*k*k*k -20. * k*k * beta  + 60. * beta * beta ) / beta/beta/beta/beta/beta;
+    else if ( powSpace == 6 )
+        return -0.250*0.250*0.250*( k*k*k*k*k*k - 30. * k*k  *k*k * beta + 180. * k*k*beta*beta-120 * beta*beta*beta ) / beta/beta/beta/beta/beta/beta;
+    else if ( powSpace == 7 )
+        return 0.5*0.250*0.250*0.250*(I * k)*( k*k*k *k*k*k - 42. * k*k*k*k * beta + 420. * k*k*beta*beta-840. * beta*beta*beta ) / beta/beta/beta/beta/beta/beta/beta;
+    else if ( powSpace == 8 )
+        return 0.250*0.250*0.250*0.250*(k*k*k*k *k*k*k*k - 56.* k*k*k *k*k*k*beta + 840. *k*k*k*k *beta*beta -
+                                        3360.* k*k*beta*beta*beta + 1680.*beta*beta*beta*beta)/ beta/beta/ beta/beta/ beta/beta/ beta/beta;
+    else
+    {
+        printf("pow> 8!\n");
+        exit(0);
+    }
+}
+
+
 double gaussianSinc ( double k, void * arg ){
     struct general_2index *pa = (struct general_2index *) arg;
 
     double value = 0, alpha = pa->alpha ;
     pa->i[0].d = pa->d;
     pa->i[1].d = pa->d;
-//    if ( test(k,&pa->i[0]) > 1e-6)
-//        printf( "%f\n", test(k,&pa->i[0]));
     
     if ( pa->body ==2 ){
         if ( sincFlag)
@@ -407,9 +448,11 @@ double gaussianSinc ( double k, void * arg ){
         if ( sincFlag )
         {
             if ( pa->i[1].action == 0 )
-                value = exp(-sqr(k /2./ alpha))/alpha * creal( FSS( -k ,&pa->i[0]) * FDD( k ,&pa->i[1]));
+                value = exp(-sqr(k /2./ alpha))/alpha * creal( poly(k,alpha*alpha,pa->powSpace) *FSS( -k ,&pa->i[0]) * FDD( k ,&pa->i[1]));
             else if ( pa->i[1].action == 1 )
-                value = exp(-sqr(k /2./ alpha))/alpha * creal( FSS( -k ,&pa->i[0]) * (I * k * FDD( k ,&pa->i[1])));
+                value = exp(-sqr(k /2./ alpha))/alpha * creal( poly(k,alpha*alpha,pa->powSpace) *FSS( -k ,&pa->i[0]) * (I * k * FDD( k ,&pa->i[1])));
+            else if ( pa->i[1].action == 2 )
+                value =exp(-sqr(k /2./ alpha))/alpha  * creal( poly(k,alpha*alpha,pa->powSpace) *FSS( -k ,&pa->i[0]) * (- k*k * FDD( k ,&pa->i[1])));
             else{
                 printf("blah\n");
                 exit(0);
@@ -417,9 +460,11 @@ double gaussianSinc ( double k, void * arg ){
         }else
         {
             if ( pa->i[1].action == 0 )
-                value = exp(-sqr(k /2./ alpha))/alpha * creal( FGG( -k ,&pa->i[0]) * FDD( k ,&pa->i[1]));
+                value = poly(k,alpha*alpha,pa->powSpace)*exp(-sqr(k /2./ alpha))/alpha * creal( FGG( -k ,&pa->i[0]) * FDD( k ,&pa->i[1]));
             else if ( pa->i[1].action == 1 )
-                value = exp(-sqr(k /2./ alpha))/alpha * creal( FGG( -k ,&pa->i[0]) * (I * k * FDD( k ,&pa->i[1])));
+                value = poly(k,alpha*alpha,pa->powSpace)*exp(-sqr(k /2./ alpha))/alpha * creal( FGG( -k ,&pa->i[0]) * (I * k * FDD( k ,&pa->i[1])));
+            else if ( pa->i[1].action == 2 )
+                value = poly(k,alpha*alpha,pa->powSpace)*exp(-sqr(k /2./ alpha))/alpha * creal( FGG( -k ,&pa->i[0]) * (- k*k * FDD( k ,&pa->i[1])));
             else{
                 printf("blah\n");
                 exit(0);
@@ -759,7 +804,7 @@ double collective( double beta ,struct general_2index * pa){
 
     
     pa->alpha = beta;
-    double value= 0.,value2=0.,value1;
+    double value= 0.,value2=0.;
     if ( pa->periodic ){
         
         if ( beta < 1e-9 ){
@@ -771,13 +816,13 @@ double collective( double beta ,struct general_2index * pa){
             value += gaussianSinc(kSmall*k,pa)*kSmall;
             i++;
         }
-        if ( isinf(value) || isnan(value ) || i != 2*pa->N1+1){
-            printf("helpless %f\n",beta);
-            for ( i = - pa->N1 ; i <= pa->N1 ; i++)
-                printf("%d %f\n",i, gaussianSinc(kSmall*i,pa)*kSmall);
-
-            exit(0);
-        }
+//        if ( isinf(value) || isnan(value ) || i != 2*pa->N1+1){
+//            printf("helpless %f\n",beta);
+//            for ( i = - pa->N1 ; i <= pa->N1 ; i++)
+//                printf("%d %f\n",i, gaussianSinc(kSmall*i,pa)*kSmall);
+//
+//            exit(0);
+//        }
     }else {
 #ifdef APPLE
         quadrature_integrate_function g;
@@ -796,7 +841,7 @@ double collective( double beta ,struct general_2index * pa){
         
         if ( sincFlag )
 
-            value =  quadrature_integrate(&g, -2.*pi/pa->d, 2.*pi/pa->d, &options, &status, &abs_error, 0, NULL);
+            value =  quadrature_integrate(&g, -pa->point*pi/pa->d, pa->point*pi/pa->d, &options, &status, &abs_error, 0, NULL);
 //        else
 //            value =  quadrature_integrate(&g, -2.*pi/pa->d, 2.*pi/pa->d, &options, &status, &abs_error, 0, NULL);
 
@@ -808,7 +853,7 @@ double collective( double beta ,struct general_2index * pa){
         
         gsl_integration_workspace * workspace= gsl_integration_workspace_alloc (1000);
         if ( sincFlag )
-            gsl_integration_qag (&F,  -2.*pi/pa->d,  2.*pi/pa->d, 1e-9, 1e-9,1000,6,workspace, &value, &abs_error);
+            gsl_integration_qag (&F,  -pa->point*pi/pa->d,  pa->point*pi/pa->d, 1e-9, 1e-9,1000,6,workspace, &value, &abs_error);
         else{
             gsl_integration_qagi (&F, 1e-9, 1e-9,1000,workspace, &value, &abs_error);
 
@@ -823,13 +868,11 @@ double collective( double beta ,struct general_2index * pa){
     value2 = 0.0;
     if ( pa->fl->fn == Yukawa ){
         double m = pa->fl->param[2];
-        //param[0]*exp(-param[1]*r)/r
         value2  += exp(-sqr(m/2./beta));
     }
     else if ( pa->fl->fn == Morse ){
         double R = pa->fl->param[2];
         double a = pa->fl->param[3];
-        // param[0]*( 1- exp(-param[3]*(r-param[2]) ) ^2
         value2  += - a * exp (     R * a - sqr(a/beta /2.))/sqr(beta);
         value2  +=   a * exp ( 2 * R * a - sqr(a/beta    ))/sqr(beta);
     }
@@ -849,12 +892,34 @@ double collective( double beta ,struct general_2index * pa){
 
 }
 
+double collectives (double beta , struct general_2index * pa ){
+    
+    if (  pa->point == 1){
+        double l,r;
+        pa->i[0].pointer = 0;
+        l = collective(beta, pa);
+        pa->i[0].pointer = 1;
+        r = collective(beta, pa);
+        return l*r;
+    }
+    else if ( pa->point == 2 ){
+        pa->i[0].pointer = 2;
+        pa->i[1].pointer = 2;
+
+        return collective ( beta , pa );
+    }
+    else{
+        printf("what no point?");
+    
+        exit(0);
+    }
+    }
 
 
 
 double element ( double beta, void * aAf){
     struct general_2index *af = (struct general_2index *) aAf;
-    return collective(beta,af)*collective(beta,af+1)*collective(beta,af+2);
+    return collectives(beta,af)*collectives(beta,af+1)*collectives(beta,af+2);
 }
 
 
@@ -1025,7 +1090,7 @@ void mySeparateExactOne (struct field * f1, double scalar, enum division basis){
     }
 }
 
-void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  enum division basis){
+void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  enum division basis,INT_TYPE plus){
     //https://keisan.casio.com/exec/system/1329114617
     
     double gk3X [] = {
@@ -1398,7 +1463,7 @@ void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  e
         0.0014779639281743620209,
         0.00052747696837833231426};
     
-    INT_TYPE I1,I2,I3,I4,alpha,beta,section;
+    INT_TYPE I1,I2,I3,I4,beta,section;
     INT_TYPE N1 = f1->sinc.N1,space;
     INT_TYPE N12 = (f1->sinc.N1-1)/2;
     INT_TYPE N2 = f1->sinc.N1*f1->sinc.N1;
@@ -1409,14 +1474,11 @@ void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  e
     
     struct general_2index g2;
 
-    g2.gaussianAccelerationFlag = 0;
     double value,d = f1->sinc.d,g,x;
     double constant;
     INT_TYPE interval = f1->twoBody.func.interval;
     double * param   = f1->twoBody.func.param;
     getDescription(&f1->twoBody.func, scalar, stdout);
-
-    double expt=0.;
 
     
     double *gkX, *gkW;
@@ -1495,17 +1557,26 @@ void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  e
                             for ( I4 = 0 ;I4 <= I3 ;I4++)// body 1 -2
                                 for ( space = 0 ; space < SPACE ; space++)
                                 {
-                                    if ( (space == 1 && (( periodic % 2 ) == ( (periodic/2)%2 ))) || (space == 2 && ((( periodic/2)%2) == ((periodic/4)%2 ) ))){
+                                    {
                                         
-                                        
-                                    }else {
-                                        
-                                        
+                                        g2.gaussianAccelerationFlag = 0;
                                         g2.d = d;
-                                        g2.i[0].n = I1-N12;
-                                        g2.i[0].m = I2-N12;
-                                        g2.i[1].n = I3-N12;
-                                        g2.i[1].m = I4-N12;
+                                        g2.powSpace = 0;
+                                        if ( plus ) {
+                                            //plus defines 1/(r+R)... and is essentially negative.
+                                            
+                                            g2.i[0].n = -(I1-N12);
+                                            g2.i[0].m = -(I2-N12);
+                                            g2.i[1].n = (I3-N12);
+                                            g2.i[1].m = (I4-N12);
+                                        } else {
+                                            g2.i[0].n = I1-N12;
+                                            g2.i[0].m = I2-N12;
+                                            g2.i[1].n = I3-N12;
+                                            g2.i[1].m = I4-N12;
+                                        }
+                                        g2.point = 2;
+
                                         if ( space == 0 )
                                             g2.periodic = ( periodic ) % 2;
                                         else if ( space == 1 )
@@ -1521,7 +1592,7 @@ void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  e
                                         g2.N1 = N1;
                                         g2.fl = & f1->twoBody.func;
                                         
-                                        value =  collective(x,&g2);
+                                        value =  collectives(x,&g2);
                                         value *= constant;
                                     }
                                     //swap I1 - I2
@@ -1549,7 +1620,11 @@ void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  e
                     printf("skip one\n");
                     continue;
                 }
-                tAddTw(f1, interactionExchange, 0,quadCube,0);
+                if ( plus )
+                    tAddTw(f1, interactionExchangePlus, 0,quadCube,0);
+                else
+                    tAddTw(f1, interactionExchange, 0,quadCube,0);
+
             }
         }
 //    printf("RMS %15.15f @ %d %d\n", tRMSDevRandom( f1, interactionExchange, periodic ,10000),10000,CanonicalRank(f1, interactionExchange, 0));
@@ -1557,7 +1632,7 @@ void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  e
 }
 
 INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis ){
-    
+    char txt [ MAXSTRING];
     //https://keisan.casio.com/exec/system/1329114617
     double gk7X [] = {
         0.949107912342759
@@ -1889,20 +1964,54 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
         0.00052747696837833231426};
 
 
+    const INT_TYPE psu_stride = 17;
+    const INT_TYPE psu_length = 11;
+    double lda[] = {/*test*/
+       // 2, 1, 0, 1,      10, 1.2, 0,0,0,1,     0, 1, 1, 0, 0, 1.5, 1,/*test*/
+        1, 1, 0, 2, 2, 0.2, -4.06633, 0.677832, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        3, 3, 0, 4, 4, 0.4, -14.0094, 9.50991, -1.75327, 0.0834586, 0, 0, 0,
+        0, 0, 0, 0, 4, 4, 0, 4, 4, 0.325, -23.991, 17.1718, -3.31896,
+        0.165083, 0, 0, 0, 0, 0, 0, 0, 5, 3, 0, 3, 2, 0.4325, -5.60048,
+        0.806284, 0, 0, 1, 0.373882, 6.23522, 0, 0, 0, 0, 6, 4, 0, 3, 2,
+        0.346473, -8.57533, 1.23413, 0, 0, 1, 0.304523, 9.53419, 0, 0, 0, 0,
+        7, 5, 0, 3, 2, 0.288905, -12.2046, 1.75582, 0, 0, 1, 0.256912,
+        0.256912, 0, 0, 0, 0, 8, 6, 0, 3, 2, 0.247754, -16.4822, 2.37014, 0,
+        0, 1, 0.222203, 18.1996, 0, 0, 0, 0, 13, 3, 0, 6, 1, 0.45, -6.83406,
+        0, 0, 0, 2, 0.465436, 2.81408, 1.93952, 3, 0.546243, 1.91601, 14, 4,
+        0, 6, 1, 0.44, -6.91363, 0, 0, 0, 2, 0.424334, 3.20813, 2.58888, 3,
+        0.485359, 2.65622, 15, 5, 0, 6, 1, 0.43, -6.64097, 0, 0, 0, 2,
+        0.390738, 3.65826, 3.15066, 3, 0.440846, 3.28594, 16, 6, 0, 6, 1,
+        0.42, -6.59607, 0, 0, 0, 2, 0.362614, 4.22284, 3.66966, 3, 0.405311,
+        3.88535};
     
+    double blyp[] = {1, 1, 0, 2, 2, 0.2, -4.10561, 0.692787, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        3, 3, 0, 4, 4, 0.4, -14.1026, 9.65027, -1.79063, 0.0857313, 0, 0, 0,
+        0, 0, 0, 0, 4, 4, 0, 4, 4, 0.325, -24.0586, 17.2529, -3.33239,
+        0.165305, 0, 0, 0, 0, 0, 0, 0, 5, 3, 0, 3, 2, 0.424087, -6.08744,
+        0.980916, 0, 0, 1, 0.371141, 6.32735, 0, 0, 0, 0, 6, 4, 0, 3, 2,
+        0.337633, -9.12847, 1.42513, 0, 0, 1, 0.302528, 9.65073, 0, 0, 0, 0,
+        7, 5, 0, 3, 2, 0.281959, -12.7548, 1.94859, 0, 0, 1, 0.255444,
+        13.6594, 0, 0, 0, 0, 8, 6, 0, 3, 2, 0.24245, -17.0171, 2.56133, 0, 0,
+        1, 0.221084, 18.3556, 0, 0, 0, 0, 13, 3, 0, 6, 1, 0.45, -5.54822, 0,
+        0, 0, 2, 0.505838, 3.02008, 1.06418, 3, 0.577572, 1.53528, 14, 4, 0,
+        6, 1, 0.44, -5.97966, 0, 0, 0, 2, 0.444927, 3.4402, 1.88129, 3,
+        0.503637, 2.28821, 15, 5, 0, 6, 1, 0.43, -5.87283, 0, 0, 0, 2,
+        0.403545, 3.8762, 2.54131, 3, 0.452751, 2.9405, 16, 6, 0, 6, 1, 0.42,
+        -6.0083, 0, 0, 0, 2, 0.370401, 4.37362, 3.19573, 3, 0.413079, 3.5911};
 
+    
+    
     struct field * f1 = &c1->i.c;
     
     INT_TYPE N1 = f1->sinc.N1,section;
     INT_TYPE N12 = (f1->sinc.N1-1)/2;
     INT_TYPE N2 = f1->sinc.N1*f1->sinc.N1;
 
-    INT_TYPE i,beta,I1,I2,a,space,ii,spin;
+    INT_TYPE gPoint = 2,i,beta,I1,I2,a,space,ii,spin;
     double constant,d = f1->sinc.d,value,x,tf,g;
     Stream_Type  *stream[3];
-    
+    struct function_label fl;
     struct general_2index g2;
-    g2.gaussianAccelerationFlag = 0;
 
     f1->sinc.tulip[diagonalCube].header = Cube;
     for ( i = 0; i < SPACE ; i++)
@@ -1937,13 +2046,20 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
     enum functionType fn = f1->oneBody.func.fn;
     if ( fn == nullFunction )
         return 0;
-    double va;
+    
+    
+    double va,*psu=NULL,*PSU=NULL;
+    if ( fn == LDA )
+        psu = lda;
+    else if ( fn == BLYP )
+        psu = blyp;
+    
     INT_TYPE interval = f1->oneBody.func.interval;
     double * param   = f1->oneBody.func.param;
     getDescription(&f1->oneBody.func, scalar, stdout);
 
-    double *gkX, *gkW;
-    INT_TYPE ngk;
+    double *gkX, *gkW,Z, gGX[10],gGW[10];
+    INT_TYPE ngk,ai,powSpace[SPACE][10];
     
     f1->sinc.tulip[quadCube].header = Cube;
     
@@ -1957,13 +2073,74 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
         mA = atom;
         xA = atom;
     } else {
+        printf("separateExternal\n");
+
         exit(0);
     }
     for ( a = mA ; a <= xA; a++){
         ii = 0;
+        printf("atom - %d--Z = %d--\n",  a,f1->atoms[a].label.Z);
+
+        //section 0    long range
+        //section 1    SHORT RANGE
+
+
+        //GTH pseudo-potentials!!!
+        //section 2     Gaussians-straight
+        //section 3     Gaussians-r^2
+        //section 4     Gaussians-r^4
+        //section 5     Gaussians-r^8
+        //section 6     s-wave--straight
+        //section 7     s-wave--r^2
+        //section 8     p-wave--straight
+        if ( fn == LDA || fn == BLYP ){
+            if ( psu == NULL ){
+                printf("separateExternal 2\n");
+
+                exit(0);
+            }
+            PSU = NULL;
+            for ( ai = 0; ai < psu_length ; ai++){
+                if ( psu[psu_stride*ai] ==  f1->atoms[a].label.Z)
+                    PSU = psu+psu_stride * ai;
+            }
+            if ( PSU == NULL )
+            {
+                printf ("not coded\n");
+                exit(0);
+            }
+            
+            Z = PSU[1];
+            
+            fl.interval = interval;
+            fl.fn = Pseudo;
+            //fprintf(outString,"Pseudo = %1.3f Erf(r/%1.3f)/r @ %1.3f\n",fn->param[0],fn->param[2], fn->param[1]);
+            fl.param[0] = 1;
+            fl.param[2] = sqrt(2.)*PSU[5];
+            fl.param[1] = 1./(sqrt(2.)*PSU[5]);
+            getDescription(&fl, 1., stdout);
+            
+
+            
+        }
+        else{
+            fl.param[0] = param[0];
+            fl.param[1] = param[1];
+            fl.param[2] = param[2];
+            fl.param[3] = param[3];
+            fl.fn = fn;
+            Z = f1->atoms[a].label.Z;
+        }
         
-        for ( section = 0 ; section < 2 ; section++){
-            if ( imax(0,interval - section) == 0 ) {
+        for ( section = 0 ; section < 9 ; section++){
+            ngk = 0;
+            if ( (( fn == LDA || fn == BLYP )&& section == 0) || ( ( fn != LDA && fn != BLYP ) && section < 2)  ){
+                gPoint = 2;
+                
+                
+                
+                
+                if ( imax(0,interval - section) == 0 ) {
                     gkX = gk7X;
                     gkW = gk7W;
                     ngk = 7;
@@ -1983,28 +2160,241 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
                     printf("oops\n");
                     exit(0);
                 }
-
+            } else if ( fn == LDA || fn == BLYP ){
+                gkW = gGW;
+                gkX = gGX;
+                if ( 2 <= section && section <= 5 ){
+                    if ( ! ( PSU[4] > section - 2 ) )
+                        continue;
+                    gPoint = 2;
+                    
+                    if ( section == 2 ){
+                        ngk = 1;
+                        for ( ai = 0 ; ai < ngk ; ai++){
+                            gGX[ai] = 1./sqrt(2.)/PSU[5];
+                            gGW[ai] = -PSU[section + 4]/Z*pow(sqr(sqrt(2.)*gGX[ai]), section - 2);
+                        }
+                        powSpace[0][0] = 0;
+                        powSpace[1][0] = 0;
+                        powSpace[2][0] = 0;
+                    }
+                    else if ( section == 3 ){
+                        ngk = 3;
+                        for ( ai = 0 ; ai < ngk ; ai++){
+                            gGX[ai] = 1./sqrt(2.)/PSU[5];
+                            gGW[ai] = -PSU[section + 4]/Z*pow(sqr(sqrt(2.)*gGX[ai]), section - 2);
+                        }
+                        //a^2 + b^2 + c^2
+                        powSpace[0][0] = 2;
+                        powSpace[1][0] = 0;
+                        powSpace[2][0] = 0;
+                        
+                        powSpace[0][1] = 0;
+                        powSpace[1][1] = 2;
+                        powSpace[2][1] = 0;
+                        
+                        powSpace[0][2] = 0;
+                        powSpace[1][2] = 0;
+                        powSpace[2][2] = 2;
+                        
+                    }
+                    else if ( section == 4 ){
+                        ngk = 6;
+                        for ( ai = 0 ; ai < ngk ; ai++){
+                            gGX[ai] = 1./sqrt(2.)/PSU[5];
+                            gGW[ai] = -PSU[section + 4]/Z*pow(sqr(sqrt(2.)*gGX[ai]), section - 2);
+                        }
+                        //a^2 + 2 a b + b^2 + 2 a c + 2 b c + c^2
+                        gGW[0]  *= 1;
+                        powSpace[0][0] = 4;
+                        powSpace[1][0] = 0;
+                        powSpace[2][0] = 0;
+                        
+                        gGW[1]  *= 2;
+                        powSpace[0][1] = 2;
+                        powSpace[1][1] = 2;
+                        powSpace[2][1] = 0;
+                        
+                        gGW[2]  *= 1;
+                        powSpace[0][2] = 0;
+                        powSpace[1][2] = 4;
+                        powSpace[2][2] = 0;
+                        
+                        gGW[3]  *= 2;
+                        powSpace[0][3] = 0;
+                        powSpace[1][3] = 2;
+                        powSpace[2][3] = 2;
+                        
+                        gGW[4]  *= 1;
+                        powSpace[0][4] = 0;
+                        powSpace[1][4] = 0;
+                        powSpace[2][4] = 4;
+                        
+                        gGW[5]  *= 2;
+                        powSpace[0][5] = 2;
+                        powSpace[1][5] = 0;
+                        powSpace[2][5] = 2;
+                        
+                        
+                    }
+                    
+                    else if ( section == 5 ){
+                        ngk = 10;
+                        for ( ai = 0 ; ai < ngk ; ai++){
+                            gGX[ai] = 1./sqrt(2.)/PSU[5];
+                            gGW[ai] = -PSU[section + 4]/Z*pow(sqr(sqrt(2.)*gGX[ai]), section - 2);
+                        }
+                        //a^3 + 3 a^2 b + 3 a b^2 + b^3 + 3 a^2 c + 6 a b c + 3 b^2 c +
+                        //3 a c^2 + 3 b c^2 + c^3
+                        
+                        
+                        
+                        gGW[0]  *= 1;
+                        powSpace[0][0] = 6;
+                        powSpace[1][0] = 0;
+                        powSpace[2][0] = 0;
+                        
+                        gGW[1]  *= 3;
+                        powSpace[0][1] = 4;
+                        powSpace[1][1] = 2;
+                        powSpace[2][1] = 0;
+                        
+                        gGW[2]  *= 3;
+                        powSpace[0][2] = 2;
+                        powSpace[1][2] = 4;
+                        powSpace[2][2] = 0;
+                        
+                        gGW[3]  *= 1;
+                        powSpace[0][3] = 0;
+                        powSpace[1][3] = 6;
+                        powSpace[2][3] = 0;
+                        
+                        gGW[4]  *= 3;
+                        powSpace[0][4] = 4;
+                        powSpace[1][4] = 0;
+                        powSpace[2][4] = 2;
+                        
+                        gGW[5]  *= 6;
+                        powSpace[0][5] = 2;
+                        powSpace[1][5] = 2;
+                        powSpace[2][5] = 2;
+                        
+                        gGW[6]  *= 3;
+                        powSpace[0][6] = 0;
+                        powSpace[1][6] = 4;
+                        powSpace[2][6] = 2;
+                        
+                        gGW[7]  *= 3;
+                        powSpace[0][7] = 2;
+                        powSpace[1][7] = 0;
+                        powSpace[2][7] = 4;
+                        
+                        gGW[8]  *= 3;
+                        powSpace[0][8] = 0;
+                        powSpace[1][8] = 2;
+                        powSpace[2][8] = 4;
+                        
+                        gGW[9]  *= 1;
+                        powSpace[0][9] = 0;
+                        powSpace[1][9] = 0;
+                        powSpace[2][9] = 6;
+                        
+                        
+                    }
+                    
+                }else if ( 6 <= section && section <= 7 ){
+                    if ( ! ( PSU[10] > section - 6 ) )
+                        continue;
+                    
+                    gPoint = 1;
+                    if ( section == 6 ){
+                        ngk = 1;
+                        for ( ai = 0 ; ai < ngk ; ai++){
+                            gGW[ai] = -4.*PSU[section + 6]/Z/sqrt(pi)/cube(PSU[11])/2.5464827020350906;
+                            gGX[ai] = 1./sqrt(2.)/PSU[11];
+                        }
+                        powSpace[0][0] = 0;
+                        powSpace[1][0] = 0;
+                        powSpace[2][0] = 0;
+                    }
+                    else if ( section == 7 ){
+                        ngk = 3;
+                        for ( ai = 0 ; ai < ngk ; ai++){
+                            gGW[ai] = -16./15.*PSU[section + 6]/Z/(sqrt(pi))/pow(PSU[11],7.)/2.5464827020350906;
+                            gGX[ai] = 1./sqrt(2.)/PSU[11];
+                        }
+                        powSpace[0][0] = 2;
+                        powSpace[1][0] = 0;
+                        powSpace[2][0] = 0;
+                        
+                        powSpace[0][1] = 0;
+                        powSpace[1][1] = 2;
+                        powSpace[2][1] = 0;
+                        
+                        powSpace[0][2] = 0;
+                        powSpace[1][2] = 0;
+                        powSpace[2][2] = 2;
+                        
+                    }
+                } else if ( section == 8 ){
+                    if ( ! ( PSU[14] ) )
+                        continue;
+                    
+                    gPoint = 1;
+                    if ( section == 8 ){
+                        ngk = 3;
+                        for ( ai = 0 ; ai < ngk ; ai++){
+                            gGW[ai] = -8/3.*PSU[16]/Z/sqrt(pi)/pow(PSU[15],5.)/2.5464827020350906;
+                            gGX[ai] = 1./sqrt(2.)/PSU[15];
+                        }
+                        powSpace[0][0] = 1;
+                        powSpace[1][0] = 0;
+                        powSpace[2][0] = 0;
+                        
+                        powSpace[0][1] = 0;
+                        powSpace[1][1] = 1;
+                        powSpace[2][1] = 0;
+                        
+                        powSpace[0][2] = 0;
+                        powSpace[1][2] = 0;
+                        powSpace[2][2] = 1;
+                        
+                    }
+                }
+            } else {
+                    continue;
+                }
+            
+            
+            
             
                 for ( beta = 0; beta < ngk ; beta++){
                     
                     if (1.){
                         
-                        g = (gkX[beta]+1)/2.;
-                        if ( section == 0 ){
-                            x = g ;
+                        if ( section ==  0 ){
+                            x = (gkX[beta]+1)/2. ;
                             constant = gkW[beta];
+                            
+                            x *=  fl.param[1];
+                            constant *= 1./2.*fl.param[1];
+
                         }
-                        else {
+                        else if ( section == 1 ){
+                            g = (gkX[beta]+1)/2.;
                             x = ( g ) / (1. - g)+1 ;
                             constant = gkW[beta]/sqr(1.-g);
+                            
+                            x *=  fl.param[1];
+                            constant *= 1./2.*fl.param[1];
+
+                        }else {
+                            x = gkX[beta];
+                            constant = gkW[beta];
                         }
-                        x *=  param[1];
-                        constant *= 1./2.*param[1];
                     }
-                    //divide 0->infinity
-                    zero(f1, quadCube,0);
                     
-                    if ( fn == Pseudo){
+                    if ( fn == Pseudo ){
                         if ( section == 1 )
                             continue;;
                     }
@@ -2014,26 +2404,36 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
                     
                     
                     if ( constant < 0 )
-                        constant = -pow(fabs(constant)*2.*pi*labs(f1->atoms[a].label.Z), 0.33333333333333333333333333333333);
+                        constant = -pow(fabs(constant)*2.*pi*fabs(Z), 0.33333333333333333333333333333333);
                     else
-                        constant =  pow(fabs(constant)*2.*pi*labs(f1->atoms[a].label.Z), 0.33333333333333333333333333333333);
-                    
-                    
-                    
-                    for ( space = 0 ;space < SPACE ; space++)
+                        constant =  pow(fabs(constant)*2.*pi*fabs(Z), 0.33333333333333333333333333333333);
+
+                for ( space = 0 ;space < SPACE ; space++)
+#ifdef OMP
+#pragma omp parallel for private (I1,I2,g2,value) schedule(dynamic,1)
+#endif
+
                         for ( I1 = 0; I1 < m1[space] ; I1++)
-                            for ( I2 = 0; I2 < m1[space] ; I2++){
+                            for ( I2 = 0; I2 < m1[space] ; I2++)
+                            {
+                                g2.gaussianAccelerationFlag = 0;
+                                g2.point = gPoint;
                                 g2.d = d;
                                 g2.i[0].n = I1-N12;
                                 g2.i[0].m = I2-N12;
+                                if ( section >= 2 )
+                                    g2.powSpace = powSpace[space][beta];
+                                else
+                                    g2.powSpace = 0;
                                 g2.i[1].x0 = f1->atoms[a].position[space+1];
-                                g2.i[1].action = 0;
+                                g2.i[1].action = ( dim == space ) ;
                                 if ( space == 0 )
                                     g2.periodic = ( periodic ) % 2;
                                 else if ( space == 1 )
                                     g2.periodic = ( periodic / 2 ) % 2;
                                 else if (space == 2 )
                                     g2.periodic = ( periodic / 4) % 2;
+                                
                                 else
                                 {
                                     printf("here\n");
@@ -2041,8 +2441,8 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
                                 }
                                 g2.body = 1;
                                 g2.N1 = N1;
-                                g2.fl = & f1->oneBody.func;
-                                value = collective(x, &g2);
+                                g2.fl = & fl;
+                                value = collectives(x, &g2);
                                 
                                 value *= constant;
                                 (stream[space])[I1*n1[space]+I2] = value;
@@ -2056,6 +2456,9 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
                         continue;
                     }
                     tAddTw(f1, linear,0, diagonalCube,0);
+//                    for ( space = 0; space < 3 ;space++)
+//                        for ( ii = 0 ; ii < n1[space] ; ii++)
+//                            printf("%d %d %d %d %f\n",section, beta, space,ii,stream[space][ii*n1[space]+ii]);
                 }
                 
                 f1->sinc.tulip[linear].stop[0][a] = CanonicalRank(f1, linear,0);
@@ -2068,7 +2471,7 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
     return 0;
 }
 
-INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic, double vectorMomentum ){
+INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division akinetic,  double mass, double vectorMomentum ){
     INT_TYPE space,dim,I1,I2,aPeriodic;
     INT_TYPE N1 = f1->sinc.N1;
     INT_TYPE N12 = (f1->sinc.N1-1)/2;
@@ -2076,8 +2479,8 @@ INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic, double vectorMom
 
     Stream_Type * stream;
     double d = f1->sinc.d;
-    zero(f1, kinetic, 0);
-    zero(f1, kinetic, 1);
+    zero(f1, akinetic, 0);
+    zero(f1, akinetic, 1);
 
     for ( space = 0 ;space < SPACE; space++){
         
@@ -2095,8 +2498,8 @@ INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic, double vectorMom
         }
 
 
-        for ( dim = 0 ; dim < SPACE+2*(fabs(vectorMomentum) > 1e-6); dim++){
-            stream =  streams( f1, kinetic, (dim == SPACE+1) , space )+ N2 * dim * ( dim != SPACE+1);//last one is COMPLEX:: cmpl!
+        for ( dim = 0 ; dim < SPACE+0*2*(fabs(vectorMomentum) > 1e-6); dim++){
+            stream =  streams( f1, akinetic, (dim == SPACE+1) , space )+ N2 * dim * ( dim != SPACE+1);//last one is COMPLEX:: cmpl!
 
             for ( I1 = 0 ; I1 < N1 ; I1++)
                 for( I2 = 0; I2 < N1 ; I2++)
@@ -2107,8 +2510,9 @@ INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic, double vectorMom
                 {
                     if ( space == dim){
                         
-                        if ( aPeriodic )
+                        if ( aPeriodic ){
                             (stream )[  N1*I1+I2] = -periodicSd2S(I1-I2,N1)/d/d/2.  ;
+                        }
                         else
                             (stream )[  N1*I1+I2] = -Sd2S(I1-I2)/d/d/2.  ;
                         
@@ -2126,19 +2530,19 @@ INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic, double vectorMom
         }
     }
     
-    f1->sinc.tulip[kinetic].Current[0]  = SPACE+(fabs(vectorMomentum) > 1e-6);
-    f1->sinc.tulip[kinetic].Current[1]  = (fabs(vectorMomentum) > 1e-6);
+    f1->sinc.tulip[akinetic].Current[0]  = SPACE+0*(fabs(vectorMomentum) > 1e-6);
+    f1->sinc.tulip[akinetic].Current[1]  = 0*(fabs(vectorMomentum) > 1e-6);
    
-    tScale(f1, kinetic, 1./mass);
+    tScale(f1, akinetic, 1./mass);
 #if VERBOSE
-    printf("kinetic %f\n", traceOne(f1, kinetic, 0));
+    printf("kinetic %f\n", traceOne(f1, akinetic, 0));
 #endif
-    if ( part(f1,kinetic ) < SPACE+1 )
-   
-    {
-        printf("kinetic\n");
-        exit(0);
-    }
+//    if ( part(f1,akinetic ) < SPACE+1 )
+//   
+//    {
+//        printf("kinetic\n");
+//        exit(0);
+//    }
     return 0;
 }
 
@@ -2186,7 +2590,6 @@ INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE periodic, do
         exit(0);
     }
     spin = 0;
-    struct general_2index ga;
     
     
     
@@ -2194,15 +2597,16 @@ INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE periodic, do
         ii = 0;
         for ( alpha = 0 ; alpha < SPACE ; alpha++){
             zero(f1, diagonalCube, 0);
+            if ( alpha == 0  && (( periodic ) % 2))
+                continue;
+            else if ( alpha == 1  && (( periodic /2 ) % 2))
+                continue;
+            else if ( alpha == 2  && (( periodic /4) % 2))
+                continue;
+
             for ( space = 0 ;space < SPACE ; space++){
                 
-                if ( alpha == 0  && (( periodic ) % 2))
-                    continue;
-                else if ( alpha == 1  && (( periodic /2 ) % 2))
-                    continue;
-                else if ( alpha == 2  && (( periodic /4) % 2))
-                    continue;
-                            
+                
 
                 
                 for ( I1 = 0; I1 < m1[space] ; I1++)
@@ -2265,8 +2669,9 @@ double tTestTwoBody( struct field * f1, enum division mat,INT_TYPE periodic, INT
         g3[i].i[0].m = p[i*4+2];
         g3[i].i[1].n = p[i*4+1];
         g3[i].i[1].m = p[i*4+3];
+        g3[i].point = 2;
         g3[i].fl = & f1->twoBody.func;
-
+        g3[i].powSpace = 0;
         if ( i == 0 )
             g3[i].periodic = ( periodic ) % 2;
         else if ( i == 1 )

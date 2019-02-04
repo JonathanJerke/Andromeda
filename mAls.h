@@ -56,5 +56,5 @@ double positioningElectrons2 (INT_TYPE rank, struct field * f1 , enum division o
 INT_TYPE ready ( struct calculation * c );
 INT_TYPE tConstructDensity(struct calculation * calc , INT_TYPE ct );
 INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, INT_TYPE UR, struct calculation * calc2, enum division usz, INT_TYPE UZ ,INT_TYPE mx);
-
+INT_TYPE printExpectationValues (struct field * f1 , enum division ha  , enum division vector);
 #endif /* mAls_h */
