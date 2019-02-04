@@ -1,8 +1,10 @@
 gcc   = gcc
 
-LAPACK = /home/jjerke/lapack-3.8.0/
-GSL = /home/jjerke/gsl
-OMPFLAG = -fopenmp
+LAPACK = 
+GSL = 
+
+#use in conjunction with #define OMP in system.h 
+#OMPFLAG = -fopenmp
 
 flags = -I${GSL}/include -I/${LAPACK}/LAPACKE/include
 lib = -lm -lgfortran ${LAPACK}/liblapacke.a ${LAPACK}/liblapack.a  ${GSL}/lib/libgslcblas.a ${GSL}/lib/libgsl.a -lgfortran

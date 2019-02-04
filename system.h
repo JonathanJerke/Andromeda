@@ -29,28 +29,17 @@
 #ifndef system_h
 #define system_h
 
+
+//KEEP THESE present.
 #define sincFlag 1
+
+//change mass of quantum mover.
 #define mass 1
+//KEEP THESE...
 
-//few fixed memory arrays
-#define MAXATOM 4
-
+#define MAXATOM 16
 //#define OMP
 //#define MKL
 #define GSL_LIB
-
-
 #define MaxCore 2
-
-
-
-
-
-//need NOT define.
-//#define PARAMETER_PATH ""
-#ifndef GSL_LIB
-    THIS PROGRAM NEEDS INTEGRATION ROUTINES
-#endif
-
-
 #endif /* system_h */

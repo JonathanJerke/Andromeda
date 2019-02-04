@@ -5,10 +5,19 @@
 
 ************
 edit system.h to adjust system settings.  
-	set MaxCore = ## cores available
-	//undefine  MKL and adjust Makefile
-	//undefine  OMP
-	...
+	
+
+FOR Open-MP RUNS...
+set MaxCore = ## cores available
+#define OMP
+   AND
+add OMPFLAG in Makefile
+
+
+#if you have MKL...
+## #define MKL 
+
+
 make 
 ************
 
@@ -16,9 +25,4 @@ make
 examples executed in lowest directory i.e. 2body/2
 cat ../tw.exe | ../../andromeda
 
-2,3,and 4 body examples inclosed
-
-
-2body = molecular hydrogen
-3body = soft central core 3-electrons
-4body = correlated electron gas a 1 bohr = Wigner Seitz
+2 body examples inclosed
