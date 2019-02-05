@@ -825,6 +825,7 @@ int main (INT_TYPE argc , char * argv[]){
         else
         {
             printf("here\n");
+            fflush(stdout);
             exit(0);
         }
         g3[i].body = body;
@@ -860,10 +861,13 @@ INT_TYPE buildElectronFreeInteraction ( struct calculation * c1, enum division m
     c0.i.c.sinc.rose[3].stream = NULL;
     c0.i.nTargets = 1;
     c0.rt.printFlag = 0;
-    c0.i.body = 1;
+    c0.i.body = one;
+    c0.i.bodyType = electron;
     c0.i.side = 4;
     c0.i.iCharge = 1;
     c0.i.irrep = 0;
+    c0.i.filter = 0;
+    c0.i.l2 = 10000000;
     c0.i.cycles = 0;
     c0.i.Iterations = 0;
     c0.i.nStates = 1;
@@ -939,7 +943,7 @@ INT_TYPE buildElectronFreeInteraction ( struct calculation * c1, enum division m
     tScale(f1, quadCube,-traceOne(f1, interactionExchange, 0)/traceOne(f1, quadCube, 0));
     tAddTw(f1, interactionExchange, 0,quadCube,0);
 
-    printf ("background %f\t :norm %f\n", zero,norm);
+    printf ("background %1.15f\t :norm %f\n", zero,norm);
     
     
 //    if ( bodies(f1, eigenVectors)==two){

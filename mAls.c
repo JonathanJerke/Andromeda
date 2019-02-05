@@ -3463,7 +3463,7 @@ INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, IN
 
                 iii += mx ;
                 iv = imax(iv , (CanonicalRank(&calc2->i.c,usz+i,0)+CanonicalRank(&calc2->i.c,usz+i,1))/mx + !(!((CanonicalRank(&calc2->i.c,usz+i,0)+CanonicalRank(&calc2->i.c,usz+i,1)%mx ))) ) ;
-               printf("%d -%d - %d - %d\n",iv, iii,ii,i);
+           //    printf("%d -%d - %d - %d\n",iv, iii,ii,i);
 
             }
         }
@@ -3516,7 +3516,7 @@ INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, IN
 //                    mdi++;
 //                }
 //            } else {
-            printf("%d : %d _ %d\n", usr+ i , tPath(&calc->i.c, usr+i),tPath(&calc2->i.c,usz+f[i]));
+//printf("%d : %d _ %d\n", usr+ i , tPath(&calc->i.c, usr+i),tPath(&calc2->i.c,usz+f[i]));
                 tEqua(&calc->i.c, usr+i*mx+((mdi)%mx), 0, copyVector, rank);
 //            }
             //LOST VECTORS

@@ -495,9 +495,11 @@ INT_TYPE tFoundationLevel( struct field * f1, enum division A , double lvlm, dou
                                                 
                                                         
                                                         if ( ops  == 0 ){
+#if VERBOSE
                                                             printf("%d-->%d : %d %d %d :: %d %d %d :: %f %f %f\n",irrep,classicalBasisSize,i,j,k,ii+1,jj+1,kk+1, streams(f1,foundationStructure,0,0)[i+ii*n1[0]] ,
                                                                    streams(f1,foundationStructure,0,1)[j+jj*n1[1]] ,
                                                                    streams(f1,foundationStructure,0,2)[k+kk*n1[2]]);
+#endif
                                                             mm = mmm+classicalBasisSize*6;
                                                             
                                                             
@@ -531,22 +533,22 @@ INT_TYPE tFoundationLevel( struct field * f1, enum division A , double lvlm, dou
 
 
 INT_TYPE tFilter(struct field * f1, INT_TYPE Ve, INT_TYPE irrep, enum division usr){
-    INT_TYPE ii,j,r2,cmpl=0,rank,flag ,sp,r,*n1= vectorLen(f1, usr),nP = tPerms(f1->body),nG = tSize(f1->body);
+    INT_TYPE ii,j,cmpl=0,rank,flag ,sp,nP = tPerms(f1->body),nG = tSize(f1->body);
     double value;
     assignCores(f1, 2);
-
 #ifdef OMP
-#pragma omp parallel for private (ii,sp,rank,r,r2,cmpl) schedule(dynamic,1)
+#pragma omp parallel for private (ii,sp,rank,cmpl) schedule(dynamic,1)
 #endif
     for ( ii = 0; ii < Ve ; ii++)
     {
-        //printf("rank %d %d\n", ii+1,CanonicalRank(f1, usr+ii, 0) );
 #ifdef OMP
         rank = omp_get_thread_num();
 #else
         rank = 0;
 #endif
-        
+        printf("rank %d %d %d\n", rank,ii+1,CanonicalRank(f1, usr+ii, 0) );
+        fflush(stdout);
+
 //#ifdef splitTag
 //        if ( irrep ){
 //            for ( sp = 0; sp < spins(f1, usr+ii);sp++)
@@ -565,8 +567,7 @@ INT_TYPE tFilter(struct field * f1, INT_TYPE Ve, INT_TYPE irrep, enum division u
 //            printf(" %d<---%d (%d) = %d\n",ii+usr, CanonicalRank(f1,usr+ii,cmpl),tPath(f1,usr+ii),f1->sinc.tulip[usr+ii].symmetry);
 //        }
 //#else
-        if ( irrep ){
-            //HELP ME!!! ACK!! HERE
+        if ( irrep && bodies(f1, usr+ii ) > one  ){
             for ( cmpl = 0 ; cmpl < spins(f1, usr+ii) ; cmpl++){
                 f1->sinc.tulip[permutationVector].Current[rank] = 0;
                 tBuildIrr(rank, f1, irrep+nP, usr+ii, cmpl, permutationVector, rank);
@@ -576,15 +577,16 @@ INT_TYPE tFilter(struct field * f1, INT_TYPE Ve, INT_TYPE irrep, enum division u
         
 //#endif
         f1->sinc.tulip[usr+ii].symmetry = tClassify(rank, f1, usr+ii);
-        printf(" %d->%d (%d) = %d\n",ii+usr, CanonicalRank(f1,usr+ii,cmpl),tPath(f1,usr+ii),f1->sinc.tulip[usr+ii].symmetry);
-        fflush(stdout);
+      //  printf(" %d->%d (%d) = %d\n",ii+usr, CanonicalRank(f1,usr+ii,cmpl),tPath(f1,usr+ii),f1->sinc.tulip[usr+ii].symmetry);
+      //  fflush(stdout);
     }
     
     return 0;
 }
 
 INT_TYPE tSelect(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division usr, enum division usa, INT_TYPE testFlag){
-    INT_TYPE sp,info,rank=0,maxEV = f1->sinc.maxEV,stride = maxEV,n,m;;
+    INT_TYPE sp,info,rank=0,maxEV = f1->sinc.maxEV,n,m;
+    INT_TYPE stride = maxEV;
     double value;
     
 	if ( ! CanonicalRank(f1, usa,0))
@@ -628,7 +630,6 @@ INT_TYPE tSelect(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division us
 
     
     DCOMPLEX * S = (DCOMPLEX*)(myStreams(f1, matrixSbuild, 0));
-    DCOMPLEX * St = (DCOMPLEX*)(myStreams(f1, matrixSbuild, 0))+maxEV*maxEV;
 
     double * ov = myStreams(f1, twoBodyRitz, 0);
     assignCores(f1, 2);
@@ -648,7 +649,7 @@ INT_TYPE tSelect(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division us
             S[n*stride+m] =
             tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, CDT, usr+n,0,'N', usr+m,0);
 
-             if (spins(f1, usr+n)!= 1){
+             if ( spins(f1, usr+n) > 1 && (CanonicalRank(f1, usr+n, 1) ||CanonicalRank(f1, usr+m, 1))){
                  S[n*stride+m] +=
                  
                  +tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, CDT, usr+n,1,'N', usr+m,1)
@@ -660,25 +661,30 @@ INT_TYPE tSelect(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division us
         }
         
     }
+    if (0)
+        for ( n = 0; n < Ve+1 ; n++){
+            m = n ;
+            //for ( m = 0; m < Ve+1 ; m++)
+            {
+                if ( cabs(S[n*stride+m]-1.0)>1e-3 || isnan(S[n*stride+m] || isinf(S[n*stride+m])))
+                    //            {
+                    printf("%lld %d :%f +i%f \n", n,m,creal(S[n*stride+m]), cimag(S[n*stride+m]) );
+                fflush(stdout);
+                //            }
+            }
+        }
+
     
     assignCores(f1, 0);
-    cblas_zcopy(maxEV*maxEV,S,1,St,1);
-    tzheev(0, f1, 'N', Ve+1, St, stride, ov);
-//printf ( "ov: %f %f\n",S[0],S[1+stride]);
+  //  cblas_zcopy(maxEV*stride,S,1,S+maxEV*stride,1);
+    tzheev(0, f1, 'N', Ve+1,S/*+maxEV*stride*/, stride, ov);
     if ( testFlag ){
 
-        if ( ov[Ve]/ov[0] < 1e8 && ov[Ve]/ov[0] >0 ){
-
-            if ( 1){
-                printf("(%lld)\n",  Ve);
-            //fflush(stdout);
+        if ( ov[Ve]/ov[0] < f1->mem1->rt->TOL && ov[Ve]/ov[0] >0 && ov[0] > 0 ){
+                printf("(%f,%f,%d)\n",  ov[Ve],ov[0],Ve+1 );
+                fflush(stdout);
 
                 return 1;
-            }
-            else{
-                printf("selected vector failed to be in right class, %d %d\n", type,tClassify(0, f1, usr+Ve) );
-                return 0;
-            }
         } else {
             //printf("* %1.15f\n", ov[Ve]/ov[0]);
         }
@@ -707,7 +713,7 @@ INT_TYPE tCollect (struct field * f1, INT_TYPE irrep,enum division usz, INT_TYPE
                     max = 0.5*(max+min);
             }
             ct = tFoundationLevel(f1, build,0,0.5*(min+max),1,usz,target,1e9,1e9,1e9,NULL,irrep,seekPower);
-            printf("va %f %d %d %d\n", 0.5*(min+max),ct ,flag++, target);
+            printf("va %f %d %d %d %f\n", 0.5*(min+max),ct ,flag++, target,va);
             if ( max-min < 1e-9  ){
                 printf("conv");
                 exit(0);
@@ -743,9 +749,10 @@ INT_TYPE tCollect (struct field * f1, INT_TYPE irrep,enum division usz, INT_TYPE
                     cblas_dcopy(n1[0], streams(f1, build, 0 , 0)+(mm[0])*n1[0]+(mm[3])*n1[0]*n1[0],1,streams(f1,diagonalVectorA,0,0),1);
                     cblas_dcopy(n1[1], streams(f1, build, 0 , 1)+(mm[1])*n1[1]+(mm[4])*n1[1]*n1[1],1,streams(f1,diagonalVectorA,0,1),1);
                     cblas_dcopy(n1[2], streams(f1, build, 0 , 2)+(mm[2])*n1[2]+(mm[5])*n1[2]*n1[2],1,streams(f1,diagonalVectorA,0,2),1);
-                    
+             
+#if VERBOSE
                     printf("%d:: %d %d %d :: %d %d %d %f %f\n", i,mm[0],mm[1],mm[2],mm[3]+1,mm[4]+1,mm[5]+1,vale(&sc[i]),magnitude(f1, diagonalVectorA) );
-                    
+#endif
                 
                     Ve =  tSASplit(f1, irrep, Ve,target, usz, diagonalVectorA);
                     if ( Ve == target )
@@ -781,9 +788,7 @@ INT_TYPE tCollect (struct field * f1, INT_TYPE irrep,enum division usz, INT_TYPE
 #endif
                 if ( Ve == target )
                     break;
-                va *= 2;
-            } ;
-            
+            }            
         }
     if ( target != Ve ){
         printf("ack no !\n");
@@ -926,8 +931,9 @@ INT_TYPE tGreatDivideIteration ( struct field * f1, enum division A , INT_TYPE I
            //	printf("usr %d : %d %d\n", usz+iii+expon*foundation, CanonicalRank(f1, usz+expon*foundation+iii,0),part(f1, usz+foundation*expon+iii));     
                 temp = inner(rank, f1, usz+(expon)*foundation+iii, 0)+inner(rank, f1, usz+(expon)*foundation+iii, 1);
                 temp2 = temp- sqr( tMultiplyMP(rank, &info, f1, 1.0, -1, nullVector, 0, 'T', usz+(expon)*foundation+iii, 0, 'N', usz+(expon-1)*foundation+iii, 0) + tMultiplyMP(rank, &info, f1, 1.0, -1, nullVector, 0, 'T', usz+(expon)*foundation+iii, 1, 'N', usz+(expon-1)*foundation+iii, 1));
-                
-               // printf("%d(%d) -> %d(%d)::[%f]\n",(expon-1)*foundation+iii,part(f1,usz+(expon-1)*foundation+iii ), expon*foundation+iii,part(f1,usz+(expon)*foundation+iii ),temp2  );
+#if VERBOSE
+                printf("%d(%d) -> %d(%d)::[%f]\n",(expon-1)*foundation+iii,part(f1,usz+(expon-1)*foundation+iii ), expon*foundation+iii,part(f1,usz+(expon)*foundation+iii ),temp2  );
+#endif
                 sum += temp2;
                 tScale(f1, usz+iii+expon*foundation, 1./sqrt(temp));
 
@@ -936,7 +942,9 @@ INT_TYPE tGreatDivideIteration ( struct field * f1, enum division A , INT_TYPE I
 //
                 //fflush(stdout);
           //      ev[iii ]= magnitude(f1,usz+iii+expon*foundation);
+#if 1
                 printf("%d :: \t %f\t %d\n",iii,temp2, CanonicalRank(f1, usz+(expon)*foundation+iii, 0)+CanonicalRank(f1, usz+(expon)*foundation+iii, 1));
+#endif
                 f1->sinc.tulip[usz+(expon)*foundation+iii].value3 = temp2;
                 fflush(stdout);
             }
@@ -1370,10 +1378,12 @@ INT_TYPE tEdges(struct calculation *c1){
 INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE iterations, INT_TYPE foundation, INT_TYPE irrep,INT_TYPE flag,  enum division outputSpace, enum division outputValues){
     INT_TYPE gvOut,prevBuild;
     time_t start_t, lapse_t;
+    
     time(&start_t);
     INT_TYPE countLam = 0,countTot = 0,cl;
     enum division Mat;
     INT_TYPE cmpl,cmpl2,cmpl3,cat,iii = 0,maxEV = f1->sinc.maxEV,rank;
+    INT_TYPE stride = maxEV;
     double * ritz = myStreams(f1, outputValues, 0);
     double * overlap = myStreams(f1, conditionOverlapNumbers, 0);
     enum division el ;
@@ -1381,22 +1391,21 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
     DCOMPLEX *T  =  (DCOMPLEX *) myStreams(f1, matrixHbuild,0/*CORE RANK*/);
     double *H  =   myStreams(f1, vectorHbuild,0/*CORE RANK*/);
     double *vectors[2];
-    vectors[0] =   myStreams(f1, matrixHbuild,0/*CORE RANK*/)+4*maxEV*maxEV;
-    vectors[1] =   myStreams(f1, matrixHbuild,0/*CORE RANK*/)+5*maxEV*maxEV;
+    vectors[0] =   myStreams(f1, matrixHbuild,0/*CORE RANK*/)+4*maxEV*stride;
+    vectors[1] =   myStreams(f1, matrixHbuild,0/*CORE RANK*/)+5*maxEV*stride;
     DCOMPLEX *S  =  (DCOMPLEX *) myStreams(f1, matrixSbuild,0/*CORE RANK*/);
-    INT_TYPE powerMat,stride;
+    INT_TYPE powerMat;
 
     INT_TYPE info,n,m,s1,g,r,rr,rx,gx,a,a2;
     enum division leftP ;
-    stride = maxEV;
-    prevBuild = CanonicalRank(f1, matrixHbuild, 0);
+    prevBuild = 0* CanonicalRank(f1, matrixHbuild, 0);
     tClear  (f1, copyTwoVector);
     for ( n = prevBuild; n < quantumBasisSize ; n++)
     {
 #if VERBOSE
         printf("m%d %f\n", usz+n,magnitude(f1, usz+n) );
 #endif
-        tScale(f1, usz+n, 1./magnitude(f1, usz+n));
+    //    tScale(f1, usz+n, 1./magnitude(f1, usz+n));
         H[n] = 1.;
     }
     
@@ -1418,12 +1427,12 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
                 for ( m = 0 ; m <= n   ; m++)    {
 
                     S[n*stride+m] =
-                    (tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, permutation, usz+m,0,'N', usz+n,0))/H[n]/H[m];;
-                    if ( CanonicalRank(f1, usz+n, 1) ||CanonicalRank(f1, usz+m, 1) ){
+                    (tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, permutation, usz+n,0,'N', usz+m,0))/H[n]/H[m];;
+                    if ( spins(f1, usz+n) > 1 && (CanonicalRank(f1, usz+n, 1) ||CanonicalRank(f1, usz+m, 1)) ){
                         S[n*stride+m] +=
-                        (tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, permutation, usz+m,1,'N', usz+n,1)
-                         +I*tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, permutation, usz+m,1,'N', usz+n,0)
-                         -I*tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, permutation, usz+m,0,'N', usz+n,1)
+                        (tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, permutation, usz+n,1,'N', usz+m,1)
+                         +I*tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, permutation, usz+n,1,'N', usz+m,0)
+                         -I*tMultiplyMP(rank,&info,f1,1., -1,nullVector, 0, permutation, usz+n,0,'N', usz+m,1)
                          )/H[n]/H[m];;
                     }
                     S[m*stride+n] = conj(S[n*stride+m]);
@@ -1434,17 +1443,17 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
                 }
             
         }
-    if (1)
+    if (0)
         for ( n = 0; n < quantumBasisSize ; n++){
             m = n ;
-            //for ( m = 0; m < quantumBasisSize ; m++)
+           // for ( m = 0; m < quantumBasisSize ; m++)
             {
-//                if ( fabs(S[n*stride+m]-1.0)>1e-3 || isnan(S[n*stride+m] || isinf(S[n*stride+m])))
-//            {
-//                printf("%lld %d :%f +i%f \n", n,m,creal(S[n*stride+m]), cimag(S[n*stride+m]) );
-//                fflush(stdout);
-//            }
-        }
+                if ( cabs(S[n*stride+m]-1.0)>1e-3 || isnan(S[n*stride+m] || isinf(S[n*stride+m])))
+                    //            {
+                    printf("%lld %d :%f +i%f \n", n,m,creal(S[n*stride+m]), cimag(S[n*stride+m]) );
+                fflush(stdout);
+                //            }
+            }
         }
     
             
@@ -1487,7 +1496,7 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
                                         rank = 0;
 #endif
                                         for ( m = 0 ; m <=n   ; m++){
-                                            (T+maxEV*maxEV)[n*stride+m] = co/H[m]/H[n]*matrixElements(rank, f1, permutation,usz+m, 'N', Mat, cmpl, usz+n, cmpl2);
+                                            (T+stride*maxEV)[n*stride+m] = co/H[m]/H[n]*matrixElements(rank, f1, permutation,usz+n, 'N', Mat, cmpl, usz+m, cmpl2);
                                         }
                                         
                                         
@@ -1496,14 +1505,14 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
 
                         for ( n = prevBuild; n < quantumBasisSize ; n++)
                             for ( m = 0; m <= n ; m++){
-                                T[n*stride+m] += (T+maxEV*maxEV)[n*stride+m];
+                                T[n*stride+m] += (T+stride*maxEV)[n*stride+m];
                                 T[m*stride+n]  = conj(T[n*stride+m]);
                             }
 
                     }
                     for ( n = 0; n < quantumBasisSize ; n++)
                         for ( m = 0 ; m <=n   ; m++){
-                            if ( cabs((T+maxEV*maxEV)[n*stride+m])  < 1e-6 ){
+                            if ( cabs((T+stride*maxEV)[n*stride+m])  < 1e-6 ){
                                 countLam++;
                             }
                             countTot++;
@@ -1547,32 +1556,32 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
         if (flag)
             Job = 'V';
 
-        cblas_zcopy(maxEV*maxEV , T , 1 , T+maxEV*maxEV , 1);
-        cblas_zcopy(maxEV*maxEV , S , 1 , S+maxEV*maxEV , 1);
-        tzheev(0, f1, 'N', quantumBasisSize, S+maxEV*maxEV, stride, overlap);
+        cblas_zcopy(maxEV*stride , T , 1 , T+maxEV*stride , 1);
+        cblas_zcopy(maxEV*stride , S , 1 , S+maxEV*stride , 1);
+        tzheev(0, f1, 'N', quantumBasisSize, S+maxEV*stride, stride, overlap);
         //printf("%f\n", f1->mem1->rt->TOL);
         if ( ! flag )
             printf("GREATER: \t %d \t %f \n",quantumBasisSize,overlap[quantumBasisSize-1]/overlap[0] );
 
         if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < f1->mem1->rt->TOL && flag <= 2)
             printf(" Krylov-2\t %f \n",  overlap[quantumBasisSize-1]/overlap[0]);
-        else         if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < 1000*f1->mem1->rt->TOL && flag == 3)
+        else         if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < f1->mem1->rt->TOL && flag == 3)
             printf(" Krylov-3 \t %f \n",  overlap[quantumBasisSize-1]/overlap[0]);
-        else         if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < 1e12 && flag == 4)
+        else         if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < f1->mem1->rt->TOL && flag == 4)
             printf(" Krylov-4 \t %f \n",  overlap[quantumBasisSize-1]/overlap[0]);
         else {
             printf("Linear dependent! %f\t%1.16f\n",overlap[quantumBasisSize-1],overlap[0]);
             return quantumBasisSize;
         }
         
-        cblas_zcopy(maxEV*maxEV , S , 1 , S+maxEV*maxEV , 1);
-        gvOut = tzhegv (0,f1,Job,quantumBasisSize,T+maxEV*maxEV,S+maxEV*maxEV,stride,ritz);
+        cblas_zcopy(maxEV*stride , S , 1 , S+maxEV*stride , 1);
+        gvOut = tzhegv (0,f1,Job,quantumBasisSize,T+maxEV*stride,S+maxEV*stride,stride,ritz);
         printf("eigenSolved\n");
         fflush(stdout);
         assignCores(f1, 1);
-        for ( iii = 0; iii < maxEV*maxEV ; iii++){
-            vectors[0][iii] = creal((T+maxEV*maxEV)[iii]);
-            vectors[1][iii] = cimag((T+maxEV*maxEV)[iii]);
+        for ( iii = 0; iii < maxEV*stride ; iii++){
+            vectors[0][iii] = creal((T+maxEV*stride)[iii]);
+            vectors[1][iii] = cimag((T+maxEV*stride)[iii]);
         }
     }
     
@@ -1801,8 +1810,8 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
             printf("\nFinal Spectrum TIME \t %15.0f\n", difftime(lapse_t, start_t));
             fflush(stdout);
         }
-    f1->sinc.tulip[matrixHbuild].Current[0] = quantumBasisSize;
-    f1->sinc.tulip[matrixSbuild].Current[0] = quantumBasisSize;
+    //f1->sinc.tulip[matrixHbuild].Current[0] = quantumBasisSize;
+    //f1->sinc.tulip[matrixSbuild].Current[0] = quantumBasisSize;
 
     return 0;
 }

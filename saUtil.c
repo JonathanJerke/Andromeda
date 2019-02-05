@@ -818,15 +818,15 @@ INT_TYPE tClassifyComponents( struct field * f1 , double * up, double * entropy)
         nPerm = 24;
         nGroup = 5;
     }
-    xt=1;
+    xt=0;
     entr = 0.;
     sum = 0.;
-    for ( irrep = 1 ; irrep <= nGroup ; irrep++ ){
+    for ( irrep = 0 ; irrep <= nGroup ; irrep++ ){
         sum += fabs(up[irrep]);
         if ( fabs(up[irrep])> fabs(up[xt]))
             xt = irrep;
     }
-    for ( irrep = 1 ; irrep <= nGroup ; irrep++ ){
+    for ( irrep = 0 ; irrep <= nGroup ; irrep++ ){
         if ( fabs(up[irrep]) > 1e-6 ){
             entr += -(fabs(up[irrep])/sum)*log(fabs(up[irrep])/sum);
         }
@@ -846,13 +846,21 @@ INT_TYPE tClassifyComponents( struct field * f1 , double * up, double * entropy)
 
 INT_TYPE tClassify(INT_TYPE rank, struct field * f1 , enum division label){
     double up[48],entropy;
+    if ( bodies(f1, label ) == one ){
+        f1->sinc.tulip[label].symmetry = 0;
+        f1->sinc.tulip[label].value2 = 0;
+        
+        return 0;
+        
+    }
     INT_TYPE i,irrep;
     for ( i = 0; i < 48 ; i++)
         up[i] = 0.;
     tTabulateProjection(rank, f1, label, label, up);
-    irrep =  tClassifyComponents(f1, up,&entropy);
+    f1->sinc.tulip[label].symmetry =  tClassifyComponents(f1, up,&entropy);
     f1->sinc.tulip[label].value2 =entropy;
-    //printf ("sym %d, %f\n", irrep, entropy);
+    irrep =  f1->sinc.tulip[label].symmetry;
+
     return irrep;
 }
 
@@ -2256,6 +2264,7 @@ INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct field * f1 , enum divisio
 INT_TYPE tTabulateProjection( INT_TYPE rank, struct field * f1 , enum division left , enum division right ,  double *up){
     
     if ( bodies(f1,left ) == one ){
+        up[0] = 1;
         return 1;
     }
     INT_TYPE i,g,p,nPerm=0,nGroup=0;
@@ -2275,11 +2284,12 @@ INT_TYPE tTabulateProjection( INT_TYPE rank, struct field * f1 , enum division l
         nGroup = 24;
     }else {
         printf("opps\n");
+        fflush(stdout);
         exit(0);
     }
     enum body bd = bodies(f1, left);
-    double buff[24],sum2;
-    DCOMPLEX gup[24];
+    double buff[48],sum2;
+    DCOMPLEX gup[48];
     for ( i = 0; i<= 24 ;i++)
         gup[i] = 0.;
 
@@ -2315,7 +2325,7 @@ INT_TYPE tTabulateProjection( INT_TYPE rank, struct field * f1 , enum division l
         gup[tDefineIrrep(bd,g)] += sqr(sum2) ;
     }
     
-    for ( g = 1; g <= 24 ; g++)
+    for ( g = 1; g <= 5 ; g++)
         up[g] = (cabs(gup[g]))/(nPerm);
 
     return nGroup;
