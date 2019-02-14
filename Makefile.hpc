@@ -1,0 +1,15 @@
+cc 		= icc
+
+MKLPATH 	= $(MKLROOT)/lib/intel64
+GSLPATH 	= 
+GSLPATHlib 	= ${GSLPATH}/lib
+GSLPATHinc 	= ${GSLPATH}/include
+
+all: androhpc
+lib = -Wl,--start-group ${MKLPATH}/libmkl_intel_ilp64.a ${MKLPATH}/libmkl_intel_thread.a ${MKLPATH}/libmkl_core.a ${MKLPATH}/libmkl_blacs_openmpi_ilp64.a  -Wl,--end-group  -liomp5 -lpthread -lm -ldl -L${GSLPATHlib} -lgsl -lgslcblas
+
+flags = -fopenmp -DMKL_ILP64 -m64 -I${MKLROOT}/include -I${GSLPATHinc}
+
+androhpc: ioPrint.c ioPrint.h eigen.c eigen.h main.c input.c input.h constants.h  coreMath.c  coreUtil.h  mAls.c   Model.h coreForce.c  coreMath.h  interfaceMath.c  mAls.h saUtil.c coreForce.h  input.c  coreUtil.c  interfaceMath.h  Model.c saUtil.h
+	$(cc) $(flags)  main.c input.c eigen.c coreMath.c  mAls.c coreForce.c interfaceMath.c saUtil.c coreUtil.c Model.c ioPrint.c $(lib) -o androhpc
+
