@@ -29,6 +29,7 @@
 #ifndef system_h
 #define system_h
 
+#define SPACE 3
 
 //KEEP THESE present.
 #define sincFlag 1
