@@ -94,7 +94,7 @@ INT_TYPE exec (struct calculation *c ){
     INT_TYPE splitFlag = 0,cycleFlag = 0;;
     
 #ifdef splitTag
-    if ( c->i.body >= two)
+    if ( c->rt.body >= two)
     splitFlag = 1;
 #endif
     struct calculation *c1 = malloc(sizeof(struct calculation));
@@ -111,7 +111,7 @@ INT_TYPE exec (struct calculation *c ){
     
     
     double max1,max2=0;
-    //fprintf(out , " lattice\t%1.3f\t%lld\t-Box\t body \t%d\n", c1->i.d,2*c1->i.epi+1, c1->i.body);
+    //fprintf(out , " lattice\t%1.3f\t%lld\t-Box\t body \t%d\n", c1->i.d,2*c1->i.epi+1, c1->rt.body);
     fprintf( out,   "  Number of electrons: %d\n  Number of Atoms: %d\n\n",c1->i.c.Ne,f1->Na);
     if ( c1->i.Angstroms )
     {
@@ -175,7 +175,7 @@ INT_TYPE exec (struct calculation *c ){
     if ( !(!c1->rt.printFlag)){
         c1->i.nStates = c->i.heliumFlag;
         iModel(c1);
-        fprintf(out , " lattice\t%1.3f\t%d\t-Box\t body \t%d\n", c1->i.d,2*c1->i.epi+1, c1->i.body);
+        fprintf(out , " lattice\t%1.3f\t%d\t-Box\t body \t%d\n", c1->i.d,2*c1->i.epi+1, c1->rt.body);
 #ifndef APPLE
         INT_TYPE lV ;
         if ( (c1->rt.printFlag/8)%2 ){
@@ -206,11 +206,11 @@ INT_TYPE exec (struct calculation *c ){
             c1->i.heliumFlag = c->i.nTargets;
             c1->i.nStates = c1->i.heliumFlag;
             if ( splitFlag )
-                c1->i.nStates *= tPaths(c1->i.body , c1->i.irrep);
+                c1->i.nStates *= tPaths(c1->rt.body , c1->i.irrep);
             c1->i.Iterations = 1;
             c1->rt.maxEntropy = 1;
             iModel(c1);
-            if ( c1->i.body == one )
+            if ( c1->rt.body == one )
                 t1BodyConstruction(c1, build);
             else
                 tSAboot(c1);
@@ -385,7 +385,7 @@ INT_TYPE exec (struct calculation *c ){
 //                        c2->i.qFloor = iii;
 //
 //                        c2->i.heliumFlag = c->i.nTargets;//number of states
-//                        c2->i.nStates = tPaths(c->i.body , c->i.irrep)*c2->i.heliumFlag;//number of paths ...
+//                        c2->i.nStates = tPaths(c->rt.body , c->i.irrep)*c2->i.heliumFlag;//number of paths ...
 //                        EV = c2->i.qFloor;
 //
 //                        iModel(c2);
@@ -523,7 +523,7 @@ INT_TYPE exec (struct calculation *c ){
                 printf("woops! ... looks like you accidently attempted an extra iteration\n");
             }
             fprintf(out,"EV %d ; irrep %d ; offset %d\n", EV, c1->i.irrep,RdsSize-EV);
-            fprintf(out , " lattice\t%1.3f\t%d\t-Box\t body \t%d\n", c1->i.d,2*c1->i.epi+1, c1->i.body);
+            fprintf(out , " lattice\t%1.3f\t%d\t-Box\t body \t%d\n", c1->i.d,2*c1->i.epi+1, c1->rt.body);
             fflush(stdout);
             
             INT_TYPE ii = 0,iii;
@@ -648,17 +648,16 @@ INT_TYPE exec (struct calculation *c ){
 //    }//exit
     
     *c = *c1;
-    c->i.c.sinc.tulip = c1->i.c.sinc.tulip;
-    c->i.c.sinc.rose[0].stream =c1->i.c.sinc.rose[0].stream;
-    c->i.c.sinc.rose[1].stream =c1->i.c.sinc.rose[1].stream;
-    c->i.c.sinc.rose[2].stream =c1->i.c.sinc.rose[2].stream;
-    c->i.c.sinc.rose[3].stream =c1->i.c.sinc.rose[3].stream;
+    {
+        INT_TYPE space ;
+        c->i.c.sinc.tulip = c1->i.c.sinc.tulip;
+        for ( space = 0; space <= SPACE ; space++){
+            c->i.c.sinc.rose[space].stream =c1->i.c.sinc.rose[space].stream;
+            c1->i.c.sinc.rose[space].stream = NULL;
+        }
+    }
     c1->mem.bootedMemory = 0;
     c1->i.c.sinc.tulip = NULL;
-    c1->i.c.sinc.rose[0].stream = NULL;
-    c1->i.c.sinc.rose[1].stream = NULL;
-    c1->i.c.sinc.rose[2].stream = NULL;
-    c1->i.c.sinc.rose[3].stream = NULL;
     fModel(c1);
     free(c1);
     return 0;
@@ -690,55 +689,67 @@ int main (INT_TYPE argc , char * argv[]){
     func1.param[3] = 1.;//second a parameter, unused.
     getDescription ( &func1 ,0.,stdout);
 
-    INT_TYPE periodic = 0;//not coded for peridicity/.
+    INT_TYPE periodic = 0;//GTO's not yet coded for peridicity/.
     INT_TYPE i ;
     
     
-    if ( argc != 6 ){
-        printf("L,BODY, Distance, Gaussian, accelerate\n");
+    if ( argc != 4 ){
+        printf("L,Distance, Gaussian\n");
         exit(0);
         
     }
     INT_TYPE l = atoi(argv[1]);
-    INT_TYPE body = atoi(argv[2]);
-    double x = atof(argv[3]);
-    double b = atof(argv[4]);
-    INT_TYPE acc = atoi(argv[5]);
+    double x = atof(argv[2]);
+    double b = atof(argv[3]);
 
+    
+    
+    
+    INT_TYPE acc = 0;//somehwo?
+    
+    INT_TYPE body = 2;
     if ( acc ){
         if ( l > 1 ){
             printf("warning,  have not completed acceleration of L > 1 yet...");
-            
-        }
-        if ( body == 1 ){
-            printf("warning,  acceleration is focused on 2-body interactions");
+            acc = 0;
         }
     }
     
+    if ( l > 4 ){
+        printf("oops ,  not recognized.. ask me for more!\n");
+    }
     
-    printf("ANGULAR %d \n %d-Body interaction", l , body);
+    printf("ANGULAR %d \n %d-Body interaction\n", l , body);
     struct general_2index g3[3];
     {
+        
         i = 0;
         g3[i].powSpace = 0;
         g3[i].gaussianAccelerationFlag = acc;
+        g3[i].realFlag = 1;
+        g3[i].point = 2;
+        g3[i].i[1].action = 0;//derivatives
+        g3[i].momentumShift = 0;
+
+        g3[i].i[0].bra.basis = GaussianBasisElement;
+        g3[i].i[0].bra.length = b;//body 1 Matrix
+        g3[i].i[0].bra.origin = x;
+        g3[i].i[0].bra.index = l;
         
-        g3[i].i[0].b0 = b;//body 1 Matrix
-        g3[i].i[0].x0 = x;
-        g3[i].i[0].l0 = l;
+        g3[i].i[0].ket.basis = GaussianBasisElement;
+        g3[i].i[0].ket.length = b;
+        g3[i].i[0].ket.origin = x;
+        g3[i].i[0].ket.index = l;
         
-        g3[i].i[0].b1 = b;
-        g3[i].i[0].x1 = x;
-        g3[i].i[0].l1 = l;
+        g3[i].i[1].bra.basis = GaussianBasisElement;
+        g3[i].i[1].bra.length = b;//body 1 Matrix
+        g3[i].i[1].bra.origin = 0;
+        g3[i].i[1].bra.index = l;
         
-        g3[i].i[1].action = 0;
-        g3[i].i[1].b0 = b;//body 2 matrix
-        g3[i].i[1].x0 = 0;
-        g3[i].i[1].l0 = l;
-        
-        g3[i].i[1].b1 = b;
-        g3[i].i[1].x1 = 0;
-        g3[i].i[1].l1 = l;
+        g3[i].i[1].ket.basis = GaussianBasisElement;
+        g3[i].i[1].ket.length = b;
+        g3[i].i[1].ket.origin = 0;
+        g3[i].i[1].ket.index = l;
 
         g3[i].fl = & func1;
         
@@ -757,26 +768,33 @@ int main (INT_TYPE argc , char * argv[]){
     }
     {
         i = 1;
-
+        g3[i].powSpace = 0;
         g3[i].gaussianAccelerationFlag = acc;
+        g3[i].realFlag = 1;
+        g3[i].point = 2;
+        g3[i].i[1].action = 0;//derivatives
+        g3[i].momentumShift = 0;
 
-        g3[i].i[0].b0 = b;//body 1 Matrix
-        g3[i].i[0].x0 = 0;
-        g3[i].i[0].l0 = l;
+        g3[i].i[0].bra.basis = GaussianBasisElement;
+        g3[i].i[0].bra.length = b;//body 1 Matrix
+        g3[i].i[0].bra.origin = 0;
+        g3[i].i[0].bra.index = l;
         
-        g3[i].i[0].b1 = b;
-        g3[i].i[0].x1 = 0;
-        g3[i].i[0].l1 = l;
+        g3[i].i[0].ket.basis = GaussianBasisElement;
+        g3[i].i[0].ket.length = b;
+        g3[i].i[0].ket.origin = 0;
+        g3[i].i[0].ket.index = l;
         
-        g3[i].i[1].action = 0;
-        g3[i].i[1].b0 = b;//body 2 matrix
-        g3[i].i[1].x0 = 0;
-        g3[i].i[1].l0 = l;
+        g3[i].i[1].bra.basis = GaussianBasisElement;
+        g3[i].i[1].bra.length = b;//body 1 Matrix
+        g3[i].i[1].bra.origin = 0;
+        g3[i].i[1].bra.index = l;
         
-        g3[i].i[1].b1 = b;
-        g3[i].i[1].x1 = 0;
-        g3[i].i[1].l1 = l;
-
+        g3[i].i[1].ket.basis = GaussianBasisElement;
+        g3[i].i[1].ket.length = b;
+        g3[i].i[1].ket.origin = 0;
+        g3[i].i[1].ket.index = l;
+        
         g3[i].fl = & func1;
         
         if ( i == 0 )
@@ -794,25 +812,33 @@ int main (INT_TYPE argc , char * argv[]){
     }
     {
         i = 2;
-
+        g3[i].powSpace = 0;
         g3[i].gaussianAccelerationFlag = acc;
+        g3[i].realFlag = 1;
+        g3[i].point = 2;
+        g3[i].i[1].action = 0;//derivatives
+        g3[i].momentumShift = 0;
 
-        g3[i].i[0].b0 = b;//body 1 Matrix
-        g3[i].i[0].x0 = 0;
-        g3[i].i[0].l0 = l;
+        g3[i].i[0].bra.basis = GaussianBasisElement;
+        g3[i].i[0].bra.length = b;//body 1 Matrix
+        g3[i].i[0].bra.origin = 0;
+        g3[i].i[0].bra.index = l;
         
-        g3[i].i[0].b1 = b;
-        g3[i].i[0].x1 = 0;
-        g3[i].i[0].l1 = l;
+        g3[i].i[0].ket.basis = GaussianBasisElement;
+        g3[i].i[0].ket.length = b;
+        g3[i].i[0].ket.origin = 0;
+        g3[i].i[0].ket.index = l;
         
-        g3[i].i[1].action = 0;
-        g3[i].i[1].b0 = b;//body 2 matrix
-        g3[i].i[1].x0 = 0;
-        g3[i].i[1].l0 = l;
+        g3[i].i[1].bra.basis = GaussianBasisElement;
+        g3[i].i[1].bra.length = b;//body 1 Matrix
+        g3[i].i[1].bra.origin = 0;
+        g3[i].i[1].bra.index = l;
         
-        g3[i].i[1].b1 = b;
-        g3[i].i[1].x1 = 0;
-        g3[i].i[1].l1 = l;
+        g3[i].i[1].ket.basis = GaussianBasisElement;
+        g3[i].i[1].ket.length = b;
+        g3[i].i[1].ket.origin = 0;
+        g3[i].i[1].ket.index = l;
+
 
         g3[i].fl = & func1;
         
@@ -830,9 +856,21 @@ int main (INT_TYPE argc , char * argv[]){
         }
         g3[i].body = body;
     }
-//    g3[0].i[0].l0 = 2;
-        printf(" %1.15f\n", elementCal(1e-3,-1, g3));
 
+    {
+        INT_TYPE Nt = 100;
+        time_t start_t, lapse_t;
+        time(&start_t);
+
+        for ( i = 0; i < Nt ; i++){
+            printf("%d\t %1.15f\n",i+1, elementCal(1e-3,-1, g3));
+            fflush(stdout);
+        }
+        
+        time(&lapse_t);
+        printf("\nFinal per \t %15.15f\n", difftime(lapse_t, start_t)/Nt);
+
+    }
 #endif
 
 }
@@ -861,8 +899,8 @@ INT_TYPE buildElectronFreeInteraction ( struct calculation * c1, enum division m
     c0.i.c.sinc.rose[3].stream = NULL;
     c0.i.nTargets = 1;
     c0.rt.printFlag = 0;
-    c0.i.body = one;
-    c0.i.bodyType = electron;
+    c0.rt.body = one;
+    c0.rt.bodyType = electron;
     c0.i.side = 4;
     c0.i.iCharge = 1;
     c0.i.irrep = 0;

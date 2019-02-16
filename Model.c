@@ -88,7 +88,7 @@ void resetExternal(struct calculation * i, INT_TYPE number, double scale ){
                     i->i.c.atoms[4].position[3] = scale/sqrt(2.);
                     
                 }
-        i->i.charge = i->i.c.Na - i->i.body;
+        i->i.charge = i->i.c.Na - i->rt.body;
     }
 
 
@@ -112,8 +112,8 @@ struct calculation initCal (void ) {
     i.i.Iterations = 1;
     i.rt.printFlag = 0;
     i.i.heliumFlag = 1;
-    i.i.body = 1;
-    i.i.iCharge = i.i.body;
+    i.rt.body = 1;
+    i.i.iCharge = i.rt.body;
     
     i.rt.TARGET = 1e-3;
     i.rt.ALPHA = 1e-6;
@@ -242,8 +242,8 @@ INT_TYPE iModel( struct calculation * c1){
             
         }
         
-        enum body bootBodies = c1->i.body;
-        enum bodyType bootType = c1->i.bodyType;
+        enum body bootBodies = c1->rt.body;
+        enum bodyType bootType = c1->rt.bodyType;
         c1->i.c.body = bootBodies;
         INT_TYPE ra = tPerms(bootBodies),nG = tSize(bootBodies);
         c1->i.paths = tPaths(bootBodies, c1->i.irrep);
@@ -251,8 +251,20 @@ INT_TYPE iModel( struct calculation * c1){
         INT_TYPE N12 = c1->i.epi;
         f1->sinc.N1 = 2*N12+1;
         INT_TYPE N1 = f1->sinc.N1;
-        INT_TYPE N2 = f1->sinc.N1*f1->sinc.N1;
+
         
+        if (bootType == electron ){
+            INT_TYPE p,s;
+            for ( p = 1 ; p < 7 ; p++)
+                for ( s = 0 ; s < SPACE ; s++)
+                    f1->sinc.dims[p][s] = N1;
+            
+        }else if ( bootType == h2plus){
+            INT_TYPE p,s;
+            for ( p = 1 ; p < 7 ; p++)
+                for ( s = 0 ; s < SPACE ; s++)
+                    f1->sinc.dims[p][s] = N1;
+        }
         
         
         f1->sinc.Basis[0] = N1;
@@ -302,7 +314,7 @@ INT_TYPE iModel( struct calculation * c1){
         INT_TYPE outVector  = imax(f1->oneBody.num , f1->twoBody.num )*maxVector;
         
         {
-            initPointerTensors(f1);
+         //   initPointerTensors(f1);
             enum division label1;
             for ( label1 = 0 ;label1 <= end; label1++){
                 f1->sinc.tulip[label1].name = label1;
@@ -331,20 +343,6 @@ INT_TYPE iModel( struct calculation * c1){
             printf("CONVERGENCE \t%f\n", log(c1->rt.CONVERGENCE )/log(10));
             printf("vCONVERGENCE\t %f\n", log(c1->rt.vCONVERGENCE )/log(10));
             printf("ALPHA\t\t %f\n", log(c1->rt.ALPHA )/log(10));
-
-            
-            
-            
-          //  f1->mem1->rt->TARGET = pow(0.1,c1->p.iTarget);
-           // f1->mem1->rt->CANON = f1->mem1->rt->TARGET*pow(0.1,c1->p.iThreshold);
-            //f1->mem1->rt->BUILD = pow(0.1,c1->p.iBuild);
-          //  f1->mem1->rt->vCANON =  f1->mem1->rt->TARGET*pow(0.1,c1->p.vectorThreshold);
-          //  f1->mem1->rt->ALPHA =  f1->mem1->rt->TARGET*pow(0.1,c1->p.iCondition);
-          //  f1->mem1->rt->CONVERGENCE =  f1->mem1->rt->TARGET*pow(0.1,c1->p.iConvergence);
-           // f1->mem1->rt->vCONVERGENCE =  f1->mem1->rt->TARGET*pow(0.1,c1->p.vectorConvergence);
-            
-            //f1->mem1->rt->TOL = pow(0.1, c1->p.iTolerance);
-            //f1->mem1->rt->maxEntropy = pow(0.1, c1->p.iEntropy);
 
         }
         
@@ -417,7 +415,7 @@ INT_TYPE iModel( struct calculation * c1){
             
             f1->sinc.tulip[build].Partition = c1->i.sectors*runBodies*((part(f1, kinetic)+part(f1, harmonium)) + matrixNumber * f1->Na);//easily reduce in cheaper ways!
             if ( runBodies == two )
-                f1->sinc.tulip[build].Partition += c1->i.sectors;
+                f1->sinc.tulip[build].Partition += c1->i.sectors+ ( bootType > electron );
             else if ( runBodies == three )
                 f1->sinc.tulip[build].Partition += 3*c1->i.sectors;
             else if ( runBodies == four )
@@ -490,7 +488,7 @@ INT_TYPE iModel( struct calculation * c1){
                             }
                             
                             f1->sinc.tulip[eigenVectors+di].Partition = nextRank;
-                            printf("new %d %d\n",eigenVectors+di, part(f1, eigenVectors+di) );
+                          //  printf("new %d %d\n",eigenVectors+di, part(f1, eigenVectors+di) );
                           //  f1->sinc.tulip[eigenVectors+di].spinor = none;
 
                             NV += spins(f1,eigenVectors+di )*f1->sinc.tulip[eigenVectors+di].Partition;
@@ -1430,38 +1428,39 @@ INT_TYPE iModel( struct calculation * c1){
         
         {
             
+//            if ( c1->i.hartreeFockFlag ){
+//                mySeparateExactTwo(f1,c1->rt.runFlag, -1. , 0,0,1,2);
+//                mySeparateExactOne(f1,-1.,0);
+//                tScale(f1, interactionDirect, c1->i.hartreeFockFlag);
+//            }
+
+            //CLEAN UP THIS MESS!!!!!
+            if ( bootType == electron  ){
+                if ( bootBodies > one ){
+                    mySeparateExactTwo(f1,c1->rt.runFlag, 1. , 0,0,1,2);
+                    if ( c1->rt.runFlag == 7){
+                        buildElectronProtonInteraction(f1, linear);
+                    }else if (c1->rt.runFlag > 0 && c1->rt.runFlag < 7 ){
+                        separateExternal(c1,-c1->rt.runFlag,0,1.0,4,0,1);
+                    }
+                }
+                if (f1->Na != 0 ){
+                    separateExternal(c1,c1->rt.runFlag,0,1.0,4,0,1);
+                }
+                if ( c1->i.springFlag ){
+                    separateHarmonicExternal(c1,c1->rt.runFlag,1.,4,0,1);
+                }
+                separateKinetic(f1, c1->rt.runFlag,kinetic, 1.0,1);
             
-            if ( c1->i.hartreeFockFlag ){
-                mySeparateExactTwo(f1,c1->rt.runFlag, -1. , 0,0);
-                mySeparateExactOne(f1,-1.,0);
-                tScale(f1, interactionDirect, c1->i.hartreeFockFlag);
-            }
-            else if ( bootBodies > one )
-                mySeparateExactTwo(f1,c1->rt.runFlag, 1. , 0,0);
-            
-            if ( bootType > electron  ){
-                mySeparateExactTwo(f1,c1->rt.runFlag, 1. , 0,1);
-                separateKinetic(f1, c1->rt.runFlag,kineticMass, 1836.15267245/8.  ,c1->i.vectorMomentum);
-            }
-            separateKinetic(f1, c1->rt.runFlag,kinetic, 1.,c1->i.vectorMomentum);
-            if ( c1->rt.runFlag == 7   && bootBodies > one && bootType == electron){
-                buildElectronProtonInteraction(f1, linear);
-            }else if (c1->rt.runFlag > 0 && c1->rt.runFlag < 7 && bootBodies > one && bootType == electron ){
-                buildElectronFreeInteraction(c1,linear);
-                tScale(f1, linear, -bootBodies);
-            }
-            if (f1->Na != 0 )
-                separateExternal(c1,c1->rt.runFlag,0,1.0,4,0);
-            if ( c1->i.springFlag ){
-                separateHarmonicExternal(c1,c1->rt.runFlag,1.,4,0);
+            } else if ( bootType == h2plus ){
+                separateExternal(c1,c1->rt.runFlag,0,1.0,4,0,1);
+                mySeparateExactTwo(f1,c1->rt.runFlag, 1. , 0,0,1,2);
+                mySeparateExactTwo(f1,c1->rt.runFlag, 1. , 0,1,1,2);
+                separateKinetic(f1, c1->rt.runFlag,kineticMass, 1836.15267245/8.  ,1);
+                separateKinetic(f1, c1->rt.runFlag,kinetic, 0.9997277656208493,2);
             }
         }
-        
-        
-        
-        
-        //BUILD OVERLAP WITHIN BASIS...
-        
+    
         {
             
             
@@ -1593,7 +1592,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[kinetic1].purpose = ptObject;
                 f1->sinc.tulip[kinetic1].Current[0] = part(f1, kinetic);
                 f1->sinc.tulip[kinetic1].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic1].Current[1] = 1;
+                f1->sinc.tulip[kinetic1].Current[1] = 0;
                 f1->sinc.tulip[kinetic1].ptRank[1] = 0;
 
                 //FOR LINEAR
@@ -1618,7 +1617,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[kinetic2].purpose = ptObject;
                 f1->sinc.tulip[kinetic2].Current[0] = part(f1, kinetic);
                 f1->sinc.tulip[kinetic2].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic2].Current[1] = 1;
+                f1->sinc.tulip[kinetic2].Current[1] = 0;
                 f1->sinc.tulip[kinetic2].ptRank[1] = 0;
 
                 f1->sinc.tulip[X1].spinor = none;
@@ -1734,7 +1733,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[kinetic1].purpose = ptObject;
                 f1->sinc.tulip[kinetic1].Current[0] = part(f1, kinetic);
                 f1->sinc.tulip[kinetic1].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic1].Current[1] = 1;
+                f1->sinc.tulip[kinetic1].Current[1] = 0;
                 f1->sinc.tulip[kinetic1].ptRank[1] = 0;
 
                 //FOR LINEAR
@@ -1756,7 +1755,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[kinetic2].purpose = ptObject;
                 f1->sinc.tulip[kinetic2].Current[0] = part(f1, kinetic);
                 f1->sinc.tulip[kinetic2].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic2].Current[1] = 1;
+                f1->sinc.tulip[kinetic2].Current[1] = 0;
                 f1->sinc.tulip[kinetic2].ptRank[1] = 0;
 
                 f1->sinc.tulip[external3].spinor = none;
@@ -1780,7 +1779,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[kinetic3].purpose = ptObject;
                 f1->sinc.tulip[kinetic3].Current[0] = part(f1, kinetic);
                 f1->sinc.tulip[kinetic3].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic3].Current[1] = 1;
+                f1->sinc.tulip[kinetic3].Current[1] = 0;
                 f1->sinc.tulip[kinetic3].ptRank[1] = 0;
 
                 
@@ -1919,7 +1918,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[kinetic1].purpose = ptObject;
                 f1->sinc.tulip[kinetic1].Current[0] = part(f1, kinetic);
                 f1->sinc.tulip[kinetic1].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic1].Current[1] = 1;
+                f1->sinc.tulip[kinetic1].Current[1] = 0;
                 f1->sinc.tulip[kinetic1].ptRank[1] = 0;
 
                 //FOR LINEAR
@@ -1941,7 +1940,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[kinetic2].purpose = ptObject;
                 f1->sinc.tulip[kinetic2].Current[0] = part(f1, kinetic);
                 f1->sinc.tulip[kinetic2].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic2].Current[1] = 1;
+                f1->sinc.tulip[kinetic2].Current[1] = 0;
                 f1->sinc.tulip[kinetic2].ptRank[1] = 0;
                 
                 f1->sinc.tulip[external3].spinor = none;
@@ -1962,7 +1961,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[kinetic3].purpose = ptObject;
                 f1->sinc.tulip[kinetic3].Current[0] = part(f1, kinetic);
                 f1->sinc.tulip[kinetic3].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic3].Current[1] = 1;
+                f1->sinc.tulip[kinetic3].Current[1] = 0;
                 f1->sinc.tulip[kinetic3].ptRank[1] = 0;
 
                 f1->sinc.tulip[external4].spinor = none;
@@ -1986,7 +1985,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[kinetic4].purpose = ptObject;
                 f1->sinc.tulip[kinetic4].Current[0] = part(f1, kinetic);
                 f1->sinc.tulip[kinetic4].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic4].Current[1] = 1;
+                f1->sinc.tulip[kinetic4].Current[1] = 0;
                 f1->sinc.tulip[kinetic4].ptRank[1] = 0;
 
                 //active assignment
@@ -2057,7 +2056,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[kinetic1].purpose = ptObject;
                 f1->sinc.tulip[kinetic1].Current[0] = part(f1, kinetic);
                 f1->sinc.tulip[kinetic1].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic1].Current[1] = 1;
+                f1->sinc.tulip[kinetic1].Current[1] = 0;
                 f1->sinc.tulip[kinetic1].ptRank[1] = 0;
                 
                 //FOR LINEAR
@@ -2074,7 +2073,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[kinetic2].purpose = ptObject;
                 f1->sinc.tulip[kinetic2].Current[0] = part(f1, kinetic);
                 f1->sinc.tulip[kinetic2].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic2].Current[1] = 1;
+                f1->sinc.tulip[kinetic2].Current[1] = 0;
                 f1->sinc.tulip[kinetic2].ptRank[1] = 0;
                 
                 

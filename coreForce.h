@@ -28,6 +28,7 @@
 
 #include "constants.h"
 #include "coreMath.h"
+#include "coreUtil.h"
 #include "mAls.h"
 
 double c10c00 ( double a, double bd, double xd, double b1, double x1, double b2, double x2, double b3 ,double x3 );
@@ -38,7 +39,7 @@ double c11c10 ( double a , double bd1, double  xd1,double  bd2,double  xd2, doub
 double c11c11 (double a, double bd1,double xd1,  double bd2, double xd2, double bd3, double xd3,double bd4, double xd4);
 double aGGCGG(double a , struct general_2index * pa);
 
-
+double collective( double beta ,struct general_2index * pa);
 DCOMPLEX ei ( double arg );
 double No(double beta1);
 double GoG( double beta1, double beta2 , double x );
@@ -63,14 +64,19 @@ double monteCarloElementCal (double beta, struct general_2index *aAf  );
 double findMyInterval1 ( struct field * f1  , double gamma , struct interaction_label lab,double lvl, INT_TYPE periodic);
 double findMyInterval2 ( struct field * f1  , double gamma , struct interaction_label lab,double lvl,INT_TYPE periodic);
 void mySeparateExactOne (struct field * f1, double scalar, enum division basis);
-void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  enum division basis,INT_TYPE plus);
-INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis );
+void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  enum division basis,INT_TYPE plus, INT_TYPE particle1,INT_TYPE particle2);
+INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1 );
 INT_TYPE separateBackground( struct calculation * c1,INT_TYPE periodic, INT_TYPE Ns,INT_TYPE background, INT_TYPE dim, enum division basis );
-INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division akinetic, double mass,double gamma );
+INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division akinetic, double mass , INT_TYPE particle1);
 INT_TYPE separateBoost( struct field * f1, enum division in,INT_TYPE dim ,double vectorMomentum );
 INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat);
-INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE atom, double scalar, INT_TYPE dim, enum division basis );
+INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE atom, double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1);
 void separateX ( struct field * f1, double vectorDipole );
 double tTestTwoBody( struct field * f1, enum division mat,INT_TYPE periodic, INT_TYPE * p);
 double tRMSDevRandom( struct field * f1, enum division mat, INT_TYPE periodic ,INT_TYPE Nc);
+
+double BoB (struct basisElement b1, struct basisElement b2);
+double BdB (struct basisElement b1, struct basisElement b2);
+double Bd2B (struct basisElement b1, struct basisElement b2);
+
 #endif /* coreForce_h */

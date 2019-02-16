@@ -301,6 +301,62 @@ DCOMPLEX FGG ( double p , struct general_index * pa){
 //    return 0.;
 //};
 
+DCOMPLEX FGS( double p , struct general_index * pa ){
+    
+    // Integrate[[   D[Gaus( beta, (x-o) ),{o,l}] Exp[ i p x ] Sinc ( x/d- n )
+    // one gaussian, one sinc, fourier transformed.
+    struct general_2index g2;
+    double beta,realpart,imagepart;
+    g2.periodic = 0;
+    g2.i[0].d = pa->d;
+    g2.i[0].bra.basis = SincBasisElement;
+    g2.i[0].ket.basis = nullBasisElement;
+    g2.i[1].bra.basis = DiracDelta;
+    g2.i[1].ket.basis = nullBasisElement;
+    g2.fl->fn = nullFunction;
+    g2.gaussianAccelerationFlag = 0;
+    g2.fl->param[0] = 1;
+    g2.point = 1;
+    g2.momentumShift = p ;
+    g2.i[0].pointer = 1;
+    g2.momentumShift = 0;
+
+#if 0
+    if ( pa->bra.basis == GaussianBasisElement && pa->ket.basis == SincBasisElement ){
+        
+        beta = pa->bra.length;
+        g2.powSpace = g2.i[0].bra.index;
+        g2.i[1].bra.origin = g2.i[0].bra.origin;
+        g2.i[0].bra = pa->ket;
+
+
+    }
+    else if ( pa->ket.basis == GaussianBasisElement && pa->bra.basis == SincBasisElement ){
+        beta = pa->ket.length;
+        g2.powSpace = g2.i[0].ket.index;
+        g2.i[1].bra.origin = g2.i[0].ket.origin;
+        g2.i[0].bra = pa->bra;
+
+
+    }else {
+        printf("wrong mail stop\n");
+        exit(0);
+    }
+#else
+    beta = pa->b0;
+    g2.powSpace = pa->l0;
+    g2.i[1].bra.origin = pa->x0;
+    g2.i[0].bra.index = pa->n;
+#endif
+    g2.realFlag = 1;
+    realpart =  collective(sqrt(beta), &g2);
+    g2.realFlag = 0;
+    imagepart = collective(sqrt(beta), &g2);
+    return realpart + I * imagepart;
+};
+
+
+
 DCOMPLEX FSS ( double p , struct general_index * pa ){
     double n = pa->n;
     double m = pa->m;
@@ -342,6 +398,56 @@ DCOMPLEX FDD ( double p , struct general_index * pa ){
 };
 
 
+
+DCOMPLEX FB ( double p , struct general_index * pa ){
+    if ( pa->bra.basis == SincBasisElement && pa->ket.basis == SincBasisElement){
+        pa->n = pa->bra.index;
+        pa->m = pa->ket.index;
+        pa->d = pa->bra.length;
+        pa->pointer = 2;
+        if ( (pa->bra.length - pa->ket.length ) > 1e-3 ){
+            printf("parties correspondence\n");
+            exit(0);
+        }
+        return FSS(p, pa);
+    }else if ( pa->bra.basis == DiracDelta || pa->ket.basis == DiracDelta){
+        if ( pa->bra.basis == DiracDelta && pa->ket.basis == nullBasisElement){
+            pa->x0 = pa->bra.origin;
+        }
+        else  if ( pa->ket.basis == DiracDelta && pa->bra.basis == nullBasisElement){
+            pa->x0 = pa->ket.origin;
+        }else {
+            printf("parity correspondence\n");
+            exit(0);
+        }
+        return FDD(p, pa);
+    }else if ( pa->bra.basis == GaussianBasisElement || pa->ket.basis == GaussianBasisElement){
+        pa->b0 = pa->bra.length;
+        pa->b1 = pa->ket.length;
+        pa->l0 = pa->bra.index;
+        pa->l1 = pa->ket.index;
+        pa->x0 = pa->bra.origin;
+        pa->x1 = pa->ket.origin;
+        return FGG(p, pa);
+    }else     if ( pa->bra.basis == SincBasisElement && pa->ket.basis == nullBasisElement){
+        pa->n = pa->bra.index;
+        pa->d = pa->bra.length;
+        pa->pointer = 0;
+        return FSS(p, pa);
+    }else     if ( pa->bra.basis == nullBasisElement && pa->ket.basis == SincBasisElement){
+        pa->m = pa->ket.index;
+        pa->d = pa->ket.length;
+        pa->pointer = 1;
+        return FSS(p, pa);
+    }
+
+
+    printf("off tracks\n");
+    exit(0);
+    return 0;
+}
+
+
 double SdS(INT_TYPE arg){
     if ( arg == 0 )
         return 0.;
@@ -366,6 +472,8 @@ double Sd2S(INT_TYPE arg){
     }
     return 0;
 }
+
+
 
 
 double periodicSd2S ( INT_TYPE arg, INT_TYPE N ){
@@ -403,6 +511,218 @@ double periodicSdS ( INT_TYPE arg, INT_TYPE N ){
 }
 
 
+
+double BoB (struct basisElement b1, struct basisElement b2){
+    
+    if ( b1.basis == SincBasisElement && b2.basis == SincBasisElement ){
+        if ( b1.periodic == 1 ){
+            return periodicSS ( b1.length,b1.length*(b1.index) + b1.origin, b1.auxIndex, b2.length, b2.length*( b2.index ) + b2.origin,b2.auxIndex);
+        }
+        else{
+            return SS ( b1.length,b1.length*(b1.index)+ b1.origin, b2.length, b2.length*( b2.index ) + b2.origin);
+        }
+    }else if ( b1.basis == GaussianBasisElement && b2.basis == GaussianBasisElement ){
+        
+        struct general_index pa ;
+        pa.b0 = b1.length;
+        pa.l0 = b1.index;
+        pa.x0 = b1.origin;
+        pa.b1 = b2.length;
+        pa.l1 = b2.index;
+        pa.x1 = b2.origin;
+        
+        return FGG(0,&pa);
+        
+    }else if ( b1.basis == GaussianBasisElement && b2.basis == SincBasisElement ){
+        
+            struct general_index pa ;
+            pa.b0 = b1.length;
+            pa.l0 = b1.index;
+            pa.x0 = b1.origin;
+            pa.d = b2.length;
+            pa.n = b2.index;
+        
+            return FGS(0,&pa);
+        
+    }else if ( b1.basis == SincBasisElement && b2.basis == GaussianBasisElement ){
+        
+        struct general_index pa ;
+        pa.b0 = b2.length;
+        pa.l0 = b2.index;
+        pa.x0 = b2.origin;
+        pa.d = b1.length;
+        pa.n = b1.index;
+        
+        return FGS(0,&pa);
+    }
+
+    printf("over rails\n");
+    exit(0);
+    return 0;
+}
+
+double BdB (struct basisElement b1, struct basisElement b2){
+    if ( b1.basis == SincBasisElement && b2.basis == SincBasisElement ){
+        if ( b1.periodic == 0 ){
+            double arg = b1.length*b1.index + b1.origin - (b2.length*b2.index + b2.origin);
+            if ( fabs(arg) < 1e-6 ){
+                if ( b1.length > b2.length ){
+                    arg /= b1.length;
+                    return sqrt(b2.length/b1.length)/sqr(b1.length) * ( arg*(pi*pi/3. - pi * pi * pi * pi/30.*arg*arg + pi * pi * pi * pi*pi*pi/840.*arg*arg*arg*arg)  );
+                }else {
+                    arg /= b2.length;
+                    
+                    return sqrt(b1.length/b2.length)/sqr(b2.length) * ( arg*(pi*pi/3. - pi * pi * pi * pi/30.*arg*arg + pi * pi * pi * pi*pi*pi/840.*arg*arg*arg*arg) );
+                }
+            } else {
+                if ( b1.length > b2.length ){
+                    arg /= b1.length;
+                    
+                    return sqrt(b2.length/b1.length)/(b1.length) * ( ( Sinc(1,arg)- cos(pi*arg))/arg );
+                }else {
+                    arg /= b2.length;
+                    
+                    return sqrt(b1.length/b2.length)/(b2.length) * ( ( Sinc(1,arg)- cos(pi*arg))/arg );
+                }
+                
+            }
+        }
+        else {
+            
+            double arg = b1.length*b1.index + b1.origin - (b2.length*b2.index + b2.origin);
+            
+            if ( b1.length > b2.length ){
+                arg /= b1.length;
+                
+                return periodicSd2S(arg,b1.auxIndex) * sqrt(b2.length/b1.length);
+            }else {
+                arg /= b2.length;
+                
+                return periodicSd2S(arg,b2.auxIndex) * sqrt(b1.length/b2.length);
+            }
+        }
+    }else if ( b1.basis == GaussianBasisElement && b2.basis == GaussianBasisElement ){
+        
+        struct general_index pa ;
+        pa.b0 = b1.length;
+        pa.l0 = b1.index+1;
+        pa.x0 = b1.origin;
+        pa.b1 = b2.length;
+        pa.l1 = b2.index;
+        pa.x1 = b2.origin;
+        
+        return FGG(0,&pa);
+        
+    }else if ( b1.basis == GaussianBasisElement && b2.basis == SincBasisElement ){
+        
+        struct general_index pa ;
+        pa.b0 = b1.length;
+        pa.l0 = b1.index+1;
+        pa.x0 = b1.origin;
+        pa.d = b2.length;
+        pa.n = b2.index;
+        
+        return FGS(0,&pa);
+        
+    }else if ( b1.basis == SincBasisElement && b2.basis == GaussianBasisElement ){
+        
+        struct general_index pa ;
+        pa.b0 = b2.length;
+        pa.l0 = b2.index+1;
+        pa.x0 = b2.origin;
+        pa.d = b1.length;
+        pa.n = b1.index;
+        
+        return FGS(0,&pa);
+    }
+    
+    printf("over rails\n");
+    exit(0);
+    return 0;
+}
+
+
+double Bd2B (struct basisElement b1, struct basisElement b2){
+    if ( b1.basis == SincBasisElement && b2.basis == SincBasisElement ){
+        if ( b1.periodic == 0 ){
+            double arg = b1.length*b1.index + b1.origin - (b2.length*b2.index + b2.origin);
+            if ( fabs(arg) < 1e-6 ){
+                if ( b1.length > b2.length ){
+                    arg /= b1.length;
+                    return sqrt(b2.length/b1.length)/sqr(b1.length) * ( - sqr(pi)* Sinc(1,arg) + 2 *(pi*pi/3. - pi * pi * pi * pi/30.*arg*arg + pi * pi * pi * pi*pi*pi/840.*arg*arg*arg*arg)  );
+                }else {
+                    arg /= b2.length;
+                    
+                    return sqrt(b1.length/b2.length)/sqr(b2.length) * ( - sqr(pi)* Sinc(1,arg) + 2 *(pi*pi/3. - pi * pi * pi * pi/30.*arg*arg + pi * pi * pi * pi*pi*pi/840.*arg*arg*arg*arg) );
+                }
+            } else {
+                if ( b1.length > b2.length ){
+                    arg /= b1.length;
+                    
+                    return sqrt(b2.length/b1.length)/sqr(b1.length) * ( - sqr(pi)* Sinc(1,arg) + 2 *( Sinc(1,arg)- cos(pi*arg))/arg/arg );
+                }else {
+                    arg /= b2.length;
+                    
+                    return sqrt(b1.length/b2.length)/sqr(b2.length) * ( - sqr(pi)* Sinc(1,arg) + 2 *( Sinc(1,arg)- cos(pi*arg))/arg/arg );
+                }
+                
+            }
+        }
+        else {
+            
+            double arg = b1.length*b1.index + b1.origin - (b2.length*b2.index + b2.origin);
+            
+            if ( b1.length > b2.length ){
+                arg /= b1.length;
+                
+                return periodicSd2S(arg,b1.auxIndex) * sqrt(b2.length/b1.length);
+            }else {
+                arg /= b2.length;
+                
+                return periodicSd2S(arg,b2.auxIndex) * sqrt(b1.length/b2.length);
+            }
+        }
+    }else if ( b1.basis == GaussianBasisElement && b2.basis == GaussianBasisElement ){
+        
+        struct general_index pa ;
+        pa.b0 = b1.length;
+        pa.l0 = b1.index+2;
+        pa.x0 = b1.origin;
+        pa.b1 = b2.length;
+        pa.l1 = b2.index;
+        pa.x1 = b2.origin;
+        
+        return FGG(0,&pa);
+        
+    }else if ( b1.basis == GaussianBasisElement && b2.basis == SincBasisElement ){
+        
+        struct general_index pa ;
+        pa.b0 = b1.length;
+        pa.l0 = b1.index+2;
+        pa.x0 = b1.origin;
+        pa.d = b2.length;
+        pa.n = b2.index;
+        
+        return FGS(0,&pa);
+        
+    }else if ( b1.basis == SincBasisElement && b2.basis == GaussianBasisElement ){
+        
+        struct general_index pa ;
+        pa.b0 = b2.length;
+        pa.l0 = b2.index+2;
+        pa.x0 = b2.origin;
+        pa.d = b1.length;
+        pa.n = b1.index;
+        
+        return FGS(0,&pa);
+    }
+    
+    printf("over rails\n");
+    exit(0);
+    return 0;
+}
+
+
 DCOMPLEX poly( double k ,double beta, INT_TYPE powSpace ){
     if ( ! powSpace )
         return 1.;
@@ -434,47 +754,24 @@ DCOMPLEX poly( double k ,double beta, INT_TYPE powSpace ){
 double gaussianSinc ( double k, void * arg ){
     struct general_2index *pa = (struct general_2index *) arg;
 
-    double value = 0, alpha = pa->alpha ;
-    pa->i[0].d = pa->d;
-    pa->i[1].d = pa->d;
-    
-    if ( pa->body ==2 ){
-        if ( sincFlag)
-            value = exp(-sqr(k /2./ alpha))/alpha * creal( FSS(-k,&pa->i[0])*FSS(k,&pa->i[1]));
-        else
-            value = exp(-sqr(k /2./ alpha))/alpha * creal( FGG(-k,&pa->i[0])*FGG(k,&pa->i[1]));
-
-    } else if ( pa->body == 1 ){
-        if ( sincFlag )
-        {
-            if ( pa->i[1].action == 0 )
-                value = exp(-sqr(k /2./ alpha))/alpha * creal( poly(k,alpha*alpha,pa->powSpace) *FSS( -k ,&pa->i[0]) * FDD( k ,&pa->i[1]));
-            else if ( pa->i[1].action == 1 )
-                value = exp(-sqr(k /2./ alpha))/alpha * creal( poly(k,alpha*alpha,pa->powSpace) *FSS( -k ,&pa->i[0]) * (I * k * FDD( k ,&pa->i[1])));
-            else if ( pa->i[1].action == 2 )
-                value =exp(-sqr(k /2./ alpha))/alpha  * creal( poly(k,alpha*alpha,pa->powSpace) *FSS( -k ,&pa->i[0]) * (- k*k * FDD( k ,&pa->i[1])));
-            else{
-                printf("blah\n");
-                exit(0);
-            }
-        }else
-        {
-            if ( pa->i[1].action == 0 )
-                value = poly(k,alpha*alpha,pa->powSpace)*exp(-sqr(k /2./ alpha))/alpha * creal( FGG( -k ,&pa->i[0]) * FDD( k ,&pa->i[1]));
-            else if ( pa->i[1].action == 1 )
-                value = poly(k,alpha*alpha,pa->powSpace)*exp(-sqr(k /2./ alpha))/alpha * creal( FGG( -k ,&pa->i[0]) * (I * k * FDD( k ,&pa->i[1])));
-            else if ( pa->i[1].action == 2 )
-                value = poly(k,alpha*alpha,pa->powSpace)*exp(-sqr(k /2./ alpha))/alpha * creal( FGG( -k ,&pa->i[0]) * (- k*k * FDD( k ,&pa->i[1])));
-            else{
-                printf("blah\n");
-                exit(0);
-            }
+    double alpha = pa->alpha ;
+    DCOMPLEX act = 1.;
+    if ( pa->body == 1 ){
+        if ( pa->i[1].action > 0 )
+            act *= I * k ;
+        if ( pa->i[1].action > 1 )
+            act *= I * k ;
+        if ( pa->i[1].action > 2 ){
+            printf("type more\n");
+            fflush(stdout);
+            exit(0);
         }
-    } else{
-        printf("gs %d",pa->body);
-        exit(0);
     }
-    return value/(2.*pi);
+    if ( pa->realFlag == 0 )
+        act *= -I ;
+    
+    return  exp(-sqr(k /2./ alpha))/alpha * creal(act* poly(k,alpha*alpha,pa->powSpace) *FB(-k,&pa->i[0])*FB(k,&pa->i[1]))/(2.*pi);
+
 }
 
 void gaussianSincFunc(void * arg,size_t n,const double * x,double * y)
@@ -798,32 +1095,28 @@ double aGGCGG(double a , struct general_2index * pa){
 
 double collective( double beta ,struct general_2index * pa){
     
-    if ( pa->gaussianAccelerationFlag && ! sincFlag ){
+    if ( pa->gaussianAccelerationFlag ){
         return aGGCGG(beta,pa)/(2*pi);
     }
 
     
     pa->alpha = beta;
     double value= 0.,value2=0.;
-    if ( pa->periodic ){
+    if ( pa->periodic == 1 ){
         
         if ( beta < 1e-9 ){
             return 0.;
         }
-        double kSmall = (2*pi/pa->N1/pa->d);
-        INT_TYPE i=0,k;
+        double kSmall = (2*pi/pa->N1/max(pa->i[0].d,pa->i[1].d));
+        INT_TYPE k;
         for ( k = - pa->N1 ; k <= pa->N1 ; k++){
-            value += gaussianSinc(kSmall*k,pa)*kSmall;
-            i++;
+            value += gaussianSinc(kSmall*k+pa->momentumShift,pa)*kSmall;
         }
-//        if ( isinf(value) || isnan(value ) || i != 2*pa->N1+1){
-//            printf("helpless %f\n",beta);
-//            for ( i = - pa->N1 ; i <= pa->N1 ; i++)
-//                printf("%d %f\n",i, gaussianSinc(kSmall*i,pa)*kSmall);
-//
-//            exit(0);
-//        }
-    }else {
+    }else
+        if ( pa->periodic == -1 ){
+            value = gaussianSinc(0,pa);//like sheets of positive (external) charge...  yields a simple momentum integral.
+        }else {
+
 #ifdef APPLE
         quadrature_integrate_function g;
         g.fun = gaussianSincFunc;                               // Called to evaluate the function to integrate
@@ -839,12 +1132,13 @@ double collective( double beta ,struct general_2index * pa){
         quadrature_status status;
         double value,abs_error;
         
-        if ( sincFlag )
+            if ( (pa->i[0].bra.basis == SincBasisElement && pa->i[0].ket.basis == SincBasisElement ) || (pa->i[1].bra.basis == SincBasisElement && pa->i[1].ket.basis == SincBasisElement )  || (pa->i[0].bra.basis == SincBasisElement && pa->i[0].ket.basis == nullFunction )|| (pa->i[0].bra.basis == nullFunction && pa->i[0].ket.basis == SincBasisElement ) || (pa->i[1].bra.basis == SincBasisElement && pa->i[1].ket.basis == nullFunction )|| (pa->i[1].bra.basis == nullFunction && pa->i[1].ket.basis == SincBasisElement ) ){
+                INT_TYPE pt = imin(((pa->i[0].bra.basis == SincBasisElement) + (pa->i[0].ket.basis == SincBasisElement) ),((pa->i[1].bra.basis == SincBasisElement) + (pa->i[1].ket.basis == SincBasisElement) ));
+                if ( pt == 0 )
+                    pt = 1;
 
-            value =  quadrature_integrate(&g, -pa->point*pi/pa->d, pa->point*pi/pa->d, &options, &status, &abs_error, 0, NULL);
-//        else
-//            value =  quadrature_integrate(&g, -2.*pi/pa->d, 2.*pi/pa->d, &options, &status, &abs_error, 0, NULL);
-
+            value =  quadrature_integrate(&g, -pt*pi/max(pa->i[0].d,pa->i[1].d)+pa->momentumShift,pt*pi/max(pa->i[0].d,pa->i[1].d)+pa->momentumShift, &options, &status, &abs_error, 0, NULL);
+            }
 #else
         double abs_error;
         gsl_function F;
@@ -852,18 +1146,17 @@ double collective( double beta ,struct general_2index * pa){
         F.params = pa;
         
         gsl_integration_workspace * workspace= gsl_integration_workspace_alloc (1000);
-        if ( sincFlag )
-            gsl_integration_qag (&F,  -pa->point*pi/pa->d,  pa->point*pi/pa->d, 1e-9, 1e-9,1000,6,workspace, &value, &abs_error);
+        if ( (pa->i[0].bra.basis == SincBasisElement && pa->i[0].ket.basis == SincBasisElement ) || (pa->i[1].bra.basis == SincBasisElement && pa->i[1].ket.basis == SincBasisElement )  || (pa->i[0].bra.basis == SincBasisElement && pa->i[0].ket.basis == nullFunction )|| (pa->i[0].bra.basis == nullFunction && pa->i[0].ket.basis == SincBasisElement ) || (pa->i[1].bra.basis == SincBasisElement && pa->i[1].ket.basis == nullFunction )|| (pa->i[1].bra.basis == nullFunction && pa->i[1].ket.basis == SincBasisElement ) ){
+                INT_TYPE pt = imin(((pa->i[0].bra.basis == SincBasisElement) + (pa->i[0].ket.basis == SincBasisElement) ),((pa->i[1].bra.basis == SincBasisElement) + (pa->i[1].ket.basis == SincBasisElement) ));
+                if ( pt == 0 )
+                    pt = 1;
+                gsl_integration_qag (&F,  -pt*pi/max(pa->i[0].d,pa->i[1].d)+pa->momentumShift,  pt*pi/max(pa->i[0].d,pa->i[1].d)+pa->momentumShift, 1e-9, 1e-9,1000,6,workspace, &value, &abs_error);
+            }
         else{
             gsl_integration_qagi (&F, 1e-9, 1e-9,1000,workspace, &value, &abs_error);
-
-//            gsl_integration_qagiu (&F, pa->boundary, 1e-9, 1e-9,1000,workspace, &value1, &abs_error);
-//            gsl_integration_qagil (&F, -pa->boundary,1e-9, 1e-9,1000,workspace, &value2, &abs_error);
-//            value = value1+value2;
         }
         gsl_integration_workspace_free(workspace);
 #endif
-
     }
     value2 = 0.0;
     if ( pa->fl->fn == Yukawa ){
@@ -876,7 +1169,7 @@ double collective( double beta ,struct general_2index * pa){
         value2  += - a * exp (     R * a - sqr(a/beta /2.))/sqr(beta);
         value2  +=   a * exp ( 2 * R * a - sqr(a/beta    ))/sqr(beta);
     }
-    else if ( pa->fl->fn == Coulomb || pa->fl->fn == Pseudo){
+    else if ( pa->fl->fn == Coulomb || pa->fl->fn == Pseudo || pa->fl->fn == nullFunction ){
         value2 += 1.;//
     } else {
     }
@@ -884,9 +1177,9 @@ double collective( double beta ,struct general_2index * pa){
     
     value2 *= pa->fl->param[0];
     if ( value2 < 0 )
-        value2 = -pow(-value2 , 0.33333333333333333333);
+        value2 = -pow(-value2 , 1./SPACE);
     else
-        value2 = pow(value2 , 0.333333333333333333333);
+        value2 = pow(value2 , 1./SPACE);
 
     return value*value2;
 
@@ -934,78 +1227,78 @@ void elementFunc(void * arg,size_t n,const double * x,double * y)
     
 }
 
-double monteCarloElementCal (double beta, struct general_2index *aAf  ){
-    double res= 0.,err=1.;
-    
-    INT_TYPE dim,rank,num=0;
-    double xl[4],xu[4];
-    
-    xl[0] = 1e-6;
-    xu[0] = beta;
-    
-    xl[1] = -aAf[0].boundary;
-    xu[1] = aAf[0].boundary;
-    
-    xl[2] = -aAf[1].boundary;
-    xu[2] = aAf[1].boundary;
-    
-    xl[3] = -aAf[2].boundary;
-    xu[3] = aAf[2].boundary;
-    
-    dim = 4;
-#ifndef APPLE
-    rank = 0;
-    gsl_monte_function G;
-    G.f = &mcGS;
-    G.dim = dim;
-    G.params = aAf;
-    
-    INT_TYPE iter = 0;
-    const gsl_rng_type * T;
-    gsl_rng  * r;
-    gsl_monte_vegas_state * s;
-    gsl_rng_env_setup();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc(T);
-    s = gsl_monte_vegas_alloc(G.dim);
-    
-    gsl_monte_vegas_integrate ( & G , xl, xu, dim , 1000, r,s,&res, &err );
-    do
-    {
-        gsl_monte_vegas_integrate ( & G , xl, xu, dim , 1000, r,s,&res, &err );
-        printf("%f %f %f\n", res,err, gsl_monte_vegas_chisq (s));
-    } while (fabs ((gsl_monte_vegas_chisq (s) - 1.0) > 0.1 || err/max(1.,res) > 1e-9)&& num++ < 100);
-    
-    gsl_monte_vegas_free(s);
-    gsl_rng_free(r);
-#else
-    
-    //    {
-    //        gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (3);
-    //
-    //        gsl_monte_vegas_integrate (&G, xl, xu, 3, 10000, r, s,
-    //                                   &res, &err);
-    //        display_results ("vegas warm-up", res, err);
-    //
-    //        printf ("converging...\n");
-    //
-    //        do
-    //        {
-    //            gsl_monte_vegas_integrate (&G, xl, xu, 3, calls/5, r, s,
-    //                                       &res, &err);
-    //            printf ("result = % .6f sigma = % .6f "
-    //                    "chisq/dof = %.1f\n", res, err, gsl_monte_vegas_chisq (s));
-    //        }
-    //        while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
-    //
-    //        display_results ("vegas final", res, err);
-    //
-    //        gsl_monte_vegas_free (s);
-    //    }
-#endif
-    
-    return res;
-}
+//double monteCarloElementCal (double beta, struct general_2index *aAf  ){
+//    double res= 0.;
+//
+//    INT_TYPE dim;
+//    double xl[4],xu[4];
+//
+//    xl[0] = 1e-6;
+//    xu[0] = beta;
+//
+//    xl[1] = -aAf[0].boundary;
+//    xu[1] = aAf[0].boundary;
+//
+//    xl[2] = -aAf[1].boundary;
+//    xu[2] = aAf[1].boundary;
+//
+//    xl[3] = -aAf[2].boundary;
+//    xu[3] = aAf[2].boundary;
+//
+//    dim = 4;
+//#ifndef APPLE
+//    rank = 0;
+//    gsl_monte_function G;
+//    G.f = &mcGS;
+//    G.dim = dim;
+//    G.params = aAf;
+//
+//    INT_TYPE iter = 0;
+//    const gsl_rng_type * T;
+//    gsl_rng  * r;
+//    gsl_monte_vegas_state * s;
+//    gsl_rng_env_setup();
+//    T = gsl_rng_default;
+//    r = gsl_rng_alloc(T);
+//    s = gsl_monte_vegas_alloc(G.dim);
+//
+//    gsl_monte_vegas_integrate ( & G , xl, xu, dim , 1000, r,s,&res, &err );
+//    do
+//    {
+//        gsl_monte_vegas_integrate ( & G , xl, xu, dim , 1000, r,s,&res, &err );
+//        printf("%f %f %f\n", res,err, gsl_monte_vegas_chisq (s));
+//    } while (fabs ((gsl_monte_vegas_chisq (s) - 1.0) > 0.1 || err/max(1.,res) > 1e-9)&& num++ < 100);
+//
+//    gsl_monte_vegas_free(s);
+//    gsl_rng_free(r);
+//#else
+//
+//    //    {
+//    //        gsl_monte_vegas_state *s = gsl_monte_vegas_alloc (3);
+//    //
+//    //        gsl_monte_vegas_integrate (&G, xl, xu, 3, 10000, r, s,
+//    //                                   &res, &err);
+//    //        display_results ("vegas warm-up", res, err);
+//    //
+//    //        printf ("converging...\n");
+//    //
+//    //        do
+//    //        {
+//    //            gsl_monte_vegas_integrate (&G, xl, xu, 3, calls/5, r, s,
+//    //                                       &res, &err);
+//    //            printf ("result = % .6f sigma = % .6f "
+//    //                    "chisq/dof = %.1f\n", res, err, gsl_monte_vegas_chisq (s));
+//    //        }
+//    //        while (fabs (gsl_monte_vegas_chisq (s) - 1.0) > 0.5);
+//    //
+//    //        display_results ("vegas final", res, err);
+//    //
+//    //        gsl_monte_vegas_free (s);
+//    //    }
+//#endif
+//
+//    return res;
+//}
 
 double elementCal (double a, double b,struct general_2index * aAf ){
 #ifdef APPLE
@@ -1057,9 +1350,9 @@ void mySeparateExactOne (struct field * f1, double scalar, enum division basis){
     INT_TYPE N12 = (N1-1)/2;
     double value,d = f1->sinc.d;
     if ( scalar < 0 )
-        scalar = -pow(fabs(scalar), 0.33333333333333333333333333333333);
+        scalar = -pow(fabs(scalar), 1./SPACE);
     else
-        scalar =  pow(fabs(scalar), 0.33333333333333333333333333333333);
+        scalar =  pow(fabs(scalar), 1./SPACE);
     
     f1->sinc.tulip[diagonalCube].header = Cube;
     
@@ -1090,9 +1383,12 @@ void mySeparateExactOne (struct field * f1, double scalar, enum division basis){
     }
 }
 
-void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  enum division basis,INT_TYPE plus){
+void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  enum division basis,INT_TYPE plus, INT_TYPE particle1,INT_TYPE particle2){
     //https://keisan.casio.com/exec/system/1329114617
-    
+    if ( periodic < 0 ){
+        printf("error in periodic flag\n");
+        return;
+    }
     double gk3X [] = {
     -0.7745966692414833770359,
     0,
@@ -1467,6 +1763,10 @@ void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  e
     INT_TYPE N1 = f1->sinc.N1,space;
     INT_TYPE N12 = (f1->sinc.N1-1)/2;
     INT_TYPE N2 = f1->sinc.N1*f1->sinc.N1;
+    INT_TYPE *dims1 = f1->sinc.dims[particle1];
+    INT_TYPE *dims2 = f1->sinc.dims[particle2];
+
+    
     
     enum functionType fn = f1->twoBody.func.fn;
     if ( fn == nullFunction )
@@ -1474,12 +1774,12 @@ void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  e
     
     struct general_2index g2;
 
+    g2.realFlag = 1;
     double value,d = f1->sinc.d,g,x;
     double constant;
-    INT_TYPE interval = f1->twoBody.func.interval;
+    INT_TYPE si,interval = f1->twoBody.func.interval;
     double * param   = f1->twoBody.func.param;
     getDescription(&f1->twoBody.func, scalar, stdout);
-
     
     double *gkX, *gkW;
     INT_TYPE ngk;
@@ -1542,84 +1842,105 @@ void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  e
                 
                 
                 if ( constant < 0 )
-                    constant = -pow(fabs(constant)*2.*pi, 0.33333333333333333333333333333333);
+                    constant = -pow(fabs(constant)*2.*pi, 1./SPACE);
                 else
-                    constant =  pow(fabs(constant)*2.*pi, 0.33333333333333333333333333333333);;//*3.544907701811032;
+                    constant =  pow(fabs(constant)*2.*pi, 1./SPACE);;//*3.544907701811032;
+                
+              //  for ( space = 0 ; space < SPACE ; space++)//technically unnecessary , still in flux
+                space = SPACE-1;
+
 #ifdef OMP
-#pragma omp parallel for private (I1,I2,I3,I4,g2,value,space) schedule(dynamic,1)
+#pragma omp parallel for private (si,I1,I2,I3,I4,g2,value) schedule(dynamic,1)
 #endif
-
-                for ( I1 = 0 ;I1 < N1 ;I1++){
+                for ( si = 0 ; si < dims1[space]*dims1[space]*dims2[space]*dims2[space] ; si++)
+                
+//
+//                for ( I1 = 0 ;I1 < dims1[space] ;I1++){// body 0 -1
+//                    for ( I2 = 0 ;I2 <  dims1[space] ;I2++)// body 0 -2
+//                        for ( I3 = 0 ;I3 < dims2[space] ;I3++)// body 1 -1
+//                            for ( I4 = 0 ;I4 < dims2[space] ;I4++)// body 1 -2
+                            {
+                                I1 = ( si ) % dims1[space];
                     
-                    // body 0 -1
-                    for ( I2 = 0 ;I2 <= I1 ;I2++)// body 0 -2
-                        for ( I3= 0 ;I3 <= I1 ;I3++)// body 1 -1
-                            for ( I4 = 0 ;I4 <= I3 ;I4++)// body 1 -2
-                                for ( space = 0 ; space < SPACE ; space++)
-                                {
-                                    {
-                                        
-                                        g2.gaussianAccelerationFlag = 0;
-                                        g2.d = d;
-                                        g2.powSpace = 0;
-                                        if ( plus ) {
-                                            //plus defines 1/(r+R)... and is essentially negative.
-                                            
-                                            g2.i[0].n = -(I1-N12);
-                                            g2.i[0].m = -(I2-N12);
-                                            g2.i[1].n = (I3-N12);
-                                            g2.i[1].m = (I4-N12);
-                                        } else {
-                                            g2.i[0].n = I1-N12;
-                                            g2.i[0].m = I2-N12;
-                                            g2.i[1].n = I3-N12;
-                                            g2.i[1].m = I4-N12;
-                                        }
-                                        g2.point = 2;
+                                I2 = ( si / (dims1[space])) % dims1[space];
+                                I3 = ( si /  (dims1[space]*dims1[space]) ) % dims2[space];
+                                I4 = ( si / ( dims1[space]*dims1[space]*dims2[space]) ) % dims2[space];
 
-                                        if ( space == 0 )
-                                            g2.periodic = ( periodic ) % 2;
-                                        else if ( space == 1 )
-                                            g2.periodic = ( periodic / 2 ) % 2;
-                                        else if (space == 2 )
-                                            g2.periodic = ( periodic / 4) % 2;
-                                        else
-                                        {
-                                            printf("here\n");
-                                            exit(0);
-                                        }
-                                        g2.body = 2;
-                                        g2.N1 = N1;
-                                        g2.fl = & f1->twoBody.func;
-                                        
-                                        value =  collectives(x,&g2);
-                                        value *= constant;
-                                    }
-                                    //swap I1 - I2
-                                    //swap I3 - I4
-                                    //swap (I1,I2) - (I3,I4)
+                                g2.realFlag = 1;
+                                g2.momentumShift = 0;
+                                g2.gaussianAccelerationFlag = 0;
+                                g2.point = 2;
+                                g2.powSpace = 0;
+                                g2.body = 2;
+                                g2.N1 = N1;
+                                g2.fl = & f1->twoBody.func;
+                                
+                                if ( space == 0 )
+                                    g2.periodic = ( abs(periodic) ) % 2;
+                                else if ( space == 1 )
+                                    g2.periodic = ( abs(periodic) / 2 ) % 2;
+                                else if (space == 2 )
+                                    g2.periodic = ( abs(periodic) / 4) % 2;
+                                g2.i[0].action = 0;
+                                g2.i[1].action = 0;
+
+#ifdef oldIndex
+                                
+                                g2.i[0].d = f1->sinc.d;
+                                g2.i[1].d = f1->sinc.d;
+                                if ( plus ) {
+                                    //plus defines 1/(r+R)... and is essentially negative.
                                     
-                                    {
-                                        streams(f1, quadCube,0,space)[(N2*(N1*I1+I3)+(N1*I2+I4))]=value;
-                                        streams(f1, quadCube,0,space)[(N2*(N1*I2+I3)+(N1*I1+I4))]=value;
-                                        streams(f1, quadCube,0,space)[(N2*(N1*I1+I4)+(N1*I2+I3))]=value;
-                                        streams(f1, quadCube,0,space)[(N2*(N1*I2+I4)+(N1*I1+I3))]=value;
-                                        
-                                        streams(f1, quadCube,0,space)[(N2*(N1*I3+I1)+(N1*I4+I2))]=value;
-                                        streams(f1, quadCube,0,space)[(N2*(N1*I3+I2)+(N1*I4+I1))]=value;
-                                        streams(f1, quadCube,0,space)[(N2*(N1*I4+I1)+(N1*I3+I2))]=value;
-                                        streams(f1, quadCube,0,space)[(N2*(N1*I4+I2)+(N1*I3+I1))]=value;
-                                        
-                                    }
+                                    g2.i[0].n = -(I1-N12);
+                                    g2.i[0].m = -(I2-N12);
+                                    g2.i[1].n = (I3-N12);
+                                    g2.i[1].m = (I4-N12);
+                                } else {
+                                    g2.i[0].n = I1-N12;
+                                    g2.i[0].m = I2-N12;
+                                    g2.i[1].n = I3-N12;
+                                    g2.i[1].m = I4-N12;
                                 }
+                                
+                                
+                                
+#else
+                                g2.i[0].d = grabBasis(f1, space, particle1, I1).length;
+                                g2.i[1].d = grabBasis(f1, space, particle2, I3).length;
+
+                                if ( plus ) {
+                                    //plus defines 1/(r+R)... and is essentially negative.
+                                    
+                                    g2.i[0].bra = grabBasis ( f1, space, particle1, dims1[space]-I1-1);
+                                    g2.i[0].ket = grabBasis ( f1, space, particle1, dims1[space]-I2-1);
+                                    
+                                    g2.i[1].bra = grabBasis ( f1, space, particle2, I3);
+                                    g2.i[1].ket = grabBasis ( f1, space, particle2, I4);
+                                } else {
+                                    g2.i[0].bra = grabBasis ( f1, space, particle1, I1);
+                                    g2.i[0].ket = grabBasis ( f1, space, particle1, I2);
+                                    
+                                    g2.i[1].bra = grabBasis ( f1, space, particle2, I3);
+                                    g2.i[1].ket = grabBasis ( f1, space, particle2, I4);
+                                }
+
+#endif
+                                
+                                
+                                value =  collectives(x,&g2);
+                                value *= constant;
+                                
+                                streams(f1, quadCube,0,space)[dims1[space]*dims2[space]*(dims2[space]*I3+I1)+(dims2[space]*I4+I2)]=value;
+                            }
                     
-                }
-                if ( 1e-12 >  (cblas_dnrm2 ( N1*N1*N1*N1 , streams(f1, quadCube, 0,0), 1 ) )*
-                    (cblas_dnrm2 ( N1*N1*N1*N1 , streams(f1, quadCube, 0,1), 1 ) )*
-                    (cblas_dnrm2 ( N1*N1*N1*N1 , streams(f1, quadCube, 0,2), 1 ) )){
-                    printf("skip one\n");
-                    continue;
-                }
+                
+                printf("%d %d %15.36f \n",section,beta,cblas_dnrm2 ( dims1[space]*dims2[space]*dims1[space]*dims2[space] , streams(f1, quadCube, 0,space), 1 ));
+                
+                
+//                if ( pow(1e-9,SPACE) >  pow(cblas_dnrm2 ( dims1[space]*dims2[space]*dims1[space]*dims2[space] , streams(f1, quadCube, 0,0), 1 ) ,SPACE)){
+//                    printf("skip %lld\n",beta);
+//                    continue;
+//                }
                 if ( plus )
                     tAddTw(f1, interactionExchangePlus, 0,quadCube,0);
                 else
@@ -1631,8 +1952,7 @@ void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  e
 //    exit(0);
 }
 
-INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis ){
-    char txt [ MAXSTRING];
+INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1){
     //https://keisan.casio.com/exec/system/1329114617
     double gk7X [] = {
         0.949107912342759
@@ -2003,12 +2323,11 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
     
     struct field * f1 = &c1->i.c;
     
-    INT_TYPE N1 = f1->sinc.N1,section;
-    INT_TYPE N12 = (f1->sinc.N1-1)/2;
-    INT_TYPE N2 = f1->sinc.N1*f1->sinc.N1;
+    INT_TYPE section;
+    INT_TYPE *dims1 = f1->sinc.dims[particle1];
 
     INT_TYPE gPoint = 2,i,beta,I1,I2,a,space,ii,spin;
-    double constant,d = f1->sinc.d,value,x,tf,g;
+    double constant,value,x,g;
     Stream_Type  *stream[3];
     struct function_label fl;
     struct general_2index g2;
@@ -2059,10 +2378,10 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
     getDescription(&f1->oneBody.func, scalar, stdout);
 
     double *gkX, *gkW,Z, gGX[10],gGW[10];
-    INT_TYPE ngk,ai,powSpace[SPACE][10];
+    INT_TYPE si,ngk,ai,powSpace[SPACE][10];
     
     f1->sinc.tulip[quadCube].header = Cube;
-    
+    struct basisElement boa;
     tClear(f1, quadCube);
     f1->sinc.tulip[quadCube].Current[0] = 1;
     INT_TYPE mA,xA;
@@ -2365,9 +2684,6 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
                     continue;
                 }
             
-            
-            
-            
                 for ( beta = 0; beta < ngk ; beta++){
                     
                     if (1.){
@@ -2398,67 +2714,84 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
                         if ( section == 1 )
                             continue;;
                     }
-                    zero(f1, quadCube,0);
+                    zero(f1, diagonalCube,0);
                     
                     constant *= -scalar;//attractive
                     
                     
                     if ( constant < 0 )
-                        constant = -pow(fabs(constant)*2.*pi*fabs(Z), 0.33333333333333333333333333333333);
+                        constant = -pow(fabs(constant)*2.*pi*fabs(Z), 1./SPACE);
                     else
-                        constant =  pow(fabs(constant)*2.*pi*fabs(Z), 0.33333333333333333333333333333333);
+                        constant =  pow(fabs(constant)*2.*pi*fabs(Z), 1./SPACE);
 
                 for ( space = 0 ;space < SPACE ; space++)
 #ifdef OMP
-#pragma omp parallel for private (I1,I2,g2,value) schedule(dynamic,1)
+#pragma omp parallel for private (si,I1,I2,g2,value) schedule(dynamic,1)
 #endif
-
-                        for ( I1 = 0; I1 < m1[space] ; I1++)
-                            for ( I2 = 0; I2 < m1[space] ; I2++)
+                    for ( si = 0; si < dims1[space]*dims1[space]; si++)
+//                        for ( I1 = 0; I1 < dims1[space] ; I1++)
+//                            for ( I2 = 0; I2 < dims1[space] ; I2++)
                             {
+                                I1 = si % dims1[space];
+                                I2 = (si/dims1[space])% dims1[space];
+                                
+                                g2.realFlag = 1;
+                                g2.momentumShift = 0;
                                 g2.gaussianAccelerationFlag = 0;
                                 g2.point = gPoint;
-                                g2.d = d;
-                                g2.i[0].n = I1-N12;
-                                g2.i[0].m = I2-N12;
                                 if ( section >= 2 )
                                     g2.powSpace = powSpace[space][beta];
                                 else
                                     g2.powSpace = 0;
-                                g2.i[1].x0 = f1->atoms[a].position[space+1];
-                                g2.i[1].action = ( dim == space ) ;
+                                g2.body = 1;
+                                g2.fl = & fl;
+                                
                                 if ( space == 0 )
                                     g2.periodic = ( periodic ) % 2;
                                 else if ( space == 1 )
                                     g2.periodic = ( periodic / 2 ) % 2;
                                 else if (space == 2 )
                                     g2.periodic = ( periodic / 4) % 2;
+                                if ( periodic < 0 )
+                                    g2.periodic *= -1;//make it a simple periodic external field( plane-line-like).
+
+
+#ifdef oldIndex
+
+                                g2.i[0].n = I1-N12;
+                                g2.i[0].m = I2-N12;
+                                g2.i[1].x0 = f1->atoms[a].position[space+1];
+                                g2.i[1].action = ( dim == space ) ;
                                 
-                                else
-                                {
-                                    printf("here\n");
-                                    exit(0);
-                                }
-                                g2.body = 1;
-                                g2.N1 = N1;
-                                g2.fl = & fl;
+#else
+                                g2.i[0].d = grabBasis(f1, space, particle1, I1).length;
+                                g2.N1 = dims1[space];
+                                
+                                boa.basis = DiracDelta;
+                                boa.origin = f1->atoms[a].position[space+1];
+                                
+                                g2.i[0].bra = grabBasis ( f1, space, particle1, I1);
+                                g2.i[0].ket = grabBasis ( f1, space, particle1, I2);
+                                
+                                g2.i[1].bra = boa;
+                                g2.i[1].ket = boa;
+                                g2.i[1].ket.basis = nullBasisElement;
+                                g2.i[1].action = ( dim == space ) ;
+
+#endif
                                 value = collectives(x, &g2);
-                                
                                 value *= constant;
-                                (stream[space])[I1*n1[space]+I2] = value;
+                                (stream[space])[I1*dims1[space]+I2] = value;
                             }
                     
                     va = 1;
                     for ( space = 0 ;space < SPACE ; space++)
-                        va *= cblas_dnrm2 ( m1[space]*m1[space] , stream[space], 1 ) ;
+                        va *= cblas_dnrm2 ( dims1[space]*dims1[space] , stream[space], 1 ) ;
                     if ( 1e-12 > va ){
-                        printf("skip one\n");
+                        printf("skip %d %d %d\n",a, section,beta);
                         continue;
                     }
                     tAddTw(f1, linear,0, diagonalCube,0);
-//                    for ( space = 0; space < 3 ;space++)
-//                        for ( ii = 0 ; ii < n1[space] ; ii++)
-//                            printf("%d %d %d %d %f\n",section, beta, space,ii,stream[space][ii*n1[space]+ii]);
                 }
                 
                 f1->sinc.tulip[linear].stop[0][a] = CanonicalRank(f1, linear,0);
@@ -2471,93 +2804,46 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
     return 0;
 }
 
-INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division akinetic,  double mass, double vectorMomentum ){
-    INT_TYPE space,dim,I1,I2,aPeriodic;
-    INT_TYPE N1 = f1->sinc.N1;
-    INT_TYPE N12 = (f1->sinc.N1-1)/2;
-    INT_TYPE N2 = f1->sinc.N1*f1->sinc.N1;
-
+INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division akinetic,  double amass, INT_TYPE particle1 ){
+    INT_TYPE space,dim,I1,I2;
+    INT_TYPE * dims1 = f1->sinc.dims[particle1];
     Stream_Type * stream;
-    double d = f1->sinc.d;
-    zero(f1, akinetic, 0);
-    zero(f1, akinetic, 1);
-
+    
     for ( space = 0 ;space < SPACE; space++){
         
-        
-        if ( space == 0 )
-            aPeriodic = ( periodic ) % 2;
-        else if ( space == 1 )
-            aPeriodic = ( periodic / 2 ) % 2;
-        else if (space == 2 )
-            aPeriodic = ( periodic / 4) % 2;
-        else
-        {
-            printf("here\n");
-            exit(0);
-        }
-
-
-        for ( dim = 0 ; dim < SPACE+0*2*(fabs(vectorMomentum) > 1e-6); dim++){
-            stream =  streams( f1, akinetic, (dim == SPACE+1) , space )+ N2 * dim * ( dim != SPACE+1);//last one is COMPLEX:: cmpl!
-
-            for ( I1 = 0 ; I1 < N1 ; I1++)
-                for( I2 = 0; I2 < N1 ; I2++)
-                    (stream)[ N1*I1+I2]  = 0.;
+        for ( dim = 0 ; dim < SPACE; dim++){
+            stream =  streams( f1, akinetic, 0 , space ) + dims1[space]*dims1[space] * dim;//last one is COMPLEX:: cmpl!
             
-            for ( I1 = 0 ; I1 < N1 ; I1++)
-                for( I2 = 0; I2 < N1 ; I2++)
-                {
-                    if ( space == dim){
-                        
-                        if ( aPeriodic ){
-                            (stream )[  N1*I1+I2] = -periodicSd2S(I1-I2,N1)/d/d/2.  ;
-                        }
-                        else
-                            (stream )[  N1*I1+I2] = -Sd2S(I1-I2)/d/d/2.  ;
-                        
-                    } else if ( dim == SPACE ) {
-                        (stream )[  N1*I1+I2] = 0*delta(I1-I2)*pow(sqr(vectorMomentum)/2.,1./3.);
-                    } else if ( dim == SPACE+1 && space == 1 ) {
-                        if ( aPeriodic )
-                            (stream )[  N1*I1+I2] = vectorMomentum*periodicSdS(I1-I2, N1)/d;//triple i-cmpl implicit//
-                        else
-                            (stream )[  N1*I1+I2] = vectorMomentum*SdS(I1-I2)/d;
-                    } else {
-                        (stream )[  N1*I1+I2] = delta(I1-I2);
-                    }
+            for ( I1 = 0 ; I1 < dims1[space] ; I1++)
+                for( I2 = 0; I2 < dims1[space] ; I2++){
+                    
+                    if ( dim == space )
+                        (stream )[dims1[space]*I1+I2] = - 0.5*Bd2B(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2));
+                    else
+                        (stream )[dims1[space]*I1+I2] = BoB(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2));
+
+                    
+                    //printf ("%d %d %d %f %f\n", particle1,I1,I2,sqr(f1->sinc.d)* Bd2B(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2)), Sd2S(I1-I2));
                 }
         }
     }
     
-    f1->sinc.tulip[akinetic].Current[0]  = SPACE+0*(fabs(vectorMomentum) > 1e-6);
-    f1->sinc.tulip[akinetic].Current[1]  = 0*(fabs(vectorMomentum) > 1e-6);
-   
-    tScale(f1, akinetic, 1./mass);
+    f1->sinc.tulip[akinetic].Current[0]  = SPACE;
+
+    tScale(f1, akinetic, 1./amass);
 #if VERBOSE
     printf("kinetic %f\n", traceOne(f1, akinetic, 0));
 #endif
-//    if ( part(f1,akinetic ) < SPACE+1 )
-//   
-//    {
-//        printf("kinetic\n");
-//        exit(0);
-//    }
     return 0;
 }
 
-INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE periodic, double scalar,INT_TYPE dim, enum division basis ){
+INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE periodic, double scalar,INT_TYPE dim, enum division basis, INT_TYPE particle1 ){
     
     struct field * f1 = &c1->i.c;
     
-    INT_TYPE N1 = f1->sinc.N1;
-    INT_TYPE N12 = (f1->sinc.N1-1)/2;
-    INT_TYPE N2 = f1->sinc.N1*f1->sinc.N1;
-
-    INT_TYPE i,alpha,I1,I2,space,ii,spin;
+    INT_TYPE *dims1 = f1->sinc.dims[particle1];
+    INT_TYPE i,alpha,I1,I2,space;
     Stream_Type  *stream[3];
-    
-    
     
     f1->sinc.tulip[diagonalCube].header = Cube;
     for ( i = 0; i < SPACE ; i++)
@@ -2589,63 +2875,30 @@ INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE periodic, do
         printf("error with harmonium build\n");
         exit(0);
     }
-    spin = 0;
-    
-    
-    
     {
-        ii = 0;
         for ( alpha = 0 ; alpha < SPACE ; alpha++){
             zero(f1, diagonalCube, 0);
-            if ( alpha == 0  && (( periodic ) % 2))
-                continue;
-            else if ( alpha == 1  && (( periodic /2 ) % 2))
-                continue;
-            else if ( alpha == 2  && (( periodic /4) % 2))
-                continue;
-
             for ( space = 0 ;space < SPACE ; space++){
-                
-                
-
-                
-                for ( I1 = 0; I1 < m1[space] ; I1++)
-                    for ( I2 = 0; I2 < m1[space] ; I2++)
+                for ( I1 = 0; I1 < dims1[space] ; I1++)
+                    for ( I2 = 0; I2 < dims1[space] ; I2++)
                     {
-                        {
-                            if ( space == alpha ){
-                                //EXTERNAL POTENTIAL
-                                if ( I1 < N1 && I2 < N1 ){
-                                    (stream[space])[I1*n1[space]+I2] = scalar * 0.500 * (c1->i.springConstant) * delta( I1-I2) * f1->sinc.d* (I1-N12) * f1->sinc.d* (I1-N12);
-                                }
-                                
-                            } else {
-                                (stream[space])[I1*n1[space]+I2] =  delta( I1-I2);
-                                
-                            }
-                            
+                        if ( space == alpha ){
+                            (stream[space])[I1*dims1[space]+I2] = 0;
+                            //scalar * 0.500 * (c1->i.springConstant) *Bx2B(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2));
+;
+                        } else {
+                            (stream[space])[I1*dims1[space]+I2] =  BoB(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2));
                         }
-                        
                     }
             }
-            // printTrace(f1, diagonalCube);
-            
             tAddTw(f1, harmonium,0, diagonalCube,0);
-            
-            //printTrace(f1, harmonium);
-            
         }
-        
-        //printf("%d\n", f1->sinc.tulip[harmonium].stop[0][a]);
-        
     }
     if ( part(f1,harmonium ) < SPACE )
     {
         printf("harmonium\n");
         exit(0);
     }
-
-    //printf("\n\n");
     return 0;
 }
 
@@ -2664,7 +2917,10 @@ double tTestTwoBody( struct field * f1, enum division mat,INT_TYPE periodic, INT
     INT_TYPE i ;
     struct general_2index g3[3];
     for ( i = 0; i < 3; i++){
-        g3[i].d = f1->sinc.d;
+        g3[i].realFlag = 1;
+        g3[i].i[0].d = f1->sinc.d;
+        g3[i].i[1].d = f1->sinc.d;
+
         g3[i].i[0].n = p[i*4];
         g3[i].i[0].m = p[i*4+2];
         g3[i].i[1].n = p[i*4+1];
@@ -2713,7 +2969,7 @@ double tRMSDevRandom( struct field * f1, enum division mat, INT_TYPE periodic ,I
 INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat){
     INT_TYPE space,r,i,j,n,m,N1 = f1->sinc.N1, N2 = f1->sinc.N1*f1->sinc.N1;
     double value;
-    double coef = pow(f1->Ne,0.33333333333333);
+    double coef = pow(f1->Ne,1./SPACE);
     if ( ! CanonicalRank(f1, interactionExchange, 0))
         return 0;
     for ( r = 0; r < CanonicalRank(f1, interactionExchange, 0); r++){

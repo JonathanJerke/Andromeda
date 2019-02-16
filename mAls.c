@@ -106,39 +106,75 @@ INT_TYPE balance (struct field * f1,  enum division alloy, INT_TYPE spin){
     INT_TYPE iOne = 1;
     //#pragma omp parallel for private(l,norm,flag,ii,i,trace,space)
     
-    for ( l = 0; l < L1 ;l++){
-        
-        for ( space = 0; space < SPACE ; space++){
-            norm[space] = cblas_dnrm2(M2[space], streams(f1, alloy,spin,space)+l*M2[space],iOne);
-            value = cblas_idamax(M2[space], streams(f1, alloy,spin,space)+l*M2[space], 1);
-            if ( value == 0. )
-                sign[space] = 0;
-            if ( value > 0. )
-                sign[space] = 1;
-            else
-                sign[space] = -1;
-        }
-        
-
-        if ( sign[0] * sign[1] * sign[2] == 0 ){
-            // very unlikely...
-            //if so , all set to zero...
-        }
-
-        factor = pow( norm[0]*norm[1]*norm[2],0.333333333333333333333333333333333333333333333333333);
-        
-        for ( space = 0; space < 3 ; space++){
+    
+    if ( SPACE == 3 ){
+        for ( l = 0; l < L1 ;l++){
             
-            if ( space == 0 )
-                signs = sign[1] * sign[2];
-            else if ( space == 1 )
-                signs = sign[0] * sign[2];
-            else
-                signs = sign[0] * sign[1];
-            snorm = signs*factor/norm[space] ;
-            cblas_dscal(M2[space], snorm, streams(f1, alloy,spin,space)+l*M2[space],iOne);
+            for ( space = 0; space < SPACE ; space++){
+                norm[space] = cblas_dnrm2(M2[space], streams(f1, alloy,spin,space)+l*M2[space],iOne);
+                value = cblas_idamax(M2[space], streams(f1, alloy,spin,space)+l*M2[space], 1);
+                if ( value == 0. )
+                    sign[space] = 0;
+                if ( value > 0. )
+                    sign[space] = 1;
+                else
+                    sign[space] = -1;
+            }
+            
+            
+            if ( sign[0] * sign[1] * sign[2] == 0 ){
+                // very unlikely...
+                //if so , all set to zero...
+            }
+            
+            factor = pow( norm[0]*norm[1]*norm[2],0.333333333333333333333333333333333333333333333333333);
+            
+            for ( space = 0; space < SPACE ; space++){
+                
+                if ( space == 0 )
+                    signs = sign[1] * sign[2];
+                else if ( space == 1 )
+                    signs = sign[0] * sign[2];
+                else
+                    signs = sign[0] * sign[1];
+                snorm = signs*factor/norm[space] ;
+                cblas_dscal(M2[space], snorm, streams(f1, alloy,spin,space)+l*M2[space],iOne);
+            }
+            
         }
-        
+    }else if ( SPACE == 2){
+        for ( l = 0; l < L1 ;l++){
+            
+            for ( space = 0; space < SPACE ; space++){
+                norm[space] = cblas_dnrm2(M2[space], streams(f1, alloy,spin,space)+l*M2[space],iOne);
+                value = cblas_idamax(M2[space], streams(f1, alloy,spin,space)+l*M2[space], 1);
+                if ( value == 0. )
+                    sign[space] = 0;
+                if ( value > 0. )
+                    sign[space] = 1;
+                else
+                    sign[space] = -1;
+            }
+            
+            
+            if ( sign[0] * sign[1]  == 0 ){
+                // very unlikely...
+                //if so , all set to zero...
+            }
+            
+            factor = pow( norm[0]*norm[1],1./SPACE);
+            
+            for ( space = 0; space < SPACE ; space++){
+                
+                if ( space == 0 )
+                    signs = sign[1] ;
+                else
+                    signs = 1;
+                snorm = signs*factor/norm[space] ;
+                cblas_dscal(M2[space], snorm, streams(f1, alloy,spin,space)+l*M2[space],iOne);
+            }
+            
+        }
     }
     return 0;
 }
@@ -150,7 +186,6 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
         
         //   exit(0);
     }
-    double magn = 1;//inner(rank, f1, origin, os);
     
     INT_TYPE ns = 9;
     Stream_Type * array[3];
@@ -178,20 +213,18 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
             exit(0);
         }
     }
-    double ALPHA = f1->mem1->rt->ALPHA;
-    char charU = 'U';
+    double value2=0.,ALPHA = f1->mem1->rt->ALPHA;
     INT_TYPE M2[3];
     length(f1,alloy,M2);
-    double value,value2= 1;
     INT_TYPE info;
-    double sum,rcond;
+    double rcond;
     enum division canonicalStore;
     INT_TYPE T1 = G1*L1;
     
     {//REF CORE NUMBER
         //GET CORE... ALLOCATE TO CORE-LANE.
         
-        for ( space = 0; space < 3 ; space++){
+        for ( space = 0; space < SPACE ; space++){
             array[space] =  streams(f1, canonicalBuffers, rank , space);
             array2[space] =  streams(f1, canonicalBuffers, rank , space) + L1*L1;
         }
@@ -369,6 +402,20 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
                 
                 if ( spread(f1,origin,os,alloy,spin,space1,array[space1],array2[space1]) )
                     return -1;
+
+                if ( L1 >1 )
+                    for ( l = 0 ; l < L1; l++){
+#if VERBOSE
+
+                        if ( fabs(array[space1][ l*L1 + l ]-1.0) > 1e-6 ||  isnan ( array[space1][l*L1+l] )  ||  isinf ( array[space1][l*L1+l] ) ){
+                            printf("%lld:%f (%lld)-\n", l,array[space1][ l*L1 + l ],rank);
+                            fflush(stdout);
+                        }
+#endif
+
+                        array[space1][ l*L1 + l ] += ALPHA;
+                    }
+
             }
 
             info = tdpotrf(L1, array[space1]);
@@ -516,13 +563,12 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
         tId(f1, alloy, spin);
         L1 = 1;
     }
-    char charU = 'U';
     
     INT_TYPE M2[3];
     length(f1,alloy,M2);
-    double value,value2 = 1;
+    double value2 = 1;
     INT_TYPE info;
-    double sum,rcond;
+    double rcond;
     enum division canonicalStore;
     INT_TYPE T1 = G1*L1;
     
@@ -562,10 +608,7 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
     }
     
     
-    
-    
-    char side = CDT;
-    
+
     
     enum division alloyBak;
     if ( species (f1, alloy ) == vector && bodies(f1,alloy) == one){
@@ -617,7 +660,7 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
         if ( count % ns == 0 )
             tEqua(f1, alloyBak,rank, alloy, spin );
         
-        for ( space0 = 0; space0 < 3 ;space0++){
+        for ( space0 = 0; space0 < SPACE ;space0++){
             
             if ( SPACE == 3 ){
                 if ( space0 == 0 ){
@@ -686,9 +729,23 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
             }else if (SPACE == 2){
                 //plane-calculator ..  third dimenison is absent, allowing for simplication.
                 
-                
+                if ( normalize(f1,alloy,spin,space1) )
+                    return -1;
+
                 if ( spread(f1,origin,os,alloy,spin,space1,array[space1],array2[space1]) )
                     return -1;
+                
+                if ( L1 >1 )
+                    for ( l = 0 ; l < L1; l++){
+                        if ( fabs(array[space1][ l*L1 + l ]-1.0) > 1e-6 ||  isnan ( array[space1][l*L1+l] )  ||  isinf ( array[space1][l*L1+l] ) ){
+#if VERBOSE
+                            printf("%lld:%f (%lld)-\n", l,array[space1][ l*L1 + l ],rank);
+                            fflush(stdout);
+#endif
+                        }
+                        array[space1][ l*L1 + l ] += ALPHA;
+                    }
+
             }
             
             for ( g = 0; g < G1 ; g++)
@@ -920,23 +977,22 @@ double canonicalMultiplyMP( INT_TYPE rank,struct field * f1 , char mc,enum divis
             exit(0);
         }
     }
-    INT_TYPE M2[3],flag=1,u,dim;
+    INT_TYPE M2[3];
     length(f1,alloy,M2);
     double value2= 1;
     INT_TYPE info;
-    double sum,rcond;
-    enum division canonicalStore;
+    double rcond;
     
     {//REF CORE NUMBER
         //GET CORE... ALLOCATE TO CORE-LANE.
         
-        for ( space = 0; space < 3 ; space++){
+        for ( space = 0; space < SPACE ; space++){
             array[space] =  streams(f1, canonicalBuffers, rank , space);
             array2[space] =  streams(f1, canonicalBuffers, rank , space) + L1*L1;
 
         }
         
-        if (  L1*L1 + L1*imax(V1,imax(M2[0],imax(M2[1],M2[2])))>  part(f1,canonicalBuffers)){
+        if (  L1*L1 + L1*imax(V1,M2[0])  >  part(f1,canonicalBuffers)){
 #if 1
             printf("mem prob\n %lld+ %lld  > %lld \n",R1*V1,L1*L1,part(f1,canonicalBuffers) );
 #endif
@@ -1088,6 +1144,28 @@ double canonicalMultiplyMP( INT_TYPE rank,struct field * f1 , char mc,enum divis
                         array[space1][ l*L1 + l ] += ALPHA;
                     }
                 
+            }else if ( SPACE == 2 ){
+                //normal 3d calculator
+                
+                
+                if ( normalize(f1,alloy,spin,space1) )
+                    return -1;
+                
+                
+                cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, L1, L1, M2[space1], 1.0, streams(f1, alloy,spin,space1), M2[space1], streams(f1,alloy,spin,space1), M2[space1], 0.0, array[space1], L1);
+                
+                
+                if ( L1 > 1 )
+                    for ( l = 0 ; l < L1; l++){
+                        if ( fabs(array[space1][ l*L1 + l ]-1.0) > 1e-6 ||  isnan ( array[space1][l*L1+l] )  ||  isinf ( array[space1][l*L1+l] ) ){
+#if VERBOSE
+                            printf("%lld:%f (%lld)-\n", l,array[space1][ l*L1 + l ],rank);
+                            fflush(stdout);
+#endif
+                        }
+                        array[space1][ l*L1 + l ] += ALPHA;
+                    }
+                
             }
             
             info = tdpotrf(L1, array[space1]);
@@ -1143,7 +1221,7 @@ double canonicalMultiplyMP( INT_TYPE rank,struct field * f1 , char mc,enum divis
             }
             info = tdpotrs(L1,  M2[space0], array[space1],  array2[space0] );
             if ( info != 0 ){
-#if VERBOSE
+#if 1
                 printf("L1 %lld \n", L1);
                 printf("M2 %lld \n", M2[0]);
                 printf("R1 %lld \n", V1*L1);
@@ -1199,6 +1277,12 @@ INT_TYPE tOuterProductSu( struct field * f1,enum division vector , INT_TYPE a, e
         n = f1->sinc.Basis;
     else if ( bodies(f1, vector ) == two )
         n = f1->sinc.Basis2;
+    else if ( bodies(f1, vector ) == three )
+        n = f1->sinc.Basis3;
+    else if ( bodies(f1, vector ) == four )
+        n = f1->sinc.Basis4;
+    else
+        exit(0);
     INT_TYPE N2[3];
     INT_TYPE n2[3];
     length(f1, a, n2);
@@ -1214,21 +1298,20 @@ INT_TYPE tOuterProductSu( struct field * f1,enum division vector , INT_TYPE a, e
     
     for ( l = 0 ; l < ma; l++)
         for ( r = 0; r < mb; r++)
-            for ( space = 0; space < 3 ; space++)
+            for ( space = 0; space < SPACE ; space++)
                 for ( i = 0; i < N2[space] ; i++)
                     (streams(f1, proj,c,space)+(l*mb+r+zc)*N2[space])[i] = 0.;
     
     for ( l = 0 ; l < ma; l++)
         for ( r = 0; r < mb; r++)
-            for ( space = 0; space < 3 ; space++)
+            for ( space = 0; space < SPACE; space++)
                 cblas_dger(CblasColMajor, n[space],n[space], 1. , streams(f1, vector,a,space)+l*n2[space],1, streams(f1, vector2,b,space)+r*n2[space],1, streams(f1, proj,c,space)+(l*mb+r+zc)*N2[space],n[space]);
     f1->sinc.tulip[proj].Current[c] += ma*mb;
     return 0;
 }
 
 double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double number, INT_TYPE beta,  enum division equals, INT_TYPE espin ,char leftChar, enum division left,INT_TYPE lspin, char rightChar,enum division right, INT_TYPE rspin){
-    INT_TYPE LN2[SPACE],RN2[SPACE],EN2[SPACE],space,l,r,ii ,jj,type ;
-    INT_TYPE lim;
+    INT_TYPE LN2[SPACE],RN2[SPACE],EN2[SPACE],space,l,r,ii ,type ;
     INT_TYPE flag;
     number = 1.;
     *info = 0;
@@ -1260,7 +1343,6 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
     length(f1,equals,EN2 );
     
     INT_TYPE MM = LL*LR;
-    double co;
     INT_TYPE reduce,gamma;
     
     double sum =0.,product;
@@ -1813,317 +1895,317 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                     //c 0,3,1,1 : l,j,k,i   :: 'u'          i,k,j,l             'u'
                     //c 0,2,1,0 : l,k,i,j   :: 'v'6         j,i,k,l             'q'
                     //c 1,2,1,0 : l,k,j,i   :: 'w'11        i,j,k,l             'w'
-                    {
-                        
-                        
-                        if ( leftChar == 'T' ){//(i,j,k,l)
-                            
-                        }
-                        // 0,2,1,2 : i,j,l,k   :: 'a'24
-                        else if ( leftChar == 'f' ){//(i,j,l,k)
-                            flagTranspose2 = 1;
-                            flagTranspose3 = 1;
-                            flagTranspose4 = 1;
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space];
-                                B[space] = N1[space]*N1[space];
-                            }
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                AA[space] = N1[space]*N1[space];
-                                BB[space] = N1[space]*N1[space];
-                            }
-                            
-                        }
-                        // 1,3,1,2 : i,k,j,l   :: 'b'20 i,j,k,l->j,i,k,l->l,j,i,k->j,l,i,k->i,k,j,l
-                        else if ( leftChar == 'b' ){//(i,k,j,l)
-                            flagTranspose = 1;
-                            flagTranspose2 = 1;
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space]*N1[space];
-                                B[space] = N1[space];
-                            }
-                            flagTranspose3 = 1;
-                            flagTranspose4 = 1;
-                            for ( space = 0; space < SPACE ; space++){
-                                AA[space] = N1[space]*N1[space];
-                                BB[space] = N1[space]*N1[space];
-                            }
-                            
-                            
-                        }
-                        // 1,1,0,0 : i,k,l,j   :: 'c'4
-                        else  if ( leftChar == 'l' ){//(i,k,l,j)
-                            flagTranspose = 1; // a b | c
-                            flagTranspose2 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space];
-                                B[space] = N1[space]*N1[space]*N1[space];
-                            }
-                        }
-                        // 0,3,1,0 : i,l,j,k   :: 'd'12
-                        else  if ( leftChar == 'h' ){//(i,l,j,k)
-                            flagTranspose2 = 1;
-                            flagTranspose3 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space]*N1[space];
-                                B[space] = N1[space];
-                            }
-                        }
-                        // 1,2,1,3 : i,l,k,j   :: 'e'22
-                        else  if ( leftChar == 'n' ){//(i,l,k,j) 6
-                            flagTranspose = 1; // a b | c
-                            flagTranspose2 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space];
-                                B[space] = N1[space]*N1[space];
-                            }
-                            flagTranspose3 = 1;
-                            flagTranspose4 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                AA[space] = N1[space]*N1[space]*N1[space];
-                                BB[space] = N1[space];
-                            }
-                            
-                        }
-                        // 1,0,0,0 : j,i,k,l   :: 'f'2
-                        else  if ( leftChar == 'a' ){//(j,i,k,l)
-                            flagTranspose = 1; // a b | c
-                        }
-                        // 1,2,1,2 : j,i,l,k   :: 'g' 23
-                        else  if ( leftChar == 'g' ){//(j,i,l,k)
-                            flagTranspose = 1; // a b | c
-                            flagTranspose2 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space];
-                                B[space] = N1[space]*N1[space];
-                            }
-                            flagTranspose3 = 1;
-                            flagTranspose4 = 1;
-                            for ( space = 0; space < SPACE ; space++){
-                                AA[space] = N1[space]*N1[space];
-                                BB[space] = N1[space]*N1[space];
-                            }
-                            
-                        }
-                        // 0,3,1,2 : j,k,i,l   :: 'h'19
-                        else  if ( leftChar == 'd' ){//(j,k,i,l)
-                            flagTranspose2 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space]*N1[space];
-                                B[space] = N1[space];
-                            }
-                            
-                            flagTranspose3 = 1; // a b | c
-                            flagTranspose4 = 1;
-                            for ( space = 0; space < SPACE ; space++){
-                                AA[space] = N1[space]*N1[space];
-                                BB[space] = N1[space]*N1[space];
-                            }
-                            
-                        }
-                        // 0,1,0,0 : j,k,l,i   :: 'i'3
-                        else  if ( leftChar == 'r' ){//(j,k,l,i)
-                            flagTranspose2 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space];
-                                B[space] = N1[space]*N1[space]*N1[space];
-                            }
-                        }
-                        // 1,3,1,0 : j,l,i,k   :: 'j'13
-                        else  if ( leftChar == 'j' ){//(j,l,i,k)
-                            flagTranspose = 1; // a b | c
-                            flagTranspose2 = 1;
-                            flagTranspose3 = 1;
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space]*N1[space];
-                                B[space] = N1[space];
-                            }
-                        }
-                        // 0,2,1,3 : j,l,k,i   :: 'k'21
-                        else  if ( leftChar == 't' ){//(j,l,k,i)12
-                            flagTranspose2 = 2;
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space];
-                                B[space] = N1[space]*N1[space];
-                            }
-                            flagTranspose3 = 1;
-                            flagTranspose4 = 1;
-                            for ( space = 0; space < SPACE ; space++){
-                                AA[space] = N1[space]*N1[space]*N1[space];
-                                BB[space] = N1[space];
-                            }
-                            
-                        }
-                        // 0,2,1,1 : k,i,j,l   :: 'l'15
-                        else  if ( leftChar == 'c' ){//(k,i,j,l)
-                            flagTranspose2 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space];
-                                B[space] = N1[space]*N1[space];
-                            }
-                            
-                            flagTranspose3 = 1;
-                            flagTranspose4 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                AA[space] = N1[space];
-                                BB[space] = N1[space]*N1[space]*N1[space];
-                            }
-                            
-                        }
-                        // 1,1,1,0 : k,i,l,j   :: 'm'10
-                        else  if ( leftChar == 'm' ){//(k,i,l,j)
-                            flagTranspose = 1; // a b | c
-                            flagTranspose2 = 1;
-                            flagTranspose3 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space];
-                                B[space] = N1[space]*N1[space]*N1[space];
-                            }
-                        }
-                        // 1,2,1,1 : k,j,i,l   :: 'n'16
-                        else  if ( leftChar == 'e' ){//(k,j,i,l)
-                            flagTranspose = 1; // a b | c
-                            flagTranspose2 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space];
-                                B[space] = N1[space]*N1[space];
-                            }
-                            
-                            flagTranspose3 = 1;
-                            flagTranspose4 = 1;
-                            for ( space = 0; space < SPACE ; space++){
-                                AA[space] = N1[space];
-                                BB[space] = N1[space]*N1[space]*N1[space];
-                            }
-                            
-                            
-                        }
-                        // 0,1,1,0 : k,j,l,i   :: 'o'9
-                        else  if ( leftChar == 's' ){//(k,j,l,i)
-                            flagTranspose2 = 1;
-                            flagTranspose3 = 1;
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space];
-                                B[space] = N1[space]*N1[space]*N1[space];
-                            }
-                        }
-                        // 0,2,0,0 : k,l,i,j   :: 'p'5
-                        else  if ( leftChar == 'p' ){//(k,l,i,j)
-                            flagTranspose2 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space];
-                                B[space] = N1[space]*N1[space];
-                            }
-                        }
-                        // 1,1,0,1 : k,l,j,i   :: 'q'14
-                        else  if ( leftChar == 'v' ){//(k,l,j,i)//18
-                            flagTranspose = 1; // a b | c
-                            flagTranspose2 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space];
-                                B[space] = N1[space]*N1[space]*N1[space];
-                            }
-                            flagTranspose4 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                AA[space] = N1[space];
-                                BB[space] = N1[space]*N1[space]*N1[space];
-                            }
-                            
-                        }
-                        // 0,3,0,0 : l,i,j,k   :: 'r'7
-                        else  if ( leftChar == 'i' ){//(l,i,j,k)
-                            flagTranspose2 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space]*N1[space];
-                                B[space] = N1[space];
-                            }
-                        }
-                        // 1,3,1,1 : l,i,k,j   :: 's'18
-                        else  if ( leftChar == 'o' ){//(l,i,k,j)
-                            flagTranspose = 1; // a b | c
-                            flagTranspose2 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space]*N1[space];
-                                B[space] = N1[space];
-                            }
-                            flagTranspose3 = 1; // a b | c
-                            flagTranspose4 = 1;
-                            for ( space = 0; space < SPACE ; space++){
-                                AA[space] = N1[space];
-                                BB[space] = N1[space]*N1[space]*N1[space];
-                            }
-                            
-                        }
-                        // 1,3,0,0 : l,j,i,k   :: 't'8
-                        else  if ( leftChar == 'k' ){//(l,j,i,k)
-                            flagTranspose = 1; // a b | c
-                            flagTranspose2 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space]*N1[space];
-                                B[space] = N1[space];
-                            }
-                        }
-                        // 0,3,1,1 : l,j,k,i   :: 'u'17
-                        else  if ( leftChar == 'u' ){//(l,j,k,i)
-                            flagTranspose2 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space]*N1[space];
-                                B[space] = N1[space];
-                            }
-                            
-                            flagTranspose3 = 1;
-                            flagTranspose4 = 1;
-                            for ( space = 0; space < SPACE ; space++){
-                                AA[space] = N1[space];
-                                BB[space] = N1[space]*N1[space]*N1[space];
-                            }
-                        }
-                        // 0,2,1,0 : l,k,i,j   :: 'v'6
-                        else  if ( leftChar == 'q' ){//(l,k,i,j)
-                            flagTranspose2 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space];
-                                B[space] = N1[space]*N1[space];
-                            }
-                            flagTranspose3 = 1;
-                        }
-                        // 1,2,1,0 : l,k,j,i   :: 'w'11
-                        else  if ( leftChar == 'w' ){//(l,k,j,i)//END
-                            flagTranspose = 1; // a b | c
-                            flagTranspose2 = 1;
-                            flagTranspose3 = 1;
-                            
-                            for ( space = 0; space < SPACE ; space++){
-                                A[space] = N1[space]*N1[space];
-                                B[space] = N1[space]*N1[space];
-                            }
-                        }
-                        else {
-                            printf("unknown flag %c\n",leftChar);
-                            exit(0);
-                        }
-                        
-                    }
+//                    {
+//
+//
+//                        if ( leftChar == 'T' ){//(i,j,k,l)
+//
+//                        }
+//                        // 0,2,1,2 : i,j,l,k   :: 'a'24
+//                        else if ( leftChar == 'f' ){//(i,j,l,k)
+//                            flagTranspose2 = 1;
+//                            flagTranspose3 = 1;
+//                            flagTranspose4 = 1;
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space];
+//                                B[space] = N1[space]*N1[space];
+//                            }
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                AA[space] = N1[space]*N1[space];
+//                                BB[space] = N1[space]*N1[space];
+//                            }
+//
+//                        }
+//                        // 1,3,1,2 : i,k,j,l   :: 'b'20 i,j,k,l->j,i,k,l->l,j,i,k->j,l,i,k->i,k,j,l
+//                        else if ( leftChar == 'b' ){//(i,k,j,l)
+//                            flagTranspose = 1;
+//                            flagTranspose2 = 1;
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space]*N1[space];
+//                                B[space] = N1[space];
+//                            }
+//                            flagTranspose3 = 1;
+//                            flagTranspose4 = 1;
+//                            for ( space = 0; space < SPACE ; space++){
+//                                AA[space] = N1[space]*N1[space];
+//                                BB[space] = N1[space]*N1[space];
+//                            }
+//
+//
+//                        }
+//                        // 1,1,0,0 : i,k,l,j   :: 'c'4
+//                        else  if ( leftChar == 'l' ){//(i,k,l,j)
+//                            flagTranspose = 1; // a b | c
+//                            flagTranspose2 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space];
+//                                B[space] = N1[space]*N1[space]*N1[space];
+//                            }
+//                        }
+//                        // 0,3,1,0 : i,l,j,k   :: 'd'12
+//                        else  if ( leftChar == 'h' ){//(i,l,j,k)
+//                            flagTranspose2 = 1;
+//                            flagTranspose3 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space]*N1[space];
+//                                B[space] = N1[space];
+//                            }
+//                        }
+//                        // 1,2,1,3 : i,l,k,j   :: 'e'22
+//                        else  if ( leftChar == 'n' ){//(i,l,k,j) 6
+//                            flagTranspose = 1; // a b | c
+//                            flagTranspose2 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space];
+//                                B[space] = N1[space]*N1[space];
+//                            }
+//                            flagTranspose3 = 1;
+//                            flagTranspose4 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                AA[space] = N1[space]*N1[space]*N1[space];
+//                                BB[space] = N1[space];
+//                            }
+//
+//                        }
+//                        // 1,0,0,0 : j,i,k,l   :: 'f'2
+//                        else  if ( leftChar == 'a' ){//(j,i,k,l)
+//                            flagTranspose = 1; // a b | c
+//                        }
+//                        // 1,2,1,2 : j,i,l,k   :: 'g' 23
+//                        else  if ( leftChar == 'g' ){//(j,i,l,k)
+//                            flagTranspose = 1; // a b | c
+//                            flagTranspose2 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space];
+//                                B[space] = N1[space]*N1[space];
+//                            }
+//                            flagTranspose3 = 1;
+//                            flagTranspose4 = 1;
+//                            for ( space = 0; space < SPACE ; space++){
+//                                AA[space] = N1[space]*N1[space];
+//                                BB[space] = N1[space]*N1[space];
+//                            }
+//
+//                        }
+//                        // 0,3,1,2 : j,k,i,l   :: 'h'19
+//                        else  if ( leftChar == 'd' ){//(j,k,i,l)
+//                            flagTranspose2 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space]*N1[space];
+//                                B[space] = N1[space];
+//                            }
+//
+//                            flagTranspose3 = 1; // a b | c
+//                            flagTranspose4 = 1;
+//                            for ( space = 0; space < SPACE ; space++){
+//                                AA[space] = N1[space]*N1[space];
+//                                BB[space] = N1[space]*N1[space];
+//                            }
+//
+//                        }
+//                        // 0,1,0,0 : j,k,l,i   :: 'i'3
+//                        else  if ( leftChar == 'r' ){//(j,k,l,i)
+//                            flagTranspose2 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space];
+//                                B[space] = N1[space]*N1[space]*N1[space];
+//                            }
+//                        }
+//                        // 1,3,1,0 : j,l,i,k   :: 'j'13
+//                        else  if ( leftChar == 'j' ){//(j,l,i,k)
+//                            flagTranspose = 1; // a b | c
+//                            flagTranspose2 = 1;
+//                            flagTranspose3 = 1;
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space]*N1[space];
+//                                B[space] = N1[space];
+//                            }
+//                        }
+//                        // 0,2,1,3 : j,l,k,i   :: 'k'21
+//                        else  if ( leftChar == 't' ){//(j,l,k,i)12
+//                            flagTranspose2 = 2;
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space];
+//                                B[space] = N1[space]*N1[space];
+//                            }
+//                            flagTranspose3 = 1;
+//                            flagTranspose4 = 1;
+//                            for ( space = 0; space < SPACE ; space++){
+//                                AA[space] = N1[space]*N1[space]*N1[space];
+//                                BB[space] = N1[space];
+//                            }
+//
+//                        }
+//                        // 0,2,1,1 : k,i,j,l   :: 'l'15
+//                        else  if ( leftChar == 'c' ){//(k,i,j,l)
+//                            flagTranspose2 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space];
+//                                B[space] = N1[space]*N1[space];
+//                            }
+//
+//                            flagTranspose3 = 1;
+//                            flagTranspose4 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                AA[space] = N1[space];
+//                                BB[space] = N1[space]*N1[space]*N1[space];
+//                            }
+//
+//                        }
+//                        // 1,1,1,0 : k,i,l,j   :: 'm'10
+//                        else  if ( leftChar == 'm' ){//(k,i,l,j)
+//                            flagTranspose = 1; // a b | c
+//                            flagTranspose2 = 1;
+//                            flagTranspose3 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space];
+//                                B[space] = N1[space]*N1[space]*N1[space];
+//                            }
+//                        }
+//                        // 1,2,1,1 : k,j,i,l   :: 'n'16
+//                        else  if ( leftChar == 'e' ){//(k,j,i,l)
+//                            flagTranspose = 1; // a b | c
+//                            flagTranspose2 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space];
+//                                B[space] = N1[space]*N1[space];
+//                            }
+//
+//                            flagTranspose3 = 1;
+//                            flagTranspose4 = 1;
+//                            for ( space = 0; space < SPACE ; space++){
+//                                AA[space] = N1[space];
+//                                BB[space] = N1[space]*N1[space]*N1[space];
+//                            }
+//
+//
+//                        }
+//                        // 0,1,1,0 : k,j,l,i   :: 'o'9
+//                        else  if ( leftChar == 's' ){//(k,j,l,i)
+//                            flagTranspose2 = 1;
+//                            flagTranspose3 = 1;
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space];
+//                                B[space] = N1[space]*N1[space]*N1[space];
+//                            }
+//                        }
+//                        // 0,2,0,0 : k,l,i,j   :: 'p'5
+//                        else  if ( leftChar == 'p' ){//(k,l,i,j)
+//                            flagTranspose2 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space];
+//                                B[space] = N1[space]*N1[space];
+//                            }
+//                        }
+//                        // 1,1,0,1 : k,l,j,i   :: 'q'14
+//                        else  if ( leftChar == 'v' ){//(k,l,j,i)//18
+//                            flagTranspose = 1; // a b | c
+//                            flagTranspose2 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space];
+//                                B[space] = N1[space]*N1[space]*N1[space];
+//                            }
+//                            flagTranspose4 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                AA[space] = N1[space];
+//                                BB[space] = N1[space]*N1[space]*N1[space];
+//                            }
+//
+//                        }
+//                        // 0,3,0,0 : l,i,j,k   :: 'r'7
+//                        else  if ( leftChar == 'i' ){//(l,i,j,k)
+//                            flagTranspose2 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space]*N1[space];
+//                                B[space] = N1[space];
+//                            }
+//                        }
+//                        // 1,3,1,1 : l,i,k,j   :: 's'18
+//                        else  if ( leftChar == 'o' ){//(l,i,k,j)
+//                            flagTranspose = 1; // a b | c
+//                            flagTranspose2 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space]*N1[space];
+//                                B[space] = N1[space];
+//                            }
+//                            flagTranspose3 = 1; // a b | c
+//                            flagTranspose4 = 1;
+//                            for ( space = 0; space < SPACE ; space++){
+//                                AA[space] = N1[space];
+//                                BB[space] = N1[space]*N1[space]*N1[space];
+//                            }
+//
+//                        }
+//                        // 1,3,0,0 : l,j,i,k   :: 't'8
+//                        else  if ( leftChar == 'k' ){//(l,j,i,k)
+//                            flagTranspose = 1; // a b | c
+//                            flagTranspose2 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space]*N1[space];
+//                                B[space] = N1[space];
+//                            }
+//                        }
+//                        // 0,3,1,1 : l,j,k,i   :: 'u'17
+//                        else  if ( leftChar == 'u' ){//(l,j,k,i)
+//                            flagTranspose2 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space]*N1[space];
+//                                B[space] = N1[space];
+//                            }
+//
+//                            flagTranspose3 = 1;
+//                            flagTranspose4 = 1;
+//                            for ( space = 0; space < SPACE ; space++){
+//                                AA[space] = N1[space];
+//                                BB[space] = N1[space]*N1[space]*N1[space];
+//                            }
+//                        }
+//                        // 0,2,1,0 : l,k,i,j   :: 'v'6
+//                        else  if ( leftChar == 'q' ){//(l,k,i,j)
+//                            flagTranspose2 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space];
+//                                B[space] = N1[space]*N1[space];
+//                            }
+//                            flagTranspose3 = 1;
+//                        }
+//                        // 1,2,1,0 : l,k,j,i   :: 'w'11
+//                        else  if ( leftChar == 'w' ){//(l,k,j,i)//END
+//                            flagTranspose = 1; // a b | c
+//                            flagTranspose2 = 1;
+//                            flagTranspose3 = 1;
+//
+//                            for ( space = 0; space < SPACE ; space++){
+//                                A[space] = N1[space]*N1[space];
+//                                B[space] = N1[space]*N1[space];
+//                            }
+//                        }
+//                        else {
+//                            printf("unknown flag %c\n",leftChar);
+//                            exit(0);
+//                        }
+//
+//                    }
                 }
                 
                 
@@ -2145,11 +2227,15 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
             N1 = vectorLen(f1, equals);
             if ( bodies (f1,left ) == three ){
                 NX[0] =f1->sinc.N1;
+                if ( SPACE > 1 )
                 NX[1] = f1->sinc.N1;
+                if ( SPACE > 2 )
                 NX[2] = f1->sinc.N1;
             } else if ( bodies(f1, left ) == four ){
                 NX[0] = f1->sinc.N1*f1->sinc.N1;
+                if ( SPACE > 1 )
                 NX[1] = f1->sinc.N1*f1->sinc.N1;
+                if ( SPACE > 2 )
                 NX[2] = f1->sinc.N1*f1->sinc.N1;
             } else {
                 if ( beta == -1 )
@@ -2171,15 +2257,22 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                 N1 = vectorLen(f1, equals);
                 if ( bodies(f1, left ) == two ){
                     NX[0] = N1[0];
+                    if ( SPACE > 1 )
                     NX[1] = N1[1];
+                    if ( SPACE > 2 )
+
                     NX[2] = N1[2];
                 }else if ( bodies (f1,left ) == three ){
                     NX[0] = N1[0]*N1[0];
+                    if ( SPACE > 1 )
                     NX[1] = N1[1]*N1[1];
+                    if ( SPACE > 2 )
                     NX[2] = N1[2]*N1[2];
                 } else if ( bodies(f1, left ) == four ){
                     NX[0] = N1[0]*N1[0]*N1[0];
+                    if ( SPACE > 1 )
                     NX[1] = N1[0]*N1[1]*N1[1];
+                    if ( SPACE > 2 )
                     NX[2] = N1[0]*N1[2]*N1[2];
                 } else  {
                     if ( beta == -1 )
@@ -2531,16 +2624,28 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                     
                     if ( bodies(f1, right ) == one ){
                         NX[0] = N1[0];
+                        if ( SPACE > 1 )
+
                         NX[1] = N1[1];
+                        if ( SPACE > 2 )
+
                         NX[2] = N1[2];
                     } else
                         if ( bodies(f1, right ) == two ){
                             NX[0] = N1[0]*N1[0];
+                            if ( SPACE > 1 )
+
                             NX[1] = N1[1]*N1[1];
+                            if ( SPACE > 2 )
+
                             NX[2] = N1[2]*N1[2];
                         } else if ( bodies (f1, right ) == three ){
                             NX[0] = N1[0]*N1[0]*N1[0];
+                            if ( SPACE > 1 )
+
                             NX[1] = N1[1]*N1[1]*N1[1];
+                            if ( SPACE > 2 )
+
                             NX[2] = N1[2]*N1[2]*N1[2];
                         }else {
                             printf("high body count!\n");
@@ -2686,7 +2791,7 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
             
             
         } else if (flag == 4){
-            INT_TYPE bs,o,os;
+            INT_TYPE bs,o;
             for ( l = 0 ; l < LL ; l++){
                 
                 for ( space = 0; space < spaces(f1,left) ;space++){
@@ -3158,8 +3263,8 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
         tEqua(f1, copyThreeVector,rank, right,0 );
         tEqua(f1, copyFourVector,rank, right,1 );
     }
-    INT_TYPE info,spin,cmpl,cmpl2,skipFlag,alist=0,remainFlag,flag;
-    time_t start_t, lapse_t;
+    INT_TYPE info,spin,cmpl,cmpl2,skipFlag,alist=0;
+    time_t start_t;
     enum division Mat,Vec;
     if ( maxRun < 1 )
         return;
@@ -3354,14 +3459,21 @@ double magnitude ( struct field * f1 , enum division alloy ){
 INT_TYPE ready ( struct calculation * c ){
     INT_TYPE readyMemory = 1;
     INT_TYPE readyVector = 1;
-    if ( c->i.c.sinc.tulip == NULL || c->i.c.sinc.rose[0].stream == NULL|| c->i.c.sinc.rose[1].stream  == NULL  || c->i.c.sinc.rose[2].stream  == NULL  || c->i.c.sinc.rose[3].stream  == NULL  || ! c->mem.bootedMemory )
+    INT_TYPE space;
+    if ( ! c->mem.bootedMemory || c->i.c.sinc.tulip == NULL )
         readyMemory = 0;
+    
+    if ( readyMemory )
+        for ( space = 0 ; space <= SPACE ; space++)
+            if ( c->i.c.sinc.rose[space].stream == NULL )
+            readyMemory = 0;
     
     
     if ( readyMemory )
-        if ( CanonicalRank(&c->i.c, eigenVectors , 0 ) == 0 )
+        if ( CanonicalRank(&c->i.c, eigenVectors , 0 ) == 0 ){
+            printf("passing over stage because vector is null\n");
             readyVector = 0;
-    
+        }
     
     return readyVector && readyMemory;
 }
@@ -3391,7 +3503,7 @@ INT_TYPE tConstructDensity(struct calculation * calc , INT_TYPE ct ){
 
 
 double tLanczosConvergence (struct field * f1 ,enum division Ha, enum division Vec, enum division usr){
-    INT_TYPE sumR = 0,info,cmpl,cmpl2,cmpl3;
+    INT_TYPE sumR = 0,info;
     enum division Mat = Ha;
     do {
         sumR += CanonicalRank(f1, Mat ,0) + CanonicalRank(f1, Mat ,1);
@@ -3435,7 +3547,7 @@ double tLanczosConvergence (struct field * f1 ,enum division Ha, enum division V
 INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, INT_TYPE UR, struct calculation * calc2, enum division usz, INT_TYPE UZ ,INT_TYPE mx){
     
    // printf("%d %d %d\n", UR,UZ,mx);
-    INT_TYPE info, k2,mdi,k,ii,iii,iv,rank = 0,la,cmpl,j,flag=0,i,sumR = 0,sumEr = 0,sumEc=0,nCano;;
+    INT_TYPE mdi,ii,iii,iv,rank = 0,cmpl,i;
     
     
     //    for ( i = 0 ; i < UR ; i++)
@@ -3478,15 +3590,15 @@ INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, IN
        // exit(0);
     }
     
-#ifdef OMP
-#pragma omp parallel for private (rank,i,j,mdi,cmpl) schedule(dynamic,1)
-#endif
+//#ifdef OMP
+//#pragma omp parallel for private (rank,i,mdi,cmpl) schedule(dynamic,1)
+//#endif
     for ( i = 0; i < ii ; i++){
-#ifdef OMP
-        rank = omp_get_thread_num();
-#else
-        rank = 0;
-#endif
+//#ifdef OMP
+//        rank = omp_get_thread_num();
+//#else
+//        rank = 0;
+//#endif
         cmpl = 0;
         ///            printf("%d %d \n", cmpl,i);
         //            fflush(stdout);
@@ -3495,13 +3607,13 @@ INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, IN
             zero(&calc->i.c, copyVector,rank);
             calc->i.c.sinc.tulip[copyVector].Current[rank] = 0;
             if ( bodies(&calc2->i.c, usz+f[i]) == two )
-                xTwoBand(rank,&calc2->i.c, usz+f[i], cmpl, &calc->i.c, copyVector,rank,calc->rt.runFlag );
+                xTwoBand(&calc2->i.c, usz+f[i], cmpl, &calc->i.c, copyVector,rank,calc->rt.runFlag );
             else if ( bodies(&calc2->i.c, usz+f[i]) == three )
-                xThreeBand(rank,&calc2->i.c, usz+f[i], cmpl, &calc->i.c, copyVector,rank,calc->rt.runFlag );
+                xThreeBand(&calc2->i.c, usz+f[i], cmpl, &calc->i.c, copyVector,rank,calc->rt.runFlag );
             else if ( bodies(&calc2->i.c, usz+f[i]) == four )
-                xFourBand(rank,&calc2->i.c, usz+f[i], cmpl, &calc->i.c, copyVector,rank,calc->rt.runFlag );
+                xFourBand(&calc2->i.c, usz+f[i], cmpl, &calc->i.c, copyVector,rank,calc->rt.runFlag );
             else if ( bodies(&calc2->i.c, usz+f[i]) == one )
-                xOneBand(rank,&calc2->i.c, usz+f[i], cmpl, &calc->i.c, copyVector,rank,calc->rt.runFlag );
+                xOneBand(&calc2->i.c, usz+f[i], cmpl, &calc->i.c, copyVector,rank,calc->rt.runFlag );
 
 //            for ( mdi = 0; mdi < mx ; mdi++)
 //                calc->i.c.sinc.tulip[usr+i*mx+mdi].Current[cmpl] = 0;

@@ -116,8 +116,6 @@ INT_TYPE tInnerTest( struct field * f1, enum division A ,enum division B){
     tFil(f1, A, copyThreeVector, i);
     
     
-    INT_TYPE jj;
-    double ma [ 24 * 24];
     
     
     
@@ -970,7 +968,7 @@ INT_TYPE t1Permute( INT_TYPE rank, struct field * f1, char leftChar, enum divisi
     double A[SPACE],B[SPACE], *array[SPACE+1],AA[SPACE],BB[SPACE];
     length(f1, left, LN2);
 
-    if ( bodies(f1, v) == two)
+    if ( bodies(f1, eigenVectors) == two)
         {
             N1 = f1->sinc.Basis;
             if ( leftChar == 'T' ){
@@ -987,7 +985,7 @@ INT_TYPE t1Permute( INT_TYPE rank, struct field * f1, char leftChar, enum divisi
                 }
             }
         }
-    else if ( bodies(f1, v) == three)
+    else if ( bodies(f1, eigenVectors) == three)
     {
         N1 = f1->sinc.Basis;
         
@@ -1103,7 +1101,7 @@ INT_TYPE t1Permute( INT_TYPE rank, struct field * f1, char leftChar, enum divisi
         
         
     }
-    else if (bodies ( f1, v ) == four ){
+    else if (bodies ( f1, eigenVectors ) == four ){
         {
             {
                 double * pleft[SPACE];
@@ -1431,7 +1429,7 @@ INT_TYPE t1Permute( INT_TYPE rank, struct field * f1, char leftChar, enum divisi
                 if ( ( species(f1, tensorBuffers ) >= vector && bodies(f1,tensorBuffers)  >= four && part(f1, tensorBuffers)>=1) ){
                     for ( dim =0 ; dim < SPACE ; dim++)
                         array[dim] = streams( f1, tensorBuffers, rank,dim);
-                    array[3] = streams( f1, tensorBuffers, rank,0)+LN2[0];
+                    array[SPACE] = streams( f1, tensorBuffers, rank,0)+LN2[0];
                     
                 }else {
                     printf("oopss\n");
@@ -1513,9 +1511,8 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char meta , enum division
         printf("nop!");
         exit(0);
     }
-    INT_TYPE i,nPerm=0,nDeg=0,d;
+    INT_TYPE i,nPerm=0,nDeg=0;
     char train[24];
-    double sum;
     if ( bodies(f1, origin ) == two ){
         nPerm = 2;
         nDeg = 1;
@@ -1656,7 +1653,7 @@ INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum divisio
     }
     
     
-    if ( bodies(f1, v) == two)
+    if ( bodies(f1, eigenVectors) == two)
     {
         N1 = f1->sinc.Basis;
         
@@ -1679,7 +1676,7 @@ INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum divisio
         }
     }
     
-    else if ( bodies(f1, v) == three)
+    else if ( bodies(f1, eigenVectors) == three)
     {
         N1 = f1->sinc.Basis;
         
@@ -1794,12 +1791,11 @@ INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum divisio
         
         
     }
-    else if (bodies ( f1, v ) == four ){
+    else if (bodies ( f1, eigenVectors ) == four ){
         {
             {
                 double * pleft[SPACE];
                 
-                INT_TYPE r;
                 N1 = f1->sinc.Basis;
                 flagTranspose = 0;
                 flagTranspose2 = 0;

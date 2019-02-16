@@ -80,59 +80,59 @@ INT_TYPE memory ( struct field * f1, enum division label){
     return f1->sinc.tulip[name(f1,label)].memory;
 }
 
-void initPointerTensors(struct field *f1){
-    INT_TYPE sp;
-    f1->sinc.tulip[v2].name = vectors;
-    f1->sinc.tulip[v2].purpose = ptObject;
-    
-    f1->sinc.tulip[u2].name = vectors;
-    f1->sinc.tulip[u2].purpose = ptObject;
-    tClear(f1, v2);
-    tClear(f1,u2);
-    tClear(f1, u);
-    tClear(f1,v);
-    tClear(f1, p);
-    tClear(f1,pp);
-    tClear(f1,pointer);
-    
-    
-    f1->sinc.tulip[u].purpose = ptObject;
-    f1->sinc.tulip[v].purpose = ptObject;
-    f1->sinc.tulip[u].Partition = 1;
-    f1->sinc.tulip[v].Partition = 1;
-    f1->sinc.tulip[u].parallel = 1;
-    f1->sinc.tulip[v].parallel = 1;
-    
-    f1->sinc.tulip[u].species = matrix;
-    f1->sinc.tulip[v].species = matrix;
-    
-    f1->sinc.tulip[p].purpose = ptObject;
-    f1->sinc.tulip[pp].purpose = ptObject;
-    f1->sinc.tulip[q].purpose = ptObject;
-    f1->sinc.tulip[qq].purpose = ptObject;
-    
-    f1->sinc.tulip[pointer].purpose = ptObject;
-    f1->sinc.tulip[pointer].parallel = 1;
-    
-    for ( sp = 0 ; sp < spins(f1, diis) ; sp++){
-        f1->sinc.tulip[p].Current[sp] = f1->sinc.tulip[project].Partition;
-        f1->sinc.tulip[pp].Current[sp] = f1->sinc.tulip[project].Partition;
-        f1->sinc.tulip[q].Current[sp] = f1->sinc.tulip[project].Partition;
-        f1->sinc.tulip[qq].Current[sp] = f1->sinc.tulip[project].Partition;
-        f1->sinc.tulip[u].Current[sp] = 1;
-        f1->sinc.tulip[v].Current[sp] = 1;
-    }
-    
-    f1->sinc.tulip[p].species = matrix;
-    f1->sinc.tulip[pp].species = matrix;
-    f1->sinc.tulip[p].Partition = f1->sinc.tulip[project].Partition;
-    f1->sinc.tulip[pp].Partition = f1->sinc.tulip[project].Partition;
-    f1->sinc.tulip[q].Partition = f1->sinc.tulip[project].Partition;
-    f1->sinc.tulip[qq].Partition = f1->sinc.tulip[project].Partition;
-    f1->sinc.tulip[q].species = matrix;
-    f1->sinc.tulip[qq].species = matrix;
-    
-}
+//void initPointerTensors(struct field *f1){
+//    INT_TYPE sp;
+//    f1->sinc.tulip[v2].name = vectors;
+//    f1->sinc.tulip[v2].purpose = ptObject;
+//    
+//    f1->sinc.tulip[u2].name = vectors;
+//    f1->sinc.tulip[u2].purpose = ptObject;
+//    tClear(f1, v2);
+//    tClear(f1,u2);
+//    tClear(f1, u);
+//    tClear(f1,v);
+//    tClear(f1, p);
+//    tClear(f1,pp);
+//    tClear(f1,pointer);
+//    
+//    
+//    f1->sinc.tulip[u].purpose = ptObject;
+//    f1->sinc.tulip[v].purpose = ptObject;
+//    f1->sinc.tulip[u].Partition = 1;
+//    f1->sinc.tulip[v].Partition = 1;
+//    f1->sinc.tulip[u].parallel = 1;
+//    f1->sinc.tulip[v].parallel = 1;
+//    
+//    f1->sinc.tulip[u].species = matrix;
+//    f1->sinc.tulip[v].species = matrix;
+//    
+//    f1->sinc.tulip[p].purpose = ptObject;
+//    f1->sinc.tulip[pp].purpose = ptObject;
+//    f1->sinc.tulip[q].purpose = ptObject;
+//    f1->sinc.tulip[qq].purpose = ptObject;
+//    
+//    f1->sinc.tulip[pointer].purpose = ptObject;
+//    f1->sinc.tulip[pointer].parallel = 1;
+//    
+//    for ( sp = 0 ; sp < spins(f1, diis) ; sp++){
+//        f1->sinc.tulip[p].Current[sp] = f1->sinc.tulip[project].Partition;
+//        f1->sinc.tulip[pp].Current[sp] = f1->sinc.tulip[project].Partition;
+//        f1->sinc.tulip[q].Current[sp] = f1->sinc.tulip[project].Partition;
+//        f1->sinc.tulip[qq].Current[sp] = f1->sinc.tulip[project].Partition;
+//        f1->sinc.tulip[u].Current[sp] = 1;
+//        f1->sinc.tulip[v].Current[sp] = 1;
+//    }
+//    
+//    f1->sinc.tulip[p].species = matrix;
+//    f1->sinc.tulip[pp].species = matrix;
+//    f1->sinc.tulip[p].Partition = f1->sinc.tulip[project].Partition;
+//    f1->sinc.tulip[pp].Partition = f1->sinc.tulip[project].Partition;
+//    f1->sinc.tulip[q].Partition = f1->sinc.tulip[project].Partition;
+//    f1->sinc.tulip[qq].Partition = f1->sinc.tulip[project].Partition;
+//    f1->sinc.tulip[q].species = matrix;
+//    f1->sinc.tulip[qq].species = matrix;
+//    
+//}
 
 //INT_TYPE defineSpinors (struct field *f1 ){
 //    INT_TYPE si,sp,sp2,s;
@@ -286,7 +286,7 @@ INT_TYPE zero ( struct field * f1 , enum division label, INT_TYPE spin ){
 
 INT_TYPE myZero ( struct field * f1 , enum division label, INT_TYPE spin ){
     //f1->sinc.tulip[label].Current = 0;
-    INT_TYPE i, space,M2[3];
+    INT_TYPE i, M2[3];
     length(f1, label, M2);
     
     
@@ -678,11 +678,11 @@ double xEqua ( struct field * f1 , enum division targ ,INT_TYPE tspin,struct fie
     
     if ( f1->sinc.N1 != f2->sinc.N1 ){
         if ( bodies(f2, orig) == two )
-            xTwoBand(rank,f2, orig,  ospin, f1, targ,tspin,f1->mem1->rt->runFlag );
+            xTwoBand(f2, orig,  ospin, f1, targ,tspin,f1->mem1->rt->runFlag );
         else if ( bodies(f2, orig) == three )
-            xThreeBand(rank,f2, orig,  ospin, f1, targ,tspin,f1->mem1->rt->runFlag );
+            xThreeBand(f2, orig,  ospin, f1, targ,tspin,f1->mem1->rt->runFlag );
         else if ( bodies(f2, orig) == four )
-            xFourBand(rank,f2, orig,  ospin, f1, targ,tspin,f1->mem1->rt->runFlag );
+            xFourBand(f2, orig,  ospin, f1, targ,tspin,f1->mem1->rt->runFlag );
     }
     else {
     
@@ -763,13 +763,21 @@ INT_TYPE tScaleOne( struct field * f1, enum division label,INT_TYPE spin, double
     
     INT_TYPE M2[3];
     length(f1,label,M2);
-    scale = pow ( scale , 1./3.);
-    if ( scalar < 0 )
-        scale *= -1;
-    cblas_dscal(L1*M2[0],scale, streams(f1,label,spin,0),1);
-    cblas_dscal(L1*M2[1],scale, streams(f1,label,spin,1),1);
-    cblas_dscal(L1*M2[2],scale, streams(f1,label,spin,2),1);
     
+    if ( SPACE == 3 ){
+        scale = pow ( scale , 1./3.);
+        if ( scalar < 0 )
+            scale *= -1;
+        cblas_dscal(L1*M2[0],scale, streams(f1,label,spin,0),1);
+        cblas_dscal(L1*M2[1],scale, streams(f1,label,spin,1),1);
+        cblas_dscal(L1*M2[2],scale, streams(f1,label,spin,2),1);
+    }else if ( SPACE == 2 ){
+        scale = pow ( scale , 1./2.);
+        cblas_dscal(L1*M2[0],scale, streams(f1,label,spin,0),1);
+        if ( scalar < 0 )
+            scale *= -1;
+        cblas_dscal(L1*M2[1],scale, streams(f1,label,spin,1),1);
+    }
     
     return 0;
 }
@@ -1088,6 +1096,9 @@ INT_TYPE tSumMatrices(struct field *f1, enum division sum , enum division mat  )
                                                             value  = streams(f1,mat,0,space)[ (I3*n1[space]+I7) + (I4*n1[space]+I8)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I1-I2)*delta(I5-I6);
                                                         }else if ( pair == 5 ) {
                                                             value  = streams(f1,mat,0,space)[ (I5*n1[space]+I7) + (I6*n1[space]+I8)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I1-I2)*delta(I3-I4);
+                                                        }else {
+                                                            printf ("rails!\n");
+                                                            exit(0);
                                                         }
                                                         stream[ (I1+I3*n1[space]+I5*n1[space]*n1[space]+I7*n1[space]*n1[space]*n1[space])+ (I2+I4*n1[space]+I6*n1[space]*n1[space]+I8*n1[space]*n1[space]*n1[space])*n1[space]*n1[space]*n1[space]*n1[space]] = value;
                                                     }
@@ -1149,7 +1160,6 @@ INT_TYPE tAlt(struct field * f1 , enum division label, INT_TYPE spin , INT_TYPE 
 INT_TYPE tEnd(struct field * f1 , enum division label, INT_TYPE spin , INT_TYPE space1){
     
     INT_TYPE N1 = f1->sinc.N1;
-    INT_TYPE N12 = (f1->sinc.N1-1)/2;
     INT_TYPE N2 = f1->sinc.N1*f1->sinc.N1;
     INT_TYPE I1,I2,space;
     INT_TYPE Current    =     f1->sinc.tulip[label].Current[spin]++;
@@ -1157,7 +1167,7 @@ INT_TYPE tEnd(struct field * f1 , enum division label, INT_TYPE spin , INT_TYPE 
     
     if ( f1->sinc.tulip[label].species == vector ){}
     if ( f1->sinc.tulip[label].species == matrix ){
-        for ( space = 0; space < 3 ; space++){
+        for ( space = 0; space < SPACE ; space++){
             
             
             Stream_Type * stream = streams(f1,label,spin,space)+Current*N2;
@@ -1577,6 +1587,40 @@ INT_TYPE assignCores(struct field * f1, INT_TYPE parallel ){
 
 }
 
+void printVectorAllocations(struct field *f1){
+    INT_TYPE vecG = 3*(f1->sinc.tulip[f1->sinc.end].Address -  f1->sinc.tulip[eigenVectors].Address);
+    printf("vector Contribution \t G%f",vecG/1000000000./(sizeof(Stream_Type)));
+}
+struct basisElement grabBasis (struct field * f1, INT_TYPE component, INT_TYPE particle, INT_TYPE elementIndex){
+    struct basisElement boa;
+    if ( component == 0 ){
+        boa.periodic = f1->mem1->rt->runFlag % 2;
+    }  else  if ( component == 1 ){
+        boa.periodic = (f1->mem1->rt->runFlag/2) % 2;
+    }  else  if ( component == 2 ){
+        boa.periodic = (f1->mem1->rt->runFlag/4) % 2;
+    }
+    boa.basis = SincBasisElement;
+    INT_TYPE reducedElementIndex = elementIndex;
+    boa.index = reducedElementIndex - (f1->sinc.dims[particle][component]-1)/2;
+    boa.length = f1->sinc.d;
+    if ( f1->mem1->rt->bodyType == h2plus)
+        boa.length /= 1.3;
+        boa.origin = 0.;
+        
+        boa.auxIndex = f1->sinc.dims[particle][component];
+        boa.dim = component;
+        boa.body = particle;
+        boa.association = 0;
+        boa.auxLength = 1.;
+        
+        
+        return boa;
+}
+
+
+#if 0
+
 double xOneBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic){
     double D = f1->sinc.d;
     INT_TYPE space,i,l,i2,l2,r,aPeriodic;
@@ -1626,7 +1670,7 @@ double xOneBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE
             for ( space = 0;space < SPACE; space++){
                 
                 for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
-                    streams(f2, out, s2,space)[r*N1 + (i)] = cblas_ddot(L1*L1, streams(f1, foundationStructure,rank, space ),1,streams(f1, vector1,s1,space)+r*L1,1);
+                    streams(f2, out, s2,space)[r*N1 + (i)] = cblas_ddot(L1, streams(f1, foundationStructure,rank, space ),1,streams(f1, vector1,s1,space)+r*L1,1);
                     //      printf("%1.3f:", streams(f2, out, s2,space)[r*N1*N1 + (i+i2*N1)]);
                 }
                 //   printf("\n");
@@ -1644,7 +1688,6 @@ double xOneBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE
     
     return 0.;
 }
-
 
 double xTwoBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic){
     double D = f1->sinc.d;
@@ -1831,9 +1874,300 @@ double xFourBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYP
     return 0.;
 }
 
+#elif 1
 
 
-void printVectorAllocations(struct field *f1){
-    INT_TYPE vecG = 3*(f1->sinc.tulip[f1->sinc.end].Address -  f1->sinc.tulip[eigenVectors].Address);
-    printf("vector Contribution \t G%f",vecG/1000000000./(sizeof(Stream_Type)));
+
+
+//struct basisElement {
+//    enum basisElementType basis;
+//    INT_TYPE index;
+//    double length;
+//    double origin;
+//
+//    INT_TYPE auxIndex; //for periodic Sincs
+//    double auxLength;
+//    INT_TYPE association;
+//    INT_TYPE dim;
+//    INT_TYPE body;
+//};
+//
+
+double xOneBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2,INT_TYPE oldPeriodic){
+    INT_TYPE si,space,i,l,r,rank;
+    INT_TYPE N1;
+    INT_TYPE L1;
+    f2->sinc.tulip[out].Current[s2] = 0;
+    zero(f1,out,s2);
+
+    for ( space = 0;space < SPACE; space++){
+        N1 = vectorLen(f2, out)[space];
+        L1 = vectorLen(f1, vector1)[space];
+        struct basisElement gl[1][L1];
+        struct basisElement gi[1][N1];
+
+        for ( i = 0; i < N1 ; i++)
+            gi[0][i] = grabBasis(f2, space, 1, i);
+
+        for ( l = 0 ; l < L1 ; l++)
+            gl[0][l] = grabBasis(f1, space, 1, l);
+        
+#ifdef OMP
+#pragma omp parallel for private (si,i,rank,l) schedule(dynamic,1)
+#endif
+        for ( si = 0; si < N1 ; si++){
+#ifdef OMP
+            rank = omp_get_thread_num();
+#else
+            rank = 0;
+#endif
+
+       // for ( i = 0; i < N1 ; i++)
+            i = si;
+            
+            //build
+            
+            for ( l = 0 ; l < L1 ; l++)
+            {
+                streams(f1, foundationStructure,rank, space )[l] =
+                BoB (gl[0][l],gi[0][i] );
+            }
+            
+            
+            for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
+                streams(f2, out, s2,space)[r*N1 + (i)] = cblas_ddot(L1, streams(f1, foundationStructure,rank, space ),1,streams(f1, vector1,s1,space)+r*L1,1);
+            }
+        }
+    }
+    f2->sinc.tulip[out].Current[s2] = CanonicalRank(f1, vector1, s1);
+    
+    return 0.;
 }
+
+
+
+
+
+double xTwoBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2,INT_TYPE oldPeriodic){
+    INT_TYPE space,i,l,i2,l2,r,p,rank;
+    INT_TYPE N1,si ;
+    INT_TYPE L1 ;
+    f2->sinc.tulip[out].Current[s2] = 0;
+    zero(f1,out,s2);
+    for ( space = 0;space < SPACE; space++){
+        N1 = vectorLen(f2, out)[space];
+        L1 = vectorLen(f1, vector1)[space];
+        
+        struct basisElement gl[2][L1];
+        struct basisElement gi[2][N1];
+        
+        for ( i = 0; i < N1 ; i++){
+            gi[0][i] = grabBasis(f2, space, 1, i);
+            gi[1][i] = grabBasis(f2, space, 2, i);
+        }
+        for ( l = 0 ; l < L1 ; l++){
+            gl[0][l] = grabBasis(f1, space, 1, l);
+            gl[1][l] = grabBasis(f1, space, 2, l);
+        }
+        INT_TYPE pt = 2;
+        double gx[pt][L1][N1];
+        for ( p = 0; p < pt ; p++)
+            for ( i = 0; i < N1 ; i++)
+                for ( l = 0 ; l < L1 ; l++)
+                    gx[p][l][i] = BoB (gl[p][l],gi[p][i] );
+        
+        
+#ifdef OMP
+#pragma omp parallel for private (si,i,i2,rank,l,l2) schedule(dynamic,1)
+#endif
+        for ( si = 0; si < N1*N1 ; si++){
+#ifdef OMP
+            rank = omp_get_thread_num();
+#else
+            rank = 0;
+#endif
+            i = si% N1;
+            i2 = (si/N1)%N1;
+        
+              //  printf("%d %d %d \n", vector1, i,i2);
+                //build
+                for ( l = 0 ; l < L1 ; l++)
+                    for ( l2 = 0 ; l2 < L1 ; l2++){
+                        streams(f1, foundationStructure,rank, space )[l2*L1+l] =
+                        gx[0][l][i]*
+                        gx[1][l2][i2];
+                        
+                    }
+                
+                
+                for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
+                    streams(f2, out, s2,space)[r*N1*N1 + (i+i2*N1)] = cblas_ddot(L1*L1, streams(f1, foundationStructure,rank, space ),1,streams(f1, vector1,s1,space)+r*L1*L1,1);
+                }
+            }
+    }
+    f2->sinc.tulip[out].Current[s2] = CanonicalRank(f1, vector1, s1);
+    
+    
+    
+    
+    return 0.;
+}
+
+
+double xThreeBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2,INT_TYPE oldPeriodic){
+    INT_TYPE si,space,i,l,i2,i3,l2,l3,r,rank;
+    INT_TYPE N1 ;
+    INT_TYPE L1 ;
+    f2->sinc.tulip[out].Current[s2] = 0;
+    zero(f1,out,s2);
+    
+    for ( space = 0;space < SPACE; space++){
+        N1 = vectorLen(f2, out)[space];
+        L1 = vectorLen(f1, vector1)[space];
+        struct basisElement gl[3][L1];
+        struct basisElement gi[3][N1];
+        
+        for ( i = 0; i < N1 ; i++){
+            gi[0][i] = grabBasis(f2, space, 1, i);
+            gi[1][i] = grabBasis(f2, space, 2, i);
+            gi[2][i] = grabBasis(f2, space, 3, i);
+
+        }
+        for ( l = 0 ; l < L1 ; l++){
+            gl[0][l] = grabBasis(f1, space, 1, l);
+            gl[1][l] = grabBasis(f1, space, 2, l);
+            gl[2][l] = grabBasis(f1, space, 3, l);
+        }
+
+        INT_TYPE pt = 3,p;
+        double gx[pt][L1][N1];
+        for ( p = 0; p < pt ; p++)
+            for ( i = 0; i < N1 ; i++)
+                for ( l = 0 ; l < L1 ; l++)
+                    gx[p][l][i] = BoB (gl[p][l],gi[p][i] );
+        
+#ifdef OMP
+#pragma omp parallel for private (si,i,i2,i3,rank,l,l2,l3) schedule(dynamic,1)
+#endif
+        for ( si = 0; si < N1*N1*N1 ; si++){
+#ifdef OMP
+            rank = omp_get_thread_num();
+#else
+            rank = 0;
+#endif
+
+//        for ( i = 0; i < N1 ; i++)
+//            for ( i2 = 0; i2 < N1 ; i2++)
+//                for ( i3 = 0; i3 < N1 ; i3++)
+            i = si% N1;
+            i2 = (si/N1)%N1;
+            i3 = (si/(N1*N1)) % N1;
+                    
+                    
+                    //build
+                    
+                    for ( l = 0 ; l < L1 ; l++)
+                        for ( l2 = 0 ; l2 < L1 ; l2++)
+                            for ( l3 = 0 ; l3 < L1 ; l3++)
+                                streams(f1, foundationStructure,rank, space )[(l3*L1*L1+l2*L1+l)] =
+                                gx[0][l][i]*
+                                gx[1][l2][i2]*
+                                gx[2][l3][i3];
+                    
+                    
+                    for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++)
+                        streams(f2, out, s2,space)[r*N1*N1*N1 + (i3*N1*N1+i2*N1+i)] = cblas_ddot(L1*L1*L1, streams(f1, foundationStructure,rank, space ),1,streams(f1, vector1,s1,space)+r*L1*L1*L1,1);
+                    //
+                    
+                    
+                    
+                    
+                }
+    }
+    f2->sinc.tulip[out].Current[s2] = CanonicalRank(f1, vector1, s1);
+    
+    return 0.;
+}
+
+double xFourBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2,INT_TYPE oldPeriodic){
+    INT_TYPE si,space,i,l,i2,i3,i4,l2,l3,l4,r,rank;
+    INT_TYPE N1 ;
+    INT_TYPE L1 ;
+    f2->sinc.tulip[out].Current[s2] = 0;
+    zero(f1,out,s2);
+    
+    
+    for ( space = 0;space < SPACE; space++){
+        N1 = vectorLen(f2, out)[space];
+        L1 = vectorLen(f1, vector1)[space];
+        struct basisElement gl[4][L1];
+        struct basisElement gi[4][N1];
+        
+        for ( i = 0; i < N1 ; i++){
+            gi[0][i] = grabBasis(f2, space, 1, i);
+            gi[1][i] = grabBasis(f2, space, 2, i);
+            gi[2][i] = grabBasis(f2, space, 3, i);
+            gi[3][i] = grabBasis(f2, space, 4, i);
+
+        }
+        for ( l = 0 ; l < L1 ; l++){
+            gl[0][l] = grabBasis(f1, space, 1, l);
+            gl[1][l] = grabBasis(f1, space, 2, l);
+            gl[2][l] = grabBasis(f1, space, 3, l);
+            gl[3][l] = grabBasis(f1, space, 4, l);
+
+        }
+        INT_TYPE pt = 4,p;
+        double gx[pt][L1][N1];
+        for ( p = 0; p < pt ; p++)
+            for ( i = 0; i < N1 ; i++)
+                for ( l = 0 ; l < L1 ; l++)
+                    gx[p][l][i] = BoB (gl[p][l],gi[p][i] );
+
+
+#ifdef OMP
+#pragma omp parallel for private (si,i,i2,i3,i4,rank,l,l2,l3,l4) schedule(dynamic,1)
+#endif
+        for ( si = 0; si < N1*N1*N1*N1 ; si++){
+#ifdef OMP
+            rank = omp_get_thread_num();
+#else
+            rank = 0;
+#endif
+            //        for ( i = 0; i < N1 ; i++)
+            //            for ( i2 = 0; i2 < N1 ; i2++)
+            //                for ( i3 = 0; i3 < N1 ; i3++)
+            i = si% N1;
+            i2 = (si/N1)%N1;
+            i3 = (si/(N1*N1)) % N1;
+            i4 = (si/(N1*N1*N1)) % N1;
+
+                        //build
+                        
+                        for ( l = 0 ; l < L1 ; l++)
+                            for ( l2 = 0 ; l2 < L1 ; l2++)
+                                for ( l3 = 0 ; l3 < L1 ; l3++)
+                                    for ( l4 = 0; l4 < L1 ; l4++)
+                                        streams(f1, foundationStructure,rank, space )[(l4*L1*L1*L1+l3*L1*L1+l2*L1+l)] =
+                                        gx[0][l][i]*
+                                        gx[1][l2][i2]*
+                                        gx[2][l3][i3]*
+                                        gx[3][l4][i4];
+
+                        
+                        
+                        
+                        for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++)
+                            streams(f2, out, s2,space)[r*N1*N1*N1*N1 + (i4*N1*N1*N1+i3*N1*N1+i2*N1+i)] = cblas_ddot(L1*L1*L1*L1, streams(f1, foundationStructure,rank, space ),1,streams(f1, vector1,s1,space)+r*L1*L1*L1*L1,1);
+                        //
+                    }
+        
+        
+        
+    }
+    f2->sinc.tulip[out].Current[s2] = CanonicalRank(f1, vector1, s1);
+    
+    return 0.;
+}
+
+#endif

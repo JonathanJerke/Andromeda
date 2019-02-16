@@ -325,11 +325,11 @@ dpotrs_(&charU,&L1,  &M2, array, &L1, arrayo, &L1, &info );
 #else
     INT_TYPE i;
     for ( i = 0; i < L1*M2 ; i++){
-//        if ( isnan(arrayo[i]) || isinf(arrayo[i])){
-//            printf("warning inf, try reducing the rank of vectors\n");
-//            fflush(stdout);
-//            exit(0);
-//        }
+        if ( isnan(arrayo[i]) || isinf(arrayo[i])){
+            printf("warning inf, try reducing the rank of vectors\n");
+            fflush(stdout);
+            exit(0);
+        }
     }
     info =  LAPACKE_dpotrs(LAPACK_COL_MAJOR,'U',L1,  M2, array, L1, arrayo, L1 );
 #endif

@@ -27,6 +27,7 @@
 #define coreUtil_h
 #include "constants.h"
 #include "coreMath.h"
+#include "coreForce.h"
 INT_TYPE spaces( struct field * f1, enum division label);
 INT_TYPE name ( struct field * f1, enum division label);
 INT_TYPE part ( struct field * f1 , enum division label );
@@ -83,9 +84,10 @@ INT_TYPE assignCores(struct field * f1, INT_TYPE parallel );
 INT_TYPE Rank( struct field * f1 , enum division label );
 INT_TYPE xAddTw( struct field* f1 , enum division left, INT_TYPE lspin,struct field* f2 ,  enum division right , INT_TYPE rspin);
 double xEqua ( struct field * f1 , enum division targ ,INT_TYPE tspin,struct field * f2 , enum division orig,INT_TYPE ospin );
-double xTwoBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
-double xThreeBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
-double xFourBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
-double xOneBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
+double xTwoBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
+double xThreeBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
+double xFourBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
+double xOneBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
 void printVectorAllocations(struct field *f1);
+struct basisElement grabBasis (struct field * f1, INT_TYPE component, INT_TYPE particle, INT_TYPE elementIndex);
 #endif /* coreUtil_h */

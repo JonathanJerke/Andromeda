@@ -560,13 +560,13 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     
                 case 82:
                     if ( ivalue == 1 )
-                        c->i.body = one;
+                        c->rt.body = one;
                     else if ( ivalue == 2 )
-                        c->i.body = two;
+                        c->rt.body = two;
                     else if ( ivalue == 3 )
-                        c->i.body = three;
+                        c->rt.body = three;
                     else if ( ivalue == 4 )
-                        c->i.body = four;
+                        c->rt.body = four;
                     else
                     {
                         return 0;
@@ -583,16 +583,16 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     if ( ivalue < 0 )
                         return 0;
                     
-                    if ( c->i.body == one ){
+                    if ( c->rt.body == one ){
                         c->i.c.rds.Basis[0] = ivalue;
                         c->i.c.rds.flag = 1;
-                    }else if ( c->i.body == two ){
+                    }else if ( c->rt.body == two ){
                         c->i.c.rds.Basis2[0] = ivalue;
                         c->i.c.rds.flag = 2;
-                    }else if ( c->i.body == three ){
+                    }else if ( c->rt.body == three ){
                         c->i.c.rds.Basis3[0] = ivalue;
                         c->i.c.rds.flag = 3;
-                    }else if ( c->i.body == four ){
+                    }else if ( c->rt.body == four ){
                         c->i.c.rds.Basis4[0] = ivalue;
                         c->i.c.rds.flag = 4;
                     }
@@ -600,19 +600,19 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                 case 85:
                     if ( ivalue < 0 )
                         return 0;
-                    if ( c->i.body == one ){
+                    if ( c->rt.body == one ){
                         c->i.c.rds.Basis[1] = ivalue;
                         c->i.c.rds.flag = 1;
 
-                    }else if ( c->i.body == two ){
+                    }else if ( c->rt.body == two ){
                         c->i.c.rds.Basis2[1] = ivalue;
                         c->i.c.rds.flag = 2;
 
-                    }else if ( c->i.body == three ){
+                    }else if ( c->rt.body == three ){
                         c->i.c.rds.Basis3[1] = ivalue;
                         c->i.c.rds.flag = 3;
 
-                    }else if ( c->i.body == four ){
+                    }else if ( c->rt.body == four ){
                         c->i.c.rds.Basis4[1] = ivalue;
                         c->i.c.rds.flag = 4;
 
@@ -621,19 +621,19 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                 case 86:
                     if ( ivalue < 0 )
                         return 0;
-                    if ( c->i.body == one ){
+                    if ( c->rt.body == one ){
                         c->i.c.rds.Basis[2] = ivalue;
                         c->i.c.rds.flag = 1;
 
-                    }else if ( c->i.body == two ){
+                    }else if ( c->rt.body == two ){
                         c->i.c.rds.Basis2[2] = ivalue;
                         c->i.c.rds.flag = 2;
 
-                    }else if ( c->i.body == three ){
+                    }else if ( c->rt.body == three ){
                         c->i.c.rds.Basis3[2] = ivalue;
                         c->i.c.rds.flag = 3;
 
-                    }else if ( c->i.body == four ){
+                    }else if ( c->rt.body == four ){
                         c->i.c.rds.Basis4[2] = ivalue;
                         c->i.c.rds.flag = 4;
 
@@ -716,11 +716,11 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     return i;
                 case 106:
                     if ( ivalue == 0 )
-                        c->i.bodyType = electron;
+                        c->rt.bodyType = electron;
                     else if ( ivalue == 1 )
-                        c->i.bodyType = h2plus;
+                        c->rt.bodyType = h2plus;
                     else if ( ivalue == 2 )
-                        c->i.bodyType = h2  ;
+                        c->rt.bodyType = h2  ;
                     else
                     {
                         return 0;

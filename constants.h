@@ -94,7 +94,6 @@ typedef double __complex__ DCOMPLEX_PRIME;
 
 
 #define MAXSTRING 1024
-#define SPACE 3
 #define MaxParamFunc 4
 
 #define Mag  0.0000021271911715764754 // Hartree/Tesla
@@ -226,30 +225,31 @@ enum functionType{
     BLYP//7
 };
 
-//enum basisElementType {
-//    nullBasisElement,
-//    SincBasisElement,
-//    ShannonWaveletBasisElement,
-//    GaussianBasisElement,
-//    periodicSincBasisElement,
-//    periodicShannonWaveletBasisElement,
-//    periodicGaussianBasisElement
-//};
-//
-//
-//struct basisElement {
-//    enum basisElementType basis;
-//    INT_TYPE index;
-//    double length;
-//    double origin;
-//    
-//    INT_TYPE auxIndex; //for periodic Sincs
-//    double auxLength;
-//    INT_TYPE association;
-//    INT_TYPE dim;
-//    INT_TYPE body;
-//};
-//
+enum basisElementType {
+    nullBasisElement,
+    SincBasisElement,
+    GaussianBasisElement,
+    periodicSincBasisElement,
+    periodicGaussianBasisElement,
+    DiracDelta
+};
+
+
+struct basisElement {
+    INT_TYPE periodic;
+    enum basisElementType basis;
+    INT_TYPE index;
+    double length;
+    double origin;
+    
+    INT_TYPE auxIndex; //for periodic Sincs
+    double auxLength;
+    INT_TYPE association;
+    INT_TYPE dim;
+    INT_TYPE body;
+};
+
+
 
 
 
@@ -297,23 +297,28 @@ enum functionType{
 
 
 enum division{
-    kinetic,//0
     kineticMass,
+    kinetic,//0
+    kinetic1,
+    kinetic2,
+    kinetic3,
+    kinetic4,
     linear,
+    external1,
+    external2,
+    external3,
+    external4,//121,122,123,124
     interactionExchange,//22
     interactionExchangePlus,
     X,//
     harmonium,
-    direct,//2
-    exchange,//3
-    total,//4
-    density,//5
     pointer,//6
     nullScalar,//7
     nullVector,//8
     nullMatrix,//9
     forces,//10
     overlap,
+    density,
     resolveBufferMatrix,//11
     distanceBufferVector,//12
     distanceBufferMatrix,//13
@@ -333,27 +338,10 @@ enum division{
     highBallVector2,
     highBallVector3,
     highBallVector4,
-    inverseVector1,//26
-    inverseVector2,//27
-    inverseVector3,//28
-    inverseVector4,//29
-    inverseVector5,//30
     buffer2,//31
     buffer3,//32
     square2,//33
-    tempAtom,//34
-    split,//35
     alternatingMatrix,//36
-    Grad,//37
-    u,
-    v,//39-40
-    idp,//41
-    nullMatrixNorm,//42
-    diis,//43
-    q,
-    qq,
-    p,
-    pp,//44-47
     secondVector,//48
     maxBuffer4Vector,//49
     maxBuffer5Vector,//50
@@ -434,14 +422,6 @@ enum division{
     foundationBasis,
     diDiagonalVector,
     diDiagonal,//118,119,120
-    kinetic1,
-    kinetic2,
-    kinetic3,
-    external1,
-    external2,
-    external3,
-    kinetic4,
-    external4,//121,122,123,124
     basisBuffers,
     tensorBuffers,
     vectorCubeBuffers,//125,126,127
@@ -560,7 +540,9 @@ struct sinc_label {
     INT_TYPE maxEV;
 
     INT_TYPE N1;
+    INT_TYPE dims[7][3];
     double d;//input lattice spacing
+    double dd[7];//multiplying global lattice length, d, at fixed ratios.
     struct canon rose[SPACE+1];
     struct name_label *tulip;//many names,  Myrid
     enum division end;
@@ -603,8 +585,6 @@ struct field {
     INT_TYPE Ne;
     enum body body;
     INT_TYPE ir;
-//    INT_TYPE boaL;
-//    struct basisElement boa[MAXBOA];
 	struct sinc_label sinc;
     struct rds_label rds;
     struct interaction_label twoBody;
@@ -613,17 +593,19 @@ struct field {
 };
 
 struct general_index{//one dimension
+    struct basisElement bra;
+    struct basisElement ket;
+    INT_TYPE action ;//0 = no derivative.  1 derivative.
+    double x0;//gaussain1 position in 1-d
+    INT_TYPE pointer;
+
+    //line in sand...
     double b0;
     double b1;
     INT_TYPE l0;
     INT_TYPE l1;
-    INT_TYPE pointer;
-    
     double x1;
-
-	double x0;//gaussain1 position in 1-d
-	
-    INT_TYPE action ;//0 = no derivative.  1 derivative.
+    
     
 	double d;
 	double n;//function index.
@@ -633,16 +615,15 @@ struct general_index{//one dimension
 
 struct general_2index{//one dimension
 	struct general_index i[2];
-    double d ;
     double alpha;
-    double boundary;
-    double k;
+    double momentumShift;
     INT_TYPE point;
     INT_TYPE powSpace;//r^2*pow in Gaussian term!!
     INT_TYPE N1;
     INT_TYPE body;
-    INT_TYPE periodic;
+    INT_TYPE periodic;//1==periodic basis//2==periodic external field
     INT_TYPE gaussianAccelerationFlag;
+    INT_TYPE realFlag;
     struct function_label * fl;
 };
 
@@ -669,6 +650,10 @@ struct runTime {
     double vCANON;
     double vCONVERGENCE;
     double targetCondition;
+    
+    enum body body;
+    enum bodyType bodyType;
+
 };
 
 struct MEM {
@@ -706,8 +691,6 @@ struct input {
     INT_TYPE hartreeFockFlag;
     INT_TYPE M1;
     double vectorMomentum;
-    enum body body;
-    enum bodyType bodyType;
     double springConstant;
     INT_TYPE springFlag;
     INT_TYPE potentialFlag;
