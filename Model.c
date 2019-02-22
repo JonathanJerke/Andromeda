@@ -120,8 +120,8 @@ struct calculation initCal (void ) {
     i.rt.CANON = 1e-7;
     i.rt.vCANON = 1e-6;
     i.rt.TOL = 1e-6;
-    i.rt.CONVERGENCE = 1e-6;
-    i.rt.vCONVERGENCE = 1e-6;
+//    i.rt.CONVERGENCE = 1e-6;
+//    i.rt.vCONVERGENCE = 1e-6;
     i.rt.maxEntropy = 1e-6;
     
     
@@ -319,7 +319,6 @@ INT_TYPE iModel( struct calculation * c1){
             for ( label1 = 0 ;label1 <= end; label1++){
                 f1->sinc.tulip[label1].name = label1;
                 f1->sinc.tulip[label1].header = Cube;
-                f1->sinc.tulip[label1].signature = 0;
                 f1->sinc.tulip[label1].spinor = cmpl;
                 f1->sinc.tulip[label1].purpose = Object;
                 f1->sinc.tulip[label1].memory = threeObject;
@@ -336,13 +335,13 @@ INT_TYPE iModel( struct calculation * c1){
         }
         
         if(1){
-            printf("TARGET \t\t%f\n", log(c1->rt.TARGET)/log(10));
-            printf("TOL \t\t%f\n", log(c1->rt.TOL)/log(10));
-            printf("CANON \t\t%f\n", log(c1->rt.CANON)/log(10));
-            printf("vCANON \t\t%f\n", log(c1->rt.vCANON)/log(10));
-            printf("CONVERGENCE \t%f\n", log(c1->rt.CONVERGENCE )/log(10));
-            printf("vCONVERGENCE\t %f\n", log(c1->rt.vCONVERGENCE )/log(10));
-            printf("ALPHA\t\t %f\n", log(c1->rt.ALPHA )/log(10));
+            printf("TARGET \t\t%f\n", log(c1->rt.TARGET)/log(10));//quality of decomposition
+            printf("TOL \t\t%f\n", log(c1->rt.TOL)/log(10));//max condition of foundation vectors
+            printf("CANON \t\t%f\n", log(c1->rt.CANON)/log(10));//matrix training standard
+            printf("vCANON \t\t%f\n", log(c1->rt.vCANON)/log(10));//vector training standard
+        //    printf("CONVERGENCE \t%f\n", log(c1->rt.CONVERGENCE )/log(10));
+        //    printf("vCONVERGENCE\t %f\n", log(c1->rt.vCONVERGENCE )/log(10));
+            printf("ALPHA\t\t %f\n", log(c1->rt.ALPHA )/log(10));//Beylkin parameter
 
         }
         
@@ -661,7 +660,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[nullMatrix].name = nullMatrix;
         
         f1->sinc.tulip[vectorCubeBuffers].Address = fromBegining(f1,nullMatrix);
-        f1->sinc.tulip[vectorCubeBuffers].Partition = 1;
+        f1->sinc.tulip[vectorCubeBuffers].Partition = 0;
         f1->sinc.tulip[vectorCubeBuffers].parallel = 2;
         f1->sinc.tulip[vectorCubeBuffers].species = vector;
         f1->sinc.tulip[vectorCubeBuffers].header = Cube;//WARNING
@@ -686,7 +685,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         f1->sinc.tulip[basis].spinor = none;
         f1->sinc.tulip[basis].Address = fromBegining(f1,edges);
-        f1->sinc.tulip[basis].Partition = 1;
+        f1->sinc.tulip[basis].Partition = 0;
         f1->sinc.tulip[basis].species = matrix;
         f1->sinc.tulip[basis].header = RdsBasis;
         f1->sinc.tulip[basis].purpose = Object;
@@ -729,7 +728,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         
         f1->sinc.tulip[productVector].Address = fromBegining(f1,bandBasis);
-        f1->sinc.tulip[productVector].Partition = maxVector;
+        f1->sinc.tulip[productVector].Partition = (c1->i.canonRank)*maxVector;
         f1->sinc.tulip[productVector].species = vector;
         f1->sinc.tulip[productVector].header = Cube;
         f1->sinc.tulip[productVector].parallel = 2;
@@ -1078,41 +1077,8 @@ INT_TYPE iModel( struct calculation * c1){
 //        f1->sinc.tulip[trainQuartic].symmetryType = nullSymmetry;
         f1->sinc.tulip[trainQuartic].name = trainQuartic;
         
-        {
-            INT_TYPE len[3];
-            length(f1, eigenVectors, len);
-            
-        f1->sinc.tulip[canonicalBuffers].spinor = none;
-        f1->sinc.tulip[canonicalBuffers].parallel = 1;
-        f1->sinc.tulip[canonicalBuffers].Address = fromBegining(f1,trainQuartic);
-        f1->sinc.tulip[canonicalBuffers].Partition = maxVector*maxVector+ imax(len[0],imax(NV,part(f1,totalVector)))*maxVector;
-        f1->sinc.tulip[canonicalBuffers].species = scalar;
-        f1->sinc.tulip[canonicalBuffers].purpose = Object;
-//        f1->sinc.tulip[canonicalBuffers].symmetryType = nullSymmetry;
-        f1->sinc.tulip[canonicalBuffers].name = canonicalBuffers;
-        }
-        INT_TYPE eigenNeeds = imax(maxEV*maxEV,4*maxEV) + 1;
-        
-        
-        f1->sinc.tulip[eigenBuffers].spinor = none;
-        f1->sinc.tulip[eigenBuffers].Address = fromBegining(f1,canonicalBuffers);
-        f1->sinc.tulip[eigenBuffers].Partition = 0*eigenNeeds;
-        f1->sinc.tulip[eigenBuffers].species = scalar;
-        f1->sinc.tulip[eigenBuffers].purpose = Object;
-//        f1->sinc.tulip[eigenBuffers].symmetryType = nullSymmetry;
-        f1->sinc.tulip[eigenBuffers].name = eigenBuffers;
-        
-        f1->sinc.tulip[tensorBuffers].spinor = none;
-        f1->sinc.tulip[tensorBuffers].Address =  fromBegining(f1,eigenBuffers);
-        f1->sinc.tulip[tensorBuffers].Partition =2;
-        f1->sinc.tulip[tensorBuffers].parallel = 1;
-        f1->sinc.tulip[tensorBuffers].species = vector;
-        f1->sinc.tulip[tensorBuffers].header = Cube;
-        f1->sinc.tulip[tensorBuffers].purpose = Object;
-//        f1->sinc.tulip[tensorBuffers].symmetryType = nullSymmetry;
-        f1->sinc.tulip[tensorBuffers].name = tensorBuffers;
-        
-        f1->sinc.tulip[highBallVector].Address =  fromBegining(f1,tensorBuffers);
+      
+        f1->sinc.tulip[highBallVector].Address =  fromBegining(f1,trainQuartic);
         f1->sinc.tulip[highBallVector].Partition =maxVector*(( c1->rt.printFlag / 8 )%2);
         f1->sinc.tulip[highBallVector].species = vector;
         f1->sinc.tulip[highBallVector].NBody = four;
@@ -1145,8 +1111,21 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[highBallVector4].name = highBallVector4;
 
         
+        {
+            INT_TYPE len[3];
+            length(f1, eigenVectors, len);
+            
+            f1->sinc.tulip[canonicalBuffers].spinor = none;
+            f1->sinc.tulip[canonicalBuffers].parallel = 1;
+            f1->sinc.tulip[canonicalBuffers].Address = fromBegining(f1,highBallVector4);
+            f1->sinc.tulip[canonicalBuffers].Partition = maxVector*maxVector+ imax(len[0],imax(NV,part(f1,totalVector)))*maxVector;
+            f1->sinc.tulip[canonicalBuffers].species = scalar;
+            f1->sinc.tulip[canonicalBuffers].purpose = Object;
+            //        f1->sinc.tulip[canonicalBuffers].symmetryType = nullSymmetry;
+            f1->sinc.tulip[canonicalBuffers].name = canonicalBuffers;
+        }
         
-        f1->sinc.tulip[foundationStructure].Address =  fromBegining(f1,highBallVector4);
+        f1->sinc.tulip[foundationStructure].Address =  fromBegining(f1,canonicalBuffers);
         f1->sinc.tulip[foundationStructure].Partition = nG;
         f1->sinc.tulip[foundationStructure].NBody = bootBodies;
         f1->sinc.tulip[foundationStructure].parallel = 1;
@@ -1164,8 +1143,6 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[foundationEquals].name = foundationEquals;
 
         {
-            
-            
             f1->sinc.tulip[interactionDirect].Address = fromBegining(f1,foundationEquals);
             f1->sinc.tulip[interactionDirect].spinor = none;
             f1->sinc.tulip[interactionDirect].Partition = (!(!c1->i.hartreeFockFlag))*f1->twoBody.num*( bootBodies > one );
@@ -1173,12 +1150,29 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[interactionDirect].NBody = two;
             f1->sinc.tulip[interactionDirect].header = Cube;
             f1->sinc.tulip[interactionDirect].purpose = Object;
-//            f1->sinc.tulip[interactionDirect].symmetryType = nullSymmetry;
             f1->sinc.tulip[interactionDirect].name = interactionDirect;
             
+            f1->sinc.tulip[interactionExchange].Address = fromBegining(f1,interactionDirect);
+            f1->sinc.tulip[interactionExchange].spinor = none;
+            f1->sinc.tulip[interactionExchange].Partition = f1->twoBody.num*( bootBodies > one );
+            f1->sinc.tulip[interactionExchange].species = matrix;
+            f1->sinc.tulip[interactionExchange].NBody = two;
+            f1->sinc.tulip[interactionExchange].header = Cube;
+            f1->sinc.tulip[interactionExchange].purpose = Object;
+            f1->sinc.tulip[interactionExchange].name = interactionExchange;
+            
+            f1->sinc.tulip[interactionExchangePlus].Address = fromBegining(f1,interactionExchange);
+            f1->sinc.tulip[interactionExchangePlus].spinor = none;
+            f1->sinc.tulip[interactionExchangePlus].Partition = f1->twoBody.num*( bootBodies >= two && bootType > electron );
+            f1->sinc.tulip[interactionExchangePlus].species = matrix;
+            f1->sinc.tulip[interactionExchangePlus].NBody = two;
+            f1->sinc.tulip[interactionExchangePlus].header = Cube;
+            f1->sinc.tulip[interactionExchangePlus].purpose = Object;
+            f1->sinc.tulip[interactionExchangePlus].name = interactionExchangePlus;
+
             
             f1->sinc.tulip[quadCube].spinor = none;
-            f1->sinc.tulip[quadCube].Address = fromBegining(f1,interactionDirect);
+            f1->sinc.tulip[quadCube].Address = fromBegining(f1,interactionExchangePlus);
             f1->sinc.tulip[quadCube].Partition =1;
             f1->sinc.tulip[quadCube].species = matrix;
             f1->sinc.tulip[quadCube].header = Cube;
@@ -1204,7 +1198,6 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[quad].purpose = Object;
             f1->sinc.tulip[quad].name = quad;
             
-            
             f1->sinc.tulip[end].Partition = 0;
             f1->sinc.tulip[end].Address = fromBegining(f1,quad);
             f1->sinc.tulip[end].species = scalar;
@@ -1221,33 +1214,10 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[basisBuffers].header = Cube;
             f1->sinc.tulip[basisBuffers].memory = oneObject;
             f1->sinc.tulip[basisBuffers].name = basisBuffers;
-            
         }
-        
-        f1->sinc.tulip[interactionExchange].myAddress = fromMyBegining(f1,basisBuffers);
-        f1->sinc.tulip[interactionExchange].spinor = none;
-        f1->sinc.tulip[interactionExchange].Partition = f1->twoBody.num*( bootBodies > one );
-        f1->sinc.tulip[interactionExchange].species = matrix;
-        f1->sinc.tulip[interactionExchange].NBody = two;
-        f1->sinc.tulip[interactionExchange].memory = oneObject;
-        f1->sinc.tulip[interactionExchange].header = Cube;
-        f1->sinc.tulip[interactionExchange].purpose = Object;
-//        f1->sinc.tulip[interactionExchange].symmetryType = nullSymmetry;
-        f1->sinc.tulip[interactionExchange].name = interactionExchange;
-        
-        f1->sinc.tulip[interactionExchangePlus].myAddress = fromMyBegining(f1,interactionExchange);
-        f1->sinc.tulip[interactionExchangePlus].spinor = none;
-        f1->sinc.tulip[interactionExchangePlus].Partition = f1->twoBody.num*( bootBodies >= two && bootType > electron );
-        f1->sinc.tulip[interactionExchangePlus].species = matrix;
-        f1->sinc.tulip[interactionExchangePlus].NBody = two;
-        f1->sinc.tulip[interactionExchangePlus].memory = oneObject;
-        f1->sinc.tulip[interactionExchangePlus].header = Cube;
-        f1->sinc.tulip[interactionExchangePlus].purpose = Object;
-//        f1->sinc.tulip[interactionExchangePlus].symmetryType = nullSymmetry;
-        f1->sinc.tulip[interactionExchangePlus].name = interactionExchangePlus;
-
+    
         f1->sinc.tulip[oneArray].parallel = 0;
-        f1->sinc.tulip[oneArray].myAddress = fromMyBegining(f1,interactionExchangePlus);
+        f1->sinc.tulip[oneArray].myAddress = fromMyBegining(f1,basisBuffers);
         f1->sinc.tulip[oneArray].Partition = c1->i.M1*3+c1->i.M1*c1->i.M1;
         f1->sinc.tulip[oneArray].species = scalar;
         f1->sinc.tulip[oneArray].memory = oneObject;
@@ -1267,10 +1237,70 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[oneBasis].memory = oneObject;
         f1->sinc.tulip[oneBasis].name = oneBasis;
         
+        f1->sinc.tulip[tensorBuffers].spinor = none;
+        f1->sinc.tulip[tensorBuffers].myAddress =  fromMyBegining(f1,oneBasis);
+        f1->sinc.tulip[tensorBuffers].Partition = 1;
+        f1->sinc.tulip[tensorBuffers].parallel = 1;
+        f1->sinc.tulip[tensorBuffers].species = vector;
+        f1->sinc.tulip[tensorBuffers].header = Cube;
+        f1->sinc.tulip[tensorBuffers].purpose = Object;
+        f1->sinc.tulip[tensorBuffers].memory = oneObject;
+        f1->sinc.tulip[tensorBuffers].name = tensorBuffers;
+        
+        f1->sinc.tulip[tensorBuffers2].spinor = none;
+        f1->sinc.tulip[tensorBuffers2].myAddress =  fromMyBegining(f1,tensorBuffers);
+        f1->sinc.tulip[tensorBuffers2].Partition = 1;
+        f1->sinc.tulip[tensorBuffers2].parallel = 1;
+        f1->sinc.tulip[tensorBuffers2].species = vector;
+        f1->sinc.tulip[tensorBuffers2].header = Cube;
+        f1->sinc.tulip[tensorBuffers2].purpose = Object;
+        f1->sinc.tulip[tensorBuffers2].memory = oneObject;
+        f1->sinc.tulip[tensorBuffers2].name = tensorBuffers2;
+
+        f1->sinc.tulip[tensorBuffers3].spinor = none;
+        f1->sinc.tulip[tensorBuffers3].myAddress =  fromMyBegining(f1,tensorBuffers2);
+        f1->sinc.tulip[tensorBuffers3].Partition = 1;
+        f1->sinc.tulip[tensorBuffers3].parallel = 1;
+        f1->sinc.tulip[tensorBuffers3].species = vector;
+        f1->sinc.tulip[tensorBuffers3].header = Cube;
+        f1->sinc.tulip[tensorBuffers3].purpose = Object;
+        f1->sinc.tulip[tensorBuffers3].memory = oneObject;
+        f1->sinc.tulip[tensorBuffers3].name = tensorBuffers3;
+
+        f1->sinc.tulip[tensorBuffers4].spinor = none;
+        f1->sinc.tulip[tensorBuffers4].myAddress =  fromMyBegining(f1,tensorBuffers3);
+        f1->sinc.tulip[tensorBuffers4].Partition = 1;
+        f1->sinc.tulip[tensorBuffers4].parallel = 1;
+        f1->sinc.tulip[tensorBuffers4].species = vector;
+        f1->sinc.tulip[tensorBuffers4].header = Cube;
+        f1->sinc.tulip[tensorBuffers4].purpose = Object;
+        f1->sinc.tulip[tensorBuffers4].memory = oneObject;
+        f1->sinc.tulip[tensorBuffers4].name = tensorBuffers4;
+
+        f1->sinc.tulip[tensorBuffers5].spinor = none;
+        f1->sinc.tulip[tensorBuffers5].myAddress =  fromMyBegining(f1,tensorBuffers4);
+        f1->sinc.tulip[tensorBuffers5].Partition = 1;
+        f1->sinc.tulip[tensorBuffers5].parallel = 1;
+        f1->sinc.tulip[tensorBuffers5].species = vector;
+        f1->sinc.tulip[tensorBuffers5].header = Cube;
+        f1->sinc.tulip[tensorBuffers5].purpose = Object;
+        f1->sinc.tulip[tensorBuffers5].memory = oneObject;
+        f1->sinc.tulip[tensorBuffers5].name = tensorBuffers5;
+        
+        f1->sinc.tulip[tensorBuffers6].spinor = none;
+        f1->sinc.tulip[tensorBuffers6].myAddress =  fromMyBegining(f1,tensorBuffers5);
+        f1->sinc.tulip[tensorBuffers6].Partition = 1;
+        f1->sinc.tulip[tensorBuffers6].parallel = 1;
+        f1->sinc.tulip[tensorBuffers6].species = vector;
+        f1->sinc.tulip[tensorBuffers6].header = Cube;
+        f1->sinc.tulip[tensorBuffers6].purpose = Object;
+        f1->sinc.tulip[tensorBuffers6].memory = oneObject;
+        f1->sinc.tulip[tensorBuffers6].name = tensorBuffers6;
+        
         f1->sinc.tulip[canonicalBuffersB].spinor = none;
         f1->sinc.tulip[canonicalBuffersB].parallel = 1;
-        f1->sinc.tulip[canonicalBuffersB].myAddress = fromMyBegining(f1,oneBasis);
-        f1->sinc.tulip[canonicalBuffersB].Partition = imax(1,maxVector);
+        f1->sinc.tulip[canonicalBuffersB].myAddress = fromMyBegining(f1,tensorBuffers6);
+        f1->sinc.tulip[canonicalBuffersB].Partition = c1->i.canonRank*imax(1,maxVector);
         f1->sinc.tulip[canonicalBuffersB].species = vector;
         f1->sinc.tulip[canonicalBuffersB].memory = oneObject;
         f1->sinc.tulip[canonicalBuffersB].name = canonicalBuffersB;
@@ -1288,8 +1318,6 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[canonicalBuffersBM].parallel = 0;
         f1->sinc.tulip[canonicalBuffersBM].myAddress = fromMyBegining(f1,canonicalBuffersBX);
         f1->sinc.tulip[canonicalBuffersBM].Partition = 1;
-//        if ( bootBodies == four )
-//            f1->sinc.tulip[canonicalBuffersBM].NBody = two;
         f1->sinc.tulip[canonicalBuffersBM].species = matrix;
         f1->sinc.tulip[canonicalBuffersBM].memory = oneObject;
         f1->sinc.tulip[canonicalBuffersBM].name = canonicalBuffersBM;
@@ -1434,14 +1462,15 @@ INT_TYPE iModel( struct calculation * c1){
 //                tScale(f1, interactionDirect, c1->i.hartreeFockFlag);
 //            }
 
-            //CLEAN UP THIS MESS!!!!!
             if ( bootType == electron  ){
                 if ( bootBodies > one ){
                     mySeparateExactTwo(f1,c1->rt.runFlag, 1. , 0,0,1,2);
-                    if ( c1->rt.runFlag == 7){
-                        buildElectronProtonInteraction(f1, linear);
-                    }else if (c1->rt.runFlag > 0 && c1->rt.runFlag < 7 ){
-                        separateExternal(c1,-c1->rt.runFlag,0,1.0,4,0,1);
+                    if ( (c1->rt.runFlag == 7 && SPACE ==3 ) || (c1->rt.runFlag == 3 && SPACE == 2 )){
+                        
+                        buildElectronProtonInteraction(f1, linear,0);
+                        tZeroSum(f1, interactionExchange, 0 );
+                        tZeroSum(f1, linear, 0 );
+
                     }
                 }
                 if (f1->Na != 0 ){
@@ -1529,6 +1558,7 @@ INT_TYPE iModel( struct calculation * c1){
                     f1->sinc.tulip[interaction12].linkNext = hartree;
                 f1->sinc.tulip[interaction12].blockType = e12;
                 f1->sinc.tulip[interaction12].NBody = two;
+               // f1->sinc.tulip[interaction12].memory = threeObject;
                 f1->sinc.tulip[interaction12].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction12].ptRank[0] = 0;
                 f1->sinc.tulip[interaction12].header = Cube;
@@ -1537,7 +1567,7 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[hartree].name = interactionDirect;
                 f1->sinc.tulip[hartree].blockType = e12;
                 f1->sinc.tulip[hartree].NBody = two;
-                f1->sinc.tulip[hartree].memory = threeObject;
+               // f1->sinc.tulip[hartree].memory = threeObject;
                 f1->sinc.tulip[hartree].Current[0] = (!(!c1->i.hartreeFockFlag))*CanonicalRank(f1, interactionDirect,0);//only run if SET BY ExactOne...
                 f1->sinc.tulip[hartree].ptRank[0] = 0;
                 f1->sinc.tulip[hartree].header = Cube;
@@ -1652,7 +1682,6 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction12].name = interactionExchange;
                 f1->sinc.tulip[interaction12].blockType = e12;
                 f1->sinc.tulip[interaction12].NBody = two;
-                f1->sinc.tulip[interaction12].memory = oneObject;
                 f1->sinc.tulip[interaction12].Current[0] =CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction12].ptRank[0] = 0;
                 f1->sinc.tulip[interaction12].linkNext = interaction13;
@@ -1662,7 +1691,6 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction13].name = interactionExchange;
                 f1->sinc.tulip[interaction13].blockType = e13;
                 f1->sinc.tulip[interaction13].NBody = two;
-                f1->sinc.tulip[interaction13].memory = oneObject;
                 f1->sinc.tulip[interaction13].Current[0] =CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction13].ptRank[0] = 0;
                 f1->sinc.tulip[interaction13].linkNext = interaction23;
@@ -1672,7 +1700,6 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction23].name = interactionExchange;
                 f1->sinc.tulip[interaction23].blockType = e23;
                 f1->sinc.tulip[interaction23].NBody = two;
-                f1->sinc.tulip[interaction23].memory = oneObject;
                 f1->sinc.tulip[interaction23].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction23].ptRank[0] = 0;
                 f1->sinc.tulip[interaction23].header = Cube;
@@ -1796,7 +1823,6 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction12].name = interactionExchange;
                 f1->sinc.tulip[interaction12].blockType = e12;
                 f1->sinc.tulip[interaction12].NBody = two;
-                f1->sinc.tulip[interaction12].memory = oneObject;
                 f1->sinc.tulip[interaction12].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction12].ptRank[0] = 0;
                 f1->sinc.tulip[interaction12].linkNext = interaction13;
@@ -1806,7 +1832,6 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction13].name = interactionExchange;
                 f1->sinc.tulip[interaction13].blockType = e13;
                 f1->sinc.tulip[interaction13].NBody = two;
-                f1->sinc.tulip[interaction13].memory = oneObject;
                 f1->sinc.tulip[interaction13].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction13].ptRank[0] = 0;
                 f1->sinc.tulip[interaction13].linkNext = interaction23;
@@ -1816,7 +1841,6 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction23].name = interactionExchange;
                 f1->sinc.tulip[interaction23].blockType = e23;
                 f1->sinc.tulip[interaction23].NBody = two;
-                f1->sinc.tulip[interaction23].memory = oneObject;
                 f1->sinc.tulip[interaction23].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction23].ptRank[0] = 0;
                 f1->sinc.tulip[interaction23].linkNext = interaction14;
@@ -1826,7 +1850,6 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction14].name = interactionExchange;
                 f1->sinc.tulip[interaction14].blockType = e14;
                 f1->sinc.tulip[interaction14].NBody = two;
-                f1->sinc.tulip[interaction14].memory = oneObject;
                 f1->sinc.tulip[interaction14].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction14].ptRank[0] = 0;
                 f1->sinc.tulip[interaction14].linkNext = interaction24;
@@ -1836,7 +1859,6 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction24].name = interactionExchange;
                 f1->sinc.tulip[interaction24].blockType = e24;
                 f1->sinc.tulip[interaction24].NBody = two;
-                f1->sinc.tulip[interaction24].memory = oneObject;
                 f1->sinc.tulip[interaction24].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction24].ptRank[0] = 0;
                 f1->sinc.tulip[interaction24].linkNext = interaction34;
@@ -1846,7 +1868,6 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction34].name = interactionExchange;
                 f1->sinc.tulip[interaction34].blockType = e34;
                 f1->sinc.tulip[interaction34].NBody = two;
-                f1->sinc.tulip[interaction34].memory = oneObject;
                 f1->sinc.tulip[interaction34].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction34].ptRank[0] = 0;
                 f1->sinc.tulip[interaction34].header = Cube;
@@ -2003,7 +2024,6 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction12].linkNext = interaction12Plus;
                 f1->sinc.tulip[interaction12].blockType = e12;
                 f1->sinc.tulip[interaction12].NBody = two;
-                f1->sinc.tulip[interaction12].memory = oneObject;
                 f1->sinc.tulip[interaction12].Current[0] = CanonicalRank(f1, interactionExchange,0);
                 f1->sinc.tulip[interaction12].ptRank[0] = 0;
                 f1->sinc.tulip[interaction12].header = Cube;
@@ -2013,7 +2033,6 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[interaction12Plus].linkNext = harmonium1;
                 f1->sinc.tulip[interaction12Plus].blockType = e12;
                 f1->sinc.tulip[interaction12Plus].NBody = two;
-                f1->sinc.tulip[interaction12Plus].memory = oneObject;
                 f1->sinc.tulip[interaction12Plus].Current[0] = CanonicalRank(f1, interactionExchangePlus,0);
                 f1->sinc.tulip[interaction12Plus].ptRank[0] = 0;
                 f1->sinc.tulip[interaction12Plus].header = Cube;
@@ -2087,6 +2106,8 @@ INT_TYPE iModel( struct calculation * c1){
         
     }
 
+    printf("boot complete\n");
+    fflush(stdout);
 //    if ( 0)
 //        tInnerTest(f1, kinetic, copy);
     return 0;

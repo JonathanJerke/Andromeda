@@ -476,7 +476,7 @@ double Sd2S(INT_TYPE arg){
 
 
 
-double periodicSd2S ( INT_TYPE arg, INT_TYPE N ){
+double periodicSd2S ( double arg, INT_TYPE N ){
     
 #ifdef GSL_LIB
     
@@ -485,12 +485,13 @@ double periodicSd2S ( INT_TYPE arg, INT_TYPE N ){
         return Sd2S(0)-4.0*gsl_sf_zeta(2.)/sqr(2.*N)+4.0*gsl_sf_hzeta(2.,0.500)/sqr(2.*N);
     }
     
-    return -sign(arg)/2./sqr(N)*(gsl_sf_hzeta(2., 1-(1.*labs(arg))/(2.*N))+gsl_sf_hzeta(2., (1.*labs(arg))/(2.*N))-gsl_sf_hzeta(2., 0.5+(1.*labs(arg))/(2.*N))-gsl_sf_hzeta(2.,0.5- (1.*labs(arg))/(2.*N)));
+    return -cos(pi* arg)/2./sqr(N)*(gsl_sf_hzeta(2., 1-(1.*fabs(arg))/(2.*N))+gsl_sf_hzeta(2., (1.*fabs(arg))/(2.*N))-gsl_sf_hzeta(2., 0.5+(1.*fabs(arg))/(2.*N))-gsl_sf_hzeta(2.,0.5- (1.*fabs(arg))/(2.*N)));
 #else
     
     if ( N == 9 ){
         double cal9[] = {-3.249252,    1.957614,    -0.451818,    0.162463,    -0.043633,    -0.043633,    0.162463,    -0.451818,    1.957614};
-        return cal9[abs(arg)];
+      //  return cal9[abs(arg)];
+        return 0;
     }else {
 
     
@@ -512,7 +513,7 @@ double periodicSdS ( INT_TYPE arg, INT_TYPE N ){
 
 
 
-double BoB (struct basisElement b1, struct basisElement b2){
+double BoB (struct basisElement b1, struct basisElement b2 ){
     
     if ( b1.basis == SincBasisElement && b2.basis == SincBasisElement ){
         if ( b1.periodic == 1 ){
@@ -669,17 +670,20 @@ double Bd2B (struct basisElement b1, struct basisElement b2){
             }
         }
         else {
-            
+//            printf("1: %f %d %d\n", b1.length,b1.index, b1.auxIndex );
+//            printf("2: %f %d %d\n", b2.length,b2.index, b2.auxIndex );
+
             double arg = b1.length*b1.index + b1.origin - (b2.length*b2.index + b2.origin);
             
             if ( b1.length > b2.length ){
                 arg /= b1.length;
-                
-                return periodicSd2S(arg,b1.auxIndex) * sqrt(b2.length/b1.length);
+//                printf("arg: %f\n", arg);
+                return periodicSd2S(arg,b1.auxIndex) * sqrt(b2.length/b1.length)/sqr(b1.length);
             }else {
                 arg /= b2.length;
-                
-                return periodicSd2S(arg,b2.auxIndex) * sqrt(b1.length/b2.length);
+//                printf("arg: %f\n", arg);
+
+                return periodicSd2S(arg,b2.auxIndex) * sqrt(b1.length/b2.length)/sqr(b2.length);
             }
         }
     }else if ( b1.basis == GaussianBasisElement && b2.basis == GaussianBasisElement ){
@@ -1846,8 +1850,7 @@ void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  e
                 else
                     constant =  pow(fabs(constant)*2.*pi, 1./SPACE);;//*3.544907701811032;
                 
-              //  for ( space = 0 ; space < SPACE ; space++)//technically unnecessary , still in flux
-                space = SPACE-1;
+            for ( space = 0 ; space < SPACE ; space++)//technically unnecessary , still in flux
 
 #ifdef OMP
 #pragma omp parallel for private (si,I1,I2,I3,I4,g2,value) schedule(dynamic,1)
@@ -1934,7 +1937,7 @@ void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  e
                             }
                     
                 
-                printf("%d %d %15.36f \n",section,beta,cblas_dnrm2 ( dims1[space]*dims2[space]*dims1[space]*dims2[space] , streams(f1, quadCube, 0,space), 1 ));
+                //printf("%d %d %15.36f \n",section,beta,cblas_dnrm2 ( dims1[space]*dims2[space]*dims1[space]*dims2[space] , streams(f1, quadCube, 0,space), 1 ));
                 
                 
 //                if ( pow(1e-9,SPACE) >  pow(cblas_dnrm2 ( dims1[space]*dims2[space]*dims1[space]*dims2[space] , streams(f1, quadCube, 0,0), 1 ) ,SPACE)){
@@ -2787,10 +2790,10 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
                     va = 1;
                     for ( space = 0 ;space < SPACE ; space++)
                         va *= cblas_dnrm2 ( dims1[space]*dims1[space] , stream[space], 1 ) ;
-                    if ( 1e-12 > va ){
-                        printf("skip %d %d %d\n",a, section,beta);
-                        continue;
-                    }
+//                    if ( 1e-12 > va ){
+//                        printf("skip %d %d %d\n",a, section,beta);
+//                        continue;
+//                    }
                     tAddTw(f1, linear,0, diagonalCube,0);
                 }
                 
@@ -2823,7 +2826,7 @@ INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division aki
                         (stream )[dims1[space]*I1+I2] = BoB(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2));
 
                     
-                    //printf ("%d %d %d %f %f\n", particle1,I1,I2,sqr(f1->sinc.d)* Bd2B(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2)), Sd2S(I1-I2));
+//                    printf ("%d %d %d %f %f\n", particle1,I1,I2,sqr(f1->sinc.d)*Bd2B(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2)), periodicSd2S(I1-I2,dims1[space]));
                 }
         }
     }
@@ -2966,10 +2969,12 @@ double tRMSDevRandom( struct field * f1, enum division mat, INT_TYPE periodic ,I
     return sqrt(sum/Nc);
 }
 
+#if 0
+//CEG paper
+
 INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat){
     INT_TYPE space,r,i,j,n,m,N1 = f1->sinc.N1, N2 = f1->sinc.N1*f1->sinc.N1;
     double value;
-    double coef = pow(f1->Ne,1./SPACE);
     if ( ! CanonicalRank(f1, interactionExchange, 0))
         return 0;
     for ( r = 0; r < CanonicalRank(f1, interactionExchange, 0); r++){
@@ -2983,35 +2988,122 @@ INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat){
                 for ( n = 0 ; n < N1 ; n++)
                     for ( m = 0 ; m < N1 ; m++)
                         value += streams(f1, interactionExchange, 0,space)[(N2*(N1*i+n)+(N1*j+m))+r*N2*N2];
-                    streams(f1, mat,0,space)[N1*i+j+r*N2] = -coef*value/N1;
+                    streams(f1, mat,0,space)[N1*i+j+r*N2] =value/N1;
             }
     }
     f1->sinc.tulip[mat].Current[0] = CanonicalRank(f1, interactionExchange, 0);
-
+    tScaleOne(f1, mat, 0,  -f1->Ne);
+    
+    
     if ( bodies(f1, eigenVectors)==two){
         tClear(f1, copy);
         tId(f1, copy,0);
-        tScale(f1, copy,-3.*traceOne(f1, mat, 0)/(N1*N1*N1)/sqr(f1->Ne));
+        tScale(f1, copy,-3.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/sqr(f1->Ne));
         //
         tAddTw(f1, mat, 0,copy,0);
     }
     else     if ( bodies(f1, eigenVectors)==three){
         tClear(f1, copy);
         tId(f1, copy,0);
-        tScale(f1, copy,-6.*traceOne(f1, mat, 0)/(N1*N1*N1)/sqr(f1->Ne));
+        tScale(f1, copy,-6.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/sqr(f1->Ne));
         //
         tAddTw(f1, mat,0, copy,0);
     }
     else     if ( bodies(f1, eigenVectors)==four){
         tClear(f1, copy);
         tId(f1, copy,0);
-        tScale(f1, copy,-10.*traceOne(f1, mat, 0)/(N1*N1*N1)/sqr(f1->Ne));
+        tScale(f1, copy,-10.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/sqr(f1->Ne));
         //
         tAddTw(f1, mat, 0,copy,0);
     }
     
     
     f1->sinc.tulip[mat].stop[0][0] = CanonicalRank(f1, mat,0);
+    
+    return 0;
+}
+#endif
+
+INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat, INT_TYPE spin){
+    INT_TYPE space,r,i,j,n,m,N1 = f1->sinc.N1, N2 = f1->sinc.N1*f1->sinc.N1;
+    double value;
+    if ( ! CanonicalRank(f1, interactionExchange, 0))
+        return 0;
+    for ( r = 0; r < CanonicalRank(f1, interactionExchange, 0); r++){
+        
+        for ( i = 0; i < N1 ; i++)
+            for ( j = 0; j < N1; j++)
+                for (space = 0; space < SPACE ;space++)
+                    
+                {
+                    value = 0.;
+                    for ( n = 0 ; n < N1 ; n++)
+                        for ( m = 0 ; m < N1 ; m++)
+                            value += streams(f1, interactionExchange, 0,space)[(N2*(N1*i+n)+(N1*j+m))+r*N2*N2];
+                    streams(f1, mat,spin,space)[N1*i+j+r*N2] =value/N1/*NORM OF UNIFORM WAVEFUNCTION*/;
+                }
+    }
+    f1->sinc.tulip[mat].Current[spin] = CanonicalRank(f1, interactionExchange, 0);
+    tScaleOne(f1, mat, spin,  -f1->Ne);
+
+    return 0;
+}
+
+INT_TYPE tZeroSum ( struct field * f1, enum division mat,INT_TYPE spin){
+    INT_TYPE space,r,n,m,N1 = f1->sinc.N1, N2 = f1->sinc.N1*f1->sinc.N1,n2,m2;
+    double value,prod = 1,psum,sum = 0.;
+    if ( ! ( species(f1, mat ) == matrix) )
+        exit(0);
+    for ( r = 0; r < CanonicalRank(f1, mat, spin); r++){
+        prod = 1.;
+        for (space = 0; space < SPACE ;space++){
+            
+            if ( bodies(f1, mat ) == one)
+                
+                
+                
+            {
+                value = 0.;
+                for ( n = 0 ; n < N1 ; n++)
+                    for ( m = 0 ; m < N1 ; m++)
+                        value += streams(f1, mat, spin,space)[(N1*(n)+(m))+r*N2];
+                prod *= value;
+            }
+            else
+                if ( bodies(f1, mat ) == two )
+                    
+                {
+                    value = 0.;
+                    for ( n = 0 ; n < N1 ; n++)
+                        for ( m = 0 ; m < N1 ; m++)
+                            for ( n2 = 0 ; n2 < N1 ; n2++)
+                                for ( m2 = 0 ; m2 < N1 ; m2++)
+                                    value += streams(f1, mat, spin,space)[(N2*(N1*n2+n)+(N1*m2+m))+r*N2*N2];
+                    prod *= value;
+                    
+                }
+        }
+        sum += prod;
+    }
+    {
+        enum division label;
+        if ( bodies(f1, mat) == one )
+            label = diagonal;
+        else if ( bodies(f1, mat) == two )
+            label = quadCube;
+        else
+            exit(0);
+        tClear(f1, label);
+        tId(f1, label, 0);
+//        printf("i%d-tr %f\n", mat,traceOne(f1, mat, 0));
+        tScaleOne(f1, label, spin, -sum/traceOne(f1, label, 0));
+//        printf("%d-tr %f\n", label,traceOne(f1, label, 0));
+        tAddTw(f1, mat, spin, label, 0);
+        printf("%d-tr %f\n", mat,traceOne(f1, mat, spin));
+
+    }
+        f1->sinc.tulip[mat].stop[0][0] = CanonicalRank(f1, mat,0);
+
     
     return 0;
 }

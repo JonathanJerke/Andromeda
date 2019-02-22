@@ -245,15 +245,9 @@ INT_TYPE tNBodyConstruction (struct calculation * c1, enum division build ,enum 
     INT_TYPE cmpl,space,matrixNumber = c1->i.decomposeRankMatrix;
     //THRESING FLOOR
     tClear(f1, eigen);
-//    if ( c1->rt.printFlag  ){
-//        tScale(f1, density,-1);
-////        tEqua(f1, squareTwo, 0, density, 0);
-////        tPermute(0, f1, 'b', squareTwo, 0, density, 0);
-//        if (bodies ( f1,eigen ) == two)
-//            tCycleDecompostionOneMP(0, f1, density, 0, spam, 0, f1->mem1->rt->CONVERGENCE, 1, -1);
-//    }
-//
-//    else
+    zero ( f1,eigen,0);
+    zero ( f1,eigen,1);
+
     {
     
         for ( cmpl =  0; cmpl < 1 ; cmpl++ ) {
@@ -268,7 +262,7 @@ INT_TYPE tNBodyConstruction (struct calculation * c1, enum division build ,enum 
                 }
                 
                 tSumMatrices(f1, build, copy);// B x (1+S) * 3
-                tCycleDecompostionOneMP(0, f1, build, 0, eigen, 0, f1->mem1->rt->CONVERGENCE, 1, -1);
+                tCycleDecompostionOneMP(0, f1, build, 0, eigen, 0, f1->mem1->rt->CANON, 1, -1);
                 
                 if ( bootBodies > one ){
                     
@@ -276,30 +270,24 @@ INT_TYPE tNBodyConstruction (struct calculation * c1, enum division build ,enum 
                     if ( c1->rt.bodyType > electron ){
                         if ( CanonicalRank(f1, interactionExchangePlus, 0)){
                             tEqua(f1, squareTwo,0, ocean(0,f1, interactionExchangePlus,0,0),0);
-                            tCycleDecompostionOneMP(0, f1, interactionExchangePlus, 0,squareTwo, 0, f1->mem1->rt->CONVERGENCE, 1 , -1);
+                            tCycleDecompostionOneMP(0, f1, interactionExchangePlus, 0,squareTwo, 0, f1->mem1->rt->CANON, 1 , -1);
                             tSumMatrices(f1, build, squareTwo);//B2:1 || B3 : 3
-                            tCycleDecompostionOneMP(0, f1, build, 0, eigen, 0, 1e-3, 1, -1);
+                            tCycleDecompostionOneMP(0, f1, build, 0, eigen, 0, f1->mem1->rt->CANON, 1, -1);
                         }
                     }
                     
                     if ( CanonicalRank(f1, interactionExchange, 0)){
                         tEqua(f1, squareTwo,0, ocean(0,f1, interactionExchange,0,0),0);
-                        tCycleDecompostionOneMP(0, f1, interactionExchange, 0,squareTwo, 0, f1->mem1->rt->CONVERGENCE, 1 , -1);
+                        tCycleDecompostionOneMP(0, f1, interactionExchange, 0,squareTwo, 0, f1->mem1->rt->CANON, 1 , -1);
                         tSumMatrices(f1, build, squareTwo);//B2:1 || B3 : 3
-                        tCycleDecompostionOneMP(0, f1, build, 0, eigen, 0, 1e-3, 1, -1);
+                        tCycleDecompostionOneMP(0, f1, build, 0, eigen, 0, f1->mem1->rt->CANON, 1, -1);
                     }
                 }
-//                if ( f1->Na && matrixNumber  ){
-//                    tClear(f1, copy);
-//                    tCycleDecompostionOneMP(0, f1, linear, 0,copy, 0, f1->mem1->rt->CONVERGENCE, matrixNumber, -1);
-//                    tSumMatrices(f1, build, copy);
-//                    tCycleDecompostionOneMP(0, f1, build, 0, eigen, 0, f1->mem1->rt->CONVERGENCE, 1, -1);
-//                }
             }else {
                 if ( CanonicalRank(f1, kinetic,1 ) ){
                     tEqua(f1, copy ,0, kinetic,1);
                     tSumMatrices(f1, build, copy);// B x (1+S) * 3
-                    tCycleDecompostionOneMP(0, f1, build, 0, eigen, 1, f1->mem1->rt->CONVERGENCE, 1, -1);
+                    tCycleDecompostionOneMP(0, f1, build, 0, eigen, 1, f1->mem1->rt->CANON, 1, -1);
                 }
             }
         }
@@ -535,8 +523,8 @@ INT_TYPE tFoundationLevel( struct field * f1, enum division A , double lvlm, dou
                                                         //                                                                printf("**%f\n", value);
                                                         
                                                         
-                                                        if ( 1){
-                                                            
+                                                        if ( tIR ( bd,ii,jj,kk,irrep)){
+
                                                             
                                                             if ( ops  == 0 ){
 #if VERBOSE
@@ -561,46 +549,7 @@ INT_TYPE tFoundationLevel( struct field * f1, enum division A , double lvlm, dou
                                             }
                                 }
                             }
-                    }else if ( SPACE ==1 ){
-                        
-                                    
-                        
-                                    {
-                                        ii = r1;
-                                        value = (streams(f1,foundationStructure,0,0)[i+ii*n1[0]]);
-                                        if ( vaMax < value )
-                                            vaMax = value;
-                                        
-                                        if ( lvlm <= value ){
-                                            {
-                                                //                                                                printf("**%f\n", value);
-                                                
-                                                
-                                                if ( 1){
-                                                    
-                                                    
-                                                    if ( ops  == 0 ){
-#if VERBOSE
-                                                        printf("%d-->%d : %d %d %d :: %d %d %d :: %f\n",irrep,classicalBasisSize,i,j,k,ii+1,jj+1,kk+1,value);
-#endif
-                                                        mm = mmm+classicalBasisSize*6;
-                                                        
-                                                        
-                                                        mm[0] = i;
-                                                        mm[1] = 0;
-                                                        mm[2] = 0;
-                                                        
-                                                        mm[3] = ii;
-                                                        mm[4] = 0;
-                                                        mm[5] = 0;
-                                                    }
-                                                    classicalBasisSize++;
-                                                    
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                    }
                     
                     }
                 }
@@ -650,7 +599,7 @@ INT_TYPE tFilter(struct field * f1, INT_TYPE Ve, INT_TYPE irrep, enum division u
             for ( cmpl = 0 ; cmpl < spins(f1, usr+ii) ; cmpl++){
                 f1->sinc.tulip[permutationVector].Current[rank] = 0;
                 tBuildIrr(rank, f1, irrep+nP, usr+ii, cmpl, permutationVector, rank);
-                tCycleDecompostionOneMP(rank, f1,permutationVector, rank, usr+ii,cmpl,f1->mem1->rt->vCONVERGENCE, part(f1,usr+ii), 1);
+                tCycleDecompostionOneMP(rank, f1,permutationVector, rank, usr+ii,cmpl,f1->mem1->rt->vCANON, part(f1,usr+ii), 1);
             }
         }
         
@@ -677,7 +626,7 @@ INT_TYPE tSelect(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division us
         for ( sp = 0; sp < spins(f1, usr+Ve);sp++){
             f1->sinc.tulip[permutationVector].Current[rank] = 0;
             tBuildIrr(rank, f1, type, usa, sp, permutationVector, rank);
-            tCycleDecompostionOneMP(rank, f1, permutationVector, rank, usr+Ve, sp, f1->mem1->rt->vCONVERGENCE, part(f1,usr+Ve), -1);
+            tCycleDecompostionOneMP(rank, f1, permutationVector, rank, usr+Ve, sp, f1->mem1->rt->vCANON, part(f1,usr+Ve), -1);
         }
         
         value = magnitude(f1, usr+Ve);
@@ -781,7 +730,7 @@ INT_TYPE tCollect (struct field * f1, INT_TYPE irrep,enum division usz, INT_TYPE
     printf("Collect %d\nN1 %d\nBody %d\n Target %d\n\n", target, f1->sinc.N1, f1->body,target);
     if ( 1 ){
         INT_TYPE flag = 0,ct = 0;
-        double min0= 0,max0= tFoundationLevel(f1, build,0,0,2,0,target,1e9,1e9,1e9,NULL,irrep,seekPower) ;
+        double min0= 0,max0= 1+tFoundationLevel(f1, build,0,0,2,0,target,1e9,1e9,1e9,NULL,irrep,seekPower) ;
         double min = min0, max =  max0,vx= 1000.,va = 1.2;
         
         while(1){
@@ -1005,27 +954,16 @@ INT_TYPE tGreatDivideIteration ( struct field * f1, enum division A , INT_TYPE I
             
             
             {
-                //printf("%d: %d %d %d %1.15f\n", rank,iii+1,part(f1,usz+(expon)*foundation+iii),part(f1,usz+(expon-1)*foundation+iii) ,f1->mem1->rt->vCANON);
                 tEquals(f1,usz+iii+expon*foundation,usz+(expon-1)*foundation+iii );
                 tHXpX(rank, f1, A, 0, 1.0, 0.0, usz+iii+expon*foundation, f1->mem1->rt->vCANON , part(f1,usz+(expon)*foundation+iii));
-           //	printf("usr %d : %d %d\n", usz+iii+expon*foundation, CanonicalRank(f1, usz+expon*foundation+iii,0),part(f1, usz+foundation*expon+iii));     
                 temp = inner(rank, f1, usz+(expon)*foundation+iii, 0)+inner(rank, f1, usz+(expon)*foundation+iii, 1);
                 temp2 = temp- sqr( tMultiplyMP(rank, &info, f1, 1.0, -1, nullVector, 0, 'T', usz+(expon)*foundation+iii, 0, 'N', usz+(expon-1)*foundation+iii, 0) + tMultiplyMP(rank, &info, f1, 1.0, -1, nullVector, 0, 'T', usz+(expon)*foundation+iii, 1, 'N', usz+(expon-1)*foundation+iii, 1));
-#if VERBOSE
-                printf("%d(%d) -> %d(%d)::[%f]\n",(expon-1)*foundation+iii,part(f1,usz+(expon-1)*foundation+iii ), expon*foundation+iii,part(f1,usz+(expon)*foundation+iii ),temp2  );
-#endif
-                sum += temp2;
+                sum += temp2/temp;
                 tScale(f1, usz+iii+expon*foundation, 1./sqrt(temp));
-
-//                if ( expon == 1 )
-//                    ev[foundation] = tMultiplyMP(rank, &info,f1, 1., -1, nullVector, 0, 'T', usz+iii+expon*foundation, 0, 'N',usz+(expon-1)*foundation+iii, 0)+tMultiplyMP(rank,&info, f1, 1., -1, nullVector, 0, 'T', usz+iii+expon*foundation, 1, 'N',usz+(expon-1)*foundation+iii, 1);
-//
-                //fflush(stdout);
-          //      ev[iii ]= magnitude(f1,usz+iii+expon*foundation);
 #if 1
-                printf("%d :: \t %f\t %d\n",iii,temp2, CanonicalRank(f1, usz+(expon)*foundation+iii, 0)+CanonicalRank(f1, usz+(expon)*foundation+iii, 1));
+                printf("%d :: \t %f\t %d i%d\n",iii+1,sqrt(temp2/temp), CanonicalRank(f1, usz+(expon)*foundation+iii, 0),CanonicalRank(f1, usz+(expon)*foundation+iii, 1));
 #endif
-                f1->sinc.tulip[usz+(expon)*foundation+iii].value3 = temp2;
+                f1->sinc.tulip[usz+(expon)*foundation+iii].value3 = sqrt(temp2);
                 fflush(stdout);
             }
             
@@ -1120,14 +1058,15 @@ INT_TYPE tSAboot(struct calculation *c1){
                     streams(f1,foundationStructure,1,space)[r+(irrepm)*n1[space]] = 0;
             }
         }
-        
-        
+    
             
         for ( xyz1 = 1 ; xyz1 <= xyz ; xyz1++){
             
 #ifdef OMP
 #pragma omp parallel for private (r,r2,p,i1,j1,k1,rank,space,va,vo,i,j,k,irrepm) schedule(static,1)
 #endif
+
+            
             for ( r = 0 ; r < xyz1*xyz1; r++)
                 
             {
@@ -1141,6 +1080,8 @@ INT_TYPE tSAboot(struct calculation *c1){
                 j1 = (r/xyz1)%xyz1;
                 k1 = xyz1-1;
                 
+                if ( SPACE ==2 && i1 != 0 )
+                    continue;
                 if ( i1 <= j1 && j1 <= k1 )
                     if ( i1*i1 + j1*j1 + k1*k1 < c1->i.l2*c1->i.l2 )
                         for ( p = 0 ; p < 6 ; p++){
@@ -1186,7 +1127,6 @@ INT_TYPE tSAboot(struct calculation *c1){
                                 }else {
                                     continue;
                                 }
-                           // printf("%d %d %d\n", i,j,k);
                             f1->sinc.tulip[diagonalVectorA].Current[rank] = 1;
                             
                             
@@ -1198,8 +1138,11 @@ INT_TYPE tSAboot(struct calculation *c1){
                                 if ( SPACE == 3 ){
                                     space = 2;
                                     cblas_dcopy(n1[space], streams(f1,eigen,0,space)+k*n1[space], 1, streams(f1, diagonalVectorA,rank,space), 1);
-                                }
+                                }else if ( k != 0 )
+                                    continue;
                             }
+                             printf("%d %d %d\n", i,j,k);
+
                             f1->sinc.tulip[permutationVector].Current[rank]= 0;
                             
                             tBuildIrr(rank, f1, -1, diagonalVectorA, rank, permutationVector, rank);
@@ -1226,59 +1169,46 @@ INT_TYPE tSAboot(struct calculation *c1){
                                         cblas_dcopy(n1[1], streams(f1, diagonalVectorA,rank,1), 1, streams(f1,build,0,1)+j*n1[1]+(irrepm)*LN2[1], 1);
                                     if ( SPACE > 2 )
                                         cblas_dcopy(n1[2], streams(f1, diagonalVectorA,rank,2), 1, streams(f1,build,0,2)+k*n1[2]+(irrepm)*LN2[2], 1);
+
                                     tEqua(f1, diagonalVector,rank, diagonalVectorA,rank);
-                                    tHXpX(rank, f1, Ha, 0, 1.0, 0, diagonalVector, 1e-6, 2);
+
+                                    tHXpX(rank, f1, Ha, 0, 1.0, 0, diagonalVector, 1e-6, 1);
+
+
                                     va = tMultiplyMP(rank, &info, f1, 1., -1, nullVector, 0, 'T', diagonalVectorA, rank, 'N', diagonalVector, rank);
-                                    space = 0;
-                                    streams(f1,foundationStructure,0,space)[i+(irrepm)*n1[space]] += va;
-                                    streams(f1,foundationStructure,1,space)[i+(irrepm)*n1[space]] += 1.;
-                                    if ( SPACE > 1 ) {
-                                        space = 1;
-                                        streams(f1,foundationStructure,0,space)[j+(irrepm)*n1[space]] += va;
-                                        streams(f1,foundationStructure,1,space)[j+(irrepm)*n1[space]] += 1.;
+                                    if ( hits[irrepm] < xyz){
+                                        space = 0;
+                                        streams(f1,foundationStructure,0,space)[i+(irrepm)*n1[space]] += va;
+                                        streams(f1,foundationStructure,1,space)[i+(irrepm)*n1[space]] += 1.;
+                                        if ( SPACE > 1 ) {
+                                            space = 1;
+                                            streams(f1,foundationStructure,0,space)[j+(irrepm)*n1[space]] += va;
+                                            streams(f1,foundationStructure,1,space)[j+(irrepm)*n1[space]] += 1.;
+                                        }
+                                        if ( SPACE > 2 ){
+                                            space = 2;
+                                            streams(f1,foundationStructure,0,space)[k+(irrepm)*n1[space]] += va;
+                                            streams(f1,foundationStructure,1,space)[k+(irrepm)*n1[space]] += 1.;
+                                        }
+                                        //                                    printf( "%d : %d : %d %d %d %f\n", hits[irrepm],irrepm+1, i,j,k,va);
+                                        hits[irrepm]++;
                                     }
-                                    if ( SPACE > 2 ){
-                                        space = 2;
-                                        streams(f1,foundationStructure,0,space)[k+(irrepm)*n1[space]] += va;
-                                        streams(f1,foundationStructure,1,space)[k+(irrepm)*n1[space]] += 1.;
-                                    }
-//                                    printf( "%d : %d : %d %d %d %f\n", hits[irrepm],irrepm+1, i,j,k,va);
-                                    hits[irrepm]++;
                                 }
                             }
                         }
             }
             
         }
-            
+        
+        for ( irrepm = 0; irrepm < nG ; irrepm++)        
+        
             for ( i = 0 ; i < xyz ; i++)
                 for ( irrepm = 0 ; irrepm < nG ; irrepm++)
                 for ( space = 0; space < SPACE ; space++)
                     if ( streams(f1,foundationStructure,1,space)[i+(irrepm)*n1[space]] > 0. )
                         streams(f1,foundationStructure,0,space)[i+(irrepm)*n1[space]] /= streams(f1,foundationStructure,1,space)[i+(irrepm)*n1[space]];
             
-        
-//        for ( space = 0; space < SPACE ; space++)
-//            for ( irrepm = 0 ; irrepm < nG ; irrepm++){
-//                rr = 0;
-//                for ( r = 0 ; r < n1[space]; r++){
-//                    if ( streams(f1,foundationStructure,1,space)[r+(irrepm)*n1[space]] > 0. ){
-//                        if( r != rr ){
-//                            printf ( "s%d t%d   : %d ->  %d\n",space, (irrepm),r,rr);
-//                            cblas_dcopy(n1[space], streams(f1,build,0,space)+r*n1[space]+(irrepm)*LN2[space], 1, streams(f1,build,0,space)+rr*n1[space]+(irrepm)*LN2[space],1);
-//                            streams(f1,foundationStructure,0,space)[rr+(irrepm)*n1[space]] = streams(f1,foundationStructure,0,space)[r+(irrepm)*n1[space]];
-//                            streams(f1,foundationStructure,1,space)[rr+(irrepm)*n1[space]] = streams(f1,foundationStructure,1,space)[r+(irrepm)*n1[space]];
-//
-//                        }
-//                        rr++;
-//                    }
-//                }
-//                for ( r = rr ; r < n1[space]; r++){
-//                    streams(f1,foundationStructure,1,space)[r+(irrepm)*n1[space]] = 0;
-//                }
-//
-//            }
-
+    
         {
             
             for ( space = 0; space < SPACE ; space++){
@@ -1556,7 +1486,7 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
                     }else {
                         Mat = leftP;
                     }
-                    for ( cmpl = 0; cmpl < spins(f1,Mat)  ;cmpl++)
+                    for ( cmpl = 0; cmpl < spins(f1,name(f1,leftP))  ;cmpl++)
                         if ( CanonicalRank(f1, name(f1,Mat), cmpl)){
 
                         for ( cmpl2 = 0 ; cmpl2 < spins(f1,usz)  ;cmpl2++)
@@ -1645,7 +1575,6 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
         cblas_zcopy(maxEV*stride , T , 1 , T+maxEV*stride , 1);
         cblas_zcopy(maxEV*stride , S , 1 , S+maxEV*stride , 1);
         tzheev(0, f1, 'N', quantumBasisSize, S+maxEV*stride, stride, overlap);
-        //printf("%f\n", f1->mem1->rt->TOL);
         if ( ! flag )
             printf("GREATER: \t %d \t %f \n",quantumBasisSize,overlap[quantumBasisSize-1]/overlap[0] );
 
@@ -1896,6 +1825,8 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
             printf("\nFinal Spectrum TIME \t %15.0f\n", difftime(lapse_t, start_t));
             fflush(stdout);
         }
+    
+    
     //f1->sinc.tulip[matrixHbuild].Current[0] = quantumBasisSize;
     //f1->sinc.tulip[matrixSbuild].Current[0] = quantumBasisSize;
 

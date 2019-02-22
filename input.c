@@ -843,8 +843,8 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     c->rt.TARGET = pow(0.1,value);
                     return d;
                 case 26 :
-                    c->rt.CONVERGENCE = c->rt.TARGET*pow(0.1, value);
-                    return d;
+//                    c->rt.CONVERGENCE = c->rt.TARGET*pow(0.1, value);
+//                    return d;
                 case 27 :
                    // c->p.iExternal = value;
                     return d;
@@ -864,8 +864,8 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     //                    c->i.fPi = value;
                     //                    return d;
                 case 33 :
-                    c->rt.vCONVERGENCE = c->rt.TARGET*pow(0.1, value);
-                    return d;
+//                    c->rt.vCONVERGENCE = c->rt.TARGET*pow(0.1, value);
+//                    return d;
                 case 34 :
                 //    c->i.powState = value;
                     return d;

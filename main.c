@@ -441,6 +441,7 @@ INT_TYPE exec (struct calculation *c ){
                                 iv += ii;
                             }
                             printf("floor %d \n Found %d \n Trans %d\n", iv, nStatesFound , nStatesTrans);
+                            fflush(stdout);
                             c2->i.qFloor = iv;
                             EV = iv;
                             RdsSize = EV;
@@ -449,6 +450,7 @@ INT_TYPE exec (struct calculation *c ){
                         iModel(c2);
                         xConstructFoundation (c2 , eigenVectors, c2->i.nStates, c1,eigenVectors,nStatesTrans ,1);
                         fModel(c1);
+
                         free(c1);
                         c1 = c2;
                         f1 = &c1->i.c;
@@ -460,7 +462,10 @@ INT_TYPE exec (struct calculation *c ){
                         for ( ii = 0; ii < c1->i.nStates ; ii++){
                             tEqua(f1, usz+ii, 0, eigenVectors+ii , 0);
                             tEqua(f1, usz+ii, 1, eigenVectors+ii , 1);
+//tClear(f1, eigenVectors+ii);
+                            
                         }
+
                         EV =c1->i.nStates;
                         RdsSize = EV;
                     }
@@ -475,7 +480,7 @@ INT_TYPE exec (struct calculation *c ){
             
             {
                 RdsSize += tGreatDivideIteration(f1,Ha, 1,0,usz+RdsSize-EV,EV,2*EV,0)-EV;
-                
+
                 while ( RdsSize > EV*(c1->i.lookBack+1)){
                     RdsSize -= EV;
                     usz += EV;
@@ -514,7 +519,7 @@ INT_TYPE exec (struct calculation *c ){
                 {
                     INT_TYPE iii ;
                     for ( iii = 0; iii < c1->i.heliumFlag ; iii++){
-                        printf ( "\n\n Vector \t%d\n", iii);
+                        printf ( "\n\n Vector \t%d\n", iii+1);
                         printExpectationValues(f1, Ha, eigenVectors+iii);
                     }
                 }
@@ -526,15 +531,15 @@ INT_TYPE exec (struct calculation *c ){
             fprintf(out , " lattice\t%1.3f\t%d\t-Box\t body \t%d\n", c1->i.d,2*c1->i.epi+1, c1->rt.body);
             fflush(stdout);
             
-            INT_TYPE ii = 0,iii;
-            for ( iii = 0; iii < c1->i.heliumFlag ; iii++)
-            {
-                if (1){
-                    fprintf(out,"Condition%d:%d:,%lld ,%1.15f\n", ii+1, f1->sinc.N1,ii+1,f1->sinc.tulip[eigenVectors+iii].value);
-                    ii++;
-                }
-            }
-            fflush(stdout);
+//            INT_TYPE ii = 0,iii;
+//            for ( iii = 0; iii < c1->i.heliumFlag ; iii++)
+//            {
+//                if (1){
+//                    fprintf(out,"Condition%d:%d:,%lld ,%1.15f\n", ii+1, f1->sinc.N1,ii+1,f1->sinc.tulip[eigenVectors+iii].value);
+//                    ii++;
+//                }
+//            }
+//            fflush(stdout);
             iter++;
 
         }

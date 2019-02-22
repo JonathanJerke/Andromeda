@@ -54,7 +54,6 @@ double magnitude ( struct field * f1 , enum division alloy );
 void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shiftFlag, double product, double productCmpl, enum division equals ,  double tolerance , INT_TYPE maxRun  );
 double positioningElectrons2 (INT_TYPE rank, struct field * f1 , enum division oneVector, enum division wavefunction,double x1, double y1, double z1, double x2, double y2, double z2);
 INT_TYPE ready ( struct calculation * c );
-INT_TYPE tConstructDensity(struct calculation * calc , INT_TYPE ct );
 INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, INT_TYPE UR, struct calculation * calc2, enum division usz, INT_TYPE UZ ,INT_TYPE mx);
 INT_TYPE printExpectationValues (struct field * f1 , enum division ha  , enum division vector);
 #endif /* mAls_h */

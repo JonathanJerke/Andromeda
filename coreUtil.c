@@ -318,7 +318,9 @@ INT_TYPE CanonicalRank( struct field * f1 , enum division label , INT_TYPE spin 
         return f1->sinc.tulip[label].Current[spin];
     }
     else {
-//        printf( " *****rank : spin out %d (%lld)( %lld >= %lld )\n", label,name(f1, label), spin , spins(f1, name(f1,label)) );
+        printf( " *****rank : spin out %d (%lld)( %lld >= %lld )\n", label,name(f1, label), spin , spins(f1, name(f1,label)) );
+        fflush(stdout);
+       // exit(0);
         return 0;
     }
 }
@@ -517,7 +519,7 @@ Stream_Type* streams ( struct field * f1, enum division label ,INT_TYPE spin, IN
         if ( purpose(f1, label ) == ptObject ){
             INT_TYPE len[SPACE];
             length(f1, name(f1, label), len);
-            
+       //     printf(".");
             return f1->sinc.rose[space].stream+f1->sinc.tulip[name(f1,label)].Address + leng * partit * spin + len[space]*f1->sinc.tulip[label].ptRank[spin] ;
         }
         else
@@ -531,15 +533,15 @@ Stream_Type* streams ( struct field * f1, enum division label ,INT_TYPE spin, IN
             INT_TYPE len[SPACE];
             length(f1, name(f1,label), len);
             
-            ///        printf("%lld -%lld %lld %lld\n", label,name(f1,label),len[space],f1->sinc.tulip[label].ptRank[spin]);
-            // / printf("%lld %lld\n", len[space]*part(f1,label), len[space]*f1->sinc.tulip[label].ptRank[spin]);
-            // p/rintf("%lld\n", f1->sinc.tulip[name(f1,label)].Address);
+//                    printf("%lld -%lld %lld %lld\n", label,name(f1,label),len[space],f1->sinc.tulip[label].ptRank[spin]);
+//             printf("%lld %lld\n", len[space]*part(f1,label), len[space]*f1->sinc.tulip[label].ptRank[spin]);
+//printf("%lld %lld\n", f1->sinc.tulip[name(f1,label)].Address,f1->sinc.tulip[interactionExchange].Address);
             return f1->sinc.rose[space].stream+f1->sinc.tulip[name(f1,label)].Address + len[space]*f1->sinc.tulip[label].ptRank[spin] ;
             
         }else {
             //    printf("add %lld\n", f1->sinc.tulip[label].Address);
             
-            return f1->sinc.rose[space].stream+f1->sinc.tulip[label].Address ;
+            return f1->sinc.rose[space].stream+f1->sinc.tulip[name(f1,label)].Address ;
         }
         
     }
@@ -599,6 +601,8 @@ enum division rivers(INT_TYPE rank, struct field * f1, enum division A, INT_TYPE
     f1->sinc.tulip[lanes+rank].purpose = ptObject;
     f1->sinc.tulip[lanes+rank].parallel = 0;// = species(f1, A);;
     tClear(f1, lanes+rank);
+    f1->sinc.tulip[lanesc+rank].spinor =f1->sinc.tulip[A].spinor;
+
     f1->sinc.tulip[lanes+rank].name = name(f1,A);
     f1->sinc.tulip[lanes+rank].blockType = f1->sinc.tulip[A].blockType;
     INT_TYPE spin;
@@ -658,7 +662,7 @@ enum division ocean(INT_TYPE rank, struct field * f1, enum division A, INT_TYPE 
 }
 
 double xEqua ( struct field * f1 , enum division targ ,INT_TYPE tspin,struct field * f2 , enum division orig,INT_TYPE ospin ){
-    INT_TYPE space,rank=0;
+    INT_TYPE space;
     INT_TYPE eb = CanonicalRank(f2,orig,ospin);
     INT_TYPE M2[3];
     length(f2, orig, M2);
@@ -773,11 +777,14 @@ INT_TYPE tScaleOne( struct field * f1, enum division label,INT_TYPE spin, double
         cblas_dscal(L1*M2[2],scale, streams(f1,label,spin,2),1);
     }else if ( SPACE == 2 ){
         scale = pow ( scale , 1./2.);
-        cblas_dscal(L1*M2[0],scale, streams(f1,label,spin,0),1);
+        cblas_dscal(L1*M2[1],scale, streams(f1,label,spin,1),1);
         if ( scalar < 0 )
             scale *= -1;
-        cblas_dscal(L1*M2[1],scale, streams(f1,label,spin,1),1);
+        cblas_dscal(L1*M2[0],scale, streams(f1,label,spin,0),1);
+    }else if ( SPACE == 1 ){
+        cblas_dscal(L1*M2[0],scalar, streams(f1,label,spin,0),1);
     }
+
     
     return 0;
 }
@@ -1219,10 +1226,14 @@ INT_TYPE tId ( struct field *f1 , enum division label,INT_TYPE spin ){
     INT_TYPE Current ;
     {
         
-        if ( f1->sinc.tulip[label].Current[spin] >= f1->sinc.tulip[label].Partition )
+        if ( f1->sinc.tulip[label].Current[spin] >= f1->sinc.tulip[label].Partition ){
+            printf("tryed to add to full array\n");
+            exit(0);
             return 0;
+        }
         Current =  f1->sinc.tulip[label].Current[spin]++;
     }
+    
     {
         if ( f1->sinc.tulip[label].species == vector ){
             INT_TYPE * B1;
@@ -1237,26 +1248,6 @@ INT_TYPE tId ( struct field *f1 , enum division label,INT_TYPE spin ){
             }
         }
         
-                else if ( ( f1->sinc.tulip[label].species == matrix && bodies(f1,label)== two) ){
-                    for ( space = 0; space < SPACE ; space++){
-                        INT_TYPE B1[3];
-                        B1[0] = f1->sinc.N1;
-                        B1[1] = f1->sinc.N1;
-                        B1[2] = f1->sinc.N1;
-
-        
-                        Stream_Type * stream = streams(f1,label,spin,space)+Current*B1[space]*B1[space]*B1[space]*B1[space];
-                        for ( I1 = 0 ; I1 < B1[space]*B1[space] ; I1++)
-                            for ( I2 = 0 ; I2 < B1[space]*B1[space] ; I2++)
-                                stream[I1*B1[space]*B1[space]+I2] =0.;
-        
-                        for ( I1 = 0 ; I1 < B1[space] ; I1++)
-                            for ( I2 = 0 ; I2 < B1[space] ; I2++)
-                            {
-                                stream[I1 + I2 * B1[space] + B1[space]*B1[space]*(I1 + I2 * B1[space])] = 1;
-                            }
-                    }
-                }
         else if  ( f1->sinc.tulip[label].species == matrix ) {
             INT_TYPE * B1;
             B1 = vectorLen(f1,label);
@@ -1579,9 +1570,9 @@ INT_TYPE assignCores(struct field * f1, INT_TYPE parallel ){
     }
     omp_set_num_threads(omp);
 #endif
-//#ifdef MKL
-//    mkl_set_num_threads(nSlot/omp);
-//#endif
+#ifdef MKL
+    mkl_set_num_threads(nSlot/omp);
+#endif
 
     return 0;
 
@@ -1604,16 +1595,16 @@ struct basisElement grabBasis (struct field * f1, INT_TYPE component, INT_TYPE p
     INT_TYPE reducedElementIndex = elementIndex;
     boa.index = reducedElementIndex - (f1->sinc.dims[particle][component]-1)/2;
     boa.length = f1->sinc.d;
+    boa.origin = 0.;
+    
+    boa.auxIndex = f1->sinc.dims[particle][component];
+    boa.dim = component;
+    // boa.body = particle;
+    boa.association = 0;
+    boa.auxLength = 1.;
+    
     if ( f1->mem1->rt->bodyType == h2plus)
         boa.length /= 1.3;
-        boa.origin = 0.;
-        
-        boa.auxIndex = f1->sinc.dims[particle][component];
-        boa.dim = component;
-        boa.body = particle;
-        boa.association = 0;
-        boa.auxLength = 1.;
-        
         
         return boa;
 }
@@ -1901,8 +1892,8 @@ double xOneBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct fi
     zero(f1,out,s2);
 
     for ( space = 0;space < SPACE; space++){
-        N1 = vectorLen(f2, out)[space];
-        L1 = vectorLen(f1, vector1)[space];
+        N1 = f2->sinc.N1;
+        L1 = f1->sinc.N1;
         struct basisElement gl[1][L1];
         struct basisElement gi[1][N1];
 
@@ -1912,15 +1903,15 @@ double xOneBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct fi
         for ( l = 0 ; l < L1 ; l++)
             gl[0][l] = grabBasis(f1, space, 1, l);
         
-#ifdef OMP
-#pragma omp parallel for private (si,i,rank,l) schedule(dynamic,1)
-#endif
+//#ifdef OMP
+//#pragma omp parallel for private (si,i,rank,l,r) schedule(dynamic,1)
+//#endif
         for ( si = 0; si < N1 ; si++){
-#ifdef OMP
-            rank = omp_get_thread_num();
-#else
-            rank = 0;
-#endif
+//#ifdef OMP
+//            rank = omp_get_thread_num();
+//#else
+           rank = 0;
+//#endif
 
        // for ( i = 0; i < N1 ; i++)
             i = si;
@@ -1955,8 +1946,8 @@ double xTwoBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct fi
     f2->sinc.tulip[out].Current[s2] = 0;
     zero(f1,out,s2);
     for ( space = 0;space < SPACE; space++){
-        N1 = vectorLen(f2, out)[space];
-        L1 = vectorLen(f1, vector1)[space];
+        N1 = f2->sinc.N1;
+        L1 = f1->sinc.N1;
         
         struct basisElement gl[2][L1];
         struct basisElement gi[2][N1];
@@ -1973,19 +1964,23 @@ double xTwoBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct fi
         double gx[pt][L1][N1];
         for ( p = 0; p < pt ; p++)
             for ( i = 0; i < N1 ; i++)
-                for ( l = 0 ; l < L1 ; l++)
-                    gx[p][l][i] = BoB (gl[p][l],gi[p][i] );
+                for ( l = 0 ; l < L1 ; l++){
+                    gx[p][l][i] = BoB (grabBasis(f1, space, 1+p, l),grabBasis(f2, space, 1+p, i) );
+//                  /  printf("%d %d %d %f\n", p,i,l,gx[p][l][i]);
+                }
         
+                    
+                    
         
-#ifdef OMP
-#pragma omp parallel for private (si,i,i2,rank,l,l2) schedule(dynamic,1)
-#endif
+//#ifdef OMP
+//#pragma omp parallel for private (si,i,i2,rank,l,l2,r) schedule(dynamic,1)
+//#endif
         for ( si = 0; si < N1*N1 ; si++){
-#ifdef OMP
-            rank = omp_get_thread_num();
-#else
+//#ifdef OMP
+//            rank = omp_get_thread_num();
+//#else
             rank = 0;
-#endif
+//#endif
             i = si% N1;
             i2 = (si/N1)%N1;
         
@@ -2022,8 +2017,8 @@ double xThreeBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct 
     zero(f1,out,s2);
     
     for ( space = 0;space < SPACE; space++){
-        N1 = vectorLen(f2, out)[space];
-        L1 = vectorLen(f1, vector1)[space];
+        N1 = f2->sinc.N1;
+        L1 = f1->sinc.N1;
         struct basisElement gl[3][L1];
         struct basisElement gi[3][N1];
         
@@ -2046,15 +2041,15 @@ double xThreeBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct 
                 for ( l = 0 ; l < L1 ; l++)
                     gx[p][l][i] = BoB (gl[p][l],gi[p][i] );
         
-#ifdef OMP
-#pragma omp parallel for private (si,i,i2,i3,rank,l,l2,l3) schedule(dynamic,1)
-#endif
+//#ifdef OMP
+//#pragma omp parallel for private (si,i,i2,i3,rank,l,l2,l3,r) schedule(dynamic,1)
+//#endif
         for ( si = 0; si < N1*N1*N1 ; si++){
-#ifdef OMP
-            rank = omp_get_thread_num();
-#else
+//#ifdef OMP
+//            rank = omp_get_thread_num();
+//#else
             rank = 0;
-#endif
+//#endif
 
 //        for ( i = 0; i < N1 ; i++)
 //            for ( i2 = 0; i2 < N1 ; i2++)
@@ -2098,8 +2093,8 @@ double xFourBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct f
     
     
     for ( space = 0;space < SPACE; space++){
-        N1 = vectorLen(f2, out)[space];
-        L1 = vectorLen(f1, vector1)[space];
+        N1 = f2->sinc.N1;
+        L1 = f1->sinc.N1;
         struct basisElement gl[4][L1];
         struct basisElement gi[4][N1];
         
@@ -2125,15 +2120,15 @@ double xFourBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct f
                     gx[p][l][i] = BoB (gl[p][l],gi[p][i] );
 
 
-#ifdef OMP
-#pragma omp parallel for private (si,i,i2,i3,i4,rank,l,l2,l3,l4) schedule(dynamic,1)
-#endif
+//#ifdef OMP
+//#pragma omp parallel for private (si,i,i2,i3,i4,rank,l,l2,l3,l4,r) schedule(dynamic,1)
+//#endif
         for ( si = 0; si < N1*N1*N1*N1 ; si++){
-#ifdef OMP
-            rank = omp_get_thread_num();
-#else
+//#ifdef OMP
+//            rank = omp_get_thread_num();
+//#else
             rank = 0;
-#endif
+//#endif
             //        for ( i = 0; i < N1 ; i++)
             //            for ( i2 = 0; i2 < N1 ; i2++)
             //                for ( i3 = 0; i3 < N1 ; i3++)

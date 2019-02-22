@@ -40,13 +40,13 @@ double delta ( INT_TYPE n ){
     else
         return 0.;
 }
+
 INT_TYPE sign( INT_TYPE n ){
     if ( llabs(n) % 2 == 0 )
         return 1;
     else
         return -1;
 };
-
 
 INT_TYPE imax( INT_TYPE x1, INT_TYPE x2 ){
     if ( x1 > x2 )
@@ -92,7 +92,7 @@ double traceOne( struct field * f1 , enum division label , INT_TYPE spin ){
         return 0;
     }
     sum2 = 0.;
-   // printf("trace %d (%d), %d-body \n", label, spin, bodies(f1,label)  );
+    //printf("trace %d (%d), %d-body \n", label, spin, bodies(f1,label)  );
     for ( l = 0 ; l < CanonicalRank(f1,label,spin); l++)
     {
         product = 1.;
@@ -105,9 +105,10 @@ double traceOne( struct field * f1 , enum division label , INT_TYPE spin ){
                 
             }
             product *= sum;
-            // printf("%lld %lld -- %f\n", l, space+1,sum);
+         //   printf("%lld %lld -- %f\n", l, space+1,sum);
         }
         sum2 += product;//*coeff(f1, label ,spin, l);
+       // printf("++  %f \n", product);
     }
     
     

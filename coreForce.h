@@ -69,12 +69,12 @@ INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE a
 INT_TYPE separateBackground( struct calculation * c1,INT_TYPE periodic, INT_TYPE Ns,INT_TYPE background, INT_TYPE dim, enum division basis );
 INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division akinetic, double mass , INT_TYPE particle1);
 INT_TYPE separateBoost( struct field * f1, enum division in,INT_TYPE dim ,double vectorMomentum );
-INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat);
+INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat,INT_TYPE spin);
 INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE atom, double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1);
 void separateX ( struct field * f1, double vectorDipole );
 double tTestTwoBody( struct field * f1, enum division mat,INT_TYPE periodic, INT_TYPE * p);
 double tRMSDevRandom( struct field * f1, enum division mat, INT_TYPE periodic ,INT_TYPE Nc);
-
+INT_TYPE tZeroSum ( struct field * f1, enum division mat,INT_TYPE spin);
 double BoB (struct basisElement b1, struct basisElement b2);
 double BdB (struct basisElement b1, struct basisElement b2);
 double Bd2B (struct basisElement b1, struct basisElement b2);

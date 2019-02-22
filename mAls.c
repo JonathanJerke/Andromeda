@@ -39,7 +39,7 @@ INT_TYPE normalize (struct field * f1,  enum division alloy, INT_TYPE spin, INT_
                 norm = 1./norm ;
                 cblas_dscal(M2[space], norm, streams(f1, alloy,spin,space)+l*M2[space],iOne);
             }else {
-#if VERBOSE
+#if 1
                 printf("ACK! %d %lld %lld\n", alloy,spin,l);
 #endif
                 
@@ -112,32 +112,32 @@ INT_TYPE balance (struct field * f1,  enum division alloy, INT_TYPE spin){
             
             for ( space = 0; space < SPACE ; space++){
                 norm[space] = cblas_dnrm2(M2[space], streams(f1, alloy,spin,space)+l*M2[space],iOne);
-                value = cblas_idamax(M2[space], streams(f1, alloy,spin,space)+l*M2[space], 1);
-                if ( value == 0. )
-                    sign[space] = 0;
-                if ( value > 0. )
-                    sign[space] = 1;
-                else
-                    sign[space] = -1;
+//                value = cblas_idamax(M2[space], streams(f1, alloy,spin,space)+l*M2[space], 1);
+//                if ( value == 0. )
+//                    sign[space] = 0;
+//                if ( value > 0. )
+//                    sign[space] = 1;
+//                else
+//                    sign[space] = -1;
             }
             
             
-            if ( sign[0] * sign[1] * sign[2] == 0 ){
-                // very unlikely...
-                //if so , all set to zero...
-            }
-            
-            factor = pow( norm[0]*norm[1]*norm[2],0.333333333333333333333333333333333333333333333333333);
-            
-            for ( space = 0; space < SPACE ; space++){
-                
-                if ( space == 0 )
-                    signs = sign[1] * sign[2];
-                else if ( space == 1 )
-                    signs = sign[0] * sign[2];
-                else
-                    signs = sign[0] * sign[1];
-                snorm = signs*factor/norm[space] ;
+//            if ( sign[0] * sign[1] * sign[2] == 0 ){
+//                // very unlikely...
+//                //if so , all set to zero...
+//            }
+//
+            factor = pow( norm[0]*norm[1]*norm[2],1./SPACE);
+//
+           for ( space = 0; space < SPACE ; space++){
+//
+//                if ( space == 0 )
+//                    signs = sign[1] * sign[2];
+//                else if ( space == 1 )
+//                    signs = sign[0] * sign[2];
+//                else
+//                    signs = sign[0] * sign[1];
+                snorm = factor/norm[space] ;
                 cblas_dscal(M2[space], snorm, streams(f1, alloy,spin,space)+l*M2[space],iOne);
             }
             
@@ -147,30 +147,31 @@ INT_TYPE balance (struct field * f1,  enum division alloy, INT_TYPE spin){
             
             for ( space = 0; space < SPACE ; space++){
                 norm[space] = cblas_dnrm2(M2[space], streams(f1, alloy,spin,space)+l*M2[space],iOne);
-                value = cblas_idamax(M2[space], streams(f1, alloy,spin,space)+l*M2[space], 1);
-                if ( value == 0. )
-                    sign[space] = 0;
-                if ( value > 0. )
-                    sign[space] = 1;
-                else
-                    sign[space] = -1;
+//                value = cblas_idamax(M2[space], streams(f1, alloy,spin,space)+l*M2[space], 1);
+//                if ( value == 0. )
+//                    sign[space] = 0;
+//                if ( value > 0. )
+//                    sign[space] = 1;
+//                else
+//                    sign[space] = -1;
             }
             
             
-            if ( sign[0] * sign[1]  == 0 ){
-                // very unlikely...
-                //if so , all set to zero...
-            }
-            
+//            if ( sign[0] * sign[1]  == 0 ){
+//                // very unlikely...
+//                //if so , all set to zero...
+//            }
+//
             factor = pow( norm[0]*norm[1],1./SPACE);
             
             for ( space = 0; space < SPACE ; space++){
                 
-                if ( space == 0 )
-                    signs = sign[1] ;
-                else
-                    signs = 1;
-                snorm = signs*factor/norm[space] ;
+//                if ( space == 0 )
+//                    signs = sign[1] ;
+//                else
+//                    signs = sign[1];
+//                signs = 1;
+                snorm = factor/norm[space] ;
                 cblas_dscal(M2[space], snorm, streams(f1, alloy,spin,space)+l*M2[space],iOne);
             }
             
@@ -181,19 +182,14 @@ INT_TYPE balance (struct field * f1,  enum division alloy, INT_TYPE spin){
 
 double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division origin,INT_TYPE os,   enum division alloy ,  INT_TYPE spin ,double tolerance){
     if ( tolerance < 0 ){
-        //printf("%d->%d\n", origin, alloy);
         tolerance = -(tolerance);
-        
-        //   exit(0);
     }
     
-    INT_TYPE ns = 9;
+    INT_TYPE ns = iNS;
     Stream_Type * array[3];
     Stream_Type * array2[3];
     INT_TYPE space,space0,space1,space2;
-    //printf("%lld %lld %lld\n", spin,  f1->sinc.tulip[origin].Current[spin], f1->sinc.tulip[alloy].Current[spin]);
-    //fflush(stdout);
-    INT_TYPE l,count = 1 ;
+    INT_TYPE l,count = 0 ;
     INT_TYPE L1 = CanonicalRank(f1,alloy,spin);;
     INT_TYPE G1 =CanonicalRank(f1,origin,os);
     if ( G1 == 0 ){
@@ -205,15 +201,14 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
     }
     
     if ( L1 == 0 ){
-     //   printf("CD: zero length %lld %lld %lld\n", origin,alloy,spin);
         tId(f1, alloy, spin);
         L1 = 1;
-        if (! CanonicalRank(f1, alloy, spin)){
-            printf("uhm... %d\n",alloy);
-            exit(0);
-        }
+//        if (! CanonicalRank(f1, alloy, spin)){
+//            printf("uhm... %d %d %d\n",alloy,spin,omp_get_thread_num());
+//            exit(0);
+//        }
     }
-    double value2=0.,ALPHA = f1->mem1->rt->ALPHA;
+    double value3,value2=0.,ALPHA = f1->mem1->rt->ALPHA;
     INT_TYPE M2[3];
     length(f1,alloy,M2);
     INT_TYPE info;
@@ -238,6 +233,7 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
         
         if( (species(f1, alloy ) == vector && bodies(f1, alloy ) == bodies(f1,canonicalBuffersB )) ||(species(f1, alloy ) == matrix && bodies(f1, alloy ) == one && f1->body > one)){
             canonicalStore = canonicalBuffersB;
+            
         }else if( species(f1, alloy ) == vector && bodies(f1, alloy ) == bodies(f1,canonicalBuffersBX ) ){
             canonicalStore = canonicalBuffersBX;
         }
@@ -258,9 +254,6 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
         
         
     }
-    
-    
-    char side = CDT;
     
     
     enum division alloyBak;
@@ -322,7 +315,8 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
     }
    // printf(":: %d %d -- %d %d \n", origin , os, alloy ,spin );
 
-    
+    //printf("cS %d %d\n", canonicalStore, alloyBak);
+
     if ( spread(f1,origin,os,alloy,spin,1,array[1],array2[1]) )
         return -1;
     
@@ -331,7 +325,6 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
             tEqua(f1, alloyBak,rank, alloy, spin );
         
         for ( space0 = 0; space0 < SPACE ;space0++){
-            
             if ( SPACE == 3 ){
                 if ( space0 == 0 ){
                     space0 = 0;
@@ -364,15 +357,8 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
             }
             
             
-//
-//            if ( normalize(f1,alloy,spin,space1) )
-//                return -1;
-            
-            
-            
             if ( SPACE == 3 ){
                 //normal 3d calculator
-                
                 if ( spread(f1,origin,os,alloy,spin,space1,array[space1],array2[space1]) )
                     return -1;
 
@@ -384,12 +370,13 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
                 
                 if ( L1 >1 )
                     for ( l = 0 ; l < L1; l++){
-                        if ( fabs(array[space1][ l*L1 + l ]-1.0) > 1e-6 ||  isnan ( array[space1][l*L1+l] )  ||  isinf ( array[space1][l*L1+l] ) ){
 #if VERBOSE
+                        if ( fabs(array[space1][ l*L1 + l ]-1.0) > 1e-6 ||  isnan ( array[space1][l*L1+l] )  ||  isinf ( array[space1][l*L1+l] ) ){
                             printf("%lld:%f (%lld)-\n", l,array[space1][ l*L1 + l ],rank);
                             fflush(stdout);
-#endif
                         }
+#endif
+
                         array[space1][ l*L1 + l ] += ALPHA;
                     }
                 
@@ -398,7 +385,9 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
                 //replace Vectors
             }else if (SPACE == 2){
                 //plane-calculator ..  third dimenison is absent, allowing for simplication.
-                
+                if ( normalize(f1,alloy,spin,space1) )
+                    return -1;
+
                 
                 if ( spread(f1,origin,os,alloy,spin,space1,array[space1],array2[space1]) )
                     return -1;
@@ -421,24 +410,30 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
             info = tdpotrf(L1, array[space1]);
 
             if ( info != 0 ){
-#if VERBOSE
+#if 1
                 printf("info failure %lld %lld %d %lld %d %lld\n", info, rank,origin,os, alloy, spin);
 #endif
                 return 1;
             }
-            rcond = tdpocon(rank, f1, L1, array[space1] );
+            if ( 1 )
+                rcond = tdpocon(rank, f1, L1, array[space1] );
+            else
+                rcond = 1;
+            
+            
+           // printf("rcond %1.15f\n", rcond);
 //            if ( f1->mem1->rt->targetCondition > 0 )
 //                ALPHA /= min(1e1,max(1e-1, 1 - log(rcond*f1->mem1->rt->targetCondition) ));
 
-            if (  isnan(rcond) || isinf(rcond) || rcond < 1e-12){
-#if VERBOSE
+            if (  isnan(rcond) || isinf(rcond) || rcond < 1e-13){
+#if 1
                 printf("Warning: condition of Beylkin %d->%d is bad %16.16f\n", origin, alloy, rcond);
                 fflush(stdout);
 #endif
                 return 1;
             }
             
-            if(1){
+            if(0){
                 INT_TYPE i;
                 
                 if(VERBOSE){
@@ -459,7 +454,6 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
                         }
                 }
                 
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,L1,M2[space0],G1,1,array2[space1],L1,streams(f1,origin,os,space0),M2[space0], 0., myStreams(f1, canonicalStore, rank), L1 );
                 if(VERBOSE){
                     for ( i = 0; i < L1*M2[space0] ; i++)
                         if ( isnan( myStreams(f1, canonicalStore, rank)[i])||isinf( myStreams(f1, canonicalStore, rank)[i]))
@@ -471,10 +465,11 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
                         }
                 }
             }
-            
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,L1,M2[space0],G1,1,array2[space1],L1,streams(f1,origin,os,space0),M2[space0], 0., myStreams(f1, canonicalStore, rank), L1 );
+
             info = tdpotrs(L1,  M2[space0], array[space1],  myStreams(f1, canonicalStore, rank) );
             if ( info != 0 ){
-#if VERBOSE
+#if 1
                 printf("L1 %lld \n", L1);
                 printf("M2 %lld \n", M2[0]);
                 printf("R1 %lld \n", CanonicalRank(f1, origin, os));
@@ -483,19 +478,19 @@ double canonicalDecompositionMP( INT_TYPE rank,struct field * f1 , enum division
                 return 1;
             }
             
-            
-            
-            
             transpose ( L1, M2[space0] , myStreams(f1, canonicalStore, rank) , streams(f1,alloy,spin,space0));
-            
-            
-            
+            if(0){
+                INT_TYPE iii;
+                for ( iii = 0;iii < L1 ; iii++)
+                    printf("%d %f\n", iii+1, inner(rank, f1, ocean(rank, f1, alloy, iii, spin), spin));
+            }
         }
         balance(f1, alloy , spin );
 
         if ( count % ns == 0 ){
-            ns++;
             value2 = distanceOne(rank, f1, alloy, spin,alloyBak, rank);
+           // printf("%d %f %f %d\n", count,value3, value2, CanonicalRank(f1, alloy, spin));
+
         }
         count++;
 
@@ -507,11 +502,11 @@ double tCycleDecompostionOneMP ( INT_TYPE rank, struct field * f1 , enum divisio
     double value , value2 = sqrt(inner(rank, f1, origin, os));
     if ( maxRun >= CanonicalRank(f1, origin, os)){
         tEqua(f1, alloy,spin, origin, os );
-     //   printf("echo %d\n", CanonicalRank(f1, origin, os));
 		return 0.;
     }
+    //HERE
     
-   while (1){
+    while (1){
         if (canonicalDecompositionMP(rank, f1, origin, os,alloy, spin, tolerance*value2) ){
 #if 1
             printf("bailed %d %d %d %d -- %d\n",origin,0,alloy,spin , CanonicalRank(f1, alloy, spin));
@@ -521,11 +516,19 @@ double tCycleDecompostionOneMP ( INT_TYPE rank, struct field * f1 , enum divisio
             return 1;
         }
         value = distanceOne(rank, f1, alloy, spin, origin, os);
-    //	printf("%1.15f \t %1.15f : %d <%d %d\n", value, f1->mem1->rt->TARGET*value2,CanonicalRank(f1, alloy, spin ),part(f1, alloy),maxRun);
+#if 1
+     //  printf("%1.15f : %d <%d %d\n", value,CanonicalRank(f1, alloy, spin ),part(f1, alloy),maxRun);
+#endif
 	    if ( fabs(value ) > f1->mem1->rt->TARGET*value2 && CanonicalRank(f1, alloy, spin ) < maxRun )
             tId(f1, alloy, spin);
         else
             return 0;
+        
+        if(0){
+            INT_TYPE iii;
+            for ( iii = 0;iii < CanonicalRank(f1, alloy, spin) ; iii++)
+                printf("**%d %f\n", iii+1, inner(rank, f1, ocean(rank, f1, alloy, iii, spin), spin));
+        }
     }
     
     return 0;
@@ -535,21 +538,17 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
     os = 0;
     if ( tolerance < 0 ){
         tolerance = -(tolerance);
-        
-        //   exit(0);
     }
     //printf("%d (%d)\n", alloy,CanonicalRank(f1, alloy, 0));
     //fflush(stdout);
-    INT_TYPE g,l,l2,count = 0 ;
+    INT_TYPE g,l,count = 0 ;
     
-    INT_TYPE ns = 9;
+    INT_TYPE ns = iNS;
     double ALPHA = f1->mem1->rt->ALPHA;
 
     Stream_Type * array[SPACE];
     Stream_Type * array2[SPACE];
-    Stream_Type * array3;
     INT_TYPE space,space0,space1,space2;
-    //    printf("%lld %lld %lld\n", spin,  f1->sinc.tulip[origin].Current[spin], f1->sinc.tulip[alloy].Current[spin]);
     INT_TYPE L1 = CanonicalRank(f1,alloy,spin);;
     INT_TYPE G1 =CanonicalRank(f1,origin,os);
     if ( G1 == 0 ){
@@ -694,26 +693,17 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
             }
             
             
-            
-            
-            
-            
-            //1
-//            if ( normalize(f1,alloy,spin,space1) )
-//                return -1;
-            //            if ( mpSpread(f1,origin,os,alloy,spin,space1,array[space1],array2[space1]) )
-            //                return -1;
-            
             if ( SPACE == 3 ){
                 //normal 3d calculator
                 if ( spread(f1,origin,os,alloy,spin,space1,array[space1],array2[space1]) )
                     return -1;
 
-                
                 if ( spread(f1,origin,os,alloy,spin,space2,array[space2],array2[space2]) )
                     return -1;
+                
                 cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1*L1, 0,array[space2],1, array[space1],1 );
                 //replace Matrix
+                
                 if ( L1 >1 )
                     for ( l = 0 ; l < L1; l++){
 #if VERBOSE
@@ -737,12 +727,14 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
                 
                 if ( L1 >1 )
                     for ( l = 0 ; l < L1; l++){
-                        if ( fabs(array[space1][ l*L1 + l ]-1.0) > 1e-6 ||  isnan ( array[space1][l*L1+l] )  ||  isinf ( array[space1][l*L1+l] ) ){
 #if VERBOSE
+
+                        if ( fabs(array[space1][ l*L1 + l ]-1.0) > 1e-6 ||  isnan ( array[space1][l*L1+l] )  ||  isinf ( array[space1][l*L1+l] ) ){
                             printf("%lld:%f (%lld)-\n", l,array[space1][ l*L1 + l ],rank);
                             fflush(stdout);
-#endif
                         }
+#endif
+
                         array[space1][ l*L1 + l ] += ALPHA;
                     }
 
@@ -761,8 +753,7 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
             
             
             
-            if ( 1 )
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,L1,M2[space0],G1,1,array2[space1],L1,streams(f1,origin,os,space0),M2[space0], 0, myStreams(f1, canonicalStore, rank), L1 );
+            
             
             
             info = tdpotrf(L1, array[space1]);
@@ -773,7 +764,10 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
 #endif
                 return 1;
             }
-            rcond = tdpocon(rank, f1, L1, array[space1] );
+            if ( 0 )
+                rcond = tdpocon(rank, f1, L1, array[space1] );
+            else
+                rcond = 1;
            // printf("%f %d %f\n", rcond,L1,ALPHA);
 //
 //            if ( f1->mem1->rt->targetCondition > 0 && L1 > 1 )
@@ -786,6 +780,7 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
 #endif
                 return 1;
             }
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,L1,M2[space0],G1,1,array2[space1],L1,streams(f1,origin,os,space0),M2[space0], 0, myStreams(f1, canonicalStore, rank), L1 );
 
             info = tdpotrs(L1,  M2[space0], array[space1],  myStreams(f1, canonicalStore, rank) );
             if ( info != 0 ){
@@ -802,7 +797,6 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
         balance(f1, alloy , spin );
 
         if ( count % ns == 0 ){
-            ns++;
             value2 = distanceOne(rank, f1, alloy, spin,alloyBak, rank);
         }
         count++;
@@ -816,7 +810,6 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum div
     if ( value2 < 1e-6 )
         return 0;
     value2 = tInnerListMP(rank, f1, origin, coeff);
-    //printf("%f\n", value2);
     do{
         if (canonicalListDecompositionMP(rank, f1, coeff, origin, 0,alloy, spin, tolerance,value2) ){
 #if 1
@@ -827,8 +820,8 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum div
             return 1;
         }
         value = fabs(value2 - 2. * tInnerVectorListMP(rank, f1, origin, coeff, alloy, spin) + inner(rank, f1, alloy, spin) );
-     //  printf("%d %d %f %f %f %d\n", alloy, spin,value ,tInnerVectorListMP(rank, f1, origin, coeff, alloy, spin),inner(rank, f1, alloy, spin) , CanonicalRank(f1, alloy, spin));
-        if ( fabs(value ) > f1->mem1->rt->TARGET*value2 && CanonicalRank(f1, alloy, spin ) < maxRun )
+    
+        if ( fabs(value ) > f1->mem1->rt->TARGET*sqrt(value2) && CanonicalRank(f1, alloy, spin ) < maxRun )
                 tId(f1, alloy, spin);
             else
                 return 0;
@@ -873,7 +866,14 @@ INT_TYPE printExpectationValues (struct field * f1 , enum division ha  , enum di
     enum division leftP = ha,Mat;
     totcan[0] = 0;
     totcan[1] = 0;
-    double norm2 = inner(0, f1, vector, 0)+inner(0, f1, vector, 1);
+    double norm2a , norm2b;
+    norm2a = inner(0, f1, vector, 0);
+    
+    
+    norm2b = inner(0, f1, vector, 1);
+    
+    printf("%d %f (%d) %f (%d)\n", vector, norm2a, CanonicalRank(f1, vector, 0), norm2b, CanonicalRank(f1, vector, 1));
+    double norm2 = norm2a+norm2b;
     do {
         
         if ( linear == name(f1,leftP) ){
@@ -882,10 +882,10 @@ INT_TYPE printExpectationValues (struct field * f1 , enum division ha  , enum di
         }else {
             Mat = leftP;
         }
-        for ( cmpl = 0; cmpl < spins(f1,Mat)  ;cmpl++)
+        for ( cmpl = 0; cmpl < imin(2,spins(f1,name(f1,leftP)))  ;cmpl++)
             if ( CanonicalRank(f1, name(f1,Mat), cmpl)){
                 expat = 0.;
-                for ( cmpl2 = 0 ; cmpl2 < spins(f1,vector)  ;cmpl2++)
+                for ( cmpl2 = 0 ; cmpl2 < imin(2,spins(f1,vector))  ;cmpl2++)
                     if ( CanonicalRank(f1,  Mat, cmpl)){
                         co = 1.;
                         if ( cmpl )
@@ -897,7 +897,7 @@ INT_TYPE printExpectationValues (struct field * f1 , enum division ha  , enum di
                         
                     }
                 totx += expat/(DCOMPLEX)norm2;
-                printf("**%d-%d-%d-%d\t%d\t%d\t%d-%d\t%d\t%f\t%f\n",Mat,name(f1,Mat),cmpl,cmpl2, bodies(f1, Mat),f1->sinc.tulip[Mat].blockType,CanonicalRank(f1, Mat, cmpl),f1->sinc.tulip[Mat].ptRank[cmpl], cat,creal(expat/norm2),cimag(expat/norm2));
+                printf("**%d-%d-%d  \t%d\t%d\t%d-%d\t%d\t%f\t%f\n",Mat,name(f1,Mat),cmpl, bodies(f1, Mat),f1->sinc.tulip[Mat].blockType,CanonicalRank(f1, Mat, cmpl),f1->sinc.tulip[Mat].ptRank[cmpl], cat,creal(expat/norm2),cimag(expat/norm2));
             }
         
         if (name(f1, leftP) == linear ){
@@ -912,7 +912,7 @@ INT_TYPE printExpectationValues (struct field * f1 , enum division ha  , enum di
             leftP = f1->sinc.tulip[leftP].linkNext;
         }
     } while ( leftP != nullName);
-    printf("**%d-%d-%d-%d\t%d\t%d\t%d-%d\t%d\t%f\t%f\n",0,0,0,0, bodies(f1, vector),0,totcan[0],totcan[1], 0,creal(totx),cimag(totx));
+    printf("**%d-%d-%d  \t%d\t%d\t%d-%d\t%d\t%f\t%f\n",0,0,0, bodies(f1, vector),0,totcan[0],totcan[1], 0,creal(totx),cimag(totx));
 
     return 0;
 }
@@ -942,16 +942,13 @@ DCOMPLEX matrixElements ( INT_TYPE rank,struct field * f1 , char perm, enum divi
 
 double canonicalMultiplyMP( INT_TYPE rank,struct field * f1 , char mc,enum division mat,INT_TYPE ms, enum division vec, INT_TYPE vs,   enum division alloy ,  INT_TYPE spin ,double tolerance){
     if ( tolerance < 0 ){
-        //printf("%d->%d\n", origin, alloy);
         tolerance = -(tolerance);
-        
-        //   exit(0);
     }
     if ( vec == productVector || alloy == productVector ){
         printf("canonicalMulMP\n");
         exit(0);
     }
-    INT_TYPE ns = 9;
+    INT_TYPE ns = iNS;
     Stream_Type * array[3];
     Stream_Type * array2[3];
     INT_TYPE space,space0,space1,space2;
@@ -1194,26 +1191,16 @@ double canonicalMultiplyMP( INT_TYPE rank,struct field * f1 , char mc,enum divis
             for ( r = 0; r < L1*M2[space0] ; r++)
                 array2[space0][r] = 0.;
             for ( r = 0 ; r < R1 ; r++){
-            //    printf("%d %d\n", name(f1, mat), name(f1,ocean(rank,f1,mat,r,ms)));
-                //printf("(%d %d %d) \n", mat , purpose(f1,namat), name(f1,mat ));
-                //fflush(stdout);
-//                if (  purpose(f1,mat) == ptObject ){
-//                    if ( name(f1,mat ) == linear ){
-//                        tEqua(f1 , copy, rank, ocean(rank,f1,mat,r,ms),ms);
-//                        tMultiplyMP(rank, &info, f1, 1., -1, productVector, rank, mc,copy,rank, 'N', vec, vs);
-//                    }
-//                    else
-//                        exit(0);
-//                }else {
                 
-                    tMultiplyMP(rank, &info, f1, 1., -1, productVector, rank, mc,ocean(rank,f1,mat,r,ms),ms, 'N', vec, vs);
-//                }
-                
+                tMultiplyMP(rank, &info, f1, 1., -1, productVector, rank, mc,ocean(rank,f1,mat,r,ms),ms, 'N', vec, vs);
                 {
                     cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, L1, V1, M2[space1], 1.0,  streams(f1,alloy,spin,space1), M2[space1], streams(f1, productVector,rank,space1), M2[space1],0.0, array2[space1], L1);
+                    
+                    if ( SPACE > 2 ){
                     cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, L1, V1, M2[space2], 1.0,  streams(f1,alloy,spin,space2), M2[space2], streams(f1, productVector,rank,space2), M2[space2],0.0, array2[space2], L1);
 
                     cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,V1*L1, 0,array2[space2],1, array2[space1],1 );
+                    }
                 }//form <g,f>
                 
                 cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,L1,M2[space0],V1,1.0,array2[space1],L1,streams(f1,productVector,rank,space0),M2[space0], 1.00000, array2[space0], L1 );
@@ -1238,7 +1225,6 @@ double canonicalMultiplyMP( INT_TYPE rank,struct field * f1 , char mc,enum divis
         
         if ( count % ns == 0 ){
             value2 = distanceOne(rank, f1, alloy, spin,alloyBak, rank);
-            ns++;
         }
         count++;
     } while (  value2 >tolerance && ns < 16) ;
@@ -1248,7 +1234,6 @@ double canonicalMultiplyMP( INT_TYPE rank,struct field * f1 , char mc,enum divis
 
 
 double tCycleMultiplyMP ( INT_TYPE rank,struct field * f1 , char mc,enum division mat,INT_TYPE ms, enum division vec, INT_TYPE vs,   enum division alloy ,  INT_TYPE spin ,double tolerance, INT_TYPE maxRun, double power){
-    double value,value2 ;
     if ( ! CanonicalRank(f1, mat, ms ) )//likely has zer
         return 0;
 
@@ -1366,7 +1351,7 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
     }
     
     
-    Stream_Type * array[SPACE][5];
+    Stream_Type * array[3][2];
     
     if (MM+beta*MM +gamma*CanonicalRank(f1,equals,espin) > part(f1, equals) && species(f1, equals) != scalar && purpose(f1, equals)!= ptObject){
         //tGetType allocation!
@@ -1378,12 +1363,15 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
        // exit(0);
        // return 1;
     }
-    
+    for ( space =0 ; space < 3 ; space++)
+        for ( r = 0; r < 2 ; r++)
+            array[space][r] = myStreams( f1, tensorBuffers+space*2+r, rank);
+
     type = -1;
     if (  (species(f1,equals) == scalar && species(f1, left) == species(f1, right) && bodies(f1,left) == bodies(f1,right))){
         type = 0;
         N1 = vectorLen(f1, left);
-        
+
         if ( rightChar != 'N' )
         {
             printf("fix your character! %d %d %d\n",equals, left , right);
@@ -1400,42 +1388,16 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
         if ( flag == 1 )
         {
             
-            if ( species(f1, tensorBuffers ) >= vector && bodies(f1,tensorBuffers)  >= one && part(f1, tensorBuffers)>=1){
-                for ( space =0 ; space < SPACE ; space++)
-                    array[space][0] = streams( f1, tensorBuffers, rank,space );
-            }else {
-                printf("oops\n");
-                exit(0);
-            }
-            
         }
         if ( flag == 2)
         {
             N1 = n1;
-
-            //            if ( header (f1,left ) != Cube ){
-            //                printf("op");
-            //                exit(0);
-            //            }
-            if ( ( species(f1, tensorBuffers ) >= vector && bodies(f1,tensorBuffers)  >= two && part(f1, tensorBuffers)>=1) ){
-//                printf("tens %d %d %d %d\n", name(f1, tensorBuffers), bodies(f1, tensorBuffers),species(f1, tensorBuffers),part(f1,tensorBuffers));
-//                printf("left %d %d %d %d\n", name(f1, left), bodies(f1, left),species(f1, left),part(f1,left));
-//                printf("right %d %d %d %d\n", name(f1, right), bodies(f1, right),species(f1, right),part(f1,right));
-
-                for ( space =0 ; space < SPACE ; space++)
-                    array[space][0] = streams( f1, tensorBuffers, rank,space );
-            }else {
-                printf("oopss\n");
-                exit(0);
-            }
             
         }
         if ( flag == 3)
         {
-            INT_TYPE r;
             N1 = n1;
-            
-            
+
             
             //            if ( header (f1,left ) != Cube ){
             //                printf("op");
@@ -1504,19 +1466,9 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
             
             
             
-            if ( ( species(f1, tensorBuffers ) >= vector && bodies(f1,tensorBuffers)  >= three && part(f1, tensorBuffers)>=2) ){
-                for ( space =0 ; space < SPACE ; space++)
-                    for ( r = 0; r < 2 ; r++)
-                        array[space][r] = streams( f1, tensorBuffers, rank,space)+LN2[space]*r;
-            }else {
-                printf("oopss\n");
-                exit(0);
-            }
-            
         }
         else if (flag == 4 ){
             {
-                INT_TYPE r;
                 N1 = n1;
                 flagTranspose = 0;
                 flagTranspose2 = 0;
@@ -2210,14 +2162,6 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                 
                 
                 
-                if ( ( species(f1, tensorBuffers ) >= vector && bodies(f1,tensorBuffers)  >= four && part(f1, tensorBuffers)>=2) ){
-                    for ( space =0 ; space < SPACE ; space++)
-                        for ( r = 0; r < 2 ; r++)
-                            array[space][r] = streams( f1, tensorBuffers, rank,space)+LN2[space]*r;
-                }else {
-                    printf("oopss\n");
-                    exit(0);
-                }
                 
             }
         }
@@ -2380,9 +2324,9 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                         exit(0);
                     }
                     
-                    if ( bodies(f1, vectorCubeBuffers) != four)
+                    if ( bodies(f1, tensorBuffers) != four)
                     {
-                        printf("allocate more to vectorCubeBuffers\n");
+                        printf("allocate more to tensorBuffers\n");
                     }
                     
                     type = 6;
@@ -2451,9 +2395,9 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                         exit(0);
                     }
                     
-                    if ( bodies(f1, vectorCubeBuffers) != four)
+                    if ( bodies(f1, tensorBuffers) != four)
                     {
-                        printf("allocate more to vectorCubeBuffers\n");
+                        printf("allocate more to tensorBuffers\n");
                         exit(0);
                     }
                     
@@ -2515,9 +2459,9 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                         exit(0);
                     }
                     
-                    if ( bodies(f1, vectorCubeBuffers) != three)
+                    if ( bodies(f1, tensorBuffers) != three)
                     {
-                        printf("allocate more to vectorCubeBuffers\n");
+                        printf("allocate more to tensorBuffers\n");
                         exit(0);
                     }
                     
@@ -2552,9 +2496,9 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                         exit(0);
                     }
                     
-                    if ( bodies(f1, vectorCubeBuffers) != three)
+                    if ( bodies(f1, tensorBuffers) != three)
                     {
-                        printf("allocate more to vectorCubeBuffers\n");
+                        printf("allocate more to tensorBuffers\n");
                     }
                     
                     type = 9;
@@ -2999,18 +2943,18 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                     for ( space = 0; space < spaces(f1, left) ;space++){
                         
                         if ( flagTranspose ){
-                            transpose(A[space], B[space],streams(f1, right, rspin,space)+r*RN2[space] ,streams(f1,vectorCubeBuffers,rank,0 ));
+                            transpose(A[space], B[space],streams(f1, right, rspin,space)+r*RN2[space] ,array[0][0]);
 
                             
                             cblas_dgemm(CblasColMajor, leftSymbol,CblasNoTrans,
                                         N1[space],N1[space]*N1[space]*N1[space],N1[space],
                                         1.,
                                         streams(f1, left, lspin,space )+l*LN2[space],N1[space],
-                                        streams(f1,vectorCubeBuffers,rank,0 ),N1[space],
+                                        array[0][0],N1[space],
                                         0.,
-                                        streams(f1,vectorCubeBuffers,rank,1 ), N1[space]);
+                                        array[1][0], N1[space]);
                             
-                            transpose(B[space], A[space],streams(f1,vectorCubeBuffers,rank,1 ),streams(f1, equals, espin,space )+ii*RN2[space]);
+                            transpose(B[space], A[space],array[1][0],streams(f1, equals, espin,space )+ii*RN2[space]);
                         } else {
                             
                             cblas_dgemm(CblasColMajor, leftSymbol, CblasNoTrans,N1[space],N1[space]*N1[space]*N1[space],N1[space],
@@ -3032,35 +2976,35 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                         if ( flagTranspose && flagTranspose2 ){
                             for ( o = 0; o < N1[space]*N1[space] ; o++)
                                 transpose(N1[space], N1[space],streams(f1, right, rspin,space)+r*RN2[space]+o*N1[space]*N1[space],
-                                          streams(f1,vectorCubeBuffers,rank,0 )+o*N1[space]*N1[space]);
+                                          array[0][0]+o*N1[space]*N1[space]);
                             
-                            transpose(A[space], B[space], streams(f1,vectorCubeBuffers,rank,0 ), streams(f1,vectorCubeBuffers,rank,1 ));
+                            transpose(A[space], B[space], array[0][0], array[1][0]);
                             if ( skewSymbol == CblasNoTrans )
                                 cblas_dgemm(CblasColMajor, leftSymbol, CblasNoTrans,N1[space]*N1[space],N1[space]*N1[space],N1[space]*N1[space],
                                             1.,
                                             streams( f1, left, lspin,space )+l*LN2[space],N1[space]*N1[space],
-                                            streams(f1,vectorCubeBuffers,rank,1 ),N1[space]*N1[space],
+                                            array[1][0],N1[space]*N1[space],
                                             0.,
-                                            streams(f1,vectorCubeBuffers,rank,2 ),N1[space]*N1[space]);
+                                            array[2][0],N1[space]*N1[space]);
                             else
                                 cblas_dgemm(CblasColMajor,CblasNoTrans, leftSymbol, N1[space]*N1[space],N1[space]*N1[space],N1[space]*N1[space],
                                             1.,
-                                            streams(f1,vectorCubeBuffers,rank,1 ),N1[space]*N1[space],
+                                            array[1][0],N1[space]*N1[space],
                                             streams( f1, left, lspin,space )+l*LN2[space],N1[space]*N1[space],
                                             0.,
-                                            streams(f1,vectorCubeBuffers,rank,2 ),N1[space]*N1[space]);
+                                            array[2][0],N1[space]*N1[space]);
                             
                             
                             
                             
-                            transpose(B[space], A[space],streams(f1,vectorCubeBuffers,rank,2 ),streams(f1,vectorCubeBuffers,rank,1 ));
+                            transpose(B[space], A[space],array[2][0],array[1][0]);
 //                            mkl_domatcopy ('C', 'T',B[space], A[space],
 //                                           1.,
 //                                           streams(f1,vectorCubeBuffers,rank,2 ),B[space],
 //                                           streams(f1,vectorCubeBuffers,rank,1 ),A[space]);
                             
                             for ( o = 0; o < N1[space]*N1[space] ; o++)
-                                transpose(N1[space], N1[space],streams(f1,vectorCubeBuffers,rank,1 )+o*N1[space]*N1[space],streams(f1, equals, espin,space )+ii*EN2[space]+o*N1[space]*N1[space]);
+                                transpose(N1[space], N1[space],array[1][0]+o*N1[space]*N1[space],streams(f1, equals, espin,space )+ii*EN2[space]+o*N1[space]*N1[space]);
                                 
 //                                mkl_domatcopy ('C', 'T',N1[space], N1[space],
 //                                               1.,
@@ -3069,7 +3013,7 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                             
                         } else
                             if ( flagTranspose && ! flagTranspose2 ){
-                                transpose(A[space], B[space],streams(f1, right, rspin,space)+r*RN2[space] ,streams(f1,vectorCubeBuffers,rank,0 ));
+                                transpose(A[space], B[space],streams(f1, right, rspin,space)+r*RN2[space] ,array[0][0]);
                                 
 //                                mkl_domatcopy ('C', 'T',A[space], B[space],
 //                                               1.,
@@ -3079,11 +3023,11 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                                 cblas_dgemm(CblasColMajor, leftSymbol, CblasNoTrans,N1[space]*N1[space],N1[space]*N1[space],N1[space]*N1[space],
                                             1.,
                                             streams( f1, left, lspin,space )+l*LN2[space],N1[space]*N1[space],
-                                            streams(f1,vectorCubeBuffers,rank,0 ),N1[space]*N1[space],
+                                            array[0][0],N1[space]*N1[space],
                                             0.,
-                                            streams(f1,vectorCubeBuffers,rank,1 ),N1[space]*N1[space]);
+                                            array[1][0],N1[space]*N1[space]);
                                 
-                                transpose(B[space], A[space],streams(f1,vectorCubeBuffers,rank,1 ),streams(f1, equals, espin,space )+ii*EN2[space]);
+                                transpose(B[space], A[space],array[1][0],streams(f1, equals, espin,space )+ii*EN2[space]);
 //                                mkl_domatcopy ('C', 'T',B[space], A[space],
 //                                               1.,
 //                                               streams(f1,vectorCubeBuffers,rank,1 ),B[space],
@@ -3114,14 +3058,14 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                             
                             
                             for ( o = 0 ; o < N1[space] ;o++)
-                                transpose(N1[space], N1[space],streams(f1, right, rspin,space)+r*RN2[space]+N1[space]*N1[space]*o,streams(f1,vectorCubeBuffers,rank,0 )+N1[space]*N1[space]*o);
+                                transpose(N1[space], N1[space],streams(f1, right, rspin,space)+r*RN2[space]+N1[space]*N1[space]*o,array[0][0]+N1[space]*N1[space]*o);
 //                                mkl_domatcopy ('C', 'T',N1[space], N1[space],
 //                                               1.,
 //                                               streams(f1, right, rspin,space)+r*RN2[space]+N1[space]*N1[space]*o ,N1[space],
 //                                               streams(f1,vectorCubeBuffers,rank,0 )+N1[space]*N1[space]*o,N1[space]);
                             //213
                             
-                            transpose(A[space], B[space],streams(f1,vectorCubeBuffers,rank,0 ),streams(f1,vectorCubeBuffers,rank,1 ));
+                            transpose(A[space], B[space],array[0][0],array[1][0]);
 //                            mkl_domatcopy ('C', 'T',A[space], B[space],
 //                                           1.,
 //                                           streams(f1,vectorCubeBuffers,rank,0 ),A[space],
@@ -3135,9 +3079,9 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                             cblas_dgemm(CblasColMajor, leftSymbol, CblasNoTrans,N1[space]*N1[space],N1[space],N1[space]*N1[space],
                                         1.,
                                         streams( f1, left, lspin,space )+l*LN2[space],N1[space]*N1[space],
-                                        streams(f1,vectorCubeBuffers,rank,1 ),N1[space]*N1[space],
+                                        array[1][0],N1[space]*N1[space],
                                         0.,
-                                        streams(f1,vectorCubeBuffers,rank,2 ),N1[space]*N1[space]);
+                                        array[2][0],N1[space]*N1[space]);
                             // (13)2
                             //                            else
                             //                                cblas_dgemm(CblasColMajor,CblasNoTrans, leftSymbol, N1[space]*N1[space],N1[space],N1[space]*N1[space],
@@ -3147,27 +3091,27 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                             //                                            0.,
                             //                                            streams(f1,vectorCubeBuffers,rank,2 ),N1[space]*N1[space]);
                             
-                            transpose(B[space], A[space],streams(f1,vectorCubeBuffers,rank,2 ),streams(f1,vectorCubeBuffers,rank,1 ));
+                            transpose(B[space], A[space],array[2][0],array[1][0]);
                             // 2(13)
                             
                             
                             for ( o = 0 ; o < N1[space] ;o++)
-                                transpose(N1[space], N1[space],streams(f1,vectorCubeBuffers,rank,1 )+N1[space]*N1[space]*o,streams(f1, equals, espin,space )+ii*EN2[space]+N1[space]*N1[space]*o);
+                                transpose(N1[space], N1[space],array[1][0]+N1[space]*N1[space]*o,streams(f1, equals, espin,space )+ii*EN2[space]+N1[space]*N1[space]*o);
                             // (1)2(3)
                         } else
                             
                             //(23)
                             if ( flagTranspose && ! flagTranspose2 ){
-                                transpose(A[space], B[space], streams(f1, right, rspin,space)+r*RN2[space], streams(f1,vectorCubeBuffers,rank,0 ));
+                                transpose(A[space], B[space], streams(f1, right, rspin,space)+r*RN2[space], array[0][0]);
                                 
                                 cblas_dgemm(CblasColMajor, leftSymbol, CblasNoTrans,N1[space]*N1[space],N1[space],N1[space]*N1[space],
                                             1.,
                                             streams( f1, left, lspin,space )+l*LN2[space],N1[space]*N1[space],
-                                            streams(f1,vectorCubeBuffers,rank,0 ),N1[space]*N1[space],
+                                            array[0][0],N1[space]*N1[space],
                                             0.,
-                                            streams(f1,vectorCubeBuffers,rank,1 ), N1[space]*N1[space]);
+                                            array[1][0], N1[space]*N1[space]);
                                 
-                                transpose(B[space], A[space], streams(f1,vectorCubeBuffers,rank,1 ), streams(f1, equals, espin,space )+ii*EN2[space]);
+                                transpose(B[space], A[space], array[1][0], streams(f1, equals, espin,space )+ii*EN2[space]);
                             } else
                                 //(13)
                                 if ( (! flagTranspose) && (! flagTranspose2 ) ){
@@ -3190,11 +3134,10 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                     //THREE BODY vector ,  ONE-BODY matrix
                     
                     for ( space = 0; space < spaces(f1, left) ;space++){
-                        
                         if ( flagTranspose ){
                             //if A is 3D -> (2)
                             //if A is 6D -> (3)
-                            transpose( A[space], B[space], streams(f1, right, rspin,space)+r*RN2[space], streams(f1,vectorCubeBuffers,rank,0 ));
+                            transpose( A[space], B[space], streams(f1, right, rspin,space)+r*RN2[space], array[space][0]);
 //                            mkl_domatcopy ('C', 'T',A[space], B[space],
 //                                           1.,
 //                                           streams(f1, right, rspin,space)+r*RN2[space] ,A[space],
@@ -3204,11 +3147,11 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                                         N1[space],N1[space]*N1[space],N1[space],
                                         1.,
                                         streams(f1, left, lspin,space )+l*LN2[space],N1[space],
-                                        streams(f1,vectorCubeBuffers,rank,0 ),N1[space],
+                                        array[space][0],N1[space],
                                         0.,
-                                        streams(f1,vectorCubeBuffers,rank,1 ), N1[space]);
+                                        array[space][1], N1[space]);
                             
-                            transpose(B[space], A[space], streams(f1,vectorCubeBuffers,rank,1 ), streams(f1, equals, espin,space )+ii*EN2[space]);
+                            transpose(B[space], A[space], array[space][1], streams(f1, equals, espin,space )+ii*EN2[space]);
                         } else {
                             //(1)
                             cblas_dgemm(CblasColMajor, leftSymbol, CblasNoTrans,N1[space],N1[space]*N1[space],N1[space],
@@ -3285,6 +3228,7 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
                     tAddTw(f1, totalVector, rank,copyFourVector,rank);
                 }
         }
+
         for ( cmpl = 0; cmpl < 2 ; cmpl++)//HX
             for ( cmpl2 = 0; cmpl2 < 2 ; cmpl2++)
                 if (
@@ -3293,17 +3237,24 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
                     (((!spin && cmpl != cmpl2) || (spin && cmpl == cmpl2 )) && (fabs(productCmpl) > 1e-6) )
                     )
                 {
+
                     enum division leftP = left;
                     alist = 0;
                     skipFlag = 0;
                     do {
+
                         if ( linear == name(f1,leftP) ){
                             Mat = rivers(rank, f1, linear, alist );
                             f1->sinc.tulip[Mat].blockType = f1->sinc.tulip[leftP].blockType;
                         }else {
                             Mat = leftP;
                         }
+                        
+                        if ( cmpl >= spins (f1, name(f1,leftP) ) ){
+                            leftP = f1->sinc.tulip[leftP].linkNext;
 
+                            continue;
+                        }
                     
                         if ( cmpl2 == 0 ){
                             Vec = copyThreeVector;
@@ -3348,7 +3299,7 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
                                     }
                                 }
 #if VERBOSE
-                                printf(" : %d %d: %d %d = o%d %f %d (%d)/n",Mat,CanonicalRank(f1, name(f1,Mat),cmpl),cmpl,cmpl2,spin,product,CanonicalRank(f1,right, cmpl2), alist);
+                                printf(" : %d %d: %d %d = o%d %f %d (%d)\n",Mat,CanonicalRank(f1, name(f1,Mat),cmpl),cmpl,cmpl2,spin,product,CanonicalRank(f1,right, cmpl2), alist);
                                 fflush(stdout);
 #endif
 
@@ -3405,13 +3356,23 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
 #if VERBOSE
            printf("%f____", tMultiplyMP(rank, &info, f1, 1.0, -1, nullVector, 0, 'T', totalVector, rank, 'N', totalVector, rank));
 #endif
-            tMultiplyMP(rank, &info, f1, 1.0, -1, nullVector, 0, 'T', totalVector, rank, 'N', totalVector, rank);
-            if ( !info ){
-                if ( right == diagonalVector )
-                    tCycleDecompostionOneMP(rank,f1, totalVector, rank, right,rank, f1->mem1->rt->vCONVERGENCE, maxRun, -1.);
-                else
-                    tCycleDecompostionOneMP(rank,f1, totalVector, rank, right,spin, f1->mem1->rt->vCONVERGENCE, maxRun, -1.);
+          //  printExpectationValues(f1, Ha, totalVector);
+            
+            if ( 1 ){
+                if ( right == diagonalVector ){
+                    tCycleDecompostionOneMP(rank,f1, totalVector, rank, right,rank, f1->mem1->rt->vCANON, maxRun, -1.);
+             //       printExpectationValues(f1, Ha, right);
+
+
+                }
+                else{
+                    tCycleDecompostionOneMP(rank,f1, totalVector, rank, right,spin, f1->mem1->rt->vCANON, maxRun, -1.);
+              //      printExpectationValues(f1, Ha, right);
+
+
+                }
             }
+
         }
     }
     
@@ -3436,7 +3397,7 @@ double distanceOne(INT_TYPE rank,struct field * f1 , enum division alloy , INT_T
     INT_TYPE info;
     value = 0.5*( tMultiplyMP(rank,&info,f1,1., -1,nullMatrix, 0 ,'T', alloy, spin,'N', alloy ,spin)+tMultiplyMP(rank,&info,f1,1., -1,nullMatrix, 0 ,'T', alloyBak, spin2,'N', alloyBak ,spin2));
     value2 = 2*fabs(value-tMultiplyMP(rank,&info,f1,1., -1,nullMatrix, 0 , 'T', alloyBak, spin2,'N', alloy ,spin) );
-    return value2;
+    return sqrt(fabs(value2));
     
 }
 
@@ -3476,29 +3437,6 @@ INT_TYPE ready ( struct calculation * c ){
         }
     
     return readyVector && readyMemory;
-}
-
-
-INT_TYPE tConstructDensity(struct calculation * calc , INT_TYPE ct ){
-    INT_TYPE i,info,rank=0;
-    if ( part(&calc->i.c,squareTwo) < ct*part(&calc->i.c,copyThree))
-    {
-        printf("consider more ranks on squareTwo\n");
-        exit(0);
-    }
-    for ( i = 0 ; i < ct ; i++){
-        calc->i.c.sinc.tulip[copyTwo].Current[0] = 0;
-        tMultiplyMP(rank, &info,&calc->i.c, 1.0, -2, copyTwo, 0, 'T', eigenVectors+i, 1, 'N' ,eigenVectors+i , 1);
-        tMultiplyMP(rank, &info,&calc->i.c, 1.0, -2, copyTwo, 0, 'T', eigenVectors+i, 0, 'N' ,eigenVectors+i , 0);
-        tCycleDecompostionOneMP(rank, &calc->i.c, copyTwo, 0, copyThree, 0,calc->rt.CANON, part(&calc->i.c, copyThree), -1);
-        printf("trace-%d %f\n",i+1,traceOne(&calc->i.c,copyTwo,0));
-        fflush(stdout);
-        tAddTw(&calc->i.c,squareTwo, 0,copyThree,0);
-    }
-    tCycleDecompostionOneMP(rank, &calc->i.c, squareTwo, 0, density, 0,calc->rt.CANON, part(&calc->i.c, density), -1);
-    tScale(&calc->i.c,density,1./traceOne(&calc->i.c,density,0));
-    
-    return ct;
 }
 
 
@@ -3599,10 +3537,9 @@ INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, IN
 //#else
 //        rank = 0;
 //#endif
-        cmpl = 0;
         ///            printf("%d %d \n", cmpl,i);
         //            fflush(stdout);
-       // for ( cmpl = 0; cmpl < spins(f1,usz) ; cmpl++)
+        for ( cmpl = 0; cmpl < spins(&calc2->i.c,usz) ; cmpl++)
         {
             zero(&calc->i.c, copyVector,rank);
             calc->i.c.sinc.tulip[copyVector].Current[rank] = 0;
@@ -3629,7 +3566,7 @@ INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, IN
 //                }
 //            } else {
 //printf("%d : %d _ %d\n", usr+ i , tPath(&calc->i.c, usr+i),tPath(&calc2->i.c,usz+f[i]));
-                tEqua(&calc->i.c, usr+i*mx+((mdi)%mx), 0, copyVector, rank);
+                tEqua(&calc->i.c, usr+i*mx+((mdi)%mx), cmpl, copyVector, rank);
 //            }
             //LOST VECTORS
             //            if( CanonicalRank(&calc->i.c, copyVector, rank) > part(&calc->i.c, usr+i)){
@@ -3645,7 +3582,12 @@ INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, IN
         
     }
     for ( i = 0; i < ii*mx ; i++){
-        tScale(&calc->i.c , usr+i,1./magnitude(&calc->i.c, usr+i));
+        double value;
+        value = magnitude(&calc->i.c, usr+i);
+        if ( value > 0. )
+            tScale(&calc->i.c , usr+i,1./value);
+        else
+            tClear(&calc->i.c,usr+i);
     }
 //    for ( k = 0; k < ii*mx ; k++){
 //        for ( k2 = 0; k2 < ii*mx ; k2++)
@@ -3658,6 +3600,7 @@ INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, IN
 //            printf("%f ..", tMultiplyMP(rank, &info, &calc->i.c, 1., -1, nullMatrix, 0, 'T', ocean(rank,&calc->i.c,interactionExchange,k,0), 0, 'N', ocean(rank+1,&calc->i.c,interactionExchange,k2,0), 0));
 //        printf("\n");
 //    }
-
+    printf("complete transfer %d\n", ii*mx);
+    fflush(stdout);
     return ii*mx;
 }

@@ -61,7 +61,6 @@ INT_TYPE tSA (enum body bd, INT_TYPE X, INT_TYPE Y, INT_TYPE Z, INT_TYPE T );
 INT_TYPE tClassifyComponents( struct field * f1 , double * up, double * entropy);
 INT_TYPE tClassify(INT_TYPE rank, struct field * f1 , enum division label);
 INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin);
-INT_TYPE t1Permute( INT_TYPE rank, struct field * f1, char leftChar, enum division left, INT_TYPE lspin , enum division equals, INT_TYPE espin, INT_TYPE space );
 INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum division left, INT_TYPE lspin, enum division equals, INT_TYPE espin);
 INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct field * f1 , enum division left ,INT_TYPE lspin, enum division right ,INT_TYPE rspin, double * sequ);
 INT_TYPE tAddUpComponents( INT_TYPE rank, struct field * f1 , enum division left , enum division right ,  double *up);

@@ -359,6 +359,7 @@ double tdpocon (INT_TYPE rank,struct field * f1,  INT_TYPE L1 , double * Matrix 
 #else
     INT_TYPE lbuffer = part(f1, dsyBuffers)-L1*L1;
     info =  LAPACKE_dpocon(LAPACK_COL_MAJOR,charU,L1,  myStreams(f1, dsyBuffers,rank ), L1, norm1, &rcond);
+   // printf("--%f\n", rcond);
 #endif
     if ( info != 0 ){
         printf ("pop corn ! %lld\n",info);

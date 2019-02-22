@@ -106,7 +106,7 @@ typedef double __complex__ DCOMPLEX_PRIME;
 
 #define pi  3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679
 
-
+#define iNS 16
 
 
 #define MAX_PROTOTYPE_ATOMS 100
@@ -229,8 +229,6 @@ enum basisElementType {
     nullBasisElement,
     SincBasisElement,
     GaussianBasisElement,
-    periodicSincBasisElement,
-    periodicGaussianBasisElement,
     DiracDelta
 };
 
@@ -246,8 +244,10 @@ struct basisElement {
     double auxLength;
     INT_TYPE association;
     INT_TYPE dim;
-    INT_TYPE body;
+    //INT_TYPE body;
 };
+
+
 
 
 
@@ -309,7 +309,14 @@ enum division{
     external3,
     external4,//121,122,123,124
     interactionExchange,//22
+    interaction12,
+    interaction13,
+    interaction23,
+    interaction14,
+    interaction24,
+    interaction34, //-157
     interactionExchangePlus,
+    interaction12Plus,
     X,//
     harmonium,
     pointer,//6
@@ -424,6 +431,11 @@ enum division{
     diDiagonal,//118,119,120
     basisBuffers,
     tensorBuffers,
+    tensorBuffers2,
+    tensorBuffers3,
+    tensorBuffers4,
+    tensorBuffers5,
+    tensorBuffers6,
     vectorCubeBuffers,//125,126,127
     diagonalQuad,
     diDiagonalQuad,
@@ -481,13 +493,6 @@ enum division{
     matrixHbuild,
     vectorHbuild,
     twoBodyProjector,
-    interaction12,
-    interaction13,
-    interaction23,
-    interaction14,
-    interaction24,
-    interaction34, //-157
-    interaction12Plus,
     lanes,
     lanes2,
     lanes3,
@@ -522,7 +527,6 @@ struct name_label {
 
     INT_TYPE parallel;
     INT_TYPE stop[MaxSpin][MAXATOM+1];
-    INT_TYPE signature;
     int symmetry;
     int symmetry2;
     enum division name;
@@ -646,9 +650,9 @@ struct runTime {
     double ALPHA ; //condition
     double CANON ; //threshold
     double TOL;
-    double CONVERGENCE;
+//double CONVERGENCE;
     double vCANON;
-    double vCONVERGENCE;
+//    double vCONVERGENCE;
     double targetCondition;
     
     enum body body;
