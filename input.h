@@ -2,7 +2,7 @@
  *  input.h
  *
  *
- *  Copyright 2018 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2019 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University
  *  and the Robert A. Welch Foundation.
  *

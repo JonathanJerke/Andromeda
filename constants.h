@@ -2,7 +2,7 @@
  *  constants.h
  *  
  *
- *  Copyright 2018 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2019 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -92,7 +92,7 @@ typedef double __complex__ DCOMPLEX_PRIME;
 
 #endif
 
-
+#define hardMaxCore 72
 #define MAXSTRING 1024
 #define MaxParamFunc 4
 
@@ -318,8 +318,21 @@ enum division{
     interactionExchangePlus,
     interaction12Plus,
     X,//
+    X1,
+    X2,
+    X3,
+    X4,
     harmonium,
-    pointer,//6
+    harmonium1,
+    harmonium2,
+    harmonium3,
+    harmonium4,//98,99,100,101
+    vectorMomentum,
+    vectorMomentum1,
+    vectorMomentum2,
+    vectorMomentum3,
+    vectorMomentum4,
+    hartree,
     nullScalar,//7
     nullVector,//8
     nullMatrix,//9
@@ -332,57 +345,40 @@ enum division{
     distanceBufferScalar,//14
     maxBufferVector,//15
     squareVector,//16
-    copy,//17
     diagonal,//18
     square,//19
     project,//20
     interactionDirect,//21
-    copyTwo , //23
     buffer,//24,
     Ha, //25
+    Iterator,
     printOperator,
     highBallVector,
     highBallVector2,
     highBallVector3,
     highBallVector4,
-    buffer2,//31
-    buffer3,//32
-    square2,//33
-    alternatingMatrix,//36
     secondVector,//48
     maxBuffer4Vector,//49
     maxBuffer5Vector,//50
+    copy,//17
+    copyTwo , //23
     copyThree,//51
     copyFour,//52
-    diisDensity,//53
-    projectBak,//54
-    projectBak2,//55/
-    quart,//56
-    weyletBasis,//57
-    vectors,//58
-    v2,
-    u2,//59.60
-    symmBasis,//62
+    copyFive,
     edgeMatrix,//63
     eigen,//64
-    sectors,
-    vectors2,//65
-    gammas,//66
+    trainVector,
     trainVector2,
     trainVector3,
     trainVector4,
+    trainMatrix,
     trainMatrix2,
     trainMatrix3,
     trainMatrix4,
-    gammaView1,
-    gammaView2,//67,68,69,70
-    copyFive,
     spBuffer,//71,72
     PauliX,
     PauliY,
     PauliZ,//73,74,75
-    trainVector,
-    trainMatrix,
     trainQuartic,//76,77,78
     cycleVector,
     cycleMatrix,
@@ -392,10 +388,6 @@ enum division{
     oneBody,
     entropyVector,
     entropyUnit,//84,85
-    diisArray,
-    da2,
-    da3,
-    da4,//86,87,88,89
     vectors3,//90
     basis,
     subBasis,//92,93
@@ -403,10 +395,6 @@ enum division{
     init,
     initValence,
     initLumos ,//95,96,97
-    harmonium1,
-    harmonium2,
-    harmonium3,
-    harmonium4,//98,99,100,101
     quad,
     quad2,//102,103
     bandBasis,//104
@@ -454,39 +442,22 @@ enum division{
     canonicalBuffersBX,
     canonicalBuffersC,
     canonicalBuffersD,//
-    X1,
-    X2,
     complement,
     eigenList,
     canonicalBuffersB2,
     oneVector,
     twoVector,
-    hartree,
     twoBodyRitz,
     conditionOverlapNumbers,
     manyElectronsRitz,//
     foundationStructure,
     foundationEquals,
-    uszCanon,
-    opCanon,
     totalVector,
     squareTwoVector,//
-    subTotalVector,
-    subVector,
-    project1,
     dsyBuffers,
     oneArray,
     oneBasis,
     threeArray,
-    Iterator,
-    IteratorOneBody1,
-    IteratorOneBody2,
-    IteratorOneBody3,
-    IteratorOneBody4,
-    HaOneBody1,
-    HaOneBody2,
-    HaOneBody3,
-    HaOneBody4,
     seconds,
     MomentumDot,
     matrixSbuild,
@@ -500,7 +471,10 @@ enum division{
     lanes5,
     lanes6,
     lanes7,
-    lanes8,lanes9,lanes10,lanes11,lanes12,lanes13,lanes14,lanes15,lane16,lanes17,lanes18,lanes19,lanes20,lanes21,lanes22,lanes23,lanes24,lanes25,lanes26,lanes27,lanes28,lanes29,lanes30,lanes31,lane32,lanes33,lanes34,lanes35,lanes36,
+    lanes8,
+    lanes9,
+    lanes10,
+    lanes11,lanes12,lanes13,lanes14,lanes15,lane16,lanes17,lanes18,lanes19,lanes20,lanes21,lanes22,lanes23,lanes24,lanes25,lanes26,lanes27,lanes28,lanes29,lanes30,lanes31,lane32,lanes33,lanes34,lanes35,lanes36,
     lanesb,lanesb2,lanesb3,lanesb4,lanesb5,lanesb6,lanesb7,lanesb8,lanesb9,lanesb10,lanesb11,lanesb12,lanesb13,lanesb14,lanesb15,lanesb16,lanesb17,lanesb18,lanesb19,lanesb20,lanesb21,lanesb22,lanesb23,lanesb24,lanesb25,lanesb26,lanesb27,lanesb28,lanesb29,lanesb30,lanesb31,lanesb32,lanesb33,lanesb34,lanesb35,lanesb36,lanesc,lanesc2,lanesc3,lanesc4,lanesc5,lanesc6,lanesc7,lanesc8,lanesc9,lanesc10,lanesc11,lanesc12,lanesc13,lanesc14,lanesc15,lanesc16,lanesc17,lanesc18,lanesc19,lanesc20,lanesc21,lanesc22,lanesc23,lanesc24,lanesc25,lanesc26,lanesc27,lanesc28,lanesc29,lanesc30,lanesc31,lanesc32,lanesc33,lanesc34,lanesc35,lanesc36,lanesd,lanesd2,lanesd3,lanesd4,lanesd5,lanesd6,lanesd7,lanesd8,lanesd9,lanesd10,lanesd11,lanesd12,lanesd13,lanesd14,lanesd15,lanesd16,lanesd17,lanesd18,lanesd19,lanesd20,lanesd21,lanesd22,lanesd23,lanesd24,lanesd25,lanesd26,lanesd27,lanesd28,lanesd29,lanesd30,lanesd31,lanesd32,lanesd33,lanesd34,lanesd35,lanesd36,
 
     
@@ -526,7 +500,7 @@ struct name_label {
     double value3;
 
     INT_TYPE parallel;
-    INT_TYPE stop[MaxSpin][MAXATOM+1];
+    INT_TYPE stop[MaxSpin][MAXATOM+1];//want to get rid of this scaling monster
     int symmetry;
     int symmetry2;
     enum division name;
@@ -635,7 +609,6 @@ struct runTime {
     INT_TYPE runFlag;
 
 #ifdef OMP
-   // INT_TYPE NTraffic;
     INT_TYPE NCore;
     INT_TYPE NSlot;
 
@@ -650,9 +623,7 @@ struct runTime {
     double ALPHA ; //condition
     double CANON ; //threshold
     double TOL;
-//double CONVERGENCE;
     double vCANON;
-//    double vCONVERGENCE;
     double targetCondition;
     
     enum body body;
@@ -675,7 +646,6 @@ struct input {
     INT_TYPE filter;
     int irrep;
 #ifdef OMP
-  //  INT_TYPE traffic;
     INT_TYPE omp;
 #endif
     double seekPower;

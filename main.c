@@ -2,7 +2,7 @@
  *  main.c
  *
  *
- *  Copyright 2018 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2019 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -85,14 +85,17 @@ INT_TYPE print(struct calculation *c ){
     }
     if ( (c->i.outputFlag) % 2 == 1)
         tEdges(c);
-
+    fflush(stdout);
     return 0;
 }
 
 
 INT_TYPE exec (struct calculation *c ){
     INT_TYPE splitFlag = 0,cycleFlag = 0;;
-    
+    if ( MaxCore > hardMaxCore ){
+        printf("max core at this time is %d\n", hardMaxCore);
+        exit(0);
+    }
 #ifdef splitTag
     if ( c->rt.body >= two)
     splitFlag = 1;

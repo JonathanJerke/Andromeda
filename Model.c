@@ -2,7 +2,7 @@
  *  Model.c
  *
  *
- *  Copyright 2018 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2019 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -200,6 +200,7 @@ INT_TYPE fModel ( struct calculation * c1 ){
 
 INT_TYPE iModel( struct calculation * c1){
     //c1->rt.printFlag = 1;
+    
     struct field *f1 = &(c1->i.c);
     {
         INT_TYPE space ;
@@ -1456,12 +1457,6 @@ INT_TYPE iModel( struct calculation * c1){
         
         {
             
-//            if ( c1->i.hartreeFockFlag ){
-//                mySeparateExactTwo(f1,c1->rt.runFlag, -1. , 0,0,1,2);
-//                mySeparateExactOne(f1,-1.,0);
-//                tScale(f1, interactionDirect, c1->i.hartreeFockFlag);
-//            }
-
             if ( bootType == electron  ){
                 if ( bootBodies > one ){
                     mySeparateExactTwo(f1,c1->rt.runFlag, 1. , 0,0,1,2);
@@ -1477,7 +1472,12 @@ INT_TYPE iModel( struct calculation * c1){
                     separateExternal(c1,c1->rt.runFlag,0,1.0,4,0,1);
                 }
                 if ( c1->i.springFlag ){
-                    separateHarmonicExternal(c1,c1->rt.runFlag,1.,4,0,1);
+                    double vspr[3];
+                    vspr[0] = c1->i.springFlag;
+                    vspr[1] = c1->i.springFlag;
+                    vspr[2] = c1->i.springFlag;
+
+                    separateHarmonicExternal(c1,c1->rt.runFlag,1.,vspr,0,1);
                 }
                 separateKinetic(f1, c1->rt.runFlag,kinetic, 1.0,1);
             

@@ -2,10 +2,11 @@
  *  system.h
  *
  *
- *  Copyright 2018 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2019 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
- * 
+ *
+ 
  *   *   This file is part of Andromeda.
  
  *   *   Andromeda is free software: you can redistribute it and/or modify
@@ -31,12 +32,17 @@
 
 #define SPACE 3
 
-//KEEP THESE present.
 #define sincFlag 1
-
-#define MAXATOM 16
+#define MAXATOM 4
 //#define OMP
 //#define MKL
 #define GSL_LIB
+
+
 #define MaxCore 2
+
+#endif
+
+
+
 #endif /* system_h */

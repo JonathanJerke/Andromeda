@@ -2,7 +2,7 @@
  *  coreForce.h
  *
  *
- *  Copyright 2018 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2019 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -70,7 +70,8 @@ INT_TYPE separateBackground( struct calculation * c1,INT_TYPE periodic, INT_TYPE
 INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division akinetic, double mass , INT_TYPE particle1);
 INT_TYPE separateBoost( struct field * f1, enum division in,INT_TYPE dim ,double vectorMomentum );
 INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat,INT_TYPE spin);
-INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE atom, double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1);
+INT_TYPE separateVector( struct field * f1, INT_TYPE periodic,enum division aVector,  double amass, double vs[], INT_TYPE particle1 );
+INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE periodic, double scalar, double vs[], enum division basis, INT_TYPE particle1 );
 void separateX ( struct field * f1, double vectorDipole );
 double tTestTwoBody( struct field * f1, enum division mat,INT_TYPE periodic, INT_TYPE * p);
 double tRMSDevRandom( struct field * f1, enum division mat, INT_TYPE periodic ,INT_TYPE Nc);
@@ -78,5 +79,5 @@ INT_TYPE tZeroSum ( struct field * f1, enum division mat,INT_TYPE spin);
 double BoB (struct basisElement b1, struct basisElement b2);
 double BdB (struct basisElement b1, struct basisElement b2);
 double Bd2B (struct basisElement b1, struct basisElement b2);
-
+double Bx2B (struct basisElement b1, struct basisElement b2);
 #endif /* coreForce_h */

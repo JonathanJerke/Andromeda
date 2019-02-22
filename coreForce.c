@@ -2,7 +2,7 @@
  *  coreForce.c
  *
  *
- *  Copyright 2018 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2019 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -637,6 +637,15 @@ double BdB (struct basisElement b1, struct basisElement b2){
         return FGS(0,&pa);
     }
     
+    printf("over rails\n");
+    exit(0);
+    return 0;
+}
+
+double Bx2B (struct basisElement b1, struct basisElement b2){
+    if ( b1.basis == SincBasisElement && b2.basis == SincBasisElement ){
+
+    }
     printf("over rails\n");
     exit(0);
     return 0;
@@ -2811,10 +2820,10 @@ INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division aki
     INT_TYPE space,dim,I1,I2;
     INT_TYPE * dims1 = f1->sinc.dims[particle1];
     Stream_Type * stream;
-    
+    for ( dim = 0 ; dim < SPACE; dim++){
+
     for ( space = 0 ;space < SPACE; space++){
         
-        for ( dim = 0 ; dim < SPACE; dim++){
             stream =  streams( f1, akinetic, 0 , space ) + dims1[space]*dims1[space] * dim;//last one is COMPLEX:: cmpl!
             
             for ( I1 = 0 ; I1 < dims1[space] ; I1++)
@@ -2840,7 +2849,39 @@ INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division aki
     return 0;
 }
 
-INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE periodic, double scalar,INT_TYPE dim, enum division basis, INT_TYPE particle1 ){
+INT_TYPE separateVector( struct field * f1, INT_TYPE periodic,enum division aVector,  double amass, double vs[], INT_TYPE particle1 ){
+    INT_TYPE space,dim,I1,I2;
+    INT_TYPE * dims1 = f1->sinc.dims[particle1];
+    Stream_Type * stream;
+    for ( dim = 0 ; dim < SPACE; dim++){
+
+    for ( space = 0 ;space < SPACE; space++){
+        
+            stream =  streams( f1, aVector, 1 , space ) + dims1[space]*dims1[space] * dim;//last one is COMPLEX:: cmpl!
+            
+            for ( I1 = 0 ; I1 < dims1[space] ; I1++)
+                for( I2 = 0; I2 < dims1[space] ; I2++){
+                    
+                    if ( dim == space ){
+                        (stream )[dims1[space]*I1+I2] = vs[space]*BdB(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2));
+                        if ( I1 > I2 )
+                            (stream )[dims1[space]*I1+I2] *= -1.;
+                    }
+                    else
+                        (stream )[dims1[space]*I1+I2] = BoB(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2));
+                    
+                    
+                }
+        }
+    }
+    
+    f1->sinc.tulip[aVector].Current[1]  = SPACE;
+    
+    return 0;
+}
+
+
+INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE periodic, double scalar, double vs[], enum division basis, INT_TYPE particle1 ){
     
     struct field * f1 = &c1->i.c;
     
@@ -2886,8 +2927,7 @@ INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE periodic, do
                     for ( I2 = 0; I2 < dims1[space] ; I2++)
                     {
                         if ( space == alpha ){
-                            (stream[space])[I1*dims1[space]+I2] = 0;
-                            //scalar * 0.500 * (c1->i.springConstant) *Bx2B(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2));
+                            (stream[space])[I1*dims1[space]+I2] =  0.500 *vs[space] *Bx2B(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2));
 ;
                         } else {
                             (stream[space])[I1*dims1[space]+I2] =  BoB(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2));
@@ -2896,11 +2936,6 @@ INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE periodic, do
             }
             tAddTw(f1, harmonium,0, diagonalCube,0);
         }
-    }
-    if ( part(f1,harmonium ) < SPACE )
-    {
-        printf("harmonium\n");
-        exit(0);
     }
     return 0;
 }
