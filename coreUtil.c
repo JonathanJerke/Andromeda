@@ -1598,10 +1598,6 @@ struct basisElement grabBasis (struct field * f1, INT_TYPE component, INT_TYPE p
     boa.origin = 0.;
     
     boa.auxIndex = f1->sinc.dims[particle][component];
-    boa.dim = component;
-    // boa.body = particle;
-    boa.association = 0;
-    boa.auxLength = 1.;
     
     if ( f1->mem1->rt->bodyType == h2plus)
         boa.length /= 1.3;

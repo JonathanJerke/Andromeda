@@ -80,6 +80,38 @@ double min( double x1, double x2 ){
     }
 }
 
+#ifdef GSL_LIB
+
+
+DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
+    DCOMPLEX value = 0;
+    double lambdad = lambda;
+        
+    
+    double g,hg;
+    
+    if ( lambda % 2 == 0 ){
+        g = gsl_sf_gamma((1.+lambdad)/2.);
+        hg = gsl_sf_hyperg_1F1((1.+lambdad)/2.  ,0.5,-sqr(delta/gamma/2.));
+    } else {
+        g = gsl_sf_gamma(1.+lambdad/2.);
+        hg = gsl_sf_hyperg_1F1( 1.+lambdad/2.    ,1.5,-sqr(delta/gamma/2.));
+    }
+
+    
+    if ( lambda % 2 == 1 )
+        value = I *  g*hg   *(delta/gamma);
+    else
+        value =      g*hg;
+    
+    value /= pow(gamma,lambdad)*gamma;
+    return value;
+}
+#else
+DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
+    return I;
+}
+#endif
 
 
 double traceOne( struct field * f1 , enum division label , INT_TYPE spin ){

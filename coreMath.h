@@ -39,6 +39,8 @@ double max( double x1, double x2 );
 double min( double x1, double x2 );
 INT_TYPE maxZ( struct field * f1 );
 INT_TYPE sumZ( struct field * f1 );
+DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta);
+
 double traceOne( struct field * f1 , enum division label , INT_TYPE spin );
 
 #endif /* coreMath_h */

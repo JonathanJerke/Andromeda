@@ -670,8 +670,9 @@ INT_TYPE exec (struct calculation *c ){
     free(c1);
     return 0;
 }
-#ifndef APPLE
+#if 1
 int main (INT_TYPE argc , char * argv[]){
+    
 #if sincFlag
 
 //    tTestSA(two, 2);
@@ -689,53 +690,121 @@ int main (INT_TYPE argc , char * argv[]){
     
 
     struct function_label func1 ;
-    
+    func1.interval = 1;
     func1.fn = Coulomb;//Yukawa, Erf
     func1.param[0] = 1.;//scalar out front
     func1.param[1] = 1.;//not used by elemCal...a quadrature parameter
     func1.param[2] = 1.;//parameter in Erf and Yukawa (scale/mass)
     func1.param[3] = 1.;//second a parameter, unused.
-    getDescription ( &func1 ,0.,stdout);
+//    getDescription ( &func1 ,0.,stdout);
 
     INT_TYPE periodic = 0;//GTO's not yet coded for peridicity/.
     INT_TYPE i ;
     
-    
+#if 1
     if ( argc != 4 ){
         printf("L,Distance, Gaussian\n");
         exit(0);
         
     }
+    
+    
     INT_TYPE l = atoi(argv[1]);
     double x = atof(argv[2]);
     double b = atof(argv[3]);
-
+#else
+    INT_TYPE l =0;
+    double x = 0;
+    double b = 1;
+#endif
     
-    
-    
-    INT_TYPE acc = 0;//somehwo?
+    INT_TYPE acc = 1;//somehwo?
     
     INT_TYPE body = 2;
-    if ( acc ){
-        if ( l > 1 ){
-            printf("warning,  have not completed acceleration of L > 1 yet...");
-            acc = 0;
-        }
-    }
-    
-    if ( l > 4 ){
-        printf("oops ,  not recognized.. ask me for more!\n");
-    }
-    
-    printf("ANGULAR %d \n %d-Body interaction\n", l , body);
     struct general_2index g3[3];
+
+    INT_TYPE l1=l,l2=l,l3=l,l4=l;
+//    for ( l1 = 0 ; l1 <=5 ; l1++ )
+//        for ( l2 = 0 ; l2 <= 5 ; l2++)
+//            for (l3 = 0; l3<=5 ; l3++)
+//                for (l4 = 0 ; l4<=5 ;l4++){
+//
     {
-        
-        i = 0;
+                    {
+                        
+                        i = 0;
+                        g3[i].powSpace = 0;
+                        g3[i].gaussianAccelerationFlag = acc;
+                        g3[i].realFlag = 1;
+                        g3[i].point = 2;
+                        g3[i].i[0].action = 0;//derivatives
+                        g3[i].i[1].action = 0;//derivatives
+                        g3[i].momentumShift = 0;
+                        
+                        g3[i].i[0].bra.basis = GaussianBasisElement;
+                        g3[i].i[0].bra.length = b;//body 1 Matrix
+                        g3[i].i[0].bra.origin = 0;
+                        g3[i].i[0].bra.index = l1;
+                        g3[i].i[0].bra.periodic = 0;
+                        
+                        g3[i].i[0].ket.basis = GaussianBasisElement;
+                        g3[i].i[0].ket.length = b;
+                        g3[i].i[0].ket.origin = 0 ;
+                        g3[i].i[0].ket.index = l2 ;
+                        g3[i].i[0].ket.periodic = 0;
+                        
+                        
+                            g3[i].i[1].bra.basis = GaussianBasisElement;
+                            g3[i].i[1].bra.length = 1;//body 1 Matrix
+                            g3[i].i[1].bra.origin = 0;
+                            g3[i].i[1].bra.index = l3;
+                            g3[i].i[1].bra.periodic = 0;
+                            
+                            g3[i].i[1].ket.basis = GaussianBasisElement;
+                            g3[i].i[1].ket.length = 1;
+                            g3[i].i[1].ket.origin = 0;
+                            g3[i].i[1].ket.index = l4;
+                            g3[i].i[1].ket.periodic = 0;
+                        g3[i].fl = & func1;
+                        
+                        
+                        
+                        
+                        
+                        if ( i == 0 )
+                            g3[i].periodic = ( periodic ) % 2;
+                        else if ( i == 1 )
+                            g3[i].periodic = ( periodic / 2 ) % 2;
+                        else if (i == 2 )
+                            g3[i].periodic = ( periodic / 4) % 2;
+                        else
+                        {
+                            printf("here\n");
+                            exit(0);
+                        }
+                        g3[i].body = body;
+                        
+                        //                printf("%f %f\n", creal(aaGdnGdm(atoi(argv[3]),atoi(argv[4]), &g3[0].i[0])));
+                        //                exit(0);
+                        
+                        
+                        //
+//                        DCOMPLEX va;
+//                        for ( i =0; i< 1; i++)
+//                            va = aaGGCGG(atof(argv[1]), &g3[0]);
+//
+//                        printf("%d\t%d\t%d\t%d\t %f\t%f\n",l1,l2,l3,l4, creal(va), cimag(va));
+//                        //        exit(0);
+                        //
+                    }
+                }
+    {
+        i = 1;
         g3[i].powSpace = 0;
         g3[i].gaussianAccelerationFlag = acc;
         g3[i].realFlag = 1;
         g3[i].point = 2;
+        g3[i].i[0].action = 0;//derivatives
         g3[i].i[1].action = 0;//derivatives
         g3[i].momentumShift = 0;
 
@@ -743,66 +812,27 @@ int main (INT_TYPE argc , char * argv[]){
         g3[i].i[0].bra.length = b;//body 1 Matrix
         g3[i].i[0].bra.origin = x;
         g3[i].i[0].bra.index = l;
+        g3[i].i[0].bra.periodic = 0;
+        
         
         g3[i].i[0].ket.basis = GaussianBasisElement;
         g3[i].i[0].ket.length = b;
         g3[i].i[0].ket.origin = x;
         g3[i].i[0].ket.index = l;
+        g3[i].i[0].ket.periodic = 0;
         
         g3[i].i[1].bra.basis = GaussianBasisElement;
         g3[i].i[1].bra.length = b;//body 1 Matrix
         g3[i].i[1].bra.origin = 0;
         g3[i].i[1].bra.index = l;
+        g3[i].i[1].bra.periodic = 0;
         
         g3[i].i[1].ket.basis = GaussianBasisElement;
         g3[i].i[1].ket.length = b;
         g3[i].i[1].ket.origin = 0;
         g3[i].i[1].ket.index = l;
+        g3[i].i[1].ket.periodic = 0;
 
-        g3[i].fl = & func1;
-        
-        if ( i == 0 )
-            g3[i].periodic = ( periodic ) % 2;
-        else if ( i == 1 )
-            g3[i].periodic = ( periodic / 2 ) % 2;
-        else if (i == 2 )
-            g3[i].periodic = ( periodic / 4) % 2;
-        else
-        {
-            printf("here\n");
-            exit(0);
-        }
-        g3[i].body = body;
-    }
-    {
-        i = 1;
-        g3[i].powSpace = 0;
-        g3[i].gaussianAccelerationFlag = acc;
-        g3[i].realFlag = 1;
-        g3[i].point = 2;
-        g3[i].i[1].action = 0;//derivatives
-        g3[i].momentumShift = 0;
-
-        g3[i].i[0].bra.basis = GaussianBasisElement;
-        g3[i].i[0].bra.length = b;//body 1 Matrix
-        g3[i].i[0].bra.origin = 0;
-        g3[i].i[0].bra.index = l;
-        
-        g3[i].i[0].ket.basis = GaussianBasisElement;
-        g3[i].i[0].ket.length = b;
-        g3[i].i[0].ket.origin = 0;
-        g3[i].i[0].ket.index = l;
-        
-        g3[i].i[1].bra.basis = GaussianBasisElement;
-        g3[i].i[1].bra.length = b;//body 1 Matrix
-        g3[i].i[1].bra.origin = 0;
-        g3[i].i[1].bra.index = l;
-        
-        g3[i].i[1].ket.basis = GaussianBasisElement;
-        g3[i].i[1].ket.length = b;
-        g3[i].i[1].ket.origin = 0;
-        g3[i].i[1].ket.index = l;
-        
         g3[i].fl = & func1;
         
         if ( i == 0 )
@@ -824,28 +854,34 @@ int main (INT_TYPE argc , char * argv[]){
         g3[i].gaussianAccelerationFlag = acc;
         g3[i].realFlag = 1;
         g3[i].point = 2;
+        g3[i].i[0].action = 0;//derivatives
         g3[i].i[1].action = 0;//derivatives
         g3[i].momentumShift = 0;
 
         g3[i].i[0].bra.basis = GaussianBasisElement;
         g3[i].i[0].bra.length = b;//body 1 Matrix
-        g3[i].i[0].bra.origin = 0;
+        g3[i].i[0].bra.origin = x;
         g3[i].i[0].bra.index = l;
+        g3[i].i[0].bra.periodic = 0;
+        
         
         g3[i].i[0].ket.basis = GaussianBasisElement;
         g3[i].i[0].ket.length = b;
-        g3[i].i[0].ket.origin = 0;
+        g3[i].i[0].ket.origin = x;
         g3[i].i[0].ket.index = l;
+        g3[i].i[0].ket.periodic = 0;
         
         g3[i].i[1].bra.basis = GaussianBasisElement;
         g3[i].i[1].bra.length = b;//body 1 Matrix
         g3[i].i[1].bra.origin = 0;
         g3[i].i[1].bra.index = l;
+        g3[i].i[1].bra.periodic = 0;
         
         g3[i].i[1].ket.basis = GaussianBasisElement;
         g3[i].i[1].ket.length = b;
         g3[i].i[1].ket.origin = 0;
         g3[i].i[1].ket.index = l;
+        g3[i].i[1].ket.periodic = 0;
 
 
         g3[i].fl = & func1;
@@ -866,19 +902,31 @@ int main (INT_TYPE argc , char * argv[]){
     }
 
     {
-        INT_TYPE Nt = 100;
+        INT_TYPE Nt = 10000;
         time_t start_t, lapse_t;
         time(&start_t);
 
+        
+        printf("computing 10,000 matrix elements...\n\n");
         for ( i = 0; i < Nt ; i++){
-            printf("%d\t %1.15f\n",i+1, elementCal(1e-3,-1, g3));
-            fflush(stdout);
+           elementCal(1e-3,-1, g3);
         }
         
+        printf("\nnorms of gaussians %f %f %f,  %f %f %f,  %f %f %f , %f %f %f\n", GTOnorm(g3[0].i[0].bra),GTOnorm(g3[0].i[0].ket) ,GTOnorm(g3[0].i[1].bra),GTOnorm(g3[0].i[1].ket)
+               ,GTOnorm(g3[1].i[0].bra),GTOnorm(g3[1].i[0].ket) ,GTOnorm(g3[1].i[1].bra),GTOnorm(g3[1].i[1].ket)
+               ,GTOnorm(g3[2].i[0].bra),GTOnorm(g3[2].i[0].ket) ,GTOnorm(g3[2].i[1].bra),GTOnorm(g3[2].i[1].ket));
+        
+        printf("%f\n", elementCal(1e-3,-1, g3)
+               *GTOnorm(g3[0].i[0].bra)*GTOnorm(g3[0].i[0].ket) *GTOnorm(g3[0].i[1].bra)*GTOnorm(g3[0].i[1].ket)
+               *GTOnorm(g3[1].i[0].bra)*GTOnorm(g3[1].i[0].ket) *GTOnorm(g3[1].i[1].bra)*GTOnorm(g3[1].i[1].ket)
+               *GTOnorm(g3[2].i[0].bra)*GTOnorm(g3[2].i[0].ket) *GTOnorm(g3[2].i[1].bra)*GTOnorm(g3[2].i[1].ket)
+               );
         time(&lapse_t);
         printf("\nFinal per \t %15.15f\n", difftime(lapse_t, start_t)/Nt);
 
-    }
+    
+    
+}
 #endif
 
 }

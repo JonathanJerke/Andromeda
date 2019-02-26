@@ -52,6 +52,30 @@ double No(double beta1){
     return 1./sqrt(sqrt(pi / 2. / beta1 ) ) ;
 };//single dimensions of guassian
 
+double Nol ( double beta1, INT_TYPE l ){
+    double base =  No(beta1)/pow(beta1,0.500*l) ;
+    switch (l){
+        case 0:
+            return base;
+        case 1:
+            return base;
+        case 2:
+            return base/sqrt(3.);
+        case 3:
+            return base/sqrt(15.);
+        case 4:
+            return base/sqrt(105.);
+        case 5:
+            return base/sqrt(945.);
+        case 6:
+            return base/sqrt(10395.);
+        case 7:
+            return base/sqrt(135135.);
+        
+    }
+    exit(0);
+    
+}
 
 
 double GoG( double beta1, double beta2 , double x ){
@@ -60,230 +84,211 @@ double GoG( double beta1, double beta2 , double x ){
 }
 
 
-DCOMPLEX FGG ( double p , struct general_index * pa){
-    double xc1,xc2;
-    DCOMPLEX fgg;
-    double b0,b1,x0,x1;
-    INT_TYPE l0,l1;
-    double x;
-    
-    
-    if ( pa->l0 < pa->l1 ){
-        b0 = pa->b1;
-        b1 = pa->b0;
-        l0 = pa->l1;
-        l1 = pa->l0;
-        x0 = pa->x1;
-        x1 = pa->x0;
-        
-    }else {
-        b1 = pa->b1;
-        b0 = pa->b0;
-        l1 = pa->l1;
-        l0 = pa->l0;
-        x1 = pa->x1;
-        x0 = pa->x0;
 
-    }
-    x = x1-x0;
-    xc1 =GoG(b0, b1, x)*exp(-sqr(p /2.)/(b0+b1));
-        
-    xc2 = ((b0*x0+ b1*x1)/(b0+b1));
-    fgg = xc1 * ei( p * xc2 );
-
-    if ( l0 == 1 ){
-        fgg /= pow(b0,0.5*l0);
-    }else if ( l0 == 2 ){
-        fgg /= sqrt(3.)*pow(b0,0.5*l0);
-    }else if ( l0 == 3 ){
-        fgg /= sqrt(15.)*pow(b0,0.5*l0);
-    }else if ( l0 == 4 ){
-        fgg /= sqrt(105.)*pow(b0,0.5*l0);
-    }
-    
-    if ( l1 == 1 ){
-        fgg /= pow(b1,0.5*l1);
-    }else if ( l1 == 2 ){
-        fgg /= sqrt(3.)*pow(b1,0.5*l1);
-    }else if ( l1 == 3 ){
-        fgg /= sqrt(15.)*pow(b1,0.5*l1);
-    }else if ( l1 == 4 ){
-        fgg /= sqrt(105.)*pow(b1,0.5*l1);
-    }
-
-    if ( l0 == 0 && l1 == 0 ){
-        return fgg;
-    }
-    else if ( l0 == 1 && l1 == 0 ){
-        return fgg*(b0)/(b0+b1) * (  2. * b1 * x +I* p  );
-    } else if ( l0 == 1 && l1 == 1 ){
-        return -fgg*(b0*b1)/sqr(b0+b1) * (( p*p - 2.*(b1+b0)+4.*b0*b1*x*x -I*( 2. * ( b1 - b0 ) * x * p)));
-        
-        
-    }  else if ( l0 == 2 && l1 ==    0 ){
-        return fgg*(b0*(-2*b1*b1 - b0*(p*p - 4*b1*b1*x*x + b1*(2 - 4*I*p*x))))/(b0 + b1)/(b0 + b1);
-    }  else if ( l0 == 2 && l1 ==    1 ){
-        return (fgg/(b0 + b1)*(b0 + b1)*(b0 + b1))*(b0*b1*(-2*I*b1*b1*p + b0*((-I)*p*p*p + 2*b1*p*(I - 2*p*x) +
-                                                                              4*b1*b1*x*(3 + I*p*x)) + 2*b0*b0*(p*p*x + 2*b1*x*(3 - 2*b1*x*x) -
-                                                                                                                2*I*p*(-1 + 2*b1*x*x))));
-    }  else if ( l0 == 2 && l1 ==    2 ){
-
-        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b1*(2*b1*b1*b1*p*p+ b0*b1*(p*p*p*p + 2*b1*p*p*(-3 - 2*I*p*x) -
-                                                           4*b1*b1*(-3 - 6*I*p*x + p*p*x*x)) +
-                                       2*b0*b0*b0*(p*p + 8*b1*b1*b1*x*x*x*x + 8*I*b1*b1*x*x*(3*I + p*x) -
-                                               2*b1*(-3 + 6*I*p*x + p*p*x*x)) + 2*b0*b0*b1*(8*b1*b1*x*x*(-3 - I*p*x) +
-                                                                                            p*p*(-3 + 2*I*p*x) + 4*b1*(3 + 2*p*p*x*x))));
-        
-        
-    }  else if ( l0 == 3 && l1 ==    0 ){
-        return fgg*(b0*b0*(I*p + 2*b1*x)*(-6*b1*b1 -
-                                      b0*(p*p - 4*b1*b1*x*x + b1*(6 - 4*I*p*x))))/(b0 + b1)/(b0 + b1)/(b0 + b1);
-        
-    }  else if ( l0 == 3 && l1 ==    1 ){
-       return  (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*(6*b1*b1*(p*p + b1*(-2 - 2*I*p*x)) +
-                                  b0*(p*p*p*p - 6*I*b1*p*p*p*x + 8*b1*b1*b1*x*x*(6 + I*p*x) -
-                                      12*b1*b1*(2 - 2*I*p*x + p*p*x*x)) - 2*b0*b0*(8*b1*b1*b1*x*x*x*x + p*p*(3 - I*p*x) +
-                                                                                   12*I*b1*b1*x*x*(2*I + p*x) - 6*b1*(-1 + 3*I*p*x + p*p*x*x))));
-    }  else if ( l0 == 3 && l1 ==    2 ){
-        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*(6*b1*b1*b1*p*(I*p*p + 2*b1*(-2*I + p*x)) +
-                                             b0*b1*(I*p*p*p*p*p + 6*b1*p*p*p*(-I + p*x) + 8*b1*b1*b1*x*(15 + 12*I*p*x - p*p*x*x) -
-                                                    12*I*b1*b1*p*(1 - 5*I*p*x + p*p*x*x)) +
-                                             2*b0*b0*b0*(I*p*p*p + 16*b1*b1*b1*b1*x*x*x*x*x + 8*b1*b1*b1*x*x*x*(-10 + 3*I*p*x) +
-                                                     2*b1*p*(9*I + 9*p*x - I*p*p*x*x) - 12*b1*b1*x*(-5 + 6*I*p*x + p*p*x*x)) +
-                                             2*b0*b0*b1*(16*b1*b1*b1*x*x*x*(-5 - I*p*x) - p*p*p*(5*I + 2*p*x) +
-                                                        24*b1*b1*x*(5 - I*p*x + p*p*x*x) + 6*I*b1*p*(4 + 3*I*p*x + 2*p*p*x*x))));
-        
-    }  else if ( l0 == 3 && l1 ==    3 ){
-        return -((fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*b1*(6*b1*b1*b1*p*p*(p*p+ b1*(-6 - 2*I*p*x)) -
-                                            6*b0*b0*b1*(p*p*p*p*(2 - I*p*x) - 6*b1*p*p*(4 + p*p*x*x) +
-                                                       8*b1*b1*b1*x*x*(-15 - 10*I*p*x + p*p*x*x) +
-                                                       12*b1*b1*(5 + 5*I*p*x + 4*p*p*x*x +
-                                                                I*p*p*p*x*x*x)) +
-                                            b0*b1*(p*p*p*p*p*p + 6*b1*p*p*p*p*(-2 - I*p*x) -
-                                                   12*b1*b1*p*p*(-3 - 8*I*p*x + p*p*x*x) +
-                                                   8*b1*b1*b1*(-15 - 45*I*p*x + 18*p*p*x*x +
-                                                           I*p*p*p*x*x*x)) +
-                                            4*b0*b0*b0*b0*(16*b1*b1*b1*b1*x*x*x*x*x*x + 3*I*p*p*(3*I + p*x) +
-                                                    24*I*b1*b1*b1*x*x*x*x*(5*I + p*x) -
-                                                    12*b1*b1*x*x*(-15 + 10*I*p*x + p*p*x*x) +
-                                                    b1*(-30 + 90*I*p*x + 36*p*p*x*x - 2*I*p*p*p*x*x*x)) +
-                                            
-                                            6*b0*b0*b0*(p*p*p*p + 16*b1*b1*b1*b1*x*x*x*x*(-5 - I*p*x) +
-                                                    24*b1*b1*b1*x*x*(10 + p*p*x*x) -
-                                                    2*b1*p*p*(-3 + 8*I*p*x + p*p*x*x) +
-                                                    12*I*b1*b1*(5*I + 5*p*x + 4*I*p*p*x*x +
-                                                                p*p*p*x*x*x)))));
-
-    }  else if ( l0 == 4 && l1 ==    0 ){
-        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*(12*b1*b1*b1*b1 -
-                                      12*b0*b1*b1*(-p*p + 4*b1*b1*x*x + b1*(-2 + 4*I*p*x)) +
-                                      b0*b0*(p*p*p*p + 16*b1*b1*b1*b1*x*x*x*x + 4*b1*p*p*(3 - 2*I*p*x) +
-                                            16*b1*b1*b1*x*x*(-3 + 2*I*p*x) -
-                                             12*b1*b1*(-1 + 4*I*p*x + 2*p*p*x*x))));
-        
-    }  else if ( l0 == 4 && l1 ==    1 ){
-        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*
-                                b1*(12*I*b1*b1*b1*b1*p + 12*b0*b1*b1*(I*p*p*p + 2*b1*b1*x*(-5 - 2*I*p*x) +
-                                                              2*b1*p*(-I + 2*p*x)) +
-                                    I*b0*b0*(p*p*p*p*p + 4*b1*p*p*p*(1 - 2*I*p*x) +
-                                            16*b1*b1*b1*b1*x*x*x*(-10*I + p*x) +
-                                            16*b1*b1*b1*x*(15*I + 9*p*x + 2*I*p*p*x*x) -
-                                            12*b1*b1*p*(7 - 2*I*p*x + 2*p*p*x*x)) -
-                                    2*
-                                    b0*b0*b0*(16*b1*b1*b1*b1*x*x*x*x*x + 16*b1*b1*b1*x*x*x*(-5 + 2*I*p*x) +
-                                          p*p*p*(4*I + p*x) +
-                                          4*b1*p*(6*I + 9*p*x - 2*I*p*p*x*x) -
-                                          12*b1*b1*x*(-5 + 8*I*p*x + 2*p*p*x*x))));
-        
-    }  else if ( l0 == 4 && l1 ==    2 ){
-        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*(-12*b1*b1*b1*b1*b1*p*p + 12*b0*b1*b1*b1*(-p*p*p*p + 2*b1*p*p*(3 + 2*I*p*x) +
-                                                                    2*b1*b1*(-5 - 10*I*p*x + 2*p*p*x*x)) +
-                                         2*b0*b0*b0*b0*(-p*p*p*p + 32*b1*b1*b1*b1*b1*x*x*x*x*x*x + 16*b1*b1*b1*b1*x*x*x*x*(-15 + 4*I*p*x) +
-                                                 2*b1*p*p*(-18 + 12*I*p*x + p*p*x*x) - 8*b1*b1*b1*x*x*(-45 + 40*I*p*x + 6*p*p*x*x) +
-                                                 4*b1*b1*(-15 + 60*I*p*x + 36*p*p*x*x - 4*I*p*p*p*x*x*x)) -
-                                         b0*b0*b1*(p*p*p*p*p*p + 4*b1*p*p*p*p*(-1 - 2*I*p*x) + 16*b1*b1*b1*b1*x*x*(-45 - 20*I*p*x + p*p*x*x) -
-                                                  12*b1*b1*p*p*(9 - 8*I*p*x + 2*p*p*x*x) + 8*b1*b1*b1*(45 + 42*p*p*x*x + 4*I*p*p*p*x*x*x)) +
-                                         2*b0*b0*b0*b1*(16*b1*b1*b1*b1*x*x*x*x*(-15 - 2*I*p*x) + p*p*p*p*(7 - 2*I*p*x) -
-                                                    8*b1*p*p*(3 + 6*I*p*x + 2*p*p*x*x) + 16*b1*b1*b1*x*x*(45 - 10*I*p*x + 4*p*p*x*x) +
-                                                        12*I*b1*b1*(15*I + 30*p*x + 4*I*p*p*x*x+ 4*p*p*p*x*x*x))));
-    }  else if ( l0 == 4 && l1 ==    3 ){
-
-        return -((fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*b1*(12*I*b1*b1*b1*b1*b1*p*p*p + 12*b0*b1*b1*b1*p*
-                                      (I*p*p*p*p + 2*b1*p*p*(-5*I + 2*p*x) +
-                                       b1*b1*(30*I - 30*p*x - 4*I*p*p*x*x)) +
-                                      
-                                      4*b0*b0*b0*b0*b0*(32*b1*b1*b1*b1*b1*x*x*x*x*x*x*x + 16*b1*b1*b1*b1*x*x*x*x*x*(-21 + 4*I*p*x) -
-                                              3*p*p*p*(4*I + p*x) -
-                                              24*b1*b1*b1*x*x*x*(-35 + 20*I*p*x + 2*p*p*x*x) +
-                                              
-                                              4*b1*b1*x*(-105 + 180*I*p*x + 60*p*p*x*x - 4*I*p*p*p*x*x*x) +
-                                              2*b1*p*(-60*I - 90*p*x + 24*I*p*p*x*x + p*p*p*x*x*x)) +
-                                      I*b0*b0*b1*(p*p*p*p*p*p*p + 4*b1*p*p*p*p*p*(-3 - 2*I*p*x) - 12*b1*b1*p*p*p*
-                                                 (5 - 14*I*p*x + 2*p*p*x*x) +
-                                                 8*b1*b1*b1*p*(75 - 90*I*p*x + 66*p*p*x*x +
-                                                           4*I*p*p*p*x*x*x) +
-                                                 16*b1*b1*b1*b1*x*(105*I - 135*p*x - 30*I*p*p*x*x + p*p*p*x*x*x)) -
-                                      
-                                      6*b0*b0*b0*b1*(p*p*p*p*p*(3*I + p*x) +
-                                                 4*b1*p*p*p*(-10*I + 3*p*x - 2*I*p*p*x*x) +
-                                                 16*b1*b1*b1*b1*x*x*x*(-35 - 15*I*p*x + p*p*x*x) +
-                                                 8*b1*b1*b1*x*(105 + 30*I*p*x + 30*p*p*x*x +
-                                                           4*I*p*p*p*x*x*x) -
-                                                 12*b1*b1*p*(-5*I + 25*p*x - 4*I*p*p*x*x + 2*p*p*p*x*x*x)) +
-                                      6*b0*b0*b0*b0*(I*p*p*p*p*p - 32*I*b1*b1*b1*b1*b1*x*x*x*x*x*(-7*I + p*x) +
-                                              2*b1*p*p*p*(10*I + 11*p*x - I*p*p*x*x) +
-                                              16*b1*b1*b1*b1*x*x*x*(70 - 5*I*p*x + 4*p*p*x*x) -
-                                              4*b1*b1*p*(45*I + 28*I*p*p*x*x + 4*p*p*p*x*x*x) +
-                                              
-                                                     8*I*b1*b1*b1*x*(105*I + 75*p*x + 20*I*p*p*x*x + 6*p*p*p*x*x*x)))));
-    }  else if ( l0 == 4 && l1 ==    4 ){
-
-        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*b1*(12*b1*b1*b1*b1*b1*b1*p*p*p*p - 12*b0*b1*b1*b1*b1*p*p*
-                                           (-p*p*p*p + 2*b1*p*p*(7 + 2*I*p*x) +
-                                            4*b1*b1*(-15 - 10*I*p*x + p*p*x*x)) +
-                                           4*b0*b0*b0*b1*b1*(p*p*p*p*p*p*(-5 + 2*I*p*x) + 8*b1*p*p*p*p*(15 + 2*p*p*x*x) +
-                                                        
-                                                        16*b1*b1*b1*b1*x*x*(-210 - 210*I*p*x + 45*p*p*x*x + 2*I*p*p*p*x*x*x) -
-                                                        
-                                                        24*I*b1*b1*p*p*(-30*I + 25*p*x - 10*I*p*p*x*x + 2*p*p*p*x*x*x) +
-                                                        
-                                                        16*b1*b1*b1*(105 + 210*I*p*x + 45*p*p*x*x + 50*I*p*p*p*x*x*x -
-                                                                 4*p*p*p*p*x*x*x*x)) +
-                                           b0*b0*
-                                           b1*b1*(p*p*p*p*p*p*p*p + 4*b1*p*p*p*p*p*p*(-5 - 2*I*p*x) +
-                                                 12*b1*b1*p*p*p*p*(5 + 20*I*p*x - 2*p*p*x*x) +
-                                                 
-                                                 16*b1*b1*b1*p*p*(15 - 120*I*p*x + 45*p*p*x*x + 2*I*p*p*p*x*x*x) +
-                                                 
-                                                 16*b1*b1*b1*b1*(105 + 420*I*p*x - 270*p*p*x*x - 40*I*p*p*p*x*x*x +
-                                                          p*p*p*p*x*x*x*x)) +
-                                           4*b0*b0*b0*b0*b0*b0*(3*p*p*p*p+ 64*b1*b1*b1*b1*b1*b1*x*x*x*x*x*x*x*x + 128*I*b1*b1*b1*b1*b1*x*x*x*x*x*x*(7*I + p*x) -
-                                                   12*b1*p*p*(-15 + 10*I*p*x + p*p*x*x) -
-                                                   96*b1*b1*b1*b1*x*x*x*x*(-35 + 14*I*p*x + p*p*x*x)) +
-                                                   
-                                                   16*b1*b1*b1*x*x*(-210 + 210*I*p*x + 45*p*p*x*x - 2*I*p*p*p*x*x*x) +
-                                                   
-                                                   4*b1*b1*(105 - 420*I*p*x - 270*p*p*x*x + 40*I*p*p*p*x*x*x +
-                                                           p*p*p*p*x*x*x*x)) -
-                                           12*b0*b0*b0*b0*b1*(-p*p*p*p*p*p + 32*b1*b1*b1*b1*b1*x*x*x*x*(-35 - 14*I*p*x + p*p*x*x) +
-                                                       b1*p*p*p*p*(-5 + 20*I*p*x + 2*p*p*x*x) +
-                                                       8*b1*b1*p*p*(30 - 25*I*p*x + 10*p*p*x*x -
-                                                                   2*I*p*p*p*x*x*x) +
-                                                       16*b1*b1*b1*b1*x*x*(210 + 70*I*p*x + 25*p*p*x*x + 4*I*p*p*p*x*x*x) -
-                                                       24*b1*b1*b1*(35 + 50*p*p*x*x + 2*p*p*p*p*x*x*x*x)) +
-                                           8*b0*b0*b0*b0*b0*
-                                           b1*(3*p*p*p*p*(-7 + 2*I*p*x) - 64*I*b1*b1*b1*b1*b1*x*x*x*x*x*x*(-7*I + p*x) +
-                                               32*b1*b1*b1*b1*x*x*x*x*(105 + 4*p*p*x*x) +
-                                               2*b1*p*p*(15 + 120*I*p*x + 45*p*p*x*x -
-                                                         2*I*p*p*p*x*x*x +
-                                               24*I*b1*b1*b1*x*x*(210*I + 70*p*x + 25*I*p*p*x*x + 4*p*p*p*x*x*x) -
-                                               
-                                               8*b1*b1*(-105 + 210*I*p*x - 45*p*p*x*x + 50*I*p*p*p*x*x*x +
-                                                        4*p*p*p*p*x*x*x*x))));
-    }
-        
-        return 0;
-}
+//DCOMPLEX FGG ( double p , struct general_index * pa){
+//    double xc1,xc2;
+//    DCOMPLEX fgg;
+//    double b0,b1,x0,x1;
+//    INT_TYPE l0,l1;
+//    double x;
+//
+//
+//    if ( pa->l0 < pa->l1 ){
+//        b0 = pa->b1;
+//        b1 = pa->b0;
+//        l0 = pa->l1;
+//        l1 = pa->l0;
+//        x0 = pa->x1;
+//        x1 = pa->x0;
+//
+//    }else {
+//        b1 = pa->b1;
+//        b0 = pa->b0;
+//        l1 = pa->l1;
+//        l0 = pa->l0;
+//        x1 = pa->x1;
+//        x0 = pa->x0;
+//
+//    }
+//    x = x1-x0;
+//    xc1 =GoG(b0, b1, x)*exp(-sqr(p /2.)/(b0+b1))/No(b0)/No(b1);
+//
+//    xc2 = ((b0*x0+ b1*x1)/(b0+b1));
+//    fgg = xc1 * ei( p * xc2 );
+//
+//    if ( l0 == 0 && l1 == 0 ){
+//        return fgg;
+//    }
+//    else if ( l0 == 1 && l1 == 0 ){
+//        return fgg*(b0)/(b0+b1) * (  2. * b1 * x +I* p  );
+//    } else if ( l0 == 1 && l1 == 1 ){
+//        return -fgg*(b0*b1)/sqr(b0+b1) * (( p*p - 2.*(b1+b0)+4.*b0*b1*x*x -I*( 2. * ( b1 - b0 ) * x * p)));
+//
+//
+//    }  else if ( l0 == 2 && l1 ==    0 ){
+//        return fgg*(b0*(-2*b1*b1 - b0*(p*p - 4*b1*b1*x*x + b1*(2 - 4*I*p*x))))/(b0 + b1)/(b0 + b1);
+//    }  else if ( l0 == 2 && l1 ==    1 ){
+//        return (fgg/(b0 + b1)*(b0 + b1)*(b0 + b1))*(b0*b1*(-2*I*b1*b1*p + b0*((-I)*p*p*p + 2*b1*p*(I - 2*p*x) +
+//                                                                              4*b1*b1*x*(3 + I*p*x)) + 2*b0*b0*(p*p*x + 2*b1*x*(3 - 2*b1*x*x) -
+//                                                                                                                2*I*p*(-1 + 2*b1*x*x))));
+//    }  else if ( l0 == 2 && l1 ==    2 ){
+//
+//        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b1*(2*b1*b1*b1*p*p+ b0*b1*(p*p*p*p + 2*b1*p*p*(-3 - 2*I*p*x) -
+//                                                           4*b1*b1*(-3 - 6*I*p*x + p*p*x*x)) +
+//                                       2*b0*b0*b0*(p*p + 8*b1*b1*b1*x*x*x*x + 8*I*b1*b1*x*x*(3*I + p*x) -
+//                                               2*b1*(-3 + 6*I*p*x + p*p*x*x)) + 2*b0*b0*b1*(8*b1*b1*x*x*(-3 - I*p*x) +
+//                                                                                            p*p*(-3 + 2*I*p*x) + 4*b1*(3 + 2*p*p*x*x))));
+//
+//
+//    }  else if ( l0 == 3 && l1 ==    0 ){
+//        return fgg*(b0*b0*(I*p + 2*b1*x)*(-6*b1*b1 -
+//                                      b0*(p*p - 4*b1*b1*x*x + b1*(6 - 4*I*p*x))))/(b0 + b1)/(b0 + b1)/(b0 + b1);
+//
+//    }  else if ( l0 == 3 && l1 ==    1 ){
+//       return  (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*(6*b1*b1*(p*p + b1*(-2 - 2*I*p*x)) +
+//                                  b0*(p*p*p*p - 6*I*b1*p*p*p*x + 8*b1*b1*b1*x*x*(6 + I*p*x) -
+//                                      12*b1*b1*(2 - 2*I*p*x + p*p*x*x)) - 2*b0*b0*(8*b1*b1*b1*x*x*x*x + p*p*(3 - I*p*x) +
+//                                                                                   12*I*b1*b1*x*x*(2*I + p*x) - 6*b1*(-1 + 3*I*p*x + p*p*x*x))));
+//    }  else if ( l0 == 3 && l1 ==    2 ){
+//        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*(6*b1*b1*b1*p*(I*p*p + 2*b1*(-2*I + p*x)) +
+//                                             b0*b1*(I*p*p*p*p*p + 6*b1*p*p*p*(-I + p*x) + 8*b1*b1*b1*x*(15 + 12*I*p*x - p*p*x*x) -
+//                                                    12*I*b1*b1*p*(1 - 5*I*p*x + p*p*x*x)) +
+//                                             2*b0*b0*b0*(I*p*p*p + 16*b1*b1*b1*b1*x*x*x*x*x + 8*b1*b1*b1*x*x*x*(-10 + 3*I*p*x) +
+//                                                     2*b1*p*(9*I + 9*p*x - I*p*p*x*x) - 12*b1*b1*x*(-5 + 6*I*p*x + p*p*x*x)) +
+//                                             2*b0*b0*b1*(16*b1*b1*b1*x*x*x*(-5 - I*p*x) - p*p*p*(5*I + 2*p*x) +
+//                                                        24*b1*b1*x*(5 - I*p*x + p*p*x*x) + 6*I*b1*p*(4 + 3*I*p*x + 2*p*p*x*x))));
+//
+//    }  else if ( l0 == 3 && l1 ==    3 ){
+//        return -((fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*b1*(6*b1*b1*b1*p*p*(p*p+ b1*(-6 - 2*I*p*x)) -
+//                                            6*b0*b0*b1*(p*p*p*p*(2 - I*p*x) - 6*b1*p*p*(4 + p*p*x*x) +
+//                                                       8*b1*b1*b1*x*x*(-15 - 10*I*p*x + p*p*x*x) +
+//                                                       12*b1*b1*(5 + 5*I*p*x + 4*p*p*x*x +
+//                                                                I*p*p*p*x*x*x)) +
+//                                            b0*b1*(p*p*p*p*p*p + 6*b1*p*p*p*p*(-2 - I*p*x) -
+//                                                   12*b1*b1*p*p*(-3 - 8*I*p*x + p*p*x*x) +
+//                                                   8*b1*b1*b1*(-15 - 45*I*p*x + 18*p*p*x*x +
+//                                                           I*p*p*p*x*x*x)) +
+//                                            4*b0*b0*b0*b0*(16*b1*b1*b1*b1*x*x*x*x*x*x + 3*I*p*p*(3*I + p*x) +
+//                                                    24*I*b1*b1*b1*x*x*x*x*(5*I + p*x) -
+//                                                    12*b1*b1*x*x*(-15 + 10*I*p*x + p*p*x*x) +
+//                                                    b1*(-30 + 90*I*p*x + 36*p*p*x*x - 2*I*p*p*p*x*x*x)) +
+//
+//                                            6*b0*b0*b0*(p*p*p*p + 16*b1*b1*b1*b1*x*x*x*x*(-5 - I*p*x) +
+//                                                    24*b1*b1*b1*x*x*(10 + p*p*x*x) -
+//                                                    2*b1*p*p*(-3 + 8*I*p*x + p*p*x*x) +
+//                                                    12*I*b1*b1*(5*I + 5*p*x + 4*I*p*p*x*x +
+//                                                                p*p*p*x*x*x)))));
+//
+//    }  else if ( l0 == 4 && l1 ==    0 ){
+//        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*(12*b1*b1*b1*b1 -
+//                                      12*b0*b1*b1*(-p*p + 4*b1*b1*x*x + b1*(-2 + 4*I*p*x)) +
+//                                      b0*b0*(p*p*p*p + 16*b1*b1*b1*b1*x*x*x*x + 4*b1*p*p*(3 - 2*I*p*x) +
+//                                            16*b1*b1*b1*x*x*(-3 + 2*I*p*x) -
+//                                             12*b1*b1*(-1 + 4*I*p*x + 2*p*p*x*x))));
+//
+//    }  else if ( l0 == 4 && l1 ==    1 ){
+//        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*
+//                                b1*(12*I*b1*b1*b1*b1*p + 12*b0*b1*b1*(I*p*p*p + 2*b1*b1*x*(-5 - 2*I*p*x) +
+//                                                              2*b1*p*(-I + 2*p*x)) +
+//                                    I*b0*b0*(p*p*p*p*p + 4*b1*p*p*p*(1 - 2*I*p*x) +
+//                                            16*b1*b1*b1*b1*x*x*x*(-10*I + p*x) +
+//                                            16*b1*b1*b1*x*(15*I + 9*p*x + 2*I*p*p*x*x) -
+//                                            12*b1*b1*p*(7 - 2*I*p*x + 2*p*p*x*x)) -
+//                                    2*
+//                                    b0*b0*b0*(16*b1*b1*b1*b1*x*x*x*x*x + 16*b1*b1*b1*x*x*x*(-5 + 2*I*p*x) +
+//                                          p*p*p*(4*I + p*x) +
+//                                          4*b1*p*(6*I + 9*p*x - 2*I*p*p*x*x) -
+//                                          12*b1*b1*x*(-5 + 8*I*p*x + 2*p*p*x*x))));
+//
+//    }  else if ( l0 == 4 && l1 ==    2 ){
+//        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*(-12*b1*b1*b1*b1*b1*p*p + 12*b0*b1*b1*b1*(-p*p*p*p + 2*b1*p*p*(3 + 2*I*p*x) +
+//                                                                    2*b1*b1*(-5 - 10*I*p*x + 2*p*p*x*x)) +
+//                                         2*b0*b0*b0*b0*(-p*p*p*p + 32*b1*b1*b1*b1*b1*x*x*x*x*x*x + 16*b1*b1*b1*b1*x*x*x*x*(-15 + 4*I*p*x) +
+//                                                 2*b1*p*p*(-18 + 12*I*p*x + p*p*x*x) - 8*b1*b1*b1*x*x*(-45 + 40*I*p*x + 6*p*p*x*x) +
+//                                                 4*b1*b1*(-15 + 60*I*p*x + 36*p*p*x*x - 4*I*p*p*p*x*x*x)) -
+//                                         b0*b0*b1*(p*p*p*p*p*p + 4*b1*p*p*p*p*(-1 - 2*I*p*x) + 16*b1*b1*b1*b1*x*x*(-45 - 20*I*p*x + p*p*x*x) -
+//                                                  12*b1*b1*p*p*(9 - 8*I*p*x + 2*p*p*x*x) + 8*b1*b1*b1*(45 + 42*p*p*x*x + 4*I*p*p*p*x*x*x)) +
+//                                         2*b0*b0*b0*b1*(16*b1*b1*b1*b1*x*x*x*x*(-15 - 2*I*p*x) + p*p*p*p*(7 - 2*I*p*x) -
+//                                                    8*b1*p*p*(3 + 6*I*p*x + 2*p*p*x*x) + 16*b1*b1*b1*x*x*(45 - 10*I*p*x + 4*p*p*x*x) +
+//                                                        12*I*b1*b1*(15*I + 30*p*x + 4*I*p*p*x*x+ 4*p*p*p*x*x*x))));
+//    }  else if ( l0 == 4 && l1 ==    3 ){
+//
+//        return -((fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*b1*(12*I*b1*b1*b1*b1*b1*p*p*p + 12*b0*b1*b1*b1*p*
+//                                      (I*p*p*p*p + 2*b1*p*p*(-5*I + 2*p*x) +
+//                                       b1*b1*(30*I - 30*p*x - 4*I*p*p*x*x)) +
+//
+//                                      4*b0*b0*b0*b0*b0*(32*b1*b1*b1*b1*b1*x*x*x*x*x*x*x + 16*b1*b1*b1*b1*x*x*x*x*x*(-21 + 4*I*p*x) -
+//                                              3*p*p*p*(4*I + p*x) -
+//                                              24*b1*b1*b1*x*x*x*(-35 + 20*I*p*x + 2*p*p*x*x) +
+//
+//                                              4*b1*b1*x*(-105 + 180*I*p*x + 60*p*p*x*x - 4*I*p*p*p*x*x*x) +
+//                                              2*b1*p*(-60*I - 90*p*x + 24*I*p*p*x*x + p*p*p*x*x*x)) +
+//                                      I*b0*b0*b1*(p*p*p*p*p*p*p + 4*b1*p*p*p*p*p*(-3 - 2*I*p*x) - 12*b1*b1*p*p*p*
+//                                                 (5 - 14*I*p*x + 2*p*p*x*x) +
+//                                                 8*b1*b1*b1*p*(75 - 90*I*p*x + 66*p*p*x*x +
+//                                                           4*I*p*p*p*x*x*x) +
+//                                                 16*b1*b1*b1*b1*x*(105*I - 135*p*x - 30*I*p*p*x*x + p*p*p*x*x*x)) -
+//
+//                                      6*b0*b0*b0*b1*(p*p*p*p*p*(3*I + p*x) +
+//                                                 4*b1*p*p*p*(-10*I + 3*p*x - 2*I*p*p*x*x) +
+//                                                 16*b1*b1*b1*b1*x*x*x*(-35 - 15*I*p*x + p*p*x*x) +
+//                                                 8*b1*b1*b1*x*(105 + 30*I*p*x + 30*p*p*x*x +
+//                                                           4*I*p*p*p*x*x*x) -
+//                                                 12*b1*b1*p*(-5*I + 25*p*x - 4*I*p*p*x*x + 2*p*p*p*x*x*x)) +
+//                                      6*b0*b0*b0*b0*(I*p*p*p*p*p - 32*I*b1*b1*b1*b1*b1*x*x*x*x*x*(-7*I + p*x) +
+//                                              2*b1*p*p*p*(10*I + 11*p*x - I*p*p*x*x) +
+//                                              16*b1*b1*b1*b1*x*x*x*(70 - 5*I*p*x + 4*p*p*x*x) -
+//                                              4*b1*b1*p*(45*I + 28*I*p*p*x*x + 4*p*p*p*x*x*x) +
+//
+//                                                     8*I*b1*b1*b1*x*(105*I + 75*p*x + 20*I*p*p*x*x + 6*p*p*p*x*x*x)))));
+//    }  else if ( l0 == 4 && l1 ==    4 ){
+//
+//        return (fgg/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1)/(b0 + b1))*(b0*b0*b1*b1*(12*b1*b1*b1*b1*b1*b1*p*p*p*p - 12*b0*b1*b1*b1*b1*p*p*
+//                                           (-p*p*p*p + 2*b1*p*p*(7 + 2*I*p*x) +
+//                                            4*b1*b1*(-15 - 10*I*p*x + p*p*x*x)) +
+//                                           4*b0*b0*b0*b1*b1*(p*p*p*p*p*p*(-5 + 2*I*p*x) + 8*b1*p*p*p*p*(15 + 2*p*p*x*x) +
+//
+//                                                        16*b1*b1*b1*b1*x*x*(-210 - 210*I*p*x + 45*p*p*x*x + 2*I*p*p*p*x*x*x) -
+//
+//                                                        24*I*b1*b1*p*p*(-30*I + 25*p*x - 10*I*p*p*x*x + 2*p*p*p*x*x*x) +
+//
+//                                                        16*b1*b1*b1*(105 + 210*I*p*x + 45*p*p*x*x + 50*I*p*p*p*x*x*x -
+//                                                                 4*p*p*p*p*x*x*x*x)) +
+//                                           b0*b0*
+//                                           b1*b1*(p*p*p*p*p*p*p*p + 4*b1*p*p*p*p*p*p*(-5 - 2*I*p*x) +
+//                                                 12*b1*b1*p*p*p*p*(5 + 20*I*p*x - 2*p*p*x*x) +
+//
+//                                                 16*b1*b1*b1*p*p*(15 - 120*I*p*x + 45*p*p*x*x + 2*I*p*p*p*x*x*x) +
+//
+//                                                 16*b1*b1*b1*b1*(105 + 420*I*p*x - 270*p*p*x*x - 40*I*p*p*p*x*x*x +
+//                                                          p*p*p*p*x*x*x*x)) +
+//                                           4*b0*b0*b0*b0*b0*b0*(3*p*p*p*p+ 64*b1*b1*b1*b1*b1*b1*x*x*x*x*x*x*x*x + 128*I*b1*b1*b1*b1*b1*x*x*x*x*x*x*(7*I + p*x) -
+//                                                   12*b1*p*p*(-15 + 10*I*p*x + p*p*x*x) -
+//                                                   96*b1*b1*b1*b1*x*x*x*x*(-35 + 14*I*p*x + p*p*x*x)) +
+//
+//                                                   16*b1*b1*b1*x*x*(-210 + 210*I*p*x + 45*p*p*x*x - 2*I*p*p*p*x*x*x) +
+//
+//                                                   4*b1*b1*(105 - 420*I*p*x - 270*p*p*x*x + 40*I*p*p*p*x*x*x +
+//                                                           p*p*p*p*x*x*x*x)) -
+//                                           12*b0*b0*b0*b0*b1*(-p*p*p*p*p*p + 32*b1*b1*b1*b1*b1*x*x*x*x*(-35 - 14*I*p*x + p*p*x*x) +
+//                                                       b1*p*p*p*p*(-5 + 20*I*p*x + 2*p*p*x*x) +
+//                                                       8*b1*b1*p*p*(30 - 25*I*p*x + 10*p*p*x*x -
+//                                                                   2*I*p*p*p*x*x*x) +
+//                                                       16*b1*b1*b1*b1*x*x*(210 + 70*I*p*x + 25*p*p*x*x + 4*I*p*p*p*x*x*x) -
+//                                                       24*b1*b1*b1*(35 + 50*p*p*x*x + 2*p*p*p*p*x*x*x*x)) +
+//                                           8*b0*b0*b0*b0*b0*
+//                                           b1*(3*p*p*p*p*(-7 + 2*I*p*x) - 64*I*b1*b1*b1*b1*b1*x*x*x*x*x*x*(-7*I + p*x) +
+//                                               32*b1*b1*b1*b1*x*x*x*x*(105 + 4*p*p*x*x) +
+//                                               2*b1*p*p*(15 + 120*I*p*x + 45*p*p*x*x -
+//                                                         2*I*p*p*p*x*x*x +
+//                                               24*I*b1*b1*b1*x*x*(210*I + 70*p*x + 25*I*p*p*x*x + 4*p*p*p*x*x*x) -
+//
+//                                               8*b1*b1*(-105 + 210*I*p*x - 45*p*p*x*x + 50*I*p*p*p*x*x*x +
+//                                                        4*p*p*p*p*x*x*x*x))));
+//    }
+//
+//        return 0;
+//}
 
 
 //DCOMPLEX FSSprev ( double p , struct general_index * pa ){
@@ -308,51 +313,56 @@ DCOMPLEX FGS( double p , struct general_index * pa ){
     struct general_2index g2;
     double beta,realpart,imagepart;
     g2.periodic = 0;
-    g2.i[0].d = pa->d;
     g2.i[0].bra.basis = SincBasisElement;
     g2.i[0].ket.basis = nullBasisElement;
     g2.i[1].bra.basis = DiracDelta;
     g2.i[1].ket.basis = nullBasisElement;
+    
+    struct function_label fl ;
+    g2.fl = &fl;
     g2.fl->fn = nullFunction;
+    g2.fl->interval  = 1;
     g2.gaussianAccelerationFlag = 0;
     g2.fl->param[0] = 1;
+    g2.fl->param[1] = 1;
+    g2.fl->param[2] = 1;
+    g2.fl->param[3] = 1;
     g2.point = 1;
+    g2.body = 1;
     g2.momentumShift = p ;
     g2.i[0].pointer = 1;
+    g2.i[1].pointer = 1;
+    g2.i[0].action = 0;
+    g2.i[1].action = 0;
     g2.momentumShift = 0;
-
-#if 0
+    
     if ( pa->bra.basis == GaussianBasisElement && pa->ket.basis == SincBasisElement ){
         
         beta = pa->bra.length;
-        g2.powSpace = g2.i[0].bra.index;
-        g2.i[1].bra.origin = g2.i[0].bra.origin;
+        g2.powSpace = pa->ket.index;
+        g2.i[1].bra.origin = pa->bra.origin;
         g2.i[0].bra = pa->ket;
-
+        g2.i[0].d = pa->ket.length;
 
     }
-    else if ( pa->ket.basis == GaussianBasisElement && pa->bra.basis == SincBasisElement ){
+    else if ( pa->bra.basis == SincBasisElement && pa->ket.basis == GaussianBasisElement ){
         beta = pa->ket.length;
-        g2.powSpace = g2.i[0].ket.index;
-        g2.i[1].bra.origin = g2.i[0].ket.origin;
+        g2.powSpace = pa->ket.index;
+        g2.i[1].bra.origin = pa->ket.origin;
         g2.i[0].bra = pa->bra;
-
+        g2.i[0].d = pa->bra.length;
 
     }else {
+        
+        
         printf("wrong mail stop\n");
         exit(0);
     }
-#else
-    beta = pa->b0;
-    g2.powSpace = pa->l0;
-    g2.i[1].bra.origin = pa->x0;
-    g2.i[0].bra.index = pa->n;
-#endif
     g2.realFlag = 1;
     realpart =  collective(sqrt(beta), &g2);
     g2.realFlag = 0;
     imagepart = collective(sqrt(beta), &g2);
-    return realpart + I * imagepart;
+    return /*Nol(beta,g2.i[1].action)*/ sqrt(pi*g2.i[0].d)*(realpart + I * imagepart);
 };
 
 
@@ -422,13 +432,9 @@ DCOMPLEX FB ( double p , struct general_index * pa ){
         }
         return FDD(p, pa);
     }else if ( pa->bra.basis == GaussianBasisElement || pa->ket.basis == GaussianBasisElement){
-        pa->b0 = pa->bra.length;
-        pa->b1 = pa->ket.length;
-        pa->l0 = pa->bra.index;
-        pa->l1 = pa->ket.index;
-        pa->x0 = pa->bra.origin;
-        pa->x1 = pa->ket.origin;
-        return FGG(p, pa);
+ //       return aabGdnGdm(0,0, p,pa);
+        exit(0);
+        
     }else     if ( pa->bra.basis == SincBasisElement && pa->ket.basis == nullBasisElement){
         pa->n = pa->bra.index;
         pa->d = pa->bra.length;
@@ -474,7 +480,18 @@ double Sd2S(INT_TYPE arg){
 }
 
 
+double Power ( double b, INT_TYPE n ){
+    INT_TYPE i;
+    double va = 1.;
+    for ( i = 0; i < n ; i++)
+        va *= b;
+    return va;
+}
 
+DCOMPLEX Complex ( double r, double i ){
+    return r + i*I;
+    
+}
 
 double periodicSd2S ( double arg, INT_TYPE N ){
     
@@ -512,6 +529,2313 @@ double periodicSdS ( INT_TYPE arg, INT_TYPE N ){
 }
 
 
+double aaGetGamma (  double b1,INT_TYPE l1, double o1,double b2,INT_TYPE l2,double o2){
+    return 1./4./(b1+b2);
+}
+
+double aaGetDelta ( double b1,INT_TYPE l1, double o1,double b2,INT_TYPE l2,double o2){
+    return (b1*o1+b2*o2)/(b1+b2);
+}
+
+double aaGetConst( double b1,INT_TYPE l1, double o1,double b2,INT_TYPE l2,double o2){
+    return exp( - b1*b2/(b1+b2)*sqr(o1-o2))/ pow(b1+b2,1/2.)/sqrt(2.);
+}
+
+DCOMPLEX aaGetPoly( double b1,INT_TYPE l1, double o1,double b2,INT_TYPE l2,double o2, INT_TYPE lambda1 ){
+    DCOMPLEX va = 0.;
+    if ( l1 > l2 ){
+        printf("switch");
+        exit(0);
+    }
+    if ( l1 == 0 && l2 == 0 ){
+        switch ( lambda1 ) {
+            case 0:
+                va =  1.;
+                break;
+        }
+    }
+    else if ( l1 == 0 && l2 == 1 ){
+        switch ( lambda1 ) {
+            case 0:
+                va =  b1 *(o1 - o2);
+                break;
+
+            case 1:
+                va =  I/2.;
+                break;
+
+        }
+    }    else if ( l1 == 1 && l2 == 1 ){
+        switch ( lambda1 ) {
+            case 0:
+                va =  (1/2.)*(b2 + b1*(1 - 2*b2*(o1 - o2)*(o1 - o2)));
+                break;
+
+            case 1:
+                va =  (1/2.)*I*(b1 - b2)*(o1 - o2);
+                break;
+
+            case 2:
+                va = -(1/4.);
+                break;
+
+        }
+    }else if ( l1 == 0 && l2 == 2 ){
+        switch ( lambda1 ) {
+            case 0:
+                va =  (1/2.)*(b1 + b2 + 2*b1*b1*(o1 - o2)*(o1 - o2));
+                break;
+
+            case 1:
+                va =  I*b1*(o1 - o2);
+
+                break;
+            case 2:
+                va = -(1/4.);
+
+                break;
+        }
+    }else if ( l1 == 1 && l2 == 2 ){
+        switch ( lambda1 ) {
+            case 0:
+                va =  (-(1/2.))*((-b1)*b2 + b2*b2 + 2*b1*b1*(-1 + b2*(o1 - o2)*(o1 - o2)))*(o1 - o2);
+                break;
+            case 1:
+                va =  (1/4.)*I*(3*b2 + b1*(3 - 4*b2*(o1 - o2)*(o1 - o2)) + 2*b1*b1*(o1 - o2)*(o1 - o2));
+                break;
+            case 2:
+                va = (-(1/4.))*(2*b1 - b2)*(o1 - o2);
+                break;
+            case 3:
+                va = -(I/8.);
+                break;
+
+        }
+    }else if ( l1 == 2 && l2 == 2 ){
+        switch ( lambda1 ) {
+            case 0:
+                va =  (1/4.)*(-6*b1*b2*(-1 + b2*(o1 - o2)*(o1 - o2)) + b2*b2*(3 + 2*b2*(o1 - o2)*(o1 - o2)) +
+                              b1*b1*(3 - 6*b2*(o1 - o2)*(o1 - o2) + 4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 2*b1*b1*b1*(o1 - o2)*(o1 - o2));
+                break;
+
+            case 1:
+                va =  (1/2.)*I*(-3*b2*b2 + b1*b1*(3 - 2*b2*(o1 - o2)*(o1 - o2)) + 2*b1*b2*b2*(o1 - o2)*(o1 - o2))*(o1 - o2);
+                break;
+            case 2:
+                va = (1/4.)*((-b2)*(3 + b2*(o1 - o2)*(o1 - o2)) + b1*(-3 + 4*b2*(o1 - o2)*(o1 - o2)) - b1*b1*(o1 - o2)*(o1 - o2));
+                break;
+
+            case 3:
+                va =  (-(1/4.))*I*(b1 - b2)*(o1 - o2);
+                break;
+
+            case 4:
+                va = 1./16.;
+                break;
+
+        }
+    }
+        //{(1/2)*b1*(3*b1 + 3*b2 + 2*b1^2*(o1 - o2)^2)*(o1 - o2),
+        //(3/4)*I*(b1 + b2 + 2*b1^2*(o1 - o2)^2), (-(3/4))*b1*(o1 - o2), -(I/8)}
+        else if ( l1 == 0 && l2 == 3 ){
+            switch ( lambda1 ) {
+                case 0:
+                    va =  (1/2.)*b1*(3*b1 + 3*b2 + 2*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2);
+                    break;
+                    
+                case 1:
+                    va =  (3/4.)*I*(b1 + b2 + 2*b1*b1*(o1 - o2)*(o1 - o2));
+                    break;
+                case 2:
+                    va =  (-(3/4.))*b1*(o1 - o2);
+                    break;
+                    
+                case 3:
+                    va =  -(I/8.);
+                    break;
+                    
+                
+                    
+            }
+        }
+//    {(1/4)*(3*b1^2 + 3*b2^2 - 6*b1*b2*(-1 + b2*(o1 - o2)^2) -
+//            2*b1^3*(-3 + 2*b2*(o1 - o2)^2)*(o1 - o2)^2),
+//        (1/4)*I*(6*b1*b2 - 3*b2^2 + b1^2*(9 - 6*b2*(o1 - o2)^2) + 2*b1^3*(o1 - o2)^2)*
+//        (o1 - o2), (-(3/4))*(b2 - b1*(-1 + b2*(o1 - o2)^2) + b1^2*(o1 - o2)^2),
+//        (-(1/8))*I*(3*b1 - b2)*(o1 - o2), 1/16}
+//
+    
+        else if ( l1 == 1 && l2 == 3 ){
+            switch ( lambda1 ) {
+                case 0:
+                    va = (1/4.)*(3*b1*b1 + 3*b2*b2 - 6*b1*b2*(-1 + b2*(o1 - o2)*(o1-o2)) -
+                                        2*b1*b1*b1*(-3 + 2*b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2));
+                    break;
+                    
+                case 1:
+                    va =  (1/4.)*I*(6*b1*b2 - 3*b2*b2 + b1*b1*(9 - 6*b2*(o1 - o2)*(o1-o2)) + 2*b1*b1*b1*(o1 - o2)*(o1 - o2))*
+                            (o1 - o2);
+                    break;
+                case 2:
+                    va =  (-(3/4.))*(b2 - b1*(-1 + b2*(o1 - o2)*(o1 - o2)) + b1*b1*(o1 - o2)*(o1 - o2)) ;
+                    break;
+                    
+                case 3:
+                    va = (-(1/8.))*I*(3*b1 - b2)*(o1 - o2);
+                    break;
+                    
+                case 4:
+                    va = 1/16.;
+                    break;
+                    
+            }
+        }
+    
+//    {(1/4)*(-6*b2*b2*b2 - 6*b1*b1*b2*(-2 + b2*(o1 - o2)*(o1 - o2)) + 3*b1*b2*b2*(-1 + 2*b2*(o1 - o2)*(o1 - o2)) +
+//            b1*b1*b1*(9 - 10*b2*(o1 - o2)*(o1 - o2) + 4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 2*b1*b1*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2),
+//        (-(1/8))*I*(30*b1*b2*(-1 + b2*(o1 - o2)*(o1 - o2)) - 3*b2*b2*(5 + 2*b2*(o1 - o2)*(o1 - o2)) -
+//                    3*b1*b1*(5 - 6*b2*(o1 - o2)*(o1 - o2) + 4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 2*b1*b1*b1*(-9 + 4*b2*(o1 - o2)*(o1 - o2))*
+//                    (o1 - o2)*(o1 - o2)), (-(1/4))*(-6*b2*b2 + b1*b1*(9 - 6*b2*(o1 - o2)*(o1 - o2)) +
+//                                            3*b1*b2*(1 + b2*(o1 - o2)*(o1 - o2)) + b1*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2),
+//        (-(1/8))*I*(b1*(5 - 6*b2*(o1 - o2)*(o1 - o2)) + b2*(5 + b2*(o1 - o2)*(o1 - o2)) + 3*b1*b1*(o1 - o2)*(o1 - o2)),
+//        (1/16)*(3*b1 - 2*b2)*(o1 - o2), I/32}
+
+    
+        else if ( l1 == 2 && l2 == 3 ){
+            switch ( lambda1 ) {
+                case 0:
+                    va = (1/4.)*(-6*b2*b2*b2 - 6*b1*b1*b2*(-2 + b2*(o1 - o2)*(o1 - o2)) + 3*b1*b2*b2*(-1 + 2*b2*(o1 - o2)*(o1 - o2)) +
+                                            b1*b1*b1*(9 - 10*b2*(o1 - o2)*(o1 - o2) + 4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 2*b1*b1*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2);
+                    break;
+                    
+                case 1:
+                    va =  (-(1/8.))*I*(30*b1*b2*(-1 + b2*(o1 - o2)*(o1 - o2)) - 3*b2*b2*(5 + 2*b2*(o1 - o2)*(o1 - o2)) -
+                                                         3*b1*b1*(5 - 6*b2*(o1 - o2)*(o1 - o2) + 4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 2*b1*b1*b1*(-9 + 4*b2*(o1 - o2)*(o1 - o2))*
+                                                          (o1 - o2)*(o1 - o2));
+                    break;
+                case 2:
+                    va =  (-(1/4.))*(-6*b2*b2 + b1*b1*(9 - 6*b2*(o1 - o2)*(o1 - o2)) +
+                                                                            3*b1*b2*(1 + b2*(o1 - o2)*(o1 - o2)) + b1*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2);
+                    break;
+                    
+                case 3:
+                    va = (-(1/8.))*I*(b1*(5 - 6*b2*(o1 - o2)*(o1 - o2)) + b2*(5 + b2*(o1 - o2)*(o1 - o2)) + 3*b1*b1*(o1 - o2)*(o1 - o2));
+                    break;
+                    
+                case 4:
+                    va = (1/16.)*(3*b1 - 2*b2)*(o1 - o2);
+                    break;
+                    
+                case 5:
+                    va = I/32.;
+                    break;
+
+            }
+        }
+    //    {(1/8)*(15*b2*b2*b2 + 18*b2*b2*b2*b2*o1*1 - 3*b1*b2*b2*(-15 + 6*b2*(o1 - o2)*(o1 - o2)+
+    //                                                4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 3*b1*b1*b2*(15 - 24*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+    //            b1*b1*b1*(15 - 18*b2*(o1 - o2)*(o1 - o2) + 24*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 8*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) -
+    //            6*b1*b1*b1*b1*(-3 + 2*b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) - 36*b2*b2*b2*b2*o1*o2 + 18*b2*b2*b2*b2*o2*o2),
+    //        (3/8)*I*((-b2*b2*b2)*(15 + 2*b2*(o1 - o2)*(o1 - o2)) + b1*b2*b2*(-15 + 16*b2*(o1 - o2)*(o1 - o2)) +
+    //                 b1*b1*b1*(15 - 16*b2*(o1 - o2)*(o1 - o2) + 4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+    //                 b1*b1*(15*b2 - 4*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 2*b1*b1*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2),
+    //        (1/16)*(-9*b2*b2*(5 + 4*b2*(o1 - o2)*(o1 - o2)) + 6*b1*b2*(-15 + 12*b2*(o1 - o2)*(o1 - o2) +
+    //                                                          2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) - 9*b1*b1*(5 - 8*b2*(o1 - o2)*(o1 - o2) + 4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+    //                12*b1*b1*b1*(-3 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2)), (-(1/8))*I*(b1 - b2)*
+    //        (b1*(15 - 8*b2*(o1 - o2)*(o1 - o2)) + b2*(15 + b2*(o1 - o2)*(o1 - o2)) + b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2),
+    //        (3/32)*(b1*(5 - 6*b2*(o1 - o2)*(o1 - o2)) + b2*(5 + 2*b2*(o1 - o2)*(o1 - o2)) + 2*b1*b1*(o1 - o2)*(o1 - o2)),
+    //        (3/32)*I*(b1 - b2)*(o1 - o2), -(1/64)}
+        else if ( l1 == 3 && l2 == 3 ){
+            switch ( lambda1 ) {
+                case 0:
+                    va = (1/8.)*(15*b2*b2*b2 + 18*b2*b2*b2*b2*o1*1 - 3*b1*b2*b2*(-15 + 6*b2*(o1 - o2)*(o1 - o2)+
+                                                                                                                                4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 3*b1*b1*b2*(15 - 24*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                                                                                            b1*b1*b1*(15 - 18*b2*(o1 - o2)*(o1 - o2) + 24*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 8*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) -
+                                                                                            6*b1*b1*b1*b1*(-3 + 2*b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) - 36*b2*b2*b2*b2*o1*o2 + 18*b2*b2*b2*b2*o2*o2);
+                    break;
+                    
+                case 1:
+                    va = (3/8.)*I*((-b2*b2*b2)*(15 + 2*b2*(o1 - o2)*(o1 - o2)) + b1*b2*b2*(-15 + 16*b2*(o1 - o2)*(o1 - o2)) +
+                                                   b1*b1*b1*(15 - 16*b2*(o1 - o2)*(o1 - o2) + 4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                                                   b1*b1*(15*b2 - 4*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 2*b1*b1*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2) ;
+                    break;
+                case 2:
+                    va =  (1/16.)*(-9*b2*b2*(5 + 4*b2*(o1 - o2)*(o1 - o2)) + 6*b1*b2*(-15 + 12*b2*(o1 - o2)*(o1 - o2) +
+                                                                                                                                              2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) - 9*b1*b1*(5 - 8*b2*(o1 - o2)*(o1 - o2) + 4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                                                                                                     12*b1*b1*b1*(-3 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2));
+                    break;
+                    
+                case 3:
+                    va =(-(1/8.))*I*(b1 - b2)*
+                            (b1*(15 - 8*b2*(o1 - o2)*(o1 - o2)) + b2*(15 + b2*(o1 - o2)*(o1 - o2)) + b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2) ;
+                    break;
+                    
+                case 4:
+                    va = (3/32.)*(b1*(5 - 6*b2*(o1 - o2)*(o1 - o2)) + b2*(5 + 2*b2*(o1 - o2)*(o1 - o2)) + 2*b1*b1*(o1 - o2)*(o1 - o2));
+                    break;
+                    
+                case 5:
+                    va = (3/32.)*I*(b1 - b2)*(o1 - o2);
+                    break;
+                    
+                case 6:
+                    va = -(1/64.);
+                    break;
+                    
+            }
+        }
+
+//    {(3*b1*b2)/2 + (3*b2*b2)/4 + (3/4)*b1*b1*(1 + 4*b2*(o1 - o2)*(o1 - o2)) + 3*b1*b1*b1*(o1 - o2)*(o1 - o2) +
+//        b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2), I*b1*(3*b1 + 3*b2 + 2*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2),
+//        (-(3/4))*(b1 + b2 + 2*b1*b1*(o1 - o2)*(o1 - o2)), (-(1/2))*I*b1*(o1 - o2), 1/16}
+    
+        else if ( l1 == 0 && l2 == 4 ){
+            switch ( lambda1 ) {
+                case 0:
+                    va = (3*b1*b2)/2. + (3*b2*b2)/4. + (3/4.)*b1*b1*(1 + 4*b2*(o1 - o2)*(o1 - o2)) + 3*b1*b1*b1*(o1 - o2)*(o1 - o2) +
+                    b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2);
+                    break;
+                    
+                case 1:
+                    va = I*b1*(3*b1 + 3*b2 + 2*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2);
+                    break;
+                case 2:
+                    va = (-(3/4.))*(b1 + b2 + 2*b1*b1*(o1 - o2)*(o1 - o2)) ;
+                    break;
+                    
+                case 3:
+                    va =(-(1/2.))*I*b1*(o1 - o2);
+                    break;
+                    
+                case 4:
+                    va =1/16.;
+                    break;
+            }
+        }
+    
+//    {(-(1/4))*(-6*b1*b2*b2 + 3*b2*b2*b2 + 4*b1*b1*b1*(-3 + b2*(o1 - o2)*(o1 - o2)) +
+//               3*b1*b1*b2*(-7 + 4*b2*(o1 - o2)) + 4*b1*b1*b1*b1*(-2 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2))*
+//        (o1 - o2), (1/8)*I*(15*b2*b2 - 6*b1*b2*(-5 + 4*b2*(o1 - o2)*(o1 - o2)) +
+//                            3*b1*b1*(5 + 4*b2*(o1 - o2)*(o1 - o2)) - 4*b1*b1*b1*(-9 + 4*b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) +
+//                            4*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)), (-(1/4))*(9*b1*b2 - 3*b2*b2 - 6*b1*b1*(-2 + b2*(o1 - o2)*(o1 - o2)) +
+//                                                           4*b1*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2), (-(1/8))*I*(5*b2 + b1*(5 - 4*b2*(o1 - o2)*(o1 - o2)) +
+//                                                                                                      6*b1*b1*(o1 - o2)*(o1 - o2)), (1/16)*(4*b1 - b2)*(o1 - o2), I/32}
+        else if ( l1 == 1 && l2 == 4 ){
+            switch ( lambda1 ) {
+                case 0:
+                    va = (-(1/4.))*(-6*b1*b2*b2 + 3*b2*b2*b2 + 4*b1*b1*b1*(-3 + b2*(o1 - o2)*(o1 - o2)) +
+                                   3*b1*b1*b2*(-7 + 4*b2*(o1 - o2)*(o1 - o2)) + 4*b1*b1*b1*b1*(-2 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2))*
+                    (o1 - o2);
+                    break;
+                    
+                case 1:
+                    va = (1/8.)*I*(15*b2*b2 - 6*b1*b2*(-5 + 4*b2*(o1 - o2)*(o1 - o2)) +
+                                  3*b1*b1*(5 + 4*b2*(o1 - o2)*(o1 - o2)) - 4*b1*b1*b1*(-9 + 4*b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) +
+                                  4*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2));
+                    break;
+                case 2:
+                    va =   (-(1/4.))*(9*b1*b2 - 3*b2*b2 - 6*b1*b1*(-2 + b2*(o1 - o2)*(o1 - o2)) +
+                                     4*b1*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2);
+                    break;
+                    
+                case 3:
+                    va = (-(1/8.))*I*(5*b2 + b1*(5 - 4*b2*(o1 - o2)*(o1 - o2)) +
+                                     6*b1*b1*(o1 - o2)*(o1 - o2));
+                    break;
+                    
+                case 4:
+                    va =(1/16.)*(4*b1 - b2)*(o1 - o2);
+                    break;
+                    
+                case 5:
+                    va =I/32.;
+                    break;
+
+            }
+        }
+//    {(1/8)*(3*b2*b2*b2*(5 + 2*b2*(o1 - o2)*(o1 - o2)) - 9*b1*b2*b2*(-5 + 4*b2*(o1 - o2)*(o1 - o2)) +
+//            b1*b1*b1*(15 + 24*b2*(o1 - o2)*(o1 - o2) - 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+//            3*b1*b1*b2*(15 - 18*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+//            4*b1*b1*b1*b1*(9 - 7*b2*(o1 - o2)*(o1 - o2) + 2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) +
+//            4*b1*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)), (-(1/4))*I*(15*b2*b2*b2 + 3*b1*b1*b2*(-15 + 8*b2*(o1 - o2)*(o1 - o2)) +
+//                                             b1*b1*b1*(-30 + 24*b2*(o1 - o2)*(o1 - o2) - 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) - 12*b1*b2*b2*b2*(o1 - o2)*(o1 - o2) +
+//                                             4*b1*b1*b1*b1*(-3 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2))*(o1 - o2),
+//        (1/16)*(-3*b2*b2*(15 + 4*b2*(o1 - o2)*(o1 - o2)) + 6*b1*b2*(-15 + 14*b2*(o1 - o2)*(o1 - o2)) -
+//                3*b1*b1*(15 - 8*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+//                8*b1*b1*b1*(-9 + 4*b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) - 4*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)),
+//        (-(1/4))*I*(-5*b2*b2 + b1*b2*(5 + 2*b2*(o1 - o2)*(o1 - o2)) - 2*b1*b1*(-5 + 3*b2*(o1 - o2)*(o1 - o2)) +
+//                    2*b1*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2), (1/32)*(b1*(15 - 16*b2*(o1 - o2)*(o1 - o2)) +
+//                                                           b2*(15 + 2*b2*(o1 - o2)*(o1 - o2)) + 12*b1*b1*(o1 - o2)*(o1 - o2)), (1/16)*I*(2*b1 - b2)*(o1 - o2),
+//        -(1/64)}
+    
+        else if ( l1 == 2 && l2 == 4 ){
+            switch ( lambda1 ) {
+                case 0:
+                    va = (1/8.)*(3*b2*b2*b2*(5 + 2*b2*(o1 - o2)*(o1 - o2)) - 9*b1*b2*b2*(-5 + 4*b2*(o1 - o2)*(o1 - o2)) +
+                                b1*b1*b1*(15 + 24*b2*(o1 - o2)*(o1 - o2) - 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                                3*b1*b1*b2*(15 - 18*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                                4*b1*b1*b1*b1*(9 - 7*b2*(o1 - o2)*(o1 - o2) + 2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) +
+                                4*b1*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2));
+                    break;
+                    
+                case 1:
+                    va = (-(1/4.))*I*(15*b2*b2*b2 + 3*b1*b1*b2*(-15 + 8*b2*(o1 - o2)*(o1 - o2)) +
+                                     b1*b1*b1*(-30 + 24*b2*(o1 - o2)*(o1 - o2) - 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) - 12*b1*b2*b2*b2*(o1 - o2)*(o1 - o2) +
+                                     4*b1*b1*b1*b1*(-3 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2))*(o1 - o2);
+                    break;
+                case 2:
+                    va = (1/16.)*(-3*b2*b2*(15 + 4*b2*(o1 - o2)*(o1 - o2)) + 6*b1*b2*(-15 + 14*b2*(o1 - o2)*(o1 - o2)) -
+                                 3*b1*b1*(15 - 8*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                                 8*b1*b1*b1*(-9 + 4*b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) - 4*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) ;
+                    break;
+                    
+                case 3:
+                    va = (-(1/4.))*I*(-5*b2*b2 + b1*b2*(5 + 2*b2*(o1 - o2)*(o1 - o2)) - 2*b1*b1*(-5 + 3*b2*(o1 - o2)*(o1 - o2)) +
+                                     2*b1*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2);
+                    break;
+                    
+                case 4:
+                    va = (1/32.)*(b1*(15 - 16*b2*(o1 - o2)*(o1 - o2)) +
+                                 b2*(15 + 2*b2*(o1 - o2)*(o1 - o2)) + 12*b1*b1*(o1 - o2)*(o1 - o2));
+                    break;
+                    
+                case 5:
+                    va = (1/16.)*I*(2*b1 - b2)*(o1 - o2);
+                    break;
+                    
+                case 6:
+                    va =  -(1/64.);
+                    break;
+            }
+        }
+//    {(1/8)*(-45*b2*b2*b2*b2*o1 + 15*b1*b2*b2*b2*(-5 + 4*b2*(o1 - o2)*(o1 - o2))*(o1 - o2) +
+//            3*b1*b1*b1*b2*(45 - 40*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2) -
+//            4*b1*b1*b1*b1*(-15 + 15*b2*(o1 - o2)*(o1 - o2) - 9*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*
+//            (o1 - o2) - 6*b2*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2) - 12*b1*b1*b1*b1*b1*(-2 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//            45*b2*b2*b2*b2*o2 - 3*b1*b1*b2*b2*(-15*o1 - 10*b2*(o1 - o2)*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//                                      15*o2)), (1/16)*I*(105*b2*b2*b2 - 3*b1*b2*b2*(-105 + 60*b2*(o1 - o2)*(o1 - o2) +
+//                                                                               16*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 6*b1*b1*((105*b2)/2 - 75*b2*b2*(o1 - o2)*(o1 - o2) +
+//                                                                                                              28*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) - b1*b1*b1*(-105 - 72*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 32*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+//                                                         90*b2*b2*b2*b2*(o1 - o2)*(o1 - o2) + 12*b1*b1*b1*b1*(15 - 11*b2*(o1 - o2)*(o1 - o2) + 2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*
+//                                                         (o1 - o2)*(o1 - o2) + 12*b1*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)),
+//        (3/16)*(2*b1*b2*b2*(15 - 22*b2*(o1 - o2)*(o1 - o2)) + b2*b2*b2*(45 + 4*b2*(o1 - o2)*(o1 - o2)) -
+//                4*b1*b1*b1*(15 - 14*b2*(o1 - o2)*(o1 - o2) + 4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+//                b1*b1*b2*(-75 + 24*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+//                4*b1*b1*b1*b1*(-4 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2))*(o1 - o2),
+//        (-(1/32))*I*(15*b2*b2*(7 + 4*b2*(o1 - o2)*(o1 - o2)) -
+//                     2*b1*b2*(-105 + 90*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+//                     3*b1*b1*(35 - 40*b2*(o1 - o2)*(o1 - o2) + 24*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) -
+//                     24*b1*b1*b1*(-5 + 2*b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) + 4*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)),
+//        (1/32)*((-b2*b2)*(45 + 2*b2*(o1 - o2)*(o1 - o2)) - 12*b1*b1*(-5 + 3*b2*(o1 - o2)*(o1 - o2)) +
+//                3*b1*b2*(5 + 8*b2*(o1 - o2)*(o1 - o2)) + 8*b1*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2),
+//        (3/64)*I*(b1*(7 - 8*b2*(o1 - o2)*(o1 - o2)) + b2*(7 + 2*b2*(o1 - o2)*(o1 - o2)) +
+//                  4*b1*b1*(o1 - o2)*(o1 - o2)), (-(1/64))*(4*b1 - 3*b2)*(o1 - o2), -(I/128)}
+        else if ( l1 == 3 && l2 == 4 ){
+            switch ( lambda1 ) {
+                case 0:
+                    va = (1/8.)*(-45*b2*b2*b2*b2*o1 + 15*b1*b2*b2*b2*(-5 + 4*b2*(o1 - o2)*(o1 - o2))*(o1 - o2) +
+                                3*b1*b1*b1*b2*(45 - 40*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2) -
+                                4*b1*b1*b1*b1*(-15 + 15*b2*(o1 - o2)*(o1 - o2) - 9*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*
+                                (o1 - o2) - 6*b2*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2) - 12*b1*b1*b1*b1*b1*(-2 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+                                45*b2*b2*b2*b2*o2 - 3*b1*b1*b2*b2*(-15*o1 - 10*b2*(o1 - o2)*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+                                                                   15*o2));
+                    break;
+                    
+                case 1:
+                    va = (1/16.)*I*(105*b2*b2*b2 - 3*b1*b2*b2*(-105 + 60*b2*(o1 - o2)*(o1 - o2) +
+                                                              16*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 6*b1*b1*((105*b2)/2 - 75*b2*b2*(o1 - o2)*(o1 - o2) +
+                                                                                                                           28*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) - b1*b1*b1*(-105 - 72*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 32*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                                   90*b2*b2*b2*b2*(o1 - o2)*(o1 - o2) + 12*b1*b1*b1*b1*(15 - 11*b2*(o1 - o2)*(o1 - o2) + 2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*
+                                   (o1 - o2)*(o1 - o2) + 12*b1*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2));
+                    break;
+                case 2:
+                    va =
+                    (3/16.)*(2*b1*b2*b2*(15 - 22*b2*(o1 - o2)*(o1 - o2)) + b2*b2*b2*(45 + 4*b2*(o1 - o2)*(o1 - o2)) -
+                            4*b1*b1*b1*(15 - 14*b2*(o1 - o2)*(o1 - o2) + 4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                            b1*b1*b2*(-75 + 24*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                            4*b1*b1*b1*b1*(-4 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2))*(o1 - o2);
+                    break;
+                    
+                    
+                case 3:
+                   va = (-(1/32.))*I*(15*b2*b2*(7 + 4*b2*(o1 - o2)*(o1 - o2)) -
+                                  2*b1*b2*(-105 + 90*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                                  3*b1*b1*(35 - 40*b2*(o1 - o2)*(o1 - o2) + 24*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) -
+                                  24*b1*b1*b1*(-5 + 2*b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) + 4*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2));
+                    break;
+                    
+                    
+                case 4:
+                    va = (1/32.)*((-b2*b2)*(45 + 2*b2*(o1 - o2)*(o1 - o2)) - 12*b1*b1*(-5 + 3*b2*(o1 - o2)*(o1 - o2)) +
+                                 3*b1*b2*(5 + 8*b2*(o1 - o2)*(o1 - o2)) + 8*b1*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2);
+                    
+                break;
+                    
+                case 5:
+                    va =(3/64.)*I*(b1*(7 - 8*b2*(o1 - o2)*(o1 - o2)) + b2*(7 + 2*b2*(o1 - o2)*(o1 - o2)) +
+                                  4*b1*b1*(o1 - o2)*(o1 - o2)) ;
+                    break;
+                    
+                case 6:
+                    va = (-(1/64.))*(4*b1 - 3*b2)*(o1 - o2);
+                    break;
+                    
+                case 7:
+                    va =  -(I/128.);
+                    break;
+            }
+        }
+    
+    
+//    {(1/32)*(210*b2*b2*b2*b2 + 24*b1*b2*b2*b2*(35 + 5*b2*(o1 - o2)*(o1 - o2) - 14*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+//             40*b1*b1*b1*b2*(21 - 36*b2*(o1 - o2)*(o1 - o2) + 24*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 4*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+//             12*b1*b1*b2*b2*(105 - 120*b2*(o1 - o2)*(o1 - o2) + 10*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//                           8*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 2*b1*b1*b1*b1*(105 + 60*b2*(o1 - o2)*(o1 - o2) + 60*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                                                         80*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 16*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 360*b2*b2*b2*b2*b2*(o1 - o2)*(o1 - o2) +
+//             24*b1*b1*b1*b1*b1*(15 - 14*b2*(o1 - o2)*(o1 - o2) + 4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) +
+//             24*b1*b1*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 24*b2*b2*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)),
+//        (-(1/4))*I*(105*b2*b2*b2*b2*(o1 - o2) + 2*b1*b1*b1*b2*(-105 + 75*b2*(o1 - o2)*(o1 - o2) -
+//                                                    4*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2) + b1*b1*b1*b1*(-105 + 120*b2*(o1 - o2)*(o1 - o2) -
+//                                                                                          60*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 8*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2) + 30*b2*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                    60*b1*b1*b2*b2*b2*b2*(5/2 - b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2)*(o1 - o2) + 6*b1*b1*b1*b1*b1*(-5 + 2*b2*(o1 - o2)*(o1 - o2))*
+//                    (o1 - o2)*(o1 - o2)*(o1 - o2) - 6*b1*b2*b2*b2*(20*b2*(o1 - o2)*(o1 - o2)*(o1 - o2) + 2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 35*(-o1 + o2))),
+//        (1/16)*(-210*b2*b2*b2 - 270*b2*b2*b2*b2*o1^2 - 6*b1*b1*b1*b1*(45 - 30*b2*(o1 - o2)*(o1 - o2) +
+//                                                    4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) - 12*b1*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 12*b2*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//                540*b2*b2*b2*b2*o1*o2 - 270*b2*b2*b2*b2*o2^2 + 90*b1*b2*b2*(-7 + 2*b2*o1^2 + 2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                                                             4*b2*o1*o2 + 2*b2*o2^2) + 6*b1*b1*b2*(-105 + 150*b2*o1^2 - 40*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                                                                                                  4*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 300*b2*o1*o2 + 150*b2*o2^2) +
+//                b1*b1*b1*(-210 + 180*b2*o1^2 - 240*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 64*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                      360*b2*o1*o2 + 180*b2*o2^2)), (1/8)*I*(5*b2*b2*b2*(21 + 4*b2*(o1 - o2)*(o1 - o2)) +
+//                                                             b1*b1*b1*(-105 + 100*b2*(o1 - o2)*(o1 - o2) - 24*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+//                                                             b1*b2*b2*(105 - 100*b2*(o1 - o2)*(o1 - o2) - 4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+//                                                             3*b1*b1*b2*(-35 + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 4*b1*b1*b1*b1*(-5 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2))*
+//        (o1 - o2), (1/32)*(b2*b2*(105 + 90*b2*(o1 - o2)*(o1 - o2) + 2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) -
+//                           2*b1*b2*(-105 + 75*b2*(o1 - o2)*(o1 - o2) + 16*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+//                           3*b1*b1*(35 - 50*b2*(o1 - o2)*(o1 - o2) + 24*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) -
+//                           2*b1*b1*b1*(-45 + 16*b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) + 2*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)),
+//        (1/16)*I*(b1 - b2)*(b1*(21 - 10*b2*(o1 - o2)*(o1 - o2)) + b2*(21 + 2*b2*(o1 - o2)*(o1 - o2)) +
+//                            2*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2), (1/32)*((-b2)*(7 + 3*b2*(o1 - o2)*(o1 - o2)) +
+//                                                                   b1*(-7 + 8*b2*(o1 - o2)*(o1 - o2)) - 3*b1*b1*(o1 - o2)*(o1 - o2)), (-(1/32))*I*(b1 - b2)*(o1 - o2),
+//        1/256}
+        else if ( l1 == 4 && l2 == 4 ){
+            switch ( lambda1 ) {
+                case 0:
+                    va = (1/32.)*(210*b2*b2*b2*b2 + 24*b1*b2*b2*b2*(35 + 5*b2*(o1 - o2)*(o1 - o2) - 14*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                                 40*b1*b1*b1*b2*(21 - 36*b2*(o1 - o2)*(o1 - o2) + 24*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 4*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                                 12*b1*b1*b2*b2*(105 - 120*b2*(o1 - o2)*(o1 - o2) + 10*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+                                                 8*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 2*b1*b1*b1*b1*(105 + 60*b2*(o1 - o2)*(o1 - o2) + 60*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+                                                                                                                                          80*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 16*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 360*b2*b2*b2*b2*b2*(o1 - o2)*(o1 - o2) +
+                                 24*b1*b1*b1*b1*b1*(15 - 14*b2*(o1 - o2)*(o1 - o2) + 4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) +
+                                 24*b1*b1*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 24*b2*b2*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2));
+                    break;
+                    
+                case 1:
+                    va =  (-(1/4.))*I*(105*b2*b2*b2*b2*(o1 - o2) + 2*b1*b1*b1*b2*(-105 + 75*b2*(o1 - o2)*(o1 - o2) -
+                                                                                 4*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2) + b1*b1*b1*b1*(-105 + 120*b2*(o1 - o2)*(o1 - o2) -
+                                                                                                                                                                                  60*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 8*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2) + 30*b2*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+                                      60*b1*b1*b2*b2*b2*b2*(5/2. - b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2)*(o1 - o2) + 6*b1*b1*b1*b1*b1*(-5 + 2*b2*(o1 - o2)*(o1 - o2))*
+                                      (o1 - o2)*(o1 - o2)*(o1 - o2) - 6*b1*b2*b2*b2*(20*b2*(o1 - o2)*(o1 - o2)*(o1 - o2) + 2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 35*(-o1 + o2)));
+                    break;
+                case 2:
+                    va = (1/16.)*(-210*b2*b2*b2 - 270*b2*b2*b2*b2*o1*o1 - 6*b1*b1*b1*b1*(45 - 30*b2*(o1 - o2)*(o1 - o2) +
+                                                                                       4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) - 12*b1*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 12*b2*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+                                 540*b2*b2*b2*b2*o1*o2 - 270*b2*b2*b2*b2*o2*o2 + 90*b1*b2*b2*(-7 + 2*b2*o1*o1 + 2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+                                                                                             4*b2*o1*o2 + 2*b2*o2*o2) + 6*b1*b1*b2*(-105 + 150*b2*o1*o1 - 40*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+                                                                                                                                   4*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 300*b2*o1*o2 + 150*b2*o2*o2) +
+                                 b1*b1*b1*(-210 + 180*b2*o1*o1 - 240*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 64*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+                                           360*b2*o1*o2 + 180*b2*o2*o2)) ;
+                    break;
+                    
+                case 3:
+                    va =(1/8.)*I*(5*b2*b2*b2*(21 + 4*b2*(o1 - o2)*(o1 - o2)) +
+                                 b1*b1*b1*(-105 + 100*b2*(o1 - o2)*(o1 - o2) - 24*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                                 b1*b2*b2*(105 - 100*b2*(o1 - o2)*(o1 - o2) - 4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                                 3*b1*b1*b2*(-35 + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) + 4*b1*b1*b1*b1*(-5 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2))*
+                    (o1 - o2) ;
+                    break;
+                    
+                case 4:
+                    va = (1/32.)*(b2*b2*(105 + 90*b2*(o1 - o2)*(o1 - o2) + 2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) -
+                                 2*b1*b2*(-105 + 75*b2*(o1 - o2)*(o1 - o2) + 16*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                                 3*b1*b1*(35 - 50*b2*(o1 - o2)*(o1 - o2) + 24*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) -
+                                 2*b1*b1*b1*(-45 + 16*b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) + 2*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2));
+                    break;
+                    
+                case 5:
+                    va = (1/16.)*I*(b1 - b2)*(b1*(21 - 10*b2*(o1 - o2)*(o1 - o2)) + b2*(21 + 2*b2*(o1 - o2)*(o1 - o2)) +
+                                             2*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2);
+                    break;
+                    
+                case 6:
+                    va = (1/32.)*((-b2)*(7 + 3*b2*(o1 - o2)*(o1 - o2)) +
+                                 b1*(-7 + 8*b2*(o1 - o2)*(o1 - o2)) - 3*b1*b1*(o1 - o2)*(o1 - o2));
+                    break;
+                case 7:
+                    va = (-(1/32.))*I*(b1 - b2)*(o1 - o2);
+                    break;
+                    
+                case 8:
+                    va = 1/256.;
+                    break;
+            
+            }
+        }
+//    {(1/4)*b1*(30*b1*b2 + 15*b2*b2 + 5*b1*b1*(3 + 4*b2*(o1 - o2)*(o1 - o2)) + 20*b1*b1*b1*(o1 - o2)*(o1 - o2) +
+//               4*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2),
+//        (5/8)*I*(6*b1*b2 + 3*b2*b2 + 3*b1*b1*(1 + 4*b2*(o1 - o2)*(o1 - o2)) + 12*b1*b1*b1*(o1 - o2*(o1 - o2) +
+//                 4*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)), (-(5/4))*b1*(3*b1 + 3*b2 + 2*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2),
+//        (-(5/8))*I*(b1 + b2 + 2*b1*b1*(o1 - o2)*(o1 - o2)), (5/16)*b1*(o1 - o2), I/32}
+        else if ( l1 == 0 && l2 == 5 ){
+            switch ( lambda1 ) {
+                case 0:
+                    va = (1/4.)*b1*(30*b1*b2 + 15*b2*b2 + 5*b1*b1*(3 + 4*b2*(o1 - o2)*(o1 - o2)) + 20*b1*b1*b1*(o1 - o2)*(o1 - o2) +
+                                   4*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2);
+                    break;
+                    
+                case 1:
+                    va = (5/8.)*I*(6*b1*b2 + 3*b2*b2 + 3*b1*b1*(1 + 4*b2*(o1 - o2)*(o1 - o2)) + 12*b1*b1*b1*(o1 - o2)*(o1 - o2) +4*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2));
+                    break;
+                case 2:
+                    va = (-(5/4.))*b1*(3*b1 + 3*b2 + 2*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2);
+                    break;
+                    
+                case 3:
+                    va =(-(5/8.))*I*(b1 + b2 + 2*b1*b1*(o1 - o2)*(o1 - o2));
+                    break;
+                    
+                case 4:
+                    va =(5/16.)*b1*(o1 - o2);
+                    break;
+                    
+                case 5:
+                    va =I/32.;
+                    break;
+                    
+            }
+        }
+                                  
+////    List((45*Power(b1,2)*b2 + 15*Power(b2,3) -
+////          15*b1*Power(b2,2)*(-3 + 2*b2*Power(o1 - o2,2)) -
+////          5*Power(b1,3)*(-3 - 18*b2*Power(o1 - o2,2) + 8*Power(b2,2)*Power(o1 - o2,4)) -
+////          20*Power(b1,4)*(-3 + b2*Power(o1 - o2,2))*Power(o1 - o2,2) -
+////          4*Power(b1,5)*(-5 + 2*b2*Power(o1 - o2,2))*Power(o1 - o2,4))/8.
+//
+////    ,
+//         Complex(0,0.125)*(75*Power(b1,3) + 45*b1*Power(b2,2) - 15*Power(b2,3) -
+//                           15*Power(b1,2)*b2*(-9 + 4*b2*Power(o1 - o2,2)) -
+//                           20*Power(b1,4)*(-3 + b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+//                           4*Power(b1,5)*Power(o1 - o2,4))*(o1 - o2)
+//
+////    ,
+//         (-5*(9*Power(b2,2) - 6*b1*b2*(-3 + 2*b2*Power(o1 - o2,2)) +
+//              3*Power(b1,2)*(3 + 4*b2*Power(o1 - o2,2)) -
+//              8*Power(b1,3)*(-3 + b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+//              4*Power(b1,4)*Power(o1 - o2,4)))/16.
+//
+////    ,
+//         Complex(0,-0.625)*(4*b1*b2 - Power(b2,2) + Power(b1,2)*(5 - 2*b2*Power(o1 - o2,2)) +
+//                            2*Power(b1,3)*Power(o1 - o2,2))*(o1 - o2)
+//
+////    ,
+//         (5*(3*b2 + b1*(3 - 2*b2*Power(o1 - o2,2)) + 4*Power(b1,2)*Power(o1 - o2,2)))/32.
+//
+////    ,
+//         Complex(0,0.03125)*(5*b1 - b2)*(o1 - o2),
+//
+// //  -0.015625
+    
+                                  
+    
+        else if ( l1 == 1 && l2 == 5 ){
+            switch ( lambda1 ) {
+                case 0:
+                    va = (45*Power(b1,2)*b2 + 15*Power(b2,3) -
+                                    15*b1*Power(b2,2)*(-3 + 2*b2*Power(o1 - o2,2)) -
+                                    5*Power(b1,3)*(-3 - 18*b2*Power(o1 - o2,2) + 8*Power(b2,2)*Power(o1 - o2,4)) -
+                                   20*Power(b1,4)*(-3 + b2*Power(o1 - o2,2))*Power(o1 - o2,2) -
+                                    4*Power(b1,5)*(-5 + 2*b2*Power(o1 - o2,2))*Power(o1 - o2,4))/8.;
+                    break;
+                    
+                case 1:
+                    va = Complex(0,0.125)*(75*Power(b1,3) + 45*b1*Power(b2,2) - 15*Power(b2,3) -
+                                           15*Power(b1,2)*b2*(-9 + 4*b2*Power(o1 - o2,2)) -
+                                           20*Power(b1,4)*(-3 + b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+                                           4*Power(b1,5)*Power(o1 - o2,4))*(o1 - o2);
+                    break;
+                case 2:
+                    va =(-5*(9*Power(b2,2) - 6*b1*b2*(-3 + 2*b2*Power(o1 - o2,2)) +
+                                           3*Power(b1,2)*(3 + 4*b2*Power(o1 - o2,2)) -
+                                    8*Power(b1,3)*(-3 + b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+                                           4*Power(b1,4)*Power(o1 - o2,4)))/16;
+                    break;
+                    
+                case 3:
+                    va = Complex(0,-0.625)*(4*b1*b2 - Power(b2,2) + Power(b1,2)*(5 - 2*b2*Power(o1 - o2,2)) +
+                                            2*Power(b1,3)*Power(o1 - o2,2))*(o1 - o2);
+                    break;
+                    
+                case 4:
+                    va =(5*(3*b2 + b1*(3 - 2*b2*Power(o1 - o2,2)) + 4*Power(b1,2)*Power(o1 - o2,2)))/32.;
+                    break;
+                    
+                case 5:
+                    va =Complex(0,0.03125)*(5*b1 - b2)*(o1 - o2);
+                    break;
+                   
+                case 6:
+                    va =  -0.015625;
+                    break;
+
+            }
+        }
+//    {(1/8)*(-15*b1*b2*b2*b2*o1 - 30*b2*b2*b2*b2*o1 + 30*b1*b2*b2*b2*b2*o1*o1*o1 +
+//            15*b1*b1*b2*b2*(9*o1 - 4*b2*(o1 - o2)*(o1 - o2)*(o1 - o2) - 9*o2) + 75*b1*b1*b1*b1*(o1 - o2) +
+//            5*b1*b1*b1*b2*(39 - 30*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2) +
+//            4*b1*b1*b1*b1*b1*(15 - 9*b2*(o1 - o2)*(o1 - o2) + 2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//            4*b1*b1*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 15*b1*b2*b2*b2*o2 + 30*b2*b2*b2*b2*o2 - 90*b1*b2*b2*b2*b2*o1*o1*o2 +
+//            90*b1*b2*b2*b2*b2*o1*o2*o2 - 30*b1*b2*b2*b2*b2*o2*o2*o2),
+//        (1/16)*I*(15*b2*b2*b2*(7 + 2*b2*(o1 - o2)*(o1 - o2)) - 15*b1*b2*b2*(-21 + 16*b2*(o1 - o2)*(o1 - o2)) -
+//                  15*b1*b1*b1*(-7 - 20*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+//                  30*b1*b1*((21*b2)/2 - 9*b2*b2*(o1 - o2)*(o1 - o2) + 4*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+//                  20*b1*b1*b1*b1*(15 - 9*b2*(o1 - o2)*(o1 - o2) + 2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) -
+//                  4*b1*b1*b1*b1*b1*(-15 + 4*b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)),
+//        (1/16)*(-45*b1*b2*b2*o1 + 90*b2*b2*b2*o1 - 60*b1*b2*b2*b2*o1*o1*o1 +
+//                180*b1*b1*b2*(-2 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2) +
+//                5*b1*b1*b1*(-45 + 24*b2*(o1 - o2)*(o1 - o2) - 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2) +
+//                40*b1*b1*b1*b1*(-3 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2)*(o1 - o2) - 4*b1*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 45*b1*b2*b2*o2 -
+//                90*b2*b2*b2*o2 + 180*b1*b2*b2*b2*o1*o1*o2 - 180*b1*b2*b2*b2*o1*o2*o2 + 60*b1*b2*b2*b2*o2*o2*o2),
+//        (-(5/32))*I*(b2*b2*(21 + 4*b2*(o1 - o2)*(o1 - o2)) - 6*b1*b2*(-7 + 6*b2*(o1 - o2)*(o1 - o2)) +
+//                     b1*b1*(21 + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) - 8*b1*b1*b1*(-5 + 2*b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) +
+//                     4*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)), (5/32)*(-6*b2*b2 + b1*b1*(15 - 8*b2*(o1 - o2)*(o1 - o2)) +
+//                                                  b1*b2*(9 + 2*b2*(o1 - o2)*(o1 - o2)) + 4*b1*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2),
+//        (1/64)*I*(b1*(21 - 20*b2*(o1 - o2)*(o1 - o2)) + b2*(21 + 2*b2*(o1 - o2)*(o1 - o2)) +
+//                  20*b1*b1*(o1 - o2)*(o1 - o2)), (-(1/64))*(5*b1 - 2*b2)*(o1 - o2), -(I/128)}
+        else if ( l1 == 2 && l2 == 5 ){
+            switch ( lambda1 ) {
+                case 0:
+                    va = (1/8.)*(-15*b1*b2*b2*b2*o1 - 30*b2*b2*b2*b2*o1 + 30*b1*b2*b2*b2*b2*o1*o1*o1 +
+                                15*b1*b1*b2*b2*(9*o1 - 4*b2*(o1 - o2)*(o1 - o2)*(o1 - o2) - 9*o2) + 75*b1*b1*b1*b1*(o1 - o2) +
+                                5*b1*b1*b1*b2*(39 - 30*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2) +
+                                4*b1*b1*b1*b1*b1*(15 - 9*b2*(o1 - o2)*(o1 - o2) + 2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+                                4*b1*b1*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 15*b1*b2*b2*b2*o2 + 30*b2*b2*b2*b2*o2 - 90*b1*b2*b2*b2*b2*o1*o1*o2 +
+                                90*b1*b2*b2*b2*b2*o1*o2*o2 - 30*b1*b2*b2*b2*b2*o2*o2*o2);
+                    break;
+                    
+                case 1:
+                    va =  (1/16.)*I*(15*b2*b2*b2*(7 + 2*b2*(o1 - o2)*(o1 - o2)) - 15*b1*b2*b2*(-21 + 16*b2*(o1 - o2)*(o1 - o2)) -
+                                    15*b1*b1*b1*(-7 - 20*b2*(o1 - o2)*(o1 - o2) + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                                    30*b1*b1*((21*b2)/2 - 9*b2*b2*(o1 - o2)*(o1 - o2) + 4*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) +
+                                    20*b1*b1*b1*b1*(15 - 9*b2*(o1 - o2)*(o1 - o2) + 2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) -
+                                    4*b1*b1*b1*b1*b1*(-15 + 4*b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2));
+                    break;
+                case 2:
+                    va =(1/16.)*(-45*b1*b2*b2*o1 + 90*b2*b2*b2*o1 - 60*b1*b2*b2*b2*o1*o1*o1 +
+                                180*b1*b1*b2*(-2 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2) +
+                                5*b1*b1*b1*(-45 + 24*b2*(o1 - o2)*(o1 - o2) - 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2))*(o1 - o2) +
+                                40*b1*b1*b1*b1*(-3 + b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2)*(o1 - o2) - 4*b1*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 45*b1*b2*b2*o2 -
+                                90*b2*b2*b2*o2 + 180*b1*b2*b2*b2*o1*o1*o2 - 180*b1*b2*b2*b2*o1*o2*o2 + 60*b1*b2*b2*b2*o2*o2*o2);
+                    break;
+                    
+                case 3:
+                    va =(-(5/32.))*I*(b2*b2*(21 + 4*b2*(o1 - o2)*(o1 - o2)) - 6*b1*b2*(-7 + 6*b2*(o1 - o2)*(o1 - o2)) +
+                                     b1*b1*(21 + 8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)) - 8*b1*b1*b1*(-5 + 2*b2*(o1 - o2)*(o1 - o2))*(o1 - o2)*(o1 - o2) +
+                                     4*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2));
+                    break;
+                    
+                case 4:
+                    va =(5/32.)*(-6*b2*b2 + b1*b1*(15 - 8*b2*(o1 - o2)*(o1 - o2)) +
+                                b1*b2*(9 + 2*b2*(o1 - o2)*(o1 - o2)) + 4*b1*b1*b1*(o1 - o2)*(o1 - o2))*(o1 - o2);
+                    break;
+                    
+                case 5:
+                    va =(1/64.)*I*(b1*(21 - 20*b2*(o1 - o2)*(o1 - o2)) + b2*(21 + 2*b2*(o1 - o2)*(o1 - o2)) +
+                                  20*b1*b1*(o1 - o2)*(o1 - o2));
+                    break;
+                case 6:
+                    va =(-(1/64.))*(5*b1 - 2*b2)*(o1 - o2);
+                    break;
+                    
+                case 7:
+                    va =-(I/128.);
+                    break;
+
+            }
+        }
+//    List(
+//
+//         (105*Power(b2,4) + 90*Power(b2,5)*Power(o1,2) -
+//          60*b1*Power(b2,3)*(-7 + 3*b2*Power(o1 - o2,2) + Power(b2,2)*Power(o1 - o2,4)) +
+//          30*Power(b1,2)*Power(b2,2)*(21 - 26*b2*Power(o1 - o2,2) +
+//                                      8*Power(b2,2)*Power(o1 - o2,4)) -
+//          20*Power(b1,3)*b2*(-21 + 18*b2*Power(o1 - o2,2) -
+//                             15*Power(b2,2)*Power(o1 - o2,4) + 4*Power(b2,3)*Power(o1 - o2,6)) +
+//          5*Power(b1,4)*(21 + 90*b2*Power(o1 - o2,2) - 60*Power(b2,2)*Power(o1 - o2,4) +
+//                         8*Power(b2,3)*Power(o1 - o2,6)) -
+//          4*Power(b1,5)*(-75 + 60*b2*Power(o1 - o2,2) - 24*Power(b2,2)*Power(o1 - o2,4) +
+//                         4*Power(b2,3)*Power(o1 - o2,6))*Power(o1 - o2,2) -
+//          12*Power(b1,6)*(-5 + 2*b2*Power(o1 - o2,2))*Power(o1 - o2,4) -
+//          180*Power(b2,5)*o1*o2 + 90*Power(b2,5)*Power(o2,2))/16.
+//
+//         ,
+//
+//
+//         Complex(0,-0.0625)*(315*Power(b2,4)*(o1 - o2) +
+//                             5*Power(b1,4)*(-105 + 60*b2*Power(o1 - o2,2) - 36*Power(b2,2)*Power(o1 - o2,4) +
+//                                            8*Power(b2,3)*Power(o1 - o2,6))*(o1 - o2) + 30*Power(b2,5)*Power(o1 - o2,3) -
+//                             12*Power(b1,5)*(25 - 14*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4))*
+//                             Power(o1 - o2,3) - 12*Power(b1,6)*Power(o1 - o2,5) +
+//                             30*Power(b1,2)*Power(b2,2)*(b2*Power(o1 - o2,3) + 4*Power(b2,2)*Power(o1 - o2,5) +
+//                                                         21*(-o1 + o2)) + 60*Power(b1,3)*
+//                             ((35*Power(b2,2)*Power(o1 - o2,3))/2. - 4*Power(b2,3)*Power(o1 - o2,5) +
+//                              21*b2*(-o1 + o2)) - 60*b1*((13*Power(b2,4)*Power(o1 - o2,3))/2. +
+//                                                         7*Power(b2,3)*(-o1 + o2)))
+//
+//         ,
+//
+//
+//         (-420*Power(b2,3) - 270*Power(b2,4)*Power(o1,2) +
+//          30*Power(b1,2)*b2*(-42 + 51*b2*Power(o1 - o2,2) -
+//                             20*Power(b2,2)*Power(o1 - o2,4)) -
+//          30*b1*Power(b2,2)*(42 - 27*b2*Power(o1 - o2,2) - 4*Power(b2,2)*Power(o1 - o2,4)) -
+//          60*Power(b1,4)*(15 - 10*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4))*
+//          Power(o1 - o2,2) + 24*Power(b1,5)*(-5 + b2*Power(o1 - o2,2))*Power(o1 - o2,4) +
+//          540*Power(b2,4)*o1*o2 - 270*Power(b2,4)*Power(o2,2) -
+//          5*Power(b1,3)*(84 + 90*b2*Power(o1,2) - 16*Power(b2,3)*Power(o1 - o2,6) -
+//                         180*b2*o1*o2 + 90*b2*Power(o2,2)))/32.
+//
+//         ,
+//
+//
+//         Complex(0,-0.03125)*(-5*Power(b2,3)*(63 + 4*b2*Power(o1 - o2,2)) +
+//                              35*b1*Power(b2,2)*(-3 + 8*b2*Power(o1 - o2,2)) -
+//                              5*Power(b1,2)*b2*(-147 + 60*b2*Power(o1 - o2,2) +
+//                                                8*Power(b2,2)*Power(o1 - o2,4)) +
+//                              5*Power(b1,3)*(105 - 80*b2*Power(o1 - o2,2) + 24*Power(b2,2)*Power(o1 - o2,4)) -
+//                              20*Power(b1,4)*(-10 + 3*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+//                              4*Power(b1,5)*Power(o1 - o2,4))*(o1 - o2)
+//
+//         ,
+//
+//
+//         (5*(3*Power(b2,2)*(7 + 3*b2*Power(o1 - o2,2)) -
+//             2*b1*b2*(-21 + 18*b2*Power(o1 - o2,2) + Power(b2,2)*Power(o1 - o2,4)) +
+//             3*Power(b1,2)*(7 - 5*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4)) -
+//             6*Power(b1,3)*(-5 + 2*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+//             2*Power(b1,4)*Power(o1 - o2,4)))/32.
+//
+//         ,
+//         Complex(0,0.015625)*(-(Power(b2,2)*(63 + 2*b2*Power(o1 - o2,2))) -
+//                              15*Power(b1,2)*(-7 + 4*b2*Power(o1 - o2,2)) +
+//                              6*b1*b2*(7 + 5*b2*Power(o1 - o2,2)) + 20*Power(b1,3)*Power(o1 - o2,2))*(o1 - o2)
+//
+//         ,
+//         (-(b2*(14 + 3*b2*Power(o1 - o2,2))) + b1*(-14 + 15*b2*Power(o1 - o2,2)) -
+//          10*Power(b1,2)*Power(o1 - o2,2))/64.
+//
+//         ,
+//
+//         Complex(0,-0.0078125)*(5*b1 - 3*b2)*(o1 - o2)
+//
+//         ,
+//         0.00390625)
+        else if ( l1 == 3 && l2 == 5 ){
+            switch ( lambda1 ) {
+                case 0:
+                    va = (105*Power(b2,4) + 90*Power(b2,5)*Power(o1,2) -
+                          60*b1*Power(b2,3)*(-7 + 3*b2*Power(o1 - o2,2) + Power(b2,2)*Power(o1 - o2,4)) +
+                          30*Power(b1,2)*Power(b2,2)*(21 - 26*b2*Power(o1 - o2,2) +
+                                                      8*Power(b2,2)*Power(o1 - o2,4)) -
+                          20*Power(b1,3)*b2*(-21 + 18*b2*Power(o1 - o2,2) -
+                                             15*Power(b2,2)*Power(o1 - o2,4) + 4*Power(b2,3)*Power(o1 - o2,6)) +
+                          5*Power(b1,4)*(21 + 90*b2*Power(o1 - o2,2) - 60*Power(b2,2)*Power(o1 - o2,4) +
+                                         8*Power(b2,3)*Power(o1 - o2,6)) -
+                          4*Power(b1,5)*(-75 + 60*b2*Power(o1 - o2,2) - 24*Power(b2,2)*Power(o1 - o2,4) +
+                                         4*Power(b2,3)*Power(o1 - o2,6))*Power(o1 - o2,2) -
+                          12*Power(b1,6)*(-5 + 2*b2*Power(o1 - o2,2))*Power(o1 - o2,4) -
+                          180*Power(b2,5)*o1*o2 + 90*Power(b2,5)*Power(o2,2))/16.;
+                    break;
+                    
+                case 1:
+                    va = Complex(0,-0.0625)*(315*Power(b2,4)*(o1 - o2) +
+                                             5*Power(b1,4)*(-105 + 60*b2*Power(o1 - o2,2) - 36*Power(b2,2)*Power(o1 - o2,4) +
+                                                            8*Power(b2,3)*Power(o1 - o2,6))*(o1 - o2) + 30*Power(b2,5)*Power(o1 - o2,3) -
+                                             12*Power(b1,5)*(25 - 14*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4))*
+                                             Power(o1 - o2,3) - 12*Power(b1,6)*Power(o1 - o2,5) +
+                                             30*Power(b1,2)*Power(b2,2)*(b2*Power(o1 - o2,3) + 4*Power(b2,2)*Power(o1 - o2,5) +
+                                                                         21*(-o1 + o2)) + 60*Power(b1,3)*
+                                             ((35*Power(b2,2)*Power(o1 - o2,3))/2. - 4*Power(b2,3)*Power(o1 - o2,5) +
+                                              21*b2*(-o1 + o2)) - 60*b1*((13*Power(b2,4)*Power(o1 - o2,3))/2. +
+                                                                         7*Power(b2,3)*(-o1 + o2)));
+                    break;
+                case 2:
+                    va =(-420*Power(b2,3) - 270*Power(b2,4)*Power(o1,2) +
+                         30*Power(b1,2)*b2*(-42 + 51*b2*Power(o1 - o2,2) -
+                                            20*Power(b2,2)*Power(o1 - o2,4)) -
+                         30*b1*Power(b2,2)*(42 - 27*b2*Power(o1 - o2,2) - 4*Power(b2,2)*Power(o1 - o2,4)) -
+                         60*Power(b1,4)*(15 - 10*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4))*
+                         Power(o1 - o2,2) + 24*Power(b1,5)*(-5 + b2*Power(o1 - o2,2))*Power(o1 - o2,4) +
+                         540*Power(b2,4)*o1*o2 - 270*Power(b2,4)*Power(o2,2) -
+                         5*Power(b1,3)*(84 + 90*b2*Power(o1,2) - 16*Power(b2,3)*Power(o1 - o2,6) -
+                                        180*b2*o1*o2 + 90*b2*Power(o2,2)))/32.;
+                    break;
+                    
+                case 3:
+                    va =         Complex(0,-0.03125)*(-5*Power(b2,3)*(63 + 4*b2*Power(o1 - o2,2)) +
+                                                      35*b1*Power(b2,2)*(-3 + 8*b2*Power(o1 - o2,2)) -
+                                                      5*Power(b1,2)*b2*(-147 + 60*b2*Power(o1 - o2,2) +
+                                                                        8*Power(b2,2)*Power(o1 - o2,4)) +
+                                                      5*Power(b1,3)*(105 - 80*b2*Power(o1 - o2,2) + 24*Power(b2,2)*Power(o1 - o2,4)) -
+                                                      20*Power(b1,4)*(-10 + 3*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+                                                      4*Power(b1,5)*Power(o1 - o2,4))*(o1 - o2);
+;
+                    break;
+                    
+                case 4:
+                    va =  (5*(3*Power(b2,2)*(7 + 3*b2*Power(o1 - o2,2)) -
+                              2*b1*b2*(-21 + 18*b2*Power(o1 - o2,2) + Power(b2,2)*Power(o1 - o2,4)) +
+                              3*Power(b1,2)*(7 - 5*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4)) -
+                              6*Power(b1,3)*(-5 + 2*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+                              2*Power(b1,4)*Power(o1 - o2,4)))/32.;
+                    break;
+                    
+                case 5:
+                    va =         Complex(0,0.015625)*(-(Power(b2,2)*(63 + 2*b2*Power(o1 - o2,2))) -
+                                                      15*Power(b1,2)*(-7 + 4*b2*Power(o1 - o2,2)) +
+                                                      6*b1*b2*(7 + 5*b2*Power(o1 - o2,2)) + 20*Power(b1,3)*Power(o1 - o2,2))*(o1 - o2);
+                    break;
+                case 6:
+                    va =  (-(b2*(14 + 3*b2*Power(o1 - o2,2))) + b1*(-14 + 15*b2*Power(o1 - o2,2)) -
+                           10*Power(b1,2)*Power(o1 - o2,2))/64.;
+                    break;
+                    
+                case 7:
+                    va =Complex(0,-0.0078125)*(5*b1 - 3*b2)*(o1 - o2);
+                    break;
+                case 8:
+                    va =0.00390625;
+                    break;
+            }
+        }
+
+//    List((
+    
+//          60*Power(b1,2)*Power(b2,3)*(-7 + 19*b2*Power(o1 - o2,2) -
+//                                      6*Power(b2,2)*Power(o1 - o2,4))*(o1 - o2) +
+//          15*b1*Power(b2,4)*(-77 + 36*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4))*
+//          (o1 - o2) - 40*Power(b1,4)*b2*
+//          (-42 + 45*b2*Power(o1 - o2,2) - 18*Power(b2,2)*Power(o1 - o2,4) +
+//           2*Power(b2,3)*Power(o1 - o2,6))*(o1 - o2) +
+//          10*Power(b1,3)*Power(b2,2)*(147 - 72*b2*Power(o1 - o2,2) -
+//                                      18*Power(b2,2)*Power(o1 - o2,4) + 8*Power(b2,3)*Power(o1 - o2,6))*(o1 - o2) +
+//          Power(b1,5)*(525 - 300*b2*Power(o1 - o2,2) + 252*Power(b2,2)*Power(o1 - o2,4) -
+//                       112*Power(b2,3)*Power(o1 - o2,6) + 16*Power(b2,4)*Power(o1 - o2,8))*(o1 - o2) +
+//          12*Power(b1,6)*(25 - 18*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4))*
+//          Power(o1 - o2,3) + 12*Power(b1,7)*Power(o1 - o2,5) +
+//          60*Power(b2,5)*(-2*b2*Power(o1 - o2,3) + 7*(-o1 + o2)))/16.
+//
+//         ,
+//         Complex(0,0.03125)*(60*b1*Power(b2,3)*
+//                             (63 - 7*b2*Power(o1 - o2,2) - 18*Power(b2,2)*Power(o1 - o2,4)) +
+//                             15*Power(b2,4)*(63 + 84*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4)) +
+//                             720*Power(b1,3)*b2*(5.25 - 7*b2*Power(o1 - o2,2) +
+//                                                 5*Power(b2,2)*Power(o1 - o2,4) - Power(b2,3)*Power(o1 - o2,6)) +
+//                             60*Power(b1,2)*Power(b2,2)*(94.5 - 112*b2*Power(o1 - o2,2) +
+//                                                         21*Power(b2,2)*Power(o1 - o2,4) + 4*Power(b2,3)*Power(o1 - o2,6)) +
+//                             5*Power(b1,4)*(189 + 420*b2*Power(o1 - o2,2) - 180*Power(b2,2)*Power(o1 - o2,4) -
+//                                            48*Power(b2,3)*Power(o1 - o2,6) + 16*Power(b2,4)*Power(o1 - o2,8)) -
+//                             4*Power(b1,5)*(-525 + 450*b2*Power(o1 - o2,2) - 156*Power(b2,2)*Power(o1 - o2,4) +
+//                                            16*Power(b2,3)*Power(o1 - o2,6))*Power(o1 - o2,2) -
+//                             12*Power(b1,6)*(-25 + 8*b2*Power(o1 - o2,2))*Power(o1 - o2,4))
+//
+//         ,
+//         (15*b1*Power(b2,3)*(49*o1 - 33*b2*Power(o1 - o2,3) - 2*Power(b2,2)*Power(o1 - o2,5) -
+//                             49*o2) + 30*Power(b2,4)*(14 + 3*b2*Power(o1 - o2,2))*(o1 - o2) +
+//          5*Power(b1,4)*(-105 + 90*b2*Power(o1 - o2,2) - 48*Power(b2,2)*Power(o1 - o2,4) +
+//                         8*Power(b2,3)*Power(o1 - o2,6))*(o1 - o2) -
+//          3*Power(b1,5)*(75 - 38*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4))*
+//          Power(o1 - o2,3) - 6*Power(b1,6)*Power(o1 - o2,5) +
+//          15*Power(b1,2)*Power(b2,2)*(-21*o1 - 24*b2*Power(o1 - o2,3) +
+//                                      14*Power(b2,2)*Power(o1 - o2,5) + 21*o2) +
+//          5*Power(b1,3)*b2*(-231*o1 + 180*b2*Power(o1 - o2,3) -
+//                            24*Power(b2,2)*Power(o1 - o2,5) - 4*Power(b2,3)*Power(o1 - o2,7) + 231*o2))/8.
+         
+//         ,
+//         Complex(0,0.0625)*(-5*Power(b2,3)*
+//                            (63 + 63*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4)) +
+//                            5*b1*Power(b2,2)*(-189 + 84*b2*Power(o1 - o2,2) +
+//                                              38*Power(b2,2)*Power(o1 - o2,4)) -
+//                            5*Power(b1,2)*b2*(189 - 252*b2*Power(o1 - o2,2) +
+//                                              80*Power(b2,2)*Power(o1 - o2,4) + 4*Power(b2,3)*Power(o1 - o2,6)) +
+//                            5*Power(b1,3)*(-63 - 40*Power(b2,2)*Power(o1 - o2,4) +
+//                                           16*Power(b2,3)*Power(o1 - o2,6)) -
+//                            5*Power(b1,4)*(105 - 70*b2*Power(o1 - o2,2) + 12*Power(b2,2)*Power(o1 - o2,4))*
+//                            Power(o1 - o2,2) + 2*Power(b1,5)*(-25 + 4*b2*Power(o1 - o2,2))*Power(o1 - o2,4))
+         
+//         ,
+//         ((-60*Power(b2,3)*(7 + b2*Power(o1 - o2,2)) +
+//           5*b1*Power(b2,2)*(-63 + 78*b2*Power(o1 - o2,2) +
+//                             2*Power(b2,2)*Power(o1 - o2,4)) +
+//           15*Power(b1,3)*(35 - 30*b2*Power(o1 - o2,2) + 8*Power(b2,2)*Power(o1 - o2,4)) -
+//           10*Power(b1,2)*b2*(-63 + 15*b2*Power(o1 - o2,2) +
+//                              8*Power(b2,2)*Power(o1 - o2,4)) -
+//           10*Power(b1,4)*(-15 + 4*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+//           2*Power(b1,5)*Power(o1 - o2,4))*(o1 - o2))/32.
+//
+//         ,
+//         Complex(0,0.015625)*(Power(b2,2)*
+//                              (189 + 126*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4)) -
+//                              2*b1*b2*(-189 + 147*b2*Power(o1 - o2,2) + 20*Power(b2,2)*Power(o1 - o2,4)) +
+//                              3*Power(b1,2)*(63 - 70*b2*Power(o1 - o2,2) + 40*Power(b2,2)*Power(o1 - o2,4)) -
+//                              10*Power(b1,3)*(-21 + 8*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+//                              10*Power(b1,4)*Power(o1 - o2,4))
+//
+//         ,
+//         -((-2*Power(b2,2)*(14 + b2*Power(o1 - o2,2)) -
+//            5*Power(b1,2)*(-7 + 4*b2*Power(o1 - o2,2)) +
+//            b1*b2*(7 + 15*b2*Power(o1 - o2,2)) + 5*Power(b1,3)*Power(o1 - o2,2))*(o1 - o2))/
+//         32.,
+    
+//    Complex(0,-0.015625)*(b1*(9 - 10*b2*Power(o1 - o2,2)) +
+//                                   3*b2*(3 + b2*Power(o1 - o2,2)) + 5*Power(b1,2)*Power(o1 - o2,2))
+//
+//         ,
+//         ((5*b1 - 4*b2)*(o1 - o2))/256.
+//
+//         ,
+//
+//         Complex(0,0.001953125))
+//
+    
+        else if ( l1 == 4 && l2 == 5 ){
+            switch ( lambda1 ) {
+                case 0:
+                    va = (60*Power(b1,2)*Power(b2,3)*(-7 + 19*b2*Power(o1 - o2,2) -
+                                                6*Power(b2,2)*Power(o1 - o2,4))*(o1 - o2) +
+                    15*b1*Power(b2,4)*(-77 + 36*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4))*
+                    (o1 - o2) - 40*Power(b1,4)*b2*
+                    (-42 + 45*b2*Power(o1 - o2,2) - 18*Power(b2,2)*Power(o1 - o2,4) +
+                     2*Power(b2,3)*Power(o1 - o2,6))*(o1 - o2) +
+                    10*Power(b1,3)*Power(b2,2)*(147 - 72*b2*Power(o1 - o2,2) -
+                                                18*Power(b2,2)*Power(o1 - o2,4) + 8*Power(b2,3)*Power(o1 - o2,6))*(o1 - o2) +
+                    Power(b1,5)*(525 - 300*b2*Power(o1 - o2,2) + 252*Power(b2,2)*Power(o1 - o2,4) -
+                                 112*Power(b2,3)*Power(o1 - o2,6) + 16*Power(b2,4)*Power(o1 - o2,8))*(o1 - o2) +
+                    12*Power(b1,6)*(25 - 18*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4))*
+                    Power(o1 - o2,3) + 12*Power(b1,7)*Power(o1 - o2,5) +
+                    60*Power(b2,5)*(-2*b2*Power(o1 - o2,3) + 7*(-o1 + o2)))/16.;
+                    break;
+                    
+                case 1:
+                    va =   Complex(0,0.03125)*(60*b1*Power(b2,3)*
+                                               (63 - 7*b2*Power(o1 - o2,2) - 18*Power(b2,2)*Power(o1 - o2,4)) +
+                                               15*Power(b2,4)*(63 + 84*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4)) +
+                                               720*Power(b1,3)*b2*(5.25 - 7*b2*Power(o1 - o2,2) +
+                                                                   5*Power(b2,2)*Power(o1 - o2,4) - Power(b2,3)*Power(o1 - o2,6)) +
+                                               60*Power(b1,2)*Power(b2,2)*(94.5 - 112*b2*Power(o1 - o2,2) +
+                                                                           21*Power(b2,2)*Power(o1 - o2,4) + 4*Power(b2,3)*Power(o1 - o2,6)) +
+                                               5*Power(b1,4)*(189 + 420*b2*Power(o1 - o2,2) - 180*Power(b2,2)*Power(o1 - o2,4) -
+                                                              48*Power(b2,3)*Power(o1 - o2,6) + 16*Power(b2,4)*Power(o1 - o2,8)) -
+                                               4*Power(b1,5)*(-525 + 450*b2*Power(o1 - o2,2) - 156*Power(b2,2)*Power(o1 - o2,4) +
+                                                              16*Power(b2,3)*Power(o1 - o2,6))*Power(o1 - o2,2) -
+                                               12*Power(b1,6)*(-25 + 8*b2*Power(o1 - o2,2))*Power(o1 - o2,4));
+                    break;
+                case 2:
+                    va =(15*b1*Power(b2,3)*(49*o1 - 33*b2*Power(o1 - o2,3) - 2*Power(b2,2)*Power(o1 - o2,5) -
+                                            49*o2) + 30*Power(b2,4)*(14 + 3*b2*Power(o1 - o2,2))*(o1 - o2) +
+                         5*Power(b1,4)*(-105 + 90*b2*Power(o1 - o2,2) - 48*Power(b2,2)*Power(o1 - o2,4) +
+                                        8*Power(b2,3)*Power(o1 - o2,6))*(o1 - o2) -
+                         3*Power(b1,5)*(75 - 38*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4))*
+                         Power(o1 - o2,3) - 6*Power(b1,6)*Power(o1 - o2,5) +
+                         15*Power(b1,2)*Power(b2,2)*(-21*o1 - 24*b2*Power(o1 - o2,3) +
+                                                     14*Power(b2,2)*Power(o1 - o2,5) + 21*o2) +
+                         5*Power(b1,3)*b2*(-231*o1 + 180*b2*Power(o1 - o2,3) -
+                                           24*Power(b2,2)*Power(o1 - o2,5) - 4*Power(b2,3)*Power(o1 - o2,7) + 231*o2))/8.;
+                    break;
+                
+                    
+                case 3:
+                    va =         Complex(0,0.0625)*(-5*Power(b2,3)*
+                                                    (63 + 63*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4)) +
+                                                    5*b1*Power(b2,2)*(-189 + 84*b2*Power(o1 - o2,2) +
+                                                                      38*Power(b2,2)*Power(o1 - o2,4)) -
+                                                    5*Power(b1,2)*b2*(189 - 252*b2*Power(o1 - o2,2) +
+                                                                      80*Power(b2,2)*Power(o1 - o2,4) + 4*Power(b2,3)*Power(o1 - o2,6)) +
+                                                    5*Power(b1,3)*(-63 - 40*Power(b2,2)*Power(o1 - o2,4) +
+                                                                   16*Power(b2,3)*Power(o1 - o2,6)) -
+                                                    5*Power(b1,4)*(105 - 70*b2*Power(o1 - o2,2) + 12*Power(b2,2)*Power(o1 - o2,4))*
+                                                    Power(o1 - o2,2) + 2*Power(b1,5)*(-25 + 4*b2*Power(o1 - o2,2))*Power(o1 - o2,4));
+                    break;
+                    
+                case 4:
+                    va =  ((-60*Power(b2,3)*(7 + b2*Power(o1 - o2,2)) +
+                                   5*b1*Power(b2,2)*(-63 + 78*b2*Power(o1 - o2,2) +
+                                                     2*Power(b2,2)*Power(o1 - o2,4)) +
+                                   15*Power(b1,3)*(35 - 30*b2*Power(o1 - o2,2) + 8*Power(b2,2)*Power(o1 - o2,4)) -
+                                   10*Power(b1,2)*b2*(-63 + 15*b2*Power(o1 - o2,2) +
+                                                      8*Power(b2,2)*Power(o1 - o2,4)) -
+                                   10*Power(b1,4)*(-15 + 4*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+                                   2*Power(b1,5)*Power(o1 - o2,4))*(o1 - o2))/32.;
+                    break;
+                case 5:
+                    va =   Complex(0,0.015625)*(Power(b2,2)*
+                                               (189 + 126*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4)) -
+                                               2*b1*b2*(-189 + 147*b2*Power(o1 - o2,2) + 20*Power(b2,2)*Power(o1 - o2,4)) +
+                                               3*Power(b1,2)*(63 - 70*b2*Power(o1 - o2,2) + 40*Power(b2,2)*Power(o1 - o2,4)) -
+                                               10*Power(b1,3)*(-21 + 8*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+                                               10*Power(b1,4)*Power(o1 - o2,4));
+                    break;
+                    
+                case 6:
+                    va = -((-2*Power(b2,2)*(14 + b2*Power(o1 - o2,2)) -
+                           5*Power(b1,2)*(-7 + 4*b2*Power(o1 - o2,2)) +
+                           b1*b2*(7 + 15*b2*Power(o1 - o2,2)) + 5*Power(b1,3)*Power(o1 - o2,2))*(o1 - o2))/
+                    32.;
+                    
+                case 7:
+                    va = Complex(0,-0.015625)*(b1*(9 - 10*b2*Power(o1 - o2,2)) +
+                                              3*b2*(3 + b2*Power(o1 - o2,2)) + 5*Power(b1,2)*Power(o1 - o2,2));
+                    break;
+                case 8:
+                    va =((5*b1 - 4*b2)*(o1 - o2))/256.;
+                    break;
+                case 9:
+                    va =Complex(0,0.001953125);
+                    break;
+            }
+        }
+    
+    
+//    {(1/32)*(-60*(2*b2*(o1 - o2)*(o1 - o2)- 5)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*b1*b1*b1*b1*b1*b1*b1 -
+//             20*(8*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 48*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//                 105*b2*(o1 - o2)*(o1 - o2) - 105)*(o1 - o2)*(o1 - o2)*b1*b1*b1*b1*b1*b1 +
+//             (-32*b2*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 240*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//              120*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 2100*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//              3150*b2*(o1 - o2)*(o1 - o2) + 945)*b1*b1*b1*b1*b1 +
+//             15*b2*(16*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 160*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//                    420*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 420*b2*(o1 - o2)*(o1 - o2) + 315)*b1*b1*b1*b1 -
+//             10*b2*b2*(16*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 12*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                      630*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 1470*b2*(o1 - o2)*(o1 - o2) - 945)*
+//             b1*b1*b1 +
+//             30*b2*b2*b2*(32*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 70*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                      210*b2*(o1 - o2)*(o1 - o2) + 315)*b1*b1 -
+//             15*b2*b2*b2*b2*(8*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 140*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                      210*b2*(o1 - o2)*(o1 - o2) - 315)*b1 +
+//             300*b2*b2*b2*b2*b2*(b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 7*b2*(o1 - o2)*(o1 - o2) + 63/20)),
+//        (1/32)*-5*I*(-12*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*b1*b1*b1*b1*b1*b1*b1 -
+//                     12*(4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 23*b2*(o1 - o2)*(o1 - o2) + 35)*(o1 - o2)*(o1 - o2)*(o1 - o2)*
+//                     b1*b1*b1*b1*b1*b1 - (16*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 192*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//                             612*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 840*b2*(o1 - o2)*(o1 - o2) + 945)*(o1 -
+//                                                                               o2)*
+//                     b1*b1*b1*b1*b1 + b2*(16*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 900*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//                                2940*b2*(o1 - o2)*(o1 - o2) - 2835)*(o1 - o2)*b1*b1*b1*b1 +
+//                     6*(-32*b2*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 150*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                        315*b2*b2*(o1 - o2))*b1*b1*b1 -
+//                     6*b2*b2*b2*(-8*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                             102*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 490*b2*(o1 - o2)*(o1 - o2) - 315)*(o1 -
+//                                                                               o2)*
+//                     b1*b1 -
+//                     3*b2*b2*b2*b2*(92*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 280*b2*(o1 - o2)*(o1 - o2) - 945)*
+//                     (o1 - o2)*b1 + 3*b2*b2*b2*b2*b2*(4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//                                            140*b2*(o1 - o2)*(o1 - o2)*(o1 - o2) + 315*o1 - 315*o2)),
+//        (5/64)*(12*(4*b2*(o1 - o2)*(o1 - o2) - 15)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*b1*b1*b1*b1*b1*b1 +
+//                16*(2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 27*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//                    90*b2*(o1 - o2)*(o1 - o2) - 105)*(o1 - o2)*(o1 - o2)*b1*b1*b1*b1*b1 +
+//                5*(-16*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 96*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                   36*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 168*b2*o1*o1 - 168*b2*o2*o2 +
+//                   336*b2*o1*o2 - 189)*b1*b1*b1*b1 - 4*b2*(-8*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                                                    120*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 900*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                                                    1470*b2*o1*o1 -
+//                                                    1470*b2*o2*o2 + 2940*b2*o1*o2 + 945)*b1*b1*b1 +
+//                6*b2*(-72*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 30*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//                        980*b2*o1*o1 + 980*b2*o2*o2 - 1960*b2*o1*o2 - 945)*b1*b1 -
+//                12*b2*b2*b2*(-4*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 120*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//                         70*b2*o1*o1 + 70*b2*o2*o2 - 140*b2*o1*o2 + 315)*b1 +
+//                15*b2*b2*b2*b2*(-12*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 112*b2*(o1 - o2)*(o1 - o2) - 63)),
+//        (1/16)*-5*I*(2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*b1*b1*b1*b1*b1*b1 +
+//                     (4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 48*b2*(o1 - o2)*(o1 - o2) + 105)*(o1 - o2)*
+//                     b1*b1*b1*b1*b1 - 5*(4*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 30*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//                               63*b2*(o1 - o2)*(o1 - o2) - 63)*b1*b1*b1*b1 +
+//                     10*b2*(2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 42*b2*(o1 - o2)*(o1 - o2) + 63)*b1*b1*b1 -
+//                     2*b2*b2*b2*(2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 75*b2*(o1 - o2)*(o1 - o2) - 210)*
+//                     (o1 - o2)*(o1 - o2)*b1*b1 + 3*b2*b2*b2*(16*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//                                                105*b2*(o1 - o2)*(o1 - o2) - 210)*b1 -
+//                     b2*b2*b2*b2*(2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 105*b2*(o1 - o2)*(o1 - o2) + 315))*
+//        (o1 - o2), (1/64)*-5*(2*(2*b2*(o1 - o2)*(o1 - o2) - 15)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*
+//                              b1*b1*b1*b1*b1 - 10*(4*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 27*b2*(o1 - o2)*(o1 - o2) + 42)*
+//                              (o1 - o2)*(o1 - o2)*b1*b1*b1*b1 + 5*(16*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                                                    60*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 42*b2*(o1 - o2)*(o1 - o2) - 63)*b1*b1*b1 -
+//                              5*b2*(8*b2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 60*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                                    252*b2*(o1 - o2)*(o1 - o2) + 189)*b1*b1 +
+//                              b2*b2*(4*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 270*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) +
+//                                    210*b2*(o1 - o2)*(o1 - o2) - 945)*b1 -
+//                              15*b2*b2*b2*(2*b2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 28*b2*(o1 - o2)*(o1 - o2) + 21)),
+//        (1/64)*I*(b1 - b2)*(2*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                            6*b1*b1*b1*(8*b2*(o1 - o2)*(o1 - o2) - 35)*(o1 - o2)*(o1 - o2) +
+//                            b2*b2*(2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 210*b2*(o1 - o2)*(o1 - o2) + 945) -
+//                            6*b1*b2*(8*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 105*b2*(o1 - o2)*(o1 - o2) - 315) +
+//                            b1*b1*(152*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 630*b2*(o1 - o2)*(o1 - o2) + 945))*
+//        (o1 - o2), (1/128)*-5*(2*b1*b1*b1*b1*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) -
+//                               4*b1*b1*b1*(5*b2*(o1 - o2)*(o1 - o2) - 14)*(o1 - o2)*(o1 - o2) +
+//                               b2*b2*(2*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) + 56*b2*(o1 - o2)*(o1 - o2) + 63) -
+//                               2*b1*b2*(10*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2)+ 42*b2*(o1 - o2)*(o1 - o2) - 63) +
+//                               b1*b1*(40*b2*b2*(o1 - o2)*(o1 - o2)*(o1 - o2)*(o1 - o2) - 84*b2*(o1 - o2)*(o1 - o2) + 63)),
+//        (1/64)*-5*I*(b1 - b2)*(b1*b1*(o1 - o2)*(o1 - o2) +
+//                               b2*(b2*(o1 - o2)*(o1 - o2) + 9) + b1*(9 - 4*b2*(o1 - o2)*(o1 - o2)))*(o1 -
+//                                                                                     o2),
+//        (5/512)*(4*b1*b1*(o1 - o2)*(o1 - o2) + b2*(4*b2*(o1 - o2)*(o1 - o2) + 9) +
+//                 b1*(9 - 10*b2*(o1 - o2)*(o1 - o2))), (5/512)*I*(b1 - b2)*(o1 - o2),
+//        -(1/1024)}
+    
+        else if ( l1 == 5 && l2 == 5 ){
+            switch ( lambda1 ) {
+                case 0:
+                    va = (300*Power(b2,5)*(3.15 + 7*b2*Power(o1 - o2,2) + Power(b2,2)*Power(o1 - o2,4)) -
+                          15*b1*Power(b2,4)*(-315 - 210*b2*Power(o1 - o2,2) +
+                                             140*Power(b2,2)*Power(o1 - o2,4) + 8*Power(b2,3)*Power(o1 - o2,6)) +
+                          30*Power(b1,2)*Power(b2,3)*(315 - 210*b2*Power(o1 - o2,2) -
+                                                      70*Power(b2,2)*Power(o1 - o2,4) + 32*Power(b2,3)*Power(o1 - o2,6)) +
+                          15*Power(b1,4)*b2*(315 - 420*b2*Power(o1 - o2,2) +
+                                             420*Power(b2,2)*Power(o1 - o2,4) - 160*Power(b2,3)*Power(o1 - o2,6) +
+                                             16*Power(b2,4)*Power(o1 - o2,8)) -
+                          10*Power(b1,3)*Power(b2,2)*(-945 + 1470*b2*Power(o1 - o2,2) -
+                                                      630*Power(b2,2)*Power(o1 - o2,4) + 12*Power(b2,3)*Power(o1 - o2,6) +
+                                                      16*Power(b2,4)*Power(o1 - o2,8)) +
+                          Power(b1,5)*(945 + 3150*b2*Power(o1 - o2,2) - 2100*Power(b2,2)*Power(o1 - o2,4) -
+                                       120*Power(b2,3)*Power(o1 - o2,6) + 240*Power(b2,4)*Power(o1 - o2,8) -
+                                       32*Power(b2,5)*Power(o1 - o2,10)) -
+                          20*Power(b1,6)*(-105 + 105*b2*Power(o1 - o2,2) - 48*Power(b2,2)*Power(o1 - o2,4) +
+                                          8*Power(b2,3)*Power(o1 - o2,6))*Power(o1 - o2,2) -
+                          60*Power(b1,7)*(-5 + 2*b2*Power(o1 - o2,2))*Power(o1 - o2,4))/32.;
+                    break;
+                    
+                case 1:
+                    va = Complex(0,-0.15625)*(6*Power(b1,3)*(-315*Power(b2,2)*(o1 - o2) +
+                                                             150*Power(b2,4)*Power(o1 - o2,5) - 32*Power(b2,5)*Power(o1 - o2,7)) +
+                                              3*Power(b2,5)*(315*o1 + 140*b2*Power(o1 - o2,3) + 4*Power(b2,2)*Power(o1 - o2,5) -
+                                                             315*o2) - 3*b1*Power(b2,4)*(-945 + 280*b2*Power(o1 - o2,2) +
+                                                                                         92*Power(b2,2)*Power(o1 - o2,4))*(o1 - o2) -
+                                              6*Power(b1,2)*Power(b2,3)*(-315 + 490*b2*Power(o1 - o2,2) -
+                                                                         102*Power(b2,2)*Power(o1 - o2,4) - 8*Power(b2,3)*Power(o1 - o2,6))*(o1 - o2) +
+                                              Power(b1,4)*b2*(-2835 + 2940*b2*Power(o1 - o2,2) -
+                                                              900*Power(b2,2)*Power(o1 - o2,4) + 16*Power(b2,4)*Power(o1 - o2,8))*(o1 - o2) -
+                                              Power(b1,5)*(945 - 840*b2*Power(o1 - o2,2) + 612*Power(b2,2)*Power(o1 - o2,4) -
+                                                           192*Power(b2,3)*Power(o1 - o2,6) + 16*Power(b2,4)*Power(o1 - o2,8))*(o1 - o2) -
+                                              12*Power(b1,6)*(35 - 23*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4))*
+                                              Power(o1 - o2,3) - 12*Power(b1,7)*Power(o1 - o2,5));
+                    break;
+                case 2:
+                    va =(5*(15*Power(b2,4)*(-63 - 112*b2*Power(o1 - o2,2) - 12*Power(b2,2)*Power(o1 - o2,4)) +
+                            16*Power(b1,5)*(-105 + 90*b2*Power(o1 - o2,2) - 27*Power(b2,2)*Power(o1 - o2,4) +
+                                            2*Power(b2,3)*Power(o1 - o2,6))*Power(o1 - o2,2) +
+                            12*Power(b1,6)*(-15 + 4*b2*Power(o1 - o2,2))*Power(o1 - o2,4) -
+                            4*Power(b1,3)*b2*(945 - 1470*b2*Power(o1,2) + 900*Power(b2,2)*Power(o1 - o2,4) -
+                                              120*Power(b2,3)*Power(o1 - o2,6) - 8*Power(b2,4)*Power(o1 - o2,8) +
+                                              2940*b2*o1*o2 - 1470*b2*Power(o2,2)) +
+                            5*Power(b1,4)*(-189 - 168*b2*Power(o1,2) - 36*Power(b2,2)*Power(o1 - o2,4) +
+                                           96*Power(b2,3)*Power(o1 - o2,6) - 16*Power(b2,4)*Power(o1 - o2,8) +
+                                           336*b2*o1*o2 - 168*b2*Power(o2,2)) -
+                            12*b1*Power(b2,3)*(315 + 70*b2*Power(o1,2) - 120*Power(b2,2)*Power(o1 - o2,4) -
+                                               4*Power(b2,3)*Power(o1 - o2,6) - 140*b2*o1*o2 + 70*b2*Power(o2,2)) +
+                            6*Power(b1,2)*Power(b2,2)*(-945 + 980*b2*Power(o1,2) -
+                                                       30*Power(b2,2)*Power(o1 - o2,4) - 72*Power(b2,3)*Power(o1 - o2,6) -
+                                                       1960*b2*o1*o2 + 980*b2*Power(o2,2))))/64.;
+                    break;
+                    
+                case 3:
+                    va =Complex(0,-0.3125)*(-(Power(b2,4)*(315 + 105*b2*Power(o1 - o2,2) +
+                                                           2*Power(b2,2)*Power(o1 - o2,4))) +
+                                            3*b1*Power(b2,3)*(-210 + 105*b2*Power(o1 - o2,2) +
+                                                              16*Power(b2,2)*Power(o1 - o2,4)) +
+                                            10*Power(b1,3)*b2*(63 - 42*b2*Power(o1 - o2,2) + 2*Power(b2,3)*Power(o1 - o2,6)) -
+                                            5*Power(b1,4)*(-63 + 63*b2*Power(o1 - o2,2) - 30*Power(b2,2)*Power(o1 - o2,4) +
+                                                           4*Power(b2,3)*Power(o1 - o2,6)) -
+                                            2*Power(b1,2)*Power(b2,3)*(-210 + 75*b2*Power(o1 - o2,2) +
+                                                                       2*Power(b2,2)*Power(o1 - o2,4))*Power(o1 - o2,2) +
+                                            Power(b1,5)*(105 - 48*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4))*
+                                            Power(o1 - o2,2) + 2*Power(b1,6)*Power(o1 - o2,4))*(o1 - o2);
+                    break;
+                    
+                case 4:
+                    va =(-5*(-15*Power(b2,3)*(21 + 28*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4)) +
+                             b1*Power(b2,2)*(-945 + 210*b2*Power(o1 - o2,2) +
+                                             270*Power(b2,2)*Power(o1 - o2,4) + 4*Power(b2,3)*Power(o1 - o2,6)) -
+                             5*Power(b1,2)*b2*(189 - 252*b2*Power(o1 - o2,2) +
+                                               60*Power(b2,2)*Power(o1 - o2,4) + 8*Power(b2,3)*Power(o1 - o2,6)) +
+                             5*Power(b1,3)*(-63 + 42*b2*Power(o1 - o2,2) - 60*Power(b2,2)*Power(o1 - o2,4) +
+                                            16*Power(b2,3)*Power(o1 - o2,6)) -
+                             10*Power(b1,4)*(42 - 27*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4))*
+                             Power(o1 - o2,2) + 2*Power(b1,5)*(-15 + 2*b2*Power(o1 - o2,2))*Power(o1 - o2,4)))
+                    /64.;
+                    break;
+                    
+                case 5:
+                    va =Complex(0,0.015625)*(b1 - b2)*(Power(b2,2)*
+                                                       (945 + 210*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4)) -
+                                                       6*b1*b2*(-315 + 105*b2*Power(o1 - o2,2) + 8*Power(b2,2)*Power(o1 - o2,4)) +
+                                                       Power(b1,2)*(945 - 630*b2*Power(o1 - o2,2) + 152*Power(b2,2)*Power(o1 - o2,4)) -
+                                                       6*Power(b1,3)*(-35 + 8*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+                                                       2*Power(b1,4)*Power(o1 - o2,4))*(o1 - o2);
+                    break;
+                case 6:
+                    va =(-5*(Power(b2,2)*(63 + 56*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4)) -
+                             2*b1*b2*(-63 + 42*b2*Power(o1 - o2,2) + 10*Power(b2,2)*Power(o1 - o2,4)) +
+                             Power(b1,2)*(63 - 84*b2*Power(o1 - o2,2) + 40*Power(b2,2)*Power(o1 - o2,4)) -
+                             4*Power(b1,3)*(-14 + 5*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+                             2*Power(b1,4)*Power(o1 - o2,4)))/128.;
+                    break;
+                    
+                case 7:
+                    va = Complex(0,-0.078125)*(b1 - b2)*(b1*(9 - 4*b2*Power(o1 - o2,2)) +
+                                                         b2*(9 + b2*Power(o1 - o2,2)) + Power(b1,2)*Power(o1 - o2,2))*(o1 - o2);
+                    break;
+                case 8:
+                    va =(5*(b1*(9 - 10*b2*Power(o1 - o2,2)) + b2*(9 + 4*b2*Power(o1 - o2,2)) +
+                            4*Power(b1,2)*Power(o1 - o2,2)))/512.;
+                    break;
+                case 9:
+                    va =Complex(0,0.009765625)*(b1 - b2)*(o1 - o2);
+                    break;
+                    
+                case 10:
+                    va = -0.0009765625;
+                    break;
+            }
+       }
+//            else if ( l1 == 0 && l2 == 6 ){
+//            switch ( lambda1 ) {
+//                case 0:
+//                    va = (45*b1*Power(b2,2) + 15*Power(b2,3) + 45*Power(b1,2)*b2*(1 + 2*b2*Power(o1 - o2,2)) +
+//                          15*Power(b1,3)*(1 + 12*b2*Power(o1 - o2,2)) +
+//                          30*Power(b1,4)*(3 + 2*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+//                          60*Power(b1,5)*Power(o1 - o2,4) + 8*Power(b1,6)*Power(o1 - o2,6))/8.;
+//                    break;
+//
+//                case 1:
+//                    va = Complex(0,0.75)*b1*(30*b1*b2 + 15*Power(b2,2) +
+//                                             5*Power(b1,2)*(3 + 4*b2*Power(o1 - o2,2)) + 20*Power(b1,3)*Power(o1 - o2,2) +
+//                                             4*Power(b1,4)*Power(o1 - o2,4))*(o1 - o2);
+//                    break;
+//                case 2:
+//                    va =(-15*(6*b1*b2 + 3*Power(b2,2) + 3*Power(b1,2)*(1 + 4*b2*Power(o1 - o2,2)) +
+//                              12*Power(b1,3)*Power(o1 - o2,2) + 4*Power(b1,4)*Power(o1 - o2,4)))/16.;
+//                    break;
+//
+//                case 3:
+//                    va =Complex(0,-1.25)*b1*(3*b1 + 3*b2 + 2*Power(b1,2)*Power(o1 - o2,2))*(o1 - o2);
+//                    break;
+//
+//                case 4:
+//                    va =(15*(b1 + b2 + 2*Power(b1,2)*Power(o1 - o2,2)))/32.;
+//                    break;
+//
+//                case 5:
+//                    va =Complex(0,0.1875)*b1*(o1 - o2);
+//                    break;
+//                case 6:
+//                    va =-0.015625;
+//                    break;
+//            }
+//        }
+//
+//            else if ( l1 == 1 && l2 == 6 ){
+//                switch ( lambda1 ) {
+//                    case 0:
+//                        va = -((-45*b1*Power(b2,3) + 15*Power(b2,4) +
+//                                45*Power(b1,2)*Power(b2,2)*(-5 + 2*b2*Power(o1 - o2,2)) +
+//                                15*Power(b1,3)*b2*(-17 + 4*b2*Power(o1 - o2,2)) +
+//                                30*Power(b1,4)*(-3 - 5*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4)) +
+//                                12*Power(b1,5)*(-10 + 3*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+//                                8*Power(b1,6)*(-3 + b2*Power(o1 - o2,2))*Power(o1 - o2,4))*(o1 - o2))/8.;
+//                        break;
+//
+//                    case 1:
+//                        va = Complex(0,0.0625)*(105*Power(b2,3) + 45*Power(b1,2)*b2*(7 + 2*b2*Power(o1 - o2,2)) -
+//                                                45*b1*Power(b2,2)*(-7 + 4*b2*Power(o1 - o2,2)) -
+//                                                15*Power(b1,3)*(-7 - 48*b2*Power(o1 - o2,2) + 16*Power(b2,2)*Power(o1 - o2,4)) -
+//                                                30*Power(b1,4)*(-15 + 2*b2*Power(o1 - o2,2))*Power(o1 - o2,2) -
+//                                                12*Power(b1,5)*(-15 + 4*b2*Power(o1 - o2,2))*Power(o1 - o2,4) +
+//                                                8*Power(b1,6)*Power(o1 - o2,6));
+//                        break;
+//                    case 2:
+//                        va =(-3*(60*b1*Power(b2,2) - 15*Power(b2,3) + 10*Power(b1,3)*(9 + 2*b2*Power(o1 - o2,2)) -
+//                                 15*Power(b1,2)*b2*(-11 + 4*b2*Power(o1 - o2,2)) -
+//                                 20*Power(b1,4)*(-4 + b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+//                                 8*Power(b1,5)*Power(o1 - o2,4))*(o1 - o2))/16.;
+//                        break;
+//
+//                    case 3:
+//                        va =Complex(0,-0.15625)*(21*Power(b2,2) - 6*b1*b2*(-7 + 4*b2*Power(o1 - o2,2)) +
+//                                                 3*Power(b1,2)*(7 + 12*b2*Power(o1 - o2,2)) -
+//                                                 4*Power(b1,3)*(-15 + 4*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+//                                                 12*Power(b1,4)*Power(o1 - o2,4));
+//                        break;
+//
+//                    case 4:
+//                        va =(5*(15*b1*b2 - 3*Power(b2,2) - 6*Power(b1,2)*(-3 + b2*Power(o1 - o2,2)) +
+//                                8*Power(b1,3)*Power(o1 - o2,2))*(o1 - o2))/32.;
+//                        break;
+//
+//                    case 5:
+//                        va =Complex(0,0.046875)*(7*b2 + b1*(7 - 4*b2*Power(o1 - o2,2)) +
+//                                                 10*Power(b1,2)*Power(o1 - o2,2));
+//                        break;
+//                    case 6:
+//                        va =-((6*b1 - b2)*(o1 - o2))/64.;
+//                        break;
+//
+//                    case 7:
+//                        va =Complex(0,-0.0078125);
+//                        break;
+//
+//                }
+//            }
+//
+//
+//            else if ( l1 == 2 && l2 == 6 ){
+//                switch ( lambda1 ) {
+//                    case 0:
+//                        va = (420*b1*Power(b2,3) + 105*Power(b2,4) - 270*b1*Power(b2,4)*Power(o1,2) +
+//                              60*Power(b1,3)*b2*(7 + 5*b2*Power(o1 - o2,2) - 2*Power(b2,2)*Power(o1 - o2,4)) +
+//                              90*Power(b1,2)*Power(b2,2)*(7 - 6*b2*Power(o1 - o2,2) +
+//                                                          2*Power(b2,2)*Power(o1 - o2,4)) +
+//                              15*Power(b1,4)*(7 + 66*b2*Power(o1 - o2,2) - 40*Power(b2,2)*Power(o1 - o2,4) +
+//                                              8*Power(b2,3)*Power(o1 - o2,6)) + 30*Power(b2,5)*Power(o1 - o2,2) +
+//                              6*Power(b1,5)*(75 - 20*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4))*
+//                              Power(o1 - o2,2) + 4*Power(b1,6)*
+//                              (45 - 22*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4))*Power(o1 - o2,4) +
+//                              8*Power(b1,7)*Power(o1 - o2,6) + 540*b1*Power(b2,4)*o1*o2 -
+//                              270*b1*Power(b2,4)*Power(o2,2))/16.;
+//                        break;
+//
+//                    case 1:
+//                        va = Complex(0,-0.125)*(105*Power(b2,4)*(o1 - o2) +
+//                                                15*Power(b1,4)*(-21 - 10*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4))*
+//                                                (o1 - o2) - 90*b1*Power(b2,4)*Power(o1 - o2,3) -
+//                                                12*Power(b1,5)*(25 - 12*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4))*
+//                                                Power(o1 - o2,3) + 4*Power(b1,6)*(-9 + 2*b2*Power(o1 - o2,2))*Power(o1 - o2,5) +
+//                                                90*Power(b1,2)*Power(b2,2)*(3*b2*Power(o1 - o2,3) + 7*(-o1 + o2)) +
+//                                                120*Power(b1,3)*((17*Power(b2,2)*Power(o1 - o2,3))/4. -
+//                                                                 Power(b2,3)*Power(o1 - o2,5) + 7*b2*(-o1 + o2)));
+//                        break;
+//                    case 2:
+//                        va =(-15*Power(b2,3)*(14 + 3*b2*Power(o1 - o2,2)) +
+//                             90*b1*Power(b2,2)*(-7 + 5*b2*Power(o1 - o2,2)) -
+//                             90*Power(b1,2)*b2*(7 - 4*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4)) +
+//                             30*Power(b1,3)*(-7 - 27*b2*Power(o1 - o2,2) + 10*Power(b2,2)*Power(o1 - o2,4)) -
+//                             15*Power(b1,4)*(45 - 20*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4))*
+//                             Power(o1 - o2,2) + 12*Power(b1,5)*(-15 + 4*b2*Power(o1 - o2,2))*Power(o1 - o2,4) -
+//                             4*Power(b1,6)*Power(o1 - o2,6))/16.;
+//                        break;
+//
+//                    case 3:
+//                        va =Complex(0,-0.0625)*(-105*Power(b2,3) + 15*b1*Power(b2,2)*(7 + 4*b2*Power(o1 - o2,2)) -
+//                                                15*Power(b1,2)*b2*(-35 + 16*b2*Power(o1 - o2,2)) +
+//                                                5*Power(b1,3)*(63 - 20*b2*Power(o1 - o2,2) + 8*Power(b2,2)*Power(o1 - o2,4)) -
+//                                                20*Power(b1,4)*(-10 + 3*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+//                                                12*Power(b1,5)*Power(o1 - o2,4))*(o1 - o2);
+//                        break;
+//
+//                    case 4:
+//                        va =(5*(3*b1*b2*(14 - 11*b2*Power(o1 - o2,2)) + 3*Power(b2,2)*(7 + b2*Power(o1 - o2,2)) +
+//                                3*Power(b1,2)*(7 + 3*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4)) -
+//                                Power(b1,3)*(-45 + 16*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+//                                6*Power(b1,4)*Power(o1 - o2,4)))/32.;
+//                        break;
+//
+//                    case 5:
+//                        va =Complex(0,0.03125)*(-21*Power(b2,2) + Power(b1,2)*(63 - 30*b2*Power(o1 - o2,2)) +
+//                                                6*b1*b2*(7 + b2*Power(o1 - o2,2)) + 20*Power(b1,3)*Power(o1 - o2,2))*(o1 - o2);
+//                        break;
+//                    case 6:
+//                        va =(-(b2*(14 + b2*Power(o1 - o2,2))) + 2*b1*(-7 + 6*b2*Power(o1 - o2,2)) -
+//                             15*Power(b1,2)*Power(o1 - o2,2))/64.;
+//                        break;
+//
+//                    case 7:
+//                        va =Complex(0,-0.015625)*(3*b1 - b2)*(o1 - o2);
+//                        break;
+//                    case 8:
+//                        va =0.00390625;
+//                        break;
+//                }
+//            }
+//            else if ( l1 == 3 && l2 == 6 ){
+//                switch ( lambda1 ) {
+//                    case 0:
+//                        va =(-315*Power(b2,5)*o1 + 2520*Power(b1,3)*Power(b2,2)*(o1 - o2) +
+//                             630*Power(b1,2)*Power(b2,3)*(o1 - o2) - 630*b1*Power(b2,4)*(o1 - o2) +
+//                             6*Power(b1,5)*(105 + 75*b2*Power(o1 - o2,2) - 48*Power(b2,2)*Power(o1 - o2,4) +
+//                                            4*Power(b2,3)*Power(o1 - o2,6))*(o1 - o2) -
+//                             15*Power(b1,4)*b2*(-147 + 114*b2*Power(o1 - o2,2) -
+//                                                48*Power(b2,2)*Power(o1 - o2,4) + 8*Power(b2,3)*Power(o1 - o2,6))*(o1 - o2) -
+//                             1860*Power(b1,3)*Power(b2,3)*Power(o1 - o2,3) +
+//                             180*Power(b1,2)*Power(b2,4)*Power(o1 - o2,3) +
+//                             450*b1*Power(b2,5)*Power(o1 - o2,3) - 30*Power(b2,6)*Power(o1 - o2,3) -
+//                             4*Power(b1,6)*(-150 + 99*b2*Power(o1 - o2,2) - 30*Power(b2,2)*Power(o1 - o2,4) +
+//                                            4*Power(b2,3)*Power(o1 - o2,6))*Power(o1 - o2,3) +
+//                             360*Power(b1,3)*Power(b2,4)*Power(o1 - o2,5) -
+//                             180*Power(b1,2)*Power(b2,5)*Power(o1 - o2,5) -
+//                             24*Power(b1,7)*(-3 + b2*Power(o1 - o2,2))*Power(o1 - o2,5) + 315*Power(b2,5)*o2)/16. ;
+//                        break;
+//
+//                    case 1:
+//                        va = Complex(0,0.09375)*(315*Power(b2,4) -
+//                                                 30*b1*Power(b2,3)*(-42 + 21*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4)) +
+//                                                 60*Power(b1,2)*Power(b2,2)*(31.5 - 35*b2*Power(o1 - o2,2) +
+//                                                                             11*Power(b2,2)*Power(o1 - o2,4)) +
+//                                                 20*Power(b1,3)*b2*(63 - 21*b2*Power(o1 - o2,2) + 24*Power(b2,2)*Power(o1 - o2,4) -
+//                                                                    8*Power(b2,3)*Power(o1 - o2,6)) +
+//                                                 5*Power(b1,4)*(63 + 378*b2*Power(o1 - o2,2) - 240*Power(b2,2)*Power(o1 - o2,4) +
+//                                                                40*Power(b2,3)*Power(o1 - o2,6)) + 210*Power(b2,5)*Power(o1 - o2,2) -
+//                                                 2*Power(b1,5)*(-525 + 300*b2*Power(o1 - o2,2) - 108*Power(b2,2)*Power(o1 - o2,4) +
+//                                                                16*Power(b2,3)*Power(o1 - o2,6))*Power(o1 - o2,2) +
+//                                                 4*Power(b1,6)*(75 - 34*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4))*
+//                                                 Power(o1 - o2,4) + 8*Power(b1,7)*Power(o1 - o2,6));
+//                        break;
+//                    case 2:
+//                        va =(3*(210*Power(b2,4)*o1 + 15*Power(b2,5)*Power(o1,3) -
+//                                30*Power(b1,2)*Power(b2,2)*(21*o1 - 5*b2*Power(o1 - o2,3) -
+//                                                            2*Power(b2,2)*Power(o1 - o2,5) - 21*o2) -
+//                                30*b1*Power(b2,3)*(-7 + 8*b2*Power(o1 - o2,2))*(o1 - o2) +
+//                                5*Power(b1,4)*(-84 + 15*b2*Power(o1 - o2,2) - 12*Power(b2,2)*Power(o1 - o2,4) +
+//                                               4*Power(b2,3)*Power(o1 - o2,6))*(o1 - o2) -
+//                                12*Power(b1,5)*(25 - 13*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4))*
+//                                Power(o1 - o2,3) + 4*Power(b1,6)*(-6 + b2*Power(o1 - o2,2))*Power(o1 - o2,5) -
+//                                210*Power(b2,4)*o2 - 45*Power(b2,5)*Power(o1,2)*o2 +
+//                                45*Power(b2,5)*o1*Power(o2,2) - 15*Power(b2,5)*Power(o2,3) +
+//                                30*Power(b1,3)*b2*(-35*o1 + 26*b2*Power(o1 - o2,3) -
+//                                                   6*Power(b2,2)*Power(o1 - o2,5) + 35*o2)))/16.;
+//                        break;
+//
+//                    case 3:
+//                        va =Complex(0,-0.03125)*(315*Power(b2,3)*(2 + b2*Power(o1 - o2,2)) -
+//                                                 30*b1*Power(b2,2)*(-63 + 42*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4)) +
+//                                                 30*Power(b1,2)*b2*(63 - 63*b2*Power(o1 - o2,2) + 26*Power(b2,2)*Power(o1 - o2,4)) -
+//                                                 10*Power(b1,3)*(-63 - 126*b2*Power(o1 - o2,2) + 30*Power(b2,2)*Power(o1 - o2,4) +
+//                                                                 8*Power(b2,3)*Power(o1 - o2,6)) +
+//                                                 45*Power(b1,4)*(35 - 20*b2*Power(o1 - o2,2) + 4*Power(b2,2)*Power(o1 - o2,4))*
+//                                                 Power(o1 - o2,2) - 12*Power(b1,5)*(-25 + 6*b2*Power(o1 - o2,2))*Power(o1 - o2,4) +
+//                                                 4*Power(b1,6)*Power(o1 - o2,6));
+//                        break;
+//
+//                    case 4:
+//                        va =(3*(-5*Power(b2,3)*(21 + b2*Power(o1 - o2,2)) -
+//                                5*Power(b1,2)*b2*(-63 + 27*b2*Power(o1 - o2,2) +
+//                                                  2*Power(b2,2)*Power(o1 - o2,4)) +
+//                                5*Power(b1,3)*(42 - 25*b2*Power(o1 - o2,2) + 8*Power(b2,2)*Power(o1 - o2,4)) +
+//                                85*b1*Power(b2,3)*Power(o1 - o2,2) -
+//                                10*Power(b1,4)*(-10 + 3*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+//                                4*Power(b1,5)*Power(o1 - o2,4))*(o1 - o2))/32.;
+//                        break;
+//
+//                    case 5:
+//                        va =Complex(0,0.046875)*(21*Power(b2,2)*(3 + b2*Power(o1 - o2,2)) +
+//                                                 b1*b2*(126 - 105*b2*Power(o1 - o2,2) - 4*Power(b2,2)*Power(o1 - o2,4)) +
+//                                                 3*Power(b1,2)*(21 - 7*b2*Power(o1 - o2,2) + 10*Power(b2,2)*Power(o1 - o2,4)) -
+//                                                 5*Power(b1,3)*(-21 + 8*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+//                                                 10*Power(b1,4)*Power(o1 - o2,4));
+//                        break;
+//                    case 6:
+//                        va =-((Power(b1,2)*(84 - 45*b2*Power(o1 - o2,2)) - Power(b2,2)*(42 + b2*Power(o1 - o2,2)) +
+//                               6*b1*b2*(7 + 3*b2*Power(o1 - o2,2)) + 20*Power(b1,3)*Power(o1 - o2,2))*(o1 - o2))
+//                        /64.;
+//                        break;
+//
+//                    case 7:
+//                        va =Complex(0,-0.0234375)*(-6*b1*(-1 + b2*Power(o1 - o2,2)) + b2*(6 + b2*Power(o1 - o2,2)) +
+//                                                   5*Power(b1,2)*Power(o1 - o2,2));
+//                        break;
+//                    case 8:
+//                        va =(3*(2*b1 - b2)*(o1 - o2))/256.;
+//                        break;
+//                    case 9:
+//                        va =Complex(0,0.001953125);
+//                        break;
+//
+//                }
+//            }
+//            else if ( l1 == 4 && l2 == 6 ){
+//                switch ( lambda1 ) {
+//                    case 0:
+//                        va = (945*Power(b2,5) + 1260*b1*Power(b2,4)*(3.75 - Power(b2,2)*Power(o1 - o2,4)) +
+//                              30*Power(b1,3)*Power(b2,2)*(315 - 420*b2*Power(o1 - o2,2) +
+//                                                          238*Power(b2,2)*Power(o1 - o2,4) - 40*Power(b2,3)*Power(o1 - o2,6)) +
+//                              90*Power(b1,2)*Power(b2,3)*(105 - 105*b2*Power(o1 - o2,2) +
+//                                                          14*Power(b2,2)*Power(o1 - o2,4) + 4*Power(b2,3)*Power(o1 - o2,6)) +
+//                              3*Power(b1,5)*(315 + 2520*b2*Power(o1 - o2,2) - 2100*Power(b2,2)*Power(o1 - o2,4) +
+//                                             608*Power(b2,3)*Power(o1 - o2,6) - 48*Power(b2,4)*Power(o1 - o2,8)) +
+//                              15*Power(b1,4)*b2*(315 + 84*Power(b2,2)*Power(o1 - o2,4) -
+//                                                 88*Power(b2,3)*Power(o1 - o2,6) + 16*Power(b2,4)*Power(o1 - o2,8)) +
+//                              1260*Power(b2,6)*Power(o1 - o2,2) +
+//                              2*Power(b1,6)*(1575 - 1050*b2*Power(o1 - o2,2) + 516*Power(b2,2)*Power(o1 - o2,4) -
+//                                             144*Power(b2,3)*Power(o1 - o2,6) + 16*Power(b2,4)*Power(o1 - o2,8))*
+//                              Power(o1 - o2,2) + 60*Power(b2,7)*Power(o1 - o2,4) +
+//                              12*Power(b1,7)*(75 - 44*b2*Power(o1 - o2,2) + 8*Power(b2,2)*Power(o1 - o2,4))*
+//                              Power(o1 - o2,4) + 24*Power(b1,8)*Power(o1 - o2,6))/32.;
+//                        break;
+//
+//                    case 1:
+//                        va = Complex(0,-0.0625)*(1890*Power(b2,5)*(o1 - o2) +
+//                                                 30*Power(b1,3)*Power(b2,2)*(-315 + 196*b2*Power(o1 - o2,2) -
+//                                                                             6*Power(b2,2)*Power(o1 - o2,4) - 8*Power(b2,3)*Power(o1 - o2,6))*(o1 - o2) +
+//                                                 30*Power(b1,4)*b2*(-315 + 294*b2*Power(o1 - o2,2) -
+//                                                                    120*Power(b2,2)*Power(o1 - o2,4) + 16*Power(b2,3)*Power(o1 - o2,6))*(o1 - o2) -
+//                                                 3*Power(b1,5)*(945 + 60*Power(b2,2)*Power(o1 - o2,4) -
+//                                                                96*Power(b2,3)*Power(o1 - o2,6) + 16*Power(b2,4)*Power(o1 - o2,8))*(o1 - o2) +
+//                                                 420*Power(b2,6)*Power(o1 - o2,3) -
+//                                                 1440*Power(b1,2)*Power(b2,4)*(2.625 - b2*Power(o1 - o2,2))*Power(o1 - o2,3) +
+//                                                 4*Power(b1,6)*(-525 + 360*b2*Power(o1 - o2,2) - 96*Power(b2,2)*Power(o1 - o2,4) +
+//                                                                8*Power(b2,3)*Power(o1 - o2,6))*Power(o1 - o2,3) +
+//                                                 12*Power(b1,7)*(-15 + 4*b2*Power(o1 - o2,2))*Power(o1 - o2,5) -
+//                                                 45*b1*Power(b2,4)*(-105*o1 + 56*b2*Power(o1 - o2,3) +
+//                                                                    4*Power(b2,2)*Power(o1 - o2,5) + 105*o2));
+//                        break;
+//                    case 2:
+//                        va =(3*(-1575*Power(b2,4) - 1680*Power(b2,5)*Power(o1,2) +
+//                                60*b1*Power(b2,3)*(-105 + 28*b2*Power(o1 - o2,2) +
+//                                                   22*Power(b2,2)*Power(o1 - o2,4)) +
+//                                8*Power(b1,5)*(-525 + 375*b2*Power(o1 - o2,2) -
+//                                               132*Power(b2,2)*Power(o1 - o2,4) + 16*Power(b2,3)*Power(o1 - o2,6))*
+//                                Power(o1 - o2,2) - 60*Power(b2,6)*Power(o1 - o2,4) -
+//                                4*Power(b1,6)*(225 - 92*b2*Power(o1 - o2,2) + 8*Power(b2,2)*Power(o1 - o2,4))*
+//                                Power(o1 - o2,4) - 16*Power(b1,7)*Power(o1 - o2,6) + 3360*Power(b2,5)*o1*o2 -
+//                                1680*Power(b2,5)*Power(o2,2) +
+//                                5*Power(b1,4)*(-315 - 1176*b2*Power(o1,2) + 660*Power(b2,2)*Power(o1 - o2,4) -
+//                                               32*Power(b2,3)*Power(o1 - o2,6) - 16*Power(b2,4)*Power(o1 - o2,8) +
+//                                               2352*b2*o1*o2 - 1176*b2*Power(o2,2)) +
+//                                20*Power(b1,3)*b2*(-315 + 294*b2*Power(o1,2) - 228*Power(b2,2)*Power(o1 - o2,4) +
+//                                                   52*Power(b2,3)*Power(o1 - o2,6) - 588*b2*o1*o2 + 294*b2*Power(o2,2)) +
+//                                30*Power(b1,2)*Power(b2,2)*(-315 + 364*b2*Power(o1,2) -
+//                                                            86*Power(b2,2)*Power(o1 - o2,4) - 8*Power(b2,3)*Power(o1 - o2,6) -
+//                                                            728*b2*o1*o2 + 364*b2*Power(o2,2))))/64.;
+//                        break;
+//
+//                    case 3:
+//                        va =Complex(0,-0.125)*(15*Power(b1,4)*(63*(o1 - o2) - 35*b2*Power(o1 - o2,3) +
+//                                                               20*Power(b2,2)*Power(o1 - o2,5) - 4*Power(b2,3)*Power(o1 - o2,7)) +
+//                                               20*Power(b1,3)*((441*b2*(o1 - o2))/4. - 84*Power(b2,2)*Power(o1 - o2,3) +
+//                                                               15*Power(b2,3)*Power(o1 - o2,5) + Power(b2,4)*Power(o1 - o2,7)) -
+//                                               630*Power(b2,4)*(o1 - o2) - 15*Power(b1,2)*Power(b2,2)*
+//                                               (-63 - 14*b2*Power(o1 - o2,2) + 18*Power(b2,2)*Power(o1 - o2,4))*(o1 - o2) -
+//                                               105*Power(b2,5)*Power(o1 - o2,3) +
+//                                               3*Power(b1,5)*(175 - 90*b2*Power(o1 - o2,2) + 12*Power(b2,2)*Power(o1 - o2,4))*
+//                                               Power(o1 - o2,3) - 2*Power(b1,6)*(-15 + 2*b2*Power(o1 - o2,2))*Power(o1 - o2,5) -
+//                                               15*b1*Power(b2,3)*(63*o1 - 49*b2*Power(o1,3) - 2*Power(b2,2)*Power(o1 - o2,5) -
+//                                                                  63*o2 + 147*b2*Power(o1,2)*o2 - 147*b2*o1*Power(o2,2) + 49*b2*Power(o2,3)));
+//                        break;
+//
+//                    case 4:
+//                        va =(15*Power(b2,3)*(105 + 84*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4)) -
+//                             15*b1*Power(b2,2)*(-315 + 168*b2*Power(o1 - o2,2) +
+//                                                46*Power(b2,2)*Power(o1 - o2,4)) +
+//                             15*Power(b1,2)*b2*(315 - 378*b2*Power(o1 - o2,2) +
+//                                                132*Power(b2,2)*Power(o1 - o2,4) + 4*Power(b2,3)*Power(o1 - o2,6)) -
+//                             5*Power(b1,3)*(-315 - 252*b2*Power(o1 - o2,2) - 60*Power(b2,2)*Power(o1 - o2,4) +
+//                                            64*Power(b2,3)*Power(o1 - o2,6)) +
+//                             30*Power(b1,4)*(105 - 65*b2*Power(o1 - o2,2) + 12*Power(b2,2)*Power(o1 - o2,4))*
+//                             Power(o1 - o2,2) - 6*Power(b1,5)*(-75 + 16*b2*Power(o1 - o2,2))*Power(o1 - o2,4) +
+//                             4*Power(b1,6)*Power(o1 - o2,6))/64.;
+//                        break;
+//
+//                    case 5:
+//                        va =Complex(0,0.09375)*(-14*Power(b2,3)*(9 + b2*Power(o1 - o2,2)) +
+//                                                b1*Power(b2,2)*(-63 + 112*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4)) -
+//                                                4*Power(b1,2)*b2*(-63 + 21*b2*Power(o1 - o2,2) + 5*Power(b2,2)*Power(o1 - o2,4)) +
+//                                                Power(b1,3)*(189 - 140*b2*Power(o1 - o2,2) + 40*Power(b2,2)*Power(o1 - o2,4)) -
+//                                                10*Power(b1,4)*(-7 + 2*b2*Power(o1 - o2,2))*Power(o1 - o2,2) +
+//                                                2*Power(b1,5)*Power(o1 - o2,4))*(o1 - o2);
+//                        break;
+//                    case 6:
+//                        va =(-(Power(b2,2)*(315 + 168*b2*Power(o1 - o2,2) + 2*Power(b2,2)*Power(o1 - o2,4))) +
+//                             6*b1*b2*(-105 + 84*b2*Power(o1 - o2,2) + 8*Power(b2,2)*Power(o1 - o2,4)) -
+//                             9*Power(b1,2)*(35 - 28*b2*Power(o1 - o2,2) + 20*Power(b2,2)*Power(o1 - o2,4)) +
+//                             20*Power(b1,3)*(-21 + 8*b2*Power(o1 - o2,2))*Power(o1 - o2,2) -
+//                             30*Power(b1,4)*Power(o1 - o2,4))/128.;
+//                        break;
+//
+//                    case 7:
+//                        va =Complex(0,-0.03125)*(9*b1*b2*(1 + b2*Power(o1 - o2,2)) -
+//                                                 Power(b2,2)*(18 + b2*Power(o1 - o2,2)) -
+//                                                 3*Power(b1,2)*(-9 + 5*b2*Power(o1 - o2,2)) + 5*Power(b1,3)*Power(o1 - o2,2))*
+//                        (o1 - o2);
+//                        break;
+//                    case 8:
+//                        va =(3*(b1*(15 - 16*b2*Power(o1 - o2,2)) + b2*(15 + 4*b2*Power(o1 - o2,2)) +
+//                                10*Power(b1,2)*Power(o1 - o2,2)))/512.;
+//                        break;
+//                    case 9:
+//                        va =Complex(0,0.00390625)*(3*b1 - 2*b2)*(o1 - o2);
+//                        break;
+//
+//                    case 10:
+//                        va =-0.0009765625;
+//                        break;
+//                }
+//            }
+//            else if ( l1 == 5 && l2 == 6 ){
+//                switch ( lambda1 ) {
+//                    case 0:
+//                        va = ;
+//                        break;
+//
+//                    case 1:
+//                        va = ;
+//                        break;
+//                    case 2:
+//                        va =;
+//                        break;
+//
+//                    case 3:
+//                        va =;
+//                        break;
+//
+//                    case 4:
+//                        va =;
+//                        break;
+//
+//                    case 5:
+//                        va =;
+//                        break;
+//                    case 6:
+//                        va =;
+//                        break;
+//
+//                    case 7:
+//                        va =;
+//                        break;
+//                    case 8:
+//                        va =;
+//                        break;
+//                    case 9:
+//                        va =;
+//                        break;
+//
+//                    case 10:
+//                        va =;
+//                        break;
+//                    case 11:
+//                        va =;
+//                        break;
+//                }
+//            }
+//            else if ( l1 == 6 && l2 == 6 ){
+//                switch ( lambda1 ) {
+//                    case 0:
+//                        va = ;
+//                        break;
+//
+//                    case 1:
+//                        va = ;
+//                        break;
+//                    case 2:
+//                        va =;
+//                        break;
+//
+//                    case 3:
+//                        va =;
+//                        break;
+//
+//                    case 4:
+//                        va =;
+//                        break;
+//
+//                    case 5:
+//                        va =;
+//                        break;
+//                    case 6:
+//                        va =;
+//                        break;
+//
+//                    case 7:
+//                        va =;
+//                        break;
+//                    case 8:
+//                        va =;
+//                        break;
+//                    case 9:
+//                        va =;
+//                        break;
+//
+//                    case 10:
+//                        va =;
+//                        break;
+//
+//                    case 11:
+//                        va =;
+//                        break;
+//                    case 12:
+//                        va =;
+//                        break;
+//                }
+//            }
+//
+//            else if ( l1 == 0 && l2 == 7 ){
+//                switch ( lambda1 ) {
+//                    case 0:
+//                        va = ;
+//                        break;
+//
+//                    case 1:
+//                        va = ;
+//                        break;
+//                    case 2:
+//                        va =;
+//                        break;
+//
+//                    case 3:
+//                        va =;
+//                        break;
+//
+//                    case 4:
+//                        va =;
+//                        break;
+//
+//                    case 5:
+//                        va =;
+//                        break;
+//                    case 6:
+//                        va =;
+//                        break;
+//
+//                    case 7:
+//                        va =;
+//                        break;
+//                    case 8:
+//                        va =;
+//                        break;
+//                    case 9:
+//                        va =;
+//                        break;
+//
+//                    case 10:
+//                        va =;
+//                        break;
+//
+//                    case 11:
+//                        va =;
+//                        break;
+//                    case 12:
+//                        va =;
+//                        break;
+//                }
+//            }
+    return va/pow(b1+b2,l1+l2);
+}
+
+DCOMPLEX gauGetPoly( double b1,INT_TYPE l1, double o1, INT_TYPE lambda1 ){
+    DCOMPLEX va = 0.;
+    if ( l1 == 0 ){
+        switch ( lambda1 ) {
+            case 0:
+                va =  1;
+                break;
+        }
+    }
+    else if ( l1 == 1 ){
+        switch ( lambda1 ) {
+            case 1:
+                va =  I/2.;
+                break;
+                
+        }
+    }    else if ( l1 == 2 ){
+        switch ( lambda1 ) {
+            case 0:
+                va =  1/2.;
+                break;
+                
+            case 2:
+                va = -1/4. ;
+                break;
+                
+        }
+    }else if ( l1 == 3 ){
+        switch ( lambda1 ) {
+            case 1:
+                va = 3*I/4.    ;
+                break;
+                
+            case 3:
+                va =  -I/8.     ;
+                
+                break;
+        }
+    }else if ( l1 == 4 ){
+        switch ( lambda1 ) {
+            case 0:
+                va = 3/4.      ;
+                break;
+                
+            case 2:
+                va =  -3/4.      ;
+                break;
+            case 4:
+                va =  1/16.    ;
+                break;
+                
+        }
+    }else if ( l1 == 5 ){
+        switch ( lambda1 ) {
+            case 1:
+                va = I*15/8.   ;
+                break;
+                
+            case 3:
+                va =  -I*5/8.    ;
+                break;
+            case 5:
+                va =  I/32.    ;
+                break;
+                
+        }
+    }else if ( l1 == 6 ){
+        switch ( lambda1 ) {
+            case 0:
+                va = 15*1/8.     ;
+                break;
+                
+            case 2:
+                va =  -1*45/16.    ;
+                break;
+            case 4:
+                va =  1*15/32.  ;
+                break;
+            case 6:
+                va =  -1/64.     ;
+                break;
+                
+        }
+    }else if ( l1 == 7 ){
+        switch ( lambda1 ) {
+            case 1:
+                va = I*105/16. ;
+                break;
+                
+            case 3:
+                va =  -I*105/32. ;
+                break;
+            case 5:
+                va =  I*21/64. ;
+                break;
+            case 7:
+                va =  -I/128.   ;
+                break;
+                
+        }
+    }else if ( l1 == 8 ){
+        switch ( lambda1 ) {
+            case 0:
+                va = 105/16.         ;
+                break;
+                
+            case 2:
+                va = - 105/8.          ;
+                break;
+            case 4:
+                va =  105/32.        ;
+                break;
+            case 6:
+                va =  -7/32.          ;
+                break;
+            case 8:
+                va =  1/256.           ;
+                break;
+                
+        }
+    }
+    
+    
+    return va*pow(b1,-l1-0.5+(l1-lambda1)/2.)/sqrt(2.);
+}
+
+
+DCOMPLEX aaGGCGG( double invbeta, struct general_2index * pa){
+    struct basisElement b1,  k1, b2,  k2;
+    
+    if ( pa->i[0].bra.index < pa->i[0].ket.index){
+        b1 = pa->i[0].bra;
+        k1 = pa->i[0].ket;
+    }else {
+        k1 = pa->i[0].bra;
+        b1 = pa->i[0].ket;
+
+    }
+    
+    if ( pa->i[1].bra.index < pa->i[1].ket.index){
+        b2 = pa->i[1].bra;
+        k2 = pa->i[1].ket;
+    }else {
+        k2 = pa->i[1].bra;
+        b2 = pa->i[1].ket;
+    }
+    
+    INT_TYPE l,ll,l2,xl = b1.index + k1.index , xl2 = b2.index + k2.index;
+    double gamma , delta;
+    DCOMPLEX value=0.;
+    DCOMPLEX hg[1+xl+xl2],p1[1+xl],p2[1+xl2];
+    gamma = sqr(invbeta/2.);
+    gamma += aaGetGamma(b1.length, b1.index, b1.origin, k1.length, k1.index, k1.origin);
+    gamma += aaGetGamma(b2.length, b2.index, b2.origin, k2.length, k2.index, k2.origin);
+    delta = 0.;
+    delta += aaGetDelta(b1.length, b1.index, b1.origin, k1.length, k1.index, k1.origin);
+    delta -= aaGetDelta(b2.length, b2.index, b2.origin, k2.length, k2.index, k2.origin);
+
+    for ( ll = 0; ll <= xl+xl2; ll++){
+        hg[ll] =  hyperGeometric(sqrt(gamma), ll, delta);
+    }
+    for ( ll = 0; ll <= xl; ll++)
+        p1[ll] = aaGetPoly(b1.length, b1.index, b1.origin, k1.length, k1.index, k1.origin,ll);
+    
+    for ( ll = 0; ll <= xl2; ll++)
+        p2[ll] = sign(ll)*aaGetPoly(b2.length, b2.index, b2.origin, k2.length, k2.index, k2.origin,ll);
+    
+    for ( l = 0; l <= xl ; l++)
+        for ( l2 = 0; l2 <= xl2 ; l2++){
+            value += p1[l]* p2[l2]* hg[l+l2];
+        }
+//    for ( ll = 0; ll <= xl+xl2; ll++){
+//       printf("%d %f i%f , %f i%f , %f i%f\n", ll,xg[ll] ,hg[ll], hg[ll]*xg[ll]);
+//    }
+    return value*aaGetConst(b1.length, b1.index, b1.origin, k1.length, k1.index, k1.origin)*aaGetConst(b2.length, b2.index, b2.origin, k2.length, k2.index, k2.origin);//invbeta
+}
+
+
+
+
+DCOMPLEX aaGdnGdm( INT_TYPE n,INT_TYPE m,  struct general_index * pa){
+    struct basisElement b1,  k1;
+    
+    b1 = pa->bra;
+    k1 = pa->ket;
+    
+    INT_TYPE i,l,ll,ll2,l1 = b1.index ,l2 = k1.index;;
+    double gamma , delta;
+    DCOMPLEX in,im,value=0.;
+    DCOMPLEX xv[1+l2+l1+n+m],hg[1+l2+n+m+l1],dn[1+n+l1],dm[1+m+l2];
+    
+    for ( ll = 0; ll <= l1+n+l2+m ; ll++)
+        xv[ll] = 0.;
+    for ( ll = 0; ll <= l1+n ; ll++)
+        dn[ll] = 0.;
+    for ( ll = 0; ll <= l2+m ; ll++)
+        dm[ll] = 0.;
+
+    gamma = 0.;
+    gamma += 1/4.*(1/b1.length + 1/k1.length);
+    delta = 0.;
+    delta +=  b1.origin - k1.origin;
+    
+    for ( ll = 0; ll <= m+n+l1+l2; ll++){
+        hg[ll] =  hyperGeometric(sqrt(gamma), ll, delta);
+    }
+    
+    in = 1.;
+    for ( i = 0 ; i < n ; i++)
+        in *= I;
+    
+    im = 1.;
+    for ( i = 0 ; i < m ; i++)
+        im *= -I;
+
+    for ( ll = 0; ll <= l1; ll++){
+        dn[ll+n] = conj(gauGetPoly(b1.length, b1.index, b1.origin,ll));
+    }
+    for ( ll2 = 0; ll2 <= l2; ll2++){
+        dm[ll2+m] = (gauGetPoly(k1.length, k1.index,k1.origin,ll2));
+    }
+
+    for ( ll = 0; ll <= l1+n ; ll++)
+        for ( ll2= 0; ll2 <= l2+m ; ll2++){
+            xv[ll+ll2] += dn[ll]*hg[ll+ll2]*dm[ll2];
+        }
+    for ( ll = 0; ll <= l1+n+l2+m ; ll++){
+        value += xv[ll];
+    }
+    return in*im*value;
+}
+
+double GTOnorm ( struct basisElement ba ){
+    struct general_index ga ;
+    ga.bra = ba;
+    ga.ket = ba;
+   // printf("..(%f %f) \n",aaGdnGdm(0, 0, &ga) );
+    return sqrt ( 1./aaGdnGdm(0, 0, &ga));
+    
+}
+
+
+
+INT_TYPE nCp ( INT_TYPE N , INT_TYPE P ){
+    double va = 1;
+    if ( N == 2 )
+        switch ( P ){
+            case 1 :
+                va = 2;
+                break;
+                
+        }
+    if ( N == 3 )
+        switch ( P ){
+            case 1 :
+                va = 3;
+                break;
+            case 2 :
+                va = 3;
+                break;
+                
+        }
+    if ( N == 4 )
+        switch ( P ){
+            case 1 :
+                va = 4;
+                break;
+            case 2 :
+                va = 6;
+                break;
+            case 3 :
+                va = 4;
+                break;
+        }
+    if ( N == 5 )
+        switch ( P ){
+            case 1 :
+                va = 5;
+                break;
+            case 2 :
+                va = 10;
+                break;
+            case 3 :
+                va = 10;
+                break;
+            case 4 :
+                va = 5;
+                break;
+        }
+    if ( N == 6 )
+        switch ( P ){
+            case 1 :
+                va = 6;
+                break;
+            case 2 :
+                va = 15;
+                break;
+            case 3 :
+                va = 20;
+                break;
+            case 4 :
+                va = 15;
+                break;
+            case 5 :
+                va = 6;
+                break;
+        }
+    if ( N == 7 )
+        switch ( P ){
+            case 1 :
+                va = 7;
+                break;
+            case 2 :
+                va = 21;
+                break;
+            case 3 :
+                va = 35;
+                break;
+            case 4 :
+                va = 35;
+                break;
+            case 5 :
+                va = 21;
+                break;
+            case 6 :
+                va = 7;
+                break;
+        }
+    if ( N == 8 )
+        switch ( P ){
+            case 1 :
+                va = 8;
+                break;
+            case 2 :
+                va = 28;
+                break;
+            case 3 :
+                va = 56;
+                break;
+            case 4 :
+                va = 70;
+                break;
+            case 5 :
+                va = 56;
+                break;
+            case 6 :
+                va = 28;
+                break;
+            case 7 :
+                va = 8;
+                break;
+        }
+    if ( N == 9 )
+        switch ( P ){
+            case 1 :
+                va = 9;
+                break;
+            case 2 :
+                va = 36;
+                break;
+            case 3 :
+                va = 84;
+                break;
+            case 4 :
+                va = 126;
+                break;
+            case 5 :
+                va = 126;
+                break;
+            case 6 :
+                va = 84;
+                break;
+            case 7 :
+                va = 36;
+                break;
+            case 8 :
+                va = 9;
+                break;
+
+        }
+    if ( N == 10 )
+        switch ( P ){
+            case 1 :
+                va = 10;
+                break;
+            case 2 :
+                va = 45;
+                break;
+            case 3 :
+                va = 120;
+                break;
+            case 4 :
+                va = 210;
+                break;
+            case 5 :
+                va = 252;
+                break;
+            case 6 :
+                va = 210;
+                break;
+            case 7 :
+                va = 120;
+                break;
+            case 8 :
+                va = 45;
+                break;
+            case 9 :
+                va = 10;
+                break;
+        }
+    else if ( P > 10 ){
+        exit(0);
+    }
+    return va;
+}
+
+//DCOMPLEX aabGdnGdm( INT_TYPE n,INT_TYPE m, double boost, struct general_index * pa){
+//    struct basisElement b1,  k1;
+//
+//    b1 = pa->bra;
+//    k1 = pa->ket;
+//
+//    if ( boost != 0.)
+//        exit(0);
+//
+//    INT_TYPE p,i,l,ll,lll,ll2,l1 = b1.index ,l2 = k1.index;;
+//    double va,gamma , delta;
+//    DCOMPLEX in,im,value=0.;
+//    DCOMPLEX xv[1+l2+l1+n+m],hg[1+l2+n+m+l1],dn[1+n+l1],dm[1+m+l2];
+//
+//    for ( ll = 0; ll <= l1+n+l2+m ; ll++)
+//        xv[ll] = 0.;
+//    for ( ll = 0; ll <= l1+n ; ll++)
+//        dn[ll] = 0.;
+//    for ( ll = 0; ll <= l2+m ; ll++)
+//        dm[ll] = 0.;
+//
+//    gamma = 0.;
+//    gamma += 1/4.*(1/b1.length + 1/k1.length);
+//    delta = 0.5*boost/b1.length;//Needs be complex!!! cannot do that!
+//    delta +=  b1.origin - k1.origin;
+//
+//    for ( ll = 0; ll <= m+n+l1+l2; ll++){
+//        hg[ll] =  hyperGeometric(sqrt(gamma), ll, delta);
+//    }
+//
+//    in = 1.;
+//    for ( i = 0 ; i < n ; i++)
+//        in *= I;
+//
+//    im = 1.;
+//    for ( i = 0 ; i < m ; i++)
+//        im *= -I;
+//
+//    for ( ll = 0; ll <= l1; ll++){
+//        double ga = gauGetPoly(b1.length, b1.index, b1.origin,ll);
+//        //(k+boost)^(ll+n)
+//        for ( lll = 0 ; lll <= ll + n ; lll++){
+//            double ba = 1.;
+//            for ( p = 0; p < ll+n-lll; p++)
+//                ba *= boost ;
+//            dn[lll] += ga * nCp( ll+n,lll) * ba;
+//        }
+//    }
+//    for ( ll2 = 0; ll2 <= l2; ll2++){
+//        dm[ll2+m] = gauGetPoly(k1.length, k1.index,k1.origin,ll2);
+//    }
+//
+//    for ( ll = 0; ll <= l1+n ; ll++)
+//        for ( ll2= 0; ll2 <= l2+m ; ll2++){
+//            xv[ll+ll2] += dn[ll]*hg[ll+ll2]*dm[ll2];
+//        }
+//    for ( ll = 0; ll <= l1+n+l2+m ; ll++){
+//        value += xv[ll];
+//        printf("%d + %f\n", ll, xv[ll]);
+//    }
+//    return in*im*value* exp(-sqr(boost/2.)/b1.length);
+//}
+
+DCOMPLEX aaGGCD( double invbeta,   double position, struct general_index * pa){
+    struct basisElement b1,  k1;
+    
+  
+        if ( pa->bra.index < pa->ket.index){
+            b1 = pa->bra;
+            k1 = pa->ket;
+        }else {
+            k1 = pa->bra;
+            b1 = pa->ket;
+        }
+
+    INT_TYPE l,ll,xl = b1.index + k1.index,l1 = b1.index ;
+    double gamma , delta;
+    DCOMPLEX value=0.;
+    DCOMPLEX hg[1+xl+l1],p1[1+xl];
+    gamma = sqr(invbeta/2.);
+    gamma += aaGetGamma(b1.length, b1.index, b1.origin, k1.length, k1.index, k1.origin);
+    delta =  - position;
+    delta += aaGetDelta(b1.length, b1.index, b1.origin, k1.length, k1.index, k1.origin);
+    
+    for ( ll = 0; ll <= xl+l1; ll++){
+        hg[ll] =  hyperGeometric(sqrt(gamma), ll, delta);
+    }
+    
+    for ( ll = 0; ll <= xl; ll++){
+        p1[ll] = aaGetPoly(b1.length, b1.index, b1.origin, k1.length, k1.index, k1.origin,ll);
+    }
+    
+    for ( l = 0; l <= xl ; l++)
+        {
+            value += p1[l]*hg[l];
+        }
+    return value*aaGetConst(b1.length, b1.index, b1.origin, k1.length, k1.index, k1.origin);//invbeta
+}
+
 
 double BoB (struct basisElement b1, struct basisElement b2 ){
     
@@ -525,35 +2849,24 @@ double BoB (struct basisElement b1, struct basisElement b2 ){
     }else if ( b1.basis == GaussianBasisElement && b2.basis == GaussianBasisElement ){
         
         struct general_index pa ;
-        pa.b0 = b1.length;
-        pa.l0 = b1.index;
-        pa.x0 = b1.origin;
-        pa.b1 = b2.length;
-        pa.l1 = b2.index;
-        pa.x1 = b2.origin;
+        pa.bra = b1;
+        pa.ket = b2;
         
-        return FGG(0,&pa);
+        return aaGdnGdm(0, 0, &pa);
         
+
     }else if ( b1.basis == GaussianBasisElement && b2.basis == SincBasisElement ){
         
             struct general_index pa ;
-            pa.b0 = b1.length;
-            pa.l0 = b1.index;
-            pa.x0 = b1.origin;
-            pa.d = b2.length;
-            pa.n = b2.index;
-        
+            pa.bra = b1;
+            pa.ket = b2;
             return FGS(0,&pa);
         
     }else if ( b1.basis == SincBasisElement && b2.basis == GaussianBasisElement ){
         
         struct general_index pa ;
-        pa.b0 = b2.length;
-        pa.l0 = b2.index;
-        pa.x0 = b2.origin;
-        pa.d = b1.length;
-        pa.n = b1.index;
-        
+        pa.bra = b1;
+        pa.ket = b2;
         return FGS(0,&pa);
     }
 
@@ -562,7 +2875,7 @@ double BoB (struct basisElement b1, struct basisElement b2 ){
     return 0;
 }
 
-double BdB (struct basisElement b1, struct basisElement b2){
+DCOMPLEX BdB (struct basisElement b1, struct basisElement b2){
     if ( b1.basis == SincBasisElement && b2.basis == SincBasisElement ){
         if ( b1.periodic == 0 ){
             double arg = b1.length*b1.index + b1.origin - (b2.length*b2.index + b2.origin);
@@ -605,36 +2918,29 @@ double BdB (struct basisElement b1, struct basisElement b2){
     }else if ( b1.basis == GaussianBasisElement && b2.basis == GaussianBasisElement ){
         
         struct general_index pa ;
-        pa.b0 = b1.length;
-        pa.l0 = b1.index+1;
-        pa.x0 = b1.origin;
-        pa.b1 = b2.length;
-        pa.l1 = b2.index;
-        pa.x1 = b2.origin;
+        pa.bra = b1;
+        pa.ket = b2;
         
-        return FGG(0,&pa);
+        return aaGdnGdm(0, 1, &pa);
         
+
     }else if ( b1.basis == GaussianBasisElement && b2.basis == SincBasisElement ){
         
         struct general_index pa ;
-        pa.b0 = b1.length;
-        pa.l0 = b1.index+1;
-        pa.x0 = b1.origin;
-        pa.d = b2.length;
-        pa.n = b2.index;
-        
-        return FGS(0,&pa);
+        pa.bra = b1;
+        pa.ket = b2;
+        pa.bra.index += 1;
+
+        return (FGS(0,&pa));
         
     }else if ( b1.basis == SincBasisElement && b2.basis == GaussianBasisElement ){
         
         struct general_index pa ;
-        pa.b0 = b2.length;
-        pa.l0 = b2.index+1;
-        pa.x0 = b2.origin;
-        pa.d = b1.length;
-        pa.n = b1.index;
-        
-        return FGS(0,&pa);
+        pa.bra = b1;
+        pa.ket = b2;
+        pa.ket.index += 1;
+
+        return (FGS(0,&pa));
     }
     
     printf("over rails\n");
@@ -696,38 +3002,30 @@ double Bd2B (struct basisElement b1, struct basisElement b2){
             }
         }
     }else if ( b1.basis == GaussianBasisElement && b2.basis == GaussianBasisElement ){
-        
         struct general_index pa ;
-        pa.b0 = b1.length;
-        pa.l0 = b1.index+2;
-        pa.x0 = b1.origin;
-        pa.b1 = b2.length;
-        pa.l1 = b2.index;
-        pa.x1 = b2.origin;
+        pa.bra = b1;
+        pa.ket = b2;
         
-        return FGG(0,&pa);
+        return aaGdnGdm(0, 2, &pa);
         
+
     }else if ( b1.basis == GaussianBasisElement && b2.basis == SincBasisElement ){
         
         struct general_index pa ;
-        pa.b0 = b1.length;
-        pa.l0 = b1.index+2;
-        pa.x0 = b1.origin;
-        pa.d = b2.length;
-        pa.n = b2.index;
+        pa.bra = b1;
+        pa.ket = b2;
+        pa.bra.index += 2;
         
-        return FGS(0,&pa);
+        return Nol(b1.length,b1.index)/Nol(b1.length,b1.index+2)*FGS(0,&pa);
         
     }else if ( b1.basis == SincBasisElement && b2.basis == GaussianBasisElement ){
         
         struct general_index pa ;
-        pa.b0 = b2.length;
-        pa.l0 = b2.index+2;
-        pa.x0 = b2.origin;
-        pa.d = b1.length;
-        pa.n = b1.index;
-        
-        return FGS(0,&pa);
+        pa.bra = b1;
+        pa.ket = b2;
+        pa.ket.index += 2;
+
+        return Nol(b2.length,b2.index)/Nol(b2.length,b2.index+2)*FGS(0,&pa);
     }
     
     printf("over rails\n");
@@ -740,19 +3038,19 @@ DCOMPLEX poly( double k ,double beta, INT_TYPE powSpace ){
     if ( ! powSpace )
         return 1.;
     else if ( powSpace == 1 )
-        return 0.50*(-I * k)/ beta;
+        return 0.50*(I * k)/ beta;//here
     else if ( powSpace == 2 )
         return -0.250*(k*k - 2. *beta )/ beta/beta;
     else if ( powSpace == 3 )
-        return 0.5*0.250*(I * k)*(-6. *beta + k*k )/ beta/beta/beta;
+        return 0.5*0.250*(-I * k)*(-6. *beta + k*k )/ beta/beta/beta;
     else if ( powSpace == 4 )
         return 0.250*0.250*(k*k*k*k -12. * k*k * beta  + 12. * beta * beta ) / beta/beta/beta/beta;
     else if ( powSpace == 5 )
-        return 0.5*0.250*0.250*(-I * k)*(k*k*k*k -20. * k*k * beta  + 60. * beta * beta ) / beta/beta/beta/beta/beta;
+        return 0.5*0.250*0.250*(I * k)*(k*k*k*k -20. * k*k * beta  + 60. * beta * beta ) / beta/beta/beta/beta/beta;
     else if ( powSpace == 6 )
         return -0.250*0.250*0.250*( k*k*k*k*k*k - 30. * k*k  *k*k * beta + 180. * k*k*beta*beta-120 * beta*beta*beta ) / beta/beta/beta/beta/beta/beta;
     else if ( powSpace == 7 )
-        return 0.5*0.250*0.250*0.250*(I * k)*( k*k*k *k*k*k - 42. * k*k*k*k * beta + 420. * k*k*beta*beta-840. * beta*beta*beta ) / beta/beta/beta/beta/beta/beta/beta;
+        return 0.5*0.250*0.250*0.250*(-I * k)*( k*k*k *k*k*k - 42. * k*k*k*k * beta + 420. * k*k*beta*beta-840. * beta*beta*beta ) / beta/beta/beta/beta/beta/beta/beta;
     else if ( powSpace == 8 )
         return 0.250*0.250*0.250*0.250*(k*k*k*k *k*k*k*k - 56.* k*k*k *k*k*k*beta + 840. *k*k*k*k *beta*beta -
                                         3360.* k*k*beta*beta*beta + 1680.*beta*beta*beta*beta)/ beta/beta/ beta/beta/ beta/beta/ beta/beta;
@@ -766,25 +3064,18 @@ DCOMPLEX poly( double k ,double beta, INT_TYPE powSpace ){
 
 double gaussianSinc ( double k, void * arg ){
     struct general_2index *pa = (struct general_2index *) arg;
+    INT_TYPE ai = 0;
 
     double alpha = pa->alpha ;
     DCOMPLEX act = 1.;
     if ( pa->body == 1 ){
-        if ( pa->i[1].action > 0 )
+        for ( ai = 0; ai < pa->i[1].action ; ai++)
             act *= I * k ;
-        if ( pa->i[1].action > 1 )
-            act *= I * k ;
-        if ( pa->i[1].action > 2 ){
-            printf("type more\n");
-            fflush(stdout);
-            exit(0);
-        }
+        
     }
     if ( pa->realFlag == 0 )
         act *= -I ;
-    
     return  exp(-sqr(k /2./ alpha))/alpha * creal(act* poly(k,alpha*alpha,pa->powSpace) *FB(-k,&pa->i[0])*FB(k,&pa->i[1]))/(2.*pi);
-
 }
 
 void gaussianSincFunc(void * arg,size_t n,const double * x,double * y)
@@ -794,7 +3085,6 @@ void gaussianSincFunc(void * arg,size_t n,const double * x,double * y)
     for ( i=0;i<n;i++)
     {
         y[i] = gaussianSinc(x[i],af);
-       // printf("%d %f %f\n", i, x[i],y[i]);
     }
     
 }
@@ -811,365 +3101,83 @@ double mcGS ( double x [], size_t dim , void * params ){
 }
 
 
-double c10c00 ( double a, double bd, double xd, double b1, double x1, double b2, double x2, double b3 ,double x3 ){
-    return (2*sqrt(bd)*(b1*(b2 + b3)*(x1 - xd) + a*a*(b2*x2 + b3*x3 + b1*(x1 - xd) -
-                                                      b2*xd - b3*xd)))/((b2 + b3)*(b1 + bd) + a*a*(b1 + b2 + b3 + bd));
-};
-
-double c11c00 ( double a, double bd1, double xd1, double bd2, double xd2, double b2, double x2, double b3 ,double x3 ){
-    
-    return -((2*sqrt(bd1*bd2)*
-              (sqr(b2 + b3)*(-bd2 + bd1*(-1 + 2*bd2*sqr(xd1 - xd2))) -
-               a*a*(b2 + b3)*(b3 + 2*(bd1 + bd2) +
-                              b2*(1 + 2*(xd1 - xd2)*(bd1*(x2 - xd1) + bd2*(-x2 + xd2))) +
-                              2*(xd1 - xd2)*(2*bd1*bd2*(-xd1 + xd2) +
-                                             b3*(bd1*(x3 - xd1) + bd2*(-x3 + xd2)))) -
-               a*a*a*a*(b3 + bd1 + bd2 + 2*b2*b2*(x2 - xd1)*(x2 - xd2) +
-                        2*(b3*x3 + bd1*xd1 - (b3 + bd1)*xd2)*(b3*(x3 - xd1) +
-                                                              bd2*(-xd1 + xd2)) + b2*(1 + 2*(xd1 - xd2)*(bd1*(x2 - xd1) +
-                                                                                                         bd2*(-x2 + xd2)) - 2*b3*(-2*xd1*xd2 + x3*(xd1 + xd2) +
-                                                                                                                                  x2*(-2*x3 + xd1 + xd2))))))/
-             sqr((b2 + b3)*(bd1 + bd2) + a*a*(b2 + b3 + bd1 + bd2)));
-    
-    
-    
-    
-}
-
-
-double c10c10 (  double a, double bd1, double xd1,  double b2, double x2, double bd2, double xd2,double b3 ,double x3 ){
-    double result= (2*sqrt(bd1*bd2)*(2*b2*b3*(b2 + bd1)*(b3 + bd2)*(x2 - xd1)*(x3 - xd2) +
-                                     a*a*(2*b2*b2*(x2 - xd1)*(b3*(x2 + x3 - 2*xd2) + bd2*(x2 - xd2)) +
-                                          b2*(bd2*(1 + 2*bd1*(x2 - xd1)*(xd1 - xd2)) + 2*b3*b3*(x2 + x3 - 2*xd1)*
-                                              (x3 - xd2) + b3*(1 + 2*bd1*(x2 - xd1)*(x3 + xd1 - 2*xd2) +
-                                                               2*bd2*(x3 - xd2)*(x2 - 2*xd1 + xd2))) +
-                                          bd1*(bd2 + 2*b3*b3*(x3 - xd1)*(x3 - xd2) +
-                                               b3*(1 + 2*bd2*(x3 - xd2)*(-xd1 + xd2)))) +
-                                     a*a*a*a*(bd1 + bd2 - 2*bd1*bd2*xd1*xd1 + 2*b2*b2*(x2 - xd1)*(x2 - xd2) +
-                                              2*b3*b3*(x3 - xd1)*(x3 - xd2) + 4*bd1*bd2*xd1*xd2 - 2*bd1*bd2*xd2*xd2 +
-                                              b3*(1 + 2*bd1*(x3 - xd1)*(xd1 - xd2) + 2*bd2*(x3 - xd2)*(-xd1 + xd2)) +
-                                              b2*(1 - 2*bd2*x2*xd1 + 2*bd1*(x2 - xd1)*(xd1 - xd2) + 2*bd2*x2*xd2 +
-                                                  2*bd2*xd1*xd2 - 2*bd2*xd2*xd2 + b3*(x2*(4*x3 - 2*(xd1 + xd2)) -
-                                                                                      2*(-2*xd1*xd2 + x3*(xd1 + xd2)))))))/
-    sqr((b2 + bd1)*(b3 + bd2) + a*a*(b2 + b3 + bd1 + bd2));
-    return result;
-    
-}
-
-double c11c10 ( double a , double bd1, double  xd1,double  bd2,double  xd2, double bd3,double xd3,double  b1,double x1){
-    return (sqrt(bd1*bd2*bd3)*(4*(a*a + b1 + bd3)*((bd1 + bd2)*(b1 + bd3) +
-                                                   a*a*(b1 + bd1 + bd2 + bd3))*(b1*(bd1 + bd2)*(x1 - xd3) +
-                                                                                a*a*(bd1*xd1 + bd2*xd2 + b1*(x1 - xd3) - bd1*xd3 - bd2*xd3)) -
-                               (1/bd1)*(2*a*a*((bd1 + bd2)*(b1 + bd3) + a*a*(b1 + bd1 + bd2 + bd3))*
-                                        (2*bd1*bd2*(b1 + bd3)*(xd1 - xd2) - 2*a*a*bd1*(b1*(x1 - xd1) - bd2*xd1 -
-                                                                                       bd3*xd1 + bd2*xd2 + bd3*xd3))) -
-                               (1/bd2)*(2*a*a*((bd1 + bd2)*(b1 + bd3) + a*a*(b1 + bd1 + bd2 + bd3))*
-                                        (-2*bd1*bd2*(b1 + bd3)*(xd1 - xd2) - 2*a*a*bd2*(bd1*xd1 + b1*(x1 - xd2) -
-                                                                                        bd1*xd2 - bd3*xd2 + bd3*xd3))) - (1/(bd1*bd2))*
-                               (2*(2*bd1*bd2*(b1 + bd3)*(xd1 - xd2) - 2*a*a*bd1*(b1*(x1 - xd1) -
-                                                                                 bd2*xd1 - bd3*xd1 + bd2*xd2 + bd3*xd3))*
-                                (-2*bd1*bd2*(b1 + bd3)*(xd1 - xd2) - 2*a*a*bd2*(bd1*xd1 + b1*(x1 - xd2) -
-                                                                                bd1*xd2 - bd3*xd2 + bd3*xd3))*((-b1)*(bd1 + bd2)*(x1 - xd3) +
-                                                                                                               a*a*((-bd1)*xd1 - bd2*xd2 + bd1*xd3 + bd2*xd3 + b1*(-x1 + xd3))))))/
-    cube((bd1 + bd2)*(b1 + bd3) + a*a*(b1 + bd1 + bd2 + bd3));
-    
-}
-
-double c11c11 (double a, double bd1,double xd1,  double bd2, double xd2, double bd3, double xd3,double bd4, double xd4){
-    return (sqrt(bd1*bd2*bd3*bd4)*
-            (8*a*a*a*a*sqr((bd1 + bd2)*(bd3 + bd4) + a*a*(bd1 + bd2 + bd3 + bd4)) +
-             4*(a*a + bd1 + bd2)*(a*a + bd3 + bd4)*
-             sqr((bd1 + bd2)*(bd3 + bd4) + a*a*(bd1 + bd2 + bd3 + bd4)) +
-             (1/bd4)*(4*a*a*((bd1 + bd2)*(bd3 + bd4) + a*a*(bd1 + bd2 + bd3 + bd4))*
-                      (-2*(bd1 + bd2)*bd3*bd4*(xd3 - xd4) - 2*a*a*bd4*(bd2*xd2 + bd3*xd3 +
-                                                                       bd1*(xd1 - xd4) - bd2*xd4 - bd3*xd4))*(bd2*(bd3 + bd4)*(xd1 - xd2) +
-                                                                                                              a*a*(bd3*xd1 + bd4*xd1 + bd2*(xd1 - xd2) - bd3*xd3 - bd4*xd4))) -
-             8*(a*a + bd3 + bd4)*((bd1 + bd2)*(bd3 + bd4) + a*a*(bd1 + bd2 + bd3 + bd4))*
-             ((bd1 + bd2)*bd3*(xd3 - xd4) + a*a*(bd2*xd2 + bd3*xd3 + bd1*(xd1 - xd4) -
-                                                 bd2*xd4 - bd3*xd4))*((bd1 + bd2)*bd4*(xd3 - xd4) +
-                                                                      a*a*((-bd2)*xd2 + bd2*xd3 + bd4*xd3 + bd1*(-xd1 + xd3) - bd4*xd4)) +
-             8*a*a*((bd1 + bd2)*(bd3 + bd4) + a*a*(bd1 + bd2 + bd3 + bd4))*
-             (bd2*(bd3 + bd4)*(xd1 - xd2) + a*a*(bd3*xd1 + bd4*xd1 + bd2*(xd1 - xd2) -
-                                                 bd3*xd3 - bd4*xd4))*((bd1 + bd2)*bd4*(xd3 - xd4) +
-                                                                      a*a*((-bd2)*xd2 + bd2*xd3 + bd4*xd3 + bd1*(-xd1 + xd3) - bd4*xd4)) +
-             (1/(bd2*bd4))*(2*a*a*((bd1 + bd2)*(bd3 + bd4) +
-                                   a*a*(bd1 + bd2 + bd3 + bd4))*(-2*(bd1 + bd2)*bd3*bd4*(xd3 - xd4) -
-                                                                 2*a*a*bd4*(bd2*xd2 + bd3*xd3 + bd1*(xd1 - xd4) - bd2*xd4 - bd3*xd4))*
-                            (-2*bd1*bd2*(bd3 + bd4)*(xd1 - xd2) - 2*a*a*bd2*(bd1*(xd1 - xd2) -
-                                                                             bd3*xd2 - bd4*xd2 + bd3*xd3 + bd4*xd4))) +
-             (1/bd2)*(4*(a*a + bd1 + bd2)*((bd1 + bd2)*(bd3 + bd4) +
-                                           a*a*(bd1 + bd2 + bd3 + bd4))*(bd2*(bd3 + bd4)*(xd1 - xd2) +
-                                                                         a*a*(bd3*xd1 + bd4*xd1 + bd2*(xd1 - xd2) - bd3*xd3 - bd4*xd4))*
-                      (-2*bd1*bd2*(bd3 + bd4)*(xd1 - xd2) - 2*a*a*bd2*(bd1*(xd1 - xd2) -
-                                                                       bd3*xd2 - bd4*xd2 + bd3*xd3 + bd4*xd4))) +
-             (1/bd2)*(4*a*a*((bd1 + bd2)*(bd3 + bd4) + a*a*(bd1 + bd2 + bd3 + bd4))*
-                      ((bd1 + bd2)*bd4*(xd3 - xd4) + a*a*((-bd2)*xd2 + bd2*xd3 + bd4*xd3 +
-                                                          bd1*(-xd1 + xd3) - bd4*xd4))*(-2*bd1*bd2*(bd3 + bd4)*(xd1 - xd2) -
-                                                                                        2*a*a*bd2*(bd1*(xd1 - xd2) - bd3*xd2 - bd4*xd2 + bd3*xd3 + bd4*xd4))) +
-             (1/(bd2*bd4))*(4*(-2*(bd1 + bd2)*bd3*bd4*(xd3 - xd4) -
-                               2*a*a*bd4*(bd2*xd2 + bd3*xd3 + bd1*(xd1 - xd4) - bd2*xd4 - bd3*xd4))*
-                            (bd2*(bd3 + bd4)*(xd1 - xd2) + a*a*(bd3*xd1 + bd4*xd1 + bd2*(xd1 - xd2) -
-                                                                bd3*xd3 - bd4*xd4))*((bd1 + bd2)*bd4*(xd3 - xd4) +
-                                                                                     a*a*((-bd2)*xd2 + bd2*xd3 + bd4*xd3 + bd1*(-xd1 + xd3) - bd4*xd4))*
-                            (-2*bd1*bd2*(bd3 + bd4)*(xd1 - xd2) - 2*a*a*bd2*(bd1*(xd1 - xd2) -
-                                                                             bd3*xd2 - bd4*xd2 + bd3*xd3 + bd4*xd4)))))/
-    sqr(sqr((bd1 + bd2)*(bd3 + bd4) + a*a*(bd1 + bd2 + bd3 + bd4)));
-}
-
-
-double c20c00 (double a, double b0, double x0, double b1, double x1, double b2, double x2, double b3, double x3){
-    x1-= x0;
-    x2-= x0;
-    x3-= x0;
-
-    return 1./b0*(2*a*b0*sqrt((b0 + b1)*(b2 + b3)*(1/a/a +
-                                             4*(1/(b0 + b1) + 1/(b2 + b3))))*
-            (-(4*a*a*(b2 + b3) + b1*(4*a*a + b2 + b3))*(4*a*a*(b2 + b3) + b1*(4*a*a + b2 + b3)) +
-             b0*(2*b1*b1*(4*a*a + b2 + b3)*(4*a*a + b2 + b3)*x1*x1 - b1*(4*a*a + b2 + b3)*
-                 (4*a*a + b2 + b3 + 16*a*a*b2*x1*x2 +
-                  16*a*a*b3*x1*x3) +
-                 4*a*a*(-4*a*a*b2 - 4*a*a*b3 + b2*b2*(-1 + 8*a*a*x2*x2) +
-                        2*b2*b3*(-1 + 8*a*a*x2*x3) +
-                        b3*b3*(-1 + 8*a*a*x3*x3)))))/
-    pow(4*a*a*(b2 + b3) + b0*(4*a*a + b2 + b3) + b1*(4*a*a + b2 + b3),5./2.);
-}
-
-
-double c22c00 (double a, double b0, double x0, double b1, double x1, double b2, double x2, double b3, double x3){
-    x1-= x0;
-    x2-= x0;
-    x3-= x0;
-
-
-    return (4*b0*b1*sqrt(b0 + b1)*sqrt(b2 + b3)*
- sqrt((b0 + b1)*(b2 + b3)*(4*(1/(b0 + b1) + 1/(b2 + b3)) + 1/(a*a)))*a*
- (-4*(4*(b2 + b3)*a*a*a + b1*a*(b2 + b3 + 4*a*a))*(4*(b2 + b3)*a*a*a + b1*a*(b2 + b3 + 4*a*a))*(-4*(b2 + b3)*(b2 + b3)*a*a +
-                                                                        b1*(-4*b2*a*a - 4*b3*a*a + b2*b2*(-1 + 8*x1*x1*a*a + 16*x1*x2*a*a +
-                                                                                                                       8*x2*x2*a*a) + b3*b3*(-1 + 8*x1*x1*a*a + 16*x1*x3*a*a + 8*x3*x3*a*a) +
-                                                                            2*b2*b3*(-1 + 8*x1*x1*a*a + 8*x2*x3*a*a + 8*x1*(x2 + x3)*a*a))) +
-  b0*b0*b0*(b2 + b3 + 4*a*a)*(b2 + b3 + 4*a*a)*(4*b1*b1*b1*x1*x1*x1*x1*(b2 + b3 + 4*a*a)*(b2 + b3 + 4*a*a) -
-                                   4*b1*b1*x1*x1*(b2 + b3 + 4*a*a)*(12*a*a + b2*(3 + 8*x1*x2*a*a) +
-                                                                         b3*(3 + 8*x1*x3*a*a)) + 4*a*a*(b2*b2*(1 - 8*x2*x2*a*a) +
-                                                                                                                      2*b2*(b3 + 2*a*a - 8*b3*x2*x3*a*a) + b3*(b3 + 4*a*a - 8*b3*x3*x3*a*a)) +
-                                   b1*(48*a*a*a*a - 8*b3*a*a*(-3 + 4*x1*x1*a*a - 24*x1*x3*a*a) +
-                                       b2*b2*(3 + 48*x1*x2*a*a + 8*x1*x1*a*a*(-1 + 8*x2*x2*a*a)) +
-                                       b3*b3*(3 + 48*x1*x3*a*a + 8*x1*x1*a*a*(-1 + 8*x3*x3*a*a)) +
-                                       2*b2*(4*a*a*(3 - 4*x1*x1*a*a + 24*x1*x2*a*a) +
-                                             b3*(3 + 24*x1*(x2 + x3)*a*a + 8*x1*x1*a*a*(-1 + 8*x2*x3*a*a))))) +
-  2*b0*b0*(b2 + b3 + 4*a*a)*(2*b1*b1*b1*x1*x1*(b2 + b3 + 4*a*a)*(b2 + b3 + 4*a*a)*
-                                   (-12*a*a + b2*(-3 + 8*x1*x1*a*a + 8*x1*x2*a*a) +
-                                    b3*(-3 + 8*x1*x1*a*a + 8*x1*x3*a*a)) - 8*(b2 + b3)*a*a*a*a*
-                                   (b2*b2*(-3 + 16*x2*x2*a*a) + 2*b2*(-6*a*a + b3*(-3 + 16*x2*x3*a*a)) +
-                                    b3*(-12*a*a + b3*(-3 + 16*x3*x3*a*a))) - b1*b1*(b2 + b3 + 4*a*a)*
-                                   (-48*a*a*a*a + 8*b3*a*a*(-3 + 28*x1*x1*a*a) + b2*b2*(-3 + 128*x1*x1*x1*x2*a*a*a*a +
-                                                                                                       8*x1*x1*a*a*(7 + 16*x2*x2*a*a)) + b3*b3*(-3 + 128*x1*x1*x1*x3*a*a*a*a +
-                                                                                                                                                           8*x1*x1*a*a*(7 + 16*x3*x3*a*a)) + 2*b2*(4*a*a*(-3 + 28*x1*x1*a*a) +
-                                                                                                                                                                                                               b3*(-3 + 64*x1*x1*x1*(x2 + x3)*a*a*a*a + 8*x1*x1*a*a*(7 + 16*x2*x3*a*a)))) +
-                                   2*b1*a*a*(b2*b2*b2*(9 + 24*x2*x2*a*a + 16*x1*x2*a*a*(5 + 8*x2*x2*a*a) +
-                                                          8*x1*x1*a*a*(-3 + 16*x2*x2*a*a)) +
-                                                    b2*b2*(8*a*a*(9 - 12*x1*x1*a*a + 40*x1*x2*a*a + 12*x2*x2*a*a) +
-                                                          b3*(3*(9 + 8*x2*x2*a*a + 16*x2*x3*a*a) + 8*x1*x1*a*a*(-9 + 16*x2*x2*a*a +
-                                                                                                                                   32*x2*x3*a*a) + 16*x1*a*a*(10*x2 + 5*x3 + 24*x2*x2*x3*a*a))) +
-                                                    b3*(144*a*a*a*a + 8*b3*a*a*(9 - 12*x1*x1*a*a + 40*x1*x3*a*a + 12*x3*x3*a*a) +
-                                                        b3*b3*(9 + 24*x3*x3*a*a + 16*x1*x3*a*a*(5 + 8*x3*x3*a*a) +
-                                                              8*x1*x1*a*a*(-3 + 16*x3*x3*a*a))) +
-                                                    b2*(144*a*a*a*a - 16*b3*(-9*a*a + 4*(3*x1*x1 - 3*x2*x3 - 5*x1*(x2 + x3))*a*a*a*a) +
-                                                        b3*b3*(3*(9 + 16*x2*x3*a*a + 8*x3*x3*a*a) + 8*x1*x1*a*a*(-9 + 32*x2*x3*a*a +
-                                                                                                                                   16*x3*x3*a*a) + 16*x1*a*a*(5*x2 + 10*x3 + 24*x2*x3*x3*a*a))))) +
-  b0*(-64*(b2 + b3)*(b2 + b3)*a*a*a*a*a*a*(b2*b2*(-3 + 8*x2*x2*a*a) +
-                                  2*b2*(-6*a*a + b3*(-3 + 8*x2*x3*a*a)) +
-                                  b3*(-12*a*a + b3*(-3 + 8*x3*x3*a*a))) + b1*b1*b1*(b2 + b3 + 4*a*a)*(b2 + b3 + 4*a*a)*
-      (48*a*a*a*a - 8*b3*a*a*(-3 + 28*x1*x1*a*a + 24*x1*x3*a*a) +
-       b2*b2*(3 - 48*x1*x2*a*a + 64*x1*x1*x1*x1*a*a*a*a + 128*x1*x1*x1*x2*a*a*a*a +
-             8*x1*x1*a*a*(-7 + 8*x2*x2*a*a)) + b3*b3*(3 - 48*x1*x3*a*a + 64*x1*x1*x1*x1*a*a*a*a +
-                                                                 128*x1*x1*x1*x3*a*a*a*a + 8*x1*x1*a*a*(-7 + 8*x3*x3*a*a)) +
-       2*b2*(-4*a*a*(-3 + 28*x1*x1*a*a + 24*x1*x2*a*a) +
-             b3*(3 - 24*x1*(x2 + x3)*a*a + 64*x1*x1*x1*x1*a*a*a*a + 64*x1*x1*x1*(x2 + x3)*a*a*a*a +
-                 8*x1*x1*a*a*(-7 + 8*x2*x3*a*a)))) - 4*b1*b1*a*a*(b2 + b3 + 4*a*a)*
-      (b2*b2*b2*(128*x1*x1*x1*x2*a*a*a*a - 3*(3 + 8*x2*x2*a*a) + 16*x1*x1*a*a*
-             (5 + 16*x2*x2*a*a) + 32*x1*(x2*a*a + 4*x2*x2*x2*a*a*a*a)) +
-       b2*b2*(8*a*a*(-9 + 40*x1*x1*a*a + 16*x1*x2*a*a - 12*x2*x2*a*a) +
-             b3*(128*x1*x1*x1*(2*x2 + x3)*a*a*a*a - 3*(9 + 8*x2*x2*a*a + 16*x2*x3*a*a) +
-                 16*x1*x1*a*a*(15 + 16*x2*x2*a*a + 32*x2*x3*a*a) +
-                 32*x1*a*a*(2*x2 + x3 + 12*x2*x2*x3*a*a))) +
-       b2*(-144*a*a*a*a + 16*b3*(-9*a*a + 4*(10*x1*x1 - 3*x2*x3 + 2*x1*(x2 + x3))*a*a*a*a) +
-           b3*b3*(128*x1*x1*x1*(x2 + 2*x3)*a*a*a*a - 3*(9 + 16*x2*x3*a*a + 8*x3*x3*a*a) +
-                 16*x1*x1*a*a*(15 + 32*x2*x3*a*a + 16*x3*x3*a*a) +
-                 32*x1*a*a*(x2 + 2*x3 + 12*x2*x3*x3*a*a))) +
-       b3*(-144*a*a*a*a + 8*b3*a*a*(-9 + 40*x1*x1*a*a + 16*x1*x3*a*a - 12*x3*x3*a*a) +
-           b3*b3*(128*x1*x1*x1*x3*a*a*a*a - 3*(3 + 8*x3*x3*a*a) + 16*x1*x1*a*a*
-                 (5 + 16*x3*x3*a*a) + 32*x1*(x3*a*a + 4*x3*x3*x3*a*a*a*a)))) +
-      16*b1*a*a*a*a*(b2*b2*b2*b2*(9 + 16*x2*x2*a*a + 64*x2*x2*x2*x2*a*a*a*a + 8*x1*x1*a*a*
-                              (-3 + 8*x2*x2*a*a) + 16*x1*(x2*a*a + 8*x2*x2*x2*a*a*a*a)) +
-                        4*b2*b2*b2*(2*a*a*(9 - 12*x1*x1*a*a + 8*x1*x2*a*a + 8*x2*x2*a*a) +
-                                b3*(9 + 8*x2*x2*a*a + 8*x2*x3*a*a + 64*x2*x2*x2*x3*a*a*a*a +
-                                    8*x1*x1*a*a*(-3 + 4*x2*x2*a*a + 4*x2*x3*a*a) + 4*x1*a*a*
-                                    (3*x2 + x3 + 8*x2*x2*x2*a*a + 24*x2*x2*x3*a*a))) +
-                        4*b2*b3*(72*a*a*a*a + 2*b3*a*a*(27 - 36*x1*x1*a*a + 16*x2*x3*a*a + 8*x3*x3*a*a +
-                                                                  8*x1*(x2 + 2*x3)*a*a) + b3*b3*(9 + 8*x2*x3*a*a + 8*x3*x3*a*a +
-                                                                                                       64*x2*x3*x3*x3*a*a*a*a + 8*x1*x1*a*a*(-3 + 4*x2*x3*a*a + 4*x3*x3*a*a) +
-                                                                                                       4*x1*a*a*(x2 + 3*x3 + 24*x2*x3*x3*a*a + 8*x3*x3*x3*a*a))) +
-                        2*b2*b2*(72*a*a*a*a + 4*b3*a*a*(27 - 36*x1*x1*a*a + 8*x2*x2*a*a + 16*x2*x3*a*a +
-                                                                 8*x1*(2*x2 + x3)*a*a) + b3*b3*(27 + 32*x2*x3*a*a + 8*x3*x3*a*a +
-                                                                                                      8*x1*x1*a*a*(-9 + 4*x2*x2*a*a + 16*x2*x3*a*a + 4*x3*x3*a*a) +
-                                                                                                      24*x1*a*a*(x2 + x3 + 8*x2*x2*x3*a*a + 8*x2*x3*x3*a*a) +
-                                                                                                      8*x2*x2*(a*a + 24*x3*x3*a*a*a*a))) +
-                        b3*b3*(144*a*a*a*a + 8*b3*a*a*(9 - 12*x1*x1*a*a + 8*x1*x3*a*a + 8*x3*x3*a*a) +
-                              b3*b3*(9 + 16*x3*x3*a*a + 64*x3*x3*x3*x3*a*a*a*a + 8*x1*x1*a*a*(-3 + 8*x3*x3*a*a) +
-                                    16*x1*(x3*a*a + 8*x3*x3*x3*a*a*a*a)))))))/
-(sqrt(((b0 + b1)*(b2 + b3))/(4*(b2 + b3)*a*a + b0*(b2 + b3 + 4*a*a) +
-                             b1*(b2 + b3 + 4*a*a)))*pow(4*(b2 + b3)*a*a + b0*(b2 + b3 + 4*a*a) +
-                                                        b1*(b2 + b3 + 4*a*a),5));
-
-
-}
-double aGGCGG(double a , struct general_2index * pa){
-    
-    double b0 = pa->i[0].b0;
-    double b1 = pa->i[0].b1;
-    double x0 = pa->i[0].x0;
-    double x1 = pa->i[0].x1;
-    unsigned short l0 = pa->i[0].l0;
-    unsigned short l1 = pa->i[0].l1;
-    
-    double b2 = pa->i[1].b0;
-    double b3 = pa->i[1].b1;
-    double x2 = pa->i[1].x0;
-    double x3 = pa->i[1].x1;
-    unsigned short l2 = pa->i[1].l0;
-    unsigned short l3 = pa->i[1].l1;
-    
-    
-    
-    double f00 =  1./a* (4.*1.7724538509055159)/exp((b0*(b1*(b2 + b3)*sqr (x0 - x1) + b2*b3*sqr(x2 - x3)) + a*a*(b0*(b1*sqr(x0 - x1) + b2*sqr(x0 - x2) + b3*sqr(x0 - x3)) +   b1*(b2*sqr(x1 - x2) + b3*sqr(x1 - x3)) + b2*b3*sqr(x2 - x3)) +  b1*b2*b3*sqr(x2 - x3))/((b0 + b1)*(b2 + b3) + a*a*(b0 + b1 + b2 + b3)))/sqrt( sqrt( 1./b0/b1/b2/b3) * (b0+b1)*(b2+b3) *((b0 + b1)*(b2 + b3) + a*a*(b0 + b1 + b2 + b3))/(a*a*(b0 + b1)*(b2 + b3)));
-    
-    if ( l0 == 0 && l1 == 0 && l2 == 0 && l3 == 0 )
-        return f00;
-    /*signs added*/    /*now signed removed*/
-    
-    /*removed minus signs in this block*/
-    if ( l0 == 1 && l1 == 0 && l2 == 0 && l3 == 0 )
-        return c10c00(a,b0,x0,b1,x1,b2,x2,b3,x3)*f00;
-    if ( l0 == 0 && l1 == 1 && l2 == 0 && l3 == 0 )
-        return c10c00(a,b1,x1,b0,x0,b2,x2,b3,x3)*f00;
-    if ( l0 == 0 && l1 == 0 && l2 == 1 && l3 == 0 )
-        return c10c00(a,b2,x2,b3,x3,b0,x0,b1,x1)*f00;
-    if ( l0 == 0 && l1 == 0 && l2 == 0 && l3 == 1 )
-        return c10c00(a,b3,x3,b2,x2,b0,x0,b1,x1)*f00;
-    
-    
-    
-    if ( l0 == 1 && l1 == 1 && l2 == 0 && l3 == 0 )
-        return c11c00(a,b0,x0,b1,x1, b2,x2,b3,x3 )*f00;
-    if ( l0 == 0 && l1 == 0 && l2 == 1 && l3 == 1 )
-        return c11c00(a, b2,x2,b3,x3,b0,x0,b1,x1 )*f00;
-    
-    if ( l0 == 1 && l1 == 0 && l2 == 1 && l3 == 0 )
-        return c10c10(a, b0,x0,b1,x1,b2,x2,b3,x3 )*f00;
-    if ( l0 == 1 && l1 == 0 && l2 == 0 && l3 == 1 )
-        return c10c10(a, b0,x0,b1,x1,b3,x3,b2,x2 )*f00;
-    if ( l0 == 0 && l1 == 1 && l2 == 1 && l3 == 0 )
-        return c10c10(a, b1,x1,b0,x0,b2,x2,b3,x3 )*f00;
-    if ( l0 == 0 && l1 == 1 && l2 == 0 && l3 == 1 )
-        return c10c10(a, b1,x1,b0,x0,b3,x3,b2,x2 )*f00;
-    
-    
-    /*removed minus signs in this block*/
-    if(  l0 == 1 && l1 == 1 && l2 == 1 && l3 == 0 )
-        return c11c10(a,b1,x1,b0,x0,b2,x2,b3,x3)*f00;
-    if(  l0 == 1 && l1 == 1 && l2 == 0 && l3 == 1 )
-        return c11c10(a,b1,x1,b0,x0,b3,x3,b2,x2)*f00;
-    if(  l0 == 1 && l1 == 0 && l2 == 1 && l3 == 1 )
-        return c11c10(a,b2,x2,b3,x3,b0,x0,b1,x1)*f00;
-    if(  l0 == 0 && l1 == 1 && l2 == 1 && l3 == 1 )
-        return c11c10(a,b2,x2,b3,x3,b1,x1,b0,x0)*f00;
-    if ( l0 == 1 && l1 == 1 && l2 == 1 && l3 == 1 )
-        return c11c11(a,b0,x0,b1,x1,b2,x2,b3,x3)*f00;
-    
-    
-    if ( l0 == 2 && l1 == 0 && l2 == 0 && l3 == 0 )
-        return c20c00(a,b0,x0,b1,x1,b2,x2,b3,x3)*f00;
-    if ( l0 == 0 && l1 == 2 && l2 == 0 && l3 == 0 )
-        return c20c00(a,b1,x1,b0,x0,b2,x2,b3,x3)*f00;
-    if ( l0 == 0 && l1 == 0 && l2 == 2 && l3 == 0 )
-        return c20c00(a,b2,x2,b3,x3,b0,x0,b1,x1)*f00;
-    if ( l0 == 0 && l1 == 0 && l2 == 0 && l3 == 2 )
-        return c20c00(a,b3,x3,b2,x2,b0,x0,b1,x1)*f00;
-
-    
-    if ( l0 == 2 && l1 == 2 && l2 == 0 && l3 == 0 )
-        return c20c00(a,b0,x0,b1,x1,b2,x2,b3,x3)*f00;
-    if ( l0 == 0 && l1 == 0 && l2 == 2 && l3 == 2 )
-        return c20c00(a,b2,x2,b3,x3,b0,x0,b1,x1)*f00;
-
-    return 0;
-}
-
 
 double collective( double beta ,struct general_2index * pa){
-    
-    if ( pa->gaussianAccelerationFlag ){
-        return aGGCGG(beta,pa)/(2*pi);
-    }
-
-    
-    pa->alpha = beta;
     double value= 0.,value2=0.;
-    if ( pa->periodic == 1 ){
-        
-        if ( beta < 1e-9 ){
-            return 0.;
-        }
-        double kSmall = (2*pi/pa->N1/max(pa->i[0].d,pa->i[1].d));
-        INT_TYPE k;
-        for ( k = - pa->N1 ; k <= pa->N1 ; k++){
-            value += gaussianSinc(kSmall*k+pa->momentumShift,pa)*kSmall;
-        }
-    }else
-        if ( pa->periodic == -1 ){
-            value = gaussianSinc(0,pa);//like sheets of positive (external) charge...  yields a simple momentum integral.
-        }else {
 
+    if ( pa->gaussianAccelerationFlag  ){
+        if ( pa->body == 2 )
+            value =  aaGGCGG(1/beta,pa)/(beta);
+        else if ( pa->body == 1 )
+            value =  aaGGCD(1/beta,pa->i[0].x0,&pa->i[0])/(beta);
+    }else {
+        
+        
+        
+        pa->alpha = beta;
+        if ( pa->periodic == 1 ){
+            
+            if ( beta < 1e-9 ){
+                return 0.;
+            }
+            double kSmall = (2*pi/pa->N1/max(pa->i[0].d,pa->i[1].d));
+            INT_TYPE k;
+            for ( k = - pa->N1 ; k <= pa->N1 ; k++){
+                value += gaussianSinc(kSmall*k+pa->momentumShift,pa)*kSmall;
+            }
+        }else
+            if ( pa->periodic == -1 ){
+                value = gaussianSinc(0,pa);//like sheets of positive (external) charge...  yields a simple momentum integral.
+            }else {
+                
 #ifdef APPLE
-        quadrature_integrate_function g;
-        g.fun = gaussianSincFunc;                               // Called to evaluate the function to integrate
-        g.fun_arg = pa;                                  // Passed as first argument to the callback
-        
-        quadrature_integrate_options options;
-        bzero(&options,sizeof(options));
-        options.integrator = QUADRATURE_INTEGRATE_QAGS;    // Use QAGS: adaptive subdivision with convergence acceleration
-        
-        options.abs_tolerance = 1.0e-9;                    // Requested absolute tolerance on result
-        options.max_intervals = 20;                        // Max number of intervals
-        options.qag_points_per_interval = 25;
-        quadrature_status status;
-        double value,abs_error;
-        
-            if ( (pa->i[0].bra.basis == SincBasisElement && pa->i[0].ket.basis == SincBasisElement ) || (pa->i[1].bra.basis == SincBasisElement && pa->i[1].ket.basis == SincBasisElement )  || (pa->i[0].bra.basis == SincBasisElement && pa->i[0].ket.basis == nullFunction )|| (pa->i[0].bra.basis == nullFunction && pa->i[0].ket.basis == SincBasisElement ) || (pa->i[1].bra.basis == SincBasisElement && pa->i[1].ket.basis == nullFunction )|| (pa->i[1].bra.basis == nullFunction && pa->i[1].ket.basis == SincBasisElement ) ){
-                INT_TYPE pt = imin(((pa->i[0].bra.basis == SincBasisElement) + (pa->i[0].ket.basis == SincBasisElement) ),((pa->i[1].bra.basis == SincBasisElement) + (pa->i[1].ket.basis == SincBasisElement) ));
-                if ( pt == 0 )
-                    pt = 1;
-
-            value =  quadrature_integrate(&g, -pt*pi/max(pa->i[0].d,pa->i[1].d)+pa->momentumShift,pt*pi/max(pa->i[0].d,pa->i[1].d)+pa->momentumShift, &options, &status, &abs_error, 0, NULL);
-            }
+                quadrature_integrate_function g;
+                g.fun = gaussianSincFunc;                               // Called to evaluate the function to integrate
+                g.fun_arg = pa;                                  // Passed as first argument to the callback
+                
+                quadrature_integrate_options options;
+                bzero(&options,sizeof(options));
+                options.integrator = QUADRATURE_INTEGRATE_QAGS;    // Use QAGS: adaptive subdivision with convergence acceleration
+                
+                options.abs_tolerance = 1.0e-9;                    // Requested absolute tolerance on result
+                options.max_intervals = 20;                        // Max number of intervals
+                options.qag_points_per_interval = 25;
+                quadrature_status status;
+                double abs_error;
+                
+                if ( (pa->i[0].bra.basis == SincBasisElement && pa->i[0].ket.basis == SincBasisElement ) || (pa->i[1].bra.basis == SincBasisElement && pa->i[1].ket.basis == SincBasisElement )  || (pa->i[0].bra.basis == SincBasisElement && pa->i[0].ket.basis == nullFunction )|| (pa->i[0].bra.basis == nullFunction && pa->i[0].ket.basis == SincBasisElement ) || (pa->i[1].bra.basis == SincBasisElement && pa->i[1].ket.basis == nullFunction )|| (pa->i[1].bra.basis == nullFunction && pa->i[1].ket.basis == SincBasisElement ) ){
+                    INT_TYPE pt = imin(((pa->i[0].bra.basis == SincBasisElement) + (pa->i[0].ket.basis == SincBasisElement) ),((pa->i[1].bra.basis == SincBasisElement) + (pa->i[1].ket.basis == SincBasisElement) ));
+                    if ( pt == 0 )
+                        pt = 1;
+                    
+                    value =  quadrature_integrate(&g, -pt*pi/max(pa->i[0].d,pa->i[1].d)+pa->momentumShift,pt*pi/max(pa->i[0].d,pa->i[1].d)+pa->momentumShift, &options, &status, &abs_error, 0, NULL);
+                }else {
+                    options.integrator = QUADRATURE_INTEGRATE_QAGS;    // Use QAGS: adaptive subdivision with convergence acceleration
+                    
+                    value =  quadrature_integrate(&g, -INFINITY,+INFINITY, &options, &status, &abs_error, 0, NULL);
+                    
+                    
+                    
+                }
 #else
-        double abs_error;
-        gsl_function F;
-        F.function = &gaussianSinc;
-        F.params = pa;
-        
-        gsl_integration_workspace * workspace= gsl_integration_workspace_alloc (1000);
-        if ( (pa->i[0].bra.basis == SincBasisElement && pa->i[0].ket.basis == SincBasisElement ) || (pa->i[1].bra.basis == SincBasisElement && pa->i[1].ket.basis == SincBasisElement )  || (pa->i[0].bra.basis == SincBasisElement && pa->i[0].ket.basis == nullFunction )|| (pa->i[0].bra.basis == nullFunction && pa->i[0].ket.basis == SincBasisElement ) || (pa->i[1].bra.basis == SincBasisElement && pa->i[1].ket.basis == nullFunction )|| (pa->i[1].bra.basis == nullFunction && pa->i[1].ket.basis == SincBasisElement ) ){
-                INT_TYPE pt = imin(((pa->i[0].bra.basis == SincBasisElement) + (pa->i[0].ket.basis == SincBasisElement) ),((pa->i[1].bra.basis == SincBasisElement) + (pa->i[1].ket.basis == SincBasisElement) ));
-                if ( pt == 0 )
-                    pt = 1;
-                gsl_integration_qag (&F,  -pt*pi/max(pa->i[0].d,pa->i[1].d)+pa->momentumShift,  pt*pi/max(pa->i[0].d,pa->i[1].d)+pa->momentumShift, 1e-9, 1e-9,1000,6,workspace, &value, &abs_error);
-            }
-        else{
-            gsl_integration_qagi (&F, 1e-9, 1e-9,1000,workspace, &value, &abs_error);
-        }
-        gsl_integration_workspace_free(workspace);
+                double abs_error;
+                gsl_function F;
+                F.function = &gaussianSinc;
+                F.params = pa;
+                
+                gsl_integration_workspace * workspace= gsl_integration_workspace_alloc (1000);
+                if ( (pa->i[0].bra.basis == SincBasisElement && pa->i[0].ket.basis == SincBasisElement ) || (pa->i[1].bra.basis == SincBasisElement && pa->i[1].ket.basis == SincBasisElement )  || (pa->i[0].bra.basis == SincBasisElement && pa->i[0].ket.basis == nullFunction )|| (pa->i[0].bra.basis == nullFunction && pa->i[0].ket.basis == SincBasisElement ) || (pa->i[1].bra.basis == SincBasisElement && pa->i[1].ket.basis == nullFunction )|| (pa->i[1].bra.basis == nullFunction && pa->i[1].ket.basis == SincBasisElement ) ){
+                    INT_TYPE pt = imin(((pa->i[0].bra.basis == SincBasisElement) + (pa->i[0].ket.basis == SincBasisElement) ),((pa->i[1].bra.basis == SincBasisElement) + (pa->i[1].ket.basis == SincBasisElement) ));
+                    if ( pt == 0 )
+                        pt = 1;
+                    gsl_integration_qag (&F,  -pt*pi/max(pa->i[0].d,pa->i[1].d)+pa->momentumShift,  pt*pi/max(pa->i[0].d,pa->i[1].d)+pa->momentumShift, 1e-9, 1e-9,1000,6,workspace, &value, &abs_error);
+                }
+                else{
+                    gsl_integration_qagi (&F, 1e-9, 1e-9,1000,workspace, &value, &abs_error);
+                }
+                gsl_integration_workspace_free(workspace);
 #endif
+            }
     }
     value2 = 0.0;
     if ( pa->fl->fn == Yukawa ){
@@ -1193,14 +3201,13 @@ double collective( double beta ,struct general_2index * pa){
         value2 = -pow(-value2 , 1./SPACE);
     else
         value2 = pow(value2 , 1./SPACE);
-
     return value*value2;
 
 }
 
 double collectives (double beta , struct general_2index * pa ){
     
-    if (  pa->point == 1){
+     if (  pa->point == 1){
         double l,r;
         pa->i[0].pointer = 0;
         l = collective(beta, pa);
@@ -1328,7 +3335,10 @@ double elementCal (double a, double b,struct general_2index * aAf ){
     //options.qag_points_per_interval = 25;
     quadrature_status status;
     double  value,abs_error;
-    value =  quadrature_integrate(&g, a, b, &options, &status, &abs_error, 0, NULL);
+    if ( b < a)
+        value =  quadrature_integrate(&g, 1e-8, INFINITY, &options, &status, &abs_error, 0, NULL);
+    else
+        value =  quadrature_integrate(&g, a, b, &options, &status, &abs_error, 0, NULL);
 #else
     double value, abs_error;
 

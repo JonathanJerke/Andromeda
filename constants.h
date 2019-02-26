@@ -65,6 +65,8 @@ typedef double Stream_Type;
 #include <gsl/gsl_monte_vegas.h>
 #include <gsl/gsl_histogram.h>
 #include <gsl/gsl_sf_zeta.h>
+#include <gsl/gsl_sf_hyperg.h>
+#include <gsl/gsl_sf_gamma.h>
 #endif
 
 #ifdef MKL
@@ -241,10 +243,6 @@ struct basisElement {
     double origin;
     
     INT_TYPE auxIndex; //for periodic Sincs
-    double auxLength;
-    INT_TYPE association;
-    INT_TYPE dim;
-    //INT_TYPE body;
 };
 
 

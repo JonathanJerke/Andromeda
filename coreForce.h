@@ -39,6 +39,14 @@ double c11c10 ( double a , double bd1, double  xd1,double  bd2,double  xd2, doub
 double c11c11 (double a, double bd1,double xd1,  double bd2, double xd2, double bd3, double xd3,double bd4, double xd4);
 double aGGCGG(double a , struct general_2index * pa);
 
+
+DCOMPLEX aaGGCGG( double beta, struct general_2index * pa);
+//DCOMPLEX aabGdnGdm( INT_TYPE n,INT_TYPE m, double boost, struct general_index * pa);
+DCOMPLEX aaGdnGdm( INT_TYPE n, INT_TYPE m, struct general_index * pa);
+DCOMPLEX aaGGCD( double invbeta,  double position,struct general_index * pa);
+
+double GTOnorm ( struct basisElement ba );
+
 double collective( double beta ,struct general_2index * pa);
 DCOMPLEX ei ( double arg );
 double No(double beta1);
@@ -46,7 +54,6 @@ double GoG( double beta1, double beta2 , double x );
 double test ( double p , struct general_index * pa );
 DCOMPLEX FSS ( double p , struct general_index * pa );
 DCOMPLEX FDD ( double p , struct general_index * pa );
-DCOMPLEX FGG ( double p , struct general_index * pa);
 double periodicSSGSSa( double alpha ,struct general_2index * pa);
 double periodicSGSa( double alpha ,struct general_2index * pa);
 double periodicSGS ( double a, double x0, INT_TYPE power, double d , INT_TYPE n, INT_TYPE m, INT_TYPE N1  );
@@ -77,7 +84,7 @@ double tTestTwoBody( struct field * f1, enum division mat,INT_TYPE periodic, INT
 double tRMSDevRandom( struct field * f1, enum division mat, INT_TYPE periodic ,INT_TYPE Nc);
 INT_TYPE tZeroSum ( struct field * f1, enum division mat,INT_TYPE spin);
 double BoB (struct basisElement b1, struct basisElement b2);
-double BdB (struct basisElement b1, struct basisElement b2);
+DCOMPLEX BdB (struct basisElement b1, struct basisElement b2);
 double Bd2B (struct basisElement b1, struct basisElement b2);
 double Bx2B (struct basisElement b1, struct basisElement b2);
 #endif /* coreForce_h */
