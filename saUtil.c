@@ -1864,7 +1864,6 @@ INT_TYPE tTabulateComponentProjection( INT_TYPE rank, struct field * f1 , enum d
 
 
 
-//HERE
 double tGetIrrep ( enum body bd, INT_TYPE irrep , INT_TYPE perm ){
     INT_TYPE a,nPerm=0;
     double sum =0.;

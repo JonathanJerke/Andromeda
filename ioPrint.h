@@ -42,12 +42,15 @@ INT_TYPE inputFormat(struct field * f1,char * name,  enum division buffer, enum 
 double tComputeRadialPlot(struct field * f1, INT_TYPE number, INT_TYPE class,  double radius,INT_TYPE numC );
 double tComputeVectorPlot(struct field * f1,INT_TYPE number,  INT_TYPE class,  double *displacement,INT_TYPE numC );
 
-
 INT_TYPE printOutput ( struct field * f1,INT_TYPE number);
 INT_TYPE printVectorOutput ( struct field * f1,INT_TYPE number);
 INT_TYPE printFaceOutput ( struct field * f1,INT_TYPE number);
 
 INT_TYPE tFillBasis(Stream_Type ** pt/*3 vectors*/, double * coordinates/*3 numbers*/, INT_TYPE class,INT_TYPE N1,double lattice);
-INT_TYPE tLoadEigenWeights ( struct calculation * c1, char * filename );
+INT_TYPE tLoadEigenWeights ( struct calculation * c1, char * filename , enum division input);
 INT_TYPE tLoadEigenWeightsWithConstraints (struct calculation * c1, char * filename, char * constraints );
+
+void tFilename (char * cycleName, INT_TYPE count, INT_TYPE body ,INT_TYPE IRREP, INT_TYPE cmpl, char * filename);
+double tFromReadToFilename (char * cycleName, char * read , char * filename, INT_TYPE cmpl);
+
 #endif /* ioPrint_h */

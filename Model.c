@@ -297,7 +297,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         INT_TYPE FloorV = imax(0, c1->i.qFloor), CeilV = imax(0,0);
         INT_TYPE maxArray,EV,maxEV,NV = 0,FV = FloorV+CeilV ;
-        
+        INT_TYPE maxDensity = c1->i.densityFlag;
         
         EV = FV;
         maxEV =EV*(imax(c1->i.Iterations,1));
@@ -305,9 +305,10 @@ INT_TYPE iModel( struct calculation * c1){
         
         f1->sinc.maxEV = maxArray;
         
-        enum division end  = eigenVectors +  c1->i.nStates+maxEV;
+        enum division density  = eigenVectors +  c1->i.nStates+maxEV;
+        f1->sinc.density = density;
+        enum division end  = density+maxDensity;
         f1->sinc.end = end;
-        printf("end %d\n", end);
         f1->sinc.tulip = malloc ( (end+1) * sizeof(struct name_label));
 
 
@@ -440,37 +441,52 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[eigen].purpose = tObject;
 //            f1->sinc.tulip[eigen].symmetryType = nullSymmetry;
             f1->sinc.tulip[eigen].name = eigen;
-            
-            
-            f1->sinc.tulip[density].Address = fromBegining(f1,eigen);
-            f1->sinc.tulip[density].Partition = (!(!c1->rt.printFlag))*c1->i.decomposeRankMatrix;
-            f1->sinc.tulip[density].NBody = two;
-            f1->sinc.tulip[density].species = matrix;
-            f1->sinc.tulip[density].blockType = e12;
-            f1->sinc.tulip[density].header = Cube;
-            f1->sinc.tulip[density].purpose = tObject;
-//            f1->sinc.tulip[density].symmetryType = nullSymmetry;
-            f1->sinc.tulip[density].name = density;
-
+        
             
             INT_TYPE si = 0,g;
             for ( g = 0; g < nSAG*nSAG*nSAG ; g++)
                 si += c1->i.cSA[g];
             
+            if ( c1->i.densityFlag ){
+                INT_TYPE di;
+                printf("std DENSITY vectors with %d ranks\n\n", c1->i.bRank);
+                f1->sinc.tulip[density].Address = fromBegining(f1,eigen);
+                f1->sinc.tulip[density].Partition = c1->i.dRank;
+                printf("density rakn %d\n", c1->i.dRank);
+                f1->sinc.tulip[density].species = vector;
+                f1->sinc.tulip[density].NBody = c1->i.bodyDensity;
+                f1->sinc.tulip[density].header = Cube;
+                f1->sinc.tulip[density].purpose = Object;
+                f1->sinc.tulip[density].name = density;
+                
+                for ( di = 1 ; density+di < end; di++){
+                    f1->sinc.tulip[density+di-1].linkNext = density+di;// linked up!
+                    f1->sinc.tulip[density+di].Address = fromBegining(f1,density+di-1);
+                    f1->sinc.tulip[density+di].Partition = c1->i.dRank ;
+                    f1->sinc.tulip[density+di].header = Cube;
+                    f1->sinc.tulip[density+di].species = vector;
+                    f1->sinc.tulip[density+di].NBody = c1->i.bodyDensity;
+                    f1->sinc.tulip[density+di].purpose = Object;
+                    f1->sinc.tulip[density+di].name = density+di;
+                }
+                f1->sinc.tulip[eigenVectors].Address = fromBegining(f1,density+di-1);
+                
+            }else{
+                f1->sinc.tulip[eigenVectors].Address = fromBegining(f1,eigen);
+            }
             
             
-            
-            if(! si){
+            if(1 /* !si*/){
                 INT_TYPE di,d0=1;
                 printf("std USERs\n\n");
-                f1->sinc.tulip[eigenVectors].Address = fromBegining(f1,density);
+//                f1->sinc.tulip[eigenVectors].Address = fromBegining(f1,density);
                 f1->sinc.tulip[eigenVectors].Partition = c1->i.bRank;
                 f1->sinc.tulip[eigenVectors].species = vector;
                 f1->sinc.tulip[eigenVectors].header = Cube;//READ AND WRITE | => CUBE
                 f1->sinc.tulip[eigenVectors].purpose = tObject;
                 f1->sinc.tulip[eigenVectors].name = eigenVectors;
                 
-                for ( di = 1 ; eigenVectors+di < end; di++){
+                for ( di = 1 ; eigenVectors+di < density; di++){
                     f1->sinc.tulip[eigenVectors+di].Address = fromBegining(f1,eigenVectors+di-1);
                     if ( di < c1->i.nStates ){
                         f1->sinc.tulip[eigenVectors+di].Partition = c1->i.bRank;
@@ -507,7 +523,8 @@ INT_TYPE iModel( struct calculation * c1){
             {
                 INT_TYPE di,d0=1,ii,jj,kk,h,i,last,fpath,v;
                 printf("path USERs\n\n");
-
+                fflush(stdout);
+                exit(0);
                 f1->sinc.tulip[eigenVectors].Address = fromBegining(f1,density);
                 f1->sinc.tulip[eigenVectors].Partition = c1->i.bRank;
                 f1->sinc.tulip[eigenVectors].species = vector;
@@ -618,16 +635,28 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[entropyUnit].name = entropyUnit;
         
         f1->sinc.tulip[complement].Address = fromBegining(f1,entropyUnit);
-        f1->sinc.tulip[complement].Partition = maxVector * 0;//
-        f1->sinc.tulip[complement].parallel = 2;
+        f1->sinc.tulip[complement].Partition = !(!c1->i.densityFlag ) * c1->i.dRank * c1->i.canonRank;//
+        f1->sinc.tulip[complement].parallel = 1;
         f1->sinc.tulip[complement].species = vector;
+        if ( c1->i.densityFlag && (c1->i.bodyDensity - bootBodies) > 0)
+            f1->sinc.tulip[complement].NBody = (c1->i.bodyDensity - bootBodies);
         f1->sinc.tulip[complement].header = Cube;
         f1->sinc.tulip[complement].purpose = Object;
-//        f1->sinc.tulip[complement].symmetryType = nullSymmetry;
         f1->sinc.tulip[complement].name = complement;
         
+        f1->sinc.tulip[complementTwo].Address = fromBegining(f1,entropyUnit);
+        f1->sinc.tulip[complementTwo].Partition = !(!c1->i.densityFlag ) * c1->i.dRank * c1->i.canonRank;//
+        f1->sinc.tulip[complementTwo].parallel = 1;
+        f1->sinc.tulip[complementTwo].species = vector;
+        if ( c1->i.densityFlag && (c1->i.bodyDensity - bootBodies) > 0)
+            f1->sinc.tulip[complementTwo].NBody = (c1->i.bodyDensity - bootBodies);
+        f1->sinc.tulip[complementTwo].header = Cube;
+        f1->sinc.tulip[complementTwo].purpose = Object;
+        f1->sinc.tulip[complementTwo].name = complementTwo;
+
+        
         f1->sinc.tulip[MomentumDot].spinor = none;
-        f1->sinc.tulip[MomentumDot].Address = fromBegining(f1,complement);
+        f1->sinc.tulip[MomentumDot].Address = fromBegining(f1,complementTwo);
         f1->sinc.tulip[MomentumDot].Partition =0 ;//
         f1->sinc.tulip[MomentumDot].NBody = two;
         f1->sinc.tulip[MomentumDot].species = matrix;
@@ -1492,8 +1521,11 @@ INT_TYPE iModel( struct calculation * c1){
     
         {
             
-            
-            
+            if ( c1->i.densityFlag ){
+                f1->sinc.tulip[Ha].linkNext = density;
+                f1->sinc.tulip[Iterator].linkNext = density;
+            }
+            else
             if ( bootBodies == one && bootType == electron){
                 
                 //FOR LINEAR

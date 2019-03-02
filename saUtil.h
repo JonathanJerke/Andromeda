@@ -54,7 +54,7 @@ INT_TYPE nEqua(enum body bd, INT_TYPE *a );
 void tIntr ( enum body bd , INT_TYPE eq , double * a);
 INT_TYPE tInnerTest( struct field * f1, enum division A ,enum division B);
 double deg(struct field *f1, INT_TYPE cl );
-double tGetType(enum body bd , INT_TYPE type , INT_TYPE i );;//HERE
+double tGetType(enum body bd , INT_TYPE type , INT_TYPE i );;
 double get1(enum body bd , INT_TYPE irrep1 , INT_TYPE perm1 );;
 
 INT_TYPE tSA (enum body bd, INT_TYPE X, INT_TYPE Y, INT_TYPE Z, INT_TYPE T );

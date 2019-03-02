@@ -117,7 +117,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
     INT_TYPE i,d,ivalue;
     char test_line [MAXSTRING];
     double value;
-    INT_TYPE NINT_TYPE = 106;
+    INT_TYPE NINT_TYPE = 108;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -140,7 +140,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "breakBody","interval","RAM","monteCarlo","samples",
         "hartreeFock","basisStage","iterations","group","states",
         "length","side","lookBack","step","theory",
-        "configuration"
+        "configuration","densityRank","densityBody"
     };
     INT_TYPE NDOUBLE = 64;
     char *list_DOUBLE []= {"#",
@@ -726,6 +726,12 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                         return 0;
                     }
                     return i;
+                case 107:
+                    c->i.dRank = ivalue;
+                    return i;
+                case 108:
+                    c->i.bodyDensity = ivalue;
+                    return i;
 
             }
         
@@ -1201,7 +1207,7 @@ INT_TYPE intervalGeometry(struct calculation * c, const char * input_line ){
 
 INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
     INT_TYPE io;
-    INT_TYPE Nio = 37;
+    INT_TYPE Nio = 38;
     char test_line [MAXSTRING];
     char *list_IO[] = {"#",
         "densityIn","hartreeIn", "densityOut" ,//3
@@ -1216,7 +1222,7 @@ INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
         "momentum","offSet","LOST100",//30
         "radial","vector","print", //33
         "cycle","operator","constraints",//36
-        "file"
+        "file","svd"
     };
     char filename[MAXSTRING];
     FILE * mid;
@@ -1482,6 +1488,13 @@ INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
                 sprintf(c->cycleName,"%s", filename);
                 return io;
             }
+            case 38:
+            {
+                sprintf(c->mem.densityName,"%s", filename);//normal input space will define output body count...//program will read body count of this vector directly
+                if ( c->i.densityFlag % 2 == 0 )
+                    c->i.densityFlag += 1;
+                return io;
+            }
 
             }
         }
@@ -1621,6 +1634,7 @@ INT_TYPE initCalculation(struct calculation * c ){
     c->i.RAMmax = 0;//Gb  needs updating
     c->rt.printFlag = 0;
     c->i.potentialFlag = 0;
+    c->i.densityFlag = 0;
     c->i.springFlag = 0;
     c->i.c.rds.flag = 0;
     c->i.outputFlag = 0;

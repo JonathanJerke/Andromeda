@@ -310,6 +310,8 @@ INT_TYPE tClear ( struct field * f1 , enum division label ){
 INT_TYPE CanonicalRank( struct field * f1 , enum division label , INT_TYPE spin ){
     if ( label > f1->sinc.end ){
         printf("Can rank past end\n");
+        fflush(stdout);
+        exit(0);
     }
     
     
@@ -407,6 +409,9 @@ double sumSquare (struct field * f1,  enum division alloy){
 ADDRESS_TYPE  fromBegining( struct field * f1 , enum division label ){
     if ( label > f1->sinc.end ){
         printf("from %d past end\n",label);
+        fflush(stdout);
+        exit(0);
+
     }
     if ( memory (f1, label ) == oneObject ){
         //  printf("-\n");
@@ -431,6 +436,8 @@ ADDRESS_TYPE  fromBegining( struct field * f1 , enum division label ){
 ADDRESS_TYPE  fromMyBegining( struct field * f1 , enum division label  ){
     if ( label > f1->sinc.end ){
         printf("from %d past end\n",label);
+        fflush(stdout);
+        exit(0);
     }
     if ( memory (f1, label ) == oneObject ){
         INT_TYPE leng = alloc(f1, label);

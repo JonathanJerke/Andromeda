@@ -119,9 +119,8 @@ double traceOne( struct field * f1 , enum division label , INT_TYPE spin ){
     double sum,sum2,product;
     INT_TYPE l,i,space;
     INT_TYPE *N1 = vectorLen(f1, label);
-    if ( species(f1, label) != matrix ){
-        printf("oops trace %d\n",label);
-        return 0;
+    if ( species(f1, name(f1,label)) != matrix ){
+        return inner(spin, f1,label, spin);
     }
     sum2 = 0.;
     //printf("trace %d (%d), %d-body \n", label, spin, bodies(f1,label)  );

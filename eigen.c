@@ -75,6 +75,7 @@ INT_TYPE t1BodyConstruction(struct calculation * c1, enum division eigen){
     double ar[N2],w[N1];
     
 
+    printf("trace kinetic %f\n", traceOne(f1, kinetic, 0));
     for ( space = 0 ;space < SPACE ; space++){
         cblas_dcopy(N2, streams(f1, kinetic,0,space)+space*N2, 1, ar, 1);
         
@@ -709,7 +710,7 @@ INT_TYPE tSelect(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division us
     if ( testFlag ){
 
         if ( ov[Ve]/ov[0] < f1->mem1->rt->TOL && ov[Ve]/ov[0] >0 && ov[0] > 0 ){
-                printf("(%f,%f,%d)\n",  ov[Ve],ov[0],Ve+1 );
+                printf("condition (%f,%d)\n",  ov[Ve]/ov[0],Ve+1 );
                 fflush(stdout);
 
                 return 1;
@@ -1030,9 +1031,7 @@ INT_TYPE tSAboot(struct calculation *c1){
         
         assignCores(f1, 2);
         
-        
-        
-        if (c1->rt.body != one ){
+        if (c1->rt.body != one  ){
             tNBodyConstruction ( c1, build,  eigen);
         }
         else
@@ -1141,7 +1140,6 @@ INT_TYPE tSAboot(struct calculation *c1){
                                 }else if ( k != 0 )
                                     continue;
                             }
-                             printf("%d %d %d\n", i,j,k);
 
                             f1->sinc.tulip[permutationVector].Current[rank]= 0;
                             
@@ -1392,7 +1390,7 @@ INT_TYPE tEdges(struct calculation *c1){
 
 
 INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE iterations, INT_TYPE foundation, INT_TYPE irrep,INT_TYPE flag,  enum division outputSpace, enum division outputValues){
-    INT_TYPE gvOut,prevBuild;
+    INT_TYPE in,gvOut,prevBuild;
     time_t start_t, lapse_t;
     
     time(&start_t);
@@ -1421,7 +1419,7 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
 #if VERBOSE
         printf("m%d %f\n", usz+n,magnitude(f1, usz+n) );
 #endif
-    //    tScale(f1, usz+n, 1./magnitude(f1, usz+n));
+        tScale(f1, usz+n, 1./magnitude(f1, usz+n));
         H[n] = 1.;
     }
     
@@ -1501,9 +1499,9 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
                                     fflush(stdout);
 #endif
     #ifdef OMP
-    #pragma omp parallel for private (m,rank,n) schedule(dynamic,1)
+    #pragma omp parallel for private (in,m,rank,n) schedule(dynamic,1)
     #endif
-                                    for ( n = prevBuild; n < quantumBasisSize ; n++)
+                                    for ( in = 0 ;in < quantumBasisSize * quantumBasisSize; in++)
                                     {
                                         
 #ifdef OMP
@@ -1511,7 +1509,9 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
 #else
                                         rank = 0;
 #endif
-                                        for ( m = 0 ; m <=n   ; m++){
+                                        m = in % quantumBasisSize;
+                                        n = (in/quantumBasisSize) & quantumBasisSize;
+                                        {
                                             (T+stride*maxEV)[n*stride+m] = co/H[m]/H[n]*matrixElements(rank, f1, permutation,usz+n, 'N', Mat, cmpl, usz+m, cmpl2);
                                         }
                                         
@@ -1549,6 +1549,12 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
                 } while ( leftP != nullName);
 
             }
+    if(0){
+        INT_TYPE ii;
+        for ( ii = 0 ; ii < quantumBasisSize ; ii++)
+            printf("%d %f %f , %f %f\n", ii+1, T[0*stride+ii], S[0*stride+ii]);
+    }
+    
 //    if(0)
 //    for ( n = 0; n < quantumBasisSize-foundation; n++)
 //        for ( m = 0 ; m <= n   ; m++){

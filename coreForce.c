@@ -2557,7 +2557,7 @@ double GTOnorm ( struct basisElement ba ){
     struct general_index ga ;
     ga.bra = ba;
     ga.ket = ba;
-   // printf("..(%f %f) \n",aaGdnGdm(0, 0, &ga) );
+ //   printf("..(%f %f) \n",aaGdnGdm(0, 0, &ga) );
     return sqrt ( 1./aaGdnGdm(0, 0, &ga));
     
 }
@@ -2950,7 +2950,7 @@ DCOMPLEX BdB (struct basisElement b1, struct basisElement b2){
 
 double Bx2B (struct basisElement b1, struct basisElement b2){
     if ( b1.basis == SincBasisElement && b2.basis == SincBasisElement ){
-
+        
     }
     printf("over rails\n");
     exit(0);
@@ -4845,7 +4845,7 @@ INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division aki
                         (stream )[dims1[space]*I1+I2] = BoB(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2));
 
                     
-//                    printf ("%d %d %d %f %f\n", particle1,I1,I2,sqr(f1->sinc.d)*Bd2B(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2)), periodicSd2S(I1-I2,dims1[space]));
+               //     printf ("%d %d %d %f %f\n", particle1,I1,I2,sqr(f1->sinc.d)*Bd2B(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2)), periodicSd2S(I1-I2,dims1[space]));
                 }
         }
     }

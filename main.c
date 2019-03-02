@@ -58,24 +58,26 @@ struct calculation bootShell (INT_TYPE argc , char * argv[]){
 INT_TYPE print(struct calculation *c ){
     INT_TYPE irrep;
     struct field * f1 = & c->i.c;
-        char str[MAXSTRING];
-        INT_TYPE iii,jjj=1,cmpl;
+    char str[MAXSTRING];
+    INT_TYPE iii,jjj=1,cmpl;
     for ( irrep = 0 ; irrep <= 5 ; irrep++){
         jjj = 1;
         for ( iii = 0; iii < c->i.heliumFlag  ; iii++)
-            if ( f1->sinc.tulip[eigenVectors+iii].symmetry  == irrep && (! c->i.irrep|| c->i.irrep == irrep)){
+            if ( f1->sinc.tulip[eigenVectors+iii].symmetry  == irrep && ((! c->i.irrep)|| c->i.irrep == irrep)){
                 
                 printf("%dState%d:%d:,%d ,%1.15f, %d, %d , %1.1f,%1.15f\n", f1->body,jjj, f1->sinc.N1,jjj,f1->sinc.tulip[eigenVectors+iii].value,bodies(f1,eigenVectors+iii),irrep, deg(f1, irrep),f1->sinc.tulip[eigenVectors+iii].value2);
                 if ( (c->i.outputFlag) % 2 == 1){
                     
                     for ( cmpl = 0 ; cmpl < spins(f1, eigenVectors+iii) ; cmpl++)
                     {
-                        sprintf(str,"%s.%lld.eigen-%lld.%lld_mac", c->name,jjj,irrep,cmpl);
 #ifndef APPLE
-                        
+                        tFilename(c->name,jjj,bodies(f1, eigenVectors+iii) ,irrep, cmpl,str);
+
                         FILE * out = fopen ( str,"w" );
-                        outputFormat(&c->i.c, out, eigenVectors+iii,cmpl  );
-                        fclose(out);
+                        if ( out != NULL ){
+                            outputFormat(&c->i.c, out, eigenVectors+iii,cmpl  );
+                            fclose(out);
+                        }
 #endif
                     }
                 }
@@ -184,7 +186,7 @@ INT_TYPE exec (struct calculation *c ){
         if ( (c1->rt.printFlag/8)%2 ){
             lV = tLoadEigenWeightsWithConstraints ( c1, c1->mem.fileList,c1->mem.constraintFile);
         } else {
-            lV = tLoadEigenWeights ( c1, c1->mem.fileList);
+            lV = tLoadEigenWeights ( c1, c1->mem.fileList, eigenVectors);
         }
         if ( ( c1->rt.printFlag/4) % 2 ){
             printf("OPERATOR = KINETIC\n");
@@ -205,7 +207,7 @@ INT_TYPE exec (struct calculation *c ){
         INT_TYPE xyz,cycle =0,iteration,iter=0,EV,type2;
         INT_TYPE space;
         enum division usz;
-        if ( c1->i.sectors ){
+        if ( c1->i.sectors && ! c1->i.densityFlag){
             c1->i.heliumFlag = c->i.nTargets;
             c1->i.nStates = c1->i.heliumFlag;
             if ( splitFlag )
@@ -224,16 +226,15 @@ INT_TYPE exec (struct calculation *c ){
             }
             EV =c1->i.qFloor;
             cycleFlag = 1;
-        }else {
-//            iModel(c1);
-//            FILE * fileOut = fopen("ppe.mac","w");
-//            outputFormat(f1,fileOut, linear, 0 );
-//            fclose(fileOut);
-//            exit(0);
+        }else if (! c1->i.sectors && ! c1->i.densityFlag  ){
             {
                 INT_TYPE lines = 0;
                 char ch ;
                 FILE * fp = fopen(c1->mem.fileList,"r");
+                if ( fp == NULL ) {
+                    printf("file?\n");
+                    exit(0);
+                }
                 while(!feof(fp))
                 {
                     ch = fgetc(fp);
@@ -253,18 +254,76 @@ INT_TYPE exec (struct calculation *c ){
             iModel(c1);
 
 #ifndef APPLE
-            if ( tLoadEigenWeights ( c1, c1->mem.fileList) != c1->i.qFloor ){
+            if ( tLoadEigenWeights ( c1, c1->mem.fileList, eigenVectors) != c1->i.qFloor ){
                 printf("set helium %d \n", c1->i.qFloor);
                 exit(0);
             }
-            printf("symm %d\n", c1->i.irrep);
-            printf("%d \n", f1->sinc.tulip[eigenVectors].symmetry);
-            printf("c1 %d\n", c1->i.nStates);
-            
+            tFilter(&c1->i.c, c1->i.nStates, 0, eigenVectors);
 #endif
             usz = eigenVectors+c1->i.nStates;
             EV = xConstructFoundation (c1 , usz, c1->i.qFloor, c1,   eigenVectors,   c1->i.nStates ,1);
 
+        }else if ( c1->i.sectors && c1->i.densityFlag ){
+            {
+                c1->i.heliumFlag = c->i.nTargets;
+                c1->i.nStates = c1->i.heliumFlag;
+
+                size_t ms = MAXSTRING;
+                char input_line[MAXSTRING];
+                char * mask = input_line;
+                
+                INT_TYPE lines = 0;
+                char ch ;
+                FILE * fp = fopen(c1->mem.densityName,"r");
+                if ( fp == NULL ) {
+                    printf("file?\n");
+                    exit(0);
+                }
+
+                while(!feof(fp))
+                {
+                    ch = fgetc(fp);
+                    if(ch == '\n')
+                    {
+                        lines++;
+                    }
+                }
+                fclose(fp);
+                c1->i.densityFlag = lines;
+                printf("density Count %d\n",c1->i.densityFlag );
+
+            }            
+            iModel(c1);
+            if ( c1->i.bodyDensity != bodies (&c1->i.c,c1->i.c.sinc.density) ){
+                printf("body count!\n");
+                exit(0);
+                
+            }
+#ifndef APPLE
+            if ( c1->i.densityFlag )
+                printf("density Count %d\n",c1->i.densityFlag );
+            
+            if ( tLoadEigenWeights ( c1, c1->mem.densityName ,f1->sinc.density) != c1->i.densityFlag){
+                printf("set helium %d \n", c1->i.densityFlag);
+                exit(0);
+            }
+
+#endif
+            if ( c1->rt.body == one )
+                t1BodyConstruction(c1, build);
+            else
+                tSAboot(c1);
+
+            usz = eigenVectors+c1->i.nStates;
+            if ( tCollect(f1,c1->i.irrep,usz,c1->i.qFloor ,c->i.seekPower) != c1->i.qFloor){
+                printf("could not muster \n");
+                exit(0);
+            }
+            EV =c1->i.qFloor;
+            cycleFlag = 1;
+
+        }else {
+            exit(0);
         }
         RdsSize = EV;
         c1->i.sectors = 0;
@@ -332,84 +391,8 @@ INT_TYPE exec (struct calculation *c ){
                 
                 c2->i.vectorMomentum *= (c1->i.d* (2.* c1->i.epi + 1.) )/(c1->i.d*(2.*c2->i.epi + 1. ));
                 printf("attack %f %f -> %f\n",c2->i.attack,c1->i.d, c2->i.d);
-#ifndef splitTag
-              //  print(c1);
-#endif
                 
                 {
-//                    if ( splitFlag )
-//                    {
-//                        INT_TYPE nP = tPerms(f1->body);
-//                        struct calculation *c3 = malloc(sizeof(struct calculation ));
-//                        *c3 = *c1;
-//                        c3->i.Iterations = 1;
-//                        c3->i.cycles = 0;
-//                        c3->i.nStates = c1->i.nStates;
-//                        c3->i.Iterations = 0;
-//                        c3->i.qFloor = 7;
-//                        c3->i.c.mem1->bootedMemory =0;
-//                        c3->i.c.sinc.tulip = NULL;
-//                        for ( space = 0; space <= SPACE ; space++)
-//                            c3->i.c.sinc.rose[space].stream = NULL;
-//
-//                        iModel(c3);
-//
-//                        INT_TYPE sp,g,i,ii,iii = 0,rank=0,sup;
-//
-//
-//                        for( g = 0; g < nSAG*nSAG*nSAG; g++)
-//                            c2->i.cSA[g] = 0;
-//
-//
-//                        for ( ii = 0; ii < c1->i.nStates ; ii++)
-//                        {
-//                            sup = tSizeUp(rank,f1,c1->i.irrep, eigenVectors+ii);
-//                            if ( sup ){
-//                                for ( sp = 0; sp  < spins (f1, eigenVectors+ii);sp++)
-//                                    xEqua(&c3->i.c, copyVector, sp, f1, eigenVectors+ii, sp);
-//                                if (tSelect(&c3->i.c,  iii,c3->i.irrep+nP, eigenVectors, copyVector,1)){
-//                                    c3->i.c.sinc.tulip[eigenVectors+iii].path  = tPath(f1, eigenVectors+ii );
-//                                    c2->i.cSA[tPath(f1, eigenVectors+ii ) ] += 1;
-//                                    iii++;
-//                                }
-//                            }
-//                        }
-//
-//
-//                        {
-//                            printf("begin count\n");
-//                            INT_TYPE nG = tSize(f1->body);
-//                            for( g = 0; g < nSAG*nSAG*nSAG; g++)
-//                                if ( c2->i.cSA[g] )
-//                                    printf("%d : 00 : %d:: (%d %d %d) --> %d\n",g, c2->i.cSA[g],c2->i.cSA[g]%nG+1 , (c2->i.cSA[g]/nG)%nG +1, (c2->i.cSA[g]/(nG*nG) % nG) +1, c->i.irrep);
-//                            printf("end count\n");
-//
-//                        }
-//                        c2->i.qFloor = iii;
-//
-//                        c2->i.heliumFlag = c->i.nTargets;//number of states
-//                        c2->i.nStates = tPaths(c->rt.body , c->i.irrep)*c2->i.heliumFlag;//number of paths ...
-//                        EV = c2->i.qFloor;
-//
-//                        iModel(c2);
-//                        usz = eigenVectors+c2->i.nStates;
-//                        {
-//                            for ( i = 0; i < c2->i.qFloor ; i++){
-//                                for ( sp = 0; sp < spins(f1, usz); sp++){
-//                                    xEqua(&c2->i.c, usz+i, sp, &c3->i.c, eigenVectors+i, sp);
-//                                }
-//                                printf("c3 %i --> c2 %d\n", eigenVectors+i,usz+i);
-//                            }
-//                        }
-//                        fModel(c3);
-//                        free(c3);
-//                        fModel(c1);
-//                        free(c1);
-//                        c1 = c2;
-//                        f1 = &c1->i.c;
-//
-//                        RdsSize = EV;
-//                    }else
                     {
                         
                         {
@@ -420,7 +403,7 @@ INT_TYPE exec (struct calculation *c ){
                             for ( irrep = 0 ; irrep <= 5 ; irrep++){
                                 for ( iii = 0; iii < c1->i.nStates ; iii++)
                                 {
-                                    if (f1->sinc.tulip[eigenVectors+iii].symmetry == irrep && (! c1->i.irrep || irrep == c1->i.irrep) ){
+                                    if (f1->sinc.tulip[eigenVectors+iii].symmetry == irrep && ((! c1->i.irrep) || irrep == c1->i.irrep) ){
                                         ii++;
                                         
                                         if ( ii <= c->i.nTargets){
@@ -450,6 +433,9 @@ INT_TYPE exec (struct calculation *c ){
                             RdsSize = EV;
                         }
                         
+                        if ( c1->i.densityFlag )
+                            c2->i.densityFlag = c1->i.densityFlag;
+                        
                         iModel(c2);
                         xConstructFoundation (c2 , eigenVectors, c2->i.nStates, c1,eigenVectors,nStatesTrans ,1);
                         fModel(c1);
@@ -459,6 +445,21 @@ INT_TYPE exec (struct calculation *c ){
                         f1 = &c1->i.c;
                         usz = eigenVectors+c1->i.nStates;
                         
+                        if ( c1->i.densityFlag ){
+
+                        if ( c1->i.bodyDensity != bodies (&c1->i.c,c1->i.c.sinc.density) ){
+                            printf("body count!\n");
+                            exit(0);
+                            
+                        }
+                            printf("density Count %d\n",c1->i.densityFlag );
+                        
+                        if ( tLoadEigenWeights ( c1, c1->mem.densityName ,f1->sinc.density) != c1->i.densityFlag){
+                            printf("set helium %d \n", c1->i.densityFlag);
+                            exit(0);
+                        }
+
+                        }
 #ifdef OMP
 #pragma omp parallel for private (ii) schedule(dynamic,1)
 #endif

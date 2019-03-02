@@ -504,12 +504,11 @@ double tCycleDecompostionOneMP ( INT_TYPE rank, struct field * f1 , enum divisio
         tEqua(f1, alloy,spin, origin, os );
 		return 0.;
     }
-    //HERE
     
     while (1){
         if (canonicalDecompositionMP(rank, f1, origin, os,alloy, spin, tolerance*value2) ){
 #if 1
-            printf("bailed %d %d %d %d -- %d\n",origin,0,alloy,spin , CanonicalRank(f1, alloy, spin));
+            printf("basic bailed %d %d %d %d -- %d\n",origin,0,alloy,spin , CanonicalRank(f1, alloy, spin));
             fflush(stdout);
 #endif
             f1->sinc.tulip[alloy].Current[spin]--;
@@ -813,7 +812,7 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum div
     do{
         if (canonicalListDecompositionMP(rank, f1, coeff, origin, 0,alloy, spin, tolerance,value2) ){
 #if 1
-            printf("bailed %d %d %d %d -- %d\n",origin,0,alloy,spin , CanonicalRank(f1, alloy, spin));
+            printf("List bailed %d %d %d %d -- %d\n",origin,0,alloy,spin , CanonicalRank(f1, alloy, spin));
             fflush(stdout);
 #endif
             f1->sinc.tulip[alloy].Current[spin]--;
@@ -928,12 +927,48 @@ DCOMPLEX matrixElements ( INT_TYPE rank,struct field * f1 , char perm, enum divi
     }
     DCOMPLEX sum = 0.;
     
+    if ( name(f1,mat ) < f1->sinc.density )
     for ( r = 0 ; r < CanonicalRank(f1, mat, ms);r++){
         tMultiplyMP(rank, &info, f1, 1., -1, productVector, rank, mc, ocean(rank, f1, mat, r, ms) ,ms, 'N', vec, vs);
         value = tMultiplyMP(rank, &info, f1, 1., -1, nullVector, 0, 'T', uec ,0, 'N', productVector,rank );
         if ( CanonicalRank(f1, uec,1 ))
             value += I*tMultiplyMP(rank, &info, f1, 1., -1, nullVector, 0, 'T', uec ,1, 'N', productVector,rank );
         sum += value;
+    }
+    else {
+        INT_TYPE cmpl,cmpl2;
+        DCOMPLEX co = 1.;
+        enum division wavefunction = name(f1,mat);
+        for ( cmpl2 = 0 ; cmpl2 < spins(f1, uec); cmpl2++){
+            if ( cmpl2 == 0  )
+                co = 1.;
+            else
+                co = I;
+            if ( (ms == 0 && cmpl2 ==0) || ( ms ==1 && cmpl2 == 1 ) ){
+                for ( cmpl = 0 ; cmpl < spins(f1, wavefunction); cmpl++)
+                    if ( bodies ( f1, wavefunction ) == bodies(f1, vec) ){
+                        sum += co*tMultiplyMP(rank, &info,f1, 1.0, -1, nullVector , 0, 'T', wavefunction, cmpl, 'N', vec, vs)*
+                        tMultiplyMP(rank, &info,f1, 1.0, -1, nullVector , 0, 'T', wavefunction, cmpl, 'N', uec, cmpl2);
+                    } else {
+                        tMultiplyMP(rank,&info, f1, 1.0, -1, complement , rank, 'N', wavefunction, cmpl, 'N', vec, vs);
+                        tMultiplyMP(rank,&info, f1, 1.0, -1, complementTwo , rank, 'N', wavefunction, cmpl, 'N', uec, cmpl2);
+                        sum += co*tMultiplyMP(rank,&info, f1, 1.0, -1, nullVector , 0, 'T', complement, rank, 'N', complementTwo, rank);
+                    }
+            }else
+                if ( (ms == 0 && cmpl2 ==1) || ( ms ==1 && cmpl2 == 0 ) ){
+                    for ( cmpl = 0 ; cmpl < spins(f1, wavefunction); cmpl++)
+                        if ( bodies ( f1, wavefunction ) == bodies(f1, vec) ){
+                            sum +=co*tMultiplyMP(rank, &info,f1, 1.0, -1, nullVector , 0, 'T', wavefunction, cmpl, 'N', vec, vs)*
+                            tMultiplyMP(rank, &info,f1, 1.0, -1, nullVector , 0, 'T', wavefunction, !cmpl, 'N', uec, cmpl2);
+                        } else{
+                            tMultiplyMP(rank,&info, f1, 1.0, -1, complement , rank, 'N', wavefunction, cmpl, 'N', vec, vs);
+                            tMultiplyMP(rank,&info, f1, 1.0, -1, complementTwo , rank, 'N', wavefunction, !cmpl, 'N', uec, cmpl2);
+                            sum += co*tMultiplyMP(rank,&info, f1, 1.0, -1, nullVector , 0, 'T', complement, rank, 'N', complementTwo, rank);
+                        }
+                }
+        }
+        sum *= -1.;
+
     }
     return sum;
 }
@@ -1187,25 +1222,48 @@ double canonicalMultiplyMP( INT_TYPE rank,struct field * f1 , char mc,enum divis
                 return 1;
             }
             
-            INT_TYPE r;
+            INT_TYPE r,r2;
             for ( r = 0; r < L1*M2[space0] ; r++)
                 array2[space0][r] = 0.;
-            for ( r = 0 ; r < R1 ; r++){
-                
-                tMultiplyMP(rank, &info, f1, 1., -1, productVector, rank, mc,ocean(rank,f1,mat,r,ms),ms, 'N', vec, vs);
-                {
-                    cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, L1, V1, M2[space1], 1.0,  streams(f1,alloy,spin,space1), M2[space1], streams(f1, productVector,rank,space1), M2[space1],0.0, array2[space1], L1);
+            if (name(f1, mat)< f1->sinc.density)
+                for ( r = 0 ; r < R1 ; r++){
                     
-                    if ( SPACE > 2 ){
-                    cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, L1, V1, M2[space2], 1.0,  streams(f1,alloy,spin,space2), M2[space2], streams(f1, productVector,rank,space2), M2[space2],0.0, array2[space2], L1);
-
-                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,V1*L1, 0,array2[space2],1, array2[space1],1 );
-                    }
-                }//form <g,f>
-                
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,L1,M2[space0],V1,1.0,array2[space1],L1,streams(f1,productVector,rank,space0),M2[space0], 1.00000, array2[space0], L1 );
-                
-            }
+                    tMultiplyMP(rank, &info, f1, 1., -1, productVector, rank, mc,ocean(rank,f1,mat,r,ms),ms, 'N', vec, vs);
+                    {
+                        cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, L1, V1, M2[space1], 1.0,  streams(f1,alloy,spin,space1), M2[space1], streams(f1, productVector,rank,space1), M2[space1],0.0, array2[space1], L1);
+                        
+                        if ( SPACE > 2 ){
+                            cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, L1, V1, M2[space2], 1.0,  streams(f1,alloy,spin,space2), M2[space2], streams(f1, productVector,rank,space2), M2[space2],0.0, array2[space2], L1);
+                            
+                            cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,V1*L1, 0,array2[space2],1, array2[space1],1 );
+                        }
+                    }//form <g,f>
+                    
+                    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,L1,M2[space0],V1,1.0,array2[space1],L1,streams(f1,productVector,rank,space0),M2[space0], 1.00000, array2[space0], L1 );
+                    
+                }else {
+                    for ( r = 0 ; r < R1 ; r++)
+                        for ( r2 = 0 ; r2 < R1 ; r2++){
+                            
+                            tMultiplyMP(rank, &info, f1, 1., -1, complement, rank, 'N',ocean(rank,f1,mat,r,ms),ms, 'N', vec, vs);
+                            tMultiplyMP(rank, &info, f1, 1., -1, productVector, rank, 'N',ocean(rank,f1,mat,r2,ms),ms, 'N', complement, rank);
+                            tScaleOne(f1, productVector,rank, -1);
+                            {
+                                cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, L1, V1, M2[space1], 1.0,  streams(f1,alloy,spin,space1), M2[space1], streams(f1, productVector,rank,space1), M2[space1],0.0, array2[space1], L1);
+                                
+                                if ( SPACE > 2 ){
+                                    cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans, L1, V1, M2[space2], 1.0,  streams(f1,alloy,spin,space2), M2[space2], streams(f1, productVector,rank,space2), M2[space2],0.0, array2[space2], L1);
+                                    
+                                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,V1*L1, 0,array2[space2],1, array2[space1],1 );
+                                }
+                            }//form <g,f>
+                            
+                            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,L1,M2[space0],V1,1.0,array2[space1],L1,streams(f1,productVector,rank,space0),M2[space0], 1.00000, array2[space0], L1 );
+                            
+                            
+                            
+                        }
+                }
             info = tdpotrs(L1,  M2[space0], array[space1],  array2[space0] );
             if ( info != 0 ){
 #if 1
@@ -1240,7 +1298,7 @@ double tCycleMultiplyMP ( INT_TYPE rank,struct field * f1 , char mc,enum divisio
     do{
         if (canonicalMultiplyMP(rank, f1, mc,mat,ms, vec, vs,alloy, spin, tolerance) ){
 #if 1
-            printf("bailed %d %d %d %d -- %d\n",mat,ms,alloy,spin , CanonicalRank(f1, alloy, spin));
+            printf("Multiply  bailed %d %d %d %d -- %d\n",mat,ms,alloy,spin , CanonicalRank(f1, alloy, spin));
             fflush(stdout);
 #endif
             return 1;

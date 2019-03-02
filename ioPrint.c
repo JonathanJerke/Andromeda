@@ -76,6 +76,24 @@ void outputFormat(struct field  * f1, FILE * out, enum division output ,INT_TYPE
     fprintf (out,"\n}");
 }
 
+void tFilename (char * cycleName, INT_TYPE count, INT_TYPE body ,INT_TYPE IRREP, INT_TYPE cmpl, char * filename){
+    sprintf(filename,"%s.%d.eigen-%d.%d_mac",cycleName,count,IRREP,cmpl);
+   // printf("%s\n", filename);
+}
+
+
+double tFromReadToFilename (char * cycleName, char * read , char * filename, INT_TYPE cmpl){
+    double Occ;
+    INT_TYPE number, class,si,str0;
+    si = sscanf ( read, "\"%d\",%d,%d,%lf",&str0,&number,&class, &Occ );
+    if ( si == 4 ) {
+        tFilename(cycleName, number, 0, class, cmpl, filename);
+        return Occ;
+    }else {
+        return 0.;
+    }
+}
+
 #if 1
 INT_TYPE inputFormat(struct field * f1,char * name,  enum division buffer, enum division input){
     size_t maxRead = 4096;
@@ -126,6 +144,13 @@ INT_TYPE inputFormat(struct field * f1,char * name,  enum division buffer, enum 
     //   printf("header = %lld\ngenus = %lld %lld %f\n%lld %lld %lld %lld %lld \n",head, genus,Nbody, D,  r1 , sp, M[0], M[1],M[2]);
     
 #endif
+    
+    if ( r1 > part(f1, buffer)){
+        printf("increase part %d %d\n", r1,part(f1,buffer));
+        fflush(stdout);
+        exit(0);
+    }
+    
     if ( input == 0 ){
         fclose(in);
         return genus;
@@ -902,8 +927,8 @@ double evaluateVectorBracket( double x [], size_t dim , void * params ){
     
 }
 
-INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename){
-    INT_TYPE ct = 0,ct2,number,bod,class,weight,cmpl;
+INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum division inputVectors){
+    INT_TYPE ct = 0,ct2,number,class,weight,cmpl;
     FILE * in = fopen(filename, "r");
     struct field *f1 = &c1->i.c;
     if ( in == NULL ){
@@ -914,41 +939,48 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename){
     char input_line[MAXSTRING];
     char str0[MAXSTRING];
     char * mask = input_line;
-    double Occ,Ceg;
+    double Occ;
     char name[MAXSTRING];
     while (1){
         if (  getline(&mask,&ms,in) > 0 ){
-            if ( (!comment(input_line)) && (strlen(input_line) > 1) )  {
-                si = sscanf ( input_line, "\"%d\",%d,%d,%lf",&str0,&number,&class, &Occ );
-                read = (4== si);
-                if ( read && fabs(Occ) > 1e-5){
-                    tClear(&c1->i.c, eigenVectors+ct);
-                    tClear(&c1->i.c, totalVector);
-                    for ( cmpl = 0; cmpl < spins(&c1->i.c, eigenVectors); cmpl++)
-                    {
-                        sprintf(name,"%s.%d.eigen-%d.%d_mac",c1->cycleName,number,class,cmpl);
-                        inputFormat(&c1->i.c, name, totalVector, 1);
-                        if ( part(f1, eigenVectors + ct ) >= CanonicalRank(f1, totalVector, cmpl)){
-                            tEqua(f1, eigenVectors + ct, cmpl, totalVector, cmpl);
+            if ( (!comment(input_line)) && (strlen(input_line) > 1) ){
+                Occ = 0.;
+                for ( cmpl = 0; cmpl < spins(&c1->i.c, inputVectors); cmpl++)
+                {
+                    Occ = tFromReadToFilename(c1->cycleName, input_line, name, cmpl);
+                    if ( fabs(Occ) > 1e-5){
+                        f1->sinc.tulip[inputVectors+ct].Current[cmpl] = 0;
+                        
+                        if (inputVectors == eigenVectors){
+                            
+                            {
+                                tClear(&c1->i.c, totalVector);
+                                inputFormat(&c1->i.c, name, totalVector, 1);
+                                if ( part(f1, inputVectors + ct ) >= CanonicalRank(f1, totalVector, cmpl)){
+                                    tEqua(f1, inputVectors + ct, cmpl, totalVector, cmpl);
+                                    printf("%d\t%s\t%f\n", ct, name, fabs(Occ));
+                                }
+                                else{
+                                    tCycleDecompostionOneMP(0, f1,totalVector, cmpl, inputVectors + ct, cmpl, f1->mem1->rt->vCANON, part(f1,inputVectors + ct), -1);
+                                    printf("%d\t%s\t%f -> %f\n", ct, name, fabs(Occ),distanceOne(0, f1, totalVector, cmpl, inputVectors+ct, cmpl));
+                                }
+                            }
+                        }else {
+                            inputFormat(&c1->i.c, name, inputVectors+ct, 1);
                             printf("%d\t%s\t%f\n", ct, name, fabs(Occ));
-                    }
-                        else{
-                            tScale(&c1->i.c, totalVector, sqrt(fabs(Occ/c1->i.c.Ne))/magnitude(&c1->i.c, totalVector));
 
-                            tCycleDecompostionOneMP(0, f1,totalVector, cmpl, eigenVectors + ct, cmpl, f1->mem1->rt->vCANON, part(f1,eigenVectors + ct), -1);
-                            printf("%d\t%s\t%f -> %f\n", ct, name, fabs(Occ),distanceOne(0, f1, totalVector, cmpl, eigenVectors+ct, cmpl));
                         }
                     }
-                    tScale(&c1->i.c, eigenVectors+ct, sqrt(fabs(Occ/c1->i.c.Ne))/magnitude(&c1->i.c, eigenVectors+ct));
-                    c1->i.c.sinc.tulip[eigenVectors+ct].symmetry = class;
-                    ct++;
                 }
-                }
-                if ( ct > c1->i.nStates ){
+                if (( ct > c1->i.densityFlag&& inputVectors == f1->sinc.density )|| ( ct > c1->i.nStates&& inputVectors == eigenVectors  )){
                     printf("maxed out buffer of states\n");
                     exit(0);
                 }
-            
+                tScale(&c1->i.c, inputVectors+ct, sqrt(fabs(Occ))/magnitude(&c1->i.c, inputVectors+ct));
+
+                ct++;
+
+            }
         }else {
             break;
         }

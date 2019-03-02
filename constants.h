@@ -294,6 +294,8 @@ struct basisElement {
 
 
 
+
+
 enum division{
     kineticMass,
     kinetic,//0
@@ -336,7 +338,6 @@ enum division{
     nullMatrix,//9
     forces,//10
     overlap,
-    density,
     resolveBufferMatrix,//11
     distanceBufferVector,//12
     distanceBufferMatrix,//13
@@ -441,6 +442,7 @@ enum division{
     canonicalBuffersC,
     canonicalBuffersD,//
     complement,
+    complementTwo,
     eigenList,
     canonicalBuffersB2,
     oneVector,
@@ -521,6 +523,7 @@ struct sinc_label {
     double dd[7];//multiplying global lattice length, d, at fixed ratios.
     struct canon rose[SPACE+1];
     struct name_label *tulip;//many names,  Myrid
+    enum division density;
     enum division end;
     INT_TYPE Basis[3];
     INT_TYPE Basis2[3];
@@ -633,6 +636,7 @@ struct MEM {
     INT_TYPE bootedMemory;
     char fileList [MAXSTRING];
     char constraintFile [MAXSTRING];
+    char densityName[MAXSTRING];
     struct runTime * rt;
 };
 
@@ -661,6 +665,8 @@ struct input {
     INT_TYPE side;
     
     INT_TYPE hartreeFockFlag;
+    INT_TYPE densityFlag;
+    enum body bodyDensity;
     INT_TYPE M1;
     double vectorMomentum;
     double springConstant;
@@ -682,6 +688,7 @@ struct input {
     INT_TYPE nStates;
     INT_TYPE iRank ;
     INT_TYPE bRank;
+    INT_TYPE dRank;
     INT_TYPE qFloor;
     INT_TYPE Angstroms;
 };
