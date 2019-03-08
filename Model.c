@@ -644,7 +644,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[complement].purpose = Object;
         f1->sinc.tulip[complement].name = complement;
         
-        f1->sinc.tulip[complementTwo].Address = fromBegining(f1,entropyUnit);
+        f1->sinc.tulip[complementTwo].Address = fromBegining(f1,complement);
         f1->sinc.tulip[complementTwo].Partition = !(!c1->i.densityFlag ) * c1->i.dRank * c1->i.canonRank;//
         f1->sinc.tulip[complementTwo].parallel = 1;
         f1->sinc.tulip[complementTwo].species = vector;
