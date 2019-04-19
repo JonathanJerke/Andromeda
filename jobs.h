@@ -1,5 +1,5 @@
 /*
- *  coreMath.h
+ *  jobs.h
  *
  *
  *  Copyright 2019 Jonathan Jerke and Bill Poirier.
@@ -23,25 +23,19 @@
  *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef coreMath_h
-#define coreMath_h
-#include "constants.h"
-#include "coreUtil.h"
-#include "interfaceMath.h"
-double Power ( double b, INT_TYPE n );
+#ifndef jobs_h
+#define jobs_h
 
-double sqr(double arg);
-double cube ( double arg );
-double delta ( INT_TYPE n );
-INT_TYPE sign( INT_TYPE n );
-INT_TYPE imax( INT_TYPE x1, INT_TYPE x2 );
-INT_TYPE imin( INT_TYPE x1, INT_TYPE x2 );
-double max( double x1, double x2 );
-double min( double x1, double x2 );
-INT_TYPE maxZ( struct field * f1 );
-INT_TYPE sumZ( struct field * f1 );
-DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta);
+#include "Model.h"
+#include "input.h"
+#include "eigen.h"
+#ifndef APPLE
+#include "ioPrint.h"
+#endif
 
-double traceOne( struct field * f1 , enum division label , INT_TYPE spin );
+INT_TYPE foundation (struct calculation *c1 );
+INT_TYPE krylov (struct calculation *c1 );
+INT_TYPE ritz (struct calculation *c1 );
+INT_TYPE decompose (struct calculation *c1 );
 
-#endif /* coreMath_h */
+#endif /* jobs_h */

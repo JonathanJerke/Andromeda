@@ -34,8 +34,6 @@
 #include "ioPrint.h"
 #endif
 
-struct calculation bootShell (INT_TYPE argc , char * argv[]);
 INT_TYPE exec (struct calculation *c1 );
-INT_TYPE print(struct calculation *c );
 INT_TYPE buildElectronFreeInteraction ( struct calculation * c1, enum division mat);
 #endif /* main_h */

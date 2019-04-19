@@ -27,9 +27,7 @@
 
 INT_TYPE tFil ( struct field * f1, enum division A, enum division v , INT_TYPE * i ){
     INT_TYPE n1[3],space;
-    n1[0] = vectorLen(f1,A)[0];
-    n1[1] = vectorLen(f1,A)[1];
-    n1[2] = vectorLen(f1,A)[2];
+    length1(f1,n1);
     if ( bodies (f1, v ) == two ){
         for ( space = 0; space < SPACE ; space++){
             cblas_dcopy(n1[space], streams(f1,A,0,space)+i[space]*n1[space],1, streams(f1,diagonal1VectorA,0,space),1);
@@ -39,9 +37,9 @@ INT_TYPE tFil ( struct field * f1, enum division A, enum division v , INT_TYPE *
         }
         f1->sinc.tulip[diagonal1VectorA].Current[0] = 1;
         f1->sinc.tulip[v].Current[0] = 0;
-        
+
         tOuterProductSu(f1, diagonal1VectorA, 0, diagonal1VectorB, 0, v, 0);
-        
+
     }else
         if ( bodies (f1, v ) == three ){
             for ( space = 0; space < SPACE ; space++){
@@ -58,10 +56,10 @@ INT_TYPE tFil ( struct field * f1, enum division A, enum division v , INT_TYPE *
             f1->sinc.tulip[diagonal1VectorC].Current[0] = 1;
             f1->sinc.tulip[diagonal2VectorA].Current[0] = 0;
             f1->sinc.tulip[v].Current[0] = 0;
-            
+
             tOuterProductSu(f1, diagonal1VectorA, 0, diagonal1VectorB, 0, diagonal2VectorA, 0);
             tOuterProductSu(f1, diagonal2VectorA, 0, diagonal1VectorC, 0, v, 0);
-            
+
         }else     if ( bodies (f1, v ) == four ){
             for ( space = 0; space < SPACE ; space++){
                 cblas_dcopy(n1[space], streams(f1,A,0,space)+i[space]*n1[space],1, streams(f1,diagonal1VectorA,0,space),1);
@@ -82,14 +80,14 @@ INT_TYPE tFil ( struct field * f1, enum division A, enum division v , INT_TYPE *
             f1->sinc.tulip[diagonal2VectorA].Current[0] = 0;
             f1->sinc.tulip[diagonal2VectorB].Current[0] = 0;
             f1->sinc.tulip[v].Current[0] = 0;
-            
-            
+
+
             tOuterProductSu(f1, diagonal1VectorA, 0, diagonal1VectorB, 0, diagonal2VectorA, 0);
             tOuterProductSu(f1, diagonal1VectorC, 0, diagonal1VectorD, 0, diagonal2VectorB, 0);
             tOuterProductSu(f1, diagonal2VectorA, 0, diagonal2VectorB, 0, v, 0);
-            
+
         }
-    
+
     return 0;
 }
 
@@ -100,9 +98,7 @@ INT_TYPE tInnerTest( struct field * f1, enum division A ,enum division B){
     char c;
     INT_TYPE n1[3],space,i[100],j[100],nPerm,ii;
     double seq[100];
-    n1[0] = vectorLen(f1,A)[0];
-    n1[1] = vectorLen(f1,A)[1];
-    n1[2] = vectorLen(f1,A)[2];
+    length1(f1,n1);
     if ( bodies ( f1, A ) != one || bodies (f1, B ) != one ){
         printf ("ment for onebody\n");
         exit(0);
@@ -115,12 +111,9 @@ INT_TYPE tInnerTest( struct field * f1, enum division A ,enum division B){
     
     tFil(f1, A, copyThreeVector, i);
     
-    
-    
-    
-    
     if ( bodies ( f1, eigenVectors )== three ){
         for ( c = 0; c < 5 ; c++){
+            tClear(f1, copyFourVector);
             printf("\n\nCHAR %c\n", 'A'+c);
             tPermute(0, f1, 'A'+c, copyThreeVector, 0, copyFourVector, 0);
             nPerm = tAllCompPermMultiplyMP(0, f1, copyThreeVector, 0, copyFourVector, 0, seq);
@@ -130,6 +123,7 @@ INT_TYPE tInnerTest( struct field * f1, enum division A ,enum division B){
     }else
         if ( bodies ( f1, eigenVectors )== four ){
             for ( c = 0; c < 23 ; c++){
+                tClear(f1,copyFourVector);
                 printf("\n\nCHAR %c\n", 'a'+c);
                 tPermute(0, f1, 'a'+c, copyThreeVector, 0, copyFourVector, 0);
                 nPerm = tAllCompPermMultiplyMP(0, f1, copyThreeVector, 0, copyFourVector, 0, seq);
@@ -476,7 +470,7 @@ double deg(struct field *f1, INT_TYPE cl ){
 }
 
 //Bill's work,  3component breakdown
-double tGetType(enum body bd , INT_TYPE type , INT_TYPE perm ){
+double tGetType(enum bodyType bd , INT_TYPE type , INT_TYPE perm ){
     
     INT_TYPE nsyp=0 ,msyp=0;
     const static double syp2 [] = {
@@ -718,7 +712,7 @@ double tGetType(enum body bd , INT_TYPE type , INT_TYPE perm ){
 };
 
 //one-component breakdown
-double get1(enum body bd , INT_TYPE irrep1 , INT_TYPE perm1 ){
+double get1(enum bodyType bd , INT_TYPE irrep1 , INT_TYPE perm1 ){
     
     INT_TYPE nsyp=0 ,msyp=0;
     const static double syp2 [] = {
@@ -845,8 +839,8 @@ INT_TYPE tClassifyComponents( struct field * f1 , double * up, double * entropy)
 INT_TYPE tClassify(INT_TYPE rank, struct field * f1 , enum division label){
     double up[48],entropy;
     if ( bodies(f1, label ) == one ){
-        f1->sinc.tulip[label].symmetry = 0;
-        f1->sinc.tulip[label].value2 = 0;
+        f1->sinc.tulip[label].value.symmetry = 0;
+        f1->sinc.tulip[label].value.value2 = 0;
         
         return 0;
         
@@ -855,110 +849,13 @@ INT_TYPE tClassify(INT_TYPE rank, struct field * f1 , enum division label){
     for ( i = 0; i < 48 ; i++)
         up[i] = 0.;
     tTabulateProjection(rank, f1, label, label, up);
-    f1->sinc.tulip[label].symmetry =  tClassifyComponents(f1, up,&entropy);
-    f1->sinc.tulip[label].value2 =entropy;
-    irrep =  f1->sinc.tulip[label].symmetry;
+    f1->sinc.tulip[label].value.symmetry =  tClassifyComponents(f1, up,&entropy);
+    f1->sinc.tulip[label].value.value2 =entropy;
+    irrep =  f1->sinc.tulip[label].value.symmetry;
 
     return irrep;
 }
 
-INT_TYPE tSizeUp(INT_TYPE rank, struct field * f1 , INT_TYPE type, enum division label){
-    double up[48],va;
-    INT_TYPE i,ii=0;
-    for ( i = 0; i < 48 ; i++)
-        up[i] = 0.;
-
-    if ( ! Rank(f1, label))
-        return 0;
-    
-    INT_TYPE map[48],nDeg=0;
-    
-    if ( f1->body == one ){
-        return 1;
-    }else
-        
-        if ( f1->body == two ){
-            if ( type == 1 ){
-                map[1] = 1;
-                nDeg = 1;
-            }else
-                if ( type == 2 ){
-                    nDeg = 1;
-                    map[1] = 2;
-                }
-        }else
-            if ( f1->body== three ){
-                if ( type == 1 ){
-                    map[1] = 1;
-                    nDeg = 1;
-                }else
-                    if ( type == 2 ){
-                        map[1] = 2;
-                        nDeg = 1;
-                    } else {
-                        nDeg = 4;
-                        map[1] = 3;
-                        map[2] = 4;
-                        map[3] = 5;
-                        map[4] = 6;
-                    }
-            }
-            else if ( f1->body == four ){
-                //
-                if ( type == 1 ){
-                    nDeg = 1;
-                    map [1] = 1;
-                }else if ( type == 2 ){
-                    map[1] = 2;
-                    nDeg = 1;
-                } else if ( type == 3 ){
-                    map[1] = 3;
-                    map[2] = 4;
-                    map[3] = 5;
-                    map[4] = 6;
-                    nDeg = 4;
-                } else if ( type == 4){
-                    map[1] = 7;
-                    map[2] = 8;
-                    map[3] = 9;
-                    map[4] = 10;
-                    map[5] = 11;
-                    map[6] = 12;
-                    map[7] = 13;
-                    map[8] = 14;
-                    map[9] = 15;
-                    nDeg = 9;
-                }else if ( type == 5 ){
-                    map[1] = 16;
-                    map[2] = 17;
-                    map[3] = 18;
-                    map[4] = 19;
-                    map[5] = 20;
-                    map[6] = 21;
-                    map[7] = 22;
-                    map[8] = 23;
-                    map[9] = 24;
-                    nDeg = 9;
-                }
-            }
-    
-    tTabulateComponentProjection(rank, f1, label, label, up);
-
-    va =  sqr(magnitude(f1, label)) ;
-//    for ( i = 0; i < 2 ; i++)
-//        if ( (up[i]) > 1e-1* va )
-//            printf("up %d %f %f\n", i, (up[i]),va);
-    
-    for ( i = 1; i <=  nDeg ; i++)
-    {
-        if ( (up[map[i]-1]) > 1e-1* va ){
-          //  printf("%d (%d) by %f p%d\n",label, i, up[map[i]-1] , tPath(f1, label));
-            ii++;
-        }
-    }
-    
-    return ii;
-}
 
 
 
@@ -966,17 +863,13 @@ INT_TYPE tSizeUp(INT_TYPE rank, struct field * f1 , INT_TYPE type, enum division
 INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin){
     INT_TYPE map[24],perm,irrep;
 
-    if ( meta == 0 ){
+    if ( meta == 0 || bodies(f1,origin ) == one ){
         tEqua(f1, targ, tspin, origin, ospin);
         return 0;
     }
     if (! CanonicalRank(f1, origin, ospin ))
         return 0;
     
-    if ( origin == diagonalVector || targ == diagonalVector ){
-        printf("nop!");
-        exit(0);
-    }
     INT_TYPE i,nPerm=0,nDeg=0;
     char train[24];
     if ( bodies(f1, origin ) == two ){
@@ -1079,25 +972,25 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char meta , enum division
     
     if ( meta < 0 ){
         for ( i = 0; i < nPerm ; i++){
-            f1->sinc.tulip[diagonalVector].Current[rank] = 0;
-            tPermute(rank,f1, train[i], origin, ospin, diagonalVector, rank);
-            tAddTw(f1, targ, tspin, diagonalVector, rank);
+            f1->sinc.tulip[permutation2Vector].Current[rank] = 0;
+            tPermute(rank,f1, train[i], origin, ospin, permutation2Vector, rank);
+            tAddTw(f1, targ, tspin, permutation2Vector, rank);
         }
     }else if ( meta <= nPerm ){
         for ( i = 0; i < nPerm ; i++){
             perm = meta;
-            f1->sinc.tulip[diagonalVector].Current[rank] = 0;
-            tPermute(rank,f1, train[i], origin, ospin, diagonalVector, rank);
-            tScaleOne(f1, diagonalVector, rank, tGetType(bodies(f1, origin), perm, i));
-            tAddTw(f1, targ, tspin, diagonalVector, rank);
+            f1->sinc.tulip[permutation2Vector].Current[rank] = 0;
+            tPermute(rank,f1, train[i], origin, ospin, permutation2Vector, rank);
+            tScaleOne(f1, permutation2Vector, rank, tGetType(bodies(f1, origin), perm, i));
+            tAddTw(f1, targ, tspin, permutation2Vector, rank);
             }
     }else {
         for ( i = 0; i < nPerm ; i++){
             irrep = meta-nPerm;
-            f1->sinc.tulip[diagonalVector].Current[rank] = 0;
-            tPermute(rank,f1, train[i], origin, ospin, diagonalVector, rank);
-            tScaleOne(f1, diagonalVector, rank, tGetIrrep(bodies(f1, origin), irrep, i));
-            tAddTw(f1, targ, tspin, diagonalVector, rank);
+            f1->sinc.tulip[permutation2Vector].Current[rank] = 0;
+            tPermute(rank,f1, train[i], origin, ospin, permutation2Vector, rank);
+            tScaleOne(f1, permutation2Vector, rank, tGetIrrep(bodies(f1, origin), irrep, i));
+            tAddTw(f1, targ, tspin, permutation2Vector, rank);
         }
 
         
@@ -1106,46 +999,170 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char meta , enum division
     return 0;
 }
 
+char matrixAction ( enum bodyType bd, enum block bk, char direction){
+    
+    //action on right vector...direction = 1
+    //action on product vector ... direction = -1
+    
+    if ( bd == two ){
+        switch (bk){
+            case tv1 :
+                if ( direction == 1 )
+                    return 'N';
+                else
+                    return 'N';
+            case iv1 :
+                if ( direction == 1 )
+                    return 'N';
+                else
+                    return 'N';
 
-INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum division left, INT_TYPE lspin, enum division equals, INT_TYPE espin){
+            case tv2 :
+                if ( direction == 1 )
+                    return 'T';
+                else
+                    return 'T';
+                
+            case iv2 :
+                if ( direction == 1 )
+                    return 'T';
+                else
+                    return 'T';
+
+            case e12:
+                return 'N';
+                
+        }
+        
+        
+    } else if ( bd == three ){
+        //            train[0] = 'T';//(1)            123
+        //            train[1] = 'A';//(123)          231
+        //            train[2] = 'B';//(123).(123)    312
+        //            train[3] = 'C';//(12)           213
+        //            train[4] = 'D';//(13)           321
+        //            train[5] = 'E';//(23)           132
+
+        switch ( bk){
+            case tv1:
+                return 'T';
+            case tv2:
+                return 'C';
+            case tv3 :
+                return 'D';
+            case iv1:
+                return 'T';
+            case iv2:
+                return 'C';
+            case iv3 :
+                return 'D';
+            case e12 :
+                return 'T';
+            case e13 :
+                return 'E';
+            case e23 :
+                if ( direction == 1)
+                    return 'A';
+                else
+                    return 'B';
+        }
+    }
+    else if ( bd == four ){
+        // 0,0,0,0 : i,j,k,l   :: T 0
+        // 0,2,1,2 : i,j,l,k   :: 'a'24
+        // 1,3,1,2 : i,k,j,l   :: 'b'20
+        // 1,1,0,0 : i,k,l,j   :: 'c'4
+        // 0,3,1,0 : i,l,j,k   :: 'd'12
+        // 1,2,1,3 : i,l,k,j   :: 'e'22
+        // 1,0,0,0 : j,i,k,l   :: 'f'2
+        // 1,2,1,2 : j,i,l,k   :: 'g' 23
+        // 0,3,1,2 : j,k,i,l   :: 'h'19
+        // 0,1,0,0 : j,k,l,i   :: 'i'3
+        // 1,3,1,0 : j,l,i,k   :: 'j'13
+        // 0,2,1,3 : j,l,k,i   :: 'k'21
+        // 0,2,1,1 : k,i,j,l   :: 'l'15
+        // 1,1,1,0 : k,i,l,j   :: 'm'10
+        // 1,2,1,1 : k,j,i,l   :: 'n'16
+        // 0,1,1,0 : k,j,l,i   :: 'o'9
+        // 0,2,0,0 : k,l,i,j   :: 'p'5
+        // 1,1,0,1 : k,l,j,i   :: 'q'14
+        // 0,3,0,0 : l,i,j,k   :: 'r'7
+        // 1,3,1,1 : l,i,k,j   :: 's'18
+        // 1,3,0,0 : l,j,i,k   :: 't'8
+        // 0,3,1,1 : l,j,k,i   :: 'u'17
+        // 0,2,1,0 : l,k,i,j   :: 'v'6
+        // 1,2,1,0 : l,k,j,i   :: 'w'11
+        switch ( bk ){
+            case tv1:
+                return 'T';
+            case tv2:
+                return 'f';
+            case tv3:
+                return 'n';
+            case tv4:
+                return 'u';
+            case iv1:
+                return 'T';
+            case iv2:
+                return 'f';
+            case iv3:
+                return 'n';
+            case iv4:
+                return 'u';
+            case e12:
+                return 'T';
+            case e13:
+                return 'b';
+            case e14:
+                return 'e';
+            case e23:
+                if ( direction == 1)
+                    return 'i';
+                else
+                    return 'r';
+            case e24:
+                if ( direction == 1 )
+                    return 'j';
+                else
+                    return 'm';
+            case e34:
+                return 'p';
+                
+        }
+    }
+
+    return 'N';
+}
+
+INT_TYPE tPermuteOne(INT_TYPE rank, struct field * f1, INT_TYPE dim, char leftChar , enum division left, INT_TYPE l, INT_TYPE lspin, enum division equals, INT_TYPE espin){
     INT_TYPE LN2[SPACE];
     length(f1, left, LN2);
-    
-    INT_TYPE l,flagTranspose,flagTranspose2,flagTranspose3,flagTranspose4,space,*N1, A[SPACE],B[SPACE],AA[SPACE],BB[SPACE];
+    INT_TYPE cur = CanonicalRank(f1, equals, espin);
+    INT_TYPE flagTranspose,flagTranspose2,flagTranspose3,flagTranspose4,space,N1[SPACE], A[SPACE],B[SPACE],AA[SPACE],BB[SPACE];
     double *array[6];
-    if ( part(f1, equals ) < CanonicalRank(f1, left, lspin ) ){
-        printf("too small\n");
+    if ( part(f1, equals ) < CanonicalRank(f1, equals, espin ) ){
+        printf("too small %d\n",equals);
         exit(0);
     }
-    
+    if ( bodies(f1, eigenVectors) == one ){
+            cblas_dcopy(LN2[dim], streams(f1, left, lspin, dim)+l*LN2[dim], 1, streams(f1, equals, espin, dim)+cur*LN2[dim], 1);
+    }
     
     if ( bodies(f1, eigenVectors) == two)
     {
-        N1 = f1->sinc.Basis;
-        
-        
-        
-        
-        if ( leftChar == 'T' ){
-            tEqua(f1, equals, espin, left, lspin );
-            return 0;
+        length1(f1,N1);
+        if ( leftChar == 'T' ){//QUESTON MARK??? was 'N', but thats inconsistent.
+            cblas_dcopy(LN2[dim], streams(f1, left, lspin, dim)+l*LN2[dim], 1, streams(f1, equals, espin, dim)+cur*LN2[dim], 1);
         }else {
-            for ( l = 0 ; l < CanonicalRank(f1, left, lspin ) ; l++){
-                for ( space = 0; space < SPACE ;space++){
-                    
-                    transpose(N1[space], N1[space],streams(f1, left, lspin, space)+l*LN2[space],streams(f1, equals, espin, space)+l*LN2[space]);
-                    
-                    
-                    
-                }
-            }
+            transpose(N1[dim], N1[dim],streams(f1, left, lspin, dim)+l*LN2[dim],streams(f1, equals, espin, dim)+cur*LN2[dim]);
         }
     }
     
+    
     else if ( bodies(f1, eigenVectors) == three)
     {
-        N1 = f1->sinc.Basis;
-        
+        length1(f1,N1);
+
         
         //
         //            train[0] = 'T';//(1)            123
@@ -1164,7 +1181,7 @@ INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum divisio
         if ( leftChar == 'T' ){
             flagTranspose = 0;
             flagTranspose2 = 0;
-            tEqua(f1, equals, espin, left, lspin );
+            cblas_dcopy(LN2[dim], streams(f1, left, lspin, dim)+l*LN2[dim], 1, streams(f1, equals, espin, dim)+cur*LN2[dim], 1);
             return 0;
         }
         else  if ( leftChar == 'A' ){
@@ -1206,22 +1223,19 @@ INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum divisio
             printf("unknown flag %c\n",leftChar);
             exit(0);
         }
+        {
         INT_TYPE dim;
-        if ( ( species(f1, tensorBuffers ) >= vector && bodies(f1,tensorBuffers)  == three && part(f1, tensorBuffers)>0) ){
             for ( dim = 0; dim < 6 ; dim++)
                 array[dim] = myStreams( f1, tensorBuffers+dim, rank);
-        }else {
-            printf("oopss\n");
-            exit(0);
         }
-        
         
         double * pleft[SPACE];
         {
-            INT_TYPE bs,o,l;
-            for ( l = 0 ; l < CanonicalRank(f1, left, lspin ) ; l++){
-                for ( space = 0; space < SPACE ;space++){
-                    //
+            INT_TYPE bs,o;
+            {
+                {
+                    space = dim;
+            //
                     pleft[space] = streams( f1, left, lspin,space )+l*LN2[space];
                     
                     bs = 0;
@@ -1247,7 +1261,7 @@ INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum divisio
                         pleft[space] = array[bs++];
                         
                     }
-                    cblas_dcopy(LN2[space], pleft[space], 1, streams(f1,equals, espin, space)+l*LN2[space] ,1);
+                    cblas_dcopy(LN2[space], pleft[space], 1, streams(f1,equals, espin, space)+cur*LN2[space] ,1);
                     
                 }
             }
@@ -1262,8 +1276,7 @@ INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum divisio
         {
             {
                 double * pleft[SPACE];
-                
-                N1 = f1->sinc.Basis;
+                length1(f1, N1);
                 flagTranspose = 0;
                 flagTranspose2 = 0;
                 flagTranspose3 = 0;
@@ -1307,7 +1320,9 @@ INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum divisio
                 
                 
                 if ( leftChar == 'T' ){//(i,j,k,l)
-                    
+                    cblas_dcopy(LN2[dim], streams(f1, left, lspin, dim)+l*LN2[dim], 1, streams(f1, equals, espin, dim)+cur*LN2[dim], 1);
+                    return 0;
+
                 } else if ( leftChar == 'a' ){//(i,j,l,k)
                     flagTranspose2 = 1;
                     flagTranspose3 = 1;
@@ -1582,22 +1597,17 @@ INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum divisio
                     printf("unknown flag %c\n",leftChar);
                     exit(0);
                 }
+                {
                 INT_TYPE dim;
-                if ( ( species(f1, tensorBuffers ) >= vector && bodies(f1,tensorBuffers)  >= four && part(f1, tensorBuffers)>=1) ){
                     for ( dim = 0; dim < 6 ; dim++)
                         array[dim] = myStreams( f1, tensorBuffers+dim, rank);
-                    
-                }else {
-                    printf("oopss\n");
-                    exit(0);
+                                    
                 }
-                
-                
                 {
                     INT_TYPE bs,o;
-                    for ( l = 0 ; l < CanonicalRank(f1, left, lspin ) ; l++){
-                        
-                        for ( space = 0; space < spaces(f1,left) ;space++){
+                    {
+                        {
+                            space = dim;
                             bs = 0;
                             //
                             pleft[space] = streams( f1, left, lspin,space )+l*LN2[space];
@@ -1627,7 +1637,7 @@ INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum divisio
                                 pleft[space] = array[bs++];
                                 
                             }
-                            cblas_dcopy(LN2[space], pleft[space], 1, streams(f1,equals, espin, space)+l*LN2[space] ,1);
+                            cblas_dcopy(LN2[space], pleft[space], 1, streams(f1,equals, espin, space)+cur*LN2[space] ,1);
                             
                         }
                         
@@ -1644,9 +1654,20 @@ INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum divisio
         }
     }
     
-    f1->sinc.tulip[equals].Current[espin] = CanonicalRank(f1, left, lspin);
     return 0;
+}
+
+
+INT_TYPE tPermute(INT_TYPE rank, struct field * f1, char leftChar , enum division left, INT_TYPE lspin, enum division equals, INT_TYPE espin){
+    INT_TYPE l,space;
     
+    for ( l = 0; l < CanonicalRank(f1,left,lspin); l++){
+        for ( space = 0; space < SPACE ; space++)
+            tPermuteOne(rank, f1, space, leftChar, left, l, lspin, equals, espin);
+        f1->sinc.tulip[equals].Current[espin]++;
+    }
+
+    return 0;
 }
 
 
@@ -1749,7 +1770,7 @@ INT_TYPE tTabulateProjection( INT_TYPE rank, struct field * f1 , enum division l
         fflush(stdout);
         exit(0);
     }
-    enum body bd = bodies(f1, left);
+    enum bodyType bd = bodies(f1, left);
     double buff[48],sum2;
     DCOMPLEX gup[48];
     for ( i = 0; i<= 24 ;i++)
@@ -1787,7 +1808,7 @@ INT_TYPE tTabulateProjection( INT_TYPE rank, struct field * f1 , enum division l
         gup[tDefineIrrep(bd,g)] += sqr(sum2) ;
     }
     
-    for ( g = 1; g <= 5 ; g++)
+    for ( g = 1; g <= nSAG ; g++)
         up[g] = (cabs(gup[g]))/(nPerm);
 
     return nGroup;
@@ -1864,7 +1885,7 @@ INT_TYPE tTabulateComponentProjection( INT_TYPE rank, struct field * f1 , enum d
 
 
 
-double tGetIrrep ( enum body bd, INT_TYPE irrep , INT_TYPE perm ){
+double tGetIrrep ( enum bodyType bd, INT_TYPE irrep , INT_TYPE perm ){
     INT_TYPE a,nPerm=0;
     double sum =0.;
     if ( bd == one )
@@ -1897,7 +1918,7 @@ double tGetIrrep ( enum body bd, INT_TYPE irrep , INT_TYPE perm ){
     return sum;
 }
 
-double tGetInner ( enum body bd, INT_TYPE i , INT_TYPE j ){
+double tGetInner ( enum bodyType bd, INT_TYPE i , INT_TYPE j ){
     INT_TYPE a,nPerm=0;
     double sum =0.;
     if ( bd == two )
@@ -1912,7 +1933,7 @@ double tGetInner ( enum body bd, INT_TYPE i , INT_TYPE j ){
     return sum;
 }
 
-INT_TYPE tTest ( enum body bd ){
+INT_TYPE tTest ( enum bodyType bd ){
     INT_TYPE a,b,nX=0;
 
     if ( bd == two )
@@ -1950,7 +1971,7 @@ INT_TYPE tTest ( enum body bd ){
     return 0;
 }
 
-void gm ( enum body bd, double *b, double *m , double *a){
+void gm ( enum bodyType bd, double *b, double *m , double *a){
     INT_TYPE nGroup = 0,i;
     double M[25], *mm;
     for ( i = 0; i < 25 ; i++)
@@ -1992,7 +2013,7 @@ void gm ( enum body bd, double *b, double *m , double *a){
     cblas_dgemv(CblasColMajor, CblasNoTrans, nGroup, nGroup, 1., M, nGroup, a, 1, 0., b, 1);
 }
 
-INT_TYPE nEqua(enum body bd, INT_TYPE *a ){
+INT_TYPE nEqua(enum bodyType bd, INT_TYPE *a ){
     INT_TYPE i,j, n=bd,s=0;
     if ( bd == one )
         return 0;
@@ -2004,7 +2025,7 @@ INT_TYPE nEqua(enum body bd, INT_TYPE *a ){
 
 
 
-INT_TYPE tSA (enum body bd, INT_TYPE  X, INT_TYPE Y, INT_TYPE Z,INT_TYPE T ){
+INT_TYPE tSA (enum bodyType bd, INT_TYPE  X, INT_TYPE Y, INT_TYPE Z,INT_TYPE T ){
     double x[nSAG],y[nSAG],z[nSAG],a[nSAG],b[nSAG];
     INT_TYPE i;
     for ( i = 0;i < nSAG ; i++){
@@ -2073,7 +2094,7 @@ INT_TYPE tSA (enum body bd, INT_TYPE  X, INT_TYPE Y, INT_TYPE Z,INT_TYPE T ){
     return b[T-1];
 }
 
-void tTestSA (enum body bd, INT_TYPE n){
+void tTestSA (enum bodyType bd, INT_TYPE n){
     INT_TYPE t,i,j,k,m ;
     for ( t= 0; t < n ; t++){
         m = 0;
@@ -2089,7 +2110,7 @@ void tTestSA (enum body bd, INT_TYPE n){
     return;
 }
 
-INT_TYPE tDefineIrrep(enum body bd, INT_TYPE type ){
+INT_TYPE tDefineIrrep(enum bodyType bd, INT_TYPE type ){
     if ( bd == two )
         return type;
     if (bd == three ){
@@ -2112,7 +2133,7 @@ INT_TYPE tDefineIrrep(enum body bd, INT_TYPE type ){
 }
 
 
-INT_TYPE tSize(enum body bd){
+INT_TYPE tSize(enum bodyType bd){
     
     INT_TYPE nG;
     if ( bd == two )
@@ -2126,7 +2147,7 @@ INT_TYPE tSize(enum body bd){
     return nG;
 }
 
-INT_TYPE tPerms(enum body bd){
+INT_TYPE tPerms(enum bodyType bd){
     
     INT_TYPE nP;
     if ( bd == two )
@@ -2141,7 +2162,7 @@ INT_TYPE tPerms(enum body bd){
 }
 
 
-INT_TYPE tPaths(enum body bd , INT_TYPE irrep ){
+INT_TYPE tPaths(enum bodyType bd , INT_TYPE irrep ){
     INT_TYPE nG,x,v,ii,jj,kk;
     if( bd == one )
         return 1;
@@ -2158,7 +2179,7 @@ INT_TYPE tPaths(enum body bd , INT_TYPE irrep ){
     return x;
 }
 
-INT_TYPE tIR (enum body bd, INT_TYPE  ir1X, INT_TYPE ir1Y, INT_TYPE ir1Z,INT_TYPE irT ){
+INT_TYPE tIR (enum bodyType bd, INT_TYPE  ir1X, INT_TYPE ir1Y, INT_TYPE ir1Z,INT_TYPE irT ){
     if ( bd == one || irT == 0 )
         return 1;
     double x[nSAG],y[nSAG],z[nSAG],a[nSAG],b[nSAG];
@@ -2176,11 +2197,11 @@ INT_TYPE tIR (enum body bd, INT_TYPE  ir1X, INT_TYPE ir1Y, INT_TYPE ir1Z,INT_TYP
     z[ir1Z] = 1.;
     
     
-    if ( SPACE == 3 ){
+    if ( COMPONENT == 3 ){
     gm(bd, a, y, z);
     gm(bd, b, x, a);
     return b[irT-1];
-    }else if (SPACE == 2 ){
+    }else if (COMPONENT == 2 ){
         gm(bd, a, x, y);
         return a[irT-1];        
     }

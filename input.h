@@ -50,4 +50,5 @@ INT_TYPE modifyGeometry(struct calculation * c,const char * input_line );
 INT_TYPE getBuildParameters(struct calculation * c,const char * input_line );
 INT_TYPE defineNaturalBasis ( struct calculation * c , char * input_line );
 INT_TYPE assignNaturalBasis ( struct calculation * c, char * input_line );
+struct calculation bootShell (INT_TYPE argc , char * argv[]);
 #endif /* input_h */

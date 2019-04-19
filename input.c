@@ -117,7 +117,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
     INT_TYPE i,d,ivalue;
     char test_line [MAXSTRING];
     double value;
-    INT_TYPE NINT_TYPE = 108;
+    INT_TYPE NINT_TYPE = 113;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -128,21 +128,22 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "mWeylet","helium","correlation","initRank","LOST3",//35
         "spinBlocks","LOST5", "LOST6", "maxLevelShift","diis",//40
         "minSPC","maxEV","inverseQuad","maxSPC","maxDIIS",//45
-        "intDIIS", "trace","basisRank","LUMO","floorFlag",//50
+        "intDIIS", "trace","basisRank","LUMO","foundation",//50
         "Angstroms","train", "ceilFlag","iSymm","type",//55
         "zone","eZone","cycles","weightRank","printConvergence",//60
         "runFlag","LOST10","annulus","exclusion","runType",//65
         "SpinSqr","setRange","range","golden","bandStage",//70
         "matrix","jCycle","fermi","signature","filter",//75
-        "minRank","skipBuild","printLevel","stack","lanes",
-        "sectors","body","LOST100","rds1","rds2",
-        "rds3","interactionOne","interactionTwo","oCycle","interactionZero",
-        "breakBody","interval","RAM","monteCarlo","samples",
-        "hartreeFock","basisStage","iterations","group","states",
+        "minRank","skipBuild","printLevel","stack","lanes",//80
+        "sectors","body","LOST100","rds1","rds2",//85
+        "rds3","interactionOne","interactionTwo","oCycle","interactionZero",//90
+        "breakBody","interval","RAM","monteCarlo","samples",//95
+        "hartreeFock","basisStage","iterations","group","states",//100
         "length","side","lookBack","step","theory",
-        "configuration","densityRank","densityBody"
+        "configuration","densityRank","densityBody","parallel","phase",
+        "around","cmpl","stageClamp"
     };
-    INT_TYPE NDOUBLE = 64;
+    INT_TYPE NDOUBLE = 68;
     char *list_DOUBLE []= {"#",
         "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST" ,//1-5
         "xB", "yB", "zB", "xyRange" , "zRange",//6-10
@@ -156,7 +157,8 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "shift","kineticShift","crystal","jelliumRadius","spring",
         "REMOVEREMOVE", "maxDomain", "parcel","minDomain","param",
         "entropy","attack","scalar","turn","augment",
-        "linearDependence","condition","seek","width"
+        "linearDependence","condition","seek","width","latticeB",
+        "magnetismZ","minClamp","maxClamp"
         
     };
     
@@ -387,6 +389,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     return i;
                 case 50 :
                     c->i.qFloor = ivalue;
+                    c->i.sectors = 1;
                     return i;
                 case 51 :
                     c->i.Angstroms = ivalue;
@@ -453,25 +456,6 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
 
                     c->i.epi = ivalue;
                     
-                    c->i.c.rds.flag = 0;
-                    c->i.c.rds.Basis[0] = c->i.epi*2+1;
-                    c->i.c.rds.Basis[1] = c->i.epi*2+1;
-                    c->i.c.rds.Basis[2] = c->i.epi*2+1;
-                    
-                    c->i.c.rds.Basis2[0] = c->i.c.rds.Basis[0]*c->i.c.rds.Basis[0];
-                    c->i.c.rds.Basis2[1] = c->i.c.rds.Basis[1]*c->i.c.rds.Basis[1];
-                    c->i.c.rds.Basis2[2] = c->i.c.rds.Basis[2]*c->i.c.rds.Basis[2];
-                    
-                    c->i.c.rds.Basis3[0] = c->i.c.rds.Basis[0]*c->i.c.rds.Basis[0]*c->i.c.rds.Basis[0];
-                    c->i.c.rds.Basis3[1] = c->i.c.rds.Basis[1]*c->i.c.rds.Basis[1]*c->i.c.rds.Basis[1];
-                    c->i.c.rds.Basis3[2] = c->i.c.rds.Basis[2]*c->i.c.rds.Basis[2]*c->i.c.rds.Basis[2];
-                    
-                    c->i.c.rds.Basis4[0] = c->i.c.rds.Basis[0]*c->i.c.rds.Basis[0]*c->i.c.rds.Basis[0]*c->i.c.rds.Basis[0];
-                    c->i.c.rds.Basis4[1] = c->i.c.rds.Basis[1]*c->i.c.rds.Basis[1]*c->i.c.rds.Basis[1]*c->i.c.rds.Basis[1];
-                    c->i.c.rds.Basis4[2] = c->i.c.rds.Basis[2]*c->i.c.rds.Basis[2]*c->i.c.rds.Basis[2]*c->i.c.rds.Basis[2];
-
-                    
-                    
                     
                     return i;
 
@@ -485,6 +469,9 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     //expand range by number given.
                     c->i.d *= pow( (2.* c->i.epi + 1.) /(2.*c->i.epi + 2*ivalue + 1),c->i.attack);
                     c->i.epi  += ivalue;
+                    
+                    
+
                     return i;
 
                 case 71:
@@ -583,61 +570,61 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     if ( ivalue < 0 )
                         return 0;
                     
-                    if ( c->rt.body == one ){
-                        c->i.c.rds.Basis[0] = ivalue;
-                        c->i.c.rds.flag = 1;
-                    }else if ( c->rt.body == two ){
-                        c->i.c.rds.Basis2[0] = ivalue;
-                        c->i.c.rds.flag = 2;
-                    }else if ( c->rt.body == three ){
-                        c->i.c.rds.Basis3[0] = ivalue;
-                        c->i.c.rds.flag = 3;
-                    }else if ( c->rt.body == four ){
-                        c->i.c.rds.Basis4[0] = ivalue;
-                        c->i.c.rds.flag = 4;
-                    }
+//                    if ( c->rt.body == one ){
+//                        c->i.c.rds.Basis[0] = ivalue;
+//                        c->i.c.rds.flag = 1;
+//                    }else if ( c->rt.body == two ){
+//                        c->i.c.rds.Basis2[0] = ivalue;
+//                        c->i.c.rds.flag = 2;
+//                    }else if ( c->rt.body == three ){
+//                        c->i.c.rds.Basis3[0] = ivalue;
+//                        c->i.c.rds.flag = 3;
+//                    }else if ( c->rt.body == four ){
+//                        c->i.c.rds.Basis4[0] = ivalue;
+//                        c->i.c.rds.flag = 4;
+//                    }
                     return i;
                 case 85:
                     if ( ivalue < 0 )
                         return 0;
-                    if ( c->rt.body == one ){
-                        c->i.c.rds.Basis[1] = ivalue;
-                        c->i.c.rds.flag = 1;
-
-                    }else if ( c->rt.body == two ){
-                        c->i.c.rds.Basis2[1] = ivalue;
-                        c->i.c.rds.flag = 2;
-
-                    }else if ( c->rt.body == three ){
-                        c->i.c.rds.Basis3[1] = ivalue;
-                        c->i.c.rds.flag = 3;
-
-                    }else if ( c->rt.body == four ){
-                        c->i.c.rds.Basis4[1] = ivalue;
-                        c->i.c.rds.flag = 4;
-
-                    }
+//                    if ( c->rt.body == one ){
+//                        c->i.c.rds.Basis[1] = ivalue;
+//                        c->i.c.rds.flag = 1;
+//
+//                    }else if ( c->rt.body == two ){
+//                        c->i.c.rds.Basis2[1] = ivalue;
+//                        c->i.c.rds.flag = 2;
+//
+//                    }else if ( c->rt.body == three ){
+//                        c->i.c.rds.Basis3[1] = ivalue;
+//                        c->i.c.rds.flag = 3;
+//
+//                    }else if ( c->rt.body == four ){
+//                        c->i.c.rds.Basis4[1] = ivalue;
+//                        c->i.c.rds.flag = 4;
+//
+//                    }
                     return i;
                 case 86:
                     if ( ivalue < 0 )
                         return 0;
-                    if ( c->rt.body == one ){
-                        c->i.c.rds.Basis[2] = ivalue;
-                        c->i.c.rds.flag = 1;
-
-                    }else if ( c->rt.body == two ){
-                        c->i.c.rds.Basis2[2] = ivalue;
-                        c->i.c.rds.flag = 2;
-
-                    }else if ( c->rt.body == three ){
-                        c->i.c.rds.Basis3[2] = ivalue;
-                        c->i.c.rds.flag = 3;
-
-                    }else if ( c->rt.body == four ){
-                        c->i.c.rds.Basis4[2] = ivalue;
-                        c->i.c.rds.flag = 4;
-
-                    }
+//                    if ( c->rt.body == one ){
+//                        c->i.c.rds.Basis[2] = ivalue;
+//                        c->i.c.rds.flag = 1;
+//
+//                    }else if ( c->rt.body == two ){
+//                        c->i.c.rds.Basis2[2] = ivalue;
+//                        c->i.c.rds.flag = 2;
+//
+//                    }else if ( c->rt.body == three ){
+//                        c->i.c.rds.Basis3[2] = ivalue;
+//                        c->i.c.rds.flag = 3;
+//
+//                    }else if ( c->rt.body == four ){
+//                        c->i.c.rds.Basis4[2] = ivalue;
+//                        c->i.c.rds.flag = 4;
+//
+//                    }
                     return i;
                 
                 case 87:
@@ -685,7 +672,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     c->rt.samples = ivalue;
                     return i;
                 case 96:
-                    c->i.hartreeFockFlag = ivalue;
+//                    c->i.hartreeFockFlag = ivalue;
                     return i;
                 case 97:
                     c->i.bRank += ivalue;
@@ -694,10 +681,12 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     c->i.Iterations = ivalue;
                     return i;
                 case 99:
-                    c->i.group = ivalue;
+            //        c->i.group = ivalue;
                     return i;
                 case 100:
                     c->i.nTargets = ivalue;
+                    c->i.heliumFlag = ivalue;
+                    c->i.nStates = ivalue;
                     return i;
                 case 101:
                     c->i.l2 = ivalue;
@@ -712,15 +701,13 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     c->i.cycleStep = ivalue;
                     return i;
                 case 105:
-                    c->i.theory = ivalue;
+                   // c->i.theory = ivalue;
                     return i;
                 case 106:
                     if ( ivalue == 0 )
-                        c->rt.bodyType = electron;
+                        c->rt.calcType = electronicStuctureCalculation;
                     else if ( ivalue == 1 )
-                        c->rt.bodyType = h2plus;
-                    else if ( ivalue == 2 )
-                        c->rt.bodyType = h2  ;
+                        c->rt.calcType = clampProtonElectronCalculation;
                     else
                     {
                         return 0;
@@ -732,7 +719,31 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                 case 108:
                     c->i.bodyDensity = ivalue;
                     return i;
-
+                case 109:
+#ifdef MKL
+                    c->i.mkl = ivalue;
+#endif
+                    return i;
+                case 110:
+                    c->rt.phaseType = ivalue;
+                    return i;
+                    
+                case 111:
+                    c->rt.calcType = 2;
+                    printf("%f - %f in spacing %f\n", c->i.minClamp, c->i.maxClamp, c->i.D);
+                    c->i.orgClamp = 0.5*(c->i.minClamp+c->i.maxClamp);
+                    c->i.around = floor((c->i.orgClamp-c->i.minClamp)/c->i.D);
+                    printf("grid %d\n", 2*c->i.around +1);
+                    return i;
+                    
+                case 112:
+                    c->i.complexType = ivalue;
+                    return i;
+                    
+                case 113:
+                    c->i.D *= pow( (2.* c->i.around + 1.) /(2.*c->i.around + 2*ivalue + 1),1.);
+                    c->i.around  += ivalue;
+                    return i;
             }
         
         }
@@ -843,7 +854,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     c->rt.TOL = pow(10., value);
                     return d;
                 case 24 :
-                    c->rt.CANON = c->rt.TARGET*pow(0.1, value);
+                    c->rt.CANON = pow(0.1, value);
                     return d;
                 case 25 :
                     c->rt.TARGET = pow(0.1,value);
@@ -855,7 +866,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                    // c->p.iExternal = value;
                     return d;
                 case 28 :
-                    c->rt.vCANON = c->rt.TARGET*pow(0.1, value);
+                    c->rt.vCANON = pow(0.1, value);
                     return d;
                 case 29 :
                   //  c->p.iBuild = value;
@@ -975,12 +986,25 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     c->rt.ALPHA = pow(0.1,value);
                     return d;
                 case 63:
-                    c->i.seekPower = value;
+                   // c->i.seekPower = value;
                     return d;
                 case 64:
                     c->i.springFlag = 1;
                     c->i.springConstant = 1./(c->i.d*value)/(c->i.d*value);
                     printf("spring %f (%f,%f)\n",c->i.springConstant,c->i.d,value);
+                    return d;
+                case 65:
+                    c->i.D = value;
+                    return d;
+                case 66:
+                    c->i.mag = value;
+                    c->i.magFlag = 1;
+                    return d;
+                case 67:
+                    c->i.minClamp = value;
+                    return d;
+                case 68:
+                    c->i.maxClamp = value;
                     return d;
 
             }
@@ -1028,35 +1052,36 @@ INT_TYPE getGeometry(struct calculation * c, const char * input_line ){
                 add_atom ( &(c->i.c), l,x/a0,y/a0,z/a0 );
             else
                 add_atom ( &(c->i.c), l,x,y,z );
-            
-            if ( Z > 12 ){
-                (c->i.c).atoms[(c->i.c).Na].label.iZ = Z -10;
-            }
-            else if ( Z > 4 ){
-                (c->i.c).atoms[(c->i.c).Na].label.iZ = Z -2;
-            } else {
-                (c->i.c).atoms[(c->i.c).Na].label.iZ = Z;
-                
-            }            if ( 1)  {
-                INT_TYPE Cc;
-                Cc = 0;
-                if ( Z > 2)
-                    Cc += 2;
-                if ( Z > 10)
-                    Cc += 8;
-                if ( Z > 18)
-                    Cc += 8;
-                if ( Z > 36){
-                    Cc += 18;
-                    exit(0);
-                }
-                if ( Z > 54){
-                    Cc += 18;
-                    exit(0);
-                }
-                (c->i.c).atoms[(c->i.c).Na].label.Cc = Cc;
+//            
+//            if ( Z > 12 ){
+//                (c->i.c).atoms[(c->i.c).Na].label.iZ = Z -10;
+//            }
+//            else if ( Z > 4 ){
+//                (c->i.c).atoms[(c->i.c).Na].label.iZ = Z -2;
+//            } else {
+//                (c->i.c).atoms[(c->i.c).Na].label.iZ = Z;
                 
             }
+//        if ( 1)  {
+//                INT_TYPE Cc;
+//                Cc = 0;
+//                if ( Z > 2)
+//                    Cc += 2;
+//                if ( Z > 10)
+//                    Cc += 8;
+//                if ( Z > 18)
+//                    Cc += 8;
+//                if ( Z > 36){
+//                    Cc += 18;
+//                    exit(0);
+//                }
+//                if ( Z > 54){
+//                    Cc += 18;
+//                    exit(0);
+//                }
+//                (c->i.c).atoms[(c->i.c).Na].label.Cc = Cc;
+//                
+//            }
 
             
             
@@ -1076,7 +1101,7 @@ INT_TYPE getGeometry(struct calculation * c, const char * input_line ){
         
         
         
-     }
+     
     
         return 1;
     
@@ -1231,8 +1256,8 @@ INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
         if ( strstr( input_line, list_IO [io])!=NULL){
             sscanf(input_line,"%s %s", test_line,  filename);
             
-            if ( strstr(filename , "*" ) != NULL )
-                sprintf(filename,"%s", c->name);
+//            if ( strstr(filename , "*" ) != NULL )
+//                sprintf(filename,"%s", c->name);
         switch ( io ){
             
 //            case 1:
@@ -1444,7 +1469,7 @@ INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
 
             case 31:
             {
-                sprintf(c->mem.fileList,"%s", filename);
+                sprintf(c->mem.fileList[c->mem.files++],"%s", filename);
                 if ( (c->rt.printFlag/1 ) % 2 == 0 )
                     c->rt.printFlag += 1;//radial
                 return io;
@@ -1452,7 +1477,7 @@ INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
                 
             case 32:
             {
-                sprintf(c->mem.fileList,"%s", filename);
+                sprintf(c->mem.fileList[c->mem.files++],"%s", filename);
                 if ( (c->rt.printFlag/2 ) % 2 == 0 )
                     c->rt.printFlag += 2;//vector
                 return io;
@@ -1465,7 +1490,7 @@ INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
             }
             case 34:
             {
-                sprintf(c->mem.fileList,"%s", filename);
+                sprintf(c->mem.fileList[c->mem.files++],"%s", filename);
                 c->i.sectors = 0;
                 return io;
             }
@@ -1631,17 +1656,20 @@ INT_TYPE readInput(struct calculation *c , FILE * in){
 
 INT_TYPE initCalculation(struct calculation * c ){
     INT_TYPE g;
+    c->i.complexType = 1;//real =1 , cmpl = 2
     c->i.RAMmax = 0;//Gb  needs updating
     c->rt.printFlag = 0;
     c->i.potentialFlag = 0;
     c->i.densityFlag = 0;
     c->i.springFlag = 0;
-    c->i.c.rds.flag = 0;
     c->i.outputFlag = 0;
+    c->i.magFlag = 0;
     c->i.M1 = 0;
     c->i.c.Na = 0;
-    for ( g = 0; g < nSAG*nSAG*nSAG ; g++)
-        c->i.cSA[g] = 0;
+    c->mem.files = 0;
+
+//    for ( g = 0; g < nSAG*nSAG*nSAG ; g++)
+//        c->i.cSA[g] = 0;
 #ifdef PARAMETER_PATH
     FILE * same;
     char filename[MAXSTRING];
@@ -1668,8 +1696,50 @@ INT_TYPE finalizeInit(struct calculation * c ){
     }
     c->i.c.Ne = nc-c->i.charge;//set charges
     
-    c->i.c.twoBody.num = c->i.canonRank;
-    c->i.c.oneBody.num = c->i.canonRank;
+    
+    if ( c->i.c.oneBody.func.interval <= 1 )
+        c->i.c.oneBody.num =23;
+    else {
+        printf("interval 1\n");
+        exit(9);
+    }
+    if ( c->i.c.twoBody.func.interval <= 1 )
+        c->i.c.twoBody.num =23;
+    else {
+        printf("interval 1\n");
+
+        exit(9);
+    }
 
     return 0;
+}
+
+
+struct calculation bootShell (INT_TYPE argc , char * argv[]){
+#ifndef APPLE
+    
+    
+    INT_TYPE broke;
+    
+    time_t t;
+    /* Intializes random number generator */
+    srand((unsigned) time(&t));
+    
+    struct calculation c1 = initCal();
+    INT_TYPE i,c,EV,EV2,ER;
+    FILE * in = stdin;
+    char str[MAXSTRING];
+    initCalculation(&c1);
+    broke = readInput(&c1,in );
+    if ( broke )
+        exit(1);
+        finalizeInit(&c1);
+#else
+        struct calculation c1 =initCal();
+#endif
+#ifdef GSL_LIB
+        gsl_set_error_handler_off ();
+#endif
+        
+        return c1;
 }

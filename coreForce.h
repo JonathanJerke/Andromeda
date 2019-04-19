@@ -30,21 +30,16 @@
 #include "coreMath.h"
 #include "coreUtil.h"
 #include "mAls.h"
+#include "ioPrint.h"
 
-double c10c00 ( double a, double bd, double xd, double b1, double x1, double b2, double x2, double b3 ,double x3 );
-double c11c00 ( double a, double bd1, double xd1, double bd2, double xd2, double b2, double x2, double b3 ,double x3 );
-double c11c00 ( double a, double bd1, double xd1, double bd2, double xd2, double b2, double x2, double b3 ,double x3 );
-double c10c10 (  double a, double bd1, double xd1,  double b2, double x2, double bd2, double xd2,double b3 ,double x3 );
-double c11c10 ( double a , double bd1, double  xd1,double  bd2,double  xd2, double bd3,double xd3,double  b1,double x1);
-double c11c11 (double a, double bd1,double xd1,  double bd2, double xd2, double bd3, double xd3,double bd4, double xd4);
-double aGGCGG(double a , struct general_2index * pa);
-
-
+double HeavisideTheta ( double x );
+DCOMPLEX Complex ( double r, double i );
 DCOMPLEX aaGGCGG( double beta, struct general_2index * pa);
 //DCOMPLEX aabGdnGdm( INT_TYPE n,INT_TYPE m, double boost, struct general_index * pa);
 DCOMPLEX aaGdnGdm( INT_TYPE n, INT_TYPE m, struct general_index * pa);
 DCOMPLEX aaGGCD( double invbeta,  double position,struct general_index * pa);
 
+DCOMPLEX BgB (double beta, struct basisElement b1, INT_TYPE action , INT_TYPE powSpace,double origin, struct basisElement b2);
 double GTOnorm ( struct basisElement ba );
 
 double collective( double beta ,struct general_2index * pa);
@@ -52,8 +47,12 @@ DCOMPLEX ei ( double arg );
 double No(double beta1);
 double GoG( double beta1, double beta2 , double x );
 double test ( double p , struct general_index * pa );
+DCOMPLEX FS ( double p , struct general_index * pa );
 DCOMPLEX FSS ( double p , struct general_index * pa );
+DCOMPLEX FSSp ( double p , struct general_index * pa );
 DCOMPLEX FDD ( double p , struct general_index * pa );
+DCOMPLEX FGG( double k, struct general_index * pa);
+DCOMPLEX FGS( double p ,INT_TYPE dn, struct general_index * pa );
 double periodicSSGSSa( double alpha ,struct general_2index * pa);
 double periodicSGSa( double alpha ,struct general_2index * pa);
 double periodicSGS ( double a, double x0, INT_TYPE power, double d , INT_TYPE n, INT_TYPE m, INT_TYPE N1  );
@@ -71,14 +70,15 @@ double monteCarloElementCal (double beta, struct general_2index *aAf  );
 double findMyInterval1 ( struct field * f1  , double gamma , struct interaction_label lab,double lvl, INT_TYPE periodic);
 double findMyInterval2 ( struct field * f1  , double gamma , struct interaction_label lab,double lvl,INT_TYPE periodic);
 void mySeparateExactOne (struct field * f1, double scalar, enum division basis);
-void mySeparateExactTwo (struct field * f1, INT_TYPE periodic, double scalar,  enum division basis,INT_TYPE plus, INT_TYPE particle1,INT_TYPE particle2);
-INT_TYPE separateExternal( struct calculation * c1,INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1 );
+void mySeparateExactTwo (struct field * f1, enum division interactionExchange, double scalar,  enum division basis,INT_TYPE plus, INT_TYPE particle1);
+void mySeparateExactOneByOne (struct field * f1, INT_TYPE periodic, enum division interactionExchangePlus,enum division shorten ,double scalar,  INT_TYPE plus,double rescale, enum particleType particle1,enum particleType particle2);
+INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1 );
 INT_TYPE separateBackground( struct calculation * c1,INT_TYPE periodic, INT_TYPE Ns,INT_TYPE background, INT_TYPE dim, enum division basis );
 INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division akinetic, double mass , INT_TYPE particle1);
 INT_TYPE separateBoost( struct field * f1, enum division in,INT_TYPE dim ,double vectorMomentum );
 INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat,INT_TYPE spin);
 INT_TYPE separateVector( struct field * f1, INT_TYPE periodic,enum division aVector,  double amass, double vs[], INT_TYPE particle1 );
-INT_TYPE separateHarmonicExternal( struct calculation * c1,INT_TYPE periodic, double scalar, double vs[], enum division basis, INT_TYPE particle1 );
+void separateDerivatives( struct field * f1, INT_TYPE periodic,enum division mat, INT_TYPE *x, INT_TYPE *grad,double mag,INT_TYPE particle1 );
 void separateX ( struct field * f1, double vectorDipole );
 double tTestTwoBody( struct field * f1, enum division mat,INT_TYPE periodic, INT_TYPE * p);
 double tRMSDevRandom( struct field * f1, enum division mat, INT_TYPE periodic ,INT_TYPE Nc);

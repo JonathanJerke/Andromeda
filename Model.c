@@ -28,7 +28,7 @@
 void resetExternal(struct calculation * i, INT_TYPE number, double scale ){
     if ( number == 1 ){
         i->i.c.Na = 1;
-        i->i.c.atoms[1].label.Z = 1;
+        i->i.c.atoms[1].label.Z = i->rt.body;
         i->i.c.atoms[1].position[1] = 0;
         i->i.c.atoms[1].position[2] = 0;
         i->i.c.atoms[1].position[3] = 0;
@@ -38,11 +38,11 @@ void resetExternal(struct calculation * i, INT_TYPE number, double scale ){
             i->i.c.Na = 2;
 
             i->i.c.atoms[1].label.Z = 1;
-            i->i.c.atoms[1].position[1] = 2*scale;
+            i->i.c.atoms[1].position[1] = scale;
             i->i.c.atoms[1].position[2] = 0;
             i->i.c.atoms[1].position[3] = 0;
             i->i.c.atoms[2].label.Z = 1;
-            i->i.c.atoms[2].position[1] = -2*scale;
+            i->i.c.atoms[2].position[1] = -scale;
             i->i.c.atoms[2].position[2] = 0;
             i->i.c.atoms[2].position[3] = 0;
             
@@ -88,6 +88,18 @@ void resetExternal(struct calculation * i, INT_TYPE number, double scale ){
                     i->i.c.atoms[4].position[3] = scale/sqrt(2.);
                     
                 }
+                else
+                    if ( number == 5 ){
+                        
+                        i->i.c.Na = 1;
+                        
+                        i->i.c.atoms[1].label.Z = 2;
+                        i->i.c.atoms[1].position[1] = 0;
+                        i->i.c.atoms[1].position[2] = 0;
+                        i->i.c.atoms[1].position[3] = 0;
+                        
+                    }
+
         i->i.charge = i->i.c.Na - i->rt.body;
     }
 
@@ -95,72 +107,110 @@ void resetExternal(struct calculation * i, INT_TYPE number, double scale ){
 struct calculation initCal (void ) {
     INT_TYPE space;
     struct calculation i;
-    i.i.irrep = 0;
-    i.i.hartreeFockFlag = 0;
+    i.rt.printFlag = 0;
+//    i.i.hartreeFockFlag = 0;
     i.i.springConstant = 0.;
     i.i.springFlag = 0;
     i.i.potentialFlag = 0;
     i.i.RAMmax = 1;
     i.rt.runFlag = 0;
-    i.i.bRank = 5;
     i.i.vectorMomentum = 0.;
-    i.i.decomposeRankMatrix = 3;
-    i.i.iRank = 1;
-    i.i.qFloor = 0;
+    i.i.decomposeRankMatrix = 1;
+    i.i.orgClamp = 2.;
     i.i.Angstroms = 0;
     i.i.cycles = 1;
     i.i.Iterations = 1;
     i.rt.printFlag = 0;
     i.i.heliumFlag = 1;
-    i.rt.body = 1;
-    i.i.iCharge = i.rt.body;
-    
-    i.rt.TARGET = 1e-3;
-    i.rt.ALPHA = 1e-6;
-    i.rt.CANON = 1e-7;
-    i.rt.vCANON = 1e-6;
-    i.rt.TOL = 1e-6;
-//    i.rt.CONVERGENCE = 1e-6;
-//    i.rt.vCONVERGENCE = 1e-6;
-    i.rt.maxEntropy = 1e-6;
-    
-    
-//    i.p.iCondition = 5;
-//    i.p.iTolerance = 1;
-//    i.p.iThreshold = 2;
-//    i.p.iTarget = 5;
-//    i.p.iConvergence = 1;
-//    i.p.iEntropy = 1;
-//    i.p.vectorThreshold = 1;
-//    i.p.vectorConvergence = 1;
-    
+
+    i.rt.TARGET = 1e-6;
+    i.rt.targetCondition = 1e-7;
+    i.rt.ALPHA = 1e-8;
+    i.rt.CANON = 1e-6;
+    i.rt.vCANON = 1e-4;
+    i.rt.TOL = 1e5;
+    i.rt.maxEntropy = 1;
+    i.i.level = 10000;
+    i.i.complexType =1;
     i.i.sectors = 1;
     i.i.d = 1;
+    i.i.D = 2.;
     i.i.epi = 4;
-    i.i.M1 = 4;
-    resetExternal(&i, 1, 2.);
+        i.i.bRank = 12 ;
+        i.i.cycleStep = 1;
+        i.i.cycles = 25;
+        i.i.Iterations = 12;
+        i.i.lookBack = 12;
+
+        i.i.nStates =  10 ;
+        i.i.nTargets = 10;
+        i.i.qFloor = 50;
+        
+        i.i.iRank = 6;
+        i.i.side = 5;
+        i.i.l2 = 1000;
+        
+        i.i.attack = 0.66;
+        
+        
+        
+        i.rt.samples = 0;
+        i.rt.monteCarlo = 0;
+        i.i.turn = 1.;
+        i.i.param1 = 1.;
+        i.i.param2 = 1.;
+        i.i.interval = 1;
+        i.i.scalar = 1.;
+        i.i.outputFlag = 0;
+        
+        i.i.densityFlag = 0;
+        i.i.dRank = 0;
+        i.i.bodyDensity = nada;
+        
+        i.i.magFlag = 0;
+        i.i.mag = 0.1;
+        //THESE
+        if ( SPACE == 3 ){
+            i.rt.calcType = electronicStuctureCalculation;
+            i.rt.body = one;
+            i.i.irrep = 0;
+            i.i.filter = 1;
+
+        } else {
+            i.rt.body = one;
+            i.rt.calcType = clampProtonElectronCalculation;
+            i.i.around = 7 ;
+            i.i.D = 0.1;
+            i.i.irrep = 0;
+
+        }
+    
+    
+    resetExternal(&i, 1, 1);
     
     for( space = 0 ; space <= SPACE ; space++){
         i.i.c.sinc.rose[space].stream = NULL;
     }
     i.i.c.sinc.tulip = NULL;
-    
+    i.rt.phaseType = solveRitz;
     
     i.i.c.twoBody.func.fn = nullFunction;
-    i.i.c.oneBody.func.fn = Pseudo;
+    i.i.c.oneBody.func.fn = nullFunction ;
 
-    i.i.canonRank = 15;
-    i.i.c.twoBody.num = i.i.canonRank;
-    i.i.c.twoBody.func.interval  = 0;
+    i.i.canonRank = 1000;
+    i.i.c.twoBody.num = 25;
+    i.i.c.twoBody.func.interval  = 1;
     i.i.c.twoBody.func.param[0]  = 1;
     i.i.c.twoBody.func.param[1]  = 1;
     i.i.c.twoBody.func.param[2]  = 1;
 
-    i.i.c.oneBody.num = i.i.canonRank;
-    i.i.c.oneBody.func.interval  = 0;
+    i.i.c.oneBody.num = 25;
+    i.i.c.oneBody.func.interval  = 1;
     i.i.c.oneBody.func.param[0]  = 1;
     i.i.c.oneBody.func.param[1]  = 1;
     i.i.c.oneBody.func.param[2]  = 1;
+    i.i.iCharge = i.rt.body;
+    i.i.c.body = i.rt.body;
 
     i.mem.bootedMemory = 0;
     return i;
@@ -181,14 +231,14 @@ INT_TYPE fModel ( struct calculation * c1 ){
     
     if ( c1->mem.bootedMemory ){
         for ( i = 0;i <= SPACE ; i++){
-            fprintf(stdout, "SPACE %d\n", i);
-            fflush(stdout);
+          //  fprintf(stdout, "SPACE %d\n", i);
+           // fflush(stdout);
             free(f1->sinc.rose[i].stream);
             f1->sinc.rose[i].stream = NULL;
         }
         {
-            fprintf(stdout, "TULIP\n" );
-            fflush(stdout);
+          //  fprintf(stdout, "TULIP\n" );
+          //  fflush(stdout);
 
             free(f1->sinc.tulip);
             f1->sinc.tulip = NULL;
@@ -200,7 +250,8 @@ INT_TYPE fModel ( struct calculation * c1 ){
 
 INT_TYPE iModel( struct calculation * c1){
     //c1->rt.printFlag = 1;
-    
+    struct name_label l2;;
+
     struct field *f1 = &(c1->i.c);
     {
         INT_TYPE space ;
@@ -215,24 +266,18 @@ INT_TYPE iModel( struct calculation * c1){
                 exit(0);
             }
     }
-    
-
-    
+    if(0){
+        printf("\n\n*Parameters\n");
+        printf("\t target\t\t\t%1.1f\n", -log(c1->rt.TARGET)/log(10));//quality of decomposition
+        printf("\t tolerance\t\t%1.1f\n", log(c1->rt.TOL)/log(10));//max condition of foundation    s
+        printf("\t threshold\t\t%1.1f\n", -log(c1->rt.CANON)/log(10));//matrix training standard
+        printf("\t vectorThreshold\t%1.1f\n", -log(c1->rt.vCANON)/log(10));//vector training standard
+        printf("\t condition\t\t%1.1f\n", -log(c1->rt.ALPHA )/log(10));//Beylkin parameter
+        printf(".Parameters\n\n");
+    }
     struct runTime * rt = &c1->rt;
-    //rt->eigenTime = 0.;
-    //rt->lanczosTime = 0.;
-    //rt->buildTime = 0.;
-//    for ( c = 0 ; c < MaxCore ; c++)
-//        for ( i = 0; i < MaxCycle ; i++){
-//            rt->timeBeylkin[c][i] = 0.;
-//            rt->timeGEMV[c][i] = 0.;
-//            rt->distBeylkin[c][i] = 0.;
-//            rt->count[c][i] = 0;
-//        }
-    
     if ( c1->i.iCharge > 0 )
         f1->Ne = c1->i.iCharge;
-    
     
     {
         INT_TYPE space;
@@ -243,55 +288,16 @@ INT_TYPE iModel( struct calculation * c1){
             
         }
         
-        enum body bootBodies = c1->rt.body;
-        enum bodyType bootType = c1->rt.bodyType;
+        enum bodyType bootBodies = c1->rt.body;
         c1->i.c.body = bootBodies;
-        INT_TYPE ra = tPerms(bootBodies),nG = tSize(bootBodies);
-        c1->i.paths = tPaths(bootBodies, c1->i.irrep);
-        printf("'states' %d\n helium %d \n floor %d\n", c1->i.nStates,c1->i.heliumFlag,c1->i.qFloor);
+        INT_TYPE ra = tPerms(bootBodies),nG = c1->i.decomposeRankMatrix;//tSize(bootBodies);
         INT_TYPE N12 = c1->i.epi;
-        f1->sinc.N1 = 2*N12+1;
-        INT_TYPE N1 = f1->sinc.N1;
-
-        
-        if (bootType == electron ){
-            INT_TYPE p,s;
-            for ( p = 1 ; p < 7 ; p++)
-                for ( s = 0 ; s < SPACE ; s++)
-                    f1->sinc.dims[p][s] = N1;
-            
-        }else if ( bootType == h2plus){
-            INT_TYPE p,s;
-            for ( p = 1 ; p < 7 ; p++)
-                for ( s = 0 ; s < SPACE ; s++)
-                    f1->sinc.dims[p][s] = N1;
-        }
-        
-        
-        f1->sinc.Basis[0] = N1;
-        f1->sinc.Basis[1] = N1;
-        f1->sinc.Basis[2] = N1;
-        
-        f1->sinc.Basis2[0] = f1->sinc.Basis[0]*f1->sinc.Basis[0];
-        f1->sinc.Basis2[1] = f1->sinc.Basis[1]*f1->sinc.Basis[1];
-        f1->sinc.Basis2[2] = f1->sinc.Basis[2]*f1->sinc.Basis[2];
-        
-        f1->sinc.Basis3[0] = f1->sinc.Basis[0]*f1->sinc.Basis[0]*f1->sinc.Basis[0];
-        f1->sinc.Basis3[1] = f1->sinc.Basis[1]*f1->sinc.Basis[1]*f1->sinc.Basis[1];
-        f1->sinc.Basis3[2] = f1->sinc.Basis[2]*f1->sinc.Basis[2]*f1->sinc.Basis[2];
-        
-        f1->sinc.Basis4[0] = f1->sinc.Basis[0]*f1->sinc.Basis[0]*f1->sinc.Basis[0]*f1->sinc.Basis[0];
-        f1->sinc.Basis4[1] = f1->sinc.Basis[1]*f1->sinc.Basis[1]*f1->sinc.Basis[1]*f1->sinc.Basis[1];
-        f1->sinc.Basis4[2] = f1->sinc.Basis[2]*f1->sinc.Basis[2]*f1->sinc.Basis[2]*f1->sinc.Basis[2];
-        
+        INT_TYPE N1 =  2*N12+1;
         enum shape bootShape;
         INT_TYPE maxVector = imax(c1->i.decomposeRankMatrix, imax(c1->i.bRank,imax(1+c1->i.iRank,c1->i.Iterations+c1->i.iRank)));
-        
         //rds defined in input.c
         
         bootShape = Cube;
-        if ( 0)
-            bootShape = Rds;
         f1->sinc.d = c1->i.d;
         
         
@@ -315,1156 +321,754 @@ INT_TYPE iModel( struct calculation * c1){
         INT_TYPE matrixNumber =   c1->i.decomposeRankMatrix;
         INT_TYPE outVector  = imax(f1->oneBody.num , f1->twoBody.num )*maxVector;
         
-        {
-         //   initPointerTensors(f1);
-            enum division label1;
-            for ( label1 = 0 ;label1 <= end; label1++){
-                f1->sinc.tulip[label1].name = label1;
-                f1->sinc.tulip[label1].header = Cube;
-                f1->sinc.tulip[label1].spinor = cmpl;
-                f1->sinc.tulip[label1].purpose = Object;
-                f1->sinc.tulip[label1].memory = threeObject;
-                f1->sinc.tulip[label1].species = scalar;
-                f1->sinc.tulip[label1].linkNext = nullName;
-                f1->sinc.tulip[label1].blockType = tv1;
-                f1->sinc.tulip[label1].NBody = bootBodies;
-                f1->sinc.tulip[label1].TBody = electron;
-                f1->sinc.tulip[label1].Partition = 0;
-                f1->sinc.tulip[label1].parallel = 0;
-                tClear(f1,label1);
+        {//defaults
+            INT_TYPE periodic = 1;
+            //define vectors
+            f1->sinc.rose[SPACE].component = nullComponent;
+            f1->sinc.rose[SPACE].body = nada;
+            f1->sinc.rose[SPACE].particle = nullParticle;
+            if ( c1->rt.calcType == electronicStuctureCalculation){
+                periodic = 1;
+                for ( space = 0; space < SPACE ; space++){
+                    f1->sinc.rose[space].particle = electron;
+                    f1->sinc.rose[space].basis = SincBasisElement;
+                    f1->sinc.rose[space].body = bootBodies;
+                    f1->sinc.rose[space].component = spatialComponent1+space%COMPONENT + ((c1->rt.runFlag/periodic)%2)*3;
+                    periodic *= 2;
+                    f1->sinc.rose[space].lattice = c1->i.d;
+                    f1->sinc.rose[space].count1Basis = N1;
+                    f1->sinc.rose[space].origin = 0.;
+
+                }
+            } else  if ( c1->rt.calcType == clampProtonElectronCalculation){
+                periodic = 1;
+                for ( space = 0; space < COMPONENT ; space++){
+                    f1->sinc.rose[space].particle = electron;
+                    f1->sinc.rose[space].basis = SincBasisElement;
+                    f1->sinc.rose[space].body = bootBodies;
+                    f1->sinc.rose[space].component = spatialComponent1+space+ ((c1->rt.runFlag/periodic)%2)*3;
+                    periodic *= 2;
+                    f1->sinc.rose[space].lattice = c1->i.d;
+                    f1->sinc.rose[space].count1Basis = N1;
+                    f1->sinc.rose[space].origin = 0.;
+
+                }
+                periodic = 1;
+                for ( space = COMPONENT; space <= COMPONENT ; space++){
+                    f1->sinc.rose[space].particle = proton;
+                    f1->sinc.rose[space].basis = SincBasisElement;
+                    f1->sinc.rose[space].body = one;
+                    f1->sinc.rose[space].component = spatialComponent1+space%COMPONENT+ ((c1->rt.runFlag/periodic)%2)*3;
+                    periodic *= 2;
+                    f1->sinc.rose[space].lattice = c1->i.D;
+                    f1->sinc.rose[space].count1Basis = 2*c1->i.around+1;
+                    f1->sinc.rose[space].origin = c1->i.orgClamp;
+
+                }
+                for ( space = COMPONENT+1; space < SPACE ; space++){
+                    f1->sinc.rose[space].particle = proton;
+                    f1->sinc.rose[space].basis = SincBasisElement;
+                    f1->sinc.rose[space].body = nada;
+                    f1->sinc.rose[space].component = spatialComponent1+space%COMPONENT+ ((c1->rt.runFlag/periodic)%2)*3;
+                    periodic *= 2;
+                    f1->sinc.rose[space].lattice = 0;
+                    f1->sinc.rose[space].count1Basis = 0 ;
+                    f1->sinc.rose[space].origin = 0.;
+
+                }
                 
             }
-        }
-        
-        if(1){
-            printf("TARGET \t\t%f\n", log(c1->rt.TARGET)/log(10));//quality of decomposition
-            printf("TOL \t\t%f\n", log(c1->rt.TOL)/log(10));//max condition of foundation vectors
-            printf("CANON \t\t%f\n", log(c1->rt.CANON)/log(10));//matrix training standard
-            printf("vCANON \t\t%f\n", log(c1->rt.vCANON)/log(10));//vector training standard
-        //    printf("CONVERGENCE \t%f\n", log(c1->rt.CONVERGENCE )/log(10));
-        //    printf("vCONVERGENCE\t %f\n", log(c1->rt.vCONVERGENCE )/log(10));
-            printf("ALPHA\t\t %f\n", log(c1->rt.ALPHA )/log(10));//Beylkin parameter
+                //define vectors end
+            {
+                enum division label1;
+                for ( label1 = 0 ;label1 <= end; label1++){
+                    f1->sinc.tulip[label1].name = label1;
+                    f1->sinc.tulip[label1].Partition = 0;
+                    f1->sinc.tulip[label1].header = Cube;
+                    f1->sinc.tulip[label1].spinor = real;
 
-        }
-        
-//  f1->sinc.tulip[kinetic].spinor = cmpl;
-        f1->sinc.tulip[kinetic].Address =0;
-        f1->sinc.tulip[kinetic].Partition = SPACE;//
-        f1->sinc.tulip[kinetic].NBody = one;
-        f1->sinc.tulip[kinetic].species = matrix;
-        f1->sinc.tulip[kinetic].header = Cube;
-//        f1->sinc.tulip[kinetic].symmetryType = nullSymmetry;
-        f1->sinc.tulip[kinetic].name = kinetic;
-        
- //       f1->sinc.tulip[kineticMass].spinor = cmpl;
-        f1->sinc.tulip[kineticMass].Address =fromBegining(f1,kinetic);
-        f1->sinc.tulip[kineticMass].Partition = SPACE;//
-        f1->sinc.tulip[kineticMass].NBody = one;
-        f1->sinc.tulip[kineticMass].species = matrix;
-        f1->sinc.tulip[kineticMass].header = Cube;
-//        f1->sinc.tulip[kineticMass].symmetryType = nullSymmetry;
-        f1->sinc.tulip[kineticMass].name = kineticMass;
+                    f1->sinc.tulip[label1].species = scalar;
+                    f1->sinc.tulip[label1].linkNext = nullName;
+                    f1->sinc.tulip[label1].memory = objectAllocation;
+                    for ( space = 0; space <= SPACE ; space++)
+                        f1->sinc.tulip[label1].space[space].Address = -1;
+                    f1->sinc.tulip[label1].space[SPACE].block = id0;
+                    for ( space = 0; space <= SPACE ; space++){
+                        {
+                            f1->sinc.tulip[label1].space[space].block = id0;//matrix prototype
+                            f1->sinc.tulip[label1].space[space].body = nada;//matrix prototype
+                        }
+                    }
+                    tClear(f1,label1);
+                }
+                
+            }
+        }//defaults
+        fromBeginning(f1, kinetic, 0);
+        f1->sinc.tulip[kinetic].Partition = COMPONENT;//
+        assignOneWithPointers(f1, kinetic,all);
 
-        f1->sinc.tulip[harmonium].spinor = none;
-        f1->sinc.tulip[harmonium].Address =fromBegining(f1,kineticMass);
-        f1->sinc.tulip[harmonium].Partition = c1->i.springFlag*SPACE;//
-        f1->sinc.tulip[harmonium].NBody = one;
-        f1->sinc.tulip[harmonium].species = matrix;
-        f1->sinc.tulip[harmonium].header = Cube;
-//        f1->sinc.tulip[harmonium].symmetryType = nullSymmetry;
-        f1->sinc.tulip[harmonium].name = harmonium;
+        fromBeginning(f1, kineticMass, kinetic);
+        f1->sinc.tulip[kineticMass].Partition = COMPONENT;//
+        assignOneWithPointers(f1, kineticMass,all);
+        struct name_label u = f1->sinc.tulip[kineticMass];
+
+        fromBeginning(f1, protonRepulsion, kineticMass);
+        f1->sinc.tulip[protonRepulsion].Partition = f1->oneBody.num;//
+        assignOneWithPointers(f1, protonRepulsion,all);
         
-        f1->sinc.tulip[X].spinor = none;
-        f1->sinc.tulip[X].Address = fromBegining(f1,harmonium);
-        f1->sinc.tulip[X].Partition =  1 ;
-        f1->sinc.tulip[X].NBody = one;
-        f1->sinc.tulip[X].species = matrix;
-        f1->sinc.tulip[X].header = Cube;
-        f1->sinc.tulip[X].purpose = Object;
-//        f1->sinc.tulip[X].symmetryType = nullSymmetry;
-        f1->sinc.tulip[X].name = X;
+        fromBeginning(f1, vectorMomentum, protonRepulsion);
+        assignOneWithPointers(f1, vectorMomentum,electron);
+        f1->sinc.tulip[vectorMomentum].spinor = cmpl;
+        f1->sinc.tulip[vectorMomentum].Partition = 3+4*c1->i.magFlag;//
+
+        fromBeginning(f1, harmonium, vectorMomentum);
+        assignOneWithPointers(f1, harmonium,electron);
+        f1->sinc.tulip[harmonium].Partition = 0;//
         
+        fromBeginning(f1, X, harmonium);
+        assignOneWithPointers (f1, X,electron);
+        f1->sinc.tulip[X].Partition =  0 ;//make it a semi-local Gaussian * x
         
-        f1->sinc.tulip[linear].spinor = none;
-        f1->sinc.tulip[linear].Address = fromBegining(f1,X);
-        f1->sinc.tulip[linear].Partition = (f1->Na*f1->oneBody.num + f1->twoBody.num + 1 );//
-        f1->sinc.tulip[linear].NBody = one;
-        f1->sinc.tulip[linear].species = matrix;
-        f1->sinc.tulip[linear].header = Cube;
-//        f1->sinc.tulip[linear].symmetryType = nullSymmetry;
-        f1->sinc.tulip[linear].name = linear;
-        
-        f1->sinc.tulip[overlap].spinor = none;
-        f1->sinc.tulip[overlap].Address = fromBegining(f1,linear);
+        fromBeginning(f1, linear, X);
+        assignOneWithPointers (f1, linear,electron);
+        f1->sinc.tulip[linear].Partition = f1->Na*f1->oneBody.num ;//
+
+        fromBeginning(f1, overlap, linear);
+        assignOneWithPointers (f1, overlap,electron);
         f1->sinc.tulip[overlap].Partition = 0;//
-        f1->sinc.tulip[overlap].species = matrix;
-        f1->sinc.tulip[overlap].header = bootShape;
-//        f1->sinc.tulip[overlap].symmetryType = nullSymmetry;
-        f1->sinc.tulip[overlap].name = overlap;
-        
-        
+
         {
-            f1->sinc.tulip[build].spinor = none;
-            f1->sinc.tulip[build].Address = fromBegining(f1,overlap);
-            
-            enum body runBodies = bootBodies;
-//            if ( bootBodies == one ){
-//                runBodies = one;
-//            }else if ( bootBodies == three){
-//                runBodies = three;
-//            }
-            
-            f1->sinc.tulip[build].Partition = c1->i.sectors*runBodies*((part(f1, kinetic)+part(f1, harmonium)) + matrixNumber * f1->Na);//easily reduce in cheaper ways!
-            if ( runBodies == two )
-                f1->sinc.tulip[build].Partition += c1->i.sectors+ ( bootType > electron );
-            else if ( runBodies == three )
+            fromBeginning(f1, build, overlap);
+            f1->sinc.tulip[build].Partition = !(!c1->i.sectors)*bootBodies*(6+(/*HERE 3*/part(f1, kinetic)+part(f1, vectorMomentum)) + matrixNumber);//easily reduce in cheaper ways!
+            if ( bootBodies == two )
+                f1->sinc.tulip[build].Partition += c1->i.sectors;
+            else if ( bootBodies == three )
                 f1->sinc.tulip[build].Partition += 3*c1->i.sectors;
-            else if ( runBodies == four )
+            else if ( bootBodies == four )
                 f1->sinc.tulip[build].Partition += 6*c1->i.sectors;
             
-            f1->sinc.tulip[build].Partition = imax(nG*c1->i.sectors,part(f1, build));
+            f1->sinc.tulip[build].Partition = c1->i.sectors*imax(nG*c1->i.sectors,part(f1, build));//BUILD
             
+            //f1->sinc.tulip[build].Partition = 0;
             // B2 :  2*(1+S)*3 + 1*sector +  Na*matrixNumber*2
             // B3 :  3*(1+S)*3 + 3*sector  + Na*matrixNumber*3
-            f1->sinc.tulip[build].NBody = runBodies;
             f1->sinc.tulip[build].species = matrix;
-            f1->sinc.tulip[build].header = Cube;
-            f1->sinc.tulip[build].purpose = Object;
-//            f1->sinc.tulip[build].symmetryType = nullSymmetry;
-            f1->sinc.tulip[build].name = build;
+            assignParticle(f1, build, all, bootBodies);
+
             
-            f1->sinc.tulip[eigen].Address = fromBegining(f1,build);
-            f1->sinc.tulip[eigen].Partition = c1->i.sectors;
-            f1->sinc.tulip[eigen].NBody = runBodies;
+            for ( space = 0; space < SPACE ; space++)
+            {
+                if ( space == 0 )
+                    fromBeginning(f1, bill1+space, build);
+                else
+                    fromBeginning(f1, bill1+space, bill1+space-1);
+                
+                f1->sinc.tulip[bill1+space].Partition = !(!c1->i.sectors)*c1->i.decomposeRankMatrix * vectorLen(f1, space) * vectorLen(f1, space);
+                f1->sinc.tulip[bill1+space].memory = bufferAllocation;
+                
+            }
+            fromBeginning(f1, eigen, bill1+SPACE-1);
+            f1->sinc.tulip[eigen].Partition = !(!c1->i.sectors)*c1->i.decomposeRankMatrix;
             f1->sinc.tulip[eigen].species = matrix;
-            f1->sinc.tulip[eigen].header = Cube;
-            f1->sinc.tulip[eigen].purpose = tObject;
-//            f1->sinc.tulip[eigen].symmetryType = nullSymmetry;
-            f1->sinc.tulip[eigen].name = eigen;
-        
+            assignParticle(f1, eigen, all, bootBodies);
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1->sinc.rose[space].body != nada)
+                    f1->sinc.tulip[eigen].space[space].block = tv1;
             
-            INT_TYPE si = 0,g;
-            for ( g = 0; g < nSAG*nSAG*nSAG ; g++)
-                si += c1->i.cSA[g];
+            
+            
+//            INT_TYPE si = 0,g;
+//            for ( g = 0; g < nSAG*nSAG*nSAG ; g++)
+//                si += c1->i.cSA[g];
             
             if ( c1->i.densityFlag ){
                 INT_TYPE di;
-                printf("std DENSITY vectors with %d ranks\n\n", c1->i.bRank);
-                f1->sinc.tulip[density].Address = fromBegining(f1,eigen);
+                printf("density max (%d)\n\n", c1->i.dRank);
+                fromBeginning(f1, density, eigen);
                 f1->sinc.tulip[density].Partition = c1->i.dRank;
-                printf("density rakn %d\n", c1->i.dRank);
-                f1->sinc.tulip[density].species = vector;
-                f1->sinc.tulip[density].NBody = c1->i.bodyDensity;
-                f1->sinc.tulip[density].header = Cube;
-                f1->sinc.tulip[density].purpose = Object;
-                f1->sinc.tulip[density].name = density;
-                
+                f1->sinc.tulip[density].species = outerVector;
+                for (space = 0; space < SPACE ; space++)
+                    f1->sinc.tulip[density].space[space].body = c1->i.bodyDensity;
+
                 for ( di = 1 ; density+di < end; di++){
                     f1->sinc.tulip[density+di-1].linkNext = density+di;// linked up!
-                    f1->sinc.tulip[density+di].Address = fromBegining(f1,density+di-1);
+                    fromBeginning(f1, density+di, density+di-1);
                     f1->sinc.tulip[density+di].Partition = c1->i.dRank ;
-                    f1->sinc.tulip[density+di].header = Cube;
-                    f1->sinc.tulip[density+di].species = vector;
-                    f1->sinc.tulip[density+di].NBody = c1->i.bodyDensity;
-                    f1->sinc.tulip[density+di].purpose = Object;
-                    f1->sinc.tulip[density+di].name = density+di;
+                    f1->sinc.tulip[density+di].species = outerVector;
+                    for (space = 0; space < SPACE ; space++)
+                        f1->sinc.tulip[density].space[space].body = c1->i.bodyDensity;
+
                 }
-                f1->sinc.tulip[eigenVectors].Address = fromBegining(f1,density+di-1);
-                
+                fromBeginning(f1, eigenVectors, density+di-1);
             }else{
-                f1->sinc.tulip[eigenVectors].Address = fromBegining(f1,eigen);
+                fromBeginning(f1, eigenVectors, eigen);
             }
             
-            
+            struct name_label u ;
+            struct name_label u2;
+
+
             if(1 /* !si*/){
                 INT_TYPE di,d0=1;
+#if VERBOSE
                 printf("std USERs\n\n");
-//                f1->sinc.tulip[eigenVectors].Address = fromBegining(f1,density);
+#endif
                 f1->sinc.tulip[eigenVectors].Partition = c1->i.bRank;
                 f1->sinc.tulip[eigenVectors].species = vector;
-                f1->sinc.tulip[eigenVectors].header = Cube;//READ AND WRITE | => CUBE
-                f1->sinc.tulip[eigenVectors].purpose = tObject;
-                f1->sinc.tulip[eigenVectors].name = eigenVectors;
-                
+                f1->sinc.tulip[eigenVectors].spinor = c1->i.complexType;
                 for ( di = 1 ; eigenVectors+di < density; di++){
-                    f1->sinc.tulip[eigenVectors+di].Address = fromBegining(f1,eigenVectors+di-1);
+                    fromBeginning(f1, eigenVectors+di, eigenVectors+di-1);
+                    f1->sinc.tulip[eigenVectors+di].spinor = c1->i.complexType;
                     if ( di < c1->i.nStates ){
                         f1->sinc.tulip[eigenVectors+di].Partition = c1->i.bRank;
                         d0++;
                     }
                     else if ( di < c1->i.nStates+maxEV){
                         {
-
-                            INT_TYPE nextRank = ((di-d0)/EV)+c1->i.iRank;
-                            if ( (c1->i.iRank > 12) ){
-                                if ( !(((di-d0)/EV) % 2) ){
-                                   }
-                                else
-                                    nextRank--;
-                            }
-                            
-                            f1->sinc.tulip[eigenVectors+di].Partition = nextRank;
-                          //  printf("new %d %d\n",eigenVectors+di, part(f1, eigenVectors+di) );
-                          //  f1->sinc.tulip[eigenVectors+di].spinor = none;
-
+                            f1->sinc.tulip[eigenVectors+di].Partition = ((di-d0)/EV)+c1->i.iRank;
                             NV += spins(f1,eigenVectors+di )*f1->sinc.tulip[eigenVectors+di].Partition;
                         }
                         
+                    }else{
+                        exit(1);
                     }
-                        f1->sinc.tulip[eigenVectors+di].header = Cube;
                         f1->sinc.tulip[eigenVectors+di].species = vector;
-                        f1->sinc.tulip[eigenVectors+di].purpose = tObject;
-                        f1->sinc.tulip[eigenVectors+di].name = eigenVectors+di;
-                        
                     }
-                    f1->sinc.tulip[diagonalVectorA].Address = fromBegining(f1,eigenVectors+di-1);
-                    
-            }else
-            {
-                INT_TYPE di,d0=1,ii,jj,kk,h,i,last,fpath,v;
-                printf("path USERs\n\n");
-                fflush(stdout);
-                exit(0);
-                f1->sinc.tulip[eigenVectors].Address = fromBegining(f1,density);
-                f1->sinc.tulip[eigenVectors].Partition = c1->i.bRank;
-                f1->sinc.tulip[eigenVectors].species = vector;
-                f1->sinc.tulip[eigenVectors].header = Cube;//READ AND WRITE | => CUBE
-                f1->sinc.tulip[eigenVectors].purpose = tObject;
-                f1->sinc.tulip[eigenVectors].name = eigenVectors;
-                
-                for ( di = 1 ; di < c1->i.nStates; di++){
-                    f1->sinc.tulip[eigenVectors+di].Address = fromBegining(f1,eigenVectors+di-1);
-                    f1->sinc.tulip[eigenVectors+di].Partition = c1->i.bRank;
-                    f1->sinc.tulip[eigenVectors+di].species = vector;
-                    f1->sinc.tulip[eigenVectors+di].header = Cube;//READ AND WRITE | => CUBE
-                    f1->sinc.tulip[eigenVectors+di].purpose = tObject;
-                    f1->sinc.tulip[eigenVectors+di].name = eigenVectors+di;
-                    d0++;
-                }
-                
-                last = d0 -1;
-                fpath = 0;
-                v=0;
-                for ( v = 0 ; v < nG*nG*nG ; v++ )
-                {
-                    ii = v % nG;
-                    jj = (v/nG)%nG;
-                    kk = (v/(nG*nG))%nG;
-                    if ( tIR(bootBodies, ii, jj, kk, c1->i.irrep)){
-                        for ( h = 0; h < c1->i.cSA[v] ;h++)
-                            for ( i = 0; i < c1->i.Iterations ; i++)//ORDER IN MEMORY
-                                
-                            {
-                                enum division nm = eigenVectors+d0+ h+fpath + i*si;//ORDER IN USR
-                                
-  //                             printf("new %d rank %d last %d path %d \n",nm, i+c1->i.iRank,eigenVectors+last,v);//
-//                               fflush(stdout);
-                                f1->sinc.tulip[nm].Address = fromBegining(f1,eigenVectors+last);
-                              //   f1->sinc.tulip[nm].spinor = none;
-
-                                last = nm-eigenVectors;
-                                f1->sinc.tulip[nm].Partition = i+c1->i.iRank;
-                                NV += spins(f1,nm)*(i+c1->i.iRank);
-                               // printf("spines %d\n",spins(f1,nm));
-                                f1->sinc.tulip[nm].header = Cube;
-                                f1->sinc.tulip[nm].species = vector;
-                                f1->sinc.tulip[nm].purpose = tObject;
-                                f1->sinc.tulip[nm].name = nm;
-                                f1->sinc.tulip[nm].path = v;
-                            }
-                        fpath+=c1->i.cSA[v];
-                    }
-                    f1->sinc.tulip[diagonalVectorA].Address = fromBegining(f1,eigenVectors+last );
-                    
-                }
+                fromBeginning(f1, diagonalVectorA, eigenVectors+di-1);
+                ;
+                 u = f1->sinc.tulip[eigenVectors];
+                 u2 = f1->sinc.tulip[eigenVectors+di-1];
+                f1->sinc.user = eigenVectors + d0;
             }
                 
             
-            
-            
+
+            f1->sinc.tulip[diagonalVectorA].spinor = parallel;
             f1->sinc.tulip[diagonalVectorA].Partition = !(!(c1->i.sectors));
             f1->sinc.tulip[diagonalVectorA].species = vector;
-            f1->sinc.tulip[diagonalVectorA].parallel = 2;
-            f1->sinc.tulip[diagonalVectorA].header = Cube;
-            f1->sinc.tulip[diagonalVectorA].NBody = runBodies;
-            f1->sinc.tulip[diagonalVectorA].purpose = tObject;
-//            f1->sinc.tulip[diagonalVectorA].symmetryType = nullSymmetry;
-            f1->sinc.tulip[diagonalVectorA].name = diagonalVectorA;
             
-            f1->sinc.tulip[diagonalVectorB].Address = fromBegining(f1,diagonalVectorA);
+            fromBeginning(f1, diagonalVectorB, diagonalVectorA);
+            f1->sinc.tulip[diagonalVectorB].spinor = parallel;
             f1->sinc.tulip[diagonalVectorB].Partition =  !(!(c1->i.sectors));
             f1->sinc.tulip[diagonalVectorB].species = vector;
-            f1->sinc.tulip[diagonalVectorB].parallel = 2;
-            f1->sinc.tulip[diagonalVectorB].header = Cube;
-            f1->sinc.tulip[diagonalVectorB].NBody = runBodies;
-            f1->sinc.tulip[diagonalVectorB].purpose = tObject;
-//            f1->sinc.tulip[diagonalVectorB].symmetryType = nullSymmetry;
-            f1->sinc.tulip[diagonalVectorB].name = diagonalVectorB;
 
         }
         
-        f1->sinc.tulip[diagonalVector].Address = fromBegining(f1,diagonalVectorB);
-        f1->sinc.tulip[diagonalVector].Partition =  maxVector;
-        f1->sinc.tulip[diagonalVector].species = vector;
-        f1->sinc.tulip[diagonalVector].header = Cube;
-        f1->sinc.tulip[diagonalVector].parallel = 2;
-        f1->sinc.tulip[diagonalVector].purpose = tObject;
-//        f1->sinc.tulip[diagonalVector].symmetryType = nullSymmetry;
-        f1->sinc.tulip[diagonalVector].name = diagonalVector;
+        INT_TYPE len[SPACE],mxlen=0;
+        length(f1, eigenVectors, len);
+        for ( space = 0 ; space < SPACE ; space++)
+            if(len[space] > mxlen)
+                mxlen = len[space];
+        
+        INT_TYPE mx1len=0;
+        length1(f1, len);
+        for ( space = 0 ; space < SPACE ; space++)
+            if(len[space] > mx1len)
+                mx1len = len[space];
+        
 
         
-        f1->sinc.tulip[entropyVector].Address = fromBegining(f1,diagonalVector);
-        f1->sinc.tulip[entropyVector].spinor = none;
-        f1->sinc.tulip[entropyVector].Partition = 0;//
-        if ( 0 )
-            f1->sinc.tulip[entropyVector].NBody = 0;
-        f1->sinc.tulip[entropyVector].species = vector;
-        f1->sinc.tulip[entropyVector].header = Cube;
-        f1->sinc.tulip[entropyVector].purpose = Object;
-//        f1->sinc.tulip[entropyVector].symmetryType = nullSymmetry;
-        f1->sinc.tulip[entropyVector].name = entropyVector;
-        
-        f1->sinc.tulip[entropyUnit].spinor = none;
-        f1->sinc.tulip[entropyUnit].Address = fromBegining(f1,entropyVector);
-        f1->sinc.tulip[entropyUnit].Partition = !(!(part(f1, entropyVector)))*c1->i.sectors;//
-        f1->sinc.tulip[entropyUnit].NBody = bodies(f1, entropyVector);
-        f1->sinc.tulip[entropyUnit].species = vector;
-        f1->sinc.tulip[entropyUnit].header = Cube;
-        f1->sinc.tulip[entropyUnit].purpose = tObject;
-//        f1->sinc.tulip[entropyUnit].symmetryType = nullSymmetry;
-        f1->sinc.tulip[entropyUnit].name = entropyUnit;
-        
-        f1->sinc.tulip[complement].Address = fromBegining(f1,entropyUnit);
-        f1->sinc.tulip[complement].Partition = !(!c1->i.densityFlag ) * c1->i.dRank * c1->i.canonRank;//
-        f1->sinc.tulip[complement].parallel = 1;
-        f1->sinc.tulip[complement].species = vector;
+        fromBeginning(f1, complement, diagonalVectorB);
+        f1->sinc.tulip[complement].Partition = !(!c1->i.densityFlag ) ;//
+        f1->sinc.tulip[complement].spinor = parallel;
+        f1->sinc.tulip[complement].species = outerVector;
         if ( c1->i.densityFlag && (c1->i.bodyDensity - bootBodies) > 0)
-            f1->sinc.tulip[complement].NBody = (c1->i.bodyDensity - bootBodies);
-        f1->sinc.tulip[complement].header = Cube;
-        f1->sinc.tulip[complement].purpose = Object;
-        f1->sinc.tulip[complement].name = complement;
+            assignParticle(f1, complement, electron, (c1->i.bodyDensity - bootBodies));
         
-        f1->sinc.tulip[complementTwo].Address = fromBegining(f1,complement);
-        f1->sinc.tulip[complementTwo].Partition = !(!c1->i.densityFlag ) * c1->i.dRank * c1->i.canonRank;//
-        f1->sinc.tulip[complementTwo].parallel = 1;
-        f1->sinc.tulip[complementTwo].species = vector;
+        fromBeginning(f1,complementTwo , complement);
+        f1->sinc.tulip[complementTwo].Partition = !(!c1->i.densityFlag );//
+        f1->sinc.tulip[complementTwo].spinor = parallel;
+        f1->sinc.tulip[complementTwo].species = outerVector;
         if ( c1->i.densityFlag && (c1->i.bodyDensity - bootBodies) > 0)
-            f1->sinc.tulip[complementTwo].NBody = (c1->i.bodyDensity - bootBodies);
-        f1->sinc.tulip[complementTwo].header = Cube;
-        f1->sinc.tulip[complementTwo].purpose = Object;
-        f1->sinc.tulip[complementTwo].name = complementTwo;
+            assignParticle(f1, complementTwo, electron, (c1->i.bodyDensity - bootBodies));
 
+        fromBeginning(f1,edgeElectronMatrix , complementTwo);
+        f1->sinc.tulip[edgeElectronMatrix].Partition = 1 ;//
+        f1->sinc.tulip[edgeElectronMatrix].species = matrix;
+        assignOneWithPointers(f1, edgeElectronMatrix, electron);
         
-        f1->sinc.tulip[MomentumDot].spinor = none;
-        f1->sinc.tulip[MomentumDot].Address = fromBegining(f1,complementTwo);
-        f1->sinc.tulip[MomentumDot].Partition =0 ;//
-        f1->sinc.tulip[MomentumDot].NBody = two;
-        f1->sinc.tulip[MomentumDot].species = matrix;
-        f1->sinc.tulip[MomentumDot].header = Cube;
-        f1->sinc.tulip[MomentumDot].purpose = Object;
-//        f1->sinc.tulip[MomentumDot].symmetryType = nullSymmetry;
-        f1->sinc.tulip[MomentumDot].name = MomentumDot;
-        
-        f1->sinc.tulip[edgeMatrix].spinor = none;
-        f1->sinc.tulip[edgeMatrix].Address = fromBegining(f1,MomentumDot);
-        f1->sinc.tulip[edgeMatrix].Partition = 6 ;//
-        f1->sinc.tulip[edgeMatrix].NBody = one;
-        f1->sinc.tulip[edgeMatrix].species = matrix;
-        f1->sinc.tulip[edgeMatrix].header = Cube;
-        f1->sinc.tulip[edgeMatrix].purpose = Object;
-//        f1->sinc.tulip[edgeMatrix].symmetryType = nullSymmetry;
-        f1->sinc.tulip[edgeMatrix].name = edgeMatrix;
-        
-        f1->sinc.tulip[nullVector].Address = fromBegining(f1,edgeMatrix);
-        f1->sinc.tulip[nullVector].Partition = 0;
-        f1->sinc.tulip[nullVector].species = scalar;
-        f1->sinc.tulip[nullVector].header = Cube;
-        f1->sinc.tulip[nullVector].purpose = ptObject;
-        f1->sinc.tulip[nullVector].name = nullVector;
-        
-        f1->sinc.tulip[nullMatrix].Address = fromBegining(f1,nullVector);
-        f1->sinc.tulip[nullMatrix].Partition = 0;
-        f1->sinc.tulip[nullMatrix].species = scalar;
-        f1->sinc.tulip[nullMatrix].header = Cube;
-        f1->sinc.tulip[nullMatrix].purpose = ptObject;
-        f1->sinc.tulip[nullMatrix].name = nullMatrix;
-        
-        f1->sinc.tulip[vectorCubeBuffers].Address = fromBegining(f1,nullMatrix);
-        f1->sinc.tulip[vectorCubeBuffers].Partition = 0;
-        f1->sinc.tulip[vectorCubeBuffers].parallel = 2;
-        f1->sinc.tulip[vectorCubeBuffers].species = vector;
-        f1->sinc.tulip[vectorCubeBuffers].header = Cube;//WARNING
-        f1->sinc.tulip[vectorCubeBuffers].purpose = tObject;
-        f1->sinc.tulip[vectorCubeBuffers].name = vectorCubeBuffers;
-        
-        f1->sinc.tulip[secondVector].Address = fromBegining(f1,vectorCubeBuffers);
-        f1->sinc.tulip[secondVector].Partition = 0*(!(!c1->rt.printFlag)) * maxVector + ( ( !(!c1->i.sectors)))* 24;//(!(!Nb))*outVector ;
-        f1->sinc.tulip[secondVector].species = vector;
-        f1->sinc.tulip[secondVector].header = Cube;
-        f1->sinc.tulip[secondVector].parallel = 1;
-        f1->sinc.tulip[secondVector].purpose = tObject;
-//        f1->sinc.tulip[secondVector].symmetryType = nullSymmetry;
-        f1->sinc.tulip[secondVector].name = secondVector;
-                
-        f1->sinc.tulip[edges].Partition = 0;
-        f1->sinc.tulip[edges].Address = fromBegining(f1,secondVector);
-        f1->sinc.tulip[edges].species = vector;
-        f1->sinc.tulip[edges].header = Cube;
-        f1->sinc.tulip[edges].purpose = Object;
-        f1->sinc.tulip[edges].name = edges;
-        
-        f1->sinc.tulip[basis].spinor = none;
-        f1->sinc.tulip[basis].Address = fromBegining(f1,edges);
-        f1->sinc.tulip[basis].Partition = 0;
-        f1->sinc.tulip[basis].species = matrix;
-        f1->sinc.tulip[basis].header = RdsBasis;
-        f1->sinc.tulip[basis].purpose = Object;
-//        f1->sinc.tulip[basis].symmetryType = nullSymmetry;
-        f1->sinc.tulip[basis].name = basis;
-        
-        f1->sinc.tulip[bandBasis].spinor = none;
-        f1->sinc.tulip[bandBasis].Address = fromBegining(f1,basis);
-        f1->sinc.tulip[bandBasis].Partition = 0;
-        f1->sinc.tulip[bandBasis].species = matrix;
-        f1->sinc.tulip[bandBasis].header = BandBasis;
-        f1->sinc.tulip[bandBasis].purpose = Object;
-//        f1->sinc.tulip[bandBasis].symmetryType = nullSymmetry;
-        f1->sinc.tulip[bandBasis].name = bandBasis;
-        
-        
-        INT_TYPE largestRank = 0;
-        INT_TYPE largestRankMatrix = 0;
-        INT_TYPE maxTrainingRank = 0;
-        INT_TYPE maxVectorTrain = 0;
-        INT_TYPE maxMatrixTrain = 0;
-        INT_TYPE maxQuarticTrain = 0;
-        
-        
-        
-        enum division label;
-        for ( label = 0; label < end ; label++){
-            if ( part(f1, label ) > largestRankMatrix &&species(f1,label ) == matrix && purpose(f1, label) == Object)
-                largestRankMatrix = part(f1, label);
-            if ( part(f1, label ) > maxTrainingRank && purpose(f1, label) == tObject)
-                maxTrainingRank = part(f1, label);
-            if (part(f1, label ) > maxVectorTrain && species(f1,label ) == vector&& purpose(f1, label) == tObject)
-                maxVectorTrain = part(f1, label);
-            if ( part(f1, label ) > maxMatrixTrain &&species(f1,label ) == matrix&& purpose(f1, label) == tObject)
-                maxMatrixTrain = 0*part(f1, label);
-            if ( part(f1, label ) > maxQuarticTrain &&species(f1,label ) == quartic&& purpose(f1, label) == tObject)
-                maxQuarticTrain = 0*part(f1, label);
-            
-        }
-        
-        
-        f1->sinc.tulip[productVector].Address = fromBegining(f1,bandBasis);
-        f1->sinc.tulip[productVector].Partition = (c1->i.canonRank)*maxVector;
+        fromBeginning(f1,edgeProtonMatrix,edgeElectronMatrix);
+        f1->sinc.tulip[edgeProtonMatrix].Partition = 1 ;//
+        f1->sinc.tulip[edgeProtonMatrix].species = matrix;
+        assignOneWithPointers(f1, edgeProtonMatrix, proton);
+
+        fromBeginning(f1,productVector,edgeProtonMatrix);
+        f1->sinc.tulip[productVector].Partition = maxVector;
         f1->sinc.tulip[productVector].species = vector;
-        f1->sinc.tulip[productVector].header = Cube;
-        f1->sinc.tulip[productVector].parallel = 2;
-        f1->sinc.tulip[productVector].purpose = tObject;
-//        f1->sinc.tulip[productVector].symmetryType = nullSymmetry;
-        f1->sinc.tulip[productVector].name = productVector;
-        
-        f1->sinc.tulip[permutationVector].Address = fromBegining(f1,productVector);
+        f1->sinc.tulip[productVector].spinor = parallel;
+
+        fromBeginning(f1,permutationVector,productVector);
         f1->sinc.tulip[permutationVector].Partition = ra*maxVector;
         f1->sinc.tulip[permutationVector].species = vector;
-        f1->sinc.tulip[permutationVector].header = Cube;
-        f1->sinc.tulip[permutationVector].parallel = 2;
-        f1->sinc.tulip[permutationVector].purpose = Object;
-//        f1->sinc.tulip[permutationVector].symmetryType = nullSymmetry;
-        f1->sinc.tulip[permutationVector].name = permutationVector;
+        f1->sinc.tulip[permutationVector].spinor = parallel;
         
-        f1->sinc.tulip[copyVector].Address = fromBegining(f1,permutationVector);
-        f1->sinc.tulip[copyVector].Partition = maxVector;//c1->i.bRank*c1->i.bRank;
+        fromBeginning(f1,permutation2Vector,permutationVector);
+        f1->sinc.tulip[permutation2Vector].Partition = maxVector;
+        f1->sinc.tulip[permutation2Vector].species = vector;
+        f1->sinc.tulip[permutation2Vector].spinor = parallel;
+        
+        fromBeginning(f1,canonicalmvVector,permutation2Vector);
+        f1->sinc.tulip[canonicalmvVector].Partition = 1;
+        f1->sinc.tulip[canonicalmvVector].species = vector;
+        f1->sinc.tulip[canonicalmvVector].spinor = parallel;
+
+        fromBeginning(f1,canonicalmv2Vector,canonicalmvVector);
+        f1->sinc.tulip[canonicalmv2Vector].Partition = 1;
+        f1->sinc.tulip[canonicalmv2Vector].species = vector;
+        f1->sinc.tulip[canonicalmv2Vector].spinor = parallel;
+
+        fromBeginning(f1,canonicalmv3Vector,canonicalmv2Vector);
+        f1->sinc.tulip[canonicalmv3Vector].Partition = 1;
+        f1->sinc.tulip[canonicalmv3Vector].species = vector;
+        f1->sinc.tulip[canonicalmv3Vector].spinor = parallel;
+
+        fromBeginning(f1,canonicaldotVector,canonicalmv3Vector);
+        f1->sinc.tulip[canonicaldotVector].Partition = 1;
+        f1->sinc.tulip[canonicaldotVector].species = vector;;
+        f1->sinc.tulip[canonicaldotVector].spinor = parallel;
+        
+        fromBeginning(f1,canonicaldot2Vector,canonicaldotVector);
+        f1->sinc.tulip[canonicaldot2Vector].Partition = 1;
+        f1->sinc.tulip[canonicaldot2Vector].species = vector;;
+        f1->sinc.tulip[canonicaldot2Vector].spinor = parallel;
+        
+        fromBeginning(f1,canonicaldot3Vector,canonicaldot2Vector);
+        f1->sinc.tulip[canonicaldot3Vector].Partition = 1;
+        f1->sinc.tulip[canonicaldot3Vector].species = vector;;
+        f1->sinc.tulip[canonicaldot3Vector].spinor = parallel;
+        
+        fromBeginning(f1,canonicalvvVector,canonicaldot3Vector);
+        f1->sinc.tulip[canonicalvvVector].Partition = 1;
+        f1->sinc.tulip[canonicalvvVector].species = vector;;
+        f1->sinc.tulip[canonicalvvVector].spinor = parallel;
+        
+        fromBeginning(f1,canonicalvv2Vector,canonicalvvVector);
+        f1->sinc.tulip[canonicalvv2Vector].Partition = 0;
+        f1->sinc.tulip[canonicalvv2Vector].species = vector;;
+        f1->sinc.tulip[canonicalvv2Vector].spinor = parallel;
+        
+        fromBeginning(f1,canonicalvv3Vector,canonicalvv2Vector);
+        f1->sinc.tulip[canonicalvv3Vector].Partition = 0;
+        f1->sinc.tulip[canonicalvv3Vector].species = vector;;
+        f1->sinc.tulip[canonicalvv3Vector].spinor = parallel;
+
+        fromBeginning(f1,canonicalmeVector,canonicalvv3Vector);
+        f1->sinc.tulip[canonicalmeVector].Partition = 1;
+        f1->sinc.tulip[canonicalmeVector].species = vector;;
+        f1->sinc.tulip[canonicalmeVector].spinor = parallel;
+        
+        fromBeginning(f1,canonicalme2Vector,canonicalmeVector);
+        f1->sinc.tulip[canonicalme2Vector].Partition = 0;
+        f1->sinc.tulip[canonicalme2Vector].species = vector;;
+        f1->sinc.tulip[canonicalme2Vector].spinor = parallel;
+        
+        fromBeginning(f1,canonicalme3Vector,canonicalme2Vector);
+        f1->sinc.tulip[canonicalme3Vector].Partition = 0;
+        f1->sinc.tulip[canonicalme3Vector].species = vector;;
+        f1->sinc.tulip[canonicalme3Vector].spinor = parallel;
+
+        fromBeginning(f1,copyVector,canonicalme3Vector);
+        f1->sinc.tulip[copyVector].Partition = 0* maxVector;
         f1->sinc.tulip[copyVector].species = vector;
-        f1->sinc.tulip[copyVector].header = Cube;
-        if ( !(!c1->rt.printFlag) && bootBodies > two){
-            f1->sinc.tulip[copyVector].NBody = two;
-        }
-        f1->sinc.tulip[copyVector].parallel = 2;
-        f1->sinc.tulip[copyVector].purpose = tObject;
-//        f1->sinc.tulip[copyVector].symmetryType = nullSymmetry;
-        f1->sinc.tulip[copyVector].name = copyVector;
-        
-        
-        f1->sinc.tulip[copyTwoVector].Address = fromBegining(f1,copyVector);
-        f1->sinc.tulip[copyTwoVector].Partition =   maxVector;//c1->i.bRank*c1->i.bRank;
+        f1->sinc.tulip[copyVector].spinor = parallel;
+
+        fromBeginning(f1,copyTwoVector,copyVector);
+        f1->sinc.tulip[copyTwoVector].Partition =   0*maxVector;//c1->i.bRank*c1->i.bRank;
         f1->sinc.tulip[copyTwoVector].species = vector;
-        f1->sinc.tulip[copyTwoVector].header = Cube;
-        if ( !(!c1->rt.printFlag)  && bootBodies > two){
-            f1->sinc.tulip[copyTwoVector].NBody = two;
-        }
-        f1->sinc.tulip[copyTwoVector].parallel = 1;
-        f1->sinc.tulip[copyTwoVector].purpose = tObject;
-//        f1->sinc.tulip[copyTwoVector].symmetryType = nullSymmetry;
-        f1->sinc.tulip[copyTwoVector].name = copyTwoVector;
-        
-        f1->sinc.tulip[copyThreeVector].Address = fromBegining(f1,copyTwoVector);
-        f1->sinc.tulip[copyThreeVector].Partition = maxVector;//c1->i.bRank*c1->i.bRank;
+        f1->sinc.tulip[copyTwoVector].spinor = parallel;
+
+        fromBeginning(f1,copyThreeVector,copyTwoVector);
+        f1->sinc.tulip[copyThreeVector].Partition =   0*maxVector;//c1->i.bRank*c1->i.bRank;
         f1->sinc.tulip[copyThreeVector].species = vector;
-        f1->sinc.tulip[copyThreeVector].header = Cube;
-        f1->sinc.tulip[copyThreeVector].parallel = 1;
-        f1->sinc.tulip[copyThreeVector].purpose = tObject;
-        f1->sinc.tulip[copyThreeVector].name = copyThreeVector;
-        
-        f1->sinc.tulip[copyFourVector].Address = fromBegining(f1,copyThreeVector);
-        f1->sinc.tulip[copyFourVector].Partition = maxVector;//c1->i.bRank*c1->i.bRank;
+        f1->sinc.tulip[copyThreeVector].spinor = parallel;
+
+        fromBeginning(f1,copyFourVector,copyThreeVector);
+        f1->sinc.tulip[copyFourVector].Partition =    0*maxVector;//c1->i.bRank*c1->i.bRank;
         f1->sinc.tulip[copyFourVector].species = vector;
-        f1->sinc.tulip[copyFourVector].header = Cube;
-        f1->sinc.tulip[copyFourVector].parallel = 1;
-        f1->sinc.tulip[copyFourVector].purpose = tObject;
-        f1->sinc.tulip[copyFourVector].name = copyFourVector;
+        f1->sinc.tulip[copyFourVector].spinor = parallel;
         
-        f1->sinc.tulip[oneVector].Address = fromBegining(f1,copyFourVector);
-        f1->sinc.tulip[oneVector].Partition = !(!c1->rt.printFlag) * 24*imax(f1->oneBody.num, f1->twoBody.num);;
-        f1->sinc.tulip[oneVector].NBody = one;
-        f1->sinc.tulip[oneVector].species = vector;
-        f1->sinc.tulip[oneVector].header = Cube;
-        f1->sinc.tulip[oneVector].parallel = 2;
-        f1->sinc.tulip[oneVector].purpose = Object;
-//        f1->sinc.tulip[oneVector].symmetryType = nullSymmetry;
-        f1->sinc.tulip[oneVector].name = oneVector;
+//        f1->sinc.tulip[oneVector].Address = fromBeginning(f1,copyFourVector);
+//        f1->sinc.tulip[oneVector].Partition = !(!c1->rt.printFlag) * 24*imax(f1->oneBody.num, f1->twoBody.num);;
+//        f1->sinc.tulip[oneVector].body = one;
+//        f1->sinc.tulip[oneVector].species = vector;
+//        f1->sinc.tulip[oneVector].header = Cube;
+//        f1->sinc.tulip[oneVector].parallel = 2;
+//
+//        f1->sinc.tulip[twoVector].Address = fromBeginning(f1,oneVector);
+//        f1->sinc.tulip[twoVector].Partition = !(!c1->rt.printFlag) * c1->i.bRank;;
+//        f1->sinc.tulip[twoVector].body = two;
+//        f1->sinc.tulip[twoVector].species = vector;
+//        f1->sinc.tulip[twoVector].header = Cube;
+//        f1->sinc.tulip[twoVector].parallel = 2;
+//        f1->sinc.tulip[twoVector].purpose = Object;
+////        f1->sinc.tulip[twoVector].symmetryType = nullSymmetry;
+//        f1->sinc.tulip[twoVector].name = twoVector;
+//
+        fromBeginning(f1,totalVector,copyFourVector);
+        f1->sinc.tulip[totalVector].Partition = (c1->i.canonRank);
+        f1->sinc.tulip[totalVector].species = vector;
+        f1->sinc.tulip[totalVector].spinor = parallel;
+
+        fromBeginning(f1,totalFuzzyVector,totalVector);
+        f1->sinc.tulip[totalFuzzyVector].Partition = (c1->i.canonRank);
+        f1->sinc.tulip[totalFuzzyVector].species = vector;
+        f1->sinc.tulip[totalFuzzyVector].spinor = parallel;
+
+        fromBeginning(f1,diagonalCube,totalFuzzyVector);
+        f1->sinc.tulip[diagonalCube].Partition = 1;
+        f1->sinc.tulip[diagonalCube].species = matrix;
+        assignParticle(f1, diagonalCube, all, one);
         
-        f1->sinc.tulip[twoVector].Address = fromBegining(f1,oneVector);
-        f1->sinc.tulip[twoVector].Partition = !(!c1->rt.printFlag) * c1->i.bRank;;
-        f1->sinc.tulip[twoVector].NBody = two;
-        f1->sinc.tulip[twoVector].species = vector;
-        f1->sinc.tulip[twoVector].header = Cube;
-        f1->sinc.tulip[twoVector].parallel = 2;
-        f1->sinc.tulip[twoVector].purpose = Object;
-//        f1->sinc.tulip[twoVector].symmetryType = nullSymmetry;
-        f1->sinc.tulip[twoVector].name = twoVector;
+        fromBeginning(f1,diagonal1VectorA,diagonalCube);
+        f1->sinc.tulip[diagonal1VectorA].Partition =1+!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal1VectorA].spinor = parallel;
+        f1->sinc.tulip[diagonal1VectorA].species = outerVector;
+        assignParticle(f1, diagonal1VectorA, all , one);
+        
+        fromBeginning(f1,diagonal2VectorA,diagonal1VectorA);
+        f1->sinc.tulip[diagonal2VectorA].Partition =c1->i.sectors+!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal2VectorA].spinor = parallel;
+        f1->sinc.tulip[diagonal2VectorA].species = outerVector;
+        assignParticle(f1, diagonal2VectorA, all , two);
+
+        fromBeginning(f1,diagonal2VectorB,diagonal2VectorA);
+        f1->sinc.tulip[diagonal2VectorB].Partition =c1->i.sectors+!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal2VectorB].spinor = parallel;
+        f1->sinc.tulip[diagonal2VectorB].species = outerVector;
+        assignParticle(f1, diagonal2VectorB, all , two);
+
+        fromBeginning(f1,diagonal1VectorB,diagonal2VectorB);
+        f1->sinc.tulip[diagonal1VectorB].Partition =c1->i.sectors+!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal1VectorB].spinor = parallel;
+        f1->sinc.tulip[diagonal1VectorB].species = outerVector;
+        assignParticle(f1, diagonal1VectorB, all , one);
+
+        fromBeginning(f1,diagonal1VectorC,diagonal1VectorB);
+        f1->sinc.tulip[diagonal1VectorC].Partition =c1->i.sectors+!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal1VectorC].spinor = parallel;
+        f1->sinc.tulip[diagonal1VectorC].species = outerVector;
+        assignParticle(f1, diagonal1VectorC, all , one);
+
+        fromBeginning(f1,diagonal1VectorD,diagonal1VectorC);
+        f1->sinc.tulip[diagonal1VectorD].Partition = c1->i.sectors+!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal1VectorD].spinor = parallel;
+        f1->sinc.tulip[diagonal1VectorD].species = outerVector;
+        assignParticle(f1, diagonal1VectorD, all , one);
+
+        fromBeginning(f1,bandBasis,diagonal1VectorD);
+        f1->sinc.tulip[bandBasis].Partition = mxlen;
+        f1->sinc.tulip[bandBasis].species = vector;
+        f1->sinc.tulip[bandBasis].memory = bufferAllocation;
 
         
-        f1->sinc.tulip[squareVector].Address = fromBegining(f1,twoVector);
-        f1->sinc.tulip[squareVector].Partition = 0*maxVector*imax(ra,c1->i.canonRank);
-        f1->sinc.tulip[squareVector].species = vector;
-        f1->sinc.tulip[squareVector].header = Cube;
-        f1->sinc.tulip[squareVector].parallel = 2;
-        f1->sinc.tulip[squareVector].purpose = tObject;
-        f1->sinc.tulip[squareVector].name = squareVector;
-        
-        f1->sinc.tulip[totalVector].Address = fromBegining(f1,squareVector);
-        f1->sinc.tulip[totalVector].Partition = (c1->i.canonRank)*part(f1,copyVector);
-        f1->sinc.tulip[totalVector].species = vector;
-        f1->sinc.tulip[totalVector].header = Cube;
-        f1->sinc.tulip[totalVector].parallel = 1;//easily reduce this size...
-        f1->sinc.tulip[totalVector].purpose = Object;
-        f1->sinc.tulip[totalVector].name = totalVector;
-        
-        f1->sinc.tulip[diagonal].Address = fromBegining(f1,totalVector);
-        f1->sinc.tulip[diagonal].Partition = 1;
-        f1->sinc.tulip[diagonal].species = matrix;
-        f1->sinc.tulip[diagonal].NBody = one;
-        f1->sinc.tulip[diagonal].header = Cube;
-        f1->sinc.tulip[diagonal].purpose = tObject;
-//        f1->sinc.tulip[diagonal].symmetryType = nullSymmetry;
-        f1->sinc.tulip[diagonal].name = diagonal;
-        
-        f1->sinc.tulip[diagonalCube].spinor = none;
-        f1->sinc.tulip[diagonalCube].Address = fromBegining(f1,diagonal);
-        f1->sinc.tulip[diagonalCube].Partition = 1;
-        f1->sinc.tulip[diagonalCube].NBody = one;
-        f1->sinc.tulip[diagonalCube].species = matrix;
-        f1->sinc.tulip[diagonalCube].header = Cube;
-        f1->sinc.tulip[diagonalCube].purpose = tObject;
-//        f1->sinc.tulip[diagonalCube].symmetryType = nullSymmetry;
-        f1->sinc.tulip[diagonalCube].name = diagonalCube;
-        
-        f1->sinc.tulip[diagonal1VectorA].spinor = none;
-        f1->sinc.tulip[diagonal1VectorA].Address = fromBegining(f1,diagonalCube);
-        f1->sinc.tulip[diagonal1VectorA].Partition =1+!(!c1->rt.printFlag);
-        f1->sinc.tulip[diagonal1VectorA].parallel = 2;
-        f1->sinc.tulip[diagonal1VectorA].species = vector;
-        f1->sinc.tulip[diagonal1VectorA].header = Cube;
-        f1->sinc.tulip[diagonal1VectorA].NBody = one;
-        f1->sinc.tulip[diagonal1VectorA].purpose = tObject;
-//        f1->sinc.tulip[diagonal1VectorA].symmetryType = nullSymmetry;
-        f1->sinc.tulip[diagonal1VectorA].name = diagonal1VectorA;
-                
-        f1->sinc.tulip[diagonal2VectorA].spinor = none;
-        f1->sinc.tulip[diagonal2VectorA].Address = fromBegining(f1,diagonal1VectorA);
-        f1->sinc.tulip[diagonal2VectorA].Partition =1+!(!c1->rt.printFlag);
-        f1->sinc.tulip[diagonal2VectorA].parallel = 2;
-        f1->sinc.tulip[diagonal2VectorA].species = vector;
-        f1->sinc.tulip[diagonal2VectorA].header = Cube;
-        f1->sinc.tulip[diagonal2VectorA].NBody = two;
-        f1->sinc.tulip[diagonal2VectorA].purpose = tObject;
-//        f1->sinc.tulip[diagonal2VectorA].symmetryType = nullSymmetry;
-        f1->sinc.tulip[diagonal2VectorA].name = diagonal2VectorA;
-        
-        f1->sinc.tulip[diagonal2VectorB].spinor = none;
-        f1->sinc.tulip[diagonal2VectorB].Address = fromBegining(f1,diagonal2VectorA);
-        f1->sinc.tulip[diagonal2VectorB].Partition =1+!(!c1->rt.printFlag);
-        f1->sinc.tulip[diagonal2VectorB].parallel = 2;
-        f1->sinc.tulip[diagonal2VectorB].species = vector;
-        f1->sinc.tulip[diagonal2VectorB].header = Cube;
-        f1->sinc.tulip[diagonal2VectorB].NBody = two;
-        f1->sinc.tulip[diagonal2VectorB].purpose = tObject;
-//        f1->sinc.tulip[diagonal2VectorB].symmetryType = nullSymmetry;
-        f1->sinc.tulip[diagonal2VectorB].name = diagonal2VectorB;
-        
-        f1->sinc.tulip[diagonal1VectorB].spinor = none;
-        f1->sinc.tulip[diagonal1VectorB].Address = fromBegining(f1,diagonal2VectorB);
-        f1->sinc.tulip[diagonal1VectorB].Partition =1+!(!c1->rt.printFlag);
-        f1->sinc.tulip[diagonal1VectorB].parallel = 2;
-        f1->sinc.tulip[diagonal1VectorB].species = vector;
-        f1->sinc.tulip[diagonal1VectorB].header = Cube;
-        f1->sinc.tulip[diagonal1VectorB].NBody = one;
-        f1->sinc.tulip[diagonal1VectorB].purpose = tObject;
-//        f1->sinc.tulip[diagonal1VectorB].symmetryType = nullSymmetry;
-        f1->sinc.tulip[diagonal1VectorB].name = diagonal1VectorB;
-        //setBoxLimits(f1, diagonal1VectorB,N1);
-        
-        f1->sinc.tulip[diagonal1VectorC].spinor = none;
-        f1->sinc.tulip[diagonal1VectorC].Address = fromBegining(f1,diagonal1VectorB);
-        f1->sinc.tulip[diagonal1VectorC].Partition =1+!(!c1->rt.printFlag);
-        f1->sinc.tulip[diagonal1VectorC].parallel = 2;
-        f1->sinc.tulip[diagonal1VectorC].species = vector;
-        f1->sinc.tulip[diagonal1VectorC].header = Cube;
-        f1->sinc.tulip[diagonal1VectorC].NBody = one;
-        f1->sinc.tulip[diagonal1VectorC].purpose = tObject;
-//        f1->sinc.tulip[diagonal1VectorC].symmetryType = nullSymmetry;
-        f1->sinc.tulip[diagonal1VectorC].name = diagonal1VectorC;
-        //setBoxLimits(f1, diagonal1VectorC,N1);
-        
-        f1->sinc.tulip[diagonal1VectorD].spinor = none;
-        f1->sinc.tulip[diagonal1VectorD].Address = fromBegining(f1,diagonal1VectorC);
-        f1->sinc.tulip[diagonal1VectorD].Partition = 1+!(!c1->rt.printFlag);
-        f1->sinc.tulip[diagonal1VectorD].parallel = 2;
-        f1->sinc.tulip[diagonal1VectorD].species = vector;
-        f1->sinc.tulip[diagonal1VectorD].header = Cube;
-        f1->sinc.tulip[diagonal1VectorD].NBody = one;
-        f1->sinc.tulip[diagonal1VectorD].purpose = tObject;
-//        f1->sinc.tulip[diagonal1VectorD].symmetryType = nullSymmetry;
-        f1->sinc.tulip[diagonal1VectorD].name = diagonal1VectorD;
-        //setBoxLimits(f1, diagonal1VectorD,N1);
-        
-        f1->sinc.tulip[seconds].spinor = none;
-        f1->sinc.tulip[seconds].Address = fromBegining(f1,diagonal1VectorD);
-        f1->sinc.tulip[seconds].Partition = 0 ;
-        f1->sinc.tulip[seconds].parallel = 0;
-        f1->sinc.tulip[seconds].species = matrix;
-        f1->sinc.tulip[seconds].header = Cube;
-        f1->sinc.tulip[seconds].NBody = one;
-        f1->sinc.tulip[seconds].purpose = tObject;
-//        f1->sinc.tulip[seconds].symmetryType = nullSymmetry;
-        f1->sinc.tulip[seconds].name = seconds;
-        
-        f1->sinc.tulip[copy].Address = fromBegining(f1,seconds);
-        f1->sinc.tulip[copy].Partition = matrixNumber+ imax(f1->oneBody.num,   imax(matrixNumber*f1->Na,outVector) );
-        f1->sinc.tulip[copy].parallel = 1;
+        fromBeginning(f1,copy,bandBasis);
+        f1->sinc.tulip[copy].Partition = imax(mx1len*mx1len, matrixNumber+ imax(f1->oneBody.num,   imax(matrixNumber*f1->Na,outVector) ));
+        f1->sinc.tulip[copy].spinor = parallel;
         f1->sinc.tulip[copy].species = matrix;
-        f1->sinc.tulip[copy].header = Cube;
-        f1->sinc.tulip[copy].NBody = one;
-        f1->sinc.tulip[copy].purpose = tObject;
-//        f1->sinc.tulip[copy].symmetryType = nullSymmetry;
-        f1->sinc.tulip[copy].name = copy;
+        assignParticle(f1, copy, all, one);
+        for ( space = 0; space < SPACE ; space++)
+            if ( f1->sinc.rose[space].body != nada)
+                f1->sinc.tulip[copy].space[space].block = tv1;
         
-        f1->sinc.tulip[copyTwo].Address = fromBegining(f1,copy);
-        f1->sinc.tulip[copyTwo].Partition = matrixNumber ;
-        f1->sinc.tulip[copyTwo].parallel = 1;
+        fromBeginning(f1,copyTwo,copy);
+        f1->sinc.tulip[copyTwo].Partition = matrixNumber;
+        f1->sinc.tulip[copyTwo].spinor = parallel;
         f1->sinc.tulip[copyTwo].species = matrix;
-        f1->sinc.tulip[copyTwo].header = Cube;
-        f1->sinc.tulip[copyTwo].NBody = one;
-        if ( c1->rt.printFlag ){
-            f1->sinc.tulip[copyTwo].NBody = two;
-            f1->sinc.tulip[copyTwo].Partition = 2*c1->i.bRank * c1->i.bRank;
-        }
-        f1->sinc.tulip[copyTwo].purpose = tObject;
-//        f1->sinc.tulip[copyTwo].symmetryType = nullSymmetry;
-        f1->sinc.tulip[copyTwo].name = copyTwo;
+        assignParticle(f1, copyTwo, all, one);
         
-        
-        f1->sinc.tulip[copyThree].Address = fromBegining(f1,copyTwo);
-        f1->sinc.tulip[copyThree].Partition = 0 ;
-        f1->sinc.tulip[copyThree].parallel = 1;
+        fromBeginning(f1,copyThree,copyTwo);
+        f1->sinc.tulip[copyThree].Partition = 0*matrixNumber+ imax(f1->oneBody.num,   imax(matrixNumber*f1->Na,outVector) );
+        f1->sinc.tulip[copyThree].spinor = parallel;
         f1->sinc.tulip[copyThree].species = matrix;
-        f1->sinc.tulip[copyThree].header = Cube;
-        f1->sinc.tulip[copyThree].NBody = one;
-        if ( c1->rt.printFlag ){
-            f1->sinc.tulip[copyThree].NBody = two;
-            f1->sinc.tulip[copyThree].Partition = c1->i.decomposeRankMatrix;
-        }
-        f1->sinc.tulip[copyThree].purpose = tObject;
-//        f1->sinc.tulip[copyThree].symmetryType = nullSymmetry;
-        f1->sinc.tulip[copyThree].name = copyThree;
+        assignParticle(f1, copyThree, all, one);
         
-        f1->sinc.tulip[square].Address = fromBegining(f1,copyThree);
-        f1->sinc.tulip[square].Partition=   4*maxVector*maxVector;
-        f1->sinc.tulip[square].species = matrix;
-        f1->sinc.tulip[square].header = Cube;
-        f1->sinc.tulip[square].NBody = one;
-        f1->sinc.tulip[square].parallel = 0;
-        f1->sinc.tulip[square].purpose = Object;
-//        f1->sinc.tulip[square].symmetryType = nullSymmetry;
-        f1->sinc.tulip[square].name = square;
-        
-        
-        f1->sinc.tulip[squareTwo].spinor = none;
-        f1->sinc.tulip[squareTwo].Address = fromBegining(f1,square);
-        f1->sinc.tulip[squareTwo].Partition= 1+!(!c1->rt.printFlag) * c1->i.nStates* c1->i.decomposeRankMatrix;
+        fromBeginning(f1,squareTwo,copyThree);
+        f1->sinc.tulip[squareTwo].Partition= c1->i.sectors;//BUILD
         f1->sinc.tulip[squareTwo].species = matrix;
         f1->sinc.tulip[squareTwo].header = Cube;
-        f1->sinc.tulip[squareTwo].NBody = two;
-        f1->sinc.tulip[squareTwo].parallel = 0;
-        f1->sinc.tulip[squareTwo].purpose = tObject;
-//        f1->sinc.tulip[squareTwo].symmetryType = nullSymmetry;
-        f1->sinc.tulip[squareTwo].name = squareTwo;
+        assignParticle(f1, squareTwo, all, two);
         
+        fromBeginning(f1,inversion,squareTwo);
+        f1->sinc.tulip[inversion].Partition= 1;
+        f1->sinc.tulip[inversion].species = matrix;
+        f1->sinc.tulip[inversion].header = Cube;
+        assignParticle(f1, inversion, all, one);
+    
         
-        for ( label = 0; label < end ; label++)
-            if ( part(f1, label ) > largestRank && purpose(f1, label) == Object )
-                largestRank = part(f1, label);
-        
-        f1->sinc.tulip[trainVector].Address = fromBegining(f1,squareTwo);
-        f1->sinc.tulip[trainVector].Partition = (bootBodies == one ) *maxVector;
-        f1->sinc.tulip[trainVector].parallel = 1;
-        f1->sinc.tulip[trainVector].NBody = one;
-        f1->sinc.tulip[trainVector].species = vector;
-        f1->sinc.tulip[trainVector].header = Cube;
-        f1->sinc.tulip[trainVector].purpose = tObject;
-//        f1->sinc.tulip[trainVector].symmetryType = nullSymmetry;
-        f1->sinc.tulip[trainVector].name = trainVector;
-        
-        f1->sinc.tulip[trainVector2].Address = fromBegining(f1,trainVector);
-        f1->sinc.tulip[trainVector2].Partition = maxVector;
-        f1->sinc.tulip[trainVector2].parallel = 1;
-        f1->sinc.tulip[trainVector2].NBody = two;
-        f1->sinc.tulip[trainVector2].species = vector;
-        f1->sinc.tulip[trainVector2].header = Cube;
-        f1->sinc.tulip[trainVector2].purpose = tObject;
-//        f1->sinc.tulip[trainVector2].symmetryType = nullSymmetry;
-        f1->sinc.tulip[trainVector2].name = trainVector2;
-        
-        f1->sinc.tulip[trainVector3].Address = fromBegining(f1,trainVector2);
-        f1->sinc.tulip[trainVector3].Partition = ((bootBodies == three ) *maxVector ) + part(f1, entropyUnit) ;
-        f1->sinc.tulip[trainVector3].parallel = 1;
-        f1->sinc.tulip[trainVector3].NBody = three;
-        f1->sinc.tulip[trainVector3].species = vector;
-        f1->sinc.tulip[trainVector3].header = Cube;
-        f1->sinc.tulip[trainVector3].purpose = tObject;
-//        f1->sinc.tulip[trainVector3].symmetryType = nullSymmetry;
-        f1->sinc.tulip[trainVector3].name = trainVector3;
-        
-        f1->sinc.tulip[trainVector4].Address = fromBegining(f1,trainVector3);
-        f1->sinc.tulip[trainVector4].Partition = (bootBodies == four ) *maxVector;
-        f1->sinc.tulip[trainVector4].parallel = 1;
-        f1->sinc.tulip[trainVector4].NBody = four;
-        f1->sinc.tulip[trainVector4].species = vector;
-        f1->sinc.tulip[trainVector4].header = Cube;
-        f1->sinc.tulip[trainVector4].purpose = tObject;
-//        f1->sinc.tulip[trainVector4].symmetryType = nullSymmetry;
-        f1->sinc.tulip[trainVector4].name = trainVector4;
-        
-        f1->sinc.tulip[trainMatrix].Address = fromBegining(f1,trainVector4);
-        f1->sinc.tulip[trainMatrix].Partition = imax(matrixNumber*f1->Na,c1->i.sectors);
-        f1->sinc.tulip[trainMatrix].parallel = 0;
-        f1->sinc.tulip[trainMatrix].species = matrix;
-        f1->sinc.tulip[trainMatrix].NBody = one;
-        f1->sinc.tulip[trainMatrix].header = Cube;
-        f1->sinc.tulip[trainMatrix].purpose = Object;
-//        f1->sinc.tulip[trainMatrix].symmetryType = nullSymmetry;
-        f1->sinc.tulip[trainMatrix].name = trainMatrix;
-        
-        f1->sinc.tulip[trainMatrix2].Address = fromBegining(f1,trainMatrix);
-        f1->sinc.tulip[trainMatrix2].Partition =  c1->i.sectors+!(!c1->rt.printFlag)*imax(c1->i.decomposeRankMatrix,c1->i.bRank);
-        f1->sinc.tulip[trainMatrix2].parallel = 0;
-        f1->sinc.tulip[trainMatrix2].species = matrix;
-        f1->sinc.tulip[trainMatrix2].NBody = two;
-        f1->sinc.tulip[trainMatrix2].header = Cube;
-        f1->sinc.tulip[trainMatrix2].purpose = Object;
-//        f1->sinc.tulip[trainMatrix2].symmetryType = nullSymmetry;
-        f1->sinc.tulip[trainMatrix2].name = trainMatrix2;
-        
-        f1->sinc.tulip[trainMatrix3].Address = fromBegining(f1,trainMatrix2);
-        f1->sinc.tulip[trainMatrix3].Partition = (bootBodies == three)*c1->i.sectors;
-        f1->sinc.tulip[trainMatrix3].parallel = 0;
-        f1->sinc.tulip[trainMatrix3].species = matrix;
-        f1->sinc.tulip[trainMatrix3].NBody = three;
-        f1->sinc.tulip[trainMatrix3].header = Cube;
-        f1->sinc.tulip[trainMatrix3].purpose = Object;
-//        f1->sinc.tulip[trainMatrix3].symmetryType = nullSymmetry;
-        f1->sinc.tulip[trainMatrix3].name = trainMatrix3;
-        
-        f1->sinc.tulip[trainMatrix4].Address = fromBegining(f1,trainMatrix3);
-        f1->sinc.tulip[trainMatrix4].Partition = (bootBodies == four )*c1->i.sectors;
-        f1->sinc.tulip[trainMatrix4].parallel = 0;
-        f1->sinc.tulip[trainMatrix4].species = matrix;
-        f1->sinc.tulip[trainMatrix4].NBody = four;
-        f1->sinc.tulip[trainMatrix4].header = Cube;
-        f1->sinc.tulip[trainMatrix4].purpose = Object;
-//        f1->sinc.tulip[trainMatrix4].symmetryType = nullSymmetry;
-        f1->sinc.tulip[trainMatrix4].name = trainMatrix4;
-        
-        f1->sinc.tulip[trainQuartic].Address = fromBegining(f1,trainMatrix4);
-        f1->sinc.tulip[trainQuartic].Partition =0;
-        f1->sinc.tulip[trainQuartic].parallel = 1;
-        f1->sinc.tulip[trainQuartic].species = quartic;
-        f1->sinc.tulip[trainQuartic].header = Cube;
-        f1->sinc.tulip[trainQuartic].purpose = Object;
-//        f1->sinc.tulip[trainQuartic].symmetryType = nullSymmetry;
-        f1->sinc.tulip[trainQuartic].name = trainQuartic;
-        
-      
-        f1->sinc.tulip[highBallVector].Address =  fromBegining(f1,trainQuartic);
-        f1->sinc.tulip[highBallVector].Partition =maxVector*(( c1->rt.printFlag / 8 )%2);
-        f1->sinc.tulip[highBallVector].species = vector;
-        f1->sinc.tulip[highBallVector].NBody = four;
-        f1->sinc.tulip[highBallVector].header = Cube;
-        f1->sinc.tulip[highBallVector].purpose = Object;
-        f1->sinc.tulip[highBallVector].name = highBallVector;
-        
-        f1->sinc.tulip[highBallVector2].Address =  fromBegining(f1,highBallVector);
-        f1->sinc.tulip[highBallVector2].Partition =maxVector*(( c1->rt.printFlag / 8 )%2);
-        f1->sinc.tulip[highBallVector2].species = vector;
-        f1->sinc.tulip[highBallVector2].NBody = three;
-        f1->sinc.tulip[highBallVector2].header = Cube;
-        f1->sinc.tulip[highBallVector2].purpose = Object;
-        f1->sinc.tulip[highBallVector2].name = highBallVector2;
+        fromBeginning(f1,canonicalBuffers,inversion);
+        f1->sinc.tulip[canonicalBuffers].Partition = maxVector*maxVector+ imax(NV,c1->i.canonRank)*maxVector;
+        f1->sinc.tulip[canonicalBuffers].spinor = parallel;
 
-        f1->sinc.tulip[highBallVector3].Address =  fromBegining(f1,highBallVector2);
-        f1->sinc.tulip[highBallVector3].Partition =maxVector*(( c1->rt.printFlag / 8 )%2);
-        f1->sinc.tulip[highBallVector3].species = vector;
-        f1->sinc.tulip[highBallVector3].NBody = two;
-        f1->sinc.tulip[highBallVector3].header = Cube;
-        f1->sinc.tulip[highBallVector3].purpose = Object;
-        f1->sinc.tulip[highBallVector3].name = highBallVector3;
+        fromBeginning(f1,trackBuffer,canonicalBuffers);
+        f1->sinc.tulip[trackBuffer].Partition = (2*maxVector+1)*maxVector;
+        f1->sinc.tulip[trackBuffer].spinor = parallel;
+        f1->sinc.tulip[trackBuffer].memory = bufferAllocation;
 
-        f1->sinc.tulip[highBallVector4].Address =  fromBegining(f1,highBallVector3);
-        f1->sinc.tulip[highBallVector4].Partition =maxVector*(( c1->rt.printFlag / 8 )%2);
-        f1->sinc.tulip[highBallVector4].species = vector;
-        f1->sinc.tulip[highBallVector4].NBody = one;
-        f1->sinc.tulip[highBallVector4].header = Cube;
-        f1->sinc.tulip[highBallVector4].purpose = Object;
-        f1->sinc.tulip[highBallVector4].name = highBallVector4;
+        fromBeginning(f1,guideBuffer,trackBuffer);
+        f1->sinc.tulip[guideBuffer].Partition = c1->i.canonRank*maxVector;
+        f1->sinc.tulip[guideBuffer].spinor = parallel;
+        f1->sinc.tulip[guideBuffer].memory = bufferAllocation;
 
-        
-        {
-            INT_TYPE len[3];
-            length(f1, eigenVectors, len);
-            
-            f1->sinc.tulip[canonicalBuffers].spinor = none;
-            f1->sinc.tulip[canonicalBuffers].parallel = 1;
-            f1->sinc.tulip[canonicalBuffers].Address = fromBegining(f1,highBallVector4);
-            f1->sinc.tulip[canonicalBuffers].Partition = maxVector*maxVector+ imax(len[0],imax(NV,part(f1,totalVector)))*maxVector;
-            f1->sinc.tulip[canonicalBuffers].species = scalar;
-            f1->sinc.tulip[canonicalBuffers].purpose = Object;
-            //        f1->sinc.tulip[canonicalBuffers].symmetryType = nullSymmetry;
-            f1->sinc.tulip[canonicalBuffers].name = canonicalBuffers;
-        }
-        
-        f1->sinc.tulip[foundationStructure].Address =  fromBegining(f1,canonicalBuffers);
+        fromBeginning(f1,foundationStructure,guideBuffer);
+        f1->sinc.tulip[foundationStructure].spinor = parallel;
         f1->sinc.tulip[foundationStructure].Partition = nG;
-        f1->sinc.tulip[foundationStructure].NBody = bootBodies;
-        f1->sinc.tulip[foundationStructure].parallel = 1;
         f1->sinc.tulip[foundationStructure].species = vector;
-        f1->sinc.tulip[foundationStructure].header = Cube;
-        f1->sinc.tulip[foundationStructure].purpose = Object;
-        f1->sinc.tulip[foundationStructure].name = foundationStructure;
+        f1->sinc.tulip[foundationStructure].spinor = cmpl;//need two channels
         
-        f1->sinc.tulip[foundationEquals].Address =  fromBegining(f1,foundationStructure);
-        f1->sinc.tulip[foundationEquals].Partition = 1;
-        f1->sinc.tulip[foundationEquals].parallel = 1;
-        f1->sinc.tulip[foundationEquals].species = vector;
-        f1->sinc.tulip[foundationEquals].header = Cube;
-        f1->sinc.tulip[foundationEquals].purpose = Object;
-        f1->sinc.tulip[foundationEquals].name = foundationEquals;
-
-        {
-            f1->sinc.tulip[interactionDirect].Address = fromBegining(f1,foundationEquals);
-            f1->sinc.tulip[interactionDirect].spinor = none;
-            f1->sinc.tulip[interactionDirect].Partition = (!(!c1->i.hartreeFockFlag))*f1->twoBody.num*( bootBodies > one );
-            f1->sinc.tulip[interactionDirect].species = matrix;
-            f1->sinc.tulip[interactionDirect].NBody = two;
-            f1->sinc.tulip[interactionDirect].header = Cube;
-            f1->sinc.tulip[interactionDirect].purpose = Object;
-            f1->sinc.tulip[interactionDirect].name = interactionDirect;
-            
-            f1->sinc.tulip[interactionExchange].Address = fromBegining(f1,interactionDirect);
-            f1->sinc.tulip[interactionExchange].spinor = none;
+        fromBeginning(f1,interactionExchange,foundationStructure);
             f1->sinc.tulip[interactionExchange].Partition = f1->twoBody.num*( bootBodies > one );
             f1->sinc.tulip[interactionExchange].species = matrix;
-            f1->sinc.tulip[interactionExchange].NBody = two;
-            f1->sinc.tulip[interactionExchange].header = Cube;
-            f1->sinc.tulip[interactionExchange].purpose = Object;
-            f1->sinc.tulip[interactionExchange].name = interactionExchange;
-            
-            f1->sinc.tulip[interactionExchangePlus].Address = fromBegining(f1,interactionExchange);
-            f1->sinc.tulip[interactionExchangePlus].spinor = none;
-            f1->sinc.tulip[interactionExchangePlus].Partition = f1->twoBody.num*( bootBodies >= two && bootType > electron );
-            f1->sinc.tulip[interactionExchangePlus].species = matrix;
-            f1->sinc.tulip[interactionExchangePlus].NBody = two;
-            f1->sinc.tulip[interactionExchangePlus].header = Cube;
-            f1->sinc.tulip[interactionExchangePlus].purpose = Object;
-            f1->sinc.tulip[interactionExchangePlus].name = interactionExchangePlus;
-
-            
-            f1->sinc.tulip[quadCube].spinor = none;
-            f1->sinc.tulip[quadCube].Address = fromBegining(f1,interactionExchangePlus);
-            f1->sinc.tulip[quadCube].Partition =1;
-            f1->sinc.tulip[quadCube].species = matrix;
-            f1->sinc.tulip[quadCube].header = Cube;
-            f1->sinc.tulip[quadCube].NBody = two;
-            f1->sinc.tulip[quadCube].purpose = Object;
-            f1->sinc.tulip[quadCube].name = quadCube;
-            
-            f1->sinc.tulip[quad2Cube].spinor = none;
-            f1->sinc.tulip[quad2Cube].Address = fromBegining(f1,quadCube);
-            f1->sinc.tulip[quad2Cube].Partition =0;
-            f1->sinc.tulip[quad2Cube].species = matrix;
-            f1->sinc.tulip[quad2Cube].header = Cube;
-            f1->sinc.tulip[quad2Cube].NBody = two;
-            f1->sinc.tulip[quad2Cube].purpose = Object;
-            f1->sinc.tulip[quad2Cube].name = quad2Cube;
-            
-            f1->sinc.tulip[quad].spinor = none;
-            f1->sinc.tulip[quad].Address = fromBegining(f1,quad2Cube);
-            f1->sinc.tulip[quad].Partition = 0;
-            f1->sinc.tulip[quad].species = matrix;
-            f1->sinc.tulip[quad].header = bootShape;
-            f1->sinc.tulip[quad].NBody = two;
-            f1->sinc.tulip[quad].purpose = Object;
-            f1->sinc.tulip[quad].name = quad;
-            
-            f1->sinc.tulip[end].Partition = 0;
-            f1->sinc.tulip[end].Address = fromBegining(f1,quad);
-            f1->sinc.tulip[end].species = scalar;
-            f1->sinc.tulip[end].purpose = Object;
-            f1->sinc.tulip[end].name = end;
-            
-            f1->sinc.tulip[basisBuffers].parallel = 0;        //for parallel basis transforming
-            f1->sinc.tulip[basisBuffers].species = matrix;
-            if ( bootBodies == one )
-                f1->sinc.tulip[basisBuffers].NBody = two;//for one body matrices...
-            
-            f1->sinc.tulip[basisBuffers].myAddress = 0;
-            f1->sinc.tulip[basisBuffers].Partition = 0;
-            f1->sinc.tulip[basisBuffers].header = Cube;
-            f1->sinc.tulip[basisBuffers].memory = oneObject;
-            f1->sinc.tulip[basisBuffers].name = basisBuffers;
+            assignParticle(f1, interactionExchange, electron, two);
+        {
+        enum block ee ;
+        for (ee = e12 ; ee <= e34 ; ee++){
+            f1->sinc.tulip[interaction12+ee-e12].name = interactionExchange;
+            f1->sinc.tulip[interaction12+ee-e12].species = matrix;
+            if ( ee < e34 )
+                f1->sinc.tulip[interaction12+ee-e12].linkNext = interaction12+ee-e12+1;
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1->sinc.rose[space].body >= two && f1->sinc.rose[space].particle == electron )
+                    f1->sinc.tulip[interaction12+ee-e12].space[space].block = ee;
+            f1->sinc.tulip[interaction12+ee-e12].Partition = f1->twoBody.num;
         }
+        }
+        fromBeginning(f1,interactionExchangeB,interactionExchange);
+        f1->sinc.tulip[interactionExchangeB].Partition = f1->twoBody.num*( bootBodies > one )* ( c1->rt.calcType == protonsElectronsCalculation);
+        f1->sinc.tulip[interactionExchangeB].species = matrix;
+        assignParticle(f1, interactionExchangeB, proton, two);
+        {
+        enum block ee ;
+            for (ee = e12 ; ee <= e34 ; ee++){
+                f1->sinc.tulip[interaction12B+ee-e12].name = interactionExchangeB;
+                f1->sinc.tulip[interaction12B+ee-e12].species = matrix;
+                if ( ee < e34 )
+                    f1->sinc.tulip[interaction12B+ee-e12].linkNext = interaction12B+ee-e12+1;
+                for ( space = 0; space < SPACE ; space++)
+                    if ( f1->sinc.rose[space].body >= two && f1->sinc.rose[space].particle == proton ){
+                        f1->sinc.tulip[interaction12B+ee-e12].space[space].block = ee;
+                    }
+                f1->sinc.tulip[interaction12B+ee-e12].Partition = f1->twoBody.num;
+            }
+        }
+        
+        fromBeginning(f1,shortenPlus,interactionExchangeB);
+        f1->sinc.tulip[shortenPlus].Partition = f1->twoBody.num*c1->i.decomposeRankMatrix*( c1->rt.calcType == clampProtonElectronCalculation );
+        f1->sinc.tulip[shortenPlus].species = matrix;
+        assignOneWithPointers(f1, shortenPlus, all);
+        
+        fromBeginning(f1,shortenMinus,shortenPlus);
+        f1->sinc.tulip[shortenMinus].Partition = f1->twoBody.num*c1->i.decomposeRankMatrix*( c1->rt.calcType == clampProtonElectronCalculation );
+        f1->sinc.tulip[shortenMinus].species = matrix;
+        assignOneWithPointers(f1, shortenMinus, all);
+        
+        fromBeginning(f1,interactionExchangePlus,shortenMinus);
+        f1->sinc.tulip[interactionExchangePlus].Partition =(!c1->i.decomposeRankMatrix)* mx1len*mx1len*f1->twoBody.num*( c1->rt.calcType == clampProtonElectronCalculation );
+        f1->sinc.tulip[interactionExchangePlus].species = matrix;
+        assignOneWithPointers(f1, interactionExchangePlus,all);
+        
+        fromBeginning(f1,interactionExchangeMinus,interactionExchangePlus);
+        f1->sinc.tulip[interactionExchangeMinus].Partition = (!c1->i.decomposeRankMatrix)*mx1len*mx1len*f1->twoBody.num*( c1->rt.calcType == clampProtonElectronCalculation );
+        f1->sinc.tulip[interactionExchangeMinus].species = matrix;
+        assignOneWithPointers(f1, interactionExchangeMinus,all);
+        
+        fromBeginning(f1,interactionTwoAcrossDimensions,interactionExchangeMinus);
+        f1->sinc.tulip[interactionTwoAcrossDimensions].Partition = (!c1->i.decomposeRankMatrix)*mx1len*mx1len*f1->twoBody.num*( c1->rt.calcType == protonsElectronsCalculation );
+        f1->sinc.tulip[interactionTwoAcrossDimensions].species = matrix;
+        assignParticle(f1, interactionTwoAcrossDimensions, all, one);
+
+        {
+            enum block ee,eeB ;
+            for (ee = tv1 ; ee <= tv4 ; ee++)
+                for (eeB = tv1 ; eeB <= tv4 ; eeB++){
+                    
+                f1->sinc.tulip[interactionTwoAcrossDimensions+ee-tv1+eeB-tv1].name = interactionTwoAcrossDimensions;
+                f1->sinc.tulip[interactionTwoAcrossDimensions+ee-tv1+eeB-tv1].species = matrix;
+                if ( ee < e34 && eeB < e34 )
+                    f1->sinc.tulip[interactionTwoAcrossDimensions+ee-tv1+eeB-tv1].linkNext = interactionTwoAcrossDimensions+ee-tv1+eeB-tv1+1;
+                for ( space = 0; space < SPACE ; space++)
+                    if ( space < 3)
+                        f1->sinc.tulip[interactionTwoAcrossDimensions+ee-tv1+eeB-tv1].space[space].block = ee;
+                    else if ( space < 6 )
+                        f1->sinc.tulip[interactionTwoAcrossDimensions+ee-tv1+eeB-tv1].space[space].block = eeB;
+
+                f1->sinc.tulip[interactionTwoAcrossDimensions+ee-tv1+eeB-tv1].Partition = f1->twoBody.num;
+            }
+        }
+        
+        fromBeginning(f1,shortTwoAcrossDimensions,interactionTwoAcrossDimensions);
+        f1->sinc.tulip[shortTwoAcrossDimensions].Partition = f1->twoBody.num*c1->i.decomposeRankMatrix*f1->twoBody.num*( c1->rt.calcType == protonsElectronsCalculation );
+        f1->sinc.tulip[shortTwoAcrossDimensions].species = matrix;
+        assignParticle(f1, shortTwoAcrossDimensions, all, one);
+
+        {
+            enum block ee,eeB ;
+            for (ee = tv1 ; ee <= tv4 ; ee++)
+                for (eeB = tv1 ; eeB <= tv4 ; eeB++){
+                    
+                    f1->sinc.tulip[shortTwoAcrossDimensions+ee-tv1+eeB-tv1].name = shortTwoAcrossDimensions;
+                    f1->sinc.tulip[shortTwoAcrossDimensions+ee-tv1+eeB-tv1].species = matrix;
+                    if ( ee < e34 && eeB < e34 )
+                        f1->sinc.tulip[shortTwoAcrossDimensions+ee-tv1+eeB-tv1].linkNext = shortTwoAcrossDimensions+ee-tv1+eeB-tv1+1;
+                    for ( space = 0; space < SPACE ; space++)
+                        if ( space < 3)
+                            f1->sinc.tulip[shortTwoAcrossDimensions+ee-tv1+eeB-tv1].space[space].block = ee;
+                        else if ( space < 6 )
+                            f1->sinc.tulip[shortTwoAcrossDimensions+ee-tv1+eeB-tv1].space[space].block = eeB;
+                    
+                    f1->sinc.tulip[shortTwoAcrossDimensions+ee-tv1+eeB-tv1].Partition = c1->i.decomposeRankMatrix;
+                }
+        }
+
+        
+        fromBeginning(f1,quadCube,shortTwoAcrossDimensions);
+        f1->sinc.tulip[quadCube].Partition =1;
+        f1->sinc.tulip[quadCube].species = matrix;
+        assignParticle(f1, quadCube, all, two);
     
-        f1->sinc.tulip[oneArray].parallel = 0;
-        f1->sinc.tulip[oneArray].myAddress = fromMyBegining(f1,basisBuffers);
+        fromBeginning(f1,oneArray,quadCube);
         f1->sinc.tulip[oneArray].Partition = c1->i.M1*3+c1->i.M1*c1->i.M1;
-        f1->sinc.tulip[oneArray].species = scalar;
-        f1->sinc.tulip[oneArray].memory = oneObject;
-        f1->sinc.tulip[oneArray].name = oneArray;
+        f1->sinc.tulip[oneArray].memory = bufferAllocation;
 
-        f1->sinc.tulip[threeArray].parallel = 0;
-        f1->sinc.tulip[threeArray].myAddress = fromMyBegining(f1,oneArray);
+        fromBeginning(f1,threeArray,oneArray);
         f1->sinc.tulip[threeArray].Partition = 2*c1->i.M1*c1->i.M1*c1->i.M1;
-        f1->sinc.tulip[threeArray].species = scalar;
-        f1->sinc.tulip[threeArray].memory = oneObject;
-        f1->sinc.tulip[threeArray].name = threeArray;
+        f1->sinc.tulip[threeArray].memory = bufferAllocation;
 
-        f1->sinc.tulip[oneBasis].parallel = 0;
-        f1->sinc.tulip[oneBasis].myAddress = fromMyBegining(f1,threeArray);
+        fromBeginning(f1,oneBasis,threeArray);
         f1->sinc.tulip[oneBasis].Partition = c1->i.M1*N1;
-        f1->sinc.tulip[oneBasis].species = scalar;
-        f1->sinc.tulip[oneBasis].memory = oneObject;
-        f1->sinc.tulip[oneBasis].name = oneBasis;
-        
-        f1->sinc.tulip[tensorBuffers].spinor = none;
-        f1->sinc.tulip[tensorBuffers].myAddress =  fromMyBegining(f1,oneBasis);
-        f1->sinc.tulip[tensorBuffers].Partition = 1;
-        f1->sinc.tulip[tensorBuffers].parallel = 1;
-        f1->sinc.tulip[tensorBuffers].species = vector;
-        f1->sinc.tulip[tensorBuffers].header = Cube;
-        f1->sinc.tulip[tensorBuffers].purpose = Object;
-        f1->sinc.tulip[tensorBuffers].memory = oneObject;
-        f1->sinc.tulip[tensorBuffers].name = tensorBuffers;
-        
-        f1->sinc.tulip[tensorBuffers2].spinor = none;
-        f1->sinc.tulip[tensorBuffers2].myAddress =  fromMyBegining(f1,tensorBuffers);
-        f1->sinc.tulip[tensorBuffers2].Partition = 1;
-        f1->sinc.tulip[tensorBuffers2].parallel = 1;
-        f1->sinc.tulip[tensorBuffers2].species = vector;
-        f1->sinc.tulip[tensorBuffers2].header = Cube;
-        f1->sinc.tulip[tensorBuffers2].purpose = Object;
-        f1->sinc.tulip[tensorBuffers2].memory = oneObject;
-        f1->sinc.tulip[tensorBuffers2].name = tensorBuffers2;
+        f1->sinc.tulip[oneBasis].memory = bufferAllocation;
 
-        f1->sinc.tulip[tensorBuffers3].spinor = none;
-        f1->sinc.tulip[tensorBuffers3].myAddress =  fromMyBegining(f1,tensorBuffers2);
-        f1->sinc.tulip[tensorBuffers3].Partition = 1;
-        f1->sinc.tulip[tensorBuffers3].parallel = 1;
-        f1->sinc.tulip[tensorBuffers3].species = vector;
-        f1->sinc.tulip[tensorBuffers3].header = Cube;
-        f1->sinc.tulip[tensorBuffers3].purpose = Object;
-        f1->sinc.tulip[tensorBuffers3].memory = oneObject;
-        f1->sinc.tulip[tensorBuffers3].name = tensorBuffers3;
+        INT_TYPE vecLen = 1;
+        for ( space = 0  ; space < SPACE ; space++)
+            if ( vecLen < alloc(f1, eigenVectors, space))
+                vecLen = alloc(f1, eigenVectors, space);
+        
+        
+        fromBeginning(f1,tensorBuffers,oneBasis);
+        f1->sinc.tulip[tensorBuffers].Partition = vecLen ;
+        f1->sinc.tulip[tensorBuffers].spinor = parallel;
+        f1->sinc.tulip[tensorBuffers].memory = bufferAllocation;
 
-        f1->sinc.tulip[tensorBuffers4].spinor = none;
-        f1->sinc.tulip[tensorBuffers4].myAddress =  fromMyBegining(f1,tensorBuffers3);
-        f1->sinc.tulip[tensorBuffers4].Partition = 1;
-        f1->sinc.tulip[tensorBuffers4].parallel = 1;
-        f1->sinc.tulip[tensorBuffers4].species = vector;
-        f1->sinc.tulip[tensorBuffers4].header = Cube;
-        f1->sinc.tulip[tensorBuffers4].purpose = Object;
-        f1->sinc.tulip[tensorBuffers4].memory = oneObject;
-        f1->sinc.tulip[tensorBuffers4].name = tensorBuffers4;
+        fromBeginning(f1,tensorBuffers2,tensorBuffers);
+        f1->sinc.tulip[tensorBuffers2].Partition = vecLen;
+        f1->sinc.tulip[tensorBuffers2].spinor = parallel;
+        f1->sinc.tulip[tensorBuffers2].memory = bufferAllocation;
 
-        f1->sinc.tulip[tensorBuffers5].spinor = none;
-        f1->sinc.tulip[tensorBuffers5].myAddress =  fromMyBegining(f1,tensorBuffers4);
-        f1->sinc.tulip[tensorBuffers5].Partition = 1;
-        f1->sinc.tulip[tensorBuffers5].parallel = 1;
-        f1->sinc.tulip[tensorBuffers5].species = vector;
-        f1->sinc.tulip[tensorBuffers5].header = Cube;
-        f1->sinc.tulip[tensorBuffers5].purpose = Object;
-        f1->sinc.tulip[tensorBuffers5].memory = oneObject;
-        f1->sinc.tulip[tensorBuffers5].name = tensorBuffers5;
+        fromBeginning(f1,tensorBuffers3,tensorBuffers2);
+        f1->sinc.tulip[tensorBuffers3].Partition = vecLen;
+        f1->sinc.tulip[tensorBuffers3].spinor = parallel;
+        f1->sinc.tulip[tensorBuffers3].memory = bufferAllocation;
+
+        fromBeginning(f1,tensorBuffers4,tensorBuffers3);
+        f1->sinc.tulip[tensorBuffers4].Partition = vecLen;
+        f1->sinc.tulip[tensorBuffers4].spinor = parallel;
+        f1->sinc.tulip[tensorBuffers4].memory = bufferAllocation;
+
+        fromBeginning(f1,tensorBuffers5,tensorBuffers4);
+        f1->sinc.tulip[tensorBuffers5].Partition = vecLen;
+        f1->sinc.tulip[tensorBuffers5].spinor = parallel;
+        f1->sinc.tulip[tensorBuffers5].memory = bufferAllocation;
+
+        fromBeginning(f1,tensorBuffers6,tensorBuffers5);
+        f1->sinc.tulip[tensorBuffers6].Partition = vecLen;
+        f1->sinc.tulip[tensorBuffers6].spinor = parallel;
+        f1->sinc.tulip[tensorBuffers6].memory = bufferAllocation;
         
-        f1->sinc.tulip[tensorBuffers6].spinor = none;
-        f1->sinc.tulip[tensorBuffers6].myAddress =  fromMyBegining(f1,tensorBuffers5);
-        f1->sinc.tulip[tensorBuffers6].Partition = 1;
-        f1->sinc.tulip[tensorBuffers6].parallel = 1;
-        f1->sinc.tulip[tensorBuffers6].species = vector;
-        f1->sinc.tulip[tensorBuffers6].header = Cube;
-        f1->sinc.tulip[tensorBuffers6].purpose = Object;
-        f1->sinc.tulip[tensorBuffers6].memory = oneObject;
-        f1->sinc.tulip[tensorBuffers6].name = tensorBuffers6;
+        fromBeginning(f1,oneByOneBuffer,tensorBuffers6);
+        f1->sinc.tulip[oneByOneBuffer].Partition = mx1len*mx1len*mx1len*mx1len* (c1->rt.calcType >= clampProtonElectronCalculation);
+        f1->sinc.tulip[oneByOneBuffer].memory = bufferAllocation;
         
-        f1->sinc.tulip[canonicalBuffersB].spinor = none;
-        f1->sinc.tulip[canonicalBuffersB].parallel = 1;
-        f1->sinc.tulip[canonicalBuffersB].myAddress = fromMyBegining(f1,tensorBuffers6);
-        f1->sinc.tulip[canonicalBuffersB].Partition = c1->i.canonRank*imax(1,maxVector);
-        f1->sinc.tulip[canonicalBuffersB].species = vector;
-        f1->sinc.tulip[canonicalBuffersB].memory = oneObject;
-        f1->sinc.tulip[canonicalBuffersB].name = canonicalBuffersB;
-        
-        f1->sinc.tulip[canonicalBuffersBX].spinor = none;
-        f1->sinc.tulip[canonicalBuffersBX].parallel = 0;
-        f1->sinc.tulip[canonicalBuffersBX].myAddress = fromMyBegining(f1,canonicalBuffersB);
-        f1->sinc.tulip[canonicalBuffersBX].Partition = 0*part(f1, entropyUnit);
-        f1->sinc.tulip[canonicalBuffersBX].NBody = bodies (f1, entropyVector);
-        f1->sinc.tulip[canonicalBuffersBX].species = vector;
-        f1->sinc.tulip[canonicalBuffersBX].memory = oneObject;
-        f1->sinc.tulip[canonicalBuffersBX].name = canonicalBuffersBX;
-        
-        f1->sinc.tulip[canonicalBuffersBM].spinor = none;
-        f1->sinc.tulip[canonicalBuffersBM].parallel = 0;
-        f1->sinc.tulip[canonicalBuffersBM].myAddress = fromMyBegining(f1,canonicalBuffersBX);
-        f1->sinc.tulip[canonicalBuffersBM].Partition = 1;
-        f1->sinc.tulip[canonicalBuffersBM].species = matrix;
-        f1->sinc.tulip[canonicalBuffersBM].memory = oneObject;
-        f1->sinc.tulip[canonicalBuffersBM].name = canonicalBuffersBM;
-        
-        f1->sinc.tulip[canonicalBuffersC].spinor = none;
-        f1->sinc.tulip[canonicalBuffersC].parallel = 1;
-        f1->sinc.tulip[canonicalBuffersC].myAddress = fromMyBegining(f1,canonicalBuffersBM);
+        fromBeginning(f1,canonicalBuffersB,oneByOneBuffer);
+        f1->sinc.tulip[canonicalBuffersB].Partition = maxVector;
+        f1->sinc.tulip[canonicalBuffersB].spinor = parallel;
+        f1->sinc.tulip[canonicalBuffersB].memory = bufferAllocation;
+
+        fromBeginning(f1,canonicalBuffersBM,canonicalBuffersB);//twobody
+        f1->sinc.tulip[canonicalBuffersBM].Partition = mx1len*mx1len*mx1len*mx1len ;
+        f1->sinc.tulip[canonicalBuffersBM].memory = bufferAllocation;
+
+        fromBeginning(f1,canonicalBuffersC,canonicalBuffersBM);
         f1->sinc.tulip[canonicalBuffersC].Partition = NV;
-        f1->sinc.tulip[canonicalBuffersC].species = scalar;
-        f1->sinc.tulip[canonicalBuffersC].memory = oneObject;
-        f1->sinc.tulip[canonicalBuffersC].name = canonicalBuffersC;
-        
-        f1->sinc.tulip[canonicalBuffersD].spinor = none;
-        f1->sinc.tulip[canonicalBuffersD].parallel = 1;
-        f1->sinc.tulip[canonicalBuffersD].myAddress = fromMyBegining(f1,canonicalBuffersC);
-        f1->sinc.tulip[canonicalBuffersD].Partition = 0*NV*c1->i.bRank;
-        f1->sinc.tulip[canonicalBuffersD].species = scalar;
-        f1->sinc.tulip[canonicalBuffersD].memory = oneObject;
-        f1->sinc.tulip[canonicalBuffersD].name = canonicalBuffersD;
-        
-        f1->sinc.tulip[twoBodyRitz].spinor = none;
-        f1->sinc.tulip[twoBodyRitz].myAddress = fromMyBegining(f1,canonicalBuffersD);
-        f1->sinc.tulip[twoBodyRitz].Partition = maxArray;
-        f1->sinc.tulip[twoBodyRitz].parallel = 0;
-        f1->sinc.tulip[twoBodyRitz].species = scalar;
-        f1->sinc.tulip[twoBodyRitz].header = Cube;
-        f1->sinc.tulip[twoBodyRitz].memory = oneObject;
-        f1->sinc.tulip[twoBodyRitz].name = twoBodyRitz;
-        
-        f1->sinc.tulip[conditionOverlapNumbers].spinor = none;
-        f1->sinc.tulip[conditionOverlapNumbers].myAddress = fromMyBegining(f1,twoBodyRitz);
-        f1->sinc.tulip[conditionOverlapNumbers].Partition = maxArray;
-        f1->sinc.tulip[conditionOverlapNumbers].parallel = 0;
-        f1->sinc.tulip[conditionOverlapNumbers].species = scalar;
-        f1->sinc.tulip[conditionOverlapNumbers].header = Cube;
-        f1->sinc.tulip[conditionOverlapNumbers].memory = oneObject;
-        f1->sinc.tulip[conditionOverlapNumbers].name = conditionOverlapNumbers;
+        f1->sinc.tulip[canonicalBuffersC].spinor = parallel;
+        f1->sinc.tulip[canonicalBuffersC].memory = bufferAllocation;
 
-        f1->sinc.tulip[twoBodyProjector].spinor = none;
-        f1->sinc.tulip[twoBodyProjector].myAddress = fromMyBegining(f1,conditionOverlapNumbers);
-        f1->sinc.tulip[twoBodyProjector].Partition = 0*maxEV;
-        f1->sinc.tulip[twoBodyProjector].parallel = 0;
-        f1->sinc.tulip[twoBodyProjector].species = scalar;
-        f1->sinc.tulip[twoBodyProjector].header = Cube;
-        f1->sinc.tulip[twoBodyProjector].memory = oneObject;
-        f1->sinc.tulip[twoBodyProjector].name = twoBodyProjector;
+        fromBeginning(f1,twoBodyRitz,canonicalBuffersC);
+        f1->sinc.tulip[twoBodyRitz].Partition = maxArray;
+        f1->sinc.tulip[twoBodyRitz].memory = bufferAllocation;
+
+        fromBeginning(f1,conditionOverlapNumbers,twoBodyRitz);
+        f1->sinc.tulip[conditionOverlapNumbers].Partition = maxArray;
+        f1->sinc.tulip[conditionOverlapNumbers].memory = bufferAllocation;
         
-        f1->sinc.tulip[matrixHbuild].spinor = none;
-        f1->sinc.tulip[matrixHbuild].myAddress = fromMyBegining(f1,twoBodyProjector);
-        f1->sinc.tulip[matrixHbuild].Partition = imax(6*maxArray*maxArray, 2*vectorLen(f1, eigenVectors)[0]*vectorLen(f1, eigenVectors)[0]  );
-        f1->sinc.tulip[matrixHbuild].parallel = 0;
-        f1->sinc.tulip[matrixHbuild].species = scalar;
-        f1->sinc.tulip[matrixHbuild].header = Cube;
-        f1->sinc.tulip[matrixHbuild].memory = oneObject;
-        f1->sinc.tulip[matrixHbuild].name = matrixHbuild;
+        fromBeginning(f1,matrixHbuild,conditionOverlapNumbers);
+        f1->sinc.tulip[matrixHbuild].Partition = imax(2*maxArray*maxArray, 2*mxlen*mxlen);
+        f1->sinc.tulip[matrixHbuild].memory = bufferAllocation;
+
+        fromBeginning(f1,vectorHbuild,matrixHbuild);
+        f1->sinc.tulip[vectorHbuild].Partition = 0;
+        f1->sinc.tulip[vectorHbuild].memory = bufferAllocation;
+
+        fromBeginning(f1,matrixSbuild,vectorHbuild);
+        f1->sinc.tulip[matrixSbuild].Partition = 2*maxArray*maxArray;
+        f1->sinc.tulip[matrixSbuild].memory = bufferAllocation;
+
         
-        f1->sinc.tulip[vectorHbuild].spinor = none;
-        f1->sinc.tulip[vectorHbuild].myAddress = fromMyBegining(f1,matrixHbuild);
-        f1->sinc.tulip[vectorHbuild].Partition = maxArray;
-        f1->sinc.tulip[vectorHbuild].parallel = 0;
-        f1->sinc.tulip[vectorHbuild].species = scalar;
-        f1->sinc.tulip[vectorHbuild].header = Cube;
-        f1->sinc.tulip[vectorHbuild].memory = oneObject;
-        f1->sinc.tulip[vectorHbuild].name = vectorHbuild;
-        
-        
-        f1->sinc.tulip[matrixSbuild].spinor = none;
-        f1->sinc.tulip[matrixSbuild].myAddress = fromMyBegining(f1,vectorHbuild);
-        f1->sinc.tulip[matrixSbuild].Partition = 4*maxArray*maxArray;
-        f1->sinc.tulip[matrixSbuild].parallel = 0;
-        f1->sinc.tulip[matrixSbuild].species = scalar;
-        f1->sinc.tulip[matrixSbuild].header = Cube;
-        f1->sinc.tulip[matrixSbuild].memory = oneObject;
-        f1->sinc.tulip[matrixSbuild].name = matrixSbuild;
-        
-        f1->sinc.tulip[dsyBuffers].spinor = none;
-        f1->sinc.tulip[dsyBuffers].myAddress = fromMyBegining(f1,matrixSbuild);
-#ifdef APPLE
-        f1->sinc.tulip[dsyBuffers].Partition = 8*(8*(imax(vectorLen(f1,eigenVectors)[0],maxEV))+72*c1->i.nStates*c1->i.nStates+ 8 * vectorLen(f1, squareVector)[0])+3*maxEV;
+        fromBeginning(f1,dsyBuffers,matrixSbuild);
+#if 1
+        f1->sinc.tulip[dsyBuffers].Partition = 2*8*(8*(imax(mxlen,maxEV))+72*c1->i.nStates*c1->i.nStates+ 8 * mxlen)+3*maxEV;
 #else
         f1->sinc.tulip[dsyBuffers].Partition = maxVector*maxVector;
 #endif
-        f1->sinc.tulip[dsyBuffers].parallel = 1;
-        f1->sinc.tulip[dsyBuffers].species = scalar;
-        f1->sinc.tulip[dsyBuffers].header = Cube;
-        f1->sinc.tulip[dsyBuffers].memory = oneObject;
-        f1->sinc.tulip[dsyBuffers].name = dsyBuffers;
-        
-        f1->sinc.tulip[end].myAddress = fromMyBegining(f1,dsyBuffers);
+        f1->sinc.tulip[dsyBuffers].spinor = parallel;
+        f1->sinc.tulip[dsyBuffers].memory = bufferAllocation;
 
-        if ( (3*fromBegining(f1,end )+fromMyBegining(f1,end ))/(1000000000./(sizeof(Stream_Type))) > c1->i.RAMmax ){
-            printf("oops too much RAM required\n");
-            printf("\n\tG%f",(3*fromBegining(f1,end ))/(1000000000./(sizeof(Stream_Type))));
-            printf("\tG%f\n",(fromMyBegining(f1,end ))/(1000000000./(sizeof(Stream_Type))));
-            exit(0);
+        fromBeginning(f1,end,dsyBuffers);
+        fromBeginning(f1,end,end);
+        struct name_label e = f1->sinc.tulip[end];
+        struct name_label k1 = f1->sinc.tulip[kinetic1];
+        struct name_label k2 = f1->sinc.tulip[kinetic2];
+        struct name_label it = f1->sinc.tulip[interaction12];
+        struct name_label i = f1->sinc.tulip[interactionExchangePlus];
+        struct name_label ip1 = f1->sinc.tulip[interaction1Plus];
+
+
+        {
+            printf("\t| SPACE \t:   Gb\t \n");
+            double maxMem = 0.,currMem;
+            for ( space = 0 ; space <= SPACE ; space++){
+                currMem = (f1->sinc.tulip[end].space[space].Address)/(1000000000./(sizeof(Stream_Type)));
+                
+                
+                if ( space < SPACE )
+                    printf("\t| %d \t\t: \t%1.9f\n",space,currMem);
+                else
+                    printf("\t| my \t\t: \t%1.9f\n",currMem);
+
+                fflush(stdout);
+
+                maxMem += currMem;
+            }
+            if ( maxMem > c1->i.RAMmax ){
+                printf("oops too much RAM required\n");
+                fflush(stdout);
+
+                exit(0);
+            }
         }
-        printf("\n\tG%f",(3*fromBegining(f1,end ))/(1000000000./(sizeof(Stream_Type))));
-        printf("\tG%f\n",(fromMyBegining(f1,end ))/(1000000000./(sizeof(Stream_Type))));
-
+        printf("\n\n\n");
         
-        
-        fflush(stdout);
-        for ( space = 0; space < SPACE ; space++){
-            f1->sinc.rose[space].stream = malloc( fromBegining(f1,end )*sizeof(Stream_Type));
+        for ( space = 0; space <= SPACE ; space++){
+            f1->sinc.rose[space].stream = malloc( (f1->sinc.tulip[end].space[space].Address)*sizeof(Stream_Type));
         }
 
-        f1->sinc.rose[SPACE].stream = malloc( fromMyBegining(f1,end )*sizeof(Stream_Type));
         c1->mem.bootedMemory = 1;
         assignCores(f1, 2);
-
-        tClear(f1, linear);
 
         INT_TYPE RdsSize;
         RdsSize = 0;
 
         
-        {
+        if (c1->i.M1){
             INT_TYPE i,ii;
             INT_TYPE M1 = c1->i.M1,M12 = (M1-1)/2;
             double r = (double)(M1-1)/(double)(N1-1);
@@ -1475,48 +1079,143 @@ INT_TYPE iModel( struct calculation * c1){
                 }
         }
         
+    
         
-        tEnd(f1, edgeMatrix, 0, 0);
-        tEnd(f1, edgeMatrix, 0, 1);
-        tEnd(f1, edgeMatrix, 0, 2);
-        tAlt(f1, edgeMatrix, 0, 0);
-        tAlt(f1, edgeMatrix, 0, 1);
-        tAlt(f1, edgeMatrix, 0, 2);
+        if(1){
+            f1->sinc.tulip[Ha].species    = scalar;
+            f1->sinc.tulip[Iterator].species    = scalar;
 
-        
-        {
             
-            if ( bootType == electron  ){
+            
+            if ( c1->rt.calcType == electronicStuctureCalculation  ){
                 if ( bootBodies > one ){
-                    mySeparateExactTwo(f1,c1->rt.runFlag, 1. , 0,0,1,2);
-                    if ( (c1->rt.runFlag == 7 && SPACE ==3 ) || (c1->rt.runFlag == 3 && SPACE == 2 )){
-                        
-                        buildElectronProtonInteraction(f1, linear,0);
-                        tZeroSum(f1, interactionExchange, 0 );
-                        tZeroSum(f1, linear, 0 );
+                    mySeparateExactTwo(f1,interactionExchange, 1. , 0,0,electron);
+                    tZeroSum(f1, interactionExchange, 0 );
 
-                    }
                 }
                 if (f1->Na != 0 ){
-                    separateExternal(c1,c1->rt.runFlag,0,1.0,4,0,1);
-                }
-                if ( c1->i.springFlag ){
-                    double vspr[3];
-                    vspr[0] = c1->i.springFlag;
-                    vspr[1] = c1->i.springFlag;
-                    vspr[2] = c1->i.springFlag;
+                    separateExternal(c1,linear,0,0,-1.0,-1,0,electron);
+                    tZeroSum(f1, linear, 0 );
 
-                    separateHarmonicExternal(c1,c1->rt.runFlag,1.,vspr,0,1);
                 }
-                separateKinetic(f1, c1->rt.runFlag,kinetic, 1.0,1);
+                separateKinetic(f1, 0,kinetic, 1.0,1);
             
-            } else if ( bootType == h2plus ){
-                separateExternal(c1,c1->rt.runFlag,0,1.0,4,0,1);
-                mySeparateExactTwo(f1,c1->rt.runFlag, 1. , 0,0,1,2);
-                mySeparateExactTwo(f1,c1->rt.runFlag, 1. , 0,1,1,2);
-                separateKinetic(f1, c1->rt.runFlag,kineticMass, 1836.15267245/8.  ,1);
-                separateKinetic(f1, c1->rt.runFlag,kinetic, 0.9997277656208493,2);
+                if ( c1->i.magFlag ){
+                    INT_TYPE deriv[SPACE];
+                    INT_TYPE power[SPACE];
+                    
+                    
+                    deriv[0] = 1;
+                    deriv[1] = 0;
+                    deriv[2] = 0;
+                    
+                    power[0] = 0 ;
+                    power[1] = 1;
+                    power[2] = 0;
+                    
+                    separateDerivatives(f1, 0, vectorMomentum, power, deriv, 0.5*c1->i.mag, electron);
+                    
+                    deriv[0] = 0;
+                    deriv[1] = 1;
+                    deriv[2] = 0;
+                    
+                    power[0] = 1;
+                    power[1] = 0;
+                    power[2] = 0;
+                    
+                    separateDerivatives(f1,0, vectorMomentum, power, deriv, -0.5*c1->i.mag, electron);
+
+                    deriv[0] = 0;
+                    deriv[1] = 0;
+                    deriv[2] = 0;
+                    
+                    power[0] = 2;
+                    power[1] = 0;
+                    power[2] = 0;
+                    
+                    separateDerivatives(f1, 0, vectorMomentum, power, deriv, 0.25*c1->i.mag, electron);
+
+                    deriv[0] = 0;
+                    deriv[1] = 0;
+                    deriv[2] = 0;
+                    
+                    power[0] = 0;
+                    power[1] = 2;
+                    power[2] = 0;
+                    
+                    separateDerivatives(f1, 0, vectorMomentum, power, deriv, 0.25*c1->i.mag, electron);
+                    
+
+                }
+                
+                if ( 0 ){
+                    INT_TYPE deriv[SPACE];
+                    INT_TYPE power[SPACE];
+                    
+                    
+                    deriv[0] = 0;
+                    deriv[1] = 0;
+                    deriv[2] = 0;
+                    
+                    power[0] = 2 ;
+                    power[1] = 0;
+                    power[2] = 0;
+                    
+                    separateDerivatives(f1, 0, vectorMomentum, power, deriv, 0.5, electron);
+                    
+                    deriv[0] = 0;
+                    deriv[1] = 0;
+                    deriv[2] = 0;
+                    
+                    power[0] = 0;
+                    power[1] = 2;
+                    power[2] = 0;
+                    
+                    separateDerivatives(f1,0, vectorMomentum, power, deriv, 0.5, electron);
+                    
+                    deriv[0] = 0;
+                    deriv[1] = 0;
+                    deriv[2] = 0;
+                    
+                    power[0] = 0;
+                    power[1] = 0;
+                    power[2] = 2;
+                    
+                    separateDerivatives(f1, 0, vectorMomentum, power, deriv, 0.5, electron);
+                    
+                
+                }
+                
+
+        } else if ( c1->rt.calcType == clampProtonElectronCalculation  ){
+                if ( bootBodies > one ){
+                    mySeparateExactTwo(f1,interactionExchange, 1. , 0,0,electron);
+                }
+                mySeparateExactOneByOne(f1,c1->i.decomposeRankMatrix  ,interactionExchangePlus, shortenPlus, -1., 1,0.5,electron, proton);
+                mySeparateExactOneByOne(f1, c1->i.decomposeRankMatrix,interactionExchangeMinus, shortenMinus,-1., -1,0.5,electron, proton);
+            struct name_label u = f1->sinc.tulip[shortenPlus];
+            
+                separateExternal(c1,protonRepulsion, 0,0,1.0,-1,0,proton);
+                separateKinetic(f1, 0,kineticMass, 1836.15267245/2.,proton);
+                if ( bootBodies ==  one ){
+                    separateKinetic(f1, 0,kinetic, 0.9997277656208493,electron);
+                }else
+                    separateKinetic(f1, 0,kinetic, 0.9997277656208493,electron);
+
             }
+            else if ( c1->rt.calcType == protonsElectronsCalculation  ){
+                if ( bootBodies > one ){
+                    mySeparateExactTwo(f1,interactionExchange, 1. , 0,0,electron);
+                    mySeparateExactTwo(f1,interactionExchangeB, 1. , 0,0,proton);
+                    tZeroSum(f1, interactionExchange, 0 );
+                    tZeroSum(f1, interactionExchangeB, 0 );
+                }
+                mySeparateExactOneByOne(f1,c1->i.decomposeRankMatrix,interactionTwoAcrossDimensions, shortTwoAcrossDimensions,-1., 1,1,electron, proton);
+                separateKinetic(f1, 0,kineticMass, 1836.15267245,proton);
+                separateKinetic(f1, 0,kinetic, 1.000,electron);
+            }
+
+
         }
     
         {
@@ -1526,621 +1225,147 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[Iterator].linkNext = density;
             }
             else
-            if ( bootBodies == one && bootType == electron){
+            if ( bootBodies == one && ( c1->rt.calcType == electronicStuctureCalculation  )){
                 
-                //FOR LINEAR
-                f1->sinc.tulip[external1].spinor = none;
-                f1->sinc.tulip[external1].NBody = one;
-                f1->sinc.tulip[external1].species = matrix;
-                f1->sinc.tulip[external1].blockType = tv1;
-                f1->sinc.tulip[external1].name = linear;
-                f1->sinc.tulip[external1].purpose = ptObject;
-                f1->sinc.tulip[external1].Current[0] = part(f1, linear);
-                f1->sinc.tulip[external1].ptRank[0] = 0;
-                
-                if ( c1->i.springFlag )
-                    f1->sinc.tulip[kinetic1].linkNext = harmonium1;
-                else
-                    f1->sinc.tulip[kinetic1].linkNext = external1;
-                f1->sinc.tulip[kinetic1].NBody = one;
-                f1->sinc.tulip[kinetic1].species = matrix;
-                f1->sinc.tulip[kinetic1].blockType = tv1;
-                f1->sinc.tulip[kinetic1].name = kinetic;
-                f1->sinc.tulip[kinetic1].purpose = ptObject;
-                f1->sinc.tulip[kinetic1].Current[0] = part(f1, kinetic);
-                f1->sinc.tulip[kinetic1].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic1].Current[1] = 0;
-                f1->sinc.tulip[kinetic1].ptRank[1] = 0;
-
-                
-                
-                f1->sinc.tulip[harmonium1].spinor = none;
-                f1->sinc.tulip[harmonium1].linkNext = external1;
-                f1->sinc.tulip[harmonium1].NBody = one;
-                f1->sinc.tulip[harmonium1].species = matrix;
-                f1->sinc.tulip[harmonium1].blockType = tv1;
-                f1->sinc.tulip[harmonium1].name = harmonium;
-                f1->sinc.tulip[harmonium1].purpose = ptObject;
-                f1->sinc.tulip[harmonium1].Current[0] = part(f1, harmonium1);
-                f1->sinc.tulip[harmonium1].ptRank[0] = 0;
-                
-                f1->sinc.tulip[X1].spinor = none;
-                f1->sinc.tulip[X1].linkNext = kinetic1;
-                f1->sinc.tulip[X1].NBody = one;
-                f1->sinc.tulip[X1].species = matrix;
-                f1->sinc.tulip[X1].blockType = tv1;
-                f1->sinc.tulip[X1].name = X;
-                f1->sinc.tulip[X1].purpose = ptObject;
-                f1->sinc.tulip[X1].Current[0] = 1;
-                f1->sinc.tulip[X1].ptRank[0] = 0;
-
+                f1->sinc.tulip[vectorMomentum1].linkNext = kinetic1;
+                f1->sinc.tulip[kinetic1].linkNext = external1;
+            
                 //active assignment
-                    f1->sinc.tulip[Ha].linkNext = kinetic1;
+                f1->sinc.tulip[Ha].linkNext = vectorMomentum1;
+                f1->sinc.tulip[Iterator].linkNext = vectorMomentum1;
                 
-                    f1->sinc.tulip[Iterator].linkNext = kinetic1;
-                
-                
-            } else if ( bootBodies == two && bootType == electron){
-                
-                
-                
-                f1->sinc.tulip[interaction12].species = matrix;
-                f1->sinc.tulip[interaction12].name = interactionExchange;
-                if ( c1->i.hartreeFockFlag )
-                    f1->sinc.tulip[interaction12].linkNext = hartree;
-                f1->sinc.tulip[interaction12].blockType = e12;
-                f1->sinc.tulip[interaction12].NBody = two;
-               // f1->sinc.tulip[interaction12].memory = threeObject;
-                f1->sinc.tulip[interaction12].Current[0] = CanonicalRank(f1, interactionExchange,0);
-                f1->sinc.tulip[interaction12].ptRank[0] = 0;
-                f1->sinc.tulip[interaction12].header = Cube;
-                
-                f1->sinc.tulip[hartree].species = matrix;
-                f1->sinc.tulip[hartree].name = interactionDirect;
-                f1->sinc.tulip[hartree].blockType = e12;
-                f1->sinc.tulip[hartree].NBody = two;
-               // f1->sinc.tulip[hartree].memory = threeObject;
-                f1->sinc.tulip[hartree].Current[0] = (!(!c1->i.hartreeFockFlag))*CanonicalRank(f1, interactionDirect,0);//only run if SET BY ExactOne...
-                f1->sinc.tulip[hartree].ptRank[0] = 0;
-                f1->sinc.tulip[hartree].header = Cube;
-                
-                
-                f1->sinc.tulip[Ha].Partition = 0;//
-                f1->sinc.tulip[Ha].species = matrix;
-                f1->sinc.tulip[Ha].header = bootShape;
-                f1->sinc.tulip[Ha].name = Ha;
-                
-                
-                f1->sinc.tulip[harmonium1].spinor = none;
-                f1->sinc.tulip[harmonium1].linkNext = harmonium2;
-                f1->sinc.tulip[harmonium1].NBody = one;
-                f1->sinc.tulip[harmonium1].species = matrix;
-                f1->sinc.tulip[harmonium1].blockType = tv1;
-                f1->sinc.tulip[harmonium1].name = harmonium;
-                f1->sinc.tulip[harmonium1].purpose = ptObject;
-                f1->sinc.tulip[harmonium1].Current[0] = part(f1, harmonium1);
-                f1->sinc.tulip[harmonium1].ptRank[0] = 0;
-                
-                
-                f1->sinc.tulip[harmonium2].spinor = none;
-                f1->sinc.tulip[harmonium2].linkNext = external1;
-                f1->sinc.tulip[harmonium2].NBody = one;
-                f1->sinc.tulip[harmonium2].species = matrix;
-                f1->sinc.tulip[harmonium2].blockType = tv2;
-                f1->sinc.tulip[harmonium2].name = harmonium;
-                f1->sinc.tulip[harmonium2].purpose = ptObject;
-                f1->sinc.tulip[harmonium2].Current[0] = part(f1, harmonium2);
-                f1->sinc.tulip[harmonium2].ptRank[0] = 0;
-                
-                
-                
-                
-                //FOR LINEAR
-                f1->sinc.tulip[external1].spinor = none;
-                f1->sinc.tulip[external1].linkNext = external2;
-                f1->sinc.tulip[external1].NBody = one;
-                f1->sinc.tulip[external1].species = matrix;
-                f1->sinc.tulip[external1].blockType = tv1;
-                f1->sinc.tulip[external1].name = linear;
-                f1->sinc.tulip[external1].purpose = ptObject;
-                f1->sinc.tulip[external1].Current[0] = part(f1, linear);
-                f1->sinc.tulip[external1].ptRank[0] = 0;
-                
-                f1->sinc.tulip[kinetic1].linkNext = kinetic2;
-                f1->sinc.tulip[kinetic1].NBody = one;
-                f1->sinc.tulip[kinetic1].species = matrix;
-                f1->sinc.tulip[kinetic1].blockType = tv1;
-                f1->sinc.tulip[kinetic1].name = kinetic;
-                f1->sinc.tulip[kinetic1].purpose = ptObject;
-                f1->sinc.tulip[kinetic1].Current[0] = part(f1, kinetic);
-                f1->sinc.tulip[kinetic1].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic1].Current[1] = 0;
-                f1->sinc.tulip[kinetic1].ptRank[1] = 0;
+            } else if ( bootBodies == two && ( c1->rt.calcType == electronicStuctureCalculation  )){
+                f1->sinc.tulip[vectorMomentum2].linkNext = kinetic1;
 
-                //FOR LINEAR
-                f1->sinc.tulip[external2].spinor = none;
+                f1->sinc.tulip[kinetic2].linkNext = external1;
                 f1->sinc.tulip[external2].linkNext = interaction12;
-                f1->sinc.tulip[external2].NBody = one;
-                f1->sinc.tulip[external2].species = matrix;
-                f1->sinc.tulip[external2].name = linear;
-                f1->sinc.tulip[external2].blockType = tv2;
-                f1->sinc.tulip[external2].purpose = ptObject;
-                f1->sinc.tulip[external2].Current[0] = part(f1, linear);
-                f1->sinc.tulip[external2].ptRank[0] = 0;
-                
-                if ( c1->i.springFlag )
-                    f1->sinc.tulip[kinetic2].linkNext = harmonium1;
-                else
-                    f1->sinc.tulip[kinetic2].linkNext = external1;
-                f1->sinc.tulip[kinetic2].NBody = one;
-                f1->sinc.tulip[kinetic2].species = matrix;
-                f1->sinc.tulip[kinetic2].blockType = tv2;
-                f1->sinc.tulip[kinetic2].name = kinetic;
-                f1->sinc.tulip[kinetic2].purpose = ptObject;
-                f1->sinc.tulip[kinetic2].Current[0] = part(f1, kinetic);
-                f1->sinc.tulip[kinetic2].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic2].Current[1] = 0;
-                f1->sinc.tulip[kinetic2].ptRank[1] = 0;
-
-                f1->sinc.tulip[X1].spinor = none;
-                f1->sinc.tulip[X1].linkNext = X2;
-                f1->sinc.tulip[X1].NBody = one;
-                f1->sinc.tulip[X1].species = matrix;
-                f1->sinc.tulip[X1].blockType = tv1;
-                f1->sinc.tulip[X1].name = X;
-                f1->sinc.tulip[X1].purpose = ptObject;
-                f1->sinc.tulip[X1].Current[0] = 1;
-                f1->sinc.tulip[X1].ptRank[0] = 0;
-
-                f1->sinc.tulip[X2].spinor = none;
-                f1->sinc.tulip[X2].linkNext = kinetic1;
-                f1->sinc.tulip[X2].NBody = one;
-                f1->sinc.tulip[X2].species = matrix;
-                f1->sinc.tulip[X2].blockType = tv2;
-                f1->sinc.tulip[X2].name = X;
-                f1->sinc.tulip[X2].purpose = ptObject;
-                f1->sinc.tulip[X2].Current[0] = 1;
-                f1->sinc.tulip[X2].ptRank[0] = 0;
-
-                
+                f1->sinc.tulip[interaction12].linkNext = nullName;
                 //active assignment
-                    f1->sinc.tulip[Ha].linkNext = kinetic1;
+                    f1->sinc.tulip[Ha].linkNext = vectorMomentum1;
+                    f1->sinc.tulip[Iterator].linkNext = vectorMomentum1;
                 
-                    f1->sinc.tulip[Iterator].linkNext = kinetic1;
+            }else if ( bootBodies == three && ( c1->rt.calcType == electronicStuctureCalculation  )){
                 
-            }else if ( bootBodies == three && bootType == electron){
-                
-                f1->sinc.tulip[interaction12].species = matrix;
-                f1->sinc.tulip[interaction12].name = interactionExchange;
-                f1->sinc.tulip[interaction12].blockType = e12;
-                f1->sinc.tulip[interaction12].NBody = two;
-                f1->sinc.tulip[interaction12].Current[0] =CanonicalRank(f1, interactionExchange,0);
-                f1->sinc.tulip[interaction12].ptRank[0] = 0;
-                f1->sinc.tulip[interaction12].linkNext = interaction13;
-                f1->sinc.tulip[interaction12].header = Cube;
-                
-                f1->sinc.tulip[interaction13].species = matrix;
-                f1->sinc.tulip[interaction13].name = interactionExchange;
-                f1->sinc.tulip[interaction13].blockType = e13;
-                f1->sinc.tulip[interaction13].NBody = two;
-                f1->sinc.tulip[interaction13].Current[0] =CanonicalRank(f1, interactionExchange,0);
-                f1->sinc.tulip[interaction13].ptRank[0] = 0;
-                f1->sinc.tulip[interaction13].linkNext = interaction23;
-                f1->sinc.tulip[interaction13].header = Cube;
-                
-                f1->sinc.tulip[interaction23].species = matrix;
-                f1->sinc.tulip[interaction23].name = interactionExchange;
-                f1->sinc.tulip[interaction23].blockType = e23;
-                f1->sinc.tulip[interaction23].NBody = two;
-                f1->sinc.tulip[interaction23].Current[0] = CanonicalRank(f1, interactionExchange,0);
-                f1->sinc.tulip[interaction23].ptRank[0] = 0;
-                f1->sinc.tulip[interaction23].header = Cube;
-                
-                f1->sinc.tulip[harmonium1].spinor = none;
-                f1->sinc.tulip[harmonium1].linkNext = harmonium2;
-                f1->sinc.tulip[harmonium1].NBody = one;
-                f1->sinc.tulip[harmonium1].species = matrix;
-                f1->sinc.tulip[harmonium1].blockType = tv1;
-                f1->sinc.tulip[harmonium1].name = harmonium;
-                f1->sinc.tulip[harmonium1].purpose = ptObject;
-                f1->sinc.tulip[harmonium1].Current[0] = part(f1, harmonium1);
-                f1->sinc.tulip[harmonium1].ptRank[0] = 0;
-                
-                f1->sinc.tulip[harmonium2].spinor = none;
-                f1->sinc.tulip[harmonium2].linkNext = harmonium3;
-                f1->sinc.tulip[harmonium2].NBody = one;
-                f1->sinc.tulip[harmonium2].species = matrix;
-                f1->sinc.tulip[harmonium2].blockType = tv2;
-                f1->sinc.tulip[harmonium2].name = harmonium;
-                f1->sinc.tulip[harmonium2].purpose = ptObject;
-                f1->sinc.tulip[harmonium2].Current[0] = part(f1, harmonium2);
-                f1->sinc.tulip[harmonium2].ptRank[0] = 0;
-                
-                f1->sinc.tulip[harmonium3].spinor = none;
-                f1->sinc.tulip[harmonium3].linkNext = external1;
-                f1->sinc.tulip[harmonium3].NBody = one;
-                f1->sinc.tulip[harmonium3].species = matrix;
-                f1->sinc.tulip[harmonium3].blockType = tv3;
-                f1->sinc.tulip[harmonium3].name = harmonium;
-                f1->sinc.tulip[harmonium3].purpose = ptObject;
-                f1->sinc.tulip[harmonium3].Current[0] = part(f1, harmonium2);
-                f1->sinc.tulip[harmonium3].ptRank[0] = 0;
-                
-                f1->sinc.tulip[Ha].Partition = 0;//
-                f1->sinc.tulip[Ha].linkNext = external1   ;
-                f1->sinc.tulip[Ha].species = matrix;
-                f1->sinc.tulip[Ha].header = bootShape;
-                f1->sinc.tulip[Ha].name = Ha;
-                
-                
-                //FOR LINEAR
-                f1->sinc.tulip[external1].spinor = none;
-                f1->sinc.tulip[external1].linkNext = external2;
-                f1->sinc.tulip[external1].NBody = one;
-                f1->sinc.tulip[external1].species = matrix;
-                f1->sinc.tulip[external1].blockType = tv1;
-                f1->sinc.tulip[external1].name = linear;
-                f1->sinc.tulip[external1].purpose = ptObject;
-                f1->sinc.tulip[external1].Current[0] = part(f1, linear);
-                f1->sinc.tulip[external1].ptRank[0] = 0;
-                
-                f1->sinc.tulip[kinetic1].linkNext = kinetic2;
-                f1->sinc.tulip[kinetic1].NBody = one;
-                f1->sinc.tulip[kinetic1].species = matrix;
-                f1->sinc.tulip[kinetic1].blockType = tv1;
-                f1->sinc.tulip[kinetic1].name = kinetic;
-                f1->sinc.tulip[kinetic1].purpose = ptObject;
-                f1->sinc.tulip[kinetic1].Current[0] = part(f1, kinetic);
-                f1->sinc.tulip[kinetic1].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic1].Current[1] = 0;
-                f1->sinc.tulip[kinetic1].ptRank[1] = 0;
+                f1->sinc.tulip[vectorMomentum3].linkNext = kinetic1;
 
-                //FOR LINEAR
-                f1->sinc.tulip[external2].spinor = none;
-                f1->sinc.tulip[external2].linkNext = external3;
-                f1->sinc.tulip[external2].NBody = one;
-                f1->sinc.tulip[external2].species = matrix;
-                f1->sinc.tulip[external2].name = linear;
-                f1->sinc.tulip[external2].blockType = tv2;
-                f1->sinc.tulip[external2].purpose = ptObject;
-                f1->sinc.tulip[external2].Current[0] = part(f1, linear);
-                f1->sinc.tulip[external2].ptRank[0] = 0;
-                
-                f1->sinc.tulip[kinetic2].linkNext = kinetic3;
-                f1->sinc.tulip[kinetic2].NBody = one;
-                f1->sinc.tulip[kinetic2].species = matrix;
-                f1->sinc.tulip[kinetic2].blockType = tv2;
-                f1->sinc.tulip[kinetic2].name = kinetic;
-                f1->sinc.tulip[kinetic2].purpose = ptObject;
-                f1->sinc.tulip[kinetic2].Current[0] = part(f1, kinetic);
-                f1->sinc.tulip[kinetic2].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic2].Current[1] = 0;
-                f1->sinc.tulip[kinetic2].ptRank[1] = 0;
-
-                f1->sinc.tulip[external3].spinor = none;
+                f1->sinc.tulip[kinetic3].linkNext = external1;
                 f1->sinc.tulip[external3].linkNext = interaction12;
-                f1->sinc.tulip[external3].NBody = one;
-                f1->sinc.tulip[external3].species = matrix;
-                f1->sinc.tulip[external3].name = linear;
-                f1->sinc.tulip[external3].blockType = tv3;
-                f1->sinc.tulip[external3].purpose = ptObject;
-                f1->sinc.tulip[external3].Current[0] = part(f1, linear);
-                f1->sinc.tulip[external3].ptRank[0] = 0;
-                
-                f1->sinc.tulip[kinetic3].NBody = one;
-                if ( c1->i.springFlag )
-                    f1->sinc.tulip[kinetic3].linkNext = harmonium1;
-                else
-                    f1->sinc.tulip[kinetic3].linkNext = external1;
-                f1->sinc.tulip[kinetic3].species = matrix;
-                f1->sinc.tulip[kinetic3].blockType = tv3;
-                f1->sinc.tulip[kinetic3].name = kinetic;
-                f1->sinc.tulip[kinetic3].purpose = ptObject;
-                f1->sinc.tulip[kinetic3].Current[0] = part(f1, kinetic);
-                f1->sinc.tulip[kinetic3].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic3].Current[1] = 0;
-                f1->sinc.tulip[kinetic3].ptRank[1] = 0;
-
+                f1->sinc.tulip[interaction23].linkNext = nullName;
                 
                 //active assignment
-                    f1->sinc.tulip[Ha].linkNext = kinetic1;
-                
-                    f1->sinc.tulip[Iterator].linkNext = kinetic1;
+                    f1->sinc.tulip[Ha].linkNext = vectorMomentum1;
+                    f1->sinc.tulip[Iterator].linkNext = vectorMomentum1;
                 
             }
             
-            else if ( bootBodies == four && bootType == electron){
-                
-                f1->sinc.tulip[interaction12].species = matrix;
-                f1->sinc.tulip[interaction12].name = interactionExchange;
-                f1->sinc.tulip[interaction12].blockType = e12;
-                f1->sinc.tulip[interaction12].NBody = two;
-                f1->sinc.tulip[interaction12].Current[0] = CanonicalRank(f1, interactionExchange,0);
-                f1->sinc.tulip[interaction12].ptRank[0] = 0;
-                f1->sinc.tulip[interaction12].linkNext = interaction13;
-                f1->sinc.tulip[interaction12].header = Cube;
-                
-                f1->sinc.tulip[interaction13].species = matrix;
-                f1->sinc.tulip[interaction13].name = interactionExchange;
-                f1->sinc.tulip[interaction13].blockType = e13;
-                f1->sinc.tulip[interaction13].NBody = two;
-                f1->sinc.tulip[interaction13].Current[0] = CanonicalRank(f1, interactionExchange,0);
-                f1->sinc.tulip[interaction13].ptRank[0] = 0;
-                f1->sinc.tulip[interaction13].linkNext = interaction23;
-                f1->sinc.tulip[interaction13].header = Cube;
-                
-                f1->sinc.tulip[interaction23].species = matrix;
-                f1->sinc.tulip[interaction23].name = interactionExchange;
-                f1->sinc.tulip[interaction23].blockType = e23;
-                f1->sinc.tulip[interaction23].NBody = two;
-                f1->sinc.tulip[interaction23].Current[0] = CanonicalRank(f1, interactionExchange,0);
-                f1->sinc.tulip[interaction23].ptRank[0] = 0;
-                f1->sinc.tulip[interaction23].linkNext = interaction14;
-                f1->sinc.tulip[interaction23].header = Cube;
-                
-                f1->sinc.tulip[interaction14].species = matrix;
-                f1->sinc.tulip[interaction14].name = interactionExchange;
-                f1->sinc.tulip[interaction14].blockType = e14;
-                f1->sinc.tulip[interaction14].NBody = two;
-                f1->sinc.tulip[interaction14].Current[0] = CanonicalRank(f1, interactionExchange,0);
-                f1->sinc.tulip[interaction14].ptRank[0] = 0;
-                f1->sinc.tulip[interaction14].linkNext = interaction24;
-                f1->sinc.tulip[interaction14].header = Cube;
-                
-                f1->sinc.tulip[interaction24].species = matrix;
-                f1->sinc.tulip[interaction24].name = interactionExchange;
-                f1->sinc.tulip[interaction24].blockType = e24;
-                f1->sinc.tulip[interaction24].NBody = two;
-                f1->sinc.tulip[interaction24].Current[0] = CanonicalRank(f1, interactionExchange,0);
-                f1->sinc.tulip[interaction24].ptRank[0] = 0;
-                f1->sinc.tulip[interaction24].linkNext = interaction34;
-                f1->sinc.tulip[interaction24].header = Cube;
-                
-                f1->sinc.tulip[interaction34].species = matrix;
-                f1->sinc.tulip[interaction34].name = interactionExchange;
-                f1->sinc.tulip[interaction34].blockType = e34;
-                f1->sinc.tulip[interaction34].NBody = two;
-                f1->sinc.tulip[interaction34].Current[0] = CanonicalRank(f1, interactionExchange,0);
-                f1->sinc.tulip[interaction34].ptRank[0] = 0;
-                f1->sinc.tulip[interaction34].header = Cube;
-                
-                f1->sinc.tulip[harmonium1].spinor = none;
-                f1->sinc.tulip[harmonium1].linkNext = harmonium2;
-                f1->sinc.tulip[harmonium1].NBody = one;
-                f1->sinc.tulip[harmonium1].species = matrix;
-                f1->sinc.tulip[harmonium1].blockType = tv1;
-                f1->sinc.tulip[harmonium1].name = harmonium;
-                f1->sinc.tulip[harmonium1].purpose = ptObject;
-                f1->sinc.tulip[harmonium1].Current[0] = part(f1, harmonium1);
-                f1->sinc.tulip[harmonium1].ptRank[0] = 0;
-                
-                f1->sinc.tulip[harmonium2].spinor = none;
-                f1->sinc.tulip[harmonium2].linkNext = harmonium3;
-                f1->sinc.tulip[harmonium2].NBody = one;
-                f1->sinc.tulip[harmonium2].species = matrix;
-                f1->sinc.tulip[harmonium2].blockType = tv2;
-                f1->sinc.tulip[harmonium2].name = harmonium;
-                f1->sinc.tulip[harmonium2].purpose = ptObject;
-                f1->sinc.tulip[harmonium2].Current[0] = part(f1, harmonium2);
-                f1->sinc.tulip[harmonium2].ptRank[0] = 0;
-                
-                f1->sinc.tulip[harmonium3].spinor = none;
-                f1->sinc.tulip[harmonium3].linkNext = harmonium4;
-                f1->sinc.tulip[harmonium3].NBody = one;
-                f1->sinc.tulip[harmonium3].species = matrix;
-                f1->sinc.tulip[harmonium3].blockType = tv3;
-                f1->sinc.tulip[harmonium3].name = harmonium;
-                f1->sinc.tulip[harmonium3].purpose = ptObject;
-                f1->sinc.tulip[harmonium3].Current[0] = part(f1, harmonium2);
-                f1->sinc.tulip[harmonium3].ptRank[0] = 0;
-                
-                f1->sinc.tulip[harmonium4].spinor = none;
-                f1->sinc.tulip[harmonium4].linkNext = external1;
-                f1->sinc.tulip[harmonium4].NBody = one;
-                f1->sinc.tulip[harmonium4].species = matrix;
-                f1->sinc.tulip[harmonium4].blockType = tv4;
-                f1->sinc.tulip[harmonium4].name = harmonium;
-                f1->sinc.tulip[harmonium4].purpose = ptObject;
-                f1->sinc.tulip[harmonium4].Current[0] = part(f1, harmonium4);
-                f1->sinc.tulip[harmonium4].ptRank[0] = 0;
-                
-                
-                f1->sinc.tulip[Ha].Partition = 0;//
-                f1->sinc.tulip[Ha].linkNext = external1   ;
-                f1->sinc.tulip[Ha].species = matrix;
-                f1->sinc.tulip[Ha].header = bootShape;
-                f1->sinc.tulip[Ha].name = Ha;
-                
-                
-                //FOR LINEAR
-                f1->sinc.tulip[external1].spinor = none;
-                f1->sinc.tulip[external1].linkNext = external2;
-                f1->sinc.tulip[external1].NBody = one;
-                f1->sinc.tulip[external1].species = matrix;
-                f1->sinc.tulip[external1].blockType = tv1;
-                f1->sinc.tulip[external1].name = linear;
-                f1->sinc.tulip[external1].purpose = ptObject;
-                f1->sinc.tulip[external1].Current[0] = part(f1, linear);
-                f1->sinc.tulip[external1].ptRank[0] = 0;
-                
-                f1->sinc.tulip[kinetic1].linkNext = kinetic2;
-                f1->sinc.tulip[kinetic1].NBody = one;
-                f1->sinc.tulip[kinetic1].species = matrix;
-                f1->sinc.tulip[kinetic1].blockType = tv1;
-                f1->sinc.tulip[kinetic1].name = kinetic;
-                f1->sinc.tulip[kinetic1].purpose = ptObject;
-                f1->sinc.tulip[kinetic1].Current[0] = part(f1, kinetic);
-                f1->sinc.tulip[kinetic1].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic1].Current[1] = 0;
-                f1->sinc.tulip[kinetic1].ptRank[1] = 0;
+            else if ( bootBodies == four && ( c1->rt.calcType == electronicStuctureCalculation  )){
+                f1->sinc.tulip[vectorMomentum4].linkNext = kinetic1;
 
-                //FOR LINEAR
-                f1->sinc.tulip[external2].spinor = none;
-                f1->sinc.tulip[external2].linkNext = external3;
-                f1->sinc.tulip[external2].NBody = one;
-                f1->sinc.tulip[external2].species = matrix;
-                f1->sinc.tulip[external2].name = linear;
-                f1->sinc.tulip[external2].blockType = tv2;
-                f1->sinc.tulip[external2].purpose = ptObject;
-                f1->sinc.tulip[external2].Current[0] = part(f1, linear);
-                f1->sinc.tulip[external2].ptRank[0] = 0;
-                
-                f1->sinc.tulip[kinetic2].linkNext = kinetic3;
-                f1->sinc.tulip[kinetic2].NBody = one;
-                f1->sinc.tulip[kinetic2].species = matrix;
-                f1->sinc.tulip[kinetic2].blockType = tv2;
-                f1->sinc.tulip[kinetic2].name = kinetic;
-                f1->sinc.tulip[kinetic2].purpose = ptObject;
-                f1->sinc.tulip[kinetic2].Current[0] = part(f1, kinetic);
-                f1->sinc.tulip[kinetic2].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic2].Current[1] = 0;
-                f1->sinc.tulip[kinetic2].ptRank[1] = 0;
-                
-                f1->sinc.tulip[external3].spinor = none;
-                f1->sinc.tulip[external3].linkNext = external4;
-                f1->sinc.tulip[external3].NBody = one;
-                f1->sinc.tulip[external3].species = matrix;
-                f1->sinc.tulip[external3].name = linear;
-                f1->sinc.tulip[external3].blockType = tv3;
-                f1->sinc.tulip[external3].purpose = ptObject;
-                f1->sinc.tulip[external3].Current[0] = part(f1, linear);
-                f1->sinc.tulip[external3].ptRank[0] = 0;
-                
-                f1->sinc.tulip[kinetic3].linkNext = kinetic4;
-                f1->sinc.tulip[kinetic3].NBody = one;
-                f1->sinc.tulip[kinetic3].species = matrix;
-                f1->sinc.tulip[kinetic3].blockType = tv3;
-                f1->sinc.tulip[kinetic3].name = kinetic;
-                f1->sinc.tulip[kinetic3].purpose = ptObject;
-                f1->sinc.tulip[kinetic3].Current[0] = part(f1, kinetic);
-                f1->sinc.tulip[kinetic3].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic3].Current[1] = 0;
-                f1->sinc.tulip[kinetic3].ptRank[1] = 0;
-
-                f1->sinc.tulip[external4].spinor = none;
+                f1->sinc.tulip[kinetic4].linkNext = external1;
                 f1->sinc.tulip[external4].linkNext = interaction12;
-                f1->sinc.tulip[external4].NBody = one;
-                f1->sinc.tulip[external4].species = matrix;
-                f1->sinc.tulip[external4].name = linear;
-                f1->sinc.tulip[external4].blockType = tv4;
-                f1->sinc.tulip[external4].purpose = ptObject;
-                f1->sinc.tulip[external4].Current[0] = part(f1, linear);
-                f1->sinc.tulip[external4].ptRank[0] = 0;
                 
-                if ( c1->i.springFlag )
-                    f1->sinc.tulip[kinetic4].linkNext = harmonium1;
+                //active assignment
+                f1->sinc.tulip[Ha].linkNext = vectorMomentum1;
+                f1->sinc.tulip[Iterator].linkNext = vectorMomentum1;
+                
+            }
+            else if (bootBodies == one && ( c1->rt.calcType == clampProtonElectronCalculation  )){
+                struct name_label ip1 = f1->sinc.tulip[interaction1Plus];
+                
+                
+                //paths do not matter unless assigned below...
+                f1->sinc.tulip[interaction1Plus].linkNext =interaction1Minus;
+                f1->sinc.tulip[interaction1Minus].linkNext =kinetic1;
+                
+                f1->sinc.tulip[shorten1Plus].linkNext =shorten1Minus;
+                f1->sinc.tulip[shorten1Minus].linkNext =kinetic1;
+                
+                
+                f1->sinc.tulip[kinetic1].linkNext = kineticMass1;
+                f1->sinc.tulip[kineticMass1].linkNext = proton1;
+                
+                //active assignment
+                if ( c1->i.decomposeRankMatrix ){
+                    f1->sinc.tulip[Ha].linkNext = shorten1Plus;
+                    f1->sinc.tulip[Iterator].linkNext = shorten1Plus;
+                } else {
+                    f1->sinc.tulip[Ha].linkNext = interaction1Plus;
+                    f1->sinc.tulip[Iterator].linkNext = interaction1Plus;
+                    
+                }
+            }
+            else if (bootBodies == two && ( c1->rt.calcType == clampProtonElectronCalculation  )){
+                struct name_label ip1 = f1->sinc.tulip[interaction1Plus];
+                if ( c1->i.decomposeRankMatrix )
+                    f1->sinc.tulip[interaction12].linkNext =shorten1Plus;
                 else
-                    f1->sinc.tulip[kinetic4].linkNext = external1;
-                f1->sinc.tulip[kinetic4].NBody = one;
-                f1->sinc.tulip[kinetic4].species = matrix;
-                f1->sinc.tulip[kinetic4].blockType = tv4;
-                f1->sinc.tulip[kinetic4].name = kinetic;
-                f1->sinc.tulip[kinetic4].purpose = ptObject;
-                f1->sinc.tulip[kinetic4].Current[0] = part(f1, kinetic);
-                f1->sinc.tulip[kinetic4].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic4].Current[1] = 0;
-                f1->sinc.tulip[kinetic4].ptRank[1] = 0;
+                    f1->sinc.tulip[interaction12].linkNext =interaction1Plus;
 
-                //active assignment
-                    f1->sinc.tulip[Ha].linkNext = kinetic1;
-                
-                    f1->sinc.tulip[Iterator].linkNext = external1;
-                
-            }
-            else if (bootType == h2plus && bootBodies == two){
-                
-                
-                
-                f1->sinc.tulip[interaction12].species = matrix;
-                f1->sinc.tulip[interaction12].name = interactionExchange;
-                f1->sinc.tulip[interaction12].linkNext = interaction12Plus;
-                f1->sinc.tulip[interaction12].blockType = e12;
-                f1->sinc.tulip[interaction12].NBody = two;
-                f1->sinc.tulip[interaction12].Current[0] = CanonicalRank(f1, interactionExchange,0);
-                f1->sinc.tulip[interaction12].ptRank[0] = 0;
-                f1->sinc.tulip[interaction12].header = Cube;
-                
-                f1->sinc.tulip[interaction12Plus].species = matrix;
-                f1->sinc.tulip[interaction12Plus].name = interactionExchangePlus;
-                f1->sinc.tulip[interaction12Plus].linkNext = harmonium1;
-                f1->sinc.tulip[interaction12Plus].blockType = e12;
-                f1->sinc.tulip[interaction12Plus].NBody = two;
-                f1->sinc.tulip[interaction12Plus].Current[0] = CanonicalRank(f1, interactionExchangePlus,0);
-                f1->sinc.tulip[interaction12Plus].ptRank[0] = 0;
-                f1->sinc.tulip[interaction12Plus].header = Cube;
-                
-                f1->sinc.tulip[harmonium1].spinor = none;
-                f1->sinc.tulip[harmonium1].NBody = one;
-                f1->sinc.tulip[harmonium1].species = matrix;
-                f1->sinc.tulip[harmonium1].blockType = tv1;
-                f1->sinc.tulip[harmonium1].name = harmonium;
-                f1->sinc.tulip[harmonium1].purpose = ptObject;
-                f1->sinc.tulip[harmonium1].Current[0] = part(f1, harmonium1)-1;
-                f1->sinc.tulip[harmonium1].ptRank[0] = 1;//nock out one dimension!!!...make it a cylindrical R axis
+                f1->sinc.tulip[interaction2Plus].linkNext =interaction1Minus;
+                f1->sinc.tulip[interaction2Minus].linkNext =kinetic1;
 
+                
+                f1->sinc.tulip[shorten2Plus].linkNext =shorten1Minus;
+                f1->sinc.tulip[shorten2Minus].linkNext =kinetic1;
 
-                f1->sinc.tulip[Ha].Partition = 0;//
-                f1->sinc.tulip[Ha].species = matrix;
-                f1->sinc.tulip[Ha].TBody = h2plus;
-                f1->sinc.tulip[Ha].header = bootShape;
-                f1->sinc.tulip[Ha].name = Ha;
-                
-                
-                //FOR LINEAR
-                f1->sinc.tulip[external1].spinor = none;
-                f1->sinc.tulip[external1].linkNext = interaction12;
-                f1->sinc.tulip[external1].NBody = one;
-                f1->sinc.tulip[external1].TBody = proton;
-                f1->sinc.tulip[external1].species = matrix;
-                f1->sinc.tulip[external1].blockType = tv1;
-                f1->sinc.tulip[external1].name = linear;
-                f1->sinc.tulip[external1].purpose = ptObject;
-                f1->sinc.tulip[external1].Current[0] = part(f1, linear);
-                f1->sinc.tulip[external1].ptRank[0] = 0;
-                
                 f1->sinc.tulip[kinetic1].linkNext = kinetic2;
-                f1->sinc.tulip[kinetic1].NBody = one;
-                f1->sinc.tulip[kinetic1].TBody = proton;
-                f1->sinc.tulip[kinetic1].species = matrix;
-                f1->sinc.tulip[kinetic1].blockType = tv1;
-                f1->sinc.tulip[kinetic1].name = kineticMass;
-                f1->sinc.tulip[kinetic1].purpose = ptObject;
-                f1->sinc.tulip[kinetic1].Current[0] = part(f1, kinetic);
-                f1->sinc.tulip[kinetic1].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic1].Current[1] = 0;
-                f1->sinc.tulip[kinetic1].ptRank[1] = 0;
+                f1->sinc.tulip[kinetic2].linkNext = kineticMass1;
+                f1->sinc.tulip[kineticMass1].linkNext = proton1;
                 
-                //FOR LINEAR
-                
-//                if ( c1->i.springFlag )
-//                    f1->sinc.tulip[kinetic2].linkNext = harmonium1;
-//                else
-                
-                f1->sinc.tulip[kinetic2].linkNext = external1;
-                f1->sinc.tulip[kinetic2].NBody = one;
-                f1->sinc.tulip[kinetic2].species = matrix;
-                f1->sinc.tulip[kinetic2].blockType = tv2;
-                f1->sinc.tulip[kinetic2].name = kinetic;
-                f1->sinc.tulip[kinetic2].purpose = ptObject;
-                f1->sinc.tulip[kinetic2].Current[0] = part(f1, kinetic);
-                f1->sinc.tulip[kinetic2].ptRank[0] = 0;
-                f1->sinc.tulip[kinetic2].Current[1] = 0;
-                f1->sinc.tulip[kinetic2].ptRank[1] = 0;
                 
                 
                 //active assignment
-                f1->sinc.tulip[Ha].linkNext = kinetic1;
-                
-                f1->sinc.tulip[Iterator].linkNext = kinetic1;
+                f1->sinc.tulip[Ha].linkNext = interaction12;
+                f1->sinc.tulip[Iterator].linkNext = interaction12;
                 
             }
+            else if (bootBodies == two && ( c1->rt.calcType == protonsElectronsCalculation  )){
+                struct name_label ip1 = f1->sinc.tulip[interaction1Plus];
+                f1->sinc.tulip[interaction12].linkNext =interaction12B;
+
+                if ( c1->i.decomposeRankMatrix )
+                    f1->sinc.tulip[interaction12B].linkNext =shortTAD11;
+                else
+                    f1->sinc.tulip[interaction12B].linkNext =interactionTAD11;
+                
+                f1->sinc.tulip[interactionTAD22].linkNext =kinetic1;
+                f1->sinc.tulip[shortTAD22].linkNext =kinetic1;
+                
+                f1->sinc.tulip[kinetic2].linkNext = kineticMass1;
+                f1->sinc.tulip[kineticMass2].linkNext = nullName;
+                
+                //active assignment
+                f1->sinc.tulip[Ha].linkNext = interaction12;
+                f1->sinc.tulip[Iterator].linkNext = interaction12;
+                
+            }
+
+            
+            
         }
+        {
+            INT_TYPE nn[SPACE],i,j;
+            length1(f1,nn);
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1->sinc.rose[space].body != nada )
+                    for ( i = 0 ; i < nn[space];i++)
+                        for ( j = 0; j < nn[space];j++)
+                        {
+                            if ( i+j+1 == nn[space] )
+                                streams(f1, inversion,0,space)[i*nn[space]+j] = 1.;
+                            else
+                                streams(f1, inversion,0,space)[i*nn[space]+j] = 0.;
+                            
+                        }
+            
+        }
+        
         
     }
 
+#if VERBOSE
     printf("boot complete\n");
+#endif
     fflush(stdout);
-//    if ( 0)
-//        tInnerTest(f1, kinetic, copy);
     return 0;
 }

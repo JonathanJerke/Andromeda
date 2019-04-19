@@ -251,11 +251,31 @@ INT_TYPE tdsygv( INT_TYPE rank, struct field * f1, char job , INT_TYPE n, double
                      
 INT_TYPE tzhegv( INT_TYPE rank, struct field * f1, char job , INT_TYPE n,DCOMPLEX * sr, DCOMPLEX * ar, INT_TYPE ns , double * w ){
     INT_TYPE info;
+//    INT_TYPE liwork = 3+5*n;
+//    INT_TYPE lrwork = 1+5*n+2*n*n;
+//    INT_TYPE lwork = 2*n+n*n;
+//    INT_TYPE iwork[liwork];
+//    double rwork[lrwork];
+//    DCOMPLEX work[lwork];
     INT_TYPE type = 1;
     char charU = 'U';
 #ifdef APPLE
-    INT_TYPE lbuffer = part(f1, dsyBuffers);
-    zhegv_(&type, &job, &charU,&n,(__CLPK_doublecomplex *)sr,&ns,(__CLPK_doublecomplex *)ar,&ns, w,(__CLPK_doublecomplex *) (myStreams(f1, dsyBuffers,rank )+6*n), &lbuffer,  myStreams(f1, dsyBuffers,rank ),&info );
+    INT_TYPE i;
+//    for ( i = 0 ; i  < ns * n ; i++){
+//        if (( isnan(creal(sr[i])) || isnan(cimag(sr[i])))|| ( isinf(creal(sr[i])) || isinf(cimag(sr[i]))))
+//          //  printf("%f %f\n", sr[i]);
+//    }
+//    for ( i = 0 ; i  <  n ; i++){
+//        if( ( isnan(creal(sr[i])) || isnan(cimag(sr[i])))||( isinf(creal(sr[i])) || isinf(cimag(sr[i]))))
+//
+//       // printf("%f\n", cimag(ar[i*ns+i]));
+//    }
+//    if (0){
+    INT_TYPE lbuffer = (part(f1,dsyBuffers)-10*n)/2;
+    zhegv_(&type, &job, &charU,&n,(__CLPK_doublecomplex *)sr,&ns,(__CLPK_doublecomplex *)ar,&ns, w,(__CLPK_doublecomplex *) (myStreams(f1, dsyBuffers,rank ))+10*n, &lbuffer,  myStreams(f1, dsyBuffers,rank ),&info );
+//    } else {
+//        zhegvd_(&type, &job , &charU, &n,(__CLPK_doublecomplex *)sr,&ns,(__CLPK_doublecomplex *)ar,&ns, w, (__CLPK_doublecomplex *)(work), &lwork, rwork, &lrwork, iwork, &liwork, &info);
+//    }
 #else
     info =  LAPACKE_zhegv(LAPACK_COL_MAJOR,1, job, 'U', n,(DCOMPLEX_PRIME *)sr,ns,(DCOMPLEX_PRIME *) ar, ns , w );
 #endif
@@ -301,8 +321,14 @@ INT_TYPE tdpotrf ( INT_TYPE L1, double * array ) {
 #endif
 
 #ifdef APPLE
-    dpotrf_( &charU , &L1, array, &L1, &info ) ;
+        dpotrf_( &charU , &L1, array, &L1, &info ) ;
 
+    if ( info != 0 ){
+        INT_TYPE i ;
+        for ( i = 0 ; i < L1 *L1 ; i++)
+            printf("%f\n", array[i]);
+        exit(1);
+    }
 #else
 info =  LAPACKE_dpotrf(LAPACK_COL_MAJOR,'U',L1,  array, L1 );
 #endif
@@ -310,9 +336,15 @@ info =  LAPACKE_dpotrf(LAPACK_COL_MAJOR,'U',L1,  array, L1 );
     return info;
 }
 
+INT_TYPE tdgels ( INT_TYPE rank,struct field * f1 , INT_TYPE L1, INT_TYPE M2, double * array, double * arrayo ,INT_TYPE inc){
+    char charT = 'N';
+    INT_TYPE lbuffer = part(f1, dsyBuffers),info=0;
+    dgels_(&charT, &L1, &L1,& M2, array,& L1, arrayo, &inc, myStreams(f1, dsyBuffers,rank ), &lbuffer, &info);
+    return info;
+}
 
 
-INT_TYPE tdpotrs ( INT_TYPE L1, INT_TYPE M2, double * array, double * arrayo ){
+INT_TYPE tdpotrs ( INT_TYPE L1, INT_TYPE M2, double * array, double * arrayo ,INT_TYPE inc){
     INT_TYPE info;
     char charU = 'U';
 #if VERBOSE
@@ -321,7 +353,7 @@ INT_TYPE tdpotrs ( INT_TYPE L1, INT_TYPE M2, double * array, double * arrayo ){
 #endif
 
 #ifdef APPLE
-dpotrs_(&charU,&L1,  &M2, array, &L1, arrayo, &L1, &info );
+dpotrs_(&charU,&L1,  &M2, array, &L1, arrayo, &inc, &info );
 #else
     INT_TYPE i;
     for ( i = 0; i < L1*M2 ; i++){
@@ -331,7 +363,7 @@ dpotrs_(&charU,&L1,  &M2, array, &L1, arrayo, &L1, &info );
             exit(0);
         }
     }
-    info =  LAPACKE_dpotrs(LAPACK_COL_MAJOR,'U',L1,  M2, array, L1, arrayo, L1 );
+    info =  LAPACKE_dpotrs(LAPACK_COL_MAJOR,'U',L1,  M2, array, L1, arrayo, inc );
 #endif
 #if VERBOSE
     printf("pot-end\n");
@@ -352,15 +384,15 @@ double tdpocon (INT_TYPE rank,struct field * f1,  INT_TYPE L1 , double * Matrix 
 #endif
     double norm1 = cblas_dasum(L1*L1, Matrix, 1);
     cblas_dcopy(L1*L1,Matrix,1,myStreams(f1, dsyBuffers,rank ),1);
-    
     #ifdef APPLE
     INT_TYPE lbuffer = part(f1, dsyBuffers)-L1*L1;
     dpocon_( &charU, &L1, myStreams(f1, dsyBuffers,rank ), &L1, &norm1, &rcond, myStreams(f1, dsyBuffers,rank )+L1*L1,&lbuffer ,&info );
 #else
     INT_TYPE lbuffer = part(f1, dsyBuffers)-L1*L1;
     info =  LAPACKE_dpocon(LAPACK_COL_MAJOR,charU,L1,  myStreams(f1, dsyBuffers,rank ), L1, norm1, &rcond);
-   // printf("--%f\n", rcond);
 #endif
+//    printf("--%f\n", rcond);
+
     if ( info != 0 ){
         printf ("pop corn ! %lld\n",info);
         exit(0);
@@ -373,3 +405,86 @@ double tdpocon (INT_TYPE rank,struct field * f1,  INT_TYPE L1 , double * Matrix 
 }
 
 
+//tdgesvd(0, f1, N1*N1,N2*N2, streams(f1, quadCube,0,space), streams(f1, interactionExchangePlus,0,space)+CanonicalRank(f1, interactionExchangePlus, 0)*N1*N1, streams(f1, interactionExchangePlus,0,space2)+CanonicalRank(f1, interactionExchangePlus, 0)*N2*N2)
+#if 1
+INT_TYPE tdgesvd ( INT_TYPE rank, struct field *f1 ,  INT_TYPE M1, INT_TYPE M2, Stream_Type * ge, Stream_Type * m1, Stream_Type* m2 ){
+    INT_TYPE info,Mm =imin(M1,M2),i;
+    char Job = 'S';
+    INT_TYPE lbuffer = part(f1, dsyBuffers)-M1-M2;
+    Stream_Type * sg = myStreams(f1, dsyBuffers,rank );
+    Stream_Type * buf = myStreams(f1, canonicalBuffersBM, rank);
+    Stream_Type * work = myStreams(f1, dsyBuffers,rank )+M1+M2;
+    
+//    {
+//        double sum = 0.;
+//        sum += myStreams(f1, oneByOneBuffer,0)[0];
+//        printf("%f ",sum);
+//    }
+    
+    
+    dgesvd_(&Job, &Job, &M1, &M2, ge, &M1, sg, m1, &M1, buf, &Mm, work, &lbuffer, &info);
+    if (info ){
+        printf("svd %d\n",info);
+        lbuffer = -1;
+        
+      //  dgesvd_(&Job, &Job, &M1, &M2, ge, &M1, sg, m1, &M1, buf, &Mm, work, &lbuffer, &info);
+        printf("%f %d\n", work[0],part(f1, dsyBuffers)-M1-M2);
+//
+//        Job = 'N';
+//        dgesvd_(&Job, &Job, &M1, &M2, ge, &M1, sg, m1, &M1, buf, &Mm, work, &lbuffer, &info);
+        for ( i = 1; i < Mm+1 ; i++)
+            printf("%f\t", work[i]);
+        exit(9);
+    }
+    
+    
+    
+    
+    transpose(Mm, M2, buf, m2);
+    
+    
+    for ( i = 0; i < Mm; i++){
+          cblas_dscal(M1, sg[i], m1+i*M1, 1);
+
+//             cblas_dscal(M1, (sg[i]), m1+i*M1, 1);
+    }
+    
+//    {
+//        INT_TYPE l ;
+//        double sum = 0;
+//        for ( l = 0; l < Mm ; l++)
+//            sum += m1[l*M1]*m2[l*M2];
+//
+//        printf("%f \n",sum);
+//
+//    }
+    return Mm;
+}
+#else
+INT_TYPE tdgesvd ( INT_TYPE rank, struct field *f1 ,  INT_TYPE M1, INT_TYPE M2, Stream_Type * ge, Stream_Type * m1, Stream_Type* m2 ){
+    INT_TYPE info,Mm =imin(M1,M2),i;
+    char Job = 'S';
+    INT_TYPE lbuffer = part(f1, dsyBuffers)-M1-M2;
+    Stream_Type * sg = myStreams(f1, dsyBuffers,rank );
+    Stream_Type * buf = myStreams(f1, canonicalBuffersBM, rank);
+    Stream_Type * work = myStreams(f1, dsyBuffers,rank )+M1+M2;
+    // printf("%lu %lu %lu \n",sg-ge, buf-sg,work-buf);
+    dgesvd_(&Job, &Job, &M1, &M2, ge, &M1, sg, m1, &M1, buf, &Mm, work, &lbuffer, &info);
+    // printf("alloc %d : %d %d %d\n", Mm*M2,alloc(f1, interaction1Plus, 0), part(f1,interaction1Plus),alloc(f1, interaction1Plus, 0)* part(f1,interaction1Plus));
+    if (info ){
+        printf("svd %d\n",info);
+        exit(9);
+    }
+    INT_TYPE Mt = 0;
+    // cblas_dcopy(M2, myStreams(f1, canonicalBuffersBM, rank), 1, m2, 1);
+    transpose(Mm, M2, myStreams(f1, canonicalBuffersBM, rank), m2);
+    for ( i = 0; i < Mm; i++){
+        //   printf("%d %1.15f\n", i, sg[i] );
+        cblas_dscal(M1, sg[i], m1+i, M1);
+    }
+    
+    
+    return Mm;
+}
+
+#endif

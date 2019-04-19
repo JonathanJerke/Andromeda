@@ -23,6 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+//VERSION 5
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -32,6 +33,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <math.h>
 #define VERBOSE 0 
 
@@ -39,12 +41,10 @@
 #include "Accelerate/Accelerate.h"
 #include "complex.h"
 typedef double __complex__ DCOMPLEX;
-typedef __CLPK_integer INT_TYPE;
+typedef __CLPK_integer  INT_TYPE;
 typedef __CLPK_doublereal Stream_Type;
-typedef __CLPK_integer ADDRESS_TYPE;
-
+typedef unsigned long ADDRESS_TYPE;
 #else
-
 
 
 typedef double Stream_Type;
@@ -94,7 +94,6 @@ typedef double __complex__ DCOMPLEX_PRIME;
 
 #endif
 
-#define hardMaxCore 72
 #define MAXSTRING 1024
 #define MaxParamFunc 4
 
@@ -107,7 +106,7 @@ typedef double __complex__ DCOMPLEX_PRIME;
 #define Alpha 0.0072973525698  //unitless
 
 #define pi  3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679
-
+        
 #define iNS 16
 
 
@@ -117,28 +116,18 @@ typedef double __complex__ DCOMPLEX_PRIME;
 #define NO_SINC_LABEL_NAME 2
 
 ////////////////////////
-
-//////////////  Quick and dirty defintion which is appropriately FAST to keep memory and in buffer...
 /////////
 ////
-//2147483647
 
+#define NO_ACTION 'N'
 #define CDT 'T'
 #define MaxSpin 2
 #define nSAG 5
 
 //pseudo-potentials
 
-struct canon {
-    Stream_Type *stream ;// C_F*F
-};
 
-//enum symmetry {
-//    nullSymmetry,
-//    symmetricalMatrices,
-//};
-//
-enum body {
+enum bodyType {
     nada,
     one,
     two,
@@ -146,18 +135,39 @@ enum body {
     four
 };
 
-enum bodyType{
+enum particleType{
+    nullParticle,
     electron,
     proton,
-    h2plus,//for labeling purposes
-    h2//for labeling purposes
+    all,
+};
+
+enum phaseType{
+    buildFoundation,//0
+    productKrylov,//1
+    solveRitz,//2
+    decomposeTensor,//3
+    bandStage//4
+};
+
+enum calculationType{
+    nullCalculation,
+    electronicStuctureCalculation,
+    clampProtonElectronCalculation,
+    protonsElectronsCalculation,
+    svdCalculation
 };
 
 enum block{
+    id0,
     tv1,//kinetic + potential block 1
     tv2,//1-b block 2
     tv3,
     tv4,
+    iv1,
+    iv2,
+    iv3,
+    iv4,
     e12,//ee interaction between label 1 and 2
     e13,
     e23,//changed..
@@ -170,8 +180,7 @@ enum genus{
     scalar,
     vector,
     matrix,
-    cubic,
-    quartic,
+    outerVector,
 };
 
 enum shape{
@@ -182,26 +191,8 @@ enum shape{
     BandBasis,
 };
 
-
-enum purposeType{
-    nullObject,
-    Object,//trainable
-    tObject,//sets to train to Object
-    vObject,//in stack, for building new vectors...unset to nullify list element
-    ptObject//views / pointers to Obj
-};
-
-enum memoryType{
-    threeObject,
-    oneObject
-};
-
-
 struct atom_label {
-    INT_TYPE iZ;
-
     INT_TYPE Z;
-    INT_TYPE Cc;
     INT_TYPE label;
 };
 
@@ -210,10 +201,17 @@ struct atom {
 	struct atom_label label;
 };
 
-#define NspinType 2
 enum spinType {
     none,
-    cmpl
+    real,
+    cmpl,
+    parallel
+};
+
+enum memoryType {
+    noAllocation,
+    objectAllocation,
+    bufferAllocation
 };
 
 enum functionType{
@@ -231,38 +229,40 @@ enum basisElementType {
     nullBasisElement,
     SincBasisElement,
     GaussianBasisElement,
-    DiracDelta
+    DiracDeltaElement
 };
 
+enum componentType {
+    nullComponent,
+    spatialComponent1,
+    spatialComponent2,
+    spatialComponent3,
+    periodicComponent1,
+    periodicComponent2,
+    periodicComponent3,
+};
 
 struct basisElement {
-    INT_TYPE periodic;
     enum basisElementType basis;
+    enum componentType type;
     INT_TYPE index;
     double length;
     double origin;
-    
-    INT_TYPE auxIndex; //for periodic Sincs
+    INT_TYPE grid;
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+struct canon {
+    Stream_Type *stream ;
+    //vector types
+    enum basisElementType basis;
+    enum componentType component;
+    enum bodyType body;
+    enum particleType particle;
+    INT_TYPE count1Basis;
+    double lattice;
+    double origin;
+};
 
 
 
@@ -297,7 +297,12 @@ struct basisElement {
 
 
 enum division{
+    nullName,
     kineticMass,
+    kineticMass1,
+    kineticMass2,
+    kineticMass3,
+    kineticMass4,
     kinetic,//0
     kinetic1,
     kinetic2,
@@ -308,15 +313,65 @@ enum division{
     external2,
     external3,
     external4,//121,122,123,124
-    interactionExchange,//22
-    interaction12,
-    interaction13,
-    interaction23,
-    interaction14,
-    interaction24,
-    interaction34, //-157
-    interactionExchangePlus,
-    interaction12Plus,
+    interactionExchangePlus,//oneBody
+    interaction1Plus,
+    interaction2Plus,
+    interaction3Plus,
+    interaction4Plus,
+    interactionExchangeMinus,//oneBody
+    interaction1Minus,
+    interaction2Minus,
+    interaction3Minus,
+    interaction4Minus,
+    shortenPlus,
+    shorten1Plus,
+    shorten2Plus,
+    shorten3Plus,
+    shorten4Plus,
+    shortenMinus,
+    shorten1Minus,
+    shorten2Minus,
+    shorten3Minus,
+    shorten4Minus,
+    interactionTwoAcrossDimensions,
+    interactionTAD11,
+    interactionTAD12,
+    interactionTAD13,
+    interactionTAD14,
+    interactionTAD21,
+    interactionTAD22,
+    interactionTAD23,
+    interactionTAD24,
+    interactionTAD31,
+    interactionTAD32,
+    interactionTAD33,
+    interactionTAD34,
+    interactionTAD41,
+    interactionTAD42,
+    interactionTAD43,
+    interactionTAD44,
+    shortTwoAcrossDimensions,
+    shortTAD11,
+    shortTAD12,
+    shortTAD13,
+    shortTAD14,
+    shortTAD21,
+    shortTAD22,
+    shortTAD23,
+    shortTAD24,
+    shortTAD31,
+    shortTAD32,
+    shortTAD33,
+    shortTAD34,
+    shortTAD41,
+    shortTAD42,
+    shortTAD43,
+    shortTAD44,
+    protonRepulsion,
+    proton1,
+    proton2,
+    proton3,
+    proton4,
     X,//
     X1,
     X2,
@@ -332,12 +387,41 @@ enum division{
     vectorMomentum2,
     vectorMomentum3,
     vectorMomentum4,
+    interactionExchange,//22
+    interaction12,
+    interaction13,
+    interaction23,
+    interaction14,
+    interaction24,
+    interaction34,
+    interactionExchangeB,//22
+    interaction12B,
+    interaction13B,
+    interaction23B,
+    interaction14B,
+    interaction24B,
+    interaction34B,
+    edgeElectronMatrix,//63
+    edgeEMatrix1,//63
+    edgeEMatrix2,//63
+    edgeEMatrix3,//63
+    edgeEMatrix4,//63
+    edgeProtonMatrix,//63
+    edgePMatrix1,//63
+    edgePMatrix2,//63
+    edgePMatrix3,//63
+    edgePMatrix4,//63
     hartree,
     nullScalar,//7
     nullVector,//8
     nullMatrix,//9
     forces,//10
+    inversion,
     overlap,
+    overlap1,
+    overlap2,
+    overlap3,
+    overlap4,
     resolveBufferMatrix,//11
     distanceBufferVector,//12
     distanceBufferMatrix,//13
@@ -349,32 +433,22 @@ enum division{
     project,//20
     interactionDirect,//21
     buffer,//24,
+    oneByOneBuffer,
     Ha, //25
     Iterator,
     printOperator,
-    highBallVector,
-    highBallVector2,
-    highBallVector3,
-    highBallVector4,
-    secondVector,//48
-    maxBuffer4Vector,//49
-    maxBuffer5Vector,//50
     copy,//17
     copyTwo , //23
     copyThree,//51
     copyFour,//52
     copyFive,
-    edgeMatrix,//63
     eigen,//64
-    trainVector,
-    trainVector2,
-    trainVector3,
-    trainVector4,
-    trainMatrix,
-    trainMatrix2,
-    trainMatrix3,
-    trainMatrix4,
-    spBuffer,//71,72
+    bill1,
+    bill2,
+    bill3,
+    bill4,
+    bill5,
+    bill6,
     PauliX,
     PauliY,
     PauliZ,//73,74,75
@@ -391,31 +465,31 @@ enum division{
     basis,
     subBasis,//92,93
     edges,//94
-    init,
-    initValence,
-    initLumos ,//95,96,97
+    edges1,
+    edges2,
+    edges3,
+    edgesA1,
+    edgesA2,
+    edgesA3,
     quad,
     quad2,//102,103
-    bandBasis,//104
-    nullName,//105
+    bandBasis,//105
     quadCube,
     quad2Cube,
     diagonalCube,//106,107,108
     canonicalBuffers,
-    eigenBuffers,//109,110
     copyVector,
-    copyCube,
-    diagonalVector,
     copyTwoVector,
     copyThreeVector,//113
     copyFourVector,
     productVector,
     permutationVector,
+    permutation2Vector,
+    permutation3Vector,
+    permutation4Vector,
     build,
     squareTwo,//
     foundationBasis,
-    diDiagonalVector,
-    diDiagonal,//118,119,120
     basisBuffers,
     tensorBuffers,
     tensorBuffers2,
@@ -423,11 +497,11 @@ enum division{
     tensorBuffers4,
     tensorBuffers5,
     tensorBuffers6,
+    guideBuffer,
+    trackBuffer,
     vectorCubeBuffers,//125,126,127
     diagonalQuad,
     diDiagonalQuad,
-    rtDensity,
-    build2,//128,129,130,131
     diagonal2VectorA,
     diagonal2VectorB,
     diagonal1VectorA,
@@ -438,9 +512,19 @@ enum division{
     diagonal1VectorD,
     canonicalBuffersB,
     canonicalBuffersBM,
-    canonicalBuffersBX,
     canonicalBuffersC,
-    canonicalBuffersD,//
+    canonicalmvVector,
+    canonicalmv2Vector,
+    canonicalmv3Vector,
+    canonicaldotVector,
+    canonicaldot2Vector,
+    canonicaldot3Vector,
+    canonicalvvVector,
+    canonicalvv2Vector,
+    canonicalvv3Vector,
+    canonicalmeVector,
+    canonicalme2Vector,
+    canonicalme3Vector,
     complement,
     complementTwo,
     eigenList,
@@ -453,6 +537,7 @@ enum division{
     foundationStructure,
     foundationEquals,
     totalVector,
+    totalFuzzyVector,
     squareTwoVector,//
     dsyBuffers,
     oneArray,
@@ -474,78 +559,47 @@ enum division{
     lanes8,
     lanes9,
     lanes10,
-    lanes11,lanes12,lanes13,lanes14,lanes15,lane16,lanes17,lanes18,lanes19,lanes20,lanes21,lanes22,lanes23,lanes24,lanes25,lanes26,lanes27,lanes28,lanes29,lanes30,lanes31,lane32,lanes33,lanes34,lanes35,lanes36,
-    lanesb,lanesb2,lanesb3,lanesb4,lanesb5,lanesb6,lanesb7,lanesb8,lanesb9,lanesb10,lanesb11,lanesb12,lanesb13,lanesb14,lanesb15,lanesb16,lanesb17,lanesb18,lanesb19,lanesb20,lanesb21,lanesb22,lanesb23,lanesb24,lanesb25,lanesb26,lanesb27,lanesb28,lanesb29,lanesb30,lanesb31,lanesb32,lanesb33,lanesb34,lanesb35,lanesb36,lanesc,lanesc2,lanesc3,lanesc4,lanesc5,lanesc6,lanesc7,lanesc8,lanesc9,lanesc10,lanesc11,lanesc12,lanesc13,lanesc14,lanesc15,lanesc16,lanesc17,lanesc18,lanesc19,lanesc20,lanesc21,lanesc22,lanesc23,lanesc24,lanesc25,lanesc26,lanesc27,lanesc28,lanesc29,lanesc30,lanesc31,lanesc32,lanesc33,lanesc34,lanesc35,lanesc36,lanesd,lanesd2,lanesd3,lanesd4,lanesd5,lanesd6,lanesd7,lanesd8,lanesd9,lanesd10,lanesd11,lanesd12,lanesd13,lanesd14,lanesd15,lanesd16,lanesd17,lanesd18,lanesd19,lanesd20,lanesd21,lanesd22,lanesd23,lanesd24,lanesd25,lanesd26,lanesd27,lanesd28,lanesd29,lanesd30,lanesd31,lanesd32,lanesd33,lanesd34,lanesd35,lanesd36,
-
-    
-    
-    
-    
     eigenVectors
 };
 
-
-struct name_label {
-    INT_TYPE sigN[3];
-    INT_TYPE Partition;
-    INT_TYPE Current[MaxCore];
-    INT_TYPE ptRank[MaxCore];
+struct space_label{
     ADDRESS_TYPE Address;
-    ADDRESS_TYPE myAddress;
-    INT_TYPE path ;
-    enum body NBody;
-    enum bodyType TBody;
+    
+    //matrix types
+    enum bodyType body;
+    enum block block;
+    //not vector types
+};
+
+struct value_label{
     double value;
     double value2;
-    double value3;
+    INT_TYPE symmetry;
+};
 
-    INT_TYPE parallel;
-    INT_TYPE stop[MaxSpin][MAXATOM+1];//want to get rid of this scaling monster
-    int symmetry;
-    int symmetry2;
-    enum division name;
+struct name_label {
+    enum division name;//pointer iff name != name
     enum genus species;
     enum shape header;
-    enum purposeType purpose;
-    enum memoryType memory;
-    enum block blockType;
     enum spinType spinor;
     enum division linkNext;
+    INT_TYPE Partition;
+    enum memoryType memory;
+    struct value_label value;
+    struct space_label space[SPACE+1];
+    INT_TYPE Current[MaxCore];//if name != name , then Current is a pointer.
 };
 
 struct sinc_label {
-    double volume;
     INT_TYPE maxEV;
-
-    INT_TYPE N1;
-    INT_TYPE dims[7][3];
     double d;//input lattice spacing
-    double dd[7];//multiplying global lattice length, d, at fixed ratios.
     struct canon rose[SPACE+1];
-    struct name_label *tulip;//many names,  Myrid
+    struct name_label *tulip;//vectors
+    enum division user;
     enum division density;
     enum division end;
-    INT_TYPE Basis[3];
-    INT_TYPE Basis2[3];
-    INT_TYPE Basis3[3];
-    INT_TYPE Basis4[3];
-};
 
-struct rds_label{
-    INT_TYPE flag;
-    INT_TYPE Basis[3];
-    INT_TYPE Basis2[3];
-    INT_TYPE Basis3[3];
-    INT_TYPE Basis4[3];
 };
-
-//struct band_label{
-//    INT_TYPE Basis[3];
-//    INT_TYPE Basis2[3];
-//    INT_TYPE Basis3[3];//unused
-//    INT_TYPE Basis4[3];//unused
-//    double D;
-//};
 
 struct function_label{
     INT_TYPE interval;
@@ -562,10 +616,8 @@ struct field {
     struct atom atoms[MAXATOM+1];
     INT_TYPE Na;
     INT_TYPE Ne;
-    enum body body;
-    INT_TYPE ir;
+    enum bodyType body;
 	struct sinc_label sinc;
-    struct rds_label rds;
     struct interaction_label twoBody;
     struct interaction_label oneBody;
     struct MEM * mem1;
@@ -594,27 +646,30 @@ struct general_index{//one dimension
 
 struct general_2index{//one dimension
 	struct general_index i[2];
-    double alpha;
+    double beta;
     double momentumShift;
     INT_TYPE point;
     INT_TYPE powSpace;//r^2*pow in Gaussian term!!
-    INT_TYPE N1;
-    INT_TYPE body;
-    INT_TYPE periodic;//1==periodic basis//2==periodic external field
-    INT_TYPE gaussianAccelerationFlag;
-    INT_TYPE realFlag;
+    INT_TYPE gaussianAccelerationFlag;//pre-integrated selection
+    INT_TYPE realFlag;//1 == real , else == complex
+    
+    //for element calculations
     struct function_label * fl;
 };
 
 struct runTime {
     INT_TYPE runFlag;
-
 #ifdef OMP
-    INT_TYPE NCore;
+    INT_TYPE NLanes;
     INT_TYPE NSlot;
 
     double position[MaxCore][6];
 #endif
+    
+#ifdef MKL
+    INT_TYPE NParallel;
+#endif
+    
     INT_TYPE monteCarlo;
     INT_TYPE samples;
     INT_TYPE printFlag;
@@ -627,14 +682,15 @@ struct runTime {
     double vCANON;
     double targetCondition;
     
-    enum body body;
-    enum bodyType bodyType;
-
+    enum bodyType body;
+    enum calculationType calcType;
+    enum phaseType phaseType;
 };
 
 struct MEM {
     INT_TYPE bootedMemory;
-    char fileList [MAXSTRING];
+    INT_TYPE files ;
+    char fileList [MAXSTRING][MAXSTRING];
     char constraintFile [MAXSTRING];
     char densityName[MAXSTRING];
     struct runTime * rt;
@@ -642,7 +698,13 @@ struct MEM {
 
 
 struct input {
-    INT_TYPE theory;//1 normal schrodinger.  2 N-body theory.
+    double minClamp;
+    double maxClamp;
+    double orgClamp;
+    INT_TYPE complexType ;
+    double level;
+    INT_TYPE magFlag;
+    double  mag ;
     INT_TYPE cycleStep;
     INT_TYPE lookBack;
     INT_TYPE filter;
@@ -650,9 +712,12 @@ struct input {
 #ifdef OMP
     INT_TYPE omp;
 #endif
-    double seekPower;
+
+#ifdef MKL
+    INT_TYPE mkl;
+#endif
+
     INT_TYPE l2;
-    INT_TYPE group;
     INT_TYPE nTargets;
     double scalar;
     double turn;
@@ -661,12 +726,12 @@ struct input {
     INT_TYPE interval;
     INT_TYPE sectors;
     double attack;
-    INT_TYPE cSA[nSAG*nSAG*nSAG];
+//    INT_TYPE cSA[nSAG*nSAG*nSAG];
     INT_TYPE side;
     
-    INT_TYPE hartreeFockFlag;
+//    INT_TYPE hartreeFockFlag;
     INT_TYPE densityFlag;
-    enum body bodyDensity;
+    enum bodyType bodyDensity;
     INT_TYPE M1;
     double vectorMomentum;
     double springConstant;
@@ -675,22 +740,25 @@ struct input {
     INT_TYPE RAMmax ;
     INT_TYPE decomposeRankMatrix;
     INT_TYPE iCharge;
-	struct field c;
 	INT_TYPE epi;
+    INT_TYPE around;
 	double d;
+    double D;
     INT_TYPE outputFlag;
     INT_TYPE cycles;
     INT_TYPE Iterations;
     INT_TYPE charge;
     INT_TYPE canonRank;
     INT_TYPE heliumFlag;
-    INT_TYPE paths;
+ //   INT_TYPE paths;
     INT_TYPE nStates;
     INT_TYPE iRank ;
     INT_TYPE bRank;
     INT_TYPE dRank;
     INT_TYPE qFloor;
     INT_TYPE Angstroms;
+    struct field c;
+
 };
 
 

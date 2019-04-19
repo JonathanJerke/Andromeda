@@ -30,16 +30,29 @@
 #ifndef system_h
 #define system_h
 
-#define SPACE 3
-
+#define COMPONENT 3
+#define PARTICLE 1
+#define SPACE (COMPONENT * PARTICLE)
+//matrix element calculator interface
 #define sincFlag 1
 #define MAXATOM 4
+//#define APPLE
 //#define OMP
 //#define MKL
 #define GSL_LIB
 
-
+#ifdef APPLE
 #define MaxCore 2
+#endif
+
+#ifndef APPLE
+
+#define MaxCore 24
+
+
+#ifndef GSL_LIB
+    THIS PROGRAM NEEDS INTEGRATION ROUTINES
+#endif
 
 #endif
 

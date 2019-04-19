@@ -27,22 +27,23 @@
 #ifndef eigen_h
 #define eigen_h
 #include "mAls.h"
+#include "coreUtil.h"
 #include "saUtil.h"
 #include "interfaceMath.h"
 
 struct sortClass {
-    double * str[3];
+    double * str[SPACE];
     INT_TYPE *mmm;
     INT_TYPE i;
     INT_TYPE nG;
-    INT_TYPE n1[3];
+    INT_TYPE n1[SPACE];
 };
 
 int sortComp (const void * elem1, const void * elem2);
 int sort2Comp (const void * elem1, const void * elem2);
 
-INT_TYPE tNBodyConstruction (struct calculation * c1, enum division build, enum division eigen);
-INT_TYPE t1BodyConstruction(struct calculation * c1, enum division eigen);
+INT_TYPE tBootManyConstruction (struct calculation * c1);
+INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen);
 
 INT_TYPE tSASplit ( struct field * f1, INT_TYPE type , INT_TYPE Ve ,INT_TYPE target, enum division usz, enum division vector);
 
@@ -57,6 +58,5 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
 INT_TYPE tSelect(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division usr, enum division usa, INT_TYPE testFlag);
 INT_TYPE tCollect (struct field * f1, INT_TYPE type,enum division usz, INT_TYPE target,double seekPower);
 INT_TYPE tFilter(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division usr);
-INT_TYPE tSAboot(struct calculation *c1);
-INT_TYPE tEdges(struct calculation *c1);
+INT_TYPE tEdges(struct calculation *c1, enum division vector);
 #endif /* eigen_h */
