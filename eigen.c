@@ -975,7 +975,7 @@ INT_TYPE tGreatDivideIteration ( struct field * f1, enum division A , INT_TYPE I
 //                matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
 //                tScale(f1, usz+iii+expon*foundation, 1./sqrt(cabs(vhhv)));
 
-                tHXpX(rank, f1, A, 0, 1.0, 0.0, usz+iii+expon*foundation, f1->mem1->rt->TARGET , part(f1,usz+(expon)*foundation+iii));
+                tHXpX(rank, f1, A, 1, 0., -1, usz+iii+expon*foundation, f1->mem1->rt->TARGET , part(f1,usz+(expon)*foundation+iii));
                 
                 matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
 //                matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+(expon-1)*foundation, NULL, &vhv);
@@ -1013,7 +1013,7 @@ INT_TYPE tEdges(struct calculation *c1, enum division vector){
         enum block b,bx;
         INT_TYPE iii,jjj=1,dim,irrep;
         double sum = 0;
-       // for ( irrep = 0 ;irrep <= 5 ; irrep++)
+        //for ( irrep = 0 ;irrep <= 5 ; irrep++)
         {
               //  if ((! c1->i.irrep || f1->sinc.tulip[vector].value.symmetry  == irrep) && irrep == c1->i.irrep)
                 {

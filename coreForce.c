@@ -400,10 +400,10 @@ DCOMPLEX FSS( double p , struct general_index * pa ){
     double d2 = pa->ket.length;
     INT_TYPE m = pa->ket.index;
     double x2 = m*d2 + pa->ket.origin;
-    if ( pa->ket.origin != pa->bra.origin){
-        printf("origins\n");
-        exit(0);
-    }
+//    if ( pa->ket.origin != pa->bra.origin){
+//        printf("origins\n");
+//        exit(0);
+//    }
     double cof = sqrt(d*d2)/(2.*pi);
     double Pi = pi;
     if ( n == m  ) {
@@ -423,30 +423,16 @@ DCOMPLEX FSS( double p , struct general_index * pa ){
     }
 }
 DCOMPLEX FSSp ( double p , struct general_index * pa ){
-    double n = pa->n;
-    double m = pa->m;
+    INT_TYPE n = pa->n;
+    INT_TYPE m = pa->m;
     double d = pa->d;
-    INT_TYPE pt = pa->pointer;
     
-    
-    
-    if ( fabs( p * d) > imax(1,pt) * pi ){
+    if ( fabs( p * d) > 2 * pi ){
         return 0.;
     }
-    if ( pt < 2){
-        if ( pt == 0 )
-            return ei( n * p*d );
-        else
-            return ei( m * p*d);
-    }else if ( pt == 2 ){
-        //return ei((n+m)*(1./2.*p*d+pi)) *( delta(n-m) -fabs( p * d / 2./pi ) * Sinc(1., (p*d/2./pi) *(n-m)));
-        return ei((n+m)*(1./2.*p*d+pi)) *( Sinc(1. ,(n-m)) -fabs( p * d / 2./pi ) * Sinc(1., (p*d/2./pi) *(n-m)));
+    
+    return ei((n+m)*(1./2.*p*d+pi)) *( delta(n-m) -fabs( p * d / 2./pi ) * Sinc(1., (p*d/2./pi) *(n-m)));
 
-    }else
-    {
-        printf("pointy");
-        exit(0);
-    }
 };
 //double test ( double p , struct general_index * pa ){
 ////    printf("%f %f\n", cabs(FSSnew(p,pa)),cabs(FSS(p,pa)));
@@ -465,20 +451,24 @@ DCOMPLEX FDD ( double p , struct general_index * pa ){
 
 DCOMPLEX FB ( double p , struct general_index * pa ){
     if ( pa->bra.basis == SincBasisElement && pa->ket.basis == SincBasisElement){
-//        pa->n = pa->bra.index+pa->bra.origin/pa->bra.length;
-//        pa->m = pa->ket.index+pa->ket.origin/pa->ket.length;
-//        pa->d = pa->bra.length;
-//
-//       pa->pointer = 2;
-////        if ( (pa->bra.length - pa->ket.length ) > 1e-3 ){
-////            printf("parties correspondence\n");
-////            exit(0);
-////        }
-//        if ( pa->bra.index != pa->ket.index )
-//            if ( fabs(creal(FSS(p,pa))-creal(FSSp(p,pa))) > 1e-6){
-//                printf("* %f %f\n",creal(FSS(p,pa)),creal(FSSp(p,pa)));
-//            }
-        return FSS(p, pa);
+        if ( fabs(pa->bra.origin ) > 1e-6 ||  fabs( pa->bra.origin - pa->ket.origin ) > 1e-6 || fabs(pa->bra.length - pa->ket.length) > 1e-6 )
+            return FSS(p,pa);
+
+        else{
+
+            pa->n = pa->bra.index;
+            pa->m = pa->ket.index;
+            pa->d = pa->bra.length;
+            pa->pointer = 2;
+            return FSSp(p, pa);
+
+        }
+        
+//     //   if ( pa->bra.index != pa->ket.index )
+//       //     if ( fabs(creal(FSS(p,pa))-creal(FSSp(p,pa))) > 1e-6){
+//          //      printf("* %f %f\n",creal(FSS(p,pa)),creal(FSSp(p,pa)));
+//         //   }
+//        return 0;
     }else if ( pa->bra.basis == DiracDeltaElement || pa->ket.basis == DiracDeltaElement){
         if ( pa->bra.basis == DiracDeltaElement && pa->ket.basis == nullBasisElement){
             pa->x0 = pa->bra.origin;
@@ -3244,6 +3234,7 @@ double gaussianSinc ( double k, void * arg ){
         act *= -I ;
     double va =   exp(-sqr(k /2./ beta))*0.28209479177387814/*1/(2*sqrt(pi))*//beta * creal(act* poly(k,beta*beta,pa->powSpace) *FB(-k,&pa->i[0])*FB(k,&pa->i[1]));
     if ( isnan(va) || isinf (va)){
+        printf("nan or inf\n");
         exit(0);
     }
     return va;
@@ -3386,7 +3377,8 @@ double collective( double beta ,struct general_2index * pa){
                     }
 #else
 #ifdef GSL_LIB
-                    gsl_integration_qag (&F,  -pint+pa->momentumShift,  pint+pa->momentumShift, 1e-9, 1e-9,1000,6,workspace, &value, &abs_error);
+                    gsl_integration_qag (&F,  -pint+pa->momentumShift,  pint+pa->momentumShift, 1e-9, 1e-6,1000,6,workspace, &value, &abs_error);
+			gsl_integration_workspace_free(workspace);    
 #endif
 #endif
                     
@@ -3399,6 +3391,7 @@ double collective( double beta ,struct general_2index * pa){
                     
 #ifdef GSL_LIB
                     gsl_integration_qagi (&F, 1e-9, 1e-9,1000,workspace, &value, &abs_error);
+		gsl_integration_workspace_free(workspace);    
 #endif
 #endif
                 }
@@ -4185,17 +4178,19 @@ void mySeparateExactTwo (struct field * f1, enum division interactionExchange, d
                     if ( f1->sinc.rose[space].component != nullComponent )
                     if ( f1->sinc.tulip[interactionExchange].space[space].body == two && f1->sinc.rose[space].body >= two  && f1->sinc.rose[space].particle == particle1 )
                     {
-                        N1 = n1[space];
+      				//	printf("%d %d\n", beta,space);
+				//fflush(stdout);
+		                  N1 = n1[space];
 #ifdef OMP
-#pragma omp parallel for private (si,I1,I2,I3,I4,g2,value) schedule(dynamic,1)
+#pragma omp parallel for private (si,I1,I2,I3,I4,g2,value)
 #endif
                         for ( si = 0 ; si < N1*N1*N1*N1; si++)
                             
                         {
                             I1 = ( si ) % N1;
                             
-                            I2 = ( si / N1) % N1;
-                            I3 = ( si /  (N1*N1) ) % N1;
+                            I3 = ( si / N1) % N1;
+                            I2 = ( si /  (N1*N1) ) % N1;
                             I4 = ( si / ( N1*N1*N1) ) % N1;
                             
                             g2.realFlag = 1;
@@ -4218,7 +4213,7 @@ void mySeparateExactTwo (struct field * f1, enum division interactionExchange, d
                             value = collectives(x, &g2)*cpow;
                             if (flagPow && constant < 0 )
                                 value *= -1.;
-                            streams(f1, quadCube,0,space)[N1*N1*(N1*I3+I1)+(N1*I4+I2)]=value;
+                            streams(f1, quadCube,0,space)[si]=value;
                         }
                         flagPow = 0;
 
@@ -4949,12 +4944,6 @@ INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYP
                 x *=  param[1];
                 constant *= param[1];
                 
-                
-                if ( fn == Pseudo ){
-                    if ( section == 1 )
-                        continue;;
-                }
-                
                 constant *= Z*scalar;
                 //this is odd but,
                 if (section > 2 )
@@ -5050,7 +5039,7 @@ INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division aki
 
                         if ( dim == space  ){
                             (stream )[dims1[space]*I1+I2] = - 0.5/amass*Bd2B(o1.bra,o1.ket);
-                            printf ("%d %d %d %f \n", space,I1,I2,Bd2B(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2))/ Sd2S(I1-I2));
+//                            printf ("%d %d %d %f \n", space,I1,I2,Bd2B(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2))/ Sd2S(I1-I2));
 
                         }
                         else{

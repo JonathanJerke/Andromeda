@@ -1415,6 +1415,9 @@ void tHYpY(  INT_TYPE rank, struct field * f1 ,INT_TYPE targSpin, enum division 
 void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shiftFlag, double product, double productCmpl,  enum division right ,  double tolerance , INT_TYPE maxRun  ){
     INT_TYPE l , k,targSpin;
     enum division pt,Mat;
+    struct name_label *fz = &f1->sinc.tulip[totalFuzzyVector];
+    struct name_label *rg = &f1->sinc.tulip[right];
+
     struct name_label nm ;
     f1->sinc.tulip[totalVector].Current[rank] = 0;
     f1->sinc.tulip[totalFuzzyVector].Current[rank] = 0;
@@ -1425,7 +1428,7 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
     }
     //cpy in if shifted.
     for ( targSpin = 0 ; targSpin < spins(f1, right ) ;targSpin++){
-        if ( shiftFlag )
+        if ( shiftFlag && targSpin == 0 )
             tEqua(f1, totalFuzzyVector, rank, right, targSpin);
         pt = left;
         //cycle over all links in left.
@@ -1467,7 +1470,10 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
         tAddTw(f1, totalFuzzyVector, rank, productVector, rank);
 
         tCycleDecompostionListOneMP(rank, f1, totalFuzzyVector, rank,NULL, right, targSpin, tolerance, maxRun, 1.);
+        
     }
+    struct name_label r = f1->sinc.tulip[right];
+
     return;
 }
 

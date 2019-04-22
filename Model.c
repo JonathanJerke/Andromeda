@@ -123,30 +123,30 @@ struct calculation initCal (void ) {
     i.rt.printFlag = 0;
     i.i.heliumFlag = 1;
 
-    i.rt.TARGET = 1e-6;
+    i.rt.TARGET = 1e-2;
     i.rt.targetCondition = 1e-7;
     i.rt.ALPHA = 1e-8;
     i.rt.CANON = 1e-6;
-    i.rt.vCANON = 1e-4;
+    i.rt.vCANON = 1e-2;
     i.rt.TOL = 1e5;
     i.rt.maxEntropy = 1;
     i.i.level = 10000;
-    i.i.complexType =1;
+    i.i.complexType =2;
     i.i.sectors = 1;
     i.i.d = 1;
     i.i.D = 2.;
     i.i.epi = 4;
-        i.i.bRank = 12 ;
+        i.i.bRank = 4 ;
         i.i.cycleStep = 1;
         i.i.cycles = 25;
         i.i.Iterations = 12;
         i.i.lookBack = 12;
 
-        i.i.nStates =  10 ;
-        i.i.nTargets = 10;
+        i.i.nStates =  3 ;
+        i.i.nTargets = 3;
         i.i.qFloor = 50;
         
-        i.i.iRank = 6;
+        i.i.iRank = 1;
         i.i.side = 5;
         i.i.l2 = 1000;
         
@@ -194,18 +194,18 @@ struct calculation initCal (void ) {
     i.i.c.sinc.tulip = NULL;
     i.rt.phaseType = solveRitz;
     
-    i.i.c.twoBody.func.fn = nullFunction;
-    i.i.c.oneBody.func.fn = nullFunction ;
+    i.i.c.twoBody.func.fn = Coulomb;
+    i.i.c.oneBody.func.fn = Coulomb;
 
     i.i.canonRank = 1000;
     i.i.c.twoBody.num = 25;
-    i.i.c.twoBody.func.interval  = 1;
+    i.i.c.twoBody.func.interval  = 0;
     i.i.c.twoBody.func.param[0]  = 1;
     i.i.c.twoBody.func.param[1]  = 1;
     i.i.c.twoBody.func.param[2]  = 1;
 
     i.i.c.oneBody.num = 25;
-    i.i.c.oneBody.func.interval  = 1;
+    i.i.c.oneBody.func.interval  = 0;
     i.i.c.oneBody.func.param[0]  = 1;
     i.i.c.oneBody.func.param[1]  = 1;
     i.i.c.oneBody.func.param[2]  = 1;
@@ -758,7 +758,6 @@ INT_TYPE iModel( struct calculation * c1){
 
         fromBeginning(f1,bandBasis,diagonal1VectorD);
         f1->sinc.tulip[bandBasis].Partition = mxlen;
-        f1->sinc.tulip[bandBasis].species = vector;
         f1->sinc.tulip[bandBasis].memory = bufferAllocation;
 
         
@@ -1090,12 +1089,12 @@ INT_TYPE iModel( struct calculation * c1){
             if ( c1->rt.calcType == electronicStuctureCalculation  ){
                 if ( bootBodies > one ){
                     mySeparateExactTwo(f1,interactionExchange, 1. , 0,0,electron);
-                    tZeroSum(f1, interactionExchange, 0 );
+                   // tZeroSum(f1, interactionExchange, 0 );
 
                 }
                 if (f1->Na != 0 ){
                     separateExternal(c1,linear,0,0,-1.0,-1,0,electron);
-                    tZeroSum(f1, linear, 0 );
+                    //tZeroSum(f1, linear, 0 );
 
                 }
                 separateKinetic(f1, 0,kinetic, 1.0,1);
@@ -1207,8 +1206,8 @@ INT_TYPE iModel( struct calculation * c1){
                 if ( bootBodies > one ){
                     mySeparateExactTwo(f1,interactionExchange, 1. , 0,0,electron);
                     mySeparateExactTwo(f1,interactionExchangeB, 1. , 0,0,proton);
-                    tZeroSum(f1, interactionExchange, 0 );
-                    tZeroSum(f1, interactionExchangeB, 0 );
+                //    tZeroSum(f1, interactionExchange, 0 );
+                //    tZeroSum(f1, interactionExchangeB, 0 );
                 }
                 mySeparateExactOneByOne(f1,c1->i.decomposeRankMatrix,interactionTwoAcrossDimensions, shortTwoAcrossDimensions,-1., 1,1,electron, proton);
                 separateKinetic(f1, 0,kineticMass, 1836.15267245,proton);
@@ -1229,7 +1228,8 @@ INT_TYPE iModel( struct calculation * c1){
                 
                 f1->sinc.tulip[vectorMomentum1].linkNext = kinetic1;
                 f1->sinc.tulip[kinetic1].linkNext = external1;
-            
+                f1->sinc.tulip[external1].linkNext = nullName;
+
                 //active assignment
                 f1->sinc.tulip[Ha].linkNext = vectorMomentum1;
                 f1->sinc.tulip[Iterator].linkNext = vectorMomentum1;
@@ -1263,7 +1263,8 @@ INT_TYPE iModel( struct calculation * c1){
 
                 f1->sinc.tulip[kinetic4].linkNext = external1;
                 f1->sinc.tulip[external4].linkNext = interaction12;
-                
+                f1->sinc.tulip[interaction34].linkNext = nullName;
+
                 //active assignment
                 f1->sinc.tulip[Ha].linkNext = vectorMomentum1;
                 f1->sinc.tulip[Iterator].linkNext = vectorMomentum1;
@@ -1283,7 +1284,7 @@ INT_TYPE iModel( struct calculation * c1){
                 
                 f1->sinc.tulip[kinetic1].linkNext = kineticMass1;
                 f1->sinc.tulip[kineticMass1].linkNext = proton1;
-                
+                f1->sinc.tulip[proton1].linkNext = nullName;
                 //active assignment
                 if ( c1->i.decomposeRankMatrix ){
                     f1->sinc.tulip[Ha].linkNext = shorten1Plus;

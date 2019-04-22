@@ -1974,7 +1974,7 @@ double xOneBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct fi
                 
                 //build
                 #ifdef OMP
-                #pragma omp parallel for private (i) schedule(dynamic,1)
+                #pragma omp parallel for private (i)
                 #endif
                 for ( i = 0 ; i < N1 ; i++)
                 {
@@ -2026,20 +2026,20 @@ double xTwoBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct fi
 
             //build
 #ifdef OMP
-#pragma omp parallel for private (si,i,i2) schedule(dynamic,1)
+#pragma omp parallel for private (si,i,i2)
 #endif
             for ( si = 0 ; si < N1*N1 ; si++)
             {
                 i = si% N1;
                 i2 = (si/N1)%N1;
 
-                myStreams(f2, bandBasis,rank )[i2*N1+i] =
+                myStreams(f2, bandBasis,rank )[si] =
                 BoB (grabBasis(f1, space, f1->sinc.rose[space].particle,l),grabBasis(f2, space, f2->sinc.rose[space].particle, i) )*
                 BoB (grabBasis(f1, space, f1->sinc.rose[space].particle,l2),grabBasis(f2, space, f2->sinc.rose[space].particle, i2) );
             }
             
             for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
-                cblas_daxpy(N1*N1, (streams(f1, vector1,s1,space)+r*L1)[L1*l2+l], myStreams(f2, bandBasis, rank), 1, streams(f2, out, s2,space)+r*N1*N1, 1);
+                cblas_daxpy(N1*N1, (streams(f1, vector1,s1,space)+r*L1*L1)[sl], myStreams(f2, bandBasis, rank), 1, streams(f2, out, s2,space)+r*N1*N1, 1);
             }
         }
     }
@@ -2072,7 +2072,7 @@ double xThreeBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct 
 
                 //build
 #ifdef OMP
-#pragma omp parallel for private (si,i,i2,i3) schedule(dynamic,1)
+#pragma omp parallel for private (si,i,i2,i3)
 #endif
                 for ( si = 0 ; si < N1*N1*N1 ; si++)
                 {
@@ -2080,7 +2080,7 @@ double xThreeBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct 
                     i2 = (si/N1)%N1;
                     i3 = (si/(N1*N1))%N1;
 
-                    myStreams(f2, bandBasis,rank )[i3*N1*N1+i2*N1+i] =
+                    myStreams(f2, bandBasis,rank )[si] =
                     BoB (grabBasis(f1, space, f1->sinc.rose[space].particle,l),grabBasis(f2, space, f2->sinc.rose[space].particle, i) )*
                     BoB (grabBasis(f1, space, f1->sinc.rose[space].particle,l2),grabBasis(f2, space, f2->sinc.rose[space].particle, i2) )*
                     BoB (grabBasis(f1, space, f1->sinc.rose[space].particle,l3),grabBasis(f2, space, f2->sinc.rose[space].particle, i3) );
@@ -2088,7 +2088,7 @@ double xThreeBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct 
                 }
                 
                 for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
-                    cblas_daxpy(N1*N1*N1, (streams(f1, vector1,s1,space)+r*L1)[L1*L1*l3+L1*l2+l], myStreams(f2, bandBasis, rank), 1, streams(f2, out, s2,space)+r*N1*N1*N1, 1);
+                    cblas_daxpy(N1*N1*N1, (streams(f1, vector1,s1,space)+r*L1*L1*L1)[sl], myStreams(f2, bandBasis, rank), 1, streams(f2, out, s2,space)+r*N1*N1*N1, 1);
                 }
             }
         }
@@ -2123,7 +2123,7 @@ double xFourBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct f
 
                 //build
 #ifdef OMP
-#pragma omp parallel for private (si,i,i2,i3,i4) schedule(dynamic,1)
+#pragma omp parallel for private (si,i,i2,i3,i4)
 #endif
                 for ( si = 0 ; si < N1*N1*N1*N1 ; si++)
                 {
@@ -2132,7 +2132,7 @@ double xFourBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct f
                     i3 = (si/(N1*N1))%N1;
                     i4 = (si/(N1*N1*N1))%N1;
 
-                    myStreams(f2, bandBasis,rank )[i4*N1*N1*N1+i3*N1*N1+i2*N1+i] =
+                    myStreams(f2, bandBasis,rank )[si] =
                     BoB (grabBasis(f1, space, f1->sinc.rose[space].particle,l),grabBasis(f2, space, f2->sinc.rose[space].particle, i) )*
                     BoB (grabBasis(f1, space, f1->sinc.rose[space].particle,l2),grabBasis(f2, space, f2->sinc.rose[space].particle, i2) )*
                     BoB (grabBasis(f1, space, f1->sinc.rose[space].particle,l3),grabBasis(f2, space, f2->sinc.rose[space].particle, i3) )*
@@ -2142,7 +2142,7 @@ double xFourBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct f
                 }
                 
                 for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
-                    cblas_daxpy(N1*N1*N1*N1, (streams(f1, vector1,s1,space)+r*L1)[L1*L1*L1*l4 + L1*L1*l3+L1*l2+l], myStreams(f2, bandBasis, rank), 1, streams(f2, out, s2,space)+r*N1*N1*N1*N1, 1);
+                    cblas_daxpy(N1*N1*N1*N1, (streams(f1, vector1,s1,space)+r*L1*L1*L1*L1)[sl], myStreams(f2, bandBasis, rank), 1, streams(f2, out, s2,space)+r*N1*N1*N1*N1, 1);
                 }
             }
         }
