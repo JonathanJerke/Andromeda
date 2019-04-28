@@ -21,12 +21,18 @@ add OMPFLAG in Makefile
 make 
 ************
 
-2 body examples inclosed
+ANDROMEDA 5 
 
-examples executed in lowest directory i.e. 2body/2
-cat ../scriptSolid | ../../andromeda
+Runtime is now divided into different jobs, jobs.c, that accomidate more user control.
+A structure of launch parameters are enclosed in the launch.tar file.
 
-OR
+Execute 
 
-cat ../scriptVacuum | ../../andromeda
+build scripts:
+In lowest directory inside launch.
 
+cat ../../found | olympics
+cat ../../Afound | olympics
+../../csh/run.csh 
+../../csh/run.csh 
+...
