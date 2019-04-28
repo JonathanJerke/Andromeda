@@ -136,117 +136,94 @@ INT_TYPE exec (struct calculation *c ){
         INT_TYPE xyz,cycle =0,iteration,iter=0,EV,type2;
         INT_TYPE space;
         enum division usz;
-        if ( c1->i.sectors && ! c1->i.densityFlag){
-            c1->i.heliumFlag = c->i.nTargets;
-            c1->i.nStates = c1->i.heliumFlag;
-            c1->i.Iterations = 1;
-            c1->rt.maxEntropy = 1;
-            iModel(c1);
-            
-            
-            if ( c1->rt.body == one  &&0  ){
-                tBoot1Construction(c1, build);
-                EV =   tCollect(f1,0,f1->sinc.user,c1->i.qFloor ,1);
-            }
-            else{
-                tBootManyConstruction(c1);
-                EV =   tCollect(f1,0,f1->sinc.user,c1->i.qFloor ,1);
-            }
-            cycleFlag = 1;
-        }else if (! c1->i.sectors && ! c1->i.densityFlag  ){
-            {
-                INT_TYPE lines = 0;
-                char ch ;
-                FILE * fp = fopen(c1->mem.fileList[0],"r");
-                if ( fp == NULL ) {
-                    printf("file?\n");
-                    exit(0);
-                }
-                while(!feof(fp))
-                {
-                    ch = fgetc(fp);
-                    if(ch == '\n')
-                    {
-                        lines++;
-                    }
-                }
-                fclose(fp);
-                c->i.nTargets = lines;
-            }
-            c1->i.iRank = c->i.bRank;
-            c1->i.qFloor = c->i.nTargets;
-            c1->i.heliumFlag = c->i.nTargets;
-            c1->i.nStates = c->i.nTargets;
-
-            iModel(c1);
-
-#ifndef APPLE
-            if ( tLoadEigenWeights ( c1, c1->mem.fileList[0], eigenVectors) != c1->i.qFloor ){
-                printf("set helium %d \n", c1->i.qFloor);
-                exit(0);
-            }
-            tFilter(&c1->i.c, c1->i.nStates, 0, eigenVectors);
-#endif
-            EV = xConstructFoundation (c1 , f1->sinc.user, c1->i.qFloor, c1,   eigenVectors,   c1->i.nStates ,1);
-
-        }else if ( c1->i.sectors && c1->i.densityFlag ){
-            {
-                c1->i.heliumFlag = c->i.nTargets;
-                c1->i.nStates = c1->i.heliumFlag;
-
-                size_t ms = MAXSTRING;
-                char input_line[MAXSTRING];
-                char * mask = input_line;
-                
-                INT_TYPE lines = 0;
-                char ch ;
-                FILE * fp = fopen(c1->mem.densityName,"r");
-                if ( fp == NULL ) {
-                    printf("file?\n");
-                    exit(0);
-                }
-
-                while(!feof(fp))
-                {
-                    ch = fgetc(fp);
-                    if(ch == '\n')
-                    {
-                        lines++;
-                    }
-                }
-                fclose(fp);
-                c1->i.densityFlag = lines;
-
-            }            
-            iModel(c1);
-
-            if ( c1->i.bodyDensity != f1->sinc.tulip[f1->sinc.density].space[0].body  ){
-                printf("body count!\n");
-                exit(0);
-                
-            }
-#ifndef APPLE
-            if ( c1->i.densityFlag )
-                printf("density Count %d\n",c1->i.densityFlag );
-            
-            if ( tLoadEigenWeights ( c1, c1->mem.densityName ,f1->sinc.density) != c1->i.densityFlag){
-                printf("set helium %d \n", c1->i.densityFlag);
-                exit(0);
-            }
-
-#endif
-            if ( c1->rt.body == one &&0 )
-                tBoot1Construction(c1, build);
-            else
-                tBootManyConstruction(c1);
-
-            EV =   tCollect(f1,0,f1->sinc.user,c1->i.qFloor ,1);
-            cycleFlag = 1;
-
-        }else {
-            printf("sectors?");
-            exit(0);
-        }
+//        if ( c1->i.sectors && ! c1->i.vectorOperatorFlag){
+//            c1->i.heliumFlag = c->i.nTargets;
+//            c1->i.nStates = c1->i.heliumFlag;
+//            c1->i.Iterations = 1;
+//            c1->rt.maxEntropy = 1;
+//            iModel(c1);
+//
+//
+//            if ( c1->rt.body == one  &&0  ){
+//                tBoot1Construction(c1, build);
+//                EV =   tCollect(f1,0,f1->sinc.user,c1->i.qFloor ,1);
+//            }
+//            else{
+//                tBootManyConstruction(c1);
+//                EV =   tCollect(f1,0,f1->sinc.user,c1->i.qFloor ,1);
+//            }
+//            cycleFlag = 1;
+//        }else if (! c1->i.sectors && ! c1->i.vectorOperatorFlag  ){
+//            {
+//                INT_TYPE lines = 0;
+//                char ch ;
+//                FILE * fp = fopen(c1->mem.fileList[0],"r");
+//                if ( fp == NULL ) {
+//                    printf("file?\n");
+//                    exit(0);
+//                }
+//                while(!feof(fp))
+//                {
+//                    ch = fgetc(fp);
+//                    if(ch == '\n')
+//                    {
+//                        lines++;
+//                    }
+//                }
+//                fclose(fp);
+//                c->i.nTargets = lines;
+//            }
+//            c1->i.iRank = c->i.bRank;
+//            c1->i.qFloor = c->i.nTargets;
+//            c1->i.heliumFlag = c->i.nTargets;
+//            c1->i.nStates = c->i.nTargets;
+//
+//            iModel(c1);
+//
+//#ifndef APPLE
+//            if ( tLoadEigenWeights ( c1, c1->mem.fileList[0], eigenVectors) != c1->i.qFloor ){
+//                printf("set helium %d \n", c1->i.qFloor);
+//                exit(0);
+//            }
+//            tFilter(&c1->i.c, c1->i.nStates, 0, eigenVectors);
+//#endif
+//            EV = xConstructFoundation (c1 , f1->sinc.user, c1->i.qFloor, c1,   eigenVectors,   c1->i.nStates ,1);
+//
+//        }else if ( c1->i.sectors && c1->i.vectorOperatorFlag ){
+//            {
+//                c1->i.heliumFlag = c->i.nTargets;
+//                c1->i.nStates = c1->i.heliumFlag;
+//                c1->i.vectorOperatorFlag = countLinesFromFile(c1, 1);
+//            }
+//            iModel(c1);
+//
+//            if ( c1->i.bodyVectorOperator != f1->sinc.tulip[f1->sinc.vectorOperator].space[0].body  ){
+//                printf("body count!\n");
+//                exit(0);
+//
+//            }
+//#ifndef APPLE
+//            if ( c1->i.vectorOperatorFlag )
+//                printf("vectorOperator Count %d\n",c1->i.vectorOperatorFlag );
+//
+//            if ( tLoadEigenWeights ( c1, c1->mem.operatorName ,f1->sinc.vectorOperator) != c1->i.vectorOperatorFlag){
+//                printf("set helium %d \n", c1->i.vectorOperatorFlag);
+//                exit(0);
+//            }
+//
+//#endif
+//            if ( c1->rt.body == one &&0 )
+//                tBoot1Construction(c1, build);
+//            else
+//                tBootManyConstruction(c1);
+//
+//            EV =   tCollect(f1,0,f1->sinc.user,c1->i.qFloor ,1);
+//            cycleFlag = 1;
+//
+//        }else {
+//            printf("sectors?");
+//            exit(0);
+//        }
         RdsSize = EV;
         c1->i.sectors = 0;
         for ( totalIter = 0,cycle = 0, iter = 1; cycle <= c->i.cycles ;totalIter++)
@@ -386,8 +363,8 @@ INT_TYPE exec (struct calculation *c ){
                             RdsSize = EV;
                         }
                         
-                        if ( c1->i.densityFlag )
-                            c2->i.densityFlag = c1->i.densityFlag;
+                        if ( c1->i.vectorOperatorFlag )
+                            c2->i.vectorOperatorFlag = c1->i.vectorOperatorFlag;
                         
                         iModel(c2);
 
@@ -405,20 +382,20 @@ INT_TYPE exec (struct calculation *c ){
                                 printExpectationValues(f1, Ha, eigenVectors+iii);
                             }
                         }
-                        if ( c1->i.densityFlag ){
-                            
-                            if ( c1->i.bodyDensity != f1->sinc.tulip[f1->sinc.density].space[0].body  ){
-                                printf("body count!\n");
-                                exit(0);
-                                
-                            }
-                            
-                            if ( tLoadEigenWeights ( c1, c1->mem.densityName ,f1->sinc.density) != c1->i.densityFlag){
-                                printf("set helium %d \n", c1->i.densityFlag);
-                                exit(0);
-                            }
-                            
-                        }
+//                        if ( c1->i.vectorOperatorFlag ){
+//                            
+//                            if ( c1->i.bodyVectorOperator != f1->sinc.tulip[f1->sinc.vectorOperator].space[0].body  ){
+//                                printf("body count!\n");
+//                                exit(0);
+//                                
+//                            }
+//                            
+//                            if ( tLoadEigenWeights ( c1, c1->mem.operatorName ,f1->sinc.vectorOperator) != c1->i.vectorOperatorFlag){
+//                                printf("set helium %d \n", c1->i.vectorOperatorFlag);
+//                                exit(0);
+//                            }
+//                            
+//                        }
                         
                         INT_TYPE sp;
 #ifdef OMP

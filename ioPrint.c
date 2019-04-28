@@ -92,24 +92,31 @@ INT_TYPE print(struct calculation *c , INT_TYPE lv,enum division eigenVectors){
 
 
 INT_TYPE ioStoreMatrix(struct field * f1, enum division op, INT_TYPE spin, char * filename, INT_TYPE ioIn ){
-    INT_TYPE matchFlag = 0;
+    INT_TYPE matchFlag = 0,space;
     //check if previous is acceptable...
     //0 genus
-    //3 NBody
     //2 ranks
     //4 length
     //7 second length
     // 5 d
     // 6 D
-    if ( access( filename, F_OK ) != -1 ){
-        if (  inputFormat(f1, filename, nullName, 0) == 2 )
-            if ( f1->sinc.tulip[op].space[0].body == inputFormat(f1, filename, nullName, 3))
-                if ( part(f1, op ) >= inputFormat(f1, filename, nullName, 2))
+    if ( ioIn == 1 &&  access( filename, F_OK ) != -1 ){
+        if (  inputFormat(f1, filename, nullName, 0) == 2 ){
+            for ( space = 0;space < SPACE ; space++)
+                if ( f1->sinc.tulip[op].space[space].body != inputFormat(f1, filename, nullName, 100+space/COMPONENT)){
+                   // printf("body");
+                    break;
+                }
+            if ( part(f1, op ) >= inputFormat(f1, filename, nullName, 2)){
                     if ( f1->sinc.rose[0].count1Basis == inputFormat(f1, filename, nullName, 4)){
                         if ( ioIn ==  1 ){
                             inputFormat(f1, filename, op, 1);
                             return 1;
                         }                }
+            }else {
+                //printf("ranks");
+            }
+        }
     } else {
         if ( ioIn == 0 ){
             //print out.
@@ -329,9 +336,9 @@ double inputFormat(struct field * f1,char * name,  enum division buffer, enum di
         fclose(in);
         return genus;
     }
-    if ( input == 3 ){
+    if ( input >= 100 ){
         fclose(in);
-        return Nbody[0];
+        return Nbody[input - 100];
     }
     
     if ( input == 2 ){
@@ -357,7 +364,6 @@ double inputFormat(struct field * f1,char * name,  enum division buffer, enum di
 
     f1->sinc.tulip[buffer].value.symmetry = sy;
     
-    printf("%d %d %d\n", M[0],M[1],M[2]);
     
 
     for ( r = 0; r < r1 ; r++){
@@ -1044,16 +1050,16 @@ INT_TYPE tFillBasis(Stream_Type ** pt/*3 vectors*/, double * coordinates/*3 numb
 
 INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum division inputVectors){
     INT_TYPE space,ct = 0,ct2,number,class,weight,cmpl;
-    FILE * in = fopen(filename, "r");
+    FILE * in = NULL;
+    in = fopen(filename, "r");
     struct field *f1 = &c1->i.c;
     if ( in == NULL ){
         printf("file of occupations is missing\n");
         exit(0);
     }
     DCOMPLEX ov;
-    size_t ms = MAXSTRING,read,si;
+    size_t ms = MAXSTRING;
     char input_line[MAXSTRING];
-    char str0[MAXSTRING];
     char * mask = input_line;
     DCOMPLEX Occ;
     char name[MAXSTRING];
@@ -1063,7 +1069,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                 Occ = 0.;
                 for ( cmpl = 0; cmpl < spins(&c1->i.c, inputVectors); cmpl++)
                 {
-                    Occ = tFromReadToFilename(c1->cycleName, input_line,  name, spins(f1,eigenVectors)-1,cmpl);
+                    Occ = tFromReadToFilename(NULL, input_line,  name, spins(f1,eigenVectors)-1,cmpl);
                     if ( cabs(Occ) > c1->rt.TARGET){
                         {
                             f1->sinc.tulip[inputVectors+ct].Current[cmpl] = 0;
@@ -1074,6 +1080,9 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                             for ( space = 0; space <= SPACE ; space++)
                                 c2.i.c.sinc.rose[space].stream = NULL;
                             c2.i.nStates= 0;
+                            c2.i.vectorOperatorFlag= 0;
+                            c2.i.springFlag= 0;
+
                             c2.i.heliumFlag = 0;
                             c2.i.nTargets = 0;
                             c2.i.qFloor = 0;
@@ -1107,7 +1116,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                             inputFormat(&c2.i.c, name, totalVector,1);
                             xEqua(f1,totalVector, 0, &c2.i.c, totalVector, 0);
                             if ( CanonicalRank(f1, totalVector, 0) > part(f1,inputVectors+ct )){
-                                tCycleDecompostionListOneMP(0, f1, totalVector, cmpl, NULL, inputVectors+ct, cmpl,f1->mem1->rt->TARGET, part(f1,inputVectors+ct), 1.);
+                                tCycleDecompostionListOneMP(-1, f1, totalVector, cmpl, NULL, inputVectors+ct, cmpl,f1->mem1->rt->TARGET, part(f1,inputVectors+ct), 1.);
                             }else {
                                 tEqua(f1, inputVectors+ct, cmpl, totalVector,cmpl);
                             }
@@ -1119,7 +1128,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                         
                     }
                 }
-                if (( ct > c1->i.densityFlag&& inputVectors == f1->sinc.density )|| ( ct > c1->i.nStates&& inputVectors == eigenVectors  )){
+                if (( ct > c1->i.vectorOperatorFlag&& inputVectors == f1->sinc.vectorOperator )|| ( ct > c1->i.nStates&& inputVectors == eigenVectors  )){
                     printf("maxed out buffer of states\n");
                     exit(0);
                 }
@@ -1127,16 +1136,28 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                     printf("fixme\n");
                     exit(1);
                 }
-               // tScale(&c1->i.c, inputVectors+ct, sqrt(fabs(Occ))/magnitude(&c1->i.c, inputVectors+ct));HERE
-                tScale(&c1->i.c, inputVectors+ct, creal(Occ)/magnitude(f1, inputVectors+ct));
+                if ( inputVectors >= c1->i.c.sinc.vectorOperator)
+                    tScale(&c1->i.c, inputVectors+ct, sqrt(fabs(creal(Occ)))/magnitude(&c1->i.c, inputVectors+ct));
+                else
+                    tScale(&c1->i.c, inputVectors+ct, creal(Occ)/magnitude(f1, inputVectors+ct));
                 matrixElements(0, &c1->i.c, inputVectors+ct, nullName, inputVectors+ct, NULL, &ov);
                 ov = magnitude(f1, inputVectors+ct);
-                printf("N %f\n",creal(ov));
-                if ( cabs(ov) > c1->rt.TARGET)
-                    ct++;
-                else
-                    printf("skipped\n");
+                
+                if ( inputVectors >= c1->i.c.sinc.vectorOperator){
+                    printf("Density %f\n",sqr(creal(ov)));
+                    if ( sqr(cabs(ov)) > c1->rt.TARGET)
+                        ct++;
+                    else
+                        printf("skipped\n");
 
+                }
+                else{
+                    printf("Norm %f\n",sqr(creal(ov)));
+                    if ( (cabs(ov)) > c1->rt.TARGET)
+                        ct++;
+                    else
+                        printf("skipped\n");
+                }
             }
         }else {
             break;

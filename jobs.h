@@ -33,6 +33,8 @@
 #include "ioPrint.h"
 #endif
 
+INT_TYPE loadDensity(struct calculation * c1 );
+
 INT_TYPE foundation (struct calculation *c1 );
 INT_TYPE krylov (struct calculation *c1 );
 INT_TYPE ritz (struct calculation *c1 );

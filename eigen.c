@@ -305,7 +305,7 @@ INT_TYPE tBootManyConstruction (struct calculation * c1){
                 tClear(f1, copy);
                 zero(f1,copy,0);
                 tClear(f1,copy);
-                tCycleDecompostionListOneMP(0, f1, linear, 0,NULL, copy, 0, f1->mem1->rt->CANON, c1->i.decomposeRankMatrix, -1);
+                tCycleDecompostionListOneMP(-1, f1, linear, 0,NULL, copy, 0, f1->mem1->rt->CANON, c1->i.decomposeRankMatrix, -1);
                 tAddTw(f1, copy ,0, kinetic,0);
                 tAddTw(f1,copy,0, vectorMomentum ,0);
                 tSumMatrices(f1, build,0, copy);// B x (1+S) * 3
@@ -319,7 +319,7 @@ INT_TYPE tBootManyConstruction (struct calculation * c1){
                     tSumMatrices(f1, build,0, copy);// B x (1+S) * 3
 
                     tClear(f1, copy);
-                    tCycleDecompostionListOneMP(0, f1, interactionExchangePlus, 0,NULL,copy, 0, f1->mem1->rt->CANON, 1 , -1);
+                    tCycleDecompostionListOneMP(-1, f1, interactionExchangePlus, 0,NULL,copy, 0, f1->mem1->rt->CANON, 1 , -1);
                     tSumMatrices(f1, build,0, copy);//B2:1 || B3 : 3
                 }
                 
@@ -327,7 +327,7 @@ INT_TYPE tBootManyConstruction (struct calculation * c1){
                 if ( bootBodies > one ){
                     if ( CanonicalRank(f1, interactionExchange, 0)){
                         tClear(f1,squareTwo);
-                        tCycleDecompostionListOneMP(0, f1, interactionExchange, 0,NULL,squareTwo, 0, f1->mem1->rt->CANON, 1 , -1);
+                        tCycleDecompostionListOneMP(-1, f1, interactionExchange, 0,NULL,squareTwo, 0, f1->mem1->rt->CANON, 1 , -1);
                         tSumMatrices(f1, build,0, squareTwo);//B2:1 || B3 : 3
                     }
                 }
@@ -975,7 +975,7 @@ INT_TYPE tGreatDivideIteration ( struct field * f1, enum division A , INT_TYPE I
 //                matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
 //                tScale(f1, usz+iii+expon*foundation, 1./sqrt(cabs(vhhv)));
 
-                tHXpX(rank, f1, A, 1, 0., -1, usz+iii+expon*foundation, f1->mem1->rt->TARGET , part(f1,usz+(expon)*foundation+iii));
+                tHXpX(rank, f1, A, 0, 1.0, 0.0, usz+iii+expon*foundation, f1->mem1->rt->TARGET , part(f1,usz+(expon)*foundation+iii));
                 
                 matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
 //                matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+(expon-1)*foundation, NULL, &vhv);
@@ -1001,7 +1001,7 @@ INT_TYPE tGreatDivideIteration ( struct field * f1, enum division A , INT_TYPE I
     return nMult; 
 }
 
-
+INT_TYPE tLesserDivideIteration ( struct field * f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
 
 INT_TYPE tEdges(struct calculation *c1, enum division vector){
     struct field * f1 = &c1->i.c;

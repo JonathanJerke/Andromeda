@@ -29,13 +29,10 @@ INT_TYPE foundation(struct calculation *c1){
     struct field * f1 = &c1->i.c;
 
     INT_TYPE EV;
-    c1->i.nTargets = 0;
-    c1->i.heliumFlag = c1->i.nTargets;
-    c1->i.nStates = c1->i.heliumFlag;
     iModel(c1);
 
-    if ( c1->rt.body == one  &&0 ){
-        tBoot1Construction(c1, build);
+    if ( c1->i.OCSBflag ){
+       tBoot1Construction(c1, build);
         EV =   tCollect(f1,c1->i.irrep,f1->sinc.user,c1->i.qFloor ,1);
         tFilter(&c1->i.c, c1->i.qFloor, !(!c1->i.filter )* c1->i.irrep, eigenVectors);
     }
@@ -52,7 +49,7 @@ INT_TYPE krylov ( struct calculation *c1){
     INT_TYPE EV = 0,i,fi;
 
 
-    c1->i.qFloor = countLinesFromFile(c1);
+    c1->i.qFloor = countLinesFromFile(c1,0);
     c1->i.iRank = c1->i.bRank;
 
     c1->i.nTargets = 1;
@@ -111,7 +108,7 @@ INT_TYPE ritz( struct calculation * c1 ){
     double va;
     INT_TYPE lines = 0,flines = 0;
 
-    c1->i.qFloor = countLinesFromFile(c1);
+    c1->i.qFloor = countLinesFromFile(c1,0);
 
     c1->i.iRank = c1->i.bRank;
     iModel(c1);
@@ -197,7 +194,7 @@ INT_TYPE decompose( struct calculation * c1 ){
 
     INT_TYPE g,r,cmpl,cmpl2,rr,EV=0,fi;
 
-    c1->i.qFloor = countLinesFromFile(c1);
+    c1->i.qFloor = countLinesFromFile(c1,0);
 
     c1->i.c.twoBody.func.fn = nullFunction;
     c1->i.c.oneBody.func.fn = nullFunction;
@@ -221,47 +218,12 @@ INT_TYPE decompose( struct calculation * c1 ){
             tClear(f1,totalVector);
             for( g = 0; g < c1->i.qFloor ; g++)
                 tAddTw(f1, totalVector, 0, f1->sinc.user+g, cmpl);
-            tCycleDecompostionListOneMP(0, f1, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1,eigenVectors), 1.);
+            tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1,eigenVectors), 1.);
         }
     tFilter(f1, c1->i.nStates, !(!c1->i.filter )* c1->i.irrep, eigenVectors);
 
     return 0;
 }
-
-//INT_TYPE projectOne(struct calculation * c1 ){
-//    struct field * f1 = &c1->i.c;
-//
-//    c1->i.heliumFlag = c->i.nTargets;
-//    c1->i.nStates = c1->i.heliumFlag;
-//    
-//    c1->i.densityFlag = countLinesFromFile(c1);
-//    
-//    iModel(c1);
-//        
-//        if ( c1->i.bodyDensity != f1->sinc.tulip[f1->sinc.density].space[0].body  ){
-//            printf("body count!\n");
-//            exit(0);
-//            
-//        }
-//#ifndef APPLE
-//        if ( c1->i.densityFlag )
-//            printf("density Count %d\n",c1->i.densityFlag );
-//        
-//        if ( tLoadEigenWeights ( c1, c1->mem.densityName ,f1->sinc.density) != c1->i.densityFlag){
-//            printf("set helium %d \n", c1->i.densityFlag);
-//            exit(0);
-//        }
-//        
-//#endif
-//        if ( c1->rt.body == one &&0 )
-//            tBoot1Construction(c1, build);
-//        else
-//            tBootManyConstruction(c1);
-//        
-//        EV =   tCollect(f1,0,f1->sinc.user,c1->i.qFloor ,1);
-//        cycleFlag = 1;
-//        }
-
 
 
 
@@ -313,29 +275,54 @@ int main (INT_TYPE argc , char * argv[]){
     printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t| Attack :  %1.3f\t\t\t\t\n",2* c.i.epi + 1,c.i.d,c.i.attack);
     
     if ( SPACE > 3 )
-        printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t| Attack :  %1.3f\t\t\t\t\n",2* c.i.around + 1,c.i.D,   1.0 );
+        printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t| Attack :  %1.3f\t\t\t\t\n",2* c.i.around + 1,c.i.D,   1.0 );    
+    
+    //0//...   //A//B//C//D//E
+    if ( c.rt.phaseType == buildFoundation ){//0
+        c.i.nTargets = 0;
+        c.i.heliumFlag = c.i.nTargets;
+        c.i.nStates = c.i.heliumFlag;
 
-    
-    
-    
-    if ( c.rt.phaseType == buildFoundation ){
         foundation(&c);
         print(&c,c.i.qFloor, f1->sinc.user);
     }
-    else if ( c.rt.phaseType == productKrylov ){
+    else if ( c.rt.phaseType == productKrylov ){//C
         krylov(&c);
-        
         print(&c,c.i.Iterations,f1->sinc.user);
     }
-    else if ( c.rt.phaseType == solveRitz ){
+    else if ( c.rt.phaseType == solveRitz ){//A
         ritz(&c);
+    }
+    else if ( c.rt.phaseType == decomposeTensor ){//B
+        decompose(&c);
+        print(&c,c.i.nStates, eigenVectors);
+    }else if ( c.rt.phaseType == frameDensity ){//D
+        if ( ! c.i.vectorOperatorFlag){
+            printf("vectorOperator flag\n");
+            exit(1);
+        }
+        foundation(&c);
+        tEigenCycle(&c.i.c,Ha,'T', c.i.nStates, c.i.c.sinc.user,c.i.qFloor,0, c.i.qFloor,0,0,eigenVectors,twoBodyRitz);
+       
+        INT_TYPE i,j=0;
+        for ( i = 0 ; i < c.i.nStates ; i++ ){
+            if ( -myStreams(f1, twoBodyRitz, 0)[i] > c.rt.TARGET ){
+                printf("load %f\n", -myStreams(f1, twoBodyRitz, 0)[i]);
+                j++;
+            }
+        }
+        tEigenCycle(&c.i.c,Ha,'T', j, c.i.c.sinc.user,c.i.qFloor,0, c.i.qFloor,0,4,eigenVectors,twoBodyRitz);
+
+        mySeparateEwaldCoulomb1(&c.i.c,j,eigenVectors, c.i.decomposeRankMatrix, interactionEwald, shortenEwald, 1./c.rt.body, 0, 1, electron);
+        if ( c.i.decomposeRankMatrix )
+            ioStoreMatrix(&c.i.c, shortenEwald, 0, "EwaldCoulomb.matrix", 0);
+        else
+            ioStoreMatrix(&c.i.c, interactionEwald, 0, "EwaldCoulomb.matrix", 0);
 
     }
-    else if ( c.rt.phaseType == decomposeTensor ){
-        decompose(&c);
-        
-        print(&c,c.i.nStates, eigenVectors);
-    }
+
+
+
     fModel(&c);
 
 }

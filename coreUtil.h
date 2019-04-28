@@ -88,7 +88,7 @@ INT_TYPE assignCores(struct field * f1, INT_TYPE parallel );
 INT_TYPE Rank( struct field * f1 , enum division label );
 double volume ( struct field * f1 );
 INT_TYPE xAddTw( struct field* f1 , enum division left, INT_TYPE lspin,struct field* f2 ,  enum division right , INT_TYPE rspin);
-void xAdd ( INT_TYPE dim ,struct field * f1 , enum division targ ,INT_TYPE tspin,struct field * f2 , enum division orig,INT_TYPE o,INT_TYPE ospin );
+void xsAdd (double scalar ,  INT_TYPE dim ,struct field * f1 , enum division targ ,INT_TYPE tspin,struct field * f2 , enum division orig,INT_TYPE o,INT_TYPE ospin );
 double xEqua ( struct field * f1 , enum division targ ,INT_TYPE tspin,struct field * f2 , enum division orig,INT_TYPE ospin );
 double xTwoBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
 double xThreeBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
@@ -96,5 +96,5 @@ double xFourBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct f
 double xOneBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
 void printVectorAllocations(struct field *f1);
 struct basisElement grabBasis (struct field * f1, INT_TYPE component, INT_TYPE particle, INT_TYPE elementIndex);
-INT_TYPE  countLinesFromFile(struct calculation *c1);
+INT_TYPE  countLinesFromFile(struct calculation *c1, INT_TYPE location);
 #endif /* coreUtil_h */

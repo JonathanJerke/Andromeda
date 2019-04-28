@@ -555,7 +555,11 @@ void  fromBeginning( struct field * f1 ,enum division new, enum division head ){
 
 Stream_Type*  myStreams ( struct field * f1, enum division label ,INT_TYPE spin){
     INT_TYPE space = SPACE;//buffer-space
-    
+    if ( spin < 0 || spin >= spins(f1, label)){
+        printf("my spins %d\n",label);
+        exit(5);
+    }
+
     INT_TYPE leng = alloc(f1, name(f1,label),space);
     INT_TYPE partit = part(f1, name(f1,label));
     if (f1->sinc.tulip[name(f1,label)].space[SPACE].Address == -1  ){
@@ -642,7 +646,7 @@ enum division ocean(INT_TYPE lane, struct field * f1, INT_TYPE l, INT_TYPE spin)
     return lanes+ lane;
 }
 
-void xAdd ( INT_TYPE dim ,struct field * f1 , enum division targ ,INT_TYPE tspin,struct field * f2 , enum division orig,INT_TYPE o,INT_TYPE ospin ){
+void xsAdd ( double scalar , INT_TYPE dim ,struct field * f1 , enum division targ ,INT_TYPE tspin,struct field * f2 , enum division orig,INT_TYPE o,INT_TYPE ospin ){
     INT_TYPE M2[SPACE];
     length(f2, orig, M2);
     INT_TYPE N2[SPACE];
@@ -650,7 +654,9 @@ void xAdd ( INT_TYPE dim ,struct field * f1 , enum division targ ,INT_TYPE tspin
     INT_TYPE flag = (N2[dim] == M2[dim]),space=dim;
 
     if ( flag && f2->sinc.tulip[orig].memory == objectAllocation && f1->sinc.tulip[targ].memory == objectAllocation){
-                cblas_dcopy(M2[space], streams(f2,orig,ospin,space)+M2[space]*o,1,streams(f1,targ,tspin,space)+CanonicalRank(f1, targ, tspin)*N2[space],1);
+        cblas_dcopy(M2[space], streams(f2,orig,ospin,space)+M2[space]*o,1,streams(f1,targ,tspin,space)+CanonicalRank(f1, targ, tspin)*N2[space],1);
+        if ( scalar != 1. )
+            cblas_dscal(M2[space], scalar, streams(f1,targ,tspin,space)+CanonicalRank(f1, targ, tspin)*N2[space],1);
     }
     else {
         printf("add\n");
@@ -673,11 +679,11 @@ double xEqua ( struct field * f1 , enum division targ ,INT_TYPE tspin,struct fie
         
         if ( name(f1,targ) == targ  ) {
             
-            if ( (part(f1,targ) < eb) || species(f1, targ) != species(f2, orig))
+            if ( (part(f1,targ) < eb) )
                 
             {
                 printf("tEqual.. memory %d %d %d %d\n", targ,part(f1,targ), orig,part(f1,orig) );
-
+                printf("partition %d\n", eb);
                 exit(0);
             }
             
@@ -1568,30 +1574,48 @@ double levelDetermine ( INT_TYPE M1 , double * array , double level){
     return temp[i-1];
 }
 
-INT_TYPE  countLinesFromFile(struct calculation *c1){
+INT_TYPE  countLinesFromFile(struct calculation *c1, INT_TYPE location){
     INT_TYPE fi,lines = 0;
     size_t ms = MAXSTRING;
     char line0[MAXSTRING];
-    char filename[MAXSTRING];    char str[MAXSTRING];
+    char name[MAXSTRING];
+    char filename[MAXSTRING];  
     char *line = line0;
+    INT_TYPE FIT ;
+    if ( location == 0 )
+        FIT = c1->mem.files ;
+    else if ( location == 1 )
+        FIT = c1->mem.filesVectorOperator ;
+    else
+        exit(1);
     
-    for ( fi =0 ; fi < c1->mem.files ; fi++){
-        FILE * fp = fopen(c1->mem.fileList[fi],"r");
-        if ( fp == NULL ) {
-            printf("file?\n");
-            exit(0);
-        }
-        getline(&line, &ms, fp);
-        while(!feof(fp))
-        {
-            if (! comment(line))
-            {
-                lines++;
+        for ( fi =0 ; fi < FIT; fi++){
+            if ( location == 0 )
+                strcpy(name,c1->mem.fileList[fi] );
+            else if ( location == 1)
+                strcpy(name,c1->mem.fileVectorOperator[fi] );
+            else
+                exit(0);
+            FILE * fp = fopen(name,"r");
+            if ( fp == NULL ) {
+                printf("file?\n");
+                exit(0);
             }
             getline(&line, &ms, fp);
-        }
-        
-        fclose(fp);
+            while(!feof(fp))
+            {
+                if (! comment(line))
+                {
+                    lines++;
+                }
+                getline(&line, &ms, fp);
+            }
+            if ( fi > MAXSTRING)
+            {
+                printf("too many files, increase MAXSTRING\n");
+                exit(0);
+            }
+            fclose(fp);
     }
     return lines;
 }

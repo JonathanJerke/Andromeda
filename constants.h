@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-//VERSION 5
+//VERSION 5.7
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -147,7 +147,9 @@ enum phaseType{
     productKrylov,//1
     solveRitz,//2
     decomposeTensor,//3
-    bandStage//4
+    bandStage,//4
+    frameDensity, //5
+    svdOperation //6
 };
 
 enum calculationType{
@@ -155,7 +157,7 @@ enum calculationType{
     electronicStuctureCalculation,
     clampProtonElectronCalculation,
     protonsElectronsCalculation,
-    svdCalculation
+    svdCalculation,
 };
 
 enum block{
@@ -294,8 +296,6 @@ struct canon {
 
 
 
-
-
 enum division{
     nullName,
     kineticMass,
@@ -323,6 +323,16 @@ enum division{
     interaction2Minus,
     interaction3Minus,
     interaction4Minus,
+    interactionEwald,
+    interaction1Ewald,
+    interaction2Ewald,
+    interaction3Ewald,
+    interaction4Ewald,
+    shortenEwald,
+    shorten1Ewald,
+    shorten2Ewald,
+    shorten3Ewald,
+    shorten4Ewald,
     shortenPlus,
     shorten1Plus,
     shorten2Plus,
@@ -525,8 +535,14 @@ enum division{
     canonicalmeVector,
     canonicalme2Vector,
     canonicalme3Vector,
-    complement,
-    complementTwo,
+    complement,//null
+    complement1,
+    complement2,
+    complement3,
+    complementTwo,//null
+    complementTwo1,
+    complementTwo2,
+    complementTwo3,
     eigenList,
     canonicalBuffersB2,
     oneVector,
@@ -596,7 +612,7 @@ struct sinc_label {
     struct canon rose[SPACE+1];
     struct name_label *tulip;//vectors
     enum division user;
-    enum division density;
+    enum division vectorOperator;
     enum division end;
 
 };
@@ -691,8 +707,9 @@ struct MEM {
     INT_TYPE bootedMemory;
     INT_TYPE files ;
     char fileList [MAXSTRING][MAXSTRING];
-    char constraintFile [MAXSTRING];
-    char densityName[MAXSTRING];
+    
+    INT_TYPE filesVectorOperator ;
+    char fileVectorOperator [MAXSTRING][MAXSTRING];
     struct runTime * rt;
 };
 
@@ -730,12 +747,12 @@ struct input {
     INT_TYPE side;
     
 //    INT_TYPE hartreeFockFlag;
-    INT_TYPE densityFlag;
-    enum bodyType bodyDensity;
+    INT_TYPE vectorOperatorFlag;
     INT_TYPE M1;
     double vectorMomentum;
     double springConstant;
     INT_TYPE springFlag;
+    INT_TYPE OCSBflag;
     INT_TYPE potentialFlag;
     INT_TYPE RAMmax ;
     INT_TYPE decomposeRankMatrix;
@@ -764,7 +781,6 @@ struct input {
 
 struct calculation {
 	char name[MAXSTRING];
-    char cycleName[MAXSTRING];
 	struct input i;
     struct runTime rt;
     struct MEM mem;

@@ -31,14 +31,22 @@
 #define system_h
 
 #define COMPONENT 3
+
+
+//for normal operations
 #define PARTICLE 1
+
+//for clamped proton field
+//#define PARTICLE 2
+
+
 #define SPACE (COMPONENT * PARTICLE)
 //matrix element calculator interface
 #define sincFlag 1
 #define MAXATOM 4
 //#define APPLE
-//#define OMP
-//#define MKL
+#define OMP
+#define MKL
 #define GSL_LIB
 
 #ifdef APPLE
@@ -47,7 +55,7 @@
 
 #ifndef APPLE
 
-#define MaxCore 24
+#define MaxCore 72
 
 
 #ifndef GSL_LIB

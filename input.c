@@ -117,7 +117,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
     INT_TYPE i,d,ivalue;
     char test_line [MAXSTRING];
     double value;
-    INT_TYPE NINT_TYPE = 113;
+    INT_TYPE NINT_TYPE = 114;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -141,7 +141,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "hartreeFock","basisStage","iterations","group","states",//100
         "length","side","lookBack","step","theory",
         "configuration","densityRank","densityBody","parallel","phase",
-        "around","cmpl","stageClamp"
+        "around","cmpl","stageClamp","OCSB"
     };
     INT_TYPE NDOUBLE = 68;
     char *list_DOUBLE []= {"#",
@@ -150,11 +150,11 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "XX", "scfTolerance","boundTolerance","cycleTolerance","oExternal",//11-15
         "LOST","LOST", "XXz" ,"LOST4", "aWeylet" ,//16-20
         "bWeylet","levelShift","tolerance","threshold","target",//21-25
-        "convergence","external","vectorThreshold","buildThreshold","maxPi",//26
-        "EMPTY","EMPTY", "vectorConvergence","powState", "powVacuum",
-        "mass1", "mass2","Charge1", "Charge2","Charge3",
-        "beta","EMPTY10","ceilValue","floorValue","electronGasDensity",
-        "shift","kineticShift","crystal","jelliumRadius","spring",
+        "convergence","external","vectorThreshold","buildThreshold","maxPi",//26-30
+        "EMPTY","EMPTY", "vectorConvergence","powState", "powVacuum",//35
+        "mass1", "mass2","Charge1", "Charge2","Charge3",//40
+        "beta","EMPTY10","ceilValue","floorValue","electronGasDensity",//45
+        "shift","kineticShift","crystal","jelliumRadius","spring",//50
         "REMOVEREMOVE", "maxDomain", "parcel","minDomain","param",
         "entropy","attack","scalar","turn","augment",
         "linearDependence","condition","seek","width","latticeB",
@@ -717,8 +717,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     c->i.dRank = ivalue;
                     return i;
                 case 108:
-                    c->i.bodyDensity = ivalue;
-                    return i;
+                    return 0;
                 case 109:
 #ifdef MKL
                     c->i.mkl = ivalue;
@@ -743,6 +742,10 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                 case 113:
                     c->i.D *= pow( (2.* c->i.around + 1.) /(2.*c->i.around + 2*ivalue + 1),1.);
                     c->i.around  += ivalue;
+                    return i;
+                    
+                case 114:
+                    c->i.OCSBflag = ivalue;
                     return i;
             }
         
@@ -1232,7 +1235,7 @@ INT_TYPE intervalGeometry(struct calculation * c, const char * input_line ){
 
 INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
     INT_TYPE io;
-    INT_TYPE Nio = 38;
+    INT_TYPE Nio = 30;
     char test_line [MAXSTRING];
     char *list_IO[] = {"#",
         "densityIn","hartreeIn", "densityOut" ,//3
@@ -1244,10 +1247,7 @@ INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
         "pGold","pTime","nameDensityOut",//21
         "nameHartreeOut","Eigen" ,"set",//24
         "component","byHand","Spec",//27
-        "momentum","offSet","LOST100",//30
-        "radial","vector","print", //33
-        "cycle","operator","constraints",//36
-        "file","svd"
+        "vector","operator","print" //30
     };
     char filename[MAXSTRING];
     FILE * mid;
@@ -1454,74 +1454,28 @@ INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
                 closedir(dr);
                 return 0;
             }
+                
             case 28:
             {
-                return 0;
-                
+                sprintf(c->mem.fileList[c->mem.files++],"%s.vector", filename);
+                if ( (c->rt.printFlag/2 ) % 2 == 0 )
+                    c->rt.printFlag += 2;//vector
+
+                return io;
             }
             case 29:
             {
-                {
-                    return io;
-                }
-            }case 30:
-                return io;
-
-            case 31:
-            {
-                sprintf(c->mem.fileList[c->mem.files++],"%s", filename);
-                if ( (c->rt.printFlag/1 ) % 2 == 0 )
-                    c->rt.printFlag += 1;//radial
+                sprintf(c->mem.fileVectorOperator[c->mem.filesVectorOperator++],"%s.vector", filename);
+                if ( c->i.vectorOperatorFlag % 2 == 0 )
+                    c->i.vectorOperatorFlag += 1;//vectorOperator
                 return io;
             }
-                
-            case 32:
-            {
-                sprintf(c->mem.fileList[c->mem.files++],"%s", filename);
-                if ( (c->rt.printFlag/2 ) % 2 == 0 )
-                    c->rt.printFlag += 2;//vector
-                return io;
-            }
-            case 33:
+            case 30:
             {
                 c->i.outputFlag = 1;
                 return io;
-
             }
-            case 34:
-            {
-                sprintf(c->mem.fileList[c->mem.files++],"%s", filename);
-                c->i.sectors = 0;
-                return io;
-            }
-            case 35:
-            {
-                if ( (c->rt.printFlag/4 ) % 2 == 0 )
-                    c->rt.printFlag += 4;
-                //possibility to convert input from string.
-                return io;
-            }
-            case 36:
-            {
-                if ( (c->rt.printFlag/8 ) % 2 == 0 )
-                    c->rt.printFlag += 8;
-                sprintf(c->mem.constraintFile,"%s", filename);
-                return io;
-            }
-            case 37:
-            {
-                sprintf(c->cycleName,"%s", filename);
-                return io;
-            }
-            case 38:
-            {
-                sprintf(c->mem.densityName,"%s", filename);//normal input space will define output body count...//program will read body count of this vector directly
-                if ( c->i.densityFlag % 2 == 0 )
-                    c->i.densityFlag += 1;
-                return io;
-            }
-
-            }
+        }
         }
     }
     return 0;
@@ -1660,14 +1614,15 @@ INT_TYPE initCalculation(struct calculation * c ){
     c->i.RAMmax = 0;//Gb  needs updating
     c->rt.printFlag = 0;
     c->i.potentialFlag = 0;
-    c->i.densityFlag = 0;
+    c->i.vectorOperatorFlag = 0;
     c->i.springFlag = 0;
     c->i.outputFlag = 0;
     c->i.magFlag = 0;
     c->i.M1 = 0;
     c->i.c.Na = 0;
     c->mem.files = 0;
-
+    c->mem.filesVectorOperator  = 0;
+    c->i.OCSBflag = 0;
 //    for ( g = 0; g < nSAG*nSAG*nSAG ; g++)
 //        c->i.cSA[g] = 0;
 #ifdef PARAMETER_PATH
@@ -1710,7 +1665,7 @@ INT_TYPE finalizeInit(struct calculation * c ){
 
         exit(9);
     }
-
+    c->i.vectorOperatorFlag  =  countLinesFromFile(c,1);
     return 0;
 }
 

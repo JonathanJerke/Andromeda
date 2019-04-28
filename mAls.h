@@ -39,6 +39,7 @@ void matrixElements ( INT_TYPE rank,struct field * f1 , enum division bra, enum 
 double canonicalMultiplyMP( INT_TYPE rank,struct field * f1 , INT_TYPE begin, INT_TYPE end,char mc,enum division mat,INT_TYPE ms, enum division vec, INT_TYPE vs,   enum division alloy ,  INT_TYPE spin ,double tolerance);
 INT_TYPE normalize (struct field * f1,  enum division alloy, INT_TYPE spin, INT_TYPE space);
 INT_TYPE spread (struct field * f1, enum division origin, INT_TYPE os, enum division alloy, INT_TYPE spin, INT_TYPE space, Stream_Type * output,Stream_Type * output2);
+INT_TYPE pSpread (struct field * f1, enum division origin, INT_TYPE os, enum division alloy, INT_TYPE spin, INT_TYPE space, Stream_Type * output,Stream_Type * output2);
 INT_TYPE balance (struct field * f1,  enum division alloy, INT_TYPE spin);
 double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Type * cofact, enum division origin,INT_TYPE os,   enum division alloy ,  INT_TYPE spin ,double tolerance,double magn,INT_TYPE preferred);
 double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  );

@@ -52,6 +52,7 @@ INT_TYPE tFoundationLevel( struct field * f1, enum division A , double lvlm,doub
 INT_TYPE tOCSB (struct calculation * c1 , enum division usz);
 INT_TYPE tSquareVectors(struct calculation * c1, INT_TYPE EV2, enum division usz,enum division usr );
 INT_TYPE tGreatDivideIteration ( struct field * f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
+INT_TYPE tLesserDivideIteration ( struct field * f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
 INT_TYPE tMinorDivideIteration ( struct field * f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, double shift);
 
 INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE iterations,INT_TYPE foundation, INT_TYPE type,INT_TYPE flag,  enum division outputSpace, enum division outputValues);
