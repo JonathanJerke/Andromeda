@@ -43,3 +43,20 @@ ANDROMEDA final	RELEASED December 2nd 2018
 
 	THE next program will be much better with more electrons!
 Finis.
+
+
+ANDROMEDA 5 
+
+Runtime is now divided into different jobs, jobs.c, that accomidate more user control.
+A structure of launch parameters are enclosed in the launch.tar file.
+
+Execute 
+
+build scripts:
+In lowest directory inside launch.
+
+cat ../../found | olympics
+cat ../../Afound | olympics
+../../csh/run.csh 
+../../csh/run.csh 
+...
