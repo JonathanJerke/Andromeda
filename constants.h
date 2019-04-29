@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-//VERSION 5.7
+//VERSION 5.8
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -715,6 +715,8 @@ struct MEM {
 
 
 struct input {
+    INT_TYPE shiftFlag ;
+    double realPart ;
     double minClamp;
     double maxClamp;
     double orgClamp;

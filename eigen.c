@@ -946,7 +946,7 @@ INT_TYPE tSquareVectors(struct calculation * c1, INT_TYPE EV2, enum division usz
 }
 
 
-INT_TYPE tGreatDivideIteration ( struct field * f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift){
+INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct field * f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift){
     INT_TYPE expon,info;
     INT_TYPE rank ;
     //time_t start_t, lapse_t;
@@ -975,7 +975,7 @@ INT_TYPE tGreatDivideIteration ( struct field * f1, enum division A , INT_TYPE I
 //                matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
 //                tScale(f1, usz+iii+expon*foundation, 1./sqrt(cabs(vhhv)));
 
-                tHXpX(rank, f1, A, 0, 1.0, 0.0, usz+iii+expon*foundation, f1->mem1->rt->TARGET , part(f1,usz+(expon)*foundation+iii));
+                tHXpX(rank, f1, A, translateFlag, realPart, 0.0, usz+iii+expon*foundation, f1->mem1->rt->TARGET , part(f1,usz+(expon)*foundation+iii));
                 
                 matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
 //                matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+(expon-1)*foundation, NULL, &vhv);

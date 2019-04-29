@@ -478,10 +478,12 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum div
         value2 = (inner(imax(0,rank),f1, origin,os));
     else
         value2 = tInnerListMP(imax(0,rank), f1, origin, coeff);
-    if ( value2 < f1->mem1->rt->TARGET ){
-        f1->sinc.tulip[alloy].Current[spin]=0;
+    if (! CanonicalRank(f1, origin, os ) )
         return 0;
-    }
+//    if ( value2 < f1->mem1->rt->TARGET ){
+//        f1->sinc.tulip[alloy].Current[spin]=0;
+//        return 0;
+//    }
     do{
         ct = canonicalListDecompositionMP(rank, f1, coeff, origin, os,alloy, spin, toleranceAdjust*tolerance,value2,-1);
     

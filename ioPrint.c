@@ -152,7 +152,7 @@ void outputFormat(struct field  * f1, FILE * out, enum division output ,INT_TYPE
     for ( p1 = 0 ; p1 < parts;p1++){
         if ( species(f1, output)  == vector )
             fprintf(out,"%cbody = %d\n", 'A'+p1,f1->sinc.rose[COMPONENT * p1].body);
-        else if ( species(f1, output)  == matrix )
+        else if ( species(f1, output)  == matrix || species(f1,output) == outerVector )
             fprintf(out,"%cbody = %d\n", 'A'+p1,f1->sinc.tulip[output].space[COMPONENT * p1].body);
 
             

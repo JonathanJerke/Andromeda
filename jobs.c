@@ -78,7 +78,7 @@ INT_TYPE krylov ( struct calculation *c1){
 
     
     for ( iterator = 1 ; iterator < c1->i.Iterations ; iterator++){
-        RdsSize += tGreatDivideIteration(f1,Iterator, 1,0,f1->sinc.user+RdsSize-EV,EV,2*EV,0)-EV;
+        RdsSize += tGreatDivideIteration(c1->i.shiftFlag, c1->i.realPart,  f1,Iterator, 1,0,f1->sinc.user+RdsSize-EV,EV,2*EV,0)-EV;
         if(1){
             tFilter(f1, EV, !(!c1->i.filter )* c1->i.irrep, f1->sinc.user+RdsSize-EV);//HERE
             printf ("Step \t%d\n", iterator);
@@ -116,11 +116,26 @@ INT_TYPE ritz( struct calculation * c1 ){
     if ( CanonicalRank(f1,interactionExchange,0) )
         ioStoreMatrix(f1,interactionExchange ,0,"interactionExchange.matrix",0);
     
-    if ( CanonicalRank(f1,interactionExchangePlus,0) )
-        ioStoreMatrix(f1,interactionExchangePlus ,0,"interactionExchangePlus.matrix",0);
-    
-    if ( CanonicalRank(f1,interactionExchangeMinus,0) )
-        ioStoreMatrix(f1,interactionExchangeMinus ,0,"interactionExchangeMinus.matrix",0);
+    if ( c1->i.decomposeRankMatrix ){
+        
+        if ( CanonicalRank(f1,shortenPlus,0) )
+            ioStoreMatrix(f1,shortenPlus ,0,"interactionExchangePlus.matrix",0);
+        
+        if ( CanonicalRank(f1,shortenMinus,0) )
+            ioStoreMatrix(f1,shortenMinus ,0,"shortenExchangeMinus.matrix",0);
+
+        
+    }else {
+        if ( CanonicalRank(f1,interactionExchangePlus,0) )
+            ioStoreMatrix(f1,interactionExchangePlus ,0,"interactionExchangePlus.matrix",0);
+        
+        if ( CanonicalRank(f1,interactionExchangeMinus,0) )
+            ioStoreMatrix(f1,interactionExchangeMinus ,0,"shortenExchangeMinus.matrix",0);
+    }
+    if ( PARTICLE == 2) {
+        if ( CanonicalRank(f1,protonRepulsion,0) )
+            ioStoreMatrix(f1,protonRepulsion ,0,"protonRepulsion.matrix",0);
+    }
     
     if ( CanonicalRank(f1,linear,0) )
         ioStoreMatrix(f1,linear ,0,"linear.matrix",0);

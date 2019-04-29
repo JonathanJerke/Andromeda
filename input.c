@@ -154,10 +154,10 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "EMPTY","EMPTY", "vectorConvergence","powState", "powVacuum",//35
         "mass1", "mass2","Charge1", "Charge2","Charge3",//40
         "beta","EMPTY10","ceilValue","floorValue","electronGasDensity",//45
-        "shift","kineticShift","crystal","jelliumRadius","spring",//50
+        "shift","EMPTIER","crystal","jelliumRadius","spring",//50
         "REMOVEREMOVE", "maxDomain", "parcel","minDomain","param",
         "entropy","attack","scalar","turn","augment",
-        "linearDependence","condition","seek","width","latticeB",
+        "linearDependence","condition","seek","width","latte",
         "magnetismZ","minClamp","maxClamp"
         
     };
@@ -926,7 +926,8 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     //4pi/3 Rs^3 = pow(d * N1 ,3.0)/f1->Ne
                     return d;
                 case 46 :
-                 //   c->i.shift = value;
+                    c->i.shiftFlag = 1;
+                    c->i.realPart = value;
                     return d;
                 case 47 :
                  //   c->i.shift = value * pi * pi / c->i.d / c->i.d ;
@@ -1610,6 +1611,7 @@ INT_TYPE readInput(struct calculation *c , FILE * in){
 
 INT_TYPE initCalculation(struct calculation * c ){
     INT_TYPE g;
+    c->i.shiftFlag = 0;
     c->i.complexType = 1;//real =1 , cmpl = 2
     c->i.RAMmax = 0;//Gb  needs updating
     c->rt.printFlag = 0;

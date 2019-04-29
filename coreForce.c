@@ -4333,10 +4333,16 @@ void mySeparateExactOneByOne (struct field * f1, INT_TYPE part1, enum division i
     if ( plus == 1 ){
         if ( ioStoreMatrix(f1,interactionExchangePlus ,0,"interactionExchangePlus.matrix",1) )
             return;
+        if ( ioStoreMatrix(f1,shortenPlus ,0,"shortenExchangePlus.matrix",1) )
+            return;
+
     }
     if ( plus == -1 ){
         if ( ioStoreMatrix(f1,interactionExchangePlus ,0,"interactionExchangeMinus.matrix",1) )
             return;
+        if ( ioStoreMatrix(f1,shortenMinus ,0,"shortenExchangeMinus.matrix",1) )
+            return;
+
     }
     if(0){
         INT_TYPE comp[COMPONENT+1],c,space,flagc=1,dim=0;
@@ -4578,10 +4584,13 @@ INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYP
     
     if ( f1->oneBody.func.fn == nullFunction)
         return 0;
-    
-    if ( ioStoreMatrix(f1,linear ,0,"linear.matrix",1) )
-        return 1;
-
+    if ( PARTICLE == 1 ){
+        if ( ioStoreMatrix(f1,linear ,0,"linear.matrix",1) )
+            return 1;
+    }
+        else
+            if ( ioStoreMatrix(f1,linear ,0,"protonRepulsion.matrix",1) )
+                return 1;
     
     INT_TYPE flagPow;
     long double cpow ;
@@ -5183,7 +5192,7 @@ void separateDerivatives( struct field * f1, INT_TYPE periodic,enum division mat
     
         powSpace = pow( fabs(mag),1./spaces);
 
-    
+   // printf("mag %f\n", mag);
     for (space = 0; space < SPACE ; space++)
         if ( f1->sinc.rose[space].body != nada )
         {
@@ -5194,26 +5203,26 @@ void separateDerivatives( struct field * f1, INT_TYPE periodic,enum division mat
                 for( I2 = 0; I2 < dims[space] ; I2++)
                 {
                     
-//                    bca =  powSpace * BgB(b0,grabBasis(f1, space, particle1, I1),grad[space],x[space],0,grabBasis(f1, space, particle1, I2))/pow(b0,grad[space]);
-//                    if ( mag < 0  && signFlag )
-//                        mag *= -1;
-//
-//                    (stream[0])[dims[space]*I1+I2] = creal(bca);
-//                    if ( flagCMPL )
-//                        (stream[1])[dims[space]*I1+I2] = cimag(bca);
-                    
-                    if ( x[space] == 2 ){
-                        if ( I1 == I2 )
-                            (stream[0])[dims[space]*I1+I2] = mag*sqr((I1-(dims[space]-1)/2) * f1->sinc.rose[space].lattice);
-                        else
-                            (stream[0])[dims[space]*I1+I2] = 0.;
-                    }else {
-                        if ( I1 == I2 )
-                            (stream[0])[dims[space]*I1+I2] = 1;
-                        else
-                            (stream[0])[dims[space]*I1+I2] = 0.;
+                    bca =  powSpace * BgB(b0,grabBasis(f1, space, particle1, I1),grad[space],x[space],0,grabBasis(f1, space, particle1, I2))/pow(b0,grad[space]);
+                    if ( mag < 0  && signFlag )
+                        mag *= -1;
 
-                    }
+                    (stream[0])[dims[space]*I1+I2] = creal(bca);
+                    if ( flagCMPL )
+                        (stream[1])[dims[space]*I1+I2] = cimag(bca);
+                    
+//                    if ( x[space] == 2 ){
+//                        if ( I1 == I2 )
+//                            (stream[0])[dims[space]*I1+I2] = mag*sqr((I1-(dims[space]-1)/2) * f1->sinc.rose[space].lattice);
+//                        else
+//                            (stream[0])[dims[space]*I1+I2] = 0.;
+//                    }else {
+//                        if ( I1 == I2 )
+//                            (stream[0])[dims[space]*I1+I2] = 1;
+//                        else
+//                            (stream[0])[dims[space]*I1+I2] = 0.;
+//
+//                    }
                     
 //                    if ( I1 == I2 )
 //                        printf("%d %d %1.12f %1.12f\n",space,I1, creal(bca),cimag(bca));

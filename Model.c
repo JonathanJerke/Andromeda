@@ -420,7 +420,7 @@ INT_TYPE iModel( struct calculation * c1){
         fromBeginning(f1, vectorMomentum, protonRepulsion);
         assignOneWithPointers(f1, vectorMomentum,electron);
         f1->sinc.tulip[vectorMomentum].spinor = cmpl;
-        f1->sinc.tulip[vectorMomentum].Partition = 3+4*c1->i.magFlag;//
+        f1->sinc.tulip[vectorMomentum].Partition = COMPONENT * c1->i.springFlag+4*c1->i.magFlag;//
 
         fromBeginning(f1, harmonium, vectorMomentum);
         assignOneWithPointers(f1, harmonium,electron);
@@ -1053,7 +1053,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[conditionOverlapNumbers].memory = bufferAllocation;
         
         fromBeginning(f1,matrixHbuild,conditionOverlapNumbers);
-        f1->sinc.tulip[matrixHbuild].Partition = imax(2*maxArray*maxArray, 2*mxlen*mxlen);
+        f1->sinc.tulip[matrixHbuild].Partition = imax(2*maxArray*maxArray, c1->i.sectors * 2*mxlen*mxlen);
         f1->sinc.tulip[matrixHbuild].memory = bufferAllocation;
 
         fromBeginning(f1,vectorHbuild,matrixHbuild);
