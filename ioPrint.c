@@ -1057,6 +1057,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
         printf("file of occupations is missing\n");
         exit(0);
     }
+    INT_TYPE flagLoad;
     DCOMPLEX ov;
     size_t ms = MAXSTRING;
     char input_line[MAXSTRING];
@@ -1067,6 +1068,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
         if (  getline(&mask,&ms,in) > 0 ){
             if ( (!comment(input_line)) && (strlen(input_line) > 1) ){
                 Occ = 0.;
+                flagLoad = 0;
                 for ( cmpl = 0; cmpl < spins(&c1->i.c, inputVectors); cmpl++)
                 {
                     Occ = tFromReadToFilename(NULL, input_line,  name, spins(f1,eigenVectors)-1,cmpl);
@@ -1122,12 +1124,15 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                             }
                             f1->sinc.tulip[inputVectors+ct].value.symmetry = c2.i.c.sinc.tulip[totalVector].value.symmetry;
                             printf("%d\t%s\t%d\n", ct, name,f1->sinc.tulip[inputVectors+ct].value.symmetry);
+                            flagLoad = 1;
                             fModel(&c2);
                         }
                         
                         
                     }
                 }
+                if ( ! flagLoad )
+                    continue;
                 if (( ct > c1->i.vectorOperatorFlag&& inputVectors == f1->sinc.vectorOperator )|| ( ct > c1->i.nStates&& inputVectors == eigenVectors  )){
                     printf("maxed out buffer of states\n");
                     exit(0);
@@ -1137,26 +1142,26 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                     exit(1);
                 }
                 if ( inputVectors >= c1->i.c.sinc.vectorOperator)
-                    tScale(&c1->i.c, inputVectors+ct, sqrt(fabs(creal(Occ)))/magnitude(&c1->i.c, inputVectors+ct));
+                    tScale(&c1->i.c, inputVectors+ct, sqrt(fabs(creal(Occ))));
                 else
-                    tScale(&c1->i.c, inputVectors+ct, creal(Occ)/magnitude(f1, inputVectors+ct));
-                matrixElements(0, &c1->i.c, inputVectors+ct, nullName, inputVectors+ct, NULL, &ov);
-                ov = magnitude(f1, inputVectors+ct);
+                    tScale(&c1->i.c, inputVectors+ct, creal(Occ));
                 
+                ov = magnitude(f1, inputVectors+ct);
+
                 if ( inputVectors >= c1->i.c.sinc.vectorOperator){
                     printf("Density %f\n",sqr(creal(ov)));
-                    if ( sqr(cabs(ov)) > c1->rt.TARGET)
+//                    if ( sqr(cabs(ov)) > c1->rt.TARGET)
                         ct++;
-                    else
-                        printf("skipped\n");
+//                    else
+//                        printf("skipped\n");
 
                 }
                 else{
-                    printf("Norm %f\n",sqr(creal(ov)));
-                    if ( (cabs(ov)) > c1->rt.TARGET)
+                    printf("Norm %f\n",(creal(ov)));
+//                    if ( (cabs(ov)) > c1->rt.TARGET)
                         ct++;
-                    else
-                        printf("skipped\n");
+//                    else
+//                        printf("skipped\n");
                 }
             }
         }else {

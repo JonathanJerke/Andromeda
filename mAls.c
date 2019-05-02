@@ -1591,7 +1591,7 @@ double magnitude ( struct field * f1 , enum division alloy ){
     INT_TYPE i;
     for ( i = 0; i < spins(f1, alloy); i++)
         sum +=  inner ( 0 , f1, alloy , i );
-    return (sum);
+    return sqrt(sum);
 }
 
 
