@@ -41,9 +41,9 @@ Modify $LAUNCH/csh/go.csh to interface with your version of andromeda
 
 $LAUNCH/csh/boot.csh 
 do{
-	$LAUNCH/csh/addStage.csh 0.5 1 2 one
-	$LAUNCH/csh/decompose.csh found one goSet
+	$LAUNCH/csh/addStage.csh *ATTACK* *bandStage* *basisStage* one
+	$LAUNCH/csh/ritz.csh found one goSet
+	$LAUNCH/csh/decompose.csh one one goSet
 	$LAUNCH/csh/krylov.csh one one goSet
-	$LAUNCH/csh/ritz.csh one one goSet
-	--repeat with replacing one -> two--
+	--repeat with replacing found -> one and one -> two--
 }while(!done)
