@@ -26,19 +26,10 @@ ANDROMEDA 5
 Runtime is now divided into different jobs, jobs.c, that accomidate more user control.
 A structure of launch parameters are enclosed in the launch.tar file.
 
-Execute 
-
-build scripts:
-In lowest directory inside launch.
-
-
-
-
 export LAUNCH={LAUNCHPAD_DIR}
-
 Modify $LAUNCH/csh/go.csh to interface with your version of andromeda
 
-
+::Execute in lowest directory inside launch::
 $LAUNCH/csh/boot.csh 
 do{
 	$LAUNCH/csh/addStage.csh *ATTACK* *bandStage* *basisStage* one
