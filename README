@@ -4,7 +4,7 @@
 
 
 ************
-edit system.h to adjust system settings.  
+edit system.h to adjust system settings like number of particle types, i.e. electrons only or electrons and clamped protons.
 	
 
 FOR Open-MP RUNS...
