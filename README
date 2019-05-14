@@ -32,7 +32,7 @@ Modify $LAUNCH/csh/go.csh to interface with your version of andromeda
 ::Execute in lowest directory inside launch::
 $LAUNCH/csh/boot.csh 
 do{
-	$LAUNCH/csh/addStage.csh *ATTACK* *bandStage* *basisStage* one
+	$LAUNCH/csh/addStage.csh *ATTACK* *bandStage* *basisStage* found one
 	$LAUNCH/csh/ritz.csh found one goSet
 	$LAUNCH/csh/decompose.csh one one goSet
 	$LAUNCH/csh/krylov.csh one one goSet
