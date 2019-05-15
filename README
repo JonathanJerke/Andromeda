@@ -21,7 +21,7 @@ add OMPFLAG in Makefile
 make 
 ************
 
-ANDROMEDA 5 
+ANDROMEDA 6 
 
 Runtime is now divided into different jobs, jobs.c, that accomidate more user control.
 A structure of launch parameters are enclosed in the launch.tar file.
