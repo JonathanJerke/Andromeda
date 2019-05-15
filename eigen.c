@@ -280,7 +280,72 @@ INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
     return 0;
 }
 
+INT_TYPE tMap (struct calculation * c1 ){
+    struct field * f1 = & c1->i.c;
+    size_t ms = MAXSTRING;
+    char line0[MAXSTRING];
+    char name[MAXSTRING];
 
+    char *line = line0;
+    INT_TYPE rank = 0;
+    FILE  * list = NULL;
+
+    
+    sprintf(name, "%s.body", c1->name);
+    list = fopen(name, "r");
+    if ( list == NULL ){
+        printf("nop");
+        exit(0);
+    }
+    DCOMPLEX one = 1.;
+    int lines= 0,n[6],r[6],space,N1;
+
+    printVector(c1,c1->name,c1->name,-1,0, &one);
+
+    getline(&line, &ms, list);
+    while(!feof(list)){
+        enum bodyType outBody = three;
+        if ( outBody == three ){
+            sscanf(line, "(%d,%d)(%d,%d)(%d,%d)", &n[0],&r[0], &n[1],&r[1],&n[2],&r[2]);
+            
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1->sinc.rose[space].body != nada )
+                {
+                    N1 = f1->sinc.rose[space].count1Basis;
+                    cblas_dcopy(N1, streams(f1,f1->sinc.user + n[0],0,space)+N1*r[0], 1, streams(f1,diagonal1VectorA,rank,space), 1);
+                    cblas_dcopy(N1, streams(f1,f1->sinc.user + n[1],0,space)+N1*r[1], 1, streams(f1,diagonal1VectorB,rank,space), 1);
+                    cblas_dcopy(N1, streams(f1,f1->sinc.user + n[2],0,space)+N1*r[2], 1, streams(f1,diagonal1VectorC,rank,space), 1);
+
+                }
+            f1->sinc.tulip[diagonal1VectorA].Current[rank] = 1;
+            f1->sinc.tulip[diagonal1VectorB].Current[rank] = 1;
+            f1->sinc.tulip[diagonal1VectorC].Current[rank] = 1;
+
+            
+            f1->sinc.tulip[diagonal2VectorA].Current[rank] = 0;
+            f1->sinc.tulip[diagonal3VectorA].Current[rank] = 0;
+
+            tOuterProductSu(f1, diagonal1VectorA, rank, diagonal1VectorB, rank, diagonal2VectorA, rank);
+            tOuterProductSu(f1, diagonal2VectorA, rank, diagonal1VectorC, rank, diagonal3VectorA, rank);
+            if ( magnitude(f1, diagonal3VectorA) > 0.01 ){
+                printf("%d %d %d | %d %d %d ", n[0],n[1],n[2],r[0],r[1],r[2]);
+                printf("mag %f\n",magnitude(f1, diagonal3VectorA) );
+                tFilename(c1->name, lines+1, outBody, 0, 0, name);
+                FILE * outVector = fopen(name, "w");
+                outputFormat(f1, outVector, diagonal3VectorA, rank);
+                fclose(outVector);
+                printVector(c1,c1->name,c1->name,lines,0, &one);
+            }
+        }
+    
+        lines++;
+        getline(&line, &ms, list);
+
+    }
+    
+    fclose(list);
+    return 0;
+}
 
 INT_TYPE tBootManyConstruction (struct calculation * c1){
     struct field * f1 = &(c1->i.c);
@@ -325,13 +390,20 @@ INT_TYPE tBootManyConstruction (struct calculation * c1){
                 
                 
                 if ( bootBodies > one ){
-                    if ( CanonicalRank(f1, interactionExchange, 0)){
-                        tClear(f1,squareTwo);
-                        tCycleDecompostionListOneMP(-1, f1, interactionExchange, 0,NULL,squareTwo, 0, f1->mem1->rt->CANON, 1 , -1);
-                        tSumMatrices(f1, build,0, squareTwo);//B2:1 || B3 : 3
+                    if ( c1->rt.runFlag == 0 ){
+                        if ( CanonicalRank(f1, interactionExchange, 0)){
+                            tClear(f1,squareTwo);
+                            tCycleDecompostionListOneMP(-1, f1, interactionExchange, 0,NULL,squareTwo, 0, f1->mem1->rt->CANON, 1 , -1);
+                            tSumMatrices(f1, build,0, squareTwo);//B2:1 || B3 : 3
+                        }
+                    }else {
+                        if ( CanonicalRank(f1, interactionEwald, 0)){
+                            tClear(f1,squareTwo);
+                            tCycleDecompostionListOneMP(-1, f1, interactionEwald, 0,NULL,squareTwo, 0, f1->mem1->rt->CANON, 1 , -1);
+                            tSumMatrices(f1, build,0, squareTwo);//B2:1 || B3 : 3
+                        }
                     }
                 }
-                
                 
             }
 //            else {
@@ -651,6 +723,7 @@ INT_TYPE tFilter(struct field * f1, INT_TYPE Ve, INT_TYPE irrep, enum division u
             for ( cmpl = 0 ; cmpl < spins(f1, usr+ii) ; cmpl++){
                 f1->sinc.tulip[permutationVector].Current[rank] = 0;
                 tBuildIrr(rank, f1, irrep+nP, usr+ii, cmpl, permutationVector, rank);
+        //        tCycleDecompostionGridOneMP(rank, f1, permutationVector, rank, NULL,usr+ii , cmpl, f1->mem1->rt->TARGET, part(f1,usr+ii), 1.);
                 tCycleDecompostionListOneMP(rank, f1, permutationVector, rank, NULL,  usr+ii,cmpl,f1->mem1->rt->TARGET, part(f1,usr+ii), 1);
             }
         }
@@ -954,11 +1027,12 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct
     //time(&start_t);
     INT_TYPE iii = 0;
     assignCores(f1, 1);
-
+    printf("-->%f %f \n",traceOne(f1, kinetic1, 0),traceOne(f1, shorten1Ewald, 0));
+    
     for( expon = 1 ; foundation*expon < nMult  ; expon++){
         
 #ifdef OMP
-#pragma omp parallel for private (iii,rank,vhhv,vhv) schedule(dynamic,1) reduction(+:sum)
+#pragma omp parallel for private (iii,rank,vhhv,vhv) schedule(dynamic,1)
 #endif
         for ( iii = 0; iii < foundation ; iii++)
         {
@@ -975,13 +1049,18 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct
 //                matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
 //                tScale(f1, usz+iii+expon*foundation, 1./sqrt(cabs(vhhv)));
 
-                tHXpX(rank, f1, A, translateFlag, realPart, 0.0, usz+iii+expon*foundation, f1->mem1->rt->TARGET , part(f1,usz+(expon)*foundation+iii));
+                tHXpX(rank, f1, A, translateFlag, translateFlag*realPart+ (!translateFlag)*1., 0.0, usz+iii+expon*foundation, f1->mem1->rt->TARGET , part(f1,usz+(expon)*foundation+iii));
                 
                 matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
 //                matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+(expon-1)*foundation, NULL, &vhv);
 
               //  printf("%d\t<\t%f\t | \t %f \t>\n", iii+1, creal(vhv), creal(vhhv) - sqr(creal(vhv)));
-                tScale(f1, usz+iii+expon*foundation, 1./sqrt(cabs(vhhv)));
+                if ( cabs(vhhv) > 0. )
+                    tScale(f1, usz+iii+expon*foundation, 1./sqrt(cabs(vhhv)));
+                else {
+                    printf("oops norms \n");
+                    exit(0);
+                }
             }
             
         }

@@ -54,7 +54,7 @@ INT_TYPE tSquareVectors(struct calculation * c1, INT_TYPE EV2, enum division usz
 INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart,  struct field * f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
 INT_TYPE tLesserDivideIteration ( struct field * f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
 INT_TYPE tMinorDivideIteration ( struct field * f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, double shift);
-
+INT_TYPE tMap (struct calculation * c1 );
 INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE iterations,INT_TYPE foundation, INT_TYPE type,INT_TYPE flag,  enum division outputSpace, enum division outputValues);
 INT_TYPE tSelect(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division usr, enum division usa, INT_TYPE testFlag);
 INT_TYPE tCollect (struct field * f1, INT_TYPE type,enum division usz, INT_TYPE target,double seekPower);

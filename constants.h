@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-//VERSION 5.8
+//VERSION 6.1.4
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -149,7 +149,9 @@ enum phaseType{
     decomposeTensor,//3
     bandStage,//4
     frameDensity, //5
-    svdOperation //6
+    svdOperation, //6
+    scaleBody,//7
+    collectKrylov//8
 };
 
 enum calculationType{
@@ -158,6 +160,11 @@ enum calculationType{
     clampProtonElectronCalculation,
     protonsElectronsCalculation,
     svdCalculation,
+};
+
+enum bootType{
+    noMatrices,
+    fullMatrices
 };
 
 enum block{
@@ -244,9 +251,15 @@ enum componentType {
     periodicComponent3,
 };
 
+enum noteType {
+    nullNote,//0
+    interactionCell//1
+};
+
 struct basisElement {
     enum basisElementType basis;
     enum componentType type;
+    enum noteType note;
     INT_TYPE index;
     double length;
     double origin;
@@ -265,19 +278,6 @@ struct canon {
     double lattice;
     double origin;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -324,10 +324,12 @@ enum division{
     interaction3Minus,
     interaction4Minus,
     interactionEwald,
-    interaction1Ewald,
-    interaction2Ewald,
-    interaction3Ewald,
-    interaction4Ewald,
+    interaction12Ewald,
+    interaction13Ewald,
+    interaction23Ewald,
+    interaction14Ewald,
+    interaction24Ewald,
+    interaction34Ewald,
     shortenEwald,
     shorten1Ewald,
     shorten2Ewald,
@@ -512,6 +514,7 @@ enum division{
     vectorCubeBuffers,//125,126,127
     diagonalQuad,
     diDiagonalQuad,
+    diagonal3VectorA,
     diagonal2VectorA,
     diagonal2VectorB,
     diagonal1VectorA,
@@ -575,6 +578,16 @@ enum division{
     lanes8,
     lanes9,
     lanes10,
+    lanes11,
+    lanes12,
+    lanes13,
+    lanes14,
+    lanes15,
+    lanes16,
+    lanes17,
+    lanes18,
+    lanes19,
+    lanes20,
     eigenVectors
 };
 
@@ -674,6 +687,8 @@ struct general_2index{//one dimension
 };
 
 struct runTime {
+    enum bootType boot;
+    INT_TYPE powDecompose;
     INT_TYPE runFlag;
 #ifdef OMP
     INT_TYPE NLanes;
@@ -715,6 +730,8 @@ struct MEM {
 
 
 struct input {
+    double reducedMass;
+    INT_TYPE bodyFlag;
     INT_TYPE shiftFlag ;
     double realPart ;
     double minClamp;

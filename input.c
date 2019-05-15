@@ -117,7 +117,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
     INT_TYPE i,d,ivalue;
     char test_line [MAXSTRING];
     double value;
-    INT_TYPE NINT_TYPE = 114;
+    INT_TYPE NINT_TYPE = 115;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -141,9 +141,9 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "hartreeFock","basisStage","iterations","group","states",//100
         "length","side","lookBack","step","theory",
         "configuration","densityRank","densityBody","parallel","phase",
-        "around","cmpl","stageClamp","OCSB"
+        "around","cmpl","clampStage","OCSB","decompose"
     };
-    INT_TYPE NDOUBLE = 68;
+    INT_TYPE NDOUBLE = 69;
     char *list_DOUBLE []= {"#",
         "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST" ,//1-5
         "xB", "yB", "zB", "xyRange" , "zRange",//6-10
@@ -158,7 +158,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "REMOVEREMOVE", "maxDomain", "parcel","minDomain","param",
         "entropy","attack","scalar","turn","augment",
         "linearDependence","condition","seek","width","latte",
-        "magnetismZ","minClamp","maxClamp"
+        "magnetismZ","clampMin","clampMax","reduce"
         
     };
     
@@ -389,7 +389,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     return i;
                 case 50 :
                     c->i.qFloor = ivalue;
-                    c->i.sectors = 1;
+                    c->i.sectors = !(!ivalue);
                     return i;
                 case 51 :
                     c->i.Angstroms = ivalue;
@@ -747,6 +747,10 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                 case 114:
                     c->i.OCSBflag = ivalue;
                     return i;
+                case 115:
+                    c->rt.powDecompose = ivalue;
+                    return i;
+
             }
         
         }
@@ -1010,6 +1014,9 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                 case 68:
                     c->i.maxClamp = value;
                     return d;
+                case 69:
+                    c->i.reducedMass = value;
+                    return d;
 
             }
 
@@ -1236,7 +1243,7 @@ INT_TYPE intervalGeometry(struct calculation * c, const char * input_line ){
 
 INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
     INT_TYPE io;
-    INT_TYPE Nio = 30;
+    INT_TYPE Nio = 31;
     char test_line [MAXSTRING];
     char *list_IO[] = {"#",
         "densityIn","hartreeIn", "densityOut" ,//3
@@ -1248,7 +1255,8 @@ INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
         "pGold","pTime","nameDensityOut",//21
         "nameHartreeOut","Eigen" ,"set",//24
         "component","byHand","Spec",//27
-        "vector","operator","print" //30
+        "vector","operator","print",//30
+        "body"
     };
     char filename[MAXSTRING];
     FILE * mid;
@@ -1476,6 +1484,12 @@ INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
                 c->i.outputFlag = 1;
                 return io;
             }
+            case 31:
+            {
+                c->i.bodyFlag = 1;
+                return io;
+            }
+
         }
         }
     }
@@ -1611,7 +1625,11 @@ INT_TYPE readInput(struct calculation *c , FILE * in){
 
 INT_TYPE initCalculation(struct calculation * c ){
     INT_TYPE g;
+    c->i.reducedMass = 1.;
+    c->rt.boot = fullMatrices;
+    c->rt.powDecompose = 1;
     c->i.shiftFlag = 0;
+    c->i.bodyFlag = 0;
     c->i.complexType = 1;//real =1 , cmpl = 2
     c->i.RAMmax = 0;//Gb  needs updating
     c->rt.printFlag = 0;

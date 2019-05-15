@@ -108,6 +108,7 @@ struct calculation initCal (void ) {
     INT_TYPE space;
     struct calculation i;
     i.rt.printFlag = 0;
+    i.rt.boot = fullMatrices;
 //    i.i.hartreeFockFlag = 0;
     i.i.springConstant = 0.;
     i.i.springFlag = 0;
@@ -278,9 +279,8 @@ INT_TYPE iModel( struct calculation * c1){
     if ( c1->i.iCharge > 0 )
         f1->Ne = c1->i.iCharge;
     
-    {
+    
         INT_TYPE space;
-        struct field * f1  =&(c1->i.c);
         {
             c1->mem.rt = rt;
             f1->mem1 = &c1->mem;
@@ -309,11 +309,11 @@ INT_TYPE iModel( struct calculation * c1){
         maxArray = imax(c1->i.nStates,maxEV);//slip Nb into spectra...
         
         f1->sinc.maxEV = maxArray;
-        printf("states %d , maxEV %d\n", c1->i.nStates, maxEV);
+      //  printf("states %d , maxEV %d\n", c1->i.nStates, maxEV);
         enum division vectorOperator  = eigenVectors +  c1->i.nStates+maxEV;
         f1->sinc.vectorOperator = vectorOperator;
         enum division end  = vectorOperator+maxDensity;
-        printf("end %d\n, vectorOp %d\n", end, vectorOperator);
+        //printf("end %d\n, vectorOp %d\n", end, vectorOperator);
         f1->sinc.end = end;
         f1->sinc.tulip = malloc ( (end+1) * sizeof(struct name_label));
 
@@ -456,7 +456,7 @@ INT_TYPE iModel( struct calculation * c1){
             f1->sinc.tulip[build].species = matrix;
             assignParticle(f1, build, all, bootBodies);
 
-            
+       //     printf("sectors %d\n", c1->i.sectors);
             for ( space = 0; space < SPACE ; space++)
             {
                 if ( space == 0 )
@@ -739,12 +739,12 @@ INT_TYPE iModel( struct calculation * c1){
 //        f1->sinc.tulip[twoVector].name = twoVector;
 //
         fromBeginning(f1,totalVector,copyFourVector);
-        f1->sinc.tulip[totalVector].Partition = (c1->i.canonRank);
+        f1->sinc.tulip[totalVector].Partition = maxVector*(c1->i.canonRank);
         f1->sinc.tulip[totalVector].species = vector;
         f1->sinc.tulip[totalVector].spinor = parallel;
 
         fromBeginning(f1,totalFuzzyVector,totalVector);
-        f1->sinc.tulip[totalFuzzyVector].Partition = (c1->i.canonRank);
+        f1->sinc.tulip[totalFuzzyVector].Partition = 0*(c1->i.canonRank);
         f1->sinc.tulip[totalFuzzyVector].species = vector;
         f1->sinc.tulip[totalFuzzyVector].spinor = parallel;
 
@@ -755,13 +755,13 @@ INT_TYPE iModel( struct calculation * c1){
         assignParticle(f1, diagonalCube, all, one);
         
         fromBeginning(f1,diagonal1VectorA,diagonalCube);
-        f1->sinc.tulip[diagonal1VectorA].Partition =1+!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal1VectorA].Partition =1+!(!c1->rt.printFlag)+c1->i.bodyFlag;
         f1->sinc.tulip[diagonal1VectorA].spinor = parallel;
         f1->sinc.tulip[diagonal1VectorA].species = outerVector;
         assignParticle(f1, diagonal1VectorA, all , one);
         
         fromBeginning(f1,diagonal2VectorA,diagonal1VectorA);
-        f1->sinc.tulip[diagonal2VectorA].Partition =c1->i.sectors+!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal2VectorA].Partition =c1->i.sectors+!(!c1->rt.printFlag)+c1->i.bodyFlag;
         f1->sinc.tulip[diagonal2VectorA].spinor = parallel;
         f1->sinc.tulip[diagonal2VectorA].species = outerVector;
         assignParticle(f1, diagonal2VectorA, all , two);
@@ -773,24 +773,30 @@ INT_TYPE iModel( struct calculation * c1){
         assignParticle(f1, diagonal2VectorB, all , two);
 
         fromBeginning(f1,diagonal1VectorB,diagonal2VectorB);
-        f1->sinc.tulip[diagonal1VectorB].Partition =c1->i.sectors+!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal1VectorB].Partition =c1->i.sectors+!(!c1->rt.printFlag)+c1->i.bodyFlag;
         f1->sinc.tulip[diagonal1VectorB].spinor = parallel;
         f1->sinc.tulip[diagonal1VectorB].species = outerVector;
         assignParticle(f1, diagonal1VectorB, all , one);
 
         fromBeginning(f1,diagonal1VectorC,diagonal1VectorB);
-        f1->sinc.tulip[diagonal1VectorC].Partition =c1->i.sectors+!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal1VectorC].Partition =c1->i.sectors+!(!c1->rt.printFlag)+c1->i.bodyFlag;
         f1->sinc.tulip[diagonal1VectorC].spinor = parallel;
         f1->sinc.tulip[diagonal1VectorC].species = outerVector;
         assignParticle(f1, diagonal1VectorC, all , one);
 
         fromBeginning(f1,diagonal1VectorD,diagonal1VectorC);
-        f1->sinc.tulip[diagonal1VectorD].Partition = c1->i.sectors+!(!c1->rt.printFlag);
+        f1->sinc.tulip[diagonal1VectorD].Partition = c1->i.sectors+!(!c1->rt.printFlag)+c1->i.bodyFlag;
         f1->sinc.tulip[diagonal1VectorD].spinor = parallel;
         f1->sinc.tulip[diagonal1VectorD].species = outerVector;
         assignParticle(f1, diagonal1VectorD, all , one);
 
-        fromBeginning(f1,bandBasis,diagonal1VectorD);
+        fromBeginning(f1,diagonal3VectorA,diagonal1VectorD);
+        f1->sinc.tulip[diagonal3VectorA].Partition =c1->i.sectors+!(!c1->rt.printFlag)+c1->i.bodyFlag;
+       // f1->sinc.tulip[diagonal3VectorA].spinor = parallel;
+        f1->sinc.tulip[diagonal3VectorA].species = outerVector;
+        assignParticle(f1, diagonal3VectorA, all , three);
+        
+        fromBeginning(f1,bandBasis,diagonal3VectorA);
         f1->sinc.tulip[bandBasis].Partition = mxlen;
         f1->sinc.tulip[bandBasis].memory = bufferAllocation;
 
@@ -830,7 +836,7 @@ INT_TYPE iModel( struct calculation * c1){
     
         
         fromBeginning(f1,canonicalBuffers,inversion);
-        f1->sinc.tulip[canonicalBuffers].Partition = maxVector*maxVector+ imax(NV,c1->i.canonRank)*maxVector;
+        f1->sinc.tulip[canonicalBuffers].Partition = maxVector*maxVector+ imax(NV,maxVector*c1->i.canonRank)*maxVector;
         f1->sinc.tulip[canonicalBuffers].spinor = parallel;
 
         fromBeginning(f1,trackBuffer,canonicalBuffers);
@@ -839,7 +845,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[trackBuffer].memory = bufferAllocation;
 
         fromBeginning(f1,guideBuffer,trackBuffer);
-        f1->sinc.tulip[guideBuffer].Partition = c1->i.canonRank*maxVector;
+        f1->sinc.tulip[guideBuffer].Partition = c1->i.canonRank*maxVector*maxVector;
         f1->sinc.tulip[guideBuffer].spinor = parallel;
         f1->sinc.tulip[guideBuffer].memory = bufferAllocation;
 
@@ -850,22 +856,24 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[foundationStructure].spinor = cmpl;//need two channels
         
         fromBeginning(f1,interactionExchange,foundationStructure);
-            f1->sinc.tulip[interactionExchange].Partition = f1->twoBody.num*(( bootBodies > one )|| f1->sinc.rose[0].component == periodicComponent1);
+            f1->sinc.tulip[interactionExchange].Partition = f1->twoBody.num*(( bootBodies > one )|| c1->rt.runFlag > 0);
             f1->sinc.tulip[interactionExchange].species = matrix;
             assignParticle(f1, interactionExchange, electron, two);
+    {
         {
-        enum block ee ;
-        for (ee = e12 ; ee <= e34 ; ee++){
-            f1->sinc.tulip[interaction12+ee-e12].name = interactionExchange;
-            f1->sinc.tulip[interaction12+ee-e12].species = matrix;
-            if ( ee < e34 )
-                f1->sinc.tulip[interaction12+ee-e12].linkNext = interaction12+ee-e12+1;
-            for ( space = 0; space < SPACE ; space++)
-                if ( f1->sinc.rose[space].body >= two && f1->sinc.rose[space].particle == electron )
-                    f1->sinc.tulip[interaction12+ee-e12].space[space].block = ee;
-            f1->sinc.tulip[interaction12+ee-e12].Partition = f1->twoBody.num;
+            enum block ee ;
+            for (ee = e12 ; ee <= e34 ; ee++){
+                f1->sinc.tulip[interaction12+ee-e12].name = interactionExchange;
+                f1->sinc.tulip[interaction12+ee-e12].species = matrix;
+                if ( ee < e34 )
+                    f1->sinc.tulip[interaction12+ee-e12].linkNext = interaction12+ee-e12+1;
+                for ( space = 0; space < SPACE ; space++)
+                    if ( f1->sinc.rose[space].body >= two && f1->sinc.rose[space].particle == electron )
+                        f1->sinc.tulip[interaction12+ee-e12].space[space].block = ee;
+                f1->sinc.tulip[interaction12+ee-e12].Partition = f1->twoBody.num;
+            }
         }
-        }
+    }
         fromBeginning(f1,interactionExchangeB,interactionExchange);
         f1->sinc.tulip[interactionExchangeB].Partition = f1->twoBody.num*( bootBodies > one )* ( c1->rt.calcType == protonsElectronsCalculation);
         f1->sinc.tulip[interactionExchangeB].species = matrix;
@@ -885,22 +893,26 @@ INT_TYPE iModel( struct calculation * c1){
             }
         }
         
-        {
-            enum division ne;
-            INT_TYPE sum = 0;
-            for (ne = f1->sinc.vectorOperator ; ne < f1->sinc.end ; ne++)
-                sum += CanonicalRank(f1, ne, 0)*CanonicalRank(f1, ne, 0);
-            
-            sum = c1->i.nStates * c1->i.bRank * c1->i.bRank;
-            
-            fromBeginning(f1,interactionEwald,interactionExchangeB);
-            f1->sinc.tulip[interactionEwald].Partition = (! matrixNumber) * sum*2*f1->twoBody.num* ( c1->rt.calcType == electronicStuctureCalculation) && (f1->sinc.rose[0].component == periodicComponent1);
-        }
+        fromBeginning(f1,interactionEwald,interactionExchangeB);
+        f1->sinc.tulip[interactionEwald].Partition = f1->twoBody.num * (c1->rt.runFlag > 0 );
         f1->sinc.tulip[interactionEwald].species = matrix;
-        assignOneWithPointers(f1, interactionEwald, electron);
-        
+        assignParticle(f1, interactionEwald, electron, two);
+
+    {
+        enum block ee ;
+        for (ee = e12 ; ee <= e34 ; ee++){
+            f1->sinc.tulip[interaction12Ewald+ee-e12].name = interactionEwald;
+            f1->sinc.tulip[interaction12Ewald+ee-e12].species = matrix;
+            if ( ee < e34 )
+                f1->sinc.tulip[interaction12Ewald+ee-e12].linkNext = interaction12Ewald+ee-e12+1;
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1->sinc.rose[space].body >= two && f1->sinc.rose[space].particle == electron )
+                    f1->sinc.tulip[interaction12Ewald+ee-e12].space[space].block = ee;
+            f1->sinc.tulip[interaction12Ewald+ee-e12].Partition = f1->twoBody.num;
+        }
+    }
         fromBeginning(f1,shortenEwald,interactionEwald);
-        f1->sinc.tulip[shortenEwald].Partition = c1->i.canonRank;
+        f1->sinc.tulip[shortenEwald].Partition = f1->twoBody.num*2*c1->i.qFloor * c1->i.decomposeRankMatrix;
         f1->sinc.tulip[shortenEwald].species = matrix;
         assignOneWithPointers(f1, shortenEwald, electron);
 
@@ -1133,34 +1145,35 @@ INT_TYPE iModel( struct calculation * c1){
         
     
         
-        if(1){
+        if(c1->rt.boot == fullMatrices){
             f1->sinc.tulip[Ha].species    = scalar;
             f1->sinc.tulip[Iterator].species    = scalar;
 
             if ( c1->rt.calcType == electronicStuctureCalculation  ){
                 if ( f1->sinc.rose[0].component == periodicComponent1 ){
-                    if ( c1->i.decomposeRankMatrix ){
-                        ioStoreMatrix(&c1->i.c, shortenEwald, 0, "EwaldCoulomb.matrix", 1);
-                        tZeroSum(f1, interactionExchange, 0 );
+                    if ( ! ioStoreMatrix(&c1->i.c, shortenEwald, 0, "shortenEwald.matrix", 1)){
+                        tClear(f1,shortenEwald);
                     }
-                    else{
-                        ioStoreMatrix(&c1->i.c, interactionEwald, 0, "EwaldCoulomb.matrix",1);
-                        tZeroSum(f1, interactionExchange, 0 );
+                        
+                    if ( !  ioStoreMatrix(&c1->i.c, interactionEwald, 0, "interactionEwald.matrix",1) ){
+                        mySeparateExactTwo(f1, interactionEwald, 1., 0, 1, electron);
                     }
-
-                }
-                
-                if ( bootBodies > one ){
-                    mySeparateExactTwo(f1,interactionExchange, 1. , 0,0,electron);
-                   // tZeroSum(f1, interactionExchange, 0 );
-
-                }
-                if (f1->Na != 0 ){
+                        
+                    if ( ! ioStoreMatrix(&c1->i.c, interactionExchange, 0, "interactionExchange.matrix",1)){
+                        mySeparateExactTwo(f1, interactionExchange, 1., 0, 0, electron);
+                    }
+                }else {
+                    
+                    if ( bootBodies > one ){
+                        if ( ! ioStoreMatrix(&c1->i.c, interactionExchange, 0, "interactionExchange.matrix",1)){
+                            mySeparateExactTwo(f1, interactionExchange, 1., 0, 0, electron);
+                        }
+                    }
+                    
                     separateExternal(c1,linear,0,0,-1.0,-1,0,electron);
-                    //tZeroSum(f1, linear, 0 );
-
+                    
                 }
-                separateKinetic(f1, 0,kinetic, 1.0,1);
+                separateKinetic(f1, 0,kinetic, c1->i.reducedMass,electron);
 
                 if ( c1->i.magFlag ){
                     INT_TYPE deriv[SPACE];
@@ -1223,7 +1236,7 @@ INT_TYPE iModel( struct calculation * c1){
                     power[1] = 0;
                     power[2] = 0;
                     
-                    separateDerivatives(f1, 0, vectorMomentum, power, deriv, c1->i.springConstant, electron);
+                    separateDerivatives(f1, 0, vectorMomentum, power, deriv, 0.5*c1->i.springConstant, electron);
                     
                     deriv[0] = 0;
                     deriv[1] = 0;
@@ -1233,7 +1246,7 @@ INT_TYPE iModel( struct calculation * c1){
                     power[1] = 2;
                     power[2] = 0;
                     
-                    separateDerivatives(f1,0, vectorMomentum, power, deriv, c1->i.springConstant, electron);
+                    separateDerivatives(f1,0, vectorMomentum, power, deriv,  0.5*c1->i.springConstant, electron);
                     
                     deriv[0] = 0;
                     deriv[1] = 0;
@@ -1243,7 +1256,7 @@ INT_TYPE iModel( struct calculation * c1){
                     power[1] = 0;
                     power[2] = 2;
                     
-                    separateDerivatives(f1, 0, vectorMomentum, power, deriv, c1->i.springConstant, electron);
+                    separateDerivatives(f1, 0, vectorMomentum, power, deriv,  0.5*c1->i.springConstant, electron);
                     
                 
                 }
@@ -1253,8 +1266,23 @@ INT_TYPE iModel( struct calculation * c1){
                 if ( bootBodies > one ){
                     mySeparateExactTwo(f1,interactionExchange, 1. , 0,0,electron);
                 }
-                mySeparateExactOneByOne(f1,c1->i.decomposeRankMatrix  ,interactionExchangePlus, shortenPlus, -1., 1,0.5,electron, proton);
-                mySeparateExactOneByOne(f1, c1->i.decomposeRankMatrix,interactionExchangeMinus, shortenMinus,-1., -1,0.5,electron, proton);
+            
+            if (! c1->i.decomposeRankMatrix ){
+                if (!ioStoreMatrix(f1,interactionExchangePlus ,0,"interactionExchangePlus.matrix",1) )
+                    mySeparateExactOneByOne(f1, c1->i.decomposeRankMatrix,interactionExchangePlus, shortenPlus,-1., 1,0.5,electron, proton);
+            }else {
+                if ( !ioStoreMatrix(f1,shortenPlus ,0,"shortenExchangePlus.matrix",1) )
+                    mySeparateExactOneByOne(f1, c1->i.decomposeRankMatrix,interactionExchangePlus, shortenPlus,-1., 1,0.5,electron, proton);
+            }
+            
+            if (! c1->i.decomposeRankMatrix ){
+                if ( ! ioStoreMatrix(f1,interactionExchangeMinus ,0,"interactionExchangeMinus.matrix",1) )
+                    mySeparateExactOneByOne(f1, c1->i.decomposeRankMatrix,interactionExchangeMinus, shortenMinus,-1., -1,0.5,electron, proton);
+            } else {
+                if ( ! ioStoreMatrix(f1,shortenMinus ,0,"shortenExchangeMinus.matrix",1) )
+                    mySeparateExactOneByOne(f1, c1->i.decomposeRankMatrix,interactionExchangeMinus, shortenMinus,-1., -1,0.5,electron, proton);
+            }
+
             struct name_label u = f1->sinc.tulip[shortenPlus];
             
                 separateExternal(c1,protonRepulsion, 0,0,1.0,-1,0,proton);
@@ -1280,7 +1308,7 @@ INT_TYPE iModel( struct calculation * c1){
             }
 
 
-        }
+        
     
         {
             if ( c1->i.vectorOperatorFlag ){
@@ -1307,7 +1335,6 @@ INT_TYPE iModel( struct calculation * c1){
             else
             if ( bootBodies == one && ( c1->rt.calcType == electronicStuctureCalculation  )){
                 f1->sinc.tulip[shorten1Ewald].linkNext = vectorMomentum1;
-
                 f1->sinc.tulip[vectorMomentum1].linkNext = kinetic1;
                 f1->sinc.tulip[kinetic1].linkNext = external1;
                 f1->sinc.tulip[external1].linkNext = nullName;
@@ -1317,39 +1344,55 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[Iterator].linkNext = shorten1Ewald;
                 
             } else if ( bootBodies == two && ( c1->rt.calcType == electronicStuctureCalculation  )){
+                f1->sinc.tulip[shorten2Ewald].linkNext = vectorMomentum1;
                 f1->sinc.tulip[vectorMomentum2].linkNext = kinetic1;
+                if ( c1->rt.runFlag == 0 ){
+                    f1->sinc.tulip[kinetic2].linkNext = external1;
+                    f1->sinc.tulip[external2].linkNext = interaction12;
+                    f1->sinc.tulip[interaction12].linkNext = nullName;
 
-                f1->sinc.tulip[kinetic2].linkNext = external1;
-                f1->sinc.tulip[external2].linkNext = interaction12;
-                f1->sinc.tulip[interaction12].linkNext = nullName;
+                }else {
+                    f1->sinc.tulip[kinetic2].linkNext = interaction12Ewald;
+                    f1->sinc.tulip[interaction12Ewald].linkNext = nullName;
+                }
                 //active assignment
-                    f1->sinc.tulip[Ha].linkNext = vectorMomentum1;
-                    f1->sinc.tulip[Iterator].linkNext = vectorMomentum1;
+                f1->sinc.tulip[Ha].linkNext = shorten1Ewald;
+                f1->sinc.tulip[Iterator].linkNext = shorten1Ewald;
                 
             }else if ( bootBodies == three && ( c1->rt.calcType == electronicStuctureCalculation  )){
-                
+                f1->sinc.tulip[shorten3Ewald].linkNext = vectorMomentum1;
                 f1->sinc.tulip[vectorMomentum3].linkNext = kinetic1;
 
-                f1->sinc.tulip[kinetic3].linkNext = external1;
-                f1->sinc.tulip[external3].linkNext = interaction12;
-                f1->sinc.tulip[interaction23].linkNext = nullName;
-                
+                if ( c1->rt.runFlag == 0 ){
+                    f1->sinc.tulip[kinetic3].linkNext = external1;
+                    f1->sinc.tulip[external3].linkNext = interaction12;
+                    f1->sinc.tulip[interaction23].linkNext = nullName;
+                }else {
+                    f1->sinc.tulip[kinetic3].linkNext = interaction12Ewald;
+                    f1->sinc.tulip[interaction23Ewald].linkNext = nullName;
+                }
                 //active assignment
-                    f1->sinc.tulip[Ha].linkNext = vectorMomentum1;
-                    f1->sinc.tulip[Iterator].linkNext = vectorMomentum1;
+                    f1->sinc.tulip[Ha].linkNext = shorten1Ewald;
+                    f1->sinc.tulip[Iterator].linkNext = shorten1Ewald;
                 
             }
             
             else if ( bootBodies == four && ( c1->rt.calcType == electronicStuctureCalculation  )){
+                f1->sinc.tulip[shorten4Ewald].linkNext = vectorMomentum1;
                 f1->sinc.tulip[vectorMomentum4].linkNext = kinetic1;
 
-                f1->sinc.tulip[kinetic4].linkNext = external1;
-                f1->sinc.tulip[external4].linkNext = interaction12;
-                f1->sinc.tulip[interaction34].linkNext = nullName;
+                if ( c1->rt.runFlag == 0 ){
+                    f1->sinc.tulip[kinetic4].linkNext = external1;
+                    f1->sinc.tulip[external4].linkNext = interaction12;
+                    f1->sinc.tulip[interaction34].linkNext = nullName;
+                }else {
+                    f1->sinc.tulip[kinetic4].linkNext = interaction12Ewald;
+                    f1->sinc.tulip[interaction34Ewald].linkNext = nullName;
+                }
 
                 //active assignment
-                f1->sinc.tulip[Ha].linkNext = vectorMomentum1;
-                f1->sinc.tulip[Iterator].linkNext = vectorMomentum1;
+                f1->sinc.tulip[Ha].linkNext = shorten1Ewald;
+                f1->sinc.tulip[Iterator].linkNext = shorten1Ewald;
                 
             }
             else if (bootBodies == one && ( c1->rt.calcType == clampProtonElectronCalculation  )){
@@ -1442,10 +1485,9 @@ INT_TYPE iModel( struct calculation * c1){
                         }
             
         }
-        
-        
-    }
-
+        }
+    
+   // tInnerTest(f1, kinetic, copy);
 #if VERBOSE
     printf("boot complete\n");
 #endif

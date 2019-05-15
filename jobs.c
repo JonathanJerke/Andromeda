@@ -32,13 +32,14 @@ INT_TYPE foundation(struct calculation *c1){
     iModel(c1);
 
     if ( c1->i.OCSBflag ){
-       tBoot1Construction(c1, build);
+         tBoot1Construction(c1, build);
         EV =   tCollect(f1,c1->i.irrep,f1->sinc.user,c1->i.qFloor ,1);
-        tFilter(&c1->i.c, c1->i.qFloor, !(!c1->i.filter )* c1->i.irrep, eigenVectors);
+        tFilter(&c1->i.c, EV, 0, f1->sinc.user);
     }
     else{
         tBootManyConstruction(c1);
         EV =   tCollect(f1,c1->i.irrep,f1->sinc.user,c1->i.qFloor ,1);
+        tFilter(&c1->i.c, EV, 0, f1->sinc.user);
     }
     return 0;
 }
@@ -110,16 +111,18 @@ INT_TYPE ritz( struct calculation * c1 ){
 
     c1->i.qFloor = countLinesFromFile(c1,0);
 
-    c1->i.iRank = c1->i.bRank;
+   // c1->i.iRank = c1->i.bRank;
     iModel(c1);
     
     if ( CanonicalRank(f1,interactionExchange,0) )
         ioStoreMatrix(f1,interactionExchange ,0,"interactionExchange.matrix",0);
-    
+    if ( CanonicalRank(f1,interactionEwald,0) )
+        ioStoreMatrix(f1,interactionEwald ,0,"interactionEwald.matrix",0);
+
     if ( c1->i.decomposeRankMatrix ){
         
         if ( CanonicalRank(f1,shortenPlus,0) )
-            ioStoreMatrix(f1,shortenPlus ,0,"interactionExchangePlus.matrix",0);
+            ioStoreMatrix(f1,shortenPlus ,0,"shortenExchangePlus.matrix",0);
         
         if ( CanonicalRank(f1,shortenMinus,0) )
             ioStoreMatrix(f1,shortenMinus ,0,"shortenExchangeMinus.matrix",0);
@@ -130,18 +133,11 @@ INT_TYPE ritz( struct calculation * c1 ){
             ioStoreMatrix(f1,interactionExchangePlus ,0,"interactionExchangePlus.matrix",0);
         
         if ( CanonicalRank(f1,interactionExchangeMinus,0) )
-            ioStoreMatrix(f1,interactionExchangeMinus ,0,"shortenExchangeMinus.matrix",0);
-    }
-    if ( PARTICLE == 2) {
-        if ( CanonicalRank(f1,protonRepulsion,0) )
-            ioStoreMatrix(f1,protonRepulsion ,0,"protonRepulsion.matrix",0);
+            ioStoreMatrix(f1,interactionExchangeMinus ,0,"interactionExchangeMinus.matrix",0);
     }
     
     if ( CanonicalRank(f1,linear,0) )
         ioStoreMatrix(f1,linear ,0,"linear.matrix",0);
-    
-    if ( CanonicalRank(f1,kinetic,0) )
-        ioStoreMatrix(f1,kinetic ,0,"kinetic.matrix",0);
 
     
     
@@ -213,7 +209,8 @@ INT_TYPE decompose( struct calculation * c1 ){
 
     c1->i.c.twoBody.func.fn = nullFunction;
     c1->i.c.oneBody.func.fn = nullFunction;
-    c1->i.iRank = c1->i.bRank;
+  //  c1->i.iRank = c1->i.bRank;
+    printf("iR %d\n",c1->i.iRank );
     c1->i.nTargets = 1;
     c1->i.heliumFlag = 1;
     c1->i.nStates =1 ;
@@ -233,7 +230,8 @@ INT_TYPE decompose( struct calculation * c1 ){
             tClear(f1,totalVector);
             for( g = 0; g < c1->i.qFloor ; g++)
                 tAddTw(f1, totalVector, 0, f1->sinc.user+g, cmpl);
-            tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1,eigenVectors), 1.);
+            tCycleDecompostionGridOneMP(-1, f1, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1,eigenVectors), c1->rt.powDecompose);
+       //     tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1,eigenVectors), 1.);
         }
     tFilter(f1, c1->i.nStates, !(!c1->i.filter )* c1->i.irrep, eigenVectors);
 
@@ -287,10 +285,10 @@ int main (INT_TYPE argc , char * argv[]){
     
 
     
-    printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t| Attack :  %1.3f\t\t\t\t\n",2* c.i.epi + 1,c.i.d,c.i.attack);
+    printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t\n",2* c.i.epi + 1,c.i.d);
     
     if ( SPACE > 3 )
-        printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t| Attack :  %1.3f\t\t\t\t\n",2* c.i.around + 1,c.i.D,   1.0 );    
+        printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t\n",2* c.i.around + 1,c.i.D );
     
     //0//...   //A//B//C//D//E
     if ( c.rt.phaseType == buildFoundation ){//0
@@ -327,17 +325,82 @@ int main (INT_TYPE argc , char * argv[]){
             }
         }
         tEigenCycle(&c.i.c,Ha,'T', j, c.i.c.sinc.user,c.i.qFloor,0, c.i.qFloor,0,4,eigenVectors,twoBodyRitz);
-
-        mySeparateEwaldCoulomb1(&c.i.c,j,eigenVectors, c.i.decomposeRankMatrix, interactionEwald, shortenEwald, 1./c.rt.body, 0, 1, electron);
-        if ( c.i.decomposeRankMatrix )
-            ioStoreMatrix(&c.i.c, shortenEwald, 0, "EwaldCoulomb.matrix", 0);
-        else
-            ioStoreMatrix(&c.i.c, interactionEwald, 0, "EwaldCoulomb.matrix", 0);
+        
+        {
+            INT_TYPE i ;
+            double sum = 0;
+            for ( i = 0; i < j ; i++)
+                sum += -myStreams(f1, twoBodyRitz, 0)[i];
+    
+            cblas_dscal(j, 1./sum, myStreams(f1, twoBodyRitz, 0), 1);
+        }
+        
+        
+        mySeparateEwaldCoulomb1(&c.i.c,j,myStreams(f1, twoBodyRitz, 0),eigenVectors, c.i.decomposeRankMatrix, interactionExchange,interactionEwald, shortenEwald, 1., 0, 1, electron);
+        ioStoreMatrix(&c.i.c, shortenEwald, 0, "shortenEwald.matrix", 0);
 
     }
+    else if ( c.rt.phaseType == scaleBody ){//E
+        if ( ! c.i.bodyFlag){
+            printf("body flag\n");
+            exit(1);
+        }
+        INT_TYPE fi,EV=0;
+        c.i.qFloor = countLinesFromFile(&c,0);
+        c.i.c.twoBody.func.fn = nullFunction;
+        c.i.c.oneBody.func.fn = nullFunction;
+        c.i.iRank = c.i.bRank;
+        c.i.nTargets = 1;
+        c.i.heliumFlag = 1;
+        c.i.nStates =1 ;
+        iModel(&c);
+        
+#ifndef APPLE
+        for ( fi =0 ; fi < c.mem.files ; fi++)
+            EV +=  tLoadEigenWeights (&c, c.mem.fileList[fi], c.i.c.sinc.user+EV);//UNUSUAL!!!
+#endif
+        if (EV == 0 ){
+            printf ("ack!\n");
+            exit(0);
+        }
+        
+        tMap(&c);
+    }
+    else if ( c.rt.phaseType == collectKrylov ){//E
+        struct field * f1 = &c.i.c;
+        INT_TYPE on,EV = 0,i,fi,ev,Ve,Ven;
+        DCOMPLEX one = 1.;
+        char name[MAXSTRING];
+        c.i.qFloor = countLinesFromFile(&c,0);
+        c.i.iRank = c.i.bRank;
+        
+        c.i.nTargets = c.i.qFloor ;
+        c.i.heliumFlag = c.i.nTargets;
+        c.i.nStates = c.i.nTargets ;
+        iModel(&c);
+        for ( fi =0 ; fi < c.mem.files ; fi++){
+            EV =  tLoadEigenWeights (&c, c.mem.fileList[fi], c.i.c.sinc.user+EV);
 
-
-
-    fModel(&c);
+        }
+        if (EV == 0 ){
+            printf ("ack!\n");
+            exit(0);
+        }
+        Ven = 0;
+        Ve = 0;
+        for ( ev = 0 ;ev < EV ; ev++){
+            Ve += tSelect(f1, Ve, 0, eigenVectors, f1->sinc.user + ev, 1);
+           // Ve =  tSASplit(f1, c.i.irrep, Ve,EV, eigenVectors,f1->sinc.user + ev);
+        }
+        printVector(&c,c.name,c.name,-1,0, &one);
+        for ( ev =0 ; ev < Ve ; ev++){
+                tFilename(c.name, ev+1, c.i.c.body, 0, 0, name);
+                FILE * outVector = fopen(name, "w");
+                outputFormat(f1, outVector, eigenVectors+ev, 0);
+                fclose(outVector);
+                printVector(&c,c.name,c.name,ev,0, &one);
+            }
+        }
+        fModel(&c);
 
 }

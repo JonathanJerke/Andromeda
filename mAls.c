@@ -26,7 +26,7 @@
 #include "coreUtil.h"
 #include "mAls.h"
 
-INT_TYPE normalize (struct field * f1,  enum division alloy, INT_TYPE spin, INT_TYPE space){
+INT_TYPE normalize (struct field * f1,  enum division alloy,INT_TYPE l3,INT_TYPE l4, INT_TYPE spin, INT_TYPE space){
     INT_TYPE l,flag=0;
     double norm;
     INT_TYPE M2[SPACE];
@@ -35,7 +35,7 @@ INT_TYPE normalize (struct field * f1,  enum division alloy, INT_TYPE spin, INT_
     
     INT_TYPE iOne = 1;
     {
-        for ( l = 0; l < CanonicalRank(f1, alloy,spin) ;l++){
+        for ( l = l3; l < l4 ;l++){
             norm = cblas_dnrm2(M2[space], streams(f1, alloy,spin,space)+l*M2[space],iOne);
             if ( fabs(norm) > 0.  ){
                 norm = 1./norm ;
@@ -70,12 +70,12 @@ INT_TYPE normalize (struct field * f1,  enum division alloy, INT_TYPE spin, INT_
     
 }
 
-INT_TYPE spread (struct field * f1, enum division origin, INT_TYPE os, enum division alloy, INT_TYPE spin, INT_TYPE space, Stream_Type * output,Stream_Type * output2){
+INT_TYPE spread (struct field * f1, enum division origin, INT_TYPE l1, INT_TYPE l2,INT_TYPE os, enum division alloy, INT_TYPE l3, INT_TYPE l4,INT_TYPE spin, INT_TYPE space, Stream_Type * output,Stream_Type * output2){
     INT_TYPE m,n;
-    if (normalize(f1,alloy,spin,space) )
+    if (normalize(f1,alloy,l3,l4,spin,space) )
         return 1;
-    INT_TYPE L1 = CanonicalRank(f1, alloy,spin);
-    INT_TYPE G1 = CanonicalRank(f1, origin,os);
+    INT_TYPE L1 = l4-l3;
+    INT_TYPE G1 = l2-l1;
     INT_TYPE M2[SPACE];
     length(f1,alloy,M2);
     double *Alloy =streams(f1,alloy,spin,space);
@@ -86,25 +86,25 @@ INT_TYPE spread (struct field * f1, enum division origin, INT_TYPE os, enum divi
         
         for ( m = 0; m < L1; m++)
             for ( n = 0; n <=m ; n++){
-                output[ m*L1 + n ] = cblas_ddot(M2[space], Alloy+m*M2[space] ,1,Alloy+n*M2[space] ,1);
+                output[ m*L1 + n ] = cblas_ddot(M2[space], Alloy+(m+l3)*M2[space] ,1,Alloy+(n+l3)*M2[space] ,1);
                 output[ n*L1 + m ] = output[ m*L1 + n ];
             }
         if ( output2 != NULL )
         for ( m = 0; m < L1; m++)
             for ( n = 0; n < G1 ; n++)
-                output2[ n*L1 + m ] = cblas_ddot(M2[space], Alloy+m*M2[space] ,1,Origin+n*M2[space] ,1);
+                output2[ n*L1 + m ] = cblas_ddot(M2[space], Alloy+(m+l3)*M2[space] ,1,Origin+(n+l1)*M2[space] ,1);
     }
     
     //printf("%f__\n",output[0]);
     return 0;
 }
 
-INT_TYPE pSpread (struct field * f1, enum division origin, INT_TYPE os, enum division alloy, INT_TYPE spin, INT_TYPE space, Stream_Type * output,Stream_Type * output2){
+INT_TYPE pSpread (struct field * f1, enum division origin, INT_TYPE l1, INT_TYPE l2, INT_TYPE os, enum division alloy, INT_TYPE l3, INT_TYPE l4, INT_TYPE spin, INT_TYPE space, Stream_Type * output,Stream_Type * output2){
     INT_TYPE m,n;
-    if (normalize(f1,alloy,spin,space) )
+    if (normalize(f1,alloy,l3,l4,spin,space) )
         return 1;
-    INT_TYPE L1 = CanonicalRank(f1, alloy,spin);
-    INT_TYPE nm,G1 = CanonicalRank(f1, origin,os);
+    INT_TYPE L1 = l4-l3;
+    INT_TYPE nm,G1 = l2-l1;
     INT_TYPE M2[SPACE];
     length(f1,alloy,M2);
     double *Alloy =streams(f1,alloy,spin,space);
@@ -118,7 +118,7 @@ INT_TYPE pSpread (struct field * f1, enum division origin, INT_TYPE os, enum div
             m = (nm)%L1;
             n = (nm/L1)%L1;
             if ( n <= m ){
-                output[ nm ] = cblas_ddot(M2[space], Alloy+m*M2[space] ,1,Alloy+n*M2[space] ,1);
+                output[ nm ] = cblas_ddot(M2[space], Alloy+(m+l3)*M2[space] ,1,Alloy+(n+l3)*M2[space] ,1);
                 output[ m*L1 + n ] = output[ nm ];
             }
         }
@@ -127,7 +127,7 @@ INT_TYPE pSpread (struct field * f1, enum division origin, INT_TYPE os, enum div
             for ( nm = 0; nm < L1*G1; nm++){
                 m = (nm)%L1;
                 n = (nm/L1)%G1;
-                    output2[ nm ] = cblas_ddot(M2[space], Alloy+m*M2[space] ,1,Origin+n*M2[space] ,1);
+                    output2[ nm ] = cblas_ddot(M2[space], Alloy+(m+l3)*M2[space] ,1,Origin+(n+l1)*M2[space] ,1);
             }
     }
     return 0;
@@ -191,6 +191,7 @@ INT_TYPE balance (struct field * f1,  enum division alloy, INT_TYPE spin){
     return 0;
 }
 
+
 double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Type * cofact, enum division origin,INT_TYPE os,   enum division alloy ,  INT_TYPE spin ,double tolerance,double magn, INT_TYPE preferred){
     if ( tolerance < 0 ){
         tolerance = -(tolerance);
@@ -216,7 +217,7 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
     Stream_Type * guide, *track;
     INT_TYPE space,space0;
     INT_TYPE L1 = CanonicalRank(f1,alloy,spin);;
-    INT_TYPE G1 =CanonicalRank(f1,origin,os);
+    INT_TYPE G1 = CanonicalRank(f1,origin,os);
     if ( G1 == 0 ){
         f1->sinc.tulip[alloy].Current[spin] = 0;
         printf("CD: empty origin %d _%lld -> %d _%lld\n", origin, os , alloy, spin);
@@ -299,10 +300,10 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
                 
                 
                 if ( !singleFlag){
-                 if ( spread(f1,origin,os,alloy,spin,dim[space],array[dim[space]],array2[dim[space]]) )
+                 if ( spread(f1,origin,0,G1,os,alloy,0,L1,spin,dim[space],array[dim[space]],array2[dim[space]]) )
                     return -1;
                 }else
-                    if ( pSpread(f1,origin,os,alloy,spin,dim[space],array[dim[space]],array2[dim[space]]) )
+                    if ( pSpread(f1,origin,0,G1,os,alloy,0,L1,spin,dim[space],array[dim[space]],array2[dim[space]]) )
                         return -1;
 
         }
@@ -456,10 +457,10 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
                 return 0;
             }
             if ( !singleFlag){
-                if ( spread(f1,origin,os,alloy,spin,dim[0],array[dim[0]],array2[dim[0]]) )
+                if ( spread(f1,origin,0,G1,os,alloy,0,L1,spin,dim[0],array[dim[0]],array2[dim[0]]) )
                     return -1;
             }else
-                if ( pSpread(f1,origin,os,alloy,spin,dim[0],array[dim[0]],array2[dim[0]]) )
+                if ( pSpread(f1,origin,0,G1,os,alloy,0,L1,spin,dim[0],array[dim[0]],array2[dim[0]]) )
                     return -1;
 
             space0++;
@@ -470,9 +471,295 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
 }
 
 
+double canonicalGridDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Type * cofact, enum division origin,INT_TYPE l1,INT_TYPE l2,INT_TYPE os,   enum division alloy ,INT_TYPE l3,INT_TYPE l4,  INT_TYPE spin ,double tolerance,double magn, INT_TYPE preferred){
+    if ( tolerance < 0 ){
+        tolerance = -(tolerance);
+    }
+    INT_TYPE yes = 0,singleFlag = 0;
+    if ( rank < 0){
+        singleFlag = 1;
+        rank = 0;
+    }
+    double value,value2 =1,cross,other2,value3;
+    //printf("%d (%d)\n", alloy,CanonicalRank(f1, alloy, 0));
+    //fflush(stdout);
+    INT_TYPE g,l,count = 1 ,spaces=0;
+    
+    INT_TYPE ns = iNS;
+    double ALPHA = f1->mem1->rt->ALPHA;
+    //    if ( cofact != NULL )
+    //    for ( l = 0 ; l < CanonicalRank(f1, origin, os); l++)
+    //        printf("%d %f\n", l, cofact[l]);
+    //    printf("\n");
+    Stream_Type * array[SPACE];
+    Stream_Type * array2[SPACE];
+    Stream_Type * guide, *track;
+    INT_TYPE space,space0;
+    INT_TYPE L1 = l4-l3;
+    INT_TYPE G1 = l2-l1;
+    if ( G1 == 0 ){
+        f1->sinc.tulip[alloy].Current[spin] = 0;
+        printf("CD: empty origin %d _%lld -> %d _%lld\n", origin, os , alloy, spin);
+        exit(0);
+        return 0;
+    }
+    for ( space = 0; space < SPACE ; space++)
+        if ( f1->sinc.rose[space].body != nada )
+            spaces++;
+    
+    if ( L1 == 0 ){
+        printf("CD: zero length %lld %lld %lld\n", origin,alloy,spin);
+        exit(0);
+        tId(f1, alloy, spin);
+        L1 = 1;
+    }
+    
+    INT_TYPE M2[SPACE];
+    length(f1,alloy,M2);
+    INT_TYPE info;
+    double subValue2 = 1,subValue3;
+    double rcond;
+    enum division canonicalStore;
+    INT_TYPE T1 = G1*L1;
+    {//REF CORE NUMBER
+        //GET CORE... ALLOCATE TO CORE-LANE.
+        
+        
+        for ( space = 0; space < SPACE ; space++){
+            array[space] =  streams(f1, canonicalBuffers, rank , space);
+            array2[space] =  streams(f1, canonicalBuffers, rank , space) + L1*L1;
+            
+        }
+        guide =  myStreams(f1, guideBuffer, rank );
+        track =  myStreams(f1, trackBuffer, rank );
+        
+        
+        if (  T1 + L1*L1 >  part(f1,canonicalBuffers)){
+#if 1
+            printf("mem prob\n %d %d \n", L1, G1);
+#endif
+            exit(0);
+        }
+        
+        if ( species(f1, origin ) == matrix )
+            canonicalStore = canonicalBuffersBM;
+        else
+            canonicalStore = canonicalBuffersB;
+        
+        if ( part(f1, canonicalStore) < L1  )
+        {
+            printf("list alloc\n");
+            exit(0);
+        }
+        
+        
+    }
+    INT_TYPE dim0 = 0;
+    
+    INT_TYPE dim[SPACE],ll;
+    
+    {
+        
+        space0 = 0;
+        
+        dim0=0;
+        if ( preferred == -1 ){
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1->sinc.rose[space].body != nada)
+                    dim[(space0+space)%(spaces)] = dim0++;
+            
+        } else {
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1->sinc.rose[space].body != nada)
+                    
+                    dim[dim0++] = (preferred+space)%(spaces);
+            
+            
+        }
+        for ( space = 0; space < dim0 ; space++)
+            if ( f1->sinc.rose[dim[space]].body != nada){
+                
+                
+                if ( !singleFlag){
+                    if ( spread(f1,origin,l1,l2,os,alloy,l3,l4,spin,dim[space],array[dim[space]],array2[dim[space]]) )
+                        return -1;
+                }else
+                    if ( pSpread(f1,origin,l1,l2,os,alloy,l3,l4,spin,dim[space],array[dim[space]],array2[dim[space]]) )
+                        return -1;
+                
+            }
+        //        {
+        //            INT_TYPE spa;
+        //            for ( spa = 0 ; spa < SPACE ; spa++)
+        //                if ( f1->sinc.rose[spa].body != nada )
+        //                    printf("*%1.3f*", cblas_dnrm2(L1*M2[spa], streams(f1, alloy, spin, spa), 1)/sqrt(L1));
+        //            printf("\n");
+        //        }
+        
+        space0 = 0;
+        while (1 ){
+            //all computed inner products
+            //            printf("dim[0]=%d\n", dim[0]);
+            dim0 = 0;
+            if ( preferred == -1 ){
+                for ( space = 0; space < SPACE ; space++)
+                    if ( f1->sinc.rose[space].body != nada)
+                        
+                        dim[(space0+space)%(spaces)] = dim0++;
+                
+            }
+            cblas_dcopy(L1*L1, array[dim[1]],1,track,1);
+            for ( space = 2; space < dim0 ; space++)
+                if ( f1->sinc.rose[dim[space]].body != nada)
+                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1*L1, 0,array[dim[space]],1, track,1 );
+            if ( L1 >1 )
+                for ( l = 0 ; l < L1; l++)
+                    track[ l*L1 + l ] += ALPHA;
+            
+            if (space0 == 0 && L1 > 1){
+                cblas_dcopy(L1*L1, track, 1, track+L1*L1, 1);
+                tdsyev(rank, f1, 'V', L1, track+L1*L1, L1, track+2*L1*L1);
+                
+                rcond = (track+2*L1*L1)[L1-1]/(track+2*L1*L1)[0];
+                if (  isnan(rcond) || isinf(rcond) || rcond > 1e7){
+#if VERBOSE
+                    printf("Warning: condition of Beylkin\n");
+                    fflush(stdout);
+#endif
+                    return -1;
+                }
+                //maybe one at a time???
+                
+            }
+            cblas_dcopy(T1, array2[dim[1]],1,guide,1);
+            for ( space = 2; space < dim0 ; space++)
+                if ( f1->sinc.rose[dim[space]].body != nada)
+                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,T1, 0,array2[dim[space]],1, guide,1 );
+            if ( cofact != NULL )
+                for ( g = 0; g < G1 ; g++)
+                    for ( l = 0; l < L1 ; l++)
+                        guide[g*L1+l] *= (cofact+l1)[g];
+            
+            // Vectors  L1 x G1
+            // list...  L1 x M2 ==   ( cross * gstream**T )
+            
+            
+            
+            double *pt = myStreams(f1,canonicalStore , rank);
+            
+//            if ( 0 ) {
+//                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,L1,M2[dim[0]],G1,1,guide,L1,streams(f1,origin,os,dim[0]),M2[dim[0]], 0, pt, L1 );
+//
+//                // guide //  L1 * G1
+//                // origin // M2 * G1
+//                info = tdpotrf(L1, track);
+//                if ( info != 0 ){
+//#if VERBOSE
+//                    printf("info failure \n");
+//#endif
+//                    return -1;
+//                }
+//
+//                info = tdpotrs(L1,  M2[dim[0]], track,  pt,L1 );
+//                if ( info != 0 ){
+//#if VERBOSE
+//                    printf("info failture\n");
+//#endif
+//                    return -1;
+//                }
+//                transpose ( L1, M2[dim[0]] , pt , streams(f1,alloy,spin,dim[0]));
+//            } else
+            {
+                info = tdpotrf(L1, track);
+                if ( info != 0 ){
+#if VERBOSE
+                    printf("info failure \n");
+#endif
+                    return -1;
+                }
+                
+                for ( ll = 0; ll < M2[dim[0]] ; ll++){
+                    cblas_dgemv(CblasColMajor, CblasNoTrans,L1,G1,1.,guide,L1,streams(f1,origin,os,dim[0])+ll+l1*M2[dim[0]],M2[dim[0]], 0., pt,1);
+//                    if ( 0 ){
+//                        cblas_dcopy(L1*L1, track, 1, track+L1*L1, 1);
+//                        info = tdgels(rank, f1, L1, 1, track+L1*L1,  pt, L1);
+//                        if ( info != 0 ){
+//#if VERBOSE
+//                            printf("info failure \n");
+//#endif
+//                            return -1;
+//                        }
+//
+//                    } else
+                    {
+                    
+                        info = tdpotrs(L1,  1, track,  pt,L1 );
+                        if ( info != 0 ){
+#if VERBOSE
+                            printf("info failture\n");
+#endif
+                            return -1;
+                        }
+                        
+                    }
+                    cblas_dcopy(L1, pt, 1, streams(f1,alloy,spin,dim[0])+ll+l3*M2[dim[0]], M2[dim[0]]);
+                    
+                }
+                
+            }
+            
+            
+            subValue3 = subValue2;
+            
+            //            {
+            //                INT_TYPE spa;
+            //                for ( spa = 0 ; spa < SPACE ; spa++)
+            //                    if ( f1->sinc.rose[spa].body != nada )
+            //                        printf("%1.3f ", cblas_dnrm2(L1*M2[spa], streams(f1, alloy, spin, spa), 1)/sqrt(L1));
+            //                printf("\n");
+            //            }
+            
+            subValue2 =  cblas_dnrm2(L1*M2[dim[0]], streams(f1, alloy, spin, dim[0])+l3*M2[dim[0]], 1)/magn/sqrt(L1);
+            
+            if ( fabs(subValue2 - subValue3) < tolerance ){
+                yes++;
+            }else {
+                yes = max(yes-2,0);
+            }
+            
+            if ( yes > 100 ){
+            //     printf("ct %d\n", count);
+                return 0;
+            }
+            
+          //  printf("(%3.3f %3.3f)\n", subValue2, subValue3);
+            count++;
+            if ( space0 > 10000 )
+            {
+                // printf("ct(fail) %d\n", count);
+                return 0;
+            }
+            if ( !singleFlag){
+                if ( spread(f1,origin,l1,l2,os,alloy,l3,l4,spin,dim[0],array[dim[0]],array2[dim[0]]) )
+                    return -1;
+            }else
+                if ( pSpread(f1,origin,l1,l2,os,alloy,l3,l4,spin,dim[0],array[dim[0]],array2[dim[0]]) )
+                    return -1;
+            
+            space0++;
+            
+        }
+    }
+    return -1;
+}
+
 
 double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
     INT_TYPE ct,ft;
+    if ( CanonicalRank(f1, origin, os) <= maxRun){
+        tEqua(f1, alloy, spin, origin, os);
+        return 0.;
+    }
     double toleranceAdjust = 1.,past = 1e9,prev=1e9,value,value2,cross,other2 ;//= cblas_dnrm2 ( part(f1, origin), coeff, 1);
     if ( coeff == NULL )
         value2 = (inner(imax(0,rank),f1, origin,os));
@@ -537,7 +824,113 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum div
     }while(1);
     return 0.;
 }
+double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct field * f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
+    printf("((%d %d))\n", CanonicalRank(f1, origin, os), maxRun);
+    INT_TYPE ran1,step,ct,run;
+    INT_TYPE numberSplit= 100,split = 1;
+    if ( CanonicalRank(f1, origin, os) <= maxRun){
+        tEqua(f1, alloy, spin, origin, os);
+        return 0.;
+    }
 
+    double *co,toleranceAdjust = 1.,past = 1e9,prev=1e9,value,value2,cross,other2 ;//= cblas_dnrm2 ( part(f1, origin), coeff, 1);
+    if ( coeff == NULL )
+        value2 = (inner(imax(0,rank),f1, origin,os));
+        else
+            value2 = tInnerListMP(imax(0,rank), f1, origin, coeff);
+            if (! CanonicalRank(f1, origin, os ) )
+                return 0;
+    //    if ( value2 < f1->mem1->rt->TARGET ){
+    //        f1->sinc.tulip[alloy].Current[spin]=0;
+    //        return 0;
+    //    }
+    assignCores(f1, 1);
+    f1->sinc.tulip[alloy].Current[spin] = 0;
+    for ( run = 0; run < maxRun ; run++){
+        tId(f1, alloy,spin);
+      //  printf("%d ** %d\n", run, CanonicalRank(f1, alloy, 0));
+    }
+    f1->sinc.tulip[alloy].Current[spin] = maxRun;
+    for (split = 1 ; split <= imin(f1->mem1->rt->powDecompose,run - 2); split++){
+        step = CanonicalRank(f1, origin, os)/(maxRun)+(!(!(CanonicalRank(f1, origin, os)%maxRun)));
+        if ( rank == - 1){
+            numberSplit = 0;
+#ifdef OMP
+#pragma omp parallel for private (ran1,run,ct,toleranceAdjust) schedule(dynamic,1) reduction(+:numberSplit)
+#endif
+            for ( run = 0; run < maxRun ; run+=split){
+#ifdef OMP
+                ran1 = omp_get_thread_num();
+#else
+                ran1 = 0;
+#endif
+                numberSplit += 1;
+                toleranceAdjust = 1.;
+                do{
+                    ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,imin(CanonicalRank(f1, origin, os)-1,run*step),imin(CanonicalRank(f1, origin, os),(run+split)*step), os,alloy, run,imin(maxRun,run+split),spin, toleranceAdjust*tolerance,value2,-1);
+                    toleranceAdjust *= 1.2;
+                    if ( ct == -1 ){
+                        printf("List bailed \n");
+                        break;
+                        
+                    }
+                }while ( ct == 1 );
+            }
+        }else {
+            numberSplit = 0;
+            for ( run = 0; run < maxRun ; run+=split){
+                ran1 = 0;
+                numberSplit+=1;
+                toleranceAdjust = 1.;
+                do{
+                    ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,imin(CanonicalRank(f1, origin, os)-1,run*step),imin(CanonicalRank(f1, origin, os),(run+split)*step), os,alloy, run,imin(maxRun,run+split),spin, toleranceAdjust*tolerance,value2,-1);
+                    toleranceAdjust *= 1.2;
+                    if ( ct == -1 ){
+                        printf("List bailed \n");
+                        break;
+                        
+                    }
+
+                }while ( ct == 1 );
+            }
+        }
+        if ( coeff == NULL ){
+            value = distanceOne(imax(0,rank), f1, origin, os, alloy, spin);
+        }else {
+            cross = tInnerVectorListMP(imax(0,rank), f1, origin, coeff, alloy, spin) ;
+            other2 = inner(imax(0,rank), f1, alloy, spin);
+            value = fabs(value2 - 2. * cross + other2 );
+        }
+        printf("grid%d: %d (%d) %f -- /%f/\n",split,alloy,CanonicalRank(f1, alloy, spin),value,value2);
+        fflush(stdout);
+        if( numberSplit <= 2 )
+        {
+            break;
+        }
+
+    }
+    if ( numberSplit == 2){
+        do{
+            ct = canonicalListDecompositionMP(rank, f1, coeff, origin, os,alloy, spin, toleranceAdjust*tolerance,value2,-1);
+            toleranceAdjust *= 1.2;
+            if ( ct == -1 ){
+                printf("List bailed \n");
+                break;
+            }
+        }while ( ct == 1 );
+        if ( coeff == NULL ){
+            value = distanceOne(imax(0,rank), f1, origin, os, alloy, spin);
+        }else {
+            cross = tInnerVectorListMP(imax(0,rank), f1, origin, coeff, alloy, spin) ;
+            other2 = inner(imax(0,rank), f1, alloy, spin);
+            value = fabs(value2 - 2. * cross + other2 );
+        }
+        printf("canon: %d (%d) %f -- /%f/\n",alloy,CanonicalRank(f1, alloy, spin),value,value2);
+        fflush(stdout);
+    }
+    return 0.;
+
+}
 double tInnerVectorListMP( INT_TYPE rank, struct field * f1 , enum division origin, double * coeff, enum division vector,INT_TYPE spin ){
     
     double sum = 0.,prod;
@@ -1110,7 +1503,7 @@ INT_TYPE tOuterProductSu( struct field * f1,enum division vector , INT_TYPE a, e
         exit(0);
     }
     if ( zc + ma*mb > part(f1, proj) && proj < eigenVectors){
-        printf("outerProductSu:  \n");
+        printf("outerProductSu:  %d %d %d %d\n",zc , ma*mb , part(f1, proj), proj);
         exit(0);
     }
     
@@ -1508,28 +1901,29 @@ void tHYpY(  INT_TYPE rank, struct field * f1 ,INT_TYPE targSpin, enum division 
 void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shiftFlag, double product, double productCmpl,  enum division right ,  double tolerance , INT_TYPE maxRun  ){
     INT_TYPE l , k,targSpin;
     enum division pt,Mat;
-    struct name_label *fz = &f1->sinc.tulip[totalFuzzyVector];
+    //struct name_label *fz = &f1->sinc.tulip[totalFuzzyVector];
     struct name_label *rg = &f1->sinc.tulip[right];
 
     struct name_label nm ;
     f1->sinc.tulip[totalVector].Current[rank] = 0;
-    f1->sinc.tulip[totalFuzzyVector].Current[rank] = 0;
-
+    f1->sinc.tulip[productVector].Current[rank] = 0;
+    
     if ( right == productVector || right == totalVector){
         printf("oops\n");
         exit(0);
     }
     //cpy in if shifted.
     for ( targSpin = 0 ; targSpin < spins(f1, right ) ;targSpin++){
-        if ( shiftFlag && targSpin == 0 )
-            tEqua(f1, totalFuzzyVector, rank, right, targSpin);
         pt = left;
+        if ( shiftFlag && targSpin == 0 )
+            tEqua(f1, totalVector, rank, right, targSpin);
+
         //cycle over all links in left.
         do {
             nm = f1->sinc.tulip[pt];
 #if VERBOSE
             Mat = pt;
-            printf("%d-%d\t%d\t%d\t %f || \t",Mat,name(f1,Mat),bodies(f1, Mat),CanonicalRank(f1, name(f1,Mat), cmpl),traceOne(f1, name(f1,Mat), cmpl));
+            printf("%d-%d\t%d\t%d\t %f || \t",Mat,name(f1,Mat),bodies(f1, Mat),CanonicalRank(f1, name(f1,Mat), 0),traceOne(f1, name(f1,Mat), 0));
             INT_TYPE space;
             printf(":");
             for ( space = 0; space < SPACE ; space++)
@@ -1541,29 +1935,33 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
                 for ( l = 0; l < part(f1, name(f1,pt) ) ; l++)
 
                 {
-            //        printf("%d %d %d\n", pt,CanonicalRank(f1, totalFuzzyVector, 0),CanonicalRank(f1, totalVector, 0));
-
-                tHYpY(rank, f1, targSpin,pt, l, product, productCmpl, right, k, totalVector, rank);
-                struct name_label t = f1->sinc.tulip[totalVector];
-                {
-                    if ( CanonicalRank(f1, totalVector, rank) >= part (f1, totalVector )-8){
-                        tEqua(f1, productVector, rank, right, targSpin);
-                        tCycleDecompostionListOneMP(rank, f1, totalVector, rank,NULL, productVector, rank, tolerance, maxRun, 1.);
-                        tAddTw(f1, totalFuzzyVector, rank, productVector, rank);
-                        f1->sinc.tulip[totalVector].Current[rank] = 0;
+                    
+                   // printf("%d %d \n", pt,CanonicalRank(f1, totalVector, rank));
+                    
+                    tHYpY(rank, f1, targSpin,pt, l, product, productCmpl, right, k, totalVector, rank);
+                    struct name_label t = f1->sinc.tulip[totalVector];
+                    {
+                        if ( CanonicalRank(f1, totalVector, rank) >= part (f1, totalVector )-8){
+                            printf("CANON++");
+                            exit(0);
+                           // tEqua(f1, productVector, rank, right, targSpin);
+                            f1->sinc.tulip[productVector].Current[rank] = 0;
+                            tCycleDecompostionGridOneMP(rank, f1, totalVector, rank,NULL, productVector, rank, tolerance, maxRun, 1.);
+                   //         tAddTw(f1, totalFuzzyVector, rank, productVector, rank);
+                            f1->sinc.tulip[totalVector].Current[rank] = 0;
+                        }
                     }
                 }
-            }
             pt = f1->sinc.tulip[pt].linkNext;
             
         }while ( pt != nullName );
-        
-        tEqua(f1, productVector, rank, right, targSpin);
-        tCycleDecompostionListOneMP(rank, f1, totalVector, rank, NULL,productVector, rank, tolerance, maxRun, 1.);
-        tAddTw(f1, totalFuzzyVector, rank, productVector, rank);
 
-        tCycleDecompostionListOneMP(rank, f1, totalFuzzyVector, rank,NULL, right, targSpin, tolerance, maxRun, 1.);
-        
+        tCycleDecompostionGridOneMP(rank, f1, totalVector, rank, NULL,productVector, rank, tolerance, maxRun, f1->mem1->rt->powDecompose);
+//        tAddTw(f1, totalFuzzyVector, rank, productVector, rank);
+//
+//        tCycleDecompostionGridOneMP(rank, f1, totalFuzzyVector, rank,NULL, right, targSpin, tolerance, maxRun, 1.);
+        tEqua(f1, right, targSpin, productVector, rank);
+
     }
     struct name_label r = f1->sinc.tulip[right];
 

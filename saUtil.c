@@ -36,6 +36,8 @@ INT_TYPE tFil ( struct field * f1, enum division A, enum division v , INT_TYPE *
             cblas_dcopy(n1[space], streams(f1,A,0,space)+i[space+3]*n1[space],1, streams(f1,diagonal1VectorB,0,space),1);
         }
         f1->sinc.tulip[diagonal1VectorA].Current[0] = 1;
+        f1->sinc.tulip[diagonal1VectorB].Current[0] = 1;
+
         f1->sinc.tulip[v].Current[0] = 0;
 
         tOuterProductSu(f1, diagonal1VectorA, 0, diagonal1VectorB, 0, v, 0);

@@ -32,6 +32,14 @@ INT_TYPE printVector (struct calculation *c, char * name,char * vectorName,  INT
     INT_TYPE iii;
     char str [MAXSTRING];
     FILE * outf ;
+    if ( iv == -1 ){
+        sprintf(str, "%s.vector",vectorName);
+        outf = fopen (str,"w");
+        fclose(outf);
+        return -1;
+    }
+    
+    
     sprintf(str, "%s.vector",vectorName);
     outf = fopen (str,"a");
     for ( iii = iv; iii <= iv  ; iii++)
@@ -140,7 +148,11 @@ void outputFormat(struct field  * f1, FILE * out, enum division output ,INT_TYPE
     }
 
     fprintf(out,"component = %d\n", COMPONENT);
-    fprintf(out,"genus = %d \n", species(f1, output) );
+    enum genus g = species(f1, output);
+    if (g == 3 )
+        g = 1;
+    
+    fprintf(out,"genus = %d \n", g );
     fprintf(out,"header = %d\n", header(f1, output));
     fprintf(out,"canonRank = %d\n",CanonicalRank(f1, output,spin ) );
     fprintf(out,"spin = %d\n", spin);
@@ -1081,6 +1093,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                             c2.i.c.sinc.tulip = NULL;
                             for ( space = 0; space <= SPACE ; space++)
                                 c2.i.c.sinc.rose[space].stream = NULL;
+                            c2.rt.boot = noMatrices;
                             c2.i.nStates= 0;
                             c2.i.vectorOperatorFlag= 0;
                             c2.i.springFlag= 0;
@@ -1105,10 +1118,10 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                             c2.i.d = c1->i.d* pow( (2.* c1->i.epi + 1.) /(2.*c2.i.epi + 1),c2.i.attack);
 
                             
-                            printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t| Attack :  %1.3f\t\t\t\t\n",2* c2.i.epi + 1,c2.i.d,c2.i.attack);
+                            printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t\n",2* c2.i.epi + 1,c2.i.d);
                             
                             if ( SPACE > 3 )
-                                printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t| Attack :  %1.3f\t\t\t\t\n",2* c2.i.around + 1,c2.i.D,   1.0 );
+                                printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t\n",2* c2.i.around + 1,c2.i.D);
                             
 
                             
@@ -1123,7 +1136,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                                 tEqua(f1, inputVectors+ct, cmpl, totalVector,cmpl);
                             }
                             f1->sinc.tulip[inputVectors+ct].value.symmetry = c2.i.c.sinc.tulip[totalVector].value.symmetry;
-                            printf("%d\t%s\t%d\n", ct, name,f1->sinc.tulip[inputVectors+ct].value.symmetry);
+                            printf("%s\tSA%d\n", name,f1->sinc.tulip[inputVectors+ct].value.symmetry);
                             flagLoad = 1;
                             fModel(&c2);
                         }
