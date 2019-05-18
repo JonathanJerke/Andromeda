@@ -1,36 +1,9 @@
-##  ANDROMEDA
-
-
-
-
-************
-edit system.h to adjust system settings like number of particle types, i.e. electrons only or electrons and clamped protons.
-	
-
-FOR Open-MP RUNS...
-set MaxCore = ## cores available
-#define OMP
-   AND
-add OMPFLAG in Makefile
-
-
-#if you have MKL...
-## #define MKL 
-
-
-make 
-************
-
 ANDROMEDA 6 
-
-Runtime is now divided into different jobs, jobs.c, that accomidate more user control.
-A structure of launch parameters are enclosed in the launch.tar file.
 
 export LAUNCH={LAUNCHPAD_DIR}
 Modify $LAUNCH/csh/go.csh to interface with your version of andromeda
 
 See Andromeda/wiki for express instructions.
-
 
 Please cite these two papers until a proper writeup of Andromeda is published.
 
