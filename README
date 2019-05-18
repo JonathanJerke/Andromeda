@@ -29,12 +29,11 @@ A structure of launch parameters are enclosed in the launch.tar file.
 export LAUNCH={LAUNCHPAD_DIR}
 Modify $LAUNCH/csh/go.csh to interface with your version of andromeda
 
-::Execute in lowest directory inside launch::
-$LAUNCH/csh/boot.csh 
-do{
-	$LAUNCH/csh/addStage.csh *ATTACK* *bandStage* *basisStage* found one
-	$LAUNCH/csh/ritz.csh found one goSet
-	$LAUNCH/csh/decompose.csh one one goSet
-	$LAUNCH/csh/krylov.csh one one goSet
-	--repeat with replacing found -> one and one -> two--
-}while(!done)
+See Andromeda/wiki for express instructions.
+
+
+Please cite these two papers until a proper writeup of Andromeda is published.
+
+Jonathan, Jerke, and Poirier Bill. "Two-Body Schrödinger Wave Functions in a Plane-Wave Basis Via Separation of Dimensions." The Journal of Chemical Physics 148, no. 10 (2018): 104101.
+Jerke, Jonathan, Jacek Karwowski, and Bill Poirier. "Exact Matrix Elements for General Two-Body Central-Force Interactions, Expressed as Sums of Products." Molecular Physics  (2018): 1-12.
+
