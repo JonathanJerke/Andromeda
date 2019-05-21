@@ -1,0 +1,9 @@
+*Body found/A.riz
+*InputOutput
+read ../../control/found
+read character 
+vector found/found
+read ../../control/ritzPhase
+read symmetry
+.InputOutput
+.Body

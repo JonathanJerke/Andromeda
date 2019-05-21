@@ -1,0 +1,15 @@
+*Body print
+	*Parameters
+		phase 8	
+		canon 100
+		basisRank 100
+		sectors 0
+		matrix 0
+	.Parameters
+
+
+	*InputOutput
+		body 
+		read ../../control/one
+	.InputOutput
+.Body

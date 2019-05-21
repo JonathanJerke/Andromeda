@@ -1,0 +1,38 @@
+*Body def
+	*Parameters
+	#just keep canon BIG..if It asks for MONEY, give more canon!
+		canon 300
+		#system dependent
+		maxRAM 48
+	#OPEN GAME,  trade speed for accuracy!
+	#
+		condition 8
+		tolerance 9
+		threshold 3
+		vectorThreshold 4
+		target 3
+	#
+	#
+
+		#default
+		OCSB 0
+		configuration 0
+		#Matrix of few could modify FOUNDATION
+		matrix 1
+		range 4
+		phase 0
+		attack 0.5
+		entropy 0
+		runFlag 0
+		lanes 1
+		parallel 1
+		Angstroms 0
+		sectors 1
+		cycles 0	
+		filter 1
+		iterations 2
+		foundation 200
+.Parameters
+
+.Body
+

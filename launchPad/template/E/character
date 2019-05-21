@@ -1,0 +1,12 @@
+*Body print
+	*InputOutput
+		read symmetry
+	.InputOutput
+
+
+        *Parameters
+		#NUMBER OF STATES
+                states 10
+	 .Parameters
+
+.Body

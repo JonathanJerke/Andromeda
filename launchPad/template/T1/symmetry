@@ -1,0 +1,6 @@
+*Body 
+	*InputOutput
+		# ALL IS TRIVIAL
+		read ../../symmetry/T1
+	.InputOutput
+.Body
