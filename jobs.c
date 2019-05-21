@@ -78,8 +78,8 @@ INT_TYPE krylov ( struct calculation *c1){
         for ( iii = 0; iii < EV ; iii++){
             printf ( "\n Vector \t%d \n", iii+1);
             printExpectationValues(f1, Ha, eigenVectors+RdsSize-EV+iii);
-            tEdges(c1,eigenVectors+RdsSize-EV+iii);
             fflush(stdout);
+            print(c1,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
         }
     }
 
@@ -93,8 +93,8 @@ INT_TYPE krylov ( struct calculation *c1){
             for ( iii = 0; iii < EV ; iii++){
                 printf ( "\n Vector \t%d \n", iii+1);
                 printExpectationValues(f1, Ha, eigenVectors+RdsSize-EV+iii);
-                tEdges(c1,eigenVectors+RdsSize-EV+iii);
                 fflush(stdout);
+                print(c1,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
             }
         }
         fflush(stdout);
@@ -307,7 +307,6 @@ int main (INT_TYPE argc , char * argv[]){
     }
     else if ( c.rt.phaseType == productKrylov ){//C
         krylov(&c);
-        print(&c,0,c.i.Iterations,f1->sinc.user);
     }
     else if ( c.rt.phaseType == solveRitz ){//A
         ritz(&c);
