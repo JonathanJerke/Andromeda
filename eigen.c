@@ -586,41 +586,30 @@ INT_TYPE tFoundationLevel( struct field * f1, enum division A , double lvlm, dou
 
 
 INT_TYPE tFilter(struct field * f1, INT_TYPE Ve, INT_TYPE irrep, enum division usr){
-    INT_TYPE o,space,ii,cmpl=0,rank,nP = tPerms(f1->mem1->rt->body);
+    INT_TYPE ii,cmpl=0,rank,nP = tPerms(f1->mem1->rt->body);
     assignCores(f1, 2);
-    if ( spins(f1, usr) == 2 )
-    {
-        printf("spruce up!\n");
-        exit(0);
-    }
-//#ifdef OMP
-//#pragma omp parallel for private (ii,rank,cmpl) schedule(dynamic,1)
-//#endif
+#ifdef OMP
+#pragma omp parallel for private (ii,rank,cmpl) schedule(dynamic,1)
+#endif
     for ( ii = 0; ii < Ve ; ii++)
     {
-//#ifdef OMP
-//        rank = omp_get_thread_num();
-//#else
-//        rank = 0;
-//#endif
+#ifdef OMP
+        rank = omp_get_thread_num();
+#else
+        rank = 0;
+#endif
 
         if ( irrep && bodies(f1, usr+ii ) > one  ){
             for ( cmpl = 0 ; cmpl < spins(f1, usr+ii) ; cmpl++){
-                f1->sinc.tulip[permutationVector].Current[0] = 0;
-                for ( o = 0 ; o < CanonicalRank(f1, usr+ii, cmpl);o++){
-                    f1->sinc.tulip[diagonalVectorA].Current[0] = 0;
-                    for (space = 0; space < SPACE ; space++)
-                        xsAdd(1./nP, space, f1, diagonalVectorA, 0, f1, usr+ii, o, cmpl);
-                    f1->sinc.tulip[diagonalVectorA].Current[0] = 1;
-                    tBuildIrr(0, f1, irrep+nP, diagonalVectorA, 0, permutationVector, 0);
-                }
-                tCycleDecompostionGridOneMP(-2, f1, permutationVector, 0, NULL,usr+ii , cmpl, f1->mem1->rt->TARGET, part(f1,usr+ii), 1.);
-        //        tCycleDecompostionListOneMP(rank, f1, permutationVector, rank, NULL,  usr+ii,cmpl,f1->mem1->rt->TARGET, part(f1,usr+ii), 1);
+                f1->sinc.tulip[permutationVector].Current[rank] = 0;
+                tBuildIrr(rank, f1, irrep+nP, usr+ii, cmpl, permutationVector, rank);
+        //        tCycleDecompostionGridOneMP(rank, f1, permutationVector, rank, NULL,usr+ii , cmpl, f1->mem1->rt->TARGET, part(f1,usr+ii), 1.);
+                tCycleDecompostionListOneMP(rank, f1, permutationVector, rank, NULL,  usr+ii,cmpl,f1->mem1->rt->TARGET, part(f1,usr+ii), 1);
             }
         }
         
 //#endif
-        f1->sinc.tulip[usr+ii].value.symmetry = tClassify(0, f1, usr+ii);
+        f1->sinc.tulip[usr+ii].value.symmetry = tClassify(rank, f1, usr+ii);
       //  printf(" %d->%d (%d) = %d\n",ii+usr, CanonicalRank(f1,usr+ii,cmpl),tPath(f1,usr+ii),f1->sinc.tulip[usr+ii].symmetry);
       //  fflush(stdout);
     }
