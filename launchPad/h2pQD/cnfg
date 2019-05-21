@@ -16,8 +16,10 @@
 	#consider bonding curves.
 	#free game
 		lattice 1.5
-		minClamp 1.8
-		maxClamp 3.0
+		clampMin 1.8
+		clampMax 3.0
+		levelLevel 1
+		foundation 2000
 		latte 0.08
 	#end 
 		around
