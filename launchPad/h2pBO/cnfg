@@ -1,0 +1,23 @@
+*Body print
+	*Parameters
+		body 1
+	.Parameters
+		
+	*InputOutput
+		read ../../interaction/coulomb
+	.InputOutput
+		
+	*Geometry
+		1 0 0  1
+		1 0 0 -1
+	.Geometry
+	
+	*Parameters
+		lattice 1.5
+#		minClamp 1.5
+#		maxClamp 4.0
+#		protonDistance 0.2
+#		around
+		## REQUIRES PARTICLE 2 in system.h 
+	.Parameters
+.Body

@@ -1,0 +1,20 @@
+*Body print
+	*Parameters
+		body 1
+	.Parameters
+		
+	*InputOutput
+	.InputOutput
+		
+	*Geometry
+	.Geometry
+	
+	*Parameters
+		foundation 50
+		lattice 1.666
+		range 4
+		initRank 2
+		basisRank 8
+		spring 0.125
+	.Parameters
+.Body

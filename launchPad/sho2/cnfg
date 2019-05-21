@@ -1,0 +1,21 @@
+*Body print
+	*Parameters
+		body 2
+	.Parameters
+		
+	*InputOutput
+		read ../../interaction/coulomb
+	.InputOutput
+		
+	*Geometry
+	.Geometry
+	
+	*Parameters
+		foundation 50
+		lattice 1.666
+		range 4
+		initRank 2
+		basisRank 8
+		spring 0.125
+	.Parameters
+.Body

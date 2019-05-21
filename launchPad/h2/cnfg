@@ -1,0 +1,18 @@
+*Body print
+	*Parameters
+		body 2
+	.Parameters
+		
+	*InputOutput
+		read ../../interaction/coulomb
+	.InputOutput
+		
+	*Geometry
+		1 0 0  1
+		1 0 0 -1
+	.Geometry
+	
+	*Parameters
+		lattice 1.5
+	.Parameters
+.Body

@@ -1,0 +1,27 @@
+*Body print
+		## REQUIRES PARTICLE 2 in system.h 
+	*Parameters
+		body 1
+	.Parameters
+		
+	*InputOutput
+		read ../../interaction/coulomb
+	.InputOutput
+		
+	*Geometry
+		1 0 0  0
+	.Geometry
+	
+	*Parameters
+	#consider bonding curves.
+	#free game
+		lattice 1.5
+		minClamp 1.8
+		maxClamp 3.0
+		latte 0.08
+	#end 
+		around
+		target 3
+		vectorThreshold 4
+	.Parameters
+.Body
