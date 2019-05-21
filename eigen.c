@@ -349,7 +349,7 @@ INT_TYPE tSlam (struct field * f1,INT_TYPE allc, enum division vl, double fmax2)
     for ( space = 0 ; space < SPACE ; space++)
         n1[space] = vectorLen(f1, space);
     if ( allc < tot ){
-        printf("increase foundation %d or decrease fmax2 %f", tot, fmax2);
+        printf("increase foundation %d or decrease levelLevel %f", tot, fmax2);
         exit(0);
     }
     INT_TYPE * mmm = malloc(sizeof(INT_TYPE ) * tot * SPACE *2),*mm;
