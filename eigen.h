@@ -44,7 +44,7 @@ int sort2Comp (const void * elem1, const void * elem2);
 
 INT_TYPE tBootManyConstruction (struct calculation * c1);
 INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen);
-
+INT_TYPE tSlam (struct field * f1,INT_TYPE allc, enum division vl, double fmax2);
 INT_TYPE tSASplit ( struct field * f1, INT_TYPE type , INT_TYPE Ve ,INT_TYPE target, enum division usz, enum division vector);
 
 INT_TYPE tFoundationLevel( struct field * f1, enum division A , double lvlm,double lvlx, INT_TYPE ops,enum division build,INT_TYPE xB, double lvl1, double lvl2, double lvl3,INT_TYPE * mmm, INT_TYPE type,double seekPower);

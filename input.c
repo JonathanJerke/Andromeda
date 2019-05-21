@@ -149,7 +149,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "xB", "yB", "zB", "xyRange" , "zRange",//6-10
         "XX", "scfTolerance","boundTolerance","cycleTolerance","oExternal",//11-15
         "LOST","LOST", "XXz" ,"LOST4", "aWeylet" ,//16-20
-        "bWeylet","levelShift","tolerance","threshold","target",//21-25
+        "bWeylet","levelLevel","tolerance","threshold","target",//21-25
         "convergence","external","vectorThreshold","buildThreshold","maxPi",//26-30
         "EMPTY","EMPTY", "vectorConvergence","powState", "powVacuum",//35
         "mass1", "mass2","Charge1", "Charge2","Charge3",//40
@@ -855,7 +855,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     //                    c->i.bWeylet = value;
                     //                    return d;
                 case 22 :
-                 //   c->i.levelShift = value;
+                    c->i.level = value;
                     return d;
                 case 23 :
                     c->rt.TOL = pow(10., value);
@@ -1625,6 +1625,7 @@ INT_TYPE readInput(struct calculation *c , FILE * in){
 
 INT_TYPE initCalculation(struct calculation * c ){
     INT_TYPE g;
+    c->i.level = 1e9;
     c->i.reducedMass = 1.;
     c->rt.boot = fullMatrices;
     c->rt.powDecompose = 1;

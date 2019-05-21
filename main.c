@@ -307,10 +307,10 @@ INT_TYPE exec (struct calculation *c ){
                 c2->i.D *= pow( ( 2*c1->i.around +1.) /(2*c2->i.around+1. ),1);
 
                // c2->i.vectorMomentum *= (c1->i.d* (2.* c1->i.epi + 1.) )/(c1->i.d*(2.*c2->i.epi + 1. ));
-                printf("\n\n\t| Band Pass Staging \n\t| From \tBox %d \t: Lattice  %1.3f \t\n\t| To \tBox %d \t: Lattice %1.3f\t\t\n\t| Attack :  %1.3f\t\t\t\t\n",2* c1->i.epi + 1,c1->i.d,2* c2->i.epi + 1,c2->i.d,   c2->i.attack);
+                printf("\n\n\t| Band Pass Staging \n\t| From \tBox %d \t: Lattice  %1.3f \t\n\t| To \tBox %d \t: Lattice %1.3f\t\t\n\t\n",2* c1->i.epi + 1,c1->i.d,2* c2->i.epi + 1,c2->i.d);
                 
                 if ( SPACE > COMPONENT )
-                    printf("\n\n\t| Band Pass Staging \n\t| From \tBox %d \t: Lattice  %1.3f \t\n\t| To \tBox %d \t: Lattice %1.3f\t\t\n\t| Attack :  %1.3f\t\t\t\t\n",2* c1->i.around + 1,c1->i.D,2* c2->i.around + 1,c2->i.D,   1.);
+                    printf("\n\n\t| Band Pass Staging \n\t| From \tBox %d \t: Lattice  %1.3f \t\n\t| To \tBox %d \t: Lattice %1.3f\t\t\n\t\n",2* c1->i.around + 1,c1->i.D,2* c2->i.around + 1,c2->i.D);
 
 
                 {
@@ -619,7 +619,8 @@ int main (INT_TYPE argc , char * argv[]){
     
     
     
-    
+#define sincFlag 1
+
     
     
 #if sincFlag
@@ -631,7 +632,7 @@ int main (INT_TYPE argc , char * argv[]){
     
     struct calculation c = bootShell(argc, argv);
     exec(&c);
-    print(&c,c.i.nStates,eigenVectors);
+    print(&c,0,c.i.nStates,eigenVectors);
     fModel(&c);
 #else
     

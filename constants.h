@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-//VERSION 6.1.4
+//VERSION 6.1.6
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -229,7 +229,7 @@ enum functionType{
     Yukawa,//2
     Coulomb,//3
     Morse,//4
-    LJ,//5
+    LennardJones,//5
     LDA,//6
     BLYP//7
 };

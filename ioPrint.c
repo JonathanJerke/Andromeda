@@ -55,7 +55,7 @@ INT_TYPE printVector (struct calculation *c, char * name,char * vectorName,  INT
     return 0;
 }
 
-INT_TYPE print(struct calculation *c , INT_TYPE lv,enum division eigenVectors){
+INT_TYPE print(struct calculation *c ,INT_TYPE mv, INT_TYPE lv,enum division eigenVectors){
     INT_TYPE irrep;
     struct field * f1 = & c->i.c;
     INT_TYPE iii,jjj=1,cmpl;
@@ -68,7 +68,7 @@ INT_TYPE print(struct calculation *c , INT_TYPE lv,enum division eigenVectors){
         fclose(outf);
     }
         jjj = 1;
-        for ( iii = 0; iii < lv  ; iii++)
+        for ( iii = mv; iii < lv  ; iii++)
           //  if( (! c->i.irrep || f1->sinc.tulip[eigenVectors+iii].value.symmetry  == irrep)&& irrep == c->i.irrep)
         {
                 tEdges(c , eigenVectors+iii);
@@ -108,7 +108,8 @@ INT_TYPE ioStoreMatrix(struct field * f1, enum division op, INT_TYPE spin, char 
     //7 second length
     // 5 d
     // 6 D
-    if ( ioIn == 1 &&  access( filename, F_OK ) != -1 ){
+    if (   access( filename, F_OK ) != -1 ){
+
         if (  inputFormat(f1, filename, nullName, 0) == 2 ){
             for ( space = 0;space < SPACE ; space++)
                 if ( f1->sinc.tulip[op].space[space].body != inputFormat(f1, filename, nullName, 100+space/COMPONENT)){
@@ -117,21 +118,27 @@ INT_TYPE ioStoreMatrix(struct field * f1, enum division op, INT_TYPE spin, char 
                 }
             if ( part(f1, op ) >= inputFormat(f1, filename, nullName, 2)){
                     if ( f1->sinc.rose[0].count1Basis == inputFormat(f1, filename, nullName, 4)){
-                        if ( ioIn ==  1 ){
-                            inputFormat(f1, filename, op, 1);
-                            return 1;
-                        }                }
+                        matchFlag = 1;
+                    }
             }else {
-                //printf("ranks");
+              //  printf("ranks");
             }
         }
-    } else {
+    }
+    
+    
+    {
         if ( ioIn == 0 ){
-            //print out.
-            FILE* out = fopen(filename,"w");
-            outputFormat(f1, out, op, spin);
-            fclose(out);
+            if ( ! matchFlag){
+                //print out.
+                FILE* out = fopen(filename,"w");
+                outputFormat(f1, out, op, spin);
+                fclose(out);
+            }
             return 1;
+        }else if ( ioIn ==1 && matchFlag ){
+                inputFormat(f1, filename, op, 1);
+                return 1;
         }
     }
 
@@ -305,7 +312,7 @@ double inputFormat(struct field * f1,char * name,  enum division buffer, enum di
 
     }
         flag2 = 0;
-        // printf("header = %d\ngenus = %d %d %f\n%d %d %d %d %d \n",head, genus,Nbody, D,  r1 , sp, M[0], M[1],M[2]);
+     //   printf("header = %d\ngenus = %d %d %d\n%d %d %d %d \n",head, genus,parts,  r1 , sp, Nbody[0], N1[0],M[0]);
 #else
     sscanf(inputPt,"component = %lld",&comp);
     getline(&inputPt,&maxRead, in   );
@@ -376,7 +383,10 @@ double inputFormat(struct field * f1,char * name,  enum division buffer, enum di
 
     f1->sinc.tulip[buffer].value.symmetry = sy;
     
-    
+    if ( r1 > part(f1, buffer ) ){
+        printf("io error\n");
+        exit(0);
+    }
 
     for ( r = 0; r < r1 ; r++){
 //        if ( ! flag2 ){
@@ -405,6 +415,7 @@ double inputFormat(struct field * f1,char * name,  enum division buffer, enum di
                 getline(&inputPt,&maxRead, in   );
                 if ( ! sscanf (inputPt,"%lf\n",&( value)) ){
                     printf("--%lld :%s:\n",ct,inputPt);
+                    exit(0);
                 };
 
                 ct++;
@@ -1089,15 +1100,17 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                             f1->sinc.tulip[inputVectors+ct].Current[cmpl] = 0;
 
                             struct calculation c2 = *c1;
+                            c2.rt.body = inputFormat(f1, name, nullName, 100);
                             c2.i.c.mem1->bootedMemory =0;
                             c2.i.c.sinc.tulip = NULL;
+                            c2.i.sectors = 0;
+                            c2.i.decomposeRankMatrix = 1;
                             for ( space = 0; space <= SPACE ; space++)
                                 c2.i.c.sinc.rose[space].stream = NULL;
                             c2.rt.boot = noMatrices;
                             c2.i.nStates= 0;
                             c2.i.vectorOperatorFlag= 0;
                             c2.i.springFlag= 0;
-
                             c2.i.heliumFlag = 0;
                             c2.i.nTargets = 0;
                             c2.i.qFloor = 0;
@@ -1107,7 +1120,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
 #ifdef MKL
                             c2.rt.NParallel = 1;
 #endif
-                            c2.i.canonRank = imax(c1->i.bRank,inputFormat(f1, name, nullName, 2));
+                            c2.i.canonRank = imax(c1->i.bRank,2+inputFormat(f1, name, nullName, 2));
                             c2.i.c.oneBody.func.fn = nullFunction;
                             c2.i.c.twoBody.func.fn = nullFunction;
                             if ( SPACE > COMPONENT ){
@@ -1129,13 +1142,9 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                             iModel(&c2);
                             c2.i.c.sinc.tulip[totalVector].Current[0] = 0;
                             inputFormat(&c2.i.c, name, totalVector,1);
-                            xEqua(f1,totalVector, 0, &c2.i.c, totalVector, 0);
-                            if ( CanonicalRank(f1, totalVector, 0) > part(f1,inputVectors+ct )){
-                                tCycleDecompostionListOneMP(-1, f1, totalVector, cmpl, NULL, inputVectors+ct, cmpl,f1->mem1->rt->TARGET, part(f1,inputVectors+ct), 1.);
-                            }else {
-                                tEqua(f1, inputVectors+ct, cmpl, totalVector,cmpl);
-                            }
+                            xEqua(f1,inputVectors+ct, cmpl, &c2.i.c, totalVector,0);
                             f1->sinc.tulip[inputVectors+ct].value.symmetry = c2.i.c.sinc.tulip[totalVector].value.symmetry;
+
                             printf("%s\tSA%d\n", name,f1->sinc.tulip[inputVectors+ct].value.symmetry);
                             flagLoad = 1;
                             fModel(&c2);
@@ -1154,27 +1163,25 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                     printf("fixme\n");
                     exit(1);
                 }
-                if ( inputVectors >= c1->i.c.sinc.vectorOperator)
-                    tScale(&c1->i.c, inputVectors+ct, sqrt(fabs(creal(Occ))));
-                else
-                    tScale(&c1->i.c, inputVectors+ct, creal(Occ));
+
+                tScale(&c1->i.c, inputVectors+ct, creal(Occ));
                 
                 ov = magnitude(f1, inputVectors+ct);
 
                 if ( inputVectors >= c1->i.c.sinc.vectorOperator){
                     printf("Density %f\n",sqr(creal(ov)));
-//                    if ( sqr(cabs(ov)) > c1->rt.TARGET)
+                    if ( sqr(cabs(ov)) > c1->rt.TARGET)
                         ct++;
-//                    else
-//                        printf("skipped\n");
+                    else
+                        printf("skipped\n");
 
                 }
                 else{
                     printf("Norm %f\n",(creal(ov)));
-//                    if ( (cabs(ov)) > c1->rt.TARGET)
+                    if ( (cabs(ov)) > c1->rt.TARGET)
                         ct++;
-//                    else
-//                        printf("skipped\n");
+                    else
+                        printf("skipped\n");
                 }
             }
         }else {
@@ -1184,107 +1191,3 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
     
     return ct;
 };
-
-
-
-//INT_TYPE tLoadEigenWeightsWithConstraints (struct calculation * c1, char * filename, char * constraints ){
-//    INT_TYPE ct = 0,ct2,number,bod,class,weight,cmpl,space;
-//    FILE * inC;
-//    inC = NULL;
-//    inC = fopen(constraints, "r");
-//
-//    size_t ms = MAXSTRING,read;
-//    char input_line[MAXSTRING];
-//    char * mask = input_line;
-//    double Occ,Ceg,*pt[SPACE];
-//    for ( space = 0; space < SPACE ; space++)
-//        pt[space] = streams(&c1->i.c, diagonal1VectorA,0,space);
-//
-//    char name[MAXSTRING];
-//    double xx[4][3],x,y,z;
-//    INT_TYPE jj=0,jjj,info;
-//    if ( inC != NULL) {
-//        while (1){
-//            if (  getline(&mask,&ms,inC) > 0 ){
-//                if ( (!comment(input_line)) && (strlen(input_line) > 1) )  {
-//                    read = (3==sscanf ( input_line, "%lf %lf %lf", &x,&y,&z));
-//                    if ( read ){
-//                        printf("\n*add contraint %f %f %f\n", x,y,z);
-//                        xx[jj][0] = x;
-//                        xx[jj][1] = y;
-//                        xx[jj][2] = z;
-//                        jj++;
-//                        if( jj == 5 ||  4 < bodies(&c1->i.c, eigenVectors)+jj ){
-//                            printf("cannot specify that many constraints\n");
-//                            exit(0);
-//                        }
-//                    }
-//                }
-//            }else {
-//                break;
-//            }
-//        }
-//        fclose(inC);
-//    }
-//    FILE * in;
-//    in = NULL;
-//    in = fopen(filename, "r");
-//    if ( in == NULL )
-//        return 0;
-//    
-//    enum division highBall = highBallVector + ( 4 - ( c1->i.c.body + jj) ) ;
-//    
-//    if ( highBall < highBallVector || highBall > highBallVector4 ){
-//        printf("oops with highBall!");
-//        exit(0);
-//    }
-//    
-//    while (1){
-//        if (  getline(&mask,&ms,in) > 0 ){
-//            if ( (!comment(input_line)) && (strlen(input_line) > 1) )  {
-//                read = (4==sscanf ( input_line, "%d %d %d %lf", &ct2,&number,&class, &Occ ));
-//                if ( read && fabs(Occ) > 1e-5){
-//                    tClear(&c1->i.c, highBall);
-//                    for ( cmpl = 0; cmpl < 2; cmpl++)
-//                    {
-//                        sprintf(name,"%s.%d.eigen-%d.%d_mac",c1->cycleName,number,class,cmpl);
-//                        printf("%d\t%s\t%f\n", ct, name, fabs(Occ));
-//                        inputFormat(&c1->i.c, name, highBall, 1);
-//                    }
-//                    tScale(&c1->i.c, highBall, sqrt(fabs(Occ/c1->i.c.Ne))/magnitude(&c1->i.c, highBall));
-//                    
-//
-//                    for ( jjj = 0; jjj < jj ; jjj++){
-//                        c1->i.c.sinc.tulip[diagonal1VectorA].Current[0] = tFillBasis(pt, xx[jjj],c1->rt.runFlag,c1->i.c.sinc.N1,c1->i.c.sinc.d);
-//
-//                        for ( cmpl = 0; cmpl < 2; cmpl++)
-//                        {
-//                            tMultiplyMP(0, &info,&c1->i.c, 1.0, -1, highBall+1+jjj , cmpl, 'N', highBall+jjj, cmpl, 'N', diagonal1VectorA, 0);
-//                            
-//                        }
-//                        
-//                    }
-//                    
-//                    if ( bodies(&c1->i.c, eigenVectors+ct ) == bodies (&c1->i.c, highBall+jj) ){
-//                        tEquals(&c1->i.c, eigenVectors+ct, highBall+jj);
-//                        printf(">>>%f\n", magnitude(&c1->i.c, eigenVectors+ct));
-//                    } else {
-//                        printf("fix up body counts!");
-//                        exit(0);
-//                    }
-//                    ct++;
-//                }
-//            }
-//            if ( ct > c1->i.nStates ){
-//                printf("maxed out buffer of states\n");
-//                exit(0);
-//            }
-//            
-//        }else {
-//            break;
-//        }
-//    }
-//    fclose(in);
-//    return ct;
-//}
-

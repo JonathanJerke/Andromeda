@@ -1664,7 +1664,10 @@ void printVectorAllocations(struct field *f1){
 }
 struct basisElement grabBasis (struct field * f1, INT_TYPE component, INT_TYPE particle, INT_TYPE elementIndex){
     struct basisElement boa;
-        
+    
+    
+    boa.note = nullNote;
+    
     boa.type = f1->sinc.rose[component].component;
     
     boa.basis = f1->sinc.rose[component].basis;

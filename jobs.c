@@ -29,19 +29,23 @@ INT_TYPE foundation(struct calculation *c1){
     struct field * f1 = &c1->i.c;
 
     INT_TYPE EV;
-    iModel(c1);
 
-    if ( c1->i.OCSBflag ){
-         tBoot1Construction(c1, build);
-        EV =   tCollect(f1,c1->i.irrep,f1->sinc.user,c1->i.qFloor ,1);
-        tFilter(&c1->i.c, EV, 0, f1->sinc.user);
+    if ( !c1->i.OCSBflag ){
+        c1->i.c.twoBody.func.fn = nullFunction;
+        c1->i.c.oneBody.func.fn = nullFunction;
+        iModel(c1);
+        tBoot1Construction(c1, build);
+        EV =   tSlam(f1,c1->i.qFloor,f1->sinc.user,c1->i.level);
+        tFilter(&c1->i.c, EV,0, f1->sinc.user);
     }
     else{
+        iModel(c1);
+
         tBootManyConstruction(c1);
         EV =   tCollect(f1,c1->i.irrep,f1->sinc.user,c1->i.qFloor ,1);
         tFilter(&c1->i.c, EV, 0, f1->sinc.user);
     }
-    return 0;
+    return EV;
 }
 
 
@@ -51,14 +55,16 @@ INT_TYPE krylov ( struct calculation *c1){
 
 
     c1->i.qFloor = countLinesFromFile(c1,0);
+    i =c1->i.iRank;
     c1->i.iRank = c1->i.bRank;
-
-    c1->i.nTargets = 1;
-    c1->i.heliumFlag = 1;
-    c1->i.nStates =1 ;
+    c1->i.bRank = i;
+    
+    c1->i.nTargets = c1->i.qFloor;
+    c1->i.heliumFlag = c1->i.qFloor;
+    c1->i.nStates =c1->i.qFloor  ;
     iModel(c1);
     for ( fi =0 ; fi < c1->mem.files ; fi++){
-        EV +=  tLoadEigenWeights (c1, c1->mem.fileList[fi], f1->sinc.user+EV);//UNUSUAL!!!
+        EV +=  tLoadEigenWeights (c1, c1->mem.fileList[fi], eigenVectors);//UNUSUAL!!!
     }
         if (EV == 0 ){
         printf ("ack!\n");
@@ -71,23 +77,23 @@ INT_TYPE krylov ( struct calculation *c1){
         INT_TYPE iii ;
         for ( iii = 0; iii < EV ; iii++){
             printf ( "\n Vector \t%d \n", iii+1);
-            printExpectationValues(f1, Ha, f1->sinc.user+RdsSize-EV+iii);
-            tEdges(c1,f1->sinc.user+RdsSize-EV+iii);
+            printExpectationValues(f1, Ha, eigenVectors+RdsSize-EV+iii);
+            tEdges(c1,eigenVectors+RdsSize-EV+iii);
             fflush(stdout);
         }
     }
 
     
     for ( iterator = 1 ; iterator < c1->i.Iterations ; iterator++){
-        RdsSize += tGreatDivideIteration(c1->i.shiftFlag, c1->i.realPart,  f1,Iterator, 1,0,f1->sinc.user+RdsSize-EV,EV,2*EV,0)-EV;
+        RdsSize += tGreatDivideIteration(c1->i.shiftFlag, c1->i.realPart,  f1,Iterator, 1,0,eigenVectors+RdsSize-EV,EV,2*EV,0)-EV;
         if(1){
-            tFilter(f1, EV, !(!c1->i.filter )* c1->i.irrep, f1->sinc.user+RdsSize-EV);//HERE
+            tFilter(f1, EV, !(!c1->i.filter )* c1->i.irrep, eigenVectors+RdsSize-EV);
             printf ("Step \t%d\n", iterator);
             INT_TYPE iii ;
             for ( iii = 0; iii < EV ; iii++){
                 printf ( "\n Vector \t%d \n", iii+1);
-                printExpectationValues(f1, Ha, f1->sinc.user+RdsSize-EV+iii);
-                tEdges(c1,f1->sinc.user+RdsSize-EV+iii);
+                printExpectationValues(f1, Ha, eigenVectors+RdsSize-EV+iii);
+                tEdges(c1,eigenVectors+RdsSize-EV+iii);
                 fflush(stdout);
             }
         }
@@ -103,7 +109,7 @@ INT_TYPE ritz( struct calculation * c1 ){
 
 
     char * line = line0;
-
+    c1->i.canonRank = 0;
     struct field * f1 = &c1->i.c;
     INT_TYPE fi,EV = 0,i,j,sp;
     double va;
@@ -203,14 +209,12 @@ INT_TYPE ritz( struct calculation * c1 ){
 INT_TYPE decompose( struct calculation * c1 ){
     struct field * f1 = &c1->i.c;
 
-    INT_TYPE g,r,cmpl,cmpl2,rr,EV=0,fi;
+    INT_TYPE i,g,r,cmpl,cmpl2,rr,EV=0,fi;
 
     c1->i.qFloor = countLinesFromFile(c1,0);
 
     c1->i.c.twoBody.func.fn = nullFunction;
     c1->i.c.oneBody.func.fn = nullFunction;
-  //  c1->i.iRank = c1->i.bRank;
-    printf("iR %d\n",c1->i.iRank );
     c1->i.nTargets = 1;
     c1->i.heliumFlag = 1;
     c1->i.nStates =1 ;
@@ -230,11 +234,14 @@ INT_TYPE decompose( struct calculation * c1 ){
             tClear(f1,totalVector);
             for( g = 0; g < c1->i.qFloor ; g++)
                 tAddTw(f1, totalVector, 0, f1->sinc.user+g, cmpl);
-            tCycleDecompostionGridOneMP(-1, f1, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1,eigenVectors), c1->rt.powDecompose);
+            tCycleDecompostionGridOneMP(-2, f1, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1,eigenVectors), c1->rt.powDecompose);
        //     tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1,eigenVectors), 1.);
         }
     tFilter(f1, c1->i.nStates, !(!c1->i.filter )* c1->i.irrep, eigenVectors);
-
+    for ( i = 0; i < c1->i.nStates ; i++){
+        tScale(f1, eigenVectors+i, 1./magnitude(f1, eigenVectors+i));
+       // printf("printf %f\n", magnitude(f1, eigenVectors+i));
+    }
     return 0;
 }
 
@@ -246,11 +253,11 @@ int main (INT_TYPE argc , char * argv[]){
     INT_TYPE i,a,plusSize,nStatesTrans=0,nStatesFound=0 ,RdsSize = 0,totalIter = 0;
     FILE * out = stdout;
     struct runTime * rt = & c.rt;
-
+    
     struct field *f1 = &(c.i.c);
     if ( c.i.iCharge > 0 )
         f1->Ne = c.i.iCharge;
-
+    
     
 #ifdef OMP
     if ( c.i.omp > MaxCore ){
@@ -283,7 +290,7 @@ int main (INT_TYPE argc , char * argv[]){
     fflush(stdout);
 #endif
     
-
+    
     
     printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t\n",2* c.i.epi + 1,c.i.d);
     
@@ -295,28 +302,29 @@ int main (INT_TYPE argc , char * argv[]){
         c.i.nTargets = 0;
         c.i.heliumFlag = c.i.nTargets;
         c.i.nStates = c.i.heliumFlag;
-
-        foundation(&c);
-        print(&c,c.i.qFloor, f1->sinc.user);
+        INT_TYPE EV= foundation(&c);
+        print(&c,0,EV , f1->sinc.user);
     }
     else if ( c.rt.phaseType == productKrylov ){//C
         krylov(&c);
-        print(&c,c.i.Iterations,f1->sinc.user);
+        print(&c,0,c.i.Iterations,f1->sinc.user);
     }
     else if ( c.rt.phaseType == solveRitz ){//A
         ritz(&c);
     }
     else if ( c.rt.phaseType == decomposeTensor ){//B
         decompose(&c);
-        print(&c,c.i.nStates, eigenVectors);
+        print(&c,0,c.i.nStates, eigenVectors);
     }else if ( c.rt.phaseType == frameDensity ){//D
         if ( ! c.i.vectorOperatorFlag){
             printf("vectorOperator flag\n");
             exit(1);
         }
+        c.i.OCSBflag = 0;
+
         foundation(&c);
         tEigenCycle(&c.i.c,Ha,'T', c.i.nStates, c.i.c.sinc.user,c.i.qFloor,0, c.i.qFloor,0,0,eigenVectors,twoBodyRitz);
-       
+        
         INT_TYPE i,j=0;
         for ( i = 0 ; i < c.i.nStates ; i++ ){
             if ( -myStreams(f1, twoBodyRitz, 0)[i] > c.rt.TARGET ){
@@ -327,18 +335,18 @@ int main (INT_TYPE argc , char * argv[]){
         tEigenCycle(&c.i.c,Ha,'T', j, c.i.c.sinc.user,c.i.qFloor,0, c.i.qFloor,0,4,eigenVectors,twoBodyRitz);
         
         {
-            INT_TYPE i ;
-            double sum = 0;
-            for ( i = 0; i < j ; i++)
-                sum += -myStreams(f1, twoBodyRitz, 0)[i];
-    
-            cblas_dscal(j, 1./sum, myStreams(f1, twoBodyRitz, 0), 1);
+//            INT_TYPE i ;
+//            double sum = 0;
+//            for ( i = 0; i < j ; i++)
+//                sum += -myStreams(f1, twoBodyRitz, 0)[i];
+            
+            cblas_dscal(j, -1., myStreams(f1, twoBodyRitz, 0), 1);
         }
         
         
-        mySeparateEwaldCoulomb1(&c.i.c,j,myStreams(f1, twoBodyRitz, 0),eigenVectors, c.i.decomposeRankMatrix, interactionExchange,interactionEwald, shortenEwald, 1., 0, 1, electron);
+        mySeparateEwaldCoulomb1(&c.i.c,j,myStreams(f1, twoBodyRitz, 0),eigenVectors, c.i.decomposeRankMatrix, interactionExchange,interactionEwald, shortenEwald, 0, 0, 0, electron);
         ioStoreMatrix(&c.i.c, shortenEwald, 0, "shortenEwald.matrix", 0);
-
+        
     }
     else if ( c.rt.phaseType == scaleBody ){//E
         if ( ! c.i.bodyFlag){
@@ -366,7 +374,7 @@ int main (INT_TYPE argc , char * argv[]){
         
         tMap(&c);
     }
-    else if ( c.rt.phaseType == collectKrylov ){//E
+    else if ( c.rt.phaseType == collectKrylov ){//F
         struct field * f1 = &c.i.c;
         INT_TYPE on,EV = 0,i,fi,ev,Ve,Ven;
         DCOMPLEX one = 1.;
@@ -380,7 +388,7 @@ int main (INT_TYPE argc , char * argv[]){
         iModel(&c);
         for ( fi =0 ; fi < c.mem.files ; fi++){
             EV =  tLoadEigenWeights (&c, c.mem.fileList[fi], c.i.c.sinc.user+EV);
-
+            
         }
         if (EV == 0 ){
             printf ("ack!\n");
@@ -390,17 +398,29 @@ int main (INT_TYPE argc , char * argv[]){
         Ve = 0;
         for ( ev = 0 ;ev < EV ; ev++){
             Ve += tSelect(f1, Ve, 0, eigenVectors, f1->sinc.user + ev, 1);
-           // Ve =  tSASplit(f1, c.i.irrep, Ve,EV, eigenVectors,f1->sinc.user + ev);
+            // Ve =  tSASplit(f1, c.i.irrep, Ve,EV, eigenVectors,f1->sinc.user + ev);
         }
         printVector(&c,c.name,c.name,-1,0, &one);
         for ( ev =0 ; ev < Ve ; ev++){
-                tFilename(c.name, ev+1, c.i.c.body, 0, 0, name);
-                FILE * outVector = fopen(name, "w");
-                outputFormat(f1, outVector, eigenVectors+ev, 0);
-                fclose(outVector);
-                printVector(&c,c.name,c.name,ev,0, &one);
-            }
+            tFilename(c.name, ev+1, c.i.c.body, 0, 0, name);
+            FILE * outVector = fopen(name, "w");
+            outputFormat(f1, outVector, eigenVectors+ev, 0);
+            fclose(outVector);
+            printVector(&c,c.name,c.name,ev,0, &one);
         }
-        fModel(&c);
-
+    }else if ( c.rt.phaseType == svdOperation ){//G
+        if ( ! c.i.vectorOperatorFlag){
+            printf("vectorOperator flag\n");
+            exit(1);
+        }
+        INT_TYPE iterator,EV;
+        struct calculation *c1 = &c;
+        c.i.OCSBflag = 0;
+        EV = foundation(&c);
+        RdsSize = EV;
+        tEigenCycle(&c.i.c,Ha,'T', c.i.nStates, c.i.c.sinc.user,RdsSize,0, EV,0,0,eigenVectors,twoBodyRitz);
+        
+    }
+    
+    fModel(&c);
 }

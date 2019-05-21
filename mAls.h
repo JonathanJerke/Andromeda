@@ -31,11 +31,13 @@
 #include "interfaceMath.h"
 #include "saUtil.h"
 
-
+void tContract ( INT_TYPE rank,struct field * f1, enum division mat,INT_TYPE ms, enum division vector ,INT_TYPE vs1, enum division vector2,INT_TYPE vs2);
 double tCycleMultiplyMP ( INT_TYPE rank,struct field * f1 ,INT_TYPE begin, INT_TYPE end, char mc,enum division mat,INT_TYPE ms, enum division vec, INT_TYPE vs,   enum division alloy ,  INT_TYPE spin ,double tolerance, INT_TYPE maxRun, double power);
 double tInnerVectorListMP( INT_TYPE rank, struct field * f1 , enum division origin, double * coeff, enum division vector,INT_TYPE spin );
 double tInnerListMP( INT_TYPE rank, struct field * f1 , enum division origin, double * coeff );
 void matrixElements ( INT_TYPE rank,struct field * f1 , enum division bra, enum division mat, enum division ket,DCOMPLEX *ME,DCOMPLEX *OV );
+void pMatrixElements ( struct field * f1 , enum division bra, enum division mat, enum division ket,DCOMPLEX *ME,DCOMPLEX *OV );
+
 double canonicalMultiplyMP( INT_TYPE rank,struct field * f1 , INT_TYPE begin, INT_TYPE end,char mc,enum division mat,INT_TYPE ms, enum division vec, INT_TYPE vs,   enum division alloy ,  INT_TYPE spin ,double tolerance);
 INT_TYPE normalize (struct field * f1,  enum division alloy,INT_TYPE l3,INT_TYPE l4, INT_TYPE spin, INT_TYPE space);
 INT_TYPE spread (struct field * f1, enum division origin, INT_TYPE l1,INT_TYPE l2,INT_TYPE os, enum division alloy,INT_TYPE l3 , INT_TYPE l4, INT_TYPE spin, INT_TYPE space, Stream_Type * output,Stream_Type * output2);
@@ -47,10 +49,10 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum div
 INT_TYPE tOuterProductSu( struct field * f1,enum division vector , INT_TYPE a, enum division vector2,INT_TYPE b, enum division proj, INT_TYPE c);
 double tMultiplyMP(INT_TYPE rank,  INT_TYPE * info,struct field * f1,double scale, INT_TYPE beta,  enum division equals, INT_TYPE espin ,char leftChar, enum division left, INT_TYPE lspin, char rightChar,enum division right, INT_TYPE rspin);
 double tMultiplyOne (INT_TYPE rank, struct field * f1,INT_TYPE dim,  enum division equals, INT_TYPE espin , enum division left,INT_TYPE l,INT_TYPE lspin, enum division right,INT_TYPE r, INT_TYPE rspin);
-double distanceOne(INT_TYPE rank,struct field * f1 , enum division alloy , INT_TYPE spin , enum division alloyBak, INT_TYPE spin2);
-double inner(INT_TYPE rank,struct field * f1 , enum division alloy , INT_TYPE spin );
+double distance(struct field * f1 , enum division alloy , enum division alloyBak);
+double inner(struct field * f1 , enum division alloy, INT_TYPE os );
 double magnitude ( struct field * f1 , enum division alloy );
-void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shiftFlag, double product, double productCmpl, enum division equals ,  double tolerance , INT_TYPE maxRun  );
+void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shiftFlag, double product, double productCmpl, enum division equals ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo  );
 double positioningElectrons2 (INT_TYPE rank, struct field * f1 , enum division oneVector, enum division wavefunction,double x1, double y1, double z1, double x2, double y2, double z2);
 INT_TYPE ready ( struct calculation * c );
 INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, INT_TYPE UR, struct calculation * calc2, enum division usz, INT_TYPE UZ ,INT_TYPE mx);

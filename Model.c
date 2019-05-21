@@ -488,6 +488,7 @@ INT_TYPE iModel( struct calculation * c1){
                 if ( c1->i.vectorOperatorFlag )
                     
                 {
+                    enum bodyType bd;
                     INT_TYPE fi,lines = 0;
                     size_t ms = MAXSTRING;
                     char line0[MAXSTRING];
@@ -509,13 +510,17 @@ INT_TYPE iModel( struct calculation * c1){
                             {
                                 cmpl = 0;
                                 tFromReadToFilename(NULL, line,  name, spins(f1,eigenVectors)-1,cmpl);
+                              //  printf("%s\n", name);
                                 fromBeginning(f1, vectorOperator+lines, last);
                                 f1->sinc.tulip[vectorOperator+lines].Partition = inputFormat(f1, name, nullName, 2);
                                 f1->sinc.tulip[vectorOperator+lines].species = outerVector;
-                                for (space = 0; space < SPACE ; space++)
-                                    f1->sinc.tulip[vectorOperator+lines].space[space].body = inputFormat(f1, name, nullName, 100+space/COMPONENT);//space/COMPONENT = particle
-                                
-                                booting[ bootBodies - f1->sinc.tulip[vectorOperator+lines].space[0].body ] = 1;
+                                for (space = 0; space < SPACE ; space++){
+                                    bd = inputFormat(f1, name, nullName, 100+space/COMPONENT);
+                                    f1->sinc.tulip[vectorOperator+lines].space[space].body = bd;
+                                  //  printf("%d %d %d\n", lines+1, space, bd);//space/COMPONENT = particle
+                                    booting[ bd - bootBodies ] = 1;
+
+                                }
                                 
                                 last = vectorOperator+lines;
                                 lines++;
@@ -532,23 +537,23 @@ INT_TYPE iModel( struct calculation * c1){
                 }
                 
                 
-                for ( di = 1; di < 7 ; di++)
-                {
-                    fromBeginning(f1, complement+di, last);
-                    last = complement + di;
-                    f1->sinc.tulip[complement+ di].Partition = booting[di] ;//
-                    f1->sinc.tulip[complement+ di].spinor = parallel;
-                    f1->sinc.tulip[complement+ di].species = outerVector;
-                    assignParticle(f1, complement+di, electron, di);
-                    
-                    fromBeginning(f1,complementTwo+di , last);
-                    last = complementTwo + di;
-                    f1->sinc.tulip[complementTwo+ di].Partition = booting[di] ;//
-                    f1->sinc.tulip[complementTwo+ di].spinor = parallel;
-                    f1->sinc.tulip[complementTwo+ di].species = outerVector;
-                    assignParticle(f1, complementTwo+di, electron, di);
-
-                }
+//                for ( di = 1; di < 4 ; di++)
+//                {
+//                    fromBeginning(f1, complement+di, last);
+//                    last = complement + di;
+//                    f1->sinc.tulip[complement+ di].Partition = booting[di] ;//
+//                    f1->sinc.tulip[complement+ di].spinor = parallel;
+//                    f1->sinc.tulip[complement+ di].species = outerVector;
+//                    assignParticle(f1, complement+di, electron, di);
+//                    
+//                    fromBeginning(f1,complementTwo+di , last);
+//                    last = complementTwo + di;
+//                    f1->sinc.tulip[complementTwo+ di].Partition = booting[di] ;//
+//                    f1->sinc.tulip[complementTwo+ di].spinor = parallel;
+//                    f1->sinc.tulip[complementTwo+ di].species = outerVector;
+//                    assignParticle(f1, complementTwo+di, electron, di);
+//
+//                }
                 
                 fromBeginning(f1, eigenVectors, last);
             }
@@ -629,18 +634,18 @@ INT_TYPE iModel( struct calculation * c1){
         fromBeginning(f1,productVector,edgeProtonMatrix);
         f1->sinc.tulip[productVector].Partition = maxVector;
         f1->sinc.tulip[productVector].species = vector;
-        f1->sinc.tulip[productVector].spinor = parallel;
+      //  f1->sinc.tulip[productVector].spinor = parallel;
 
         fromBeginning(f1,permutationVector,productVector);
-        f1->sinc.tulip[permutationVector].Partition = ra*maxVector;
+        f1->sinc.tulip[permutationVector].Partition =  c1->i.filter *ra*maxVector;
         f1->sinc.tulip[permutationVector].species = vector;
-        f1->sinc.tulip[permutationVector].spinor = parallel;
+        //f1->sinc.tulip[permutationVector].spinor = parallel;
         
         fromBeginning(f1,permutation2Vector,permutationVector);
-        f1->sinc.tulip[permutation2Vector].Partition = maxVector;
+        f1->sinc.tulip[permutation2Vector].Partition = c1->i.filter *maxVector;
         f1->sinc.tulip[permutation2Vector].species = vector;
-        f1->sinc.tulip[permutation2Vector].spinor = parallel;
-        
+//        f1->sinc.tulip[permutation2Vector].spinor = parallel;
+    
         fromBeginning(f1,canonicalmvVector,permutation2Vector);
         f1->sinc.tulip[canonicalmvVector].Partition = 1;
         f1->sinc.tulip[canonicalmvVector].species = vector;
@@ -672,7 +677,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[canonicaldot3Vector].spinor = parallel;
         
         fromBeginning(f1,canonicalvvVector,canonicaldot3Vector);
-        f1->sinc.tulip[canonicalvvVector].Partition = 1;
+        f1->sinc.tulip[canonicalvvVector].Partition = 0;
         f1->sinc.tulip[canonicalvvVector].species = vector;;
         f1->sinc.tulip[canonicalvvVector].spinor = parallel;
         
@@ -741,7 +746,7 @@ INT_TYPE iModel( struct calculation * c1){
         fromBeginning(f1,totalVector,copyFourVector);
         f1->sinc.tulip[totalVector].Partition = maxVector*(c1->i.canonRank);
         f1->sinc.tulip[totalVector].species = vector;
-        f1->sinc.tulip[totalVector].spinor = parallel;
+        //f1->sinc.tulip[totalVector].spinor = parallel;
 
         fromBeginning(f1,totalFuzzyVector,totalVector);
         f1->sinc.tulip[totalFuzzyVector].Partition = 0*(c1->i.canonRank);
@@ -1148,22 +1153,29 @@ INT_TYPE iModel( struct calculation * c1){
         if(c1->rt.boot == fullMatrices){
             f1->sinc.tulip[Ha].species    = scalar;
             f1->sinc.tulip[Iterator].species    = scalar;
-
             if ( c1->rt.calcType == electronicStuctureCalculation  ){
+
                 if ( f1->sinc.rose[0].component == periodicComponent1 ){
+//                    printf("func %d\n",f1->twoBody.func.fn);
+//                    if ( f1->twoBody.func.fn != nullFunction)
                     if ( ! ioStoreMatrix(&c1->i.c, shortenEwald, 0, "shortenEwald.matrix", 1)){
                         tClear(f1,shortenEwald);
                     }
-                        
+//                    if ( f1->twoBody.func.fn != nullFunction)
+
                     if ( !  ioStoreMatrix(&c1->i.c, interactionEwald, 0, "interactionEwald.matrix",1) ){
                         mySeparateExactTwo(f1, interactionEwald, 1., 0, 1, electron);
                     }
-                        
+                    
+//                    if ( f1->twoBody.func.fn != nullFunction)
                     if ( ! ioStoreMatrix(&c1->i.c, interactionExchange, 0, "interactionExchange.matrix",1)){
                         mySeparateExactTwo(f1, interactionExchange, 1., 0, 0, electron);
                     }
+                      //  tZeroSum(f1, interactionEwald, 0 );
+//                        tZeroSum(f1, interactionExchangeB, 0 );
+
                 }else {
-                    
+//                    if ( f1->twoBody.func.fn != nullFunction)
                     if ( bootBodies > one ){
                         if ( ! ioStoreMatrix(&c1->i.c, interactionExchange, 0, "interactionExchange.matrix",1)){
                             mySeparateExactTwo(f1, interactionExchange, 1., 0, 0, electron);
@@ -1317,20 +1329,22 @@ INT_TYPE iModel( struct calculation * c1){
                 f1->sinc.tulip[Iterator].linkNext = vectorOperator;
                 INT_TYPE fi,fe=0,ff;
                 for ( fi =0 ; fi < c1->mem.filesVectorOperator ; fi++){
-                    fe +=  tLoadEigenWeights (c1, c1->mem.fileVectorOperator[fi], f1->sinc.vectorOperator+fe);//UNUSUAL!!!
+                    fe +=  tLoadEigenWeights (c1, c1->mem.fileVectorOperator[fi], f1->sinc.vectorOperator+fe);
                 }
                 
-                for ( ff = 1; ff < fe-1 ; ff++)
+                for ( ff = 1; ff < fe ; ff++)
                     f1->sinc.tulip[vectorOperator+ff-1].linkNext = vectorOperator+ff;
 
+            
                 
-                
-                if ( fe != c1->i.vectorOperatorFlag )
+                if ( fe > c1->i.vectorOperatorFlag )
                 {
                     printf("failure to load vector Operators");
                     exit(0);
+                }else {
+                    c1->i.vectorOperatorFlag = fe;
                 }
-
+                
             }
             else
             if ( bootBodies == one && ( c1->rt.calcType == electronicStuctureCalculation  )){

@@ -326,7 +326,7 @@ double traceOne( struct field * f1 , enum division label , INT_TYPE spin ){
     struct name_label lab = f1->sinc.tulip[label];
     
     if ( species(f1, name(f1,label)) != matrix ){
-        return inner(spin, f1,label, spin);
+        return inner( f1,label, spin);
     }
     sum2 = 0.;
     for ( l = 0 ; l < CanonicalRank(f1,label,spin); l++)

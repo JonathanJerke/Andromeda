@@ -37,8 +37,8 @@ void getDescription ( struct function_label *fn ,double scalar,FILE * outString)
         fprintf(outString,"\tCoulomb = %1.3f /r \n",scalar*fn->param[0]);//,fn->param[1]);
     }else if ( fn->fn == Morse ){
         fprintf(outString,"\tMorse = %1.3f (1-exp[-%1.3f *( r - %1.3f )] )^2 -1 \n",scalar*fn->param[0],fn->param[3],fn->param[2]);//,fn->param[1]);
-    }else if ( fn->fn == LJ ){
-        //fprintf(outString,"\tLJ = %1.3f (..+1./r^6) @ %1.3f\n",fn->param[0],fn->param[2],fn->param[1],fn->param[1]);
+    }else if ( fn->fn == LennardJones ){
+        fprintf(outString,"\tLennardJones = %1.3f  rm = %f\n",fn->param[0],fn->param[1]);
     }
     fflush(outString);
 }
@@ -477,7 +477,7 @@ DCOMPLEX FB ( double p , struct general_index * pa ){
             periodic = 0;
     }
     else {
-        printf("messed up definitions\n");
+        printf("messed up definitions! %d\n",pa->bra.basis);
         exit(0);
     }
     component =  ( (pa->bra.type -1) % COMPONENT ) ;
@@ -3107,6 +3107,9 @@ DCOMPLEX BgB (double beta, struct basisElement b1, INT_TYPE action , INT_TYPE po
         double realpart,imagepart;
         g2.i[0].bra = b1;
         g2.i[0].ket = b2;
+        g2.i[0].bra.type = 1;
+        g2.i[1].bra.type = 1;
+
         g2.i[1].bra.basis = DiracDeltaElement;
         g2.i[1].ket.basis = nullBasisElement;
         g2.i[1].bra.origin = origin;
@@ -3308,7 +3311,7 @@ double collective( double beta ,struct general_2index * pa){
     }
    component =  ( (pa->i[0].bra.type -1) % COMPONENT ) ;
     
-    if ( periodic && (( pa->i[0].bra.note == interactionCell && pa->i[0].ket.note == interactionCell ) || ( pa->i[0].bra.note == interactionCell && pa->i[0].ket.note == interactionCell ) )){
+    if ( periodic && (( pa->i[0].bra.note == interactionCell && pa->i[0].ket.note == interactionCell ) || ( pa->i[1].bra.note == interactionCell && pa->i[1].ket.note == interactionCell ) )){
         if ( pa->i[0].bra.basis == SincBasisElement&&pa->i[1].bra.basis == SincBasisElement){
             INT_TYPE targParticle = 0;
             if (( pa->i[0].bra.note == interactionCell && pa->i[0].ket.note == interactionCell ) && !( pa->i[1].bra.note == interactionCell || pa->i[1].ket.note == interactionCell )){
@@ -3464,7 +3467,12 @@ double inverseLaplaceTransform(double beta, struct function_label * fl){
             value2 = 0.;
         else
             value2 += 2./sqrt(pi);//
-    } else {
+    } else if ( fl->fn == LennardJones ){
+        double rm = fl->param[1];
+        if ( beta > fl->param[2] && fl->fn == Pseudo )
+            value2 = 0.;
+        else
+            value2 += 2./sqrt(pi) * ( 1./120 * pow(rm,12) * pow(beta,11) - 2*pow(rm,6) * pow(beta,5) ) ;
     }
     return value2*fl->param[0];
 }
@@ -4251,7 +4259,7 @@ void mySeparateExactTwo (struct field * f1, enum division interactionExchange, d
 
 
 void mySeparateEwaldCoulomb1(struct field * f1,INT_TYPE nVec, double *  occupy,enum division vectors, INT_TYPE part1, enum division interactionExchange, enum division interactionEwald,enum division shorten, double scalar,INT_TYPE plus,double rescale, enum particleType particle){
-    INT_TYPE dim,rank=0,l,vol,vos=0,x,r,rr = 0,n1[SPACE],space,j1,j2,i1,i2,vor,vor2, vox,lll;
+    INT_TYPE info,dim,rank=0,l,vol,vos=0,x,r,rr = 0,n1[SPACE],space,j1,j2,i1,i2,vor,vor2, vox,lll;
     length1(f1,n1);
     double sumDis =0 ;
     Stream_Type * streamIn, *streamOut;
@@ -4261,12 +4269,12 @@ void mySeparateEwaldCoulomb1(struct field * f1,INT_TYPE nVec, double *  occupy,e
     for ( lll = 0; lll < 2 ; lll++){
         for ( vo = vectors ; vo < vectors+nVec ; vo++){
             vox = CanonicalRank(f1, vo, 0);
-            
-            for ( r = 0 ; r < CanonicalRank(f1, interactionExchange, 0); r++){
+            current = interactionExchange;
+            if ( lll == 1 )
+                current = interactionEwald;
 
-                current = interactionExchange;
-                if ( lll == 1 )
-                    current = interactionEwald;
+            for ( r = 0 ; r < CanonicalRank(f1, current, 0); r++){
+
 
                 tClear(f1,copy);
                 tClear(f1, diagonalCube );
@@ -4293,7 +4301,6 @@ void mySeparateEwaldCoulomb1(struct field * f1,INT_TYPE nVec, double *  occupy,e
 #else
                             rank = 0;
 #endif
-                
                             streamOut = streams(f1,diagonalCube,rank,dim);
 
 
@@ -4320,10 +4327,13 @@ void mySeparateEwaldCoulomb1(struct field * f1,INT_TYPE nVec, double *  occupy,e
                         tScale(f1, copy, -1.);
 
                     tCycleDecompostionListOneMP(-1, f1, copy, 0,NULL, copyTwo, 0, f1->mem1->rt->CANON,part1, 1);
+                tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', copyTwo, 0, 'N', copyTwo, 0);
+                if (fabs( traceOne(f1, copy, 0)) > 1e-9){
                     tAddTw(f1, shorten, 0, copyTwo, 0);
-                    sumDis += sqrt(distanceOne(0, f1, copy, 0, copyTwo, 0));
-                    printf("Ewald %f +%f %d\n", traceOne(f1, shorten, 0),sumDis,CanonicalRank(f1, shorten, 0));
-                    
+                    //sumDis += sqrt(distance(f1, copy, copyTwo));
+                }
+                printf("Ewald ++%f = %f %d\n", traceOne(f1, copy, 0),traceOne(f1, shorten,0),CanonicalRank(f1, shorten, 0));
+
             }
         }
     }
@@ -4561,7 +4571,7 @@ void mySeparateExactOneByOne (struct field * f1, INT_TYPE part1, enum division i
                 tClear(f1,copyTwo);
                 tCycleDecompostionListOneMP(-1, f1, copy, 0,NULL, copyTwo, 0, f1->mem1->rt->CANON,part1, 1);
                 tAddTw(f1, shorten, 0, copyTwo, 0);
-                sumDis += sqrt(distanceOne(0, f1, copy, 0, copyTwo, 0));
+                sumDis += sqrt(distance(f1, copy, copyTwo));
             }else {
                 tAddTw(f1, interactionExchangePlus, 0, copy, 0);
             }
