@@ -67,20 +67,19 @@ INT_TYPE print(struct calculation *c ,INT_TYPE mv, INT_TYPE lv,enum division eig
         outf = fopen (str,"w");
         fclose(outf);
     }
-        jjj = 1;
         for ( iii = mv; iii < lv  ; iii++)
           //  if( (! c->i.irrep || f1->sinc.tulip[eigenVectors+iii].value.symmetry  == irrep)&& irrep == c->i.irrep)
         {
                 tEdges(c , eigenVectors+iii);
             irrep = f1->sinc.tulip[eigenVectors+iii].value.symmetry;
-                printf("State%d:%d:,%d ,%1.15f, %d, %d , %1.1f,%1.15f\n", jjj, c->i.epi*2+1,jjj,f1->sinc.tulip[eigenVectors+iii].value.value,bodies(f1,eigenVectors+iii),irrep, deg(f1, irrep),f1->sinc.tulip[eigenVectors+iii].value.value2);
+                printf("State%d:%d:,%d ,%1.15f, %d, %d , %1.1f,%1.15f\n", iii+1, c->i.epi*2+1,iii+1,f1->sinc.tulip[eigenVectors+iii].value.value,bodies(f1,eigenVectors+iii),irrep, deg(f1, irrep),f1->sinc.tulip[eigenVectors+iii].value.value2);
                 
             //    if ( (c->i.outputFlag) % 2 == 1){
                     printVector(c, c->name,c->name, iii,irrep, &one);
                     for ( cmpl = 0 ; cmpl < spins(f1, eigenVectors+iii) ; cmpl++)
                     {
 #ifndef APPLE
-                        tFilename(c->name,jjj,bodies(f1, eigenVectors+iii) ,irrep, cmpl,str);
+                        tFilename(c->name,iii+1,bodies(f1, eigenVectors+iii) ,irrep, cmpl,str);
                         
                         FILE * out = fopen ( str,"w" );
                         if ( out != NULL ){
@@ -90,8 +89,7 @@ INT_TYPE print(struct calculation *c ,INT_TYPE mv, INT_TYPE lv,enum division eig
 #endif
                     }
                // }
-                jjj++;
-                
+            
             }
 
     fflush(stdout);
