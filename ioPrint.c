@@ -55,13 +55,13 @@ INT_TYPE printVector (struct calculation *c, char * name,char * vectorName,  INT
     return 0;
 }
 
-INT_TYPE print(struct calculation *c ,INT_TYPE mv, INT_TYPE lv,enum division eigenVectors){
+INT_TYPE print(struct calculation *c , INT_TYPE reset,INT_TYPE mv, INT_TYPE lv,enum division eigenVectors){
     INT_TYPE irrep;
     struct field * f1 = & c->i.c;
     INT_TYPE iii,jjj=1,cmpl;
     char str [MAXSTRING];
     DCOMPLEX one = 1.;
-    {
+    if ( reset ) {
         FILE * outf ;
         sprintf(str, "%s.vector",c->name);
         outf = fopen (str,"w");

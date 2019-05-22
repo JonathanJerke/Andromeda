@@ -79,7 +79,7 @@ INT_TYPE krylov ( struct calculation *c1){
             printf ( "\n Vector \t%d \n", iii+1);
             printExpectationValues(f1, Ha, eigenVectors+RdsSize-EV+iii);
             fflush(stdout);
-            print(c1,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
+            print(c1,1,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
         }
     }
 
@@ -94,7 +94,7 @@ INT_TYPE krylov ( struct calculation *c1){
                 printf ( "\n Vector \t%d \n", iii+1);
                 printExpectationValues(f1, Ha, eigenVectors+RdsSize-EV+iii);
                 fflush(stdout);
-                print(c1,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
+                print(c1,0,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
             }
         }
         fflush(stdout);
@@ -303,7 +303,7 @@ int main (INT_TYPE argc , char * argv[]){
         c.i.heliumFlag = c.i.nTargets;
         c.i.nStates = c.i.heliumFlag;
         INT_TYPE EV= foundation(&c);
-        print(&c,0,EV , f1->sinc.user);
+        print(&c,1,0,EV , f1->sinc.user);
     }
     else if ( c.rt.phaseType == productKrylov ){//C
         krylov(&c);
@@ -313,7 +313,7 @@ int main (INT_TYPE argc , char * argv[]){
     }
     else if ( c.rt.phaseType == decomposeTensor ){//B
         decompose(&c);
-        print(&c,0,c.i.nStates, eigenVectors);
+        print(&c,1,0,c.i.nStates, eigenVectors);
     }else if ( c.rt.phaseType == frameDensity ){//D
         if ( ! c.i.vectorOperatorFlag){
             printf("vectorOperator flag\n");

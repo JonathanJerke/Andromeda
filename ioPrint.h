@@ -35,7 +35,7 @@ struct fieldArray {
     INT_TYPE class;
     INT_TYPE number;
 };
-INT_TYPE print(struct calculation *c,INT_TYPE mv,INT_TYPE lv,enum division eigenVectors );
+INT_TYPE print(struct calculation *c, INT_TYPE reset,INT_TYPE mv,INT_TYPE lv,enum division eigenVectors );
 INT_TYPE printVector (struct calculation *c,char * name,char * vectorName,INT_TYPE iv, INT_TYPE irrep, DCOMPLEX * vector);
 double evaluateDensityBracket( double x [], size_t dim , void * params );
 double evaluateVectorBracket( double x [], size_t dim , void * params );
