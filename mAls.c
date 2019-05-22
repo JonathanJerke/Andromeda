@@ -762,9 +762,9 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum div
     }
     double toleranceAdjust = 1.,past = 1e9,prev=1e9,value,value2,cross,other2 ;//= cblas_dnrm2 ( part(f1, origin), coeff, 1);
     if ( coeff == NULL )
-        value2 = (inner(f1, origin,os));
+        value2 = sqrt(inner(f1, origin,os));
     else
-        value2 = tInnerListMP(imax(0,rank), f1, origin, coeff);
+        value2 = sqrt(tInnerListMP(imax(0,rank), f1, origin, coeff));
     if (! CanonicalRank(f1, origin, os ) )
         return 0;
 //    if ( value2 < f1->mem1->rt->TARGET ){
@@ -775,15 +775,15 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum div
         ct = canonicalListDecompositionMP(rank, f1, coeff, origin, os,alloy, spin, toleranceAdjust*tolerance,value2,-1);
     
         if ( coeff == NULL ){
-            value = distance(f1, origin, alloy);
+            value = (distance(f1, origin, alloy));
         }else {
             cross = tInnerVectorListMP(imax(0,rank), f1, origin, coeff, alloy, spin) ;
             other2 = inner( f1, alloy, spin);
-            value = fabs(value2 - 2. * cross + other2 );
+            value = sqrt(fabs(sqr(value2) - 2. * cross + other2 ));
         }
         if ( value >= prev ){
             ft = 1;
-            printf("%d (%d) %f -- /%f/\n",alloy,CanonicalRank(f1, alloy, spin),value,value2);
+            printf("%d (%d) %f\n",alloy,CanonicalRank(f1, alloy, spin),value/value2);
             fflush(stdout);
             if ( fabs(value ) < f1->mem1->rt->TARGET*fabs(value2)  ){
                 return 0;
@@ -832,6 +832,9 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct field * f1 , enum div
         tEqua(f1, alloy, spin, origin, os);
         return 0.;
     }
+    if (! CanonicalRank(f1, origin, os ) )
+        return 0;
+    
 
     double *co,toleranceAdjust = 1.,past = 1e9,prev=1e9,value,value2,cross,other2 ;//= cblas_dnrm2 ( part(f1, origin), coeff, 1);
    
@@ -839,13 +842,12 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct field * f1 , enum div
         value2 = 1.00;
     }else {
         if ( coeff == NULL )
-            value2 = (inner(f1, origin,os));
+            value2 = sqrt(inner(f1, origin,os));
         else
-            value2 = tInnerListMP(imax(0,rank), f1, origin, coeff);
-        if (! CanonicalRank(f1, origin, os ) )
-            return 0;
+            value2 = sqrt(tInnerListMP(imax(0,rank), f1, origin, coeff));
     }
     printf("/%f/\n", value2);
+    
     //    if ( value2 < f1->mem1->rt->TARGET ){
     //        f1->sinc.tulip[alloy].Current[spin]=0;
     //        return 0;
@@ -910,9 +912,9 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct field * f1 , enum div
         }else {
             cross = tInnerVectorListMP(imax(0,rank), f1, origin, coeff, alloy, spin) ;
             other2 = inner( f1, alloy, spin);
-            value = fabs(value2 - 2. * cross + other2 );
+            value = sqrt(fabs(sqr(value2) - 2. * cross + other2 ));
         }
-        printf("%d-grid%d: %d (%d) %f -- /%f/\n",numberSplit,split,alloy,CanonicalRank(f1, alloy, spin),value,value2);
+        printf("%d-grid%d: %d (%d) %f \n",numberSplit,split,alloy,CanonicalRank(f1, alloy, spin),value/value2);
         fflush(stdout);
         if ( fabs(value ) < f1->mem1->rt->TARGET*fabs(value2)  ){
             return 0;
@@ -938,9 +940,9 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct field * f1 , enum div
         }else {
             cross = tInnerVectorListMP(imax(0,rank), f1, origin, coeff, alloy, spin) ;
             other2 = inner( f1, alloy, spin);
-            value = fabs(value2 - 2. * cross + other2 );
+            value = sqrt(fabs(sqr(value2) - 2. * cross + other2 ));
         }
-        printf("canon: %d (%d) %f -- /%f/\n",alloy,CanonicalRank(f1, alloy, spin),value,value2);
+        printf("canon: %d (%d) %f \n",alloy,CanonicalRank(f1, alloy, spin),value/value2);
         fflush(stdout);
     }
     return 0.;
@@ -2018,7 +2020,7 @@ double distance (struct field * f1 , enum division alloy , enum division alloyBa
     pMatrixElements(f1, alloy, nullName, alloy, NULL, &OV11);
     pMatrixElements(f1, alloyBak, nullName, alloyBak, NULL, &OV22);
     pMatrixElements(f1, alloy, nullName, alloyBak, NULL, &OV12);
-    return creal( OV11 + OV22 - 2*OV12 );
+    return sqrt(creal( OV11 + OV22 - 2*OV12 ));
 }
 double magnitude ( struct field * f1 , enum division alloy ){
     DCOMPLEX OV = 0.;
