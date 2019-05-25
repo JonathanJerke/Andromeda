@@ -744,7 +744,7 @@ INT_TYPE iModel( struct calculation * c1){
 //        f1->sinc.tulip[twoVector].name = twoVector;
 //
         fromBeginning(f1,totalVector,copyFourVector);
-        f1->sinc.tulip[totalVector].Partition = maxVector*(c1->i.canonRank);
+        f1->sinc.tulip[totalVector].Partition = maxVector*(c1->i.canonRank)*(1 + (ra*c1->i.filter));
         f1->sinc.tulip[totalVector].species = vector;
         //f1->sinc.tulip[totalVector].spinor = parallel;
 
@@ -808,7 +808,7 @@ INT_TYPE iModel( struct calculation * c1){
         
         fromBeginning(f1,copy,bandBasis);
         f1->sinc.tulip[copy].Partition = imax(c1->i.bRank*c1->i.bRank,imax(mx1len*mx1len, matrixNumber+ imax(f1->oneBody.num,   imax(matrixNumber*f1->Na,outVector) )));
-        f1->sinc.tulip[copy].spinor = parallel;
+        //f1->sinc.tulip[copy].spinor = parallel;
         f1->sinc.tulip[copy].species = matrix;
         assignParticle(f1, copy, all, one);
         for ( space = 0; space < SPACE ; space++)
@@ -932,12 +932,12 @@ INT_TYPE iModel( struct calculation * c1){
         assignOneWithPointers(f1, shortenMinus, all);
         
         fromBeginning(f1,interactionExchangePlus,shortenMinus);
-        f1->sinc.tulip[interactionExchangePlus].Partition =(!c1->i.decomposeRankMatrix)* mx1len*mx1len*f1->twoBody.num*( c1->rt.calcType == clampProtonElectronCalculation );
+        f1->sinc.tulip[interactionExchangePlus].Partition =0* mx1len*mx1len*f1->twoBody.num*( c1->rt.calcType == clampProtonElectronCalculation );
         f1->sinc.tulip[interactionExchangePlus].species = matrix;
         assignOneWithPointers(f1, interactionExchangePlus,all);
         
         fromBeginning(f1,interactionExchangeMinus,interactionExchangePlus);
-        f1->sinc.tulip[interactionExchangeMinus].Partition = (!c1->i.decomposeRankMatrix)*mx1len*mx1len*f1->twoBody.num*( c1->rt.calcType == clampProtonElectronCalculation );
+        f1->sinc.tulip[interactionExchangeMinus].Partition = 0*mx1len*mx1len*f1->twoBody.num*( c1->rt.calcType == clampProtonElectronCalculation );
         f1->sinc.tulip[interactionExchangeMinus].species = matrix;
         assignOneWithPointers(f1, interactionExchangeMinus,all);
         
@@ -1057,7 +1057,7 @@ INT_TYPE iModel( struct calculation * c1){
         f1->sinc.tulip[canonicalBuffersBM].memory = bufferAllocation;
 
         fromBeginning(f1,canonicalBuffersC,canonicalBuffersBM);
-        f1->sinc.tulip[canonicalBuffersC].Partition = NV;
+        f1->sinc.tulip[canonicalBuffersC].Partition = 0*NV;
         f1->sinc.tulip[canonicalBuffersC].spinor = parallel;
         f1->sinc.tulip[canonicalBuffersC].memory = bufferAllocation;
 
@@ -1297,12 +1297,10 @@ INT_TYPE iModel( struct calculation * c1){
 
             struct name_label u = f1->sinc.tulip[shortenPlus];
             
-                separateExternal(c1,protonRepulsion, 0,0,1.0,-1,0,proton);
-                separateKinetic(f1, 0,kineticMass, 1836.15267245/2.,proton);
-                if ( bootBodies ==  one ){
-                    separateKinetic(f1, 0,kinetic, 0.9997277656208493,electron);
-                }else
-                    separateKinetic(f1, 0,kinetic, 0.9997277656208493,electron);
+            separateExternal(c1,protonRepulsion, 0,0,1.0,-1,0,proton);
+            separateKinetic(f1, 0,kineticMass, c1->i.reducedMass/2.,proton);
+
+            separateKinetic(f1, 0,kinetic, 1.-1./(2*c1->i.reducedMass + bootBodies ),electron);
 
             }
             else if ( c1->rt.calcType == protonsElectronsCalculation  ){

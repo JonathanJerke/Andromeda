@@ -335,12 +335,13 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
                 for ( l = 0 ; l < L1; l++)
                     track[ l*L1 + l ] += ALPHA;
 
-            if (space0 == 0 && L1 > 1){
+            if(0)
+            if (space0 == 10 && L1 > 1){
                 cblas_dcopy(L1*L1, track, 1, track+L1*L1, 1);
                 tdsyev(rank, f1, 'V', L1, track+L1*L1, L1, track+2*L1*L1);
                 
                 rcond = (track+2*L1*L1)[L1-1]/(track+2*L1*L1)[0];
-                if (  isnan(rcond) || isinf(rcond) || rcond > 1e7){
+                if (  isnan(rcond) || isinf(rcond) || rcond > 1e12){
 #if VERBOSE
                     printf("Warning: condition of Beylkin\n");
                     fflush(stdout);
@@ -615,18 +616,18 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
             if ( L1 >1 )
                 for ( l = 0 ; l < L1; l++)
                     track[ l*L1 + l ] += ALPHA;
-            
-            if (space0 == 0 && L1 > 1){
+            if(0)
+            if ( L1 > 1){
                 cblas_dcopy(L1*L1, track, 1, track+L1*L1, 1);
                 tdsyev(rank, f1, 'V', L1, track+L1*L1, L1, track+2*L1*L1);
                 
                 rcond = (track+2*L1*L1)[L1-1]/(track+2*L1*L1)[0];
-                if (  isnan(rcond) || isinf(rcond) || rcond > 1e7){
-#if VERBOSE
-                    printf("Warning: condition of Beylkin\n");
+                if (  isnan(rcond) || isinf(rcond) || rcond > 1e12){
+#if 1
+                    printf("%d \t %d \t%d\t%f\n",rank,L1,count,rcond);
                     fflush(stdout);
 #endif
-                    return -1;
+                 //   return -1;
                 }
                 //maybe one at a time???
                 
@@ -836,7 +837,7 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct field * f1 , enum div
         return 0;
     
 
-    double *co,toleranceAdjust = 1.,past = 1e9,prev=1e9,value,value2,cross,other2 ;//= cblas_dnrm2 ( part(f1, origin), coeff, 1);
+    double bailFlag = 0,*co,toleranceAdjust = 1.,past = 1e9,prev=1e9,value,value2,cross,other2 ;//= cblas_dnrm2 ( part(f1, origin), coeff, 1);
    
     if ( rank == -2 ){
         value2 = 1.00;
@@ -865,6 +866,7 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct field * f1 , enum div
         step = CanonicalRank(f1, origin, os)/(maxRun)+(!(!(CanonicalRank(f1, origin, os)%maxRun)));
         if ( rank < 0 && numberSplit > 3){
             numberSplit = 0;
+            bailFlag = 0;
 #ifdef OMP
 #pragma omp parallel for private (ran1,run,ct,toleranceAdjust) schedule(dynamic,1) reduction(+:numberSplit)
 #endif
@@ -881,6 +883,7 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct field * f1 , enum div
                   //  printf("%d ++ %d\n", ran1, ct);
                     toleranceAdjust *= 1.2;
                     if ( ct == -1 ){
+                        bailFlag = 1;
                         printf("List bailed \n");
                         break;
                         
@@ -899,6 +902,8 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct field * f1 , enum div
                   //  printf("%d -- %d\n", ran1, ct);
 
                     if ( ct == -1 ){
+                        bailFlag = 1;
+
                         printf("List bailed \n");
                         break;
                         
@@ -914,19 +919,19 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct field * f1 , enum div
             other2 = inner( f1, alloy, spin);
             value = sqrt(fabs(sqr(value2) - 2. * cross + other2 ));
         }
-        printf("%d-grid%d: %d (%d) %f \n",numberSplit,split,alloy,CanonicalRank(f1, alloy, spin),value/value2);
+        printf("%d-grid%d: %f \n",numberSplit,split,value/value2);
         fflush(stdout);
-        if ( fabs(value ) < f1->mem1->rt->TARGET*fabs(value2)  ){
+        if (( fabs(value ) < f1->mem1->rt->TARGET*fabs(value2)  )){
             return 0;
         }
 
-        if( numberSplit <= 2 )
+        if( numberSplit <= 2 || bailFlag )
         {
             break;
         }
 
     }
-    if ( numberSplit == 2){
+    if ( numberSplit == 2 || bailFlag){
         do{
             ct = canonicalListDecompositionMP(-1, f1, coeff, origin, os,alloy, spin, toleranceAdjust*tolerance,value2,-1);
             toleranceAdjust *= 1.2;
@@ -1898,7 +1903,7 @@ void tHYpY(  INT_TYPE rank, struct field * f1 ,INT_TYPE targSpin, enum division 
     return ;
 }
     
-void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shiftFlag, double product, double productCmpl,  enum division right ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo  ){
+void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shiftFlag, double product, double productCmpl,  enum division right ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo){
     rank = 0;
     INT_TYPE ilr,Ll,sp2,Rr,im,l , k,targSpin,space;
     enum division pt,Mat;
@@ -1967,7 +1972,7 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
                             k = ilr/Ll;
                             
                             
-                            tHYpY(rank, f1, targSpin,Mat, l, im,product, productCmpl, right, k,  sp2,totalVector,ilr+f1->sinc.tulip[totalVector].Current[0] , 0);
+                            tHYpY(rank, f1, targSpin,Mat, l, im,product, productCmpl, right, k,  sp2,totalVector,ilr +f1->sinc.tulip[totalVector].Current[0], 0);
                         }
                     
                     f1->sinc.tulip[totalVector].Current[0] += Ll*Rr;

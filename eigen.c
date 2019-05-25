@@ -80,7 +80,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
             
             N1 = n1[space];
             N2 = N1*N1;
-            zero(f1,copy,0);
+            myZero(f1,canonicalBuffersBM,0);
             ar = myStreams(f1, canonicalBuffersBM, 0);
             w = ar + N2;
 //            enum division pt = f1->sinc.tulip[Ha].linkNext;
@@ -99,10 +99,12 @@ INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
                 if ( space < COMPONENT )
                     cblas_dcopy(N2, streams(f1, kinetic,0,space)+space*N2, 1, ar, 1);
                 else {
-                    zero(f1,kineticMass,0);
                     cblas_dcopy(N2,streams(f1, kineticMass,0,space), 1, ar, 1);
                     for ( i = 0; i < CanonicalRank(f1, protonRepulsion, 0);i++)
                         cblas_daxpy(N2, 1., streams(f1,protonRepulsion,0,space)+i*N2, 1,ar,1 );
+                    
+                    if (0)
+                    for ( i = 0 ; i < N1 ; i++) printf("%1.3f,", ar[i*N1+i]);
                     // N12 >= 3
 //                    exit(0);
                 }
@@ -123,6 +125,14 @@ INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
             tdsyev(0, f1, 'V', N1, ar, N1, w);
             
 
+            if ( bootBodies == nada ){
+                for ( i = 0 ; i < N1 ; i++){
+                    printf("\n\n%f \n\n", w[i]);
+                    
+                    for ( ii = 0; ii < N1 ; ii++)
+                        printf("%f,", ar[i*N1+ii]);
+                }
+            }   else
 
             if ( bootBodies == one ){
                 for ( i = 0  ; i < N1 ; i++)
@@ -599,14 +609,15 @@ INT_TYPE tFilter(struct field * f1, INT_TYPE Ve, INT_TYPE irrep, enum division u
         rank = 0;
 #endif
 
-        if ( irrep && bodies(f1, usr+ii ) > one  ){
-            for ( cmpl = 0 ; cmpl < spins(f1, usr+ii) ; cmpl++){
-                f1->sinc.tulip[permutationVector].Current[rank] = 0;
-                tBuildIrr(rank, f1, irrep+nP, usr+ii, cmpl, permutationVector, rank);
-        //        tCycleDecompostionGridOneMP(rank, f1, permutationVector, rank, NULL,usr+ii , cmpl, f1->mem1->rt->TARGET, part(f1,usr+ii), 1.);
-                tCycleDecompostionListOneMP(rank, f1, permutationVector, rank, NULL,  usr+ii,cmpl,f1->mem1->rt->TARGET, part(f1,usr+ii), 1);
-            }
-        }
+        //moving filter procedure INTO decompose//krylov
+//        if ( irrep && bodies(f1, usr+ii ) > one  ){
+//            for ( cmpl = 0 ; cmpl < spins(f1, usr+ii) ; cmpl++){
+//                f1->sinc.tulip[permutationVector].Current[rank] = 0;
+//                tBuildIrr(rank, f1, irrep+nP, usr+ii, cmpl, permutationVector, rank);
+//        //        tCycleDecompostionGridOneMP(rank, f1, permutationVector, rank, NULL,usr+ii , cmpl, f1->mem1->rt->TARGET, part(f1,usr+ii), 1.);
+//                tCycleDecompostionListOneMP(rank, f1, permutationVector, rank, NULL,  usr+ii,cmpl,f1->mem1->rt->TARGET, part(f1,usr+ii), 1);
+//            }
+//        }
         
 //#endif
         f1->sinc.tulip[usr+ii].value.symmetry = tClassify(rank, f1, usr+ii);
@@ -931,15 +942,18 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct
                 tHXpX(rank, f1, A, translateFlag, translateFlag*realPart+ (!translateFlag)*1., 0.0, usz+iii+expon*foundation, f1->mem1->rt->TARGET , part(f1,usz+(expon)*foundation+iii),1 == 1);
                 
                 pMatrixElements( f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
-//                matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+(expon-1)*foundation, NULL, &vhv);
+                pMatrixElements( f1, usz+iii+expon*foundation, nullName, usz+iii+(expon-1)*foundation, NULL, &vhv);
 
-              //  printf("%d\t<\t%f\t | \t %f \t>\n", iii+1, creal(vhv), creal(vhhv) - sqr(creal(vhv)));
+                printf("%d\t<\t%f\t | \t %f \t>\n", iii+1, creal(vhv), creal(vhhv) - sqr(creal(vhv)));
                 if ( cabs(vhhv) > 0. )
                     tScale(f1, usz+iii+expon*foundation, 1./sqrt(cabs(vhhv)));
                 else {
                     printf("oops norms \n");
                     exit(0);
                 }
+                pMatrixElements( f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
+               if ( fabs(creal(vhhv)-1.0)> 1e-6)
+                   printf("check %f\n", creal(vhhv));
             }
             
         }

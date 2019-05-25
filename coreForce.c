@@ -38,7 +38,7 @@ void getDescription ( struct function_label *fn ,double scalar,FILE * outString)
     }else if ( fn->fn == Morse ){
         fprintf(outString,"\tMorse = %1.3f (1-exp[-%1.3f *( r - %1.3f )] )^2 -1 \n",scalar*fn->param[0],fn->param[3],fn->param[2]);//,fn->param[1]);
     }else if ( fn->fn == LennardJones ){
-        fprintf(outString,"\tLennardJones = %1.3f  rm = %f\n",fn->param[0],fn->param[1]);
+        fprintf(outString,"\tLennardJones = %1.3f  rm = %f\n",fn->param[0],fn->param[2]);
     }
     fflush(outString);
 }
@@ -3463,16 +3463,16 @@ double inverseLaplaceTransform(double beta, struct function_label * fl){
         value2 *= 2/sqrt(pi);
     }
     else if ( fl->fn == Coulomb || fl->fn == Pseudo || fl->fn == nullFunction ){
-        if ( beta > fl->param[2] && fl->fn == Pseudo )
+        if ( beta > fl->param[1] && fl->fn == Pseudo )
             value2 = 0.;
         else
             value2 += 2./sqrt(pi);//
     } else if ( fl->fn == LennardJones ){
-        double rm = fl->param[1];
-        if ( beta > fl->param[2] && fl->fn == Pseudo )
-            value2 = 0.;
-        else
-            value2 += 2./sqrt(pi) * ( 1./120 * pow(rm,12) * pow(beta,11) - 2*pow(rm,6) * pow(beta,5) ) ;
+        double rm = fl->param[2];
+        if ( beta < fl->param[1] ){
+            value2 += 2./sqrt(pi) * (- 2.   *rm * pow(rm * beta,5 ) ) ;
+            value2 += 2./sqrt(pi) * ( 1./12 *rm * pow(rm * beta,9) ) ;
+        }
     }
     return value2*fl->param[0];
 }

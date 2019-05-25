@@ -117,7 +117,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
     INT_TYPE i,d,ivalue;
     char test_line [MAXSTRING];
     double value;
-    INT_TYPE NINT_TYPE = 115;
+    INT_TYPE NINT_TYPE = 116;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -141,7 +141,8 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "hartreeFock","basisStage","iterations","group","states",//100
         "length","side","lookBack","step","theory",
         "configuration","densityRank","densityBody","parallel","phase",
-        "around","cmpl","clampStage","OCSB","decompose"
+        "around","cmpl","clampStage","OCSB","decompose",
+        "shiftNO"
     };
     INT_TYPE NDOUBLE = 69;
     char *list_DOUBLE []= {"#",
@@ -546,7 +547,9 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     return i;
                     
                 case 82:
-                    if ( ivalue == 1 )
+                    if ( ivalue == 0 )
+                        c->rt.body = nada;
+                  else   if ( ivalue == 1 )
                         c->rt.body = one;
                     else if ( ivalue == 2 )
                         c->rt.body = two;
@@ -749,6 +752,9 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     return i;
                 case 115:
                     c->rt.powDecompose = ivalue;
+                    return i;
+                case 116:
+                    c->i.shiftFlag = 0;
                     return i;
 
             }

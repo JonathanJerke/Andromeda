@@ -32,18 +32,17 @@ INT_TYPE foundation(struct calculation *c1){
 
     if ( !c1->i.OCSBflag ){
         c1->i.c.twoBody.func.fn = nullFunction;
-        c1->i.c.oneBody.func.fn = nullFunction;
         iModel(c1);
         tBoot1Construction(c1, build);
         EV =   tSlam(f1,c1->i.qFloor,f1->sinc.user,c1->i.level);
-        tFilter(&c1->i.c, EV,0, f1->sinc.user);
+        tFilter(&c1->i.c, EV,0, f1->sinc.user);//classify
     }
     else{
         iModel(c1);
 
         tBootManyConstruction(c1);
         EV =   tCollect(f1,c1->i.irrep,f1->sinc.user,c1->i.qFloor ,1);
-        tFilter(&c1->i.c, EV, 0, f1->sinc.user);
+        tFilter(&c1->i.c, EV, 0, f1->sinc.user);//classify
     }
     return EV;
 }
@@ -77,6 +76,7 @@ INT_TYPE krylov ( struct calculation *c1){
         INT_TYPE iii ;
         for ( iii = 0; iii < EV ; iii++){
             printf ( "\n Vector \t%d \n", iii+1);
+            tFilter(f1, EV, !(!c1->i.filter )* c1->i.irrep, eigenVectors+RdsSize-EV);//classify
             printExpectationValues(f1, Ha, eigenVectors+RdsSize-EV+iii);
             fflush(stdout);
             print(c1,1,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
@@ -87,7 +87,7 @@ INT_TYPE krylov ( struct calculation *c1){
     for ( iterator = 1 ; iterator < c1->i.Iterations ; iterator++){
         RdsSize += tGreatDivideIteration(c1->i.shiftFlag, c1->i.realPart,  f1,Iterator, 1,0,eigenVectors+RdsSize-EV,EV,2*EV,0)-EV;
         if(1){
-            tFilter(f1, EV, !(!c1->i.filter )* c1->i.irrep, eigenVectors+RdsSize-EV);
+            tFilter(f1, EV, !(!c1->i.filter )* c1->i.irrep, eigenVectors+RdsSize-EV);//classify
             printf ("Step \t%d\n", iterator);
             INT_TYPE iii ;
             for ( iii = 0; iii < EV ; iii++){
@@ -232,12 +232,18 @@ INT_TYPE decompose( struct calculation * c1 ){
     
         for ( cmpl = 0; cmpl < spins(f1, f1->sinc.user) ; cmpl++){
             tClear(f1,totalVector);
+            if ( c1->i.filter  && c1->i.irrep )
+            {
+                for( g = 0; g < c1->i.qFloor ; g++)
+                    tBuildIrr(0, f1, c1->i.irrep, f1->sinc.user+g, cmpl, totalVector, 0);
+            }else {
             for( g = 0; g < c1->i.qFloor ; g++)
                 tAddTw(f1, totalVector, 0, f1->sinc.user+g, cmpl);
+            }
             tCycleDecompostionGridOneMP(-2, f1, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1,eigenVectors), c1->rt.powDecompose);
        //     tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1,eigenVectors), 1.);
         }
-    tFilter(f1, c1->i.nStates, !(!c1->i.filter )* c1->i.irrep, eigenVectors);
+        tFilter(f1, c1->i.nStates, !(!c1->i.filter )* c1->i.irrep, eigenVectors);//classify
     for ( i = 0; i < c1->i.nStates ; i++){
         tScale(f1, eigenVectors+i, 1./magnitude(f1, eigenVectors+i));
        // printf("printf %f\n", magnitude(f1, eigenVectors+i));

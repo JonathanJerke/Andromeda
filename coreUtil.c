@@ -2000,15 +2000,17 @@ double xOneBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct fi
                 l = sl;
                 
                 //build
-                #ifdef OMP
-                #pragma omp parallel for private (i)
-                #endif
+#ifdef OMP
+#pragma omp parallel for private (i)
+#endif
                 for ( i = 0 ; i < N1 ; i++)
                 {
                     myStreams(f2, bandBasis,rank )[i] =
                     BoB (grabBasis(f1, space, f1->sinc.rose[space].particle,l),grabBasis(f2, space, f2->sinc.rose[space].particle, i) );
                 }
-                
+#ifdef OMP
+#pragma omp parallel for private (r)
+#endif
                 for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
                     cblas_daxpy(N1, (streams(f1, vector1,s1,space)+r*L1)[l], myStreams(f2, bandBasis, rank), 1, streams(f2, out, s2,space)+r*N1, 1);
                 }
@@ -2064,7 +2066,9 @@ double xTwoBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct fi
                 BoB (grabBasis(f1, space, f1->sinc.rose[space].particle,l),grabBasis(f2, space, f2->sinc.rose[space].particle, i) )*
                 BoB (grabBasis(f1, space, f1->sinc.rose[space].particle,l2),grabBasis(f2, space, f2->sinc.rose[space].particle, i2) );
             }
-            
+#ifdef OMP
+#pragma omp parallel for private (r)
+#endif
             for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
                 cblas_daxpy(N1*N1, (streams(f1, vector1,s1,space)+r*L1*L1)[sl], myStreams(f2, bandBasis, rank), 1, streams(f2, out, s2,space)+r*N1*N1, 1);
             }
@@ -2113,7 +2117,9 @@ double xThreeBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct 
                     BoB (grabBasis(f1, space, f1->sinc.rose[space].particle,l3),grabBasis(f2, space, f2->sinc.rose[space].particle, i3) );
                     
                 }
-                
+#ifdef OMP
+#pragma omp parallel for private (r)
+#endif
                 for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
                     cblas_daxpy(N1*N1*N1, (streams(f1, vector1,s1,space)+r*L1*L1*L1)[sl], myStreams(f2, bandBasis, rank), 1, streams(f2, out, s2,space)+r*N1*N1*N1, 1);
                 }
@@ -2167,7 +2173,9 @@ double xFourBand (struct field *f1, enum division vector1 ,INT_TYPE s1, struct f
 
                     
                 }
-                
+#ifdef OMP
+#pragma omp parallel for private (r)
+#endif
                 for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
                     cblas_daxpy(N1*N1*N1*N1, (streams(f1, vector1,s1,space)+r*L1*L1*L1*L1)[sl], myStreams(f2, bandBasis, rank), 1, streams(f2, out, s2,space)+r*N1*N1*N1*N1, 1);
                 }

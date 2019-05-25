@@ -109,15 +109,20 @@ INT_TYPE ioStoreMatrix(struct field * f1, enum division op, INT_TYPE spin, char 
     if (   access( filename, F_OK ) != -1 ){
 
         if (  inputFormat(f1, filename, nullName, 0) == 2 ){
-            for ( space = 0;space < SPACE ; space++)
+            for ( space = 0;space < SPACE ; space++){
                 if ( f1->sinc.tulip[op].space[space].body != inputFormat(f1, filename, nullName, 100+space/COMPONENT)){
                    // printf("body");
                     break;
                 }
+                if ( f1->sinc.rose[space].count1Basis != inputFormat(f1, filename, nullName, 200+space/COMPONENT)){
+                    // printf("count");
+                    break;
+                }
+
+            }
             if ( part(f1, op ) >= inputFormat(f1, filename, nullName, 2)){
-                    if ( f1->sinc.rose[0].count1Basis == inputFormat(f1, filename, nullName, 4)){
                         matchFlag = 1;
-                    }
+                
             }else {
               //  printf("ranks");
             }
@@ -353,26 +358,20 @@ double inputFormat(struct field * f1,char * name,  enum division buffer, enum di
         fclose(in);
         return genus;
     }
-    if ( input >= 100 ){
+    if ( 100 <= input && input < 200 ){
         fclose(in);
         return Nbody[input - 100];
     }
-    
+    if ( 200 <= input && input < 300 ){
+        fclose(in);
+        return N1[input - 200];
+    }
+
     if ( input == 2 ){
         fclose(in);
         return r1;
     }
     
-    if ( input == 4 ){
-        fclose(in);
-        return N1[0];
-        
-    }
-    
-    if ( input == 7 ){
-        fclose(in);
-        return N1[1];
-    }    
     if ( r1 > part(f1, buffer)){
         printf("increase part %d %d\n", r1,part(f1,buffer));
         fflush(stdout);
@@ -1122,10 +1121,10 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                             c2.i.c.oneBody.func.fn = nullFunction;
                             c2.i.c.twoBody.func.fn = nullFunction;
                             if ( SPACE > COMPONENT ){
-                                c2.i.around = (inputFormat(f1, name, nullName, 7)-1)/2;
+                                c2.i.around = (inputFormat(f1, name, nullName, 201)-1)/2;
                                 c2.i.D = c1->i.D * pow( (2.* c1->i.around + 1.) /(2.*c2.i.around + 1),1.);
                             }
-                            c2.i.epi =(inputFormat(f1, name, nullName, 4)-1)/2;
+                            c2.i.epi =(inputFormat(f1, name, nullName, 200)-1)/2;
                             c2.i.d = c1->i.d* pow( (2.* c1->i.epi + 1.) /(2.*c2.i.epi + 1),c2.i.attack);
 
                             
