@@ -1967,7 +1967,7 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
                             k = ilr/Ll;
                             
                             
-                            tHYpY(rank, f1, targSpin,Mat, l, im,product, productCmpl, right, k,  sp2,totalVector,ilr , 0);
+                            tHYpY(rank, f1, targSpin,Mat, l, im,product, productCmpl, right, k,  sp2,totalVector,ilr+f1->sinc.tulip[totalVector].Current[0] , 0);
                         }
                     
                     f1->sinc.tulip[totalVector].Current[0] += Ll*Rr;
