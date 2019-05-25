@@ -1,9 +1,6 @@
 ANDROMEDA 6 
 
-export LAUNCH={LAUNCHPAD_DIR}
-Modify $LAUNCH/csh/go.csh to interface with your version of andromeda
-
-See Andromeda/wiki for express instructions.
+See (Count Down) on WIKI.
 
 Please cite these two papers until a proper writeup of Andromeda is published.
 
