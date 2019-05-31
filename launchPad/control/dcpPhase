@@ -1,7 +1,7 @@
 *Body print
 	*Parameters
 		phase 3
-		filter 0
+		filter 1
 		.Parameters
 
 	*InputOutput
