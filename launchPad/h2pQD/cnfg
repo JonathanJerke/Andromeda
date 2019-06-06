@@ -18,7 +18,7 @@
 		lattice 1.5
 		clampMin 1.8
 		clampMax 3.0
-		levelLevel 1
+		levelLevel 0.5
 		foundation 2000
 		latte 0.08
 	#end 
