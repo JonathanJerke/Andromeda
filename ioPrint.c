@@ -98,7 +98,7 @@ INT_TYPE print(struct calculation *c , INT_TYPE reset,INT_TYPE mv, INT_TYPE lv,e
 
 
 INT_TYPE ioStoreMatrix(struct field * f1, enum division op, INT_TYPE spin, char * filename, INT_TYPE ioIn ){
-    INT_TYPE matchFlag = 0,space;
+    INT_TYPE matchFlag = 0,tempFlag=1,space;
     //check if previous is acceptable...
     //0 genus
     //2 ranks
@@ -109,24 +109,28 @@ INT_TYPE ioStoreMatrix(struct field * f1, enum division op, INT_TYPE spin, char 
     if (   access( filename, F_OK ) != -1 ){
 
         if (  inputFormat(f1, filename, nullName, 0) == 2 ){
-            for ( space = 0;space < SPACE ; space++){
+            for ( space = 0;space < SPACE ; space++)
+                if ( f1->sinc.rose[space].body != nada ){
                 if ( f1->sinc.tulip[op].space[space].body != inputFormat(f1, filename, nullName, 100+space/COMPONENT)){
-                   // printf("body");
-                    break;
+                  //  printf("body");
+                    tempFlag = 0;
                 }
                 if ( f1->sinc.rose[space].count1Basis != inputFormat(f1, filename, nullName, 200+space/COMPONENT)){
-                    // printf("count");
-                    break;
+                 //   printf("count");
+                 //   printf("%d--%d != %d \n",space,f1->sinc.rose[space].count1Basis ,inputFormat(f1, filename, nullName, 200+space/COMPONENT) );
+                    tempFlag = 0;
                 }
 
             }
-            if ( part(f1, op ) >= inputFormat(f1, filename, nullName, 2)){
+            if ( tempFlag && part(f1, op ) >= inputFormat(f1, filename, nullName, 2)){
                         matchFlag = 1;
                 
             }else {
-              //  printf("ranks");
+             //   printf("ranks");
             }
         }
+        else
+            return 0;
     }
     
     
@@ -249,7 +253,7 @@ DCOMPLEX tFromReadToFilename (char * cycleName, char * read , char * filename,IN
 }
 
 #if 1
-double inputFormat(struct field * f1,char * name,  enum division buffer, enum division input){
+INT_TYPE inputFormat(struct field * f1,char * name,  enum division buffer, INT_TYPE input){
     size_t maxRead = MAXSTRING;
     char input_line [maxRead];
     double value,lvalue;
@@ -261,10 +265,12 @@ double inputFormat(struct field * f1,char * name,  enum division buffer, enum di
     INT_TYPE Nbody[SPACE],parts,p1,comp,i,M[SPACE],r1,r,space,flag2,flag3,flag4,l,sp,sy,N1[SPACE];
 
     
-    FILE * in = fopen(name, "r");
+    FILE * in = NULL;
+    in = fopen(name, "r");
     if ( in == NULL ){
+        return 0;
         printf("failed to load %s\n", name);
-        exit(0);
+        
     }
     //    broke = readInput(c2,in);
     //    finalizeInit(c2);
@@ -340,7 +346,6 @@ double inputFormat(struct field * f1,char * name,  enum division buffer, enum di
     getline(&inputPt,&maxRead, in   );
     
     for ( p1 = 0 ; p1 < parts ; p1++){
-        
         sscanf(inputPt, "%cbody = %lld",&c, &Nbody[p1] );
         getline(&inputPt,&maxRead, in   );
         sscanf(inputPt, "%ccount1Basis = %lld",&c, &N1[p1] );
@@ -849,14 +854,15 @@ INT_TYPE tFillBasis(Stream_Type ** pt/*3 vectors*/, double * coordinates/*3 numb
             double * position = coordinates;
             for ( h = 0 ; h < N1 ; h++)
                 pt[space][h] = Sinc(lattice,position[space]-lattice*(h-N12))/sqrt(lattice);
-        }else
-        {
-                double periodicPosition;
-                periodicPosition = coordinates[space];
-                for ( h = 0 ; h < N1 ; h++)
-                    pt[space][h] = periodicSinc(lattice,periodicPosition-lattice*(h-N12),N1)/sqrt(lattice);
-
         }
+//        else
+//        {
+//                double periodicPosition;
+//                periodicPosition = coordinates[space];
+//                for ( h = 0 ; h < N1 ; h++)
+//                    pt[space][h] = periodicSinc(lattice,periodicPosition-lattice*(h-N12),N1)/sqrt(lattice);
+//
+//        }
             
 //        {
 //            double phase ;
@@ -1121,10 +1127,17 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                             c2.i.c.oneBody.func.fn = nullFunction;
                             c2.i.c.twoBody.func.fn = nullFunction;
                             if ( SPACE > COMPONENT ){
-                                c2.i.around = (inputFormat(f1, name, nullName, 201)-1)/2;
+                                if ( c2.rt.runFlag )
+                                    c2.i.around = (inputFormat(f1, name, nullName, 201)/2-1)/2;
+                                else
+                                    c2.i.around = (inputFormat(f1, name, nullName, 201)-1)/2;
                                 c2.i.D = c1->i.D * pow( (2.* c1->i.around + 1.) /(2.*c2.i.around + 1),1.);
                             }
-                            c2.i.epi =(inputFormat(f1, name, nullName, 200)-1)/2;
+                            if ( c2.rt.runFlag )
+                                c2.i.epi =(inputFormat(f1, name, nullName, 200)/2-1)/2;
+                            else
+                                c2.i.epi =(inputFormat(f1, name, nullName, 200)-1)/2;
+
                             c2.i.d = c1->i.d* pow( (2.* c1->i.epi + 1.) /(2.*c2.i.epi + 1),c2.i.attack);
 
                             

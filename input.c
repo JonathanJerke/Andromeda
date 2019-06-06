@@ -144,7 +144,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "around","cmpl","clampStage","OCSB","decompose",
         "shiftNO"
     };
-    INT_TYPE NDOUBLE = 69;
+    INT_TYPE NDOUBLE = 71;
     char *list_DOUBLE []= {"#",
         "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST" ,//1-5
         "xB", "yB", "zB", "xyRange" , "zRange",//6-10
@@ -159,8 +159,8 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "REMOVEREMOVE", "maxDomain", "parcel","minDomain","param",
         "entropy","attack","scalar","turn","augment",
         "linearDependence","condition","seek","width","latte",
-        "magnetismZ","clampMin","clampMax","reduce"
-        
+        "magnetismZ","clampMin","clampMax","electronMass","protonMass",
+        "pairMass"
     };
     
     for ( i = 1 ; i <= NINT_TYPE ; i++){
@@ -930,7 +930,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                 //    c->i.valueFloor = value;
                     return d;
                 case 45 :
-                    c->i.d = pow( 4. * pi /3. *c->i.iCharge ,0.33333333333333333333)* value / (2.*c->i.epi+1.);
+                    c->i.d = pow( 4. * pi /3. *c->rt.body ,0.33333333333333333333)* value / (2.*c->i.epi+1.);
                     //value = Rs
 
                     //4pi/3 Rs^3 = pow(d * N1 ,3.0)/f1->Ne
@@ -1021,7 +1021,13 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     c->i.maxClamp = value;
                     return d;
                 case 69:
-                    c->i.reducedMass = value;
+                    c->i.massElectron = value;
+                    return d;
+                case 70:
+                    c->i.massProton = value;
+                    return d;
+                case 71:
+                    c->i.massClampPair = value;
                     return d;
 
             }
@@ -1632,7 +1638,9 @@ INT_TYPE readInput(struct calculation *c , FILE * in){
 INT_TYPE initCalculation(struct calculation * c ){
     INT_TYPE g;
     c->i.level = 1e9;
-    c->i.reducedMass = 1.;
+    c->i.massElectron = 1.;
+    c->i.massProton = 1836.15267245;
+    c->i.massClampPair = 1836.15267245;
     c->rt.boot = fullMatrices;
     c->rt.powDecompose = 1;
     c->i.shiftFlag = 0;

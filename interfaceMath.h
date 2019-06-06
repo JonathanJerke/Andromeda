@@ -34,9 +34,9 @@ INT_TYPE tzheev( INT_TYPE rank, struct field * f1, char job , INT_TYPE n,DCOMPLE
 INT_TYPE tzhegv( INT_TYPE rank, struct field * f1, char job , INT_TYPE n,DCOMPLEX * sr, DCOMPLEX * ar, INT_TYPE ns , double * w );
 void transpose(INT_TYPE N, INT_TYPE M, Stream_Type * orig, Stream_Type* targ);
 double Sinc( double d , double x);
-double periodicSinc ( double d , double x, INT_TYPE N1 );
+DCOMPLEX periodicSinc ( double d , double x, double momentum, INT_TYPE N1 );
 double SS( double d1 , double x , double d2, double y ) ;
-double periodicSS( double d1 , double x ,INT_TYPE N1, double d2, double y,INT_TYPE N2 )    ;
+//double periodicSS( double d1 , double x ,INT_TYPE N1, double d2, double y,INT_TYPE N2 )    ;
 //double OVERLAP ( struct basisElement *b1,  struct basisElement *b2);
 //
 //INT_TYPE dimBasisElement  (struct field * f1, INT_TYPE body );

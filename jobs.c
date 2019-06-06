@@ -34,7 +34,11 @@ INT_TYPE foundation(struct calculation *c1){
         c1->i.c.twoBody.func.fn = nullFunction;
         iModel(c1);
         tBoot1Construction(c1, build);
-        EV =   tSlam(f1,c1->i.qFloor,f1->sinc.user,c1->i.level);
+
+        if ( c1->i.irrep && c1->i.filter )
+            EV =   tCollect(f1,c1->i.irrep,f1->sinc.user,c1->i.qFloor ,1);
+        else
+            EV =   tSlam(f1,c1->i.qFloor,f1->sinc.user,c1->i.level);
         tFilter(&c1->i.c, EV,0, f1->sinc.user);//classify
     }
     else{
@@ -125,22 +129,13 @@ INT_TYPE ritz( struct calculation * c1 ){
     if ( CanonicalRank(f1,interactionEwald,0) )
         ioStoreMatrix(f1,interactionEwald ,0,"interactionEwald.matrix",0);
 
-    if ( c1->i.decomposeRankMatrix ){
-        
+    
         if ( CanonicalRank(f1,shortenPlus,0) )
             ioStoreMatrix(f1,shortenPlus ,0,"shortenExchangePlus.matrix",0);
         
         if ( CanonicalRank(f1,shortenMinus,0) )
             ioStoreMatrix(f1,shortenMinus ,0,"shortenExchangeMinus.matrix",0);
 
-        
-    }else {
-        if ( CanonicalRank(f1,interactionExchangePlus,0) )
-            ioStoreMatrix(f1,interactionExchangePlus ,0,"interactionExchangePlus.matrix",0);
-        
-        if ( CanonicalRank(f1,interactionExchangeMinus,0) )
-            ioStoreMatrix(f1,interactionExchangeMinus ,0,"interactionExchangeMinus.matrix",0);
-    }
     
     if ( CanonicalRank(f1,linear,0) )
         ioStoreMatrix(f1,linear ,0,"linear.matrix",0);
@@ -190,11 +185,20 @@ INT_TYPE ritz( struct calculation * c1 ){
                     
                     sprintf(str, "%s-%d", c1->name, iii+1);
                     
-                    printVector(c1,token,str,flines,c1->i.irrep, V+stride*iii+lines);
-                    //   printf("v%d s%d s%d\n", iii, stride,lines);
+                    {
+                        INT_TYPE number,si;
+                        char pa[MAXSTRING],*pa0;
+                        pa0 = pa;
+                        pa0 = strtok(NULL, "\"");
+                        si = sscanf ( pa0, ",%d,",&number );
+                        if ( si == 1  ) {
+                            printVector(c1,token,str,number-1,c1->i.irrep, V+stride*iii+lines);
+                        }
+                    }
                     lines++;
-                    flines++;
                 }
+                flines++;
+
                 getline(&line, &ms, fp);
 
             }
@@ -255,12 +259,15 @@ INT_TYPE decompose( struct calculation * c1 ){
 
 int main (INT_TYPE argc , char * argv[]){
     struct calculation c = bootShell(argc, argv);
+   // test2();
     
     INT_TYPE i,a,plusSize,nStatesTrans=0,nStatesFound=0 ,RdsSize = 0,totalIter = 0;
     FILE * out = stdout;
     struct runTime * rt = & c.rt;
     
     struct field *f1 = &(c.i.c);
+    c.i.iCharge = c.rt.body;
+    
     if ( c.i.iCharge > 0 )
         f1->Ne = c.i.iCharge;
     
@@ -309,7 +316,17 @@ int main (INT_TYPE argc , char * argv[]){
         c.i.heliumFlag = c.i.nTargets;
         c.i.nStates = c.i.heliumFlag;
         INT_TYPE EV= foundation(&c);
-        print(&c,1,0,EV , f1->sinc.user);
+        INT_TYPE ii,flag = 1;;
+        if ( c.i.irrep )
+            for ( ii = 0 ;ii < EV ;ii++){
+                if ( f1->sinc.tulip[f1->sinc.user+ii].value.symmetry == c.i.irrep ){
+                    print(&c,flag,ii,ii+1 , f1->sinc.user);
+                    flag = 0;
+                }
+            }
+        else
+            print(&c,1,0,EV , f1->sinc.user);
+
     }
     else if ( c.rt.phaseType == productKrylov ){//C
         krylov(&c);
@@ -327,8 +344,10 @@ int main (INT_TYPE argc , char * argv[]){
         }
         c.i.OCSBflag = 0;
 
-        foundation(&c);
-        tEigenCycle(&c.i.c,Ha,'T', c.i.nStates, c.i.c.sinc.user,c.i.qFloor,0, c.i.qFloor,0,0,eigenVectors,twoBodyRitz);
+        INT_TYPE EV = foundation(&c);
+        printf("finished foundation\n");
+        fflush(stdout);
+        tEigenCycle(&c.i.c,Ha,'T', c.i.nStates, c.i.c.sinc.user,EV,0, EV,0,0,eigenVectors,twoBodyRitz);
         
         INT_TYPE i,j=0;
         for ( i = 0 ; i < c.i.nStates ; i++ ){
@@ -337,7 +356,7 @@ int main (INT_TYPE argc , char * argv[]){
                 j++;
             }
         }
-        tEigenCycle(&c.i.c,Ha,'T', j, c.i.c.sinc.user,c.i.qFloor,0, c.i.qFloor,0,4,eigenVectors,twoBodyRitz);
+        tEigenCycle(&c.i.c,Ha,'T', j, c.i.c.sinc.user,EV,0, EV,0,4,eigenVectors,twoBodyRitz);
         
         {
 //            INT_TYPE i ;
@@ -348,8 +367,7 @@ int main (INT_TYPE argc , char * argv[]){
             cblas_dscal(j, -1., myStreams(f1, twoBodyRitz, 0), 1);
         }
         
-        
-        mySeparateEwaldCoulomb1(&c.i.c,j,myStreams(f1, twoBodyRitz, 0),eigenVectors, c.i.decomposeRankMatrix, interactionExchange,interactionEwald, shortenEwald, 0, 0, 0, electron);
+        mySeparateEwaldCoulomb1(&c.i.c,j,myStreams(f1, twoBodyRitz, 0),eigenVectors, c.i.decomposeRankMatrix, interactionExchange,interactionEwald, shortenEwald, 1./c.rt.body, 0, 0, electron);
         ioStoreMatrix(&c.i.c, shortenEwald, 0, "shortenEwald.matrix", 0);
         
     }

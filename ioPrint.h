@@ -42,7 +42,7 @@ double evaluateVectorBracket( double x [], size_t dim , void * params );
 INT_TYPE tSymmetryClass (char * cycleName, char * read , char * filename,INT_TYPE cmplFlag, INT_TYPE cmpl);
 void tFromReadToToken (char * read , char * token);
 void outputFormat(struct field  * f1, FILE * out, enum division output ,INT_TYPE spin);
-double inputFormat(struct field * f1,char * name,  enum division buffer, enum division input);
+INT_TYPE inputFormat(struct field * f1,char * name,  enum division buffer, INT_TYPE input);
 double tComputeRadialPlot(struct field * f1, INT_TYPE number, INT_TYPE class,  double radius,INT_TYPE numC );
 double tComputeVectorPlot(struct field * f1,INT_TYPE number,  INT_TYPE class,  double *displacement,INT_TYPE numC );
 INT_TYPE ioStoreMatrix(struct field * f1, enum division op, INT_TYPE spin, char * filename, INT_TYPE ioIn );

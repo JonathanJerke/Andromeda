@@ -37,7 +37,7 @@ double Sinc( double d , double x){
     return dimless;
 }
 
-double periodicSinc ( double d , double x, INT_TYPE N1 ){
+DCOMPLEX periodicSinc ( double d , double x, double momentum, INT_TYPE N1 ){
     double dimless =1., arg = pi*(x/d);
     
     
@@ -47,7 +47,7 @@ double periodicSinc ( double d , double x, INT_TYPE N1 ){
 //        return 1.;
     
     
-    return dimless;;
+    return dimless * ei( momentum * d * x );
 }
 
 double SS( double d1 , double x , double d2, double y )    {
@@ -64,19 +64,19 @@ double SS( double d1 , double x , double d2, double y )    {
     return 0;
 }
 
-double periodicSS( double d1 , double x ,INT_TYPE N1, double d2, double y , INT_TYPE N2)    {
-    if ( d1 > d2 ){
-        if ( x == y )
-            return sqrt(d2/d1);
-        else
-            return periodicSinc(d1,x-y,N1) * sqrt(d2/d1);
-    }
-    if ( x == y )
-        return sqrt(d1/d2);
-    else
-        return periodicSinc(d2,x-y,N2) * sqrt(d1/d2);
-    return 0;
-}
+//double periodicSS( double d1 , double x ,INT_TYPE N1, double d2, double y , INT_TYPE N2)    {
+//    if ( d1 > d2 ){
+//        if ( x == y )
+//            return sqrt(d2/d1);
+//        else
+//            return periodicSinc(d1,x-y,N1) * sqrt(d2/d1);
+//    }
+//    if ( x == y )
+//        return sqrt(d1/d2);
+//    else
+//        return periodicSinc(d2,x-y,N2) * sqrt(d1/d2);
+//    return 0;
+//}
 
 //double OVERLAP ( struct basisElement *b1,  struct basisElement *b2){
 //    if ( b1->basis == SincBasisElement && b2->basis == SincBasisElement)

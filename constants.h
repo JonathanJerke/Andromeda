@@ -22,8 +22,8 @@
 *   *   You should have received a copy of the GNU General Public License
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-//VERSION 6.1.8
+ 
+//VERSION 6.2.1
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -243,12 +243,18 @@ enum basisElementType {
 
 enum componentType {
     nullComponent,
-    spatialComponent1,
-    spatialComponent2,
-    spatialComponent3,
-    periodicComponent1,
-    periodicComponent2,
-    periodicComponent3,
+    spatialComponent1,//1
+    spatialComponent2,//2
+    spatialComponent3,//3
+    periodicComponent1,//4
+    periodicComponent2,//5
+    periodicComponent3,//6
+    periodicSumComponent1,//7
+    periodicSumComponent2,//8
+    periodicSumComponent3,//9
+    periodicBoostComponent1,//10
+    periodicBoostComponent2,//11
+    periodicBoostComponent3,//12
 };
 
 enum noteType {
@@ -261,11 +267,11 @@ struct basisElement {
     enum componentType type;
     enum noteType note;
     INT_TYPE index;
+    INT_TYPE index2;//boost for periodicBoostComponent##
     double length;
     double origin;
     INT_TYPE grid;
 };
-
 
 struct canon {
     Stream_Type *stream ;
@@ -278,12 +284,6 @@ struct canon {
     double lattice;
     double origin;
 };
-
-
-
-
-
-
 
 
 
@@ -730,7 +730,9 @@ struct MEM {
 
 
 struct input {
-    double reducedMass;
+    double massElectron;//electron
+    double massProton;//protons
+    double massClampPair;//clamped second particle
     INT_TYPE bodyFlag;
     INT_TYPE shiftFlag ;
     double realPart ;

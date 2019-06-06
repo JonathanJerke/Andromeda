@@ -33,13 +33,17 @@
 #define COMPONENT 3
 #define PARTICLE 1
 #define SPACE (COMPONENT * PARTICLE)
-//matrix element calculator interface
-#define sincFlag 1
 #define MAXATOM 4
-//#define APPLE
-#define OMP
+
+#define TEST1 0
+#define TEST2 0 
+#define TEST3 0
+#define TEST4 0
+
+#define APPLE
+//#define OMP
 //#define MKL
-#define GSL_LIB
+//#define GSL_LIB
 
 #ifdef APPLE
 #define MaxCore 2

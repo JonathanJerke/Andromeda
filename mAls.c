@@ -178,7 +178,7 @@ INT_TYPE balance (struct field * f1,  enum division alloy, INT_TYPE spin){
                 signs = 1;
             else
                 signs = -1;
-            factor = powl( fabs(prod),1./spaces);
+            factor = powl( fabsl(prod),1./spaces);
             for ( space = 0; space < SPACE ; space++)
                if ( f1->sinc.rose[space].body != nada)
                {
@@ -1982,10 +1982,10 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
 
         }while ( pt != nullName );
     
+       // printExpectationValues(f1, Ha, totalVector);
+        
         tCycleDecompostionGridOneMP(-1, f1, totalVector, 0, NULL,productVector, 0, tolerance, maxRun, f1->mem1->rt->powDecompose);
-//        tAddTw(f1, totalFuzzyVector, rank, productVector, rank);
-//
-//        tCycleDecompostionGridOneMP(rank, f1, totalFuzzyVector, rank,NULL, right, targSpin, tolerance, maxRun, 1.);
+
         tEqua(f1, right, targSpin, productVector, 0);
 
     }

@@ -972,7 +972,7 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char meta , enum division
         exit(0);
     }
     
-    if ( meta < 0 ){
+    if ( meta < 0 ){//stack perms without multiply
         for ( i = 0; i < nPerm ; i++){
             f1->sinc.tulip[permutation2Vector].Current[rank] = 0;
             tPermute(rank,f1, train[i], origin, ospin, permutation2Vector, rank);
@@ -983,7 +983,7 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char meta , enum division
             perm = meta;
             f1->sinc.tulip[permutation2Vector].Current[rank] = 0;
             tPermute(rank,f1, train[i], origin, ospin, permutation2Vector, rank);
-            tScaleOne(f1, permutation2Vector, rank, tGetType(bodies(f1, origin), perm, i));
+            tScaleOne(f1, permutation2Vector, rank, tGetIrrep(bodies(f1, origin), perm, i));
             tAddTw(f1, targ, tspin, permutation2Vector, rank);
             }
     }else {
@@ -991,7 +991,7 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct field * f1, char meta , enum division
             irrep = meta-nPerm;
             f1->sinc.tulip[permutation2Vector].Current[rank] = 0;
             tPermute(rank,f1, train[i], origin, ospin, permutation2Vector, rank);
-            tScaleOne(f1, permutation2Vector, rank, tGetIrrep(bodies(f1, origin), irrep, i));
+            tScaleOne(f1, permutation2Vector, rank, tGetType(bodies(f1, origin), irrep, i));
             tAddTw(f1, targ, tspin, permutation2Vector, rank);
         }
 

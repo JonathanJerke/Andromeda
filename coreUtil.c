@@ -1249,7 +1249,6 @@ INT_TYPE tId ( struct field *f1 , enum division label,INT_TYPE spin ){
         if ( f1->sinc.tulip[label].Current[spin] >= f1->sinc.tulip[label].Partition ){
             printf("%d %d\n", label, spin);
             printf("tryed to add to full array\n");
-            exit(0);
             return 0;
         }
         Current =  f1->sinc.tulip[label].Current[spin]++;
@@ -1658,7 +1657,7 @@ double lattice ( struct field * f1, INT_TYPE space ){
 void printVectorAllocations(struct field *f1){
     INT_TYPE space;
     for ( space = 0; space <= SPACE ; space++){
-        INT_TYPE vecG = 3*(f1->sinc.tulip[f1->sinc.end].space[space].Address -  f1->sinc.tulip[eigenVectors].space[space].Address);
+        ADDRESS_TYPE vecG = 3*(f1->sinc.tulip[f1->sinc.end].space[space].Address -  f1->sinc.tulip[eigenVectors].space[space].Address);
         printf("%d --vector Contribution \t G%f",space,vecG/1000000000./(sizeof(Stream_Type)));
     }
 }
@@ -1672,15 +1671,38 @@ struct basisElement grabBasis (struct field * f1, INT_TYPE component, INT_TYPE p
     
     boa.basis = f1->sinc.rose[component].basis;
     
-    boa.index = elementIndex - (f1->sinc.rose[component].count1Basis-1)/2;
-    
     boa.length = f1->sinc.rose[component].lattice;
     
     boa.origin = f1->sinc.rose[component].origin;
     
     boa.grid = f1->sinc.rose[component].count1Basis;
     
+    boa.index = 0;
+    boa.index2 = 0;
     
+    if ( boa.type > 3 ){
+        boa.grid /= 2;//allocation should be 2*actual grid.!
+    }
+    if ( boa.type > 3 ) {
+        if ( elementIndex >= boa.grid   ) {
+            //periodic domain...
+            INT_TYPE n,ct = 0 ;
+            for ( n = - boa.grid ; n < boa.grid ; n+= 2){//see Ewald 7.5 MATHEMATICA
+                if ( ct == elementIndex - boa.grid ){
+                    boa.index2 = n;
+                   // boa.type += 3;
+                    break;
+                }
+                ct++;
+            }
+        }else {
+            boa.index = elementIndex;
+            //not boosted..
+        }
+        
+    } else {
+        boa.index = elementIndex - (boa.grid-1)/2 ;
+    }
     return boa;
 
 }
@@ -1741,10 +1763,8 @@ double xOneBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE
                 for ( l = 0 ; l < L1 ; l++)
                 {
                     if ( aPeriodic ){
-                            streams(f1, foundationStructure,rank, space )[l] =
-                        periodicSS ( D,D*(l-L12),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i-N12 ) ,f2->sinc.N1);
-                            //                            periodicSS ( D,D*(l),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i ) ,f2->sinc.N1)*
-                            //                            periodicSS ( D,D*(l2),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i2 ),f2->sinc.N1 );
+                        printf("ask me\n");
+                        exit(0);
                             
                         }else {
                             streams(f1, foundationStructure,rank, space )[l] =
@@ -1810,9 +1830,12 @@ double xTwoBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYPE
                 for ( l = 0 ; l < L1 ; l++)
                     for ( l2 = 0 ; l2 < L1 ; l2++){
                         if ( aPeriodic ){
-                            streams(f1, foundationStructure,rank, space )[l2*L1+l] =
-                            periodicSS ( D,D*(l-L12),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i-N12 ) ,f2->sinc.N1)*
-                            periodicSS ( D,D*(l2-L12),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i2-N12 ),f2->sinc.N1 );
+                            printf("ask me\n");
+                            exit(0);
+
+//                            streams(f1, foundationStructure,rank, space )[l2*L1+l] =
+//                            periodicSS ( D,D*(l-L12),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i-N12 ) ,f2->sinc.N1)*
+//                            periodicSS ( D,D*(l2-L12),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i2-N12 ),f2->sinc.N1 );
 //                            periodicSS ( D,D*(l),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i ) ,f2->sinc.N1)*
 //                            periodicSS ( D,D*(l2),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i2 ),f2->sinc.N1 );
 
@@ -1874,10 +1897,13 @@ double xThreeBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TY
                         for ( l2 = 0 ; l2 < L1 ; l2++)
                             for ( l3 = 0 ; l3 < L1 ; l3++)
                                 if ( aPeriodic ){
-                                    streams(f1, foundationStructure,rank, space )[(l3*L1*L1+l2*L1+l)] =
-                                    periodicSS ( D,D*(l-L12),f1->sinc.N1,f2->sinc.d, f2->sinc.d*( i-N12 ) ,f2->sinc.N1)*
-                                    periodicSS ( D,D*(l2-L12),f1->sinc.N1,f2->sinc.d, f2->sinc.d*( i2-N12 ),f2->sinc.N1 )*
-                                    periodicSS ( D,D*(l3-L12),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i3-N12 ) ,f2->sinc.N1);
+                                    printf("ask me\n");
+                                    exit(0);
+
+//                                    streams(f1, foundationStructure,rank, space )[(l3*L1*L1+l2*L1+l)] =
+//                                    periodicSS ( D,D*(l-L12),f1->sinc.N1,f2->sinc.d, f2->sinc.d*( i-N12 ) ,f2->sinc.N1)*
+//                                    periodicSS ( D,D*(l2-L12),f1->sinc.N1,f2->sinc.d, f2->sinc.d*( i2-N12 ),f2->sinc.N1 )*
+//                                    periodicSS ( D,D*(l3-L12),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i3-N12 ) ,f2->sinc.N1);
                                 }else {
                                     streams(f1, foundationStructure,rank, space )[(l3*L1*L1+l2*L1+l)] =
                                     SS ( D,D*(l-L12), f2->sinc.d, f2->sinc.d*( i-N12 ) )*
@@ -1931,11 +1957,14 @@ double xFourBand (INT_TYPE rank,struct field *f1, enum division vector1 ,INT_TYP
                             for ( l3 = 0 ; l3 < L1 ; l3++)
                                 for ( l4 = 0; l4 < L1 ; l4++)
                                 if ( aPeriodic ){
-                                    streams(f1, foundationStructure,rank, space )[(l4*L1*L1*L1+l3*L1*L1+l2*L1+l)] =
-                                    periodicSS ( D,D*(l-L12),f1->sinc.N1,f2->sinc.d, f2->sinc.d*( i-N12 ) ,f2->sinc.N1)*
-                                    periodicSS ( D,D*(l2-L12),f1->sinc.N1,f2->sinc.d, f2->sinc.d*( i2-N12 ),f2->sinc.N1 )*
-                                    periodicSS ( D,D*(l3-L12),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i3-N12 ) ,f2->sinc.N1)*
-                                    periodicSS ( D,D*(l4-L12),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i4-N12 ) ,f2->sinc.N1);
+                                    printf("ask me\n");
+                                    exit(0);
+
+//                                    streams(f1, foundationStructure,rank, space )[(l4*L1*L1*L1+l3*L1*L1+l2*L1+l)] =
+//                                    periodicSS ( D,D*(l-L12),f1->sinc.N1,f2->sinc.d, f2->sinc.d*( i-N12 ) ,f2->sinc.N1)*
+//                                    periodicSS ( D,D*(l2-L12),f1->sinc.N1,f2->sinc.d, f2->sinc.d*( i2-N12 ),f2->sinc.N1 )*
+//                                    periodicSS ( D,D*(l3-L12),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i3-N12 ) ,f2->sinc.N1)*
+//                                    periodicSS ( D,D*(l4-L12),f1->sinc.N1, f2->sinc.d, f2->sinc.d*( i4-N12 ) ,f2->sinc.N1);
                                 }else {
                                     streams(f1, foundationStructure,rank, space )[(l4*L1*L1*L1+l3*L1*L1+l2*L1+l)] =
                                     SS ( D,D*(l-L12), f2->sinc.d, f2->sinc.d*( i-N12 ) )*

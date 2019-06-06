@@ -435,31 +435,29 @@ DCOMPLEX FSSp ( double p , struct general_index * pa ){
 
 };
 
-DCOMPLEX periodicFSSp ( double p , struct general_index * pa ){
-    INT_TYPE n = pa->bra.index;
-    INT_TYPE m = pa->ket.index;
-    INT_TYPE N1 = pa->bra.grid,pp;
-    double d = pa->bra.length;
-    double sh = 2*pi/d/N1;
-    double sp = 1./N1;
+//DCOMPLEX primitivePeriodicFSS ( double d, double p , INT_TYPE N1, INT_TYPE n, INT_TYPE m  ){
+//    double sh = 2*pi/d/N1;
+//    double sp = 1./N1;
+//    DCOMPLEX sum = 0.;
+//    INT_TYPE N12 = (N1-1)/2,pp;
+//    for ( pp = -N12; pp <= N12 ; pp++ ){
+//        if ( fabs(pp*sh-p) <= pi/d ){
+//            sum += sp*ei(m*p*d+(n-m)*d*(pp*sh));
+//        }
+//    }
+//    return sum;
+//};
+
+
+DCOMPLEX periodicFSSp (double p , struct general_index * pa ){
     DCOMPLEX sum = 0.;
-    INT_TYPE N12 = (N1-1)/2;
-    for ( pp = -N12; pp <= N12 ; pp++ ){
-        if ( fabs(pp*sh-p) <= pi/d ){
-            sum += sp*ei(m*p*d+(n-m)*d*(pp*sh));
-        }
-    }
+    if ( TEST2 )
+        sum = periodicBoostOverlap0(pa->bra.grid, pa->bra.length, pa->bra.index, 2*pa->bra.index2*pi/(pa->bra.length*pa->bra.grid)+p,pa->ket.length, pa->ket.index, 2*pa->ket.index2*pi/(pa->ket.length*pa->ket.grid));
+    else
+        sum = periodicBoostOverlapBasisBasis(p,pa->bra.grid, pa->bra.length, pa->bra.index, pa->bra.index2, pa->ket.length, pa->ket.index, pa->ket.index2);
+
     return sum;
-};
-
-//double test ( double p , struct general_index * pa ){
-////    printf("%f %f\n", cabs(FSSnew(p,pa)),cabs(FSS(p,pa)));
-////    printf("%f %f %f %f\n", creal(FSSnew(p,pa)),cimag(FSSnew(p,pa)),creal(FSS(p,pa)),cimag(FSS(p,pa)));
-//    return cabs(FSS(p,pa)-FSSprev(p, pa));
-//}
-
-
-
+}
 
 DCOMPLEX FDD ( double p , struct general_index * pa ){
     return ei( p*pa->x0 );
@@ -554,44 +552,6 @@ double Sd2S(INT_TYPE arg){
     }
     return 0;
 }
-
-
-
-double periodicSd2S ( double arg, INT_TYPE N ){
-    
-#ifdef GSL_LIB
-    
-    
-    if ( arg == 0 ){
-        return Sd2S(0)-4.0*gsl_sf_zeta(2.)/sqr(2.*N)+4.0*gsl_sf_hzeta(2.,0.500)/sqr(2.*N);
-    }
-    
-    return -cos(pi* arg)/2./sqr(N)*(gsl_sf_hzeta(2., 1-(1.*fabs(arg))/(2.*N))+gsl_sf_hzeta(2., (1.*fabs(arg))/(2.*N))-gsl_sf_hzeta(2., 0.5+(1.*fabs(arg))/(2.*N))-gsl_sf_hzeta(2.,0.5- (1.*fabs(arg))/(2.*N)));
-#else
-    
-    if ( N == 9 ){
-        double cal9[] = {-3.249252,    1.957614,    -0.451818,    0.162463,    -0.043633,    -0.043633,    0.162463,    -0.451818,    1.957614};
-      //  return cal9[abs(arg)];
-        return 0;
-    }else {
-
-    
-    printf("boot gsl\n");
-    exit(0);
-    }
-#endif
-    
-}
-
-double periodicSdS ( INT_TYPE arg, INT_TYPE N ){
-    
-    if ( ! arg )
-        return 0;
-    else {
-        return sign(arg)* pi / N / sin( pi * arg *1./ N ) ;
-    }
-}
-
 
 double aaGetGamma (  double b1,INT_TYPE l1, double o1,double b2,INT_TYPE l2,double o2){
     return 1./4./(b1+b2);
@@ -2937,27 +2897,22 @@ DCOMPLEX FGG( double k, struct general_index * pa){
 }
 
 
-double BoB (struct basisElement b1, struct basisElement b2 ){
+DCOMPLEX BoB (struct basisElement b1, struct basisElement b2 ){
     
     if ( b1.type == nullComponent || b2.type == nullComponent    )
     {
         printf("null\n");
         exit(0);
     }
-    if ( b1.type != b2.type ){
-        printf("compo");
-        exit(0);
-    }
     
     if ( b1.basis == SincBasisElement && b2.basis == SincBasisElement ){
-        double va ;
+        DCOMPLEX va ;
         if ( b2.type <= 3 ){
            va = SS ( b1.length,b1.length*(b1.index)+ b1.origin, b2.length, b2.length*( b2.index ) + b2.origin);
         }
-        else {//periodic
-            va =  periodicSS ( b1.length,b1.length*(b1.index) + b1.origin, b1.grid, b2.length, b2.length*( b2.index ) + b2.origin,b2.grid);
+        else {//periodic-boosted
+            va = periodicBoostOverlapBasisBasis(0.,b1.grid, b1.length, b1.index, b1.index2, b2.length, b2.index, b2.index2);
         }
-        
         return va;
     }else if ( b1.basis == GaussianBasisElement && b2.basis == GaussianBasisElement ){
         
@@ -3010,10 +2965,6 @@ DCOMPLEX BdB (struct basisElement b1, struct basisElement b2){
         printf("null\n");
         exit(0);
     }
-    if ( b1.type != b2.type ){
-        printf("compo");
-        exit(0);
-    }
     
     if ( b1.basis == SincBasisElement && b2.basis == SincBasisElement ){
         if ( b2.type <= 3 ){
@@ -3041,18 +2992,9 @@ DCOMPLEX BdB (struct basisElement b1, struct basisElement b2){
             }
         }
         else {
-            
-            double arg = b1.length*b1.index + b1.origin - (b2.length*b2.index + b2.origin);
-            
-            if ( b1.length > b2.length ){
-                arg /= b1.length;
-                
-                return periodicSdS(arg,b1.grid) * sqrt(b2.length/b1.length);
-            }else {
-                arg /= b2.length;
-                
-                return periodicSdS(arg,b2.grid) * sqrt(b1.length/b2.length);
-            }
+            double va;
+            va = periodicBoostMomentumBasisBasis(0.,b1.grid, b1.length, b1.index, b1.index2, b2.length, b2.index, b2.index2);
+            return va;
         }
     }else if ( b1.basis == GaussianBasisElement && b2.basis == GaussianBasisElement ){
         if ( b2.type <= 3 ){
@@ -3130,14 +3072,10 @@ DCOMPLEX BgB (double beta, struct basisElement b1, INT_TYPE action , INT_TYPE po
 };
 
 
-double Bd2B (struct basisElement b1, struct basisElement b2){
+DCOMPLEX Bd2B (struct basisElement b1, struct basisElement b2){
     if ( b1.type == nullComponent || b2.type == nullComponent    )
     {
         printf("null\n");
-        exit(0);
-    }
-    if ( b1.type != b2.type ){
-        printf("compo");
         exit(0);
     }
     
@@ -3167,20 +3105,9 @@ double Bd2B (struct basisElement b1, struct basisElement b2){
             }
         }
         else {
-            //            printf("1: %f %d %d\n", b1.length,b1.index, b1.auxIndex );
-            //            printf("2: %f %d %d\n", b2.length,b2.index, b2.auxIndex );
-            
-            double arg = b1.length*b1.index + b1.origin - (b2.length*b2.index + b2.origin);
-            
-            if ( b1.length > b2.length ){
-                arg /= b1.length;
-                //                printf("arg: %f\n", arg);
-                return periodicSd2S(arg,b1.grid) * sqrt(b2.length/b1.length)/sqr(b1.length);
-            }else {
-                arg /= b2.length;
-                //                printf("arg: %f\n", arg);
-                return periodicSd2S(arg,b2.grid) * sqrt(b1.length/b2.length)/sqr(b2.length);
-            }
+            DCOMPLEX va;
+            va = periodicBoostKineticBasisBasis(b1.grid, b1.length, b1.index, b1.index2, b2.length, b2.index, b2.index2);
+            return -va;
         }
     }else if ( b1.basis == GaussianBasisElement && b2.basis == GaussianBasisElement ){
         if ( b2.type <= 3 ){
@@ -3271,6 +3198,60 @@ double gaussianSinc ( double k, void * arg ){
     return va;
 }
 
+
+double sumGaussianSinc ( double k, void * arg ){
+    struct general_2index ga,*pa = (struct general_2index *) arg;
+    INT_TYPE b1,b2,bb1,bb2,p1,p2,pp1,pp2,N1 = pa->i[0].bra.grid;
+    double d = pa->i[0].bra.length;
+    INT_TYPE N12 = (N1-1)/2;
+    ga = *pa;
+    double va=0.;
+    
+    for ( p1 = - N12; p1 <= N12; p1++)
+        for (p2 = - N12; p2 <= N12; p2++)
+        
+            for ( b1 = 0 ; b1 < N1 ; b1++)
+                for ( b2 = 0 ; b2 < N1 ; b2++)
+
+            
+            for ( pp1 = - N12 ; pp1 <= N12; pp1++)
+                for ( pp2 = - N12; pp2 <= N12; pp2++)
+                    
+                    for ( bb1 = 0 ; bb1 < N1 ; bb1++)
+                        for (bb2 = 0 ; bb2 < N1 ; bb2++){
+
+                    //set type to 10-12//== true-periodic-boost
+                            ga.i[0].bra.type = (pa->i[0].bra.type-1)%3 + 10;
+                            ga.i[0].ket.type = (pa->i[0].ket.type-1)%3 + 10;
+                            ga.i[1].bra.type = (pa->i[1].bra.type-1)%3 + 10;
+                            ga.i[1].ket.type = (pa->i[1].ket.type-1)%3 + 10;
+                    //
+                            ga.i[0].bra.index = b1;
+                            ga.i[0].ket.index = bb1;
+                            ga.i[1].bra.index = b2;
+                            ga.i[1].ket.index = bb2;
+
+                            
+                            ga.i[0].bra.index2 = p1;
+                            ga.i[0].ket.index2 = pp1;
+                            ga.i[1].bra.index2 = p2;
+                            ga.i[1].ket.index2 = pp2;
+
+                    //form // ga
+                    
+                            va += gaussianSinc(k,(void*)(&ga))//conj HERE//
+                            * conj(periodicBoostOverlapBasis( N1, d, b1, 2./N1*pi/d*p1, d, pa->i[0].bra.index, pa->i[0].bra.index2)
+                            * periodicBoostOverlapBasis( N1, d, b2, 2./N1*pi/d*p2, d,pa->i[1].bra.index, pa->i[1].bra.index2)
+                            * conj(periodicBoostOverlapBasis( N1, d, bb1,  2./N1*pi/d*pp1, d, pa->i[0].ket.index, pa->i[0].ket.index2)
+                            * periodicBoostOverlapBasis(N1, d, bb2, 2./N1*pi/d*pp2, d, pa->i[1].ket.index, pa->i[1].ket.index2)))/sqr(2*N1);
+                }
+
+
+    return va;
+}
+
+
+
 void gaussianSincFunc(void * arg,size_t n,const double * x,double * y)
 {
     struct general_2index *af = (struct general_2index *) arg;
@@ -3278,6 +3259,17 @@ void gaussianSincFunc(void * arg,size_t n,const double * x,double * y)
     for ( i=0;i<n;i++)
     {
         y[i] = gaussianSinc(x[i],af);
+    }
+    
+}
+
+void sumGaussianSincFunc(void * arg,size_t n,const double * x,double * y)
+{
+    struct general_2index *af = (struct general_2index *) arg;
+    size_t i ;
+    for ( i=0;i<n;i++)
+    {
+        y[i] = sumGaussianSinc(x[i],af);
     }
     
 }
@@ -3329,9 +3321,12 @@ double collective( double beta ,struct general_2index * pa){
             double d = pa->i[targParticle].bra.length;
             double kSmall = 2*pi / N1 / d;
             INT_TYPE k;
-            for ( k = - N12 ; k <= N12 ; k++)
+            for ( k = - 2*N1 ; k <= 2*N1 ; k++)
             {
-                value += gaussianSinc(kSmall*k+pa->momentumShift,pa)*kSmall;
+                if ( TEST1  )
+                    value += sumGaussianSinc(kSmall*k+pa->momentumShift,pa)*kSmall;
+                else
+                    value += gaussianSinc(kSmall*k+pa->momentumShift,pa)*kSmall;
             }
             
         }else {
@@ -3345,7 +3340,8 @@ double collective( double beta ,struct general_2index * pa){
             if ( pa->gaussianAccelerationFlag == 0){
                 double l1=0.;
                 double l2=0.;
-                double pint;
+                double z1,z2;
+                double b1,b2;
                 double abs_error;
 
                 
@@ -3353,7 +3349,10 @@ double collective( double beta ,struct general_2index * pa){
                 
 #ifdef APPLE
                 quadrature_integrate_function g;
-                g.fun = gaussianSincFunc;                               // Called to evaluate the function to integrate
+                if ( TEST1 )
+                    g.fun = sumGaussianSincFunc;
+                else
+                    g.fun = gaussianSincFunc;                               // Called to evaluate the function to integrate
                 g.fun_arg = pa;                                  // Passed as first argument to the callback
                 
                 quadrature_integrate_options options;
@@ -3362,7 +3361,7 @@ double collective( double beta ,struct general_2index * pa){
                 
                 options.abs_tolerance = 1.0e-9;                    // Requested absolute tolerance on result
                 options.rel_tolerance = 1.0e-9;                        // Requested absolute tolerance on result
-                options.max_intervals = 100;                        // Max number of intervals
+                options.max_intervals = 1000;                        // Max number of intervals
                 options.qag_points_per_interval = 25;
                 quadrature_status status;
                 
@@ -3370,7 +3369,11 @@ double collective( double beta ,struct general_2index * pa){
 #ifdef GSL_LIB
                 
                 gsl_function F;
-                F.function = &gaussianSinc;
+                
+                if ( TEST1 )
+                    F.function = &sumGaussianSinc;
+                else
+                    F.function = &gaussianSinc;
                 F.params = pa;
 
                 gsl_integration_workspace * workspace= gsl_integration_workspace_alloc (1000);
@@ -3380,26 +3383,47 @@ double collective( double beta ,struct general_2index * pa){
 
                 if ( (pa->i[0].bra.basis == SincBasisElement && pa->i[0].ket.basis == SincBasisElement ) || (pa->i[1].bra.basis == SincBasisElement && pa->i[1].ket.basis == SincBasisElement )  || (pa->i[0].bra.basis == SincBasisElement && pa->i[0].ket.basis == nullFunction )|| (pa->i[0].bra.basis == nullFunction && pa->i[0].ket.basis == SincBasisElement ) || (pa->i[1].bra.basis == SincBasisElement && pa->i[1].ket.basis == nullFunction )|| (pa->i[1].bra.basis == nullFunction && pa->i[1].ket.basis == SincBasisElement ) ){
                     //finite integral
+                    l1 = 0.;
+                    
                     if (pa->i[0].bra.basis == SincBasisElement)
                         l1 += pi/pa->i[0].bra.length;
-                    if (pa->i[0].bra.basis == SincBasisElement)
+                    if (pa->i[0].ket.basis == SincBasisElement)
                         l1 += pi/pa->i[0].ket.length;
-                    
-                    if (pa->i[1].ket.basis == SincBasisElement)
+                    l2 = 0.;
+                    if (pa->i[1].bra.basis == SincBasisElement)
                         l2 += pi/pa->i[1].bra.length;
                     if (pa->i[1].ket.basis == SincBasisElement)
                         l2 += pi/pa->i[1].ket.length;
+                    if ( l1 == 0.)
+                        l1 = INFINITY;
+                    if ( l2 == 0.)
+                        l2 = INFINITY;
                     
-                    if ( l1 > 0 && l2 > 0 )
-                        pint = min(l1,l2);
-                    else if ( l1 > 0 )
-                        pint = l1;
-                    else
-                        pint = l2;
+                    
+                    
+                    z1 = 0. ;
+                    if (pa->i[0].bra.basis == SincBasisElement)
 
+                    z1 -= 2 *  pi*pa->i[0].bra.index2/pa->i[0].bra.length/pa->i[0].bra.grid;
+                    if (pa->i[0].ket.basis == SincBasisElement)
+
+                    z1 += 2 *  pi*pa->i[0].ket.index2/pa->i[0].ket.length/pa->i[0].ket.grid;
+
+                    z2 = 0. ;
+                    if (pa->i[1].bra.basis == SincBasisElement)
+
+                    z2 -= 2 *  pi*pa->i[1].bra.index2/pa->i[1].bra.length/pa->i[1].bra.grid;
+                    if (pa->i[1].ket.basis == SincBasisElement)
+
+                    z2 += 2 *  pi*pa->i[1].ket.index2/pa->i[1].ket.length/pa->i[1].ket.grid;
+
+                    b1 = max(z1 - l1 , z2 - l2 );
+                    b2 = min(z1 + l1 , z2 + l2 );
+                    if ( b2 <= b1 )
+                        return 0.;
 #ifdef APPLE
                     
-                    value =  quadrature_integrate(&g, -pint+pa->momentumShift,pint+pa->momentumShift, &options, &status, &abs_error, 0, NULL);
+                    value =  quadrature_integrate(&g, b1,b2, &options, &status, &abs_error, 0, NULL);
                     if ( status != QUADRATURE_SUCCESS)
                     {
                         printf("error\n");
@@ -3407,7 +3431,7 @@ double collective( double beta ,struct general_2index * pa){
                     }
 #else
 #ifdef GSL_LIB
-                    gsl_integration_qag (&F,  -pint+pa->momentumShift,  pint+pa->momentumShift, 1e-9, 1e-6,1000,6,workspace, &value, &abs_error);
+                    gsl_integration_qag (&F,  b1,  b2, 1e-9, 1e-6,1000,6,workspace, &value, &abs_error);
                     gsl_integration_workspace_free(workspace);
 #endif
 #endif
@@ -3421,7 +3445,7 @@ double collective( double beta ,struct general_2index * pa){
                     
 #ifdef GSL_LIB
                     gsl_integration_qagi (&F, 1e-9, 1e-9,1000,workspace, &value, &abs_error);
-		gsl_integration_workspace_free(workspace);    
+                    gsl_integration_workspace_free(workspace);
 #endif
 #endif
                 }
@@ -4155,7 +4179,7 @@ void mySeparateExactTwo (struct field * f1, enum division interactionExchange, d
     double value,g,x;
     double constant;
     struct function_label fl = f1->twoBody.func;
-    INT_TYPE si,interval = fl.interval;
+    INT_TYPE cmpl,si,interval = fl.interval;
     double * param   = fl.param;
     getDescription(&fl, scalar, stdout);
     
@@ -4182,77 +4206,83 @@ void mySeparateExactTwo (struct field * f1, enum division interactionExchange, d
             
             
         
-            for ( beta = 0; beta < ngk ; beta++){
-                
-                flagPow = 1;
+        for ( beta = 0; beta < ngk ; beta++)
+            for ( cmpl = 0; cmpl < spins(f1, interactionExchange ) ; cmpl++){
 
-                g = gaussQuad(ngk,beta,1);
-                constant = gaussQuad(ngk, beta, 0);
-                
-                if ( section == 0 ){
-                    x = g ;
-                }
-                else {
-                    x = ( g ) / (1. - g)+1 ;
-                    constant /= sqr(1.-g);
-                }
-                x *=  param[1];
-                constant *= param[1];
-
-                //divide 0->infinity
-                
-                constant *= scalar*inverseLaplaceTransform(x,&fl);//for purposes of scaling tw-body interactions by Ne...
-                cpow = powl(fabsl(constant),1./spaces);
+            flagPow = 1;
+            
+            g = gaussQuad(ngk,beta,1);
+            constant = gaussQuad(ngk, beta, 0);
+            
+            if ( section == 0 ){
+                x = g ;
+            }
+            else {
+                x = ( g ) / (1. - g)+1 ;
+                constant /= sqr(1.-g);
+            }
+            x *=  param[1];
+            constant *= param[1];
+            
+            //divide 0->infinity
+            
+            constant *= scalar*inverseLaplaceTransform(x,&fl);//for purposes of scaling tw-body interactions by Ne...
+            cpow = powl(fabsl(constant),1./spaces);
+            
                 for ( space = 0; space < SPACE ; space++)
                     if ( f1->sinc.rose[space].body != nada )
-                    if ( f1->sinc.rose[space].component != nullComponent )
-                    if ( f1->sinc.tulip[interactionExchange].space[space].body == two && f1->sinc.rose[space].particle == particle1 )
-                    {
-      					//printf("%d %d\n", beta,space);
-				//fflush(stdout);
-		                  N1 = n1[space];
+                        if ( f1->sinc.rose[space].component != nullComponent )
+                            if ( f1->sinc.tulip[interactionExchange].space[space].body == two && f1->sinc.rose[space].particle == particle1 )
+                            {
+                                N1 = n1[space];
 #ifdef OMP
 #pragma omp parallel for private (si,I1,I2,I3,I4,g2,value)
 #endif
-                        for ( si = 0 ; si < N1*N1*N1*N1; si++)
-                            
-                        {
-                            I1 = ( si ) % N1;
-                            
-                            I3 = ( si / N1) % N1;
-                            I2 = ( si /  (N1*N1) ) % N1;
-                            I4 = ( si / ( N1*N1*N1) ) % N1;
-                            
-                            g2.realFlag = 1;
-                            g2.momentumShift = 0;
-                            g2.gaussianAccelerationFlag = 0;
-                            g2.point = 2;
-                            g2.powSpace = 0;
-                            
-                            g2.i[0].action = 0;
-                            g2.i[1].action = 0;
-                            
-                            
-                            g2.i[0].bra = grabBasis ( f1, space, particle1, I1);
-                            g2.i[0].ket = grabBasis ( f1, space, particle1, I2);
-                            g2.i[1].bra = grabBasis ( f1, space, particle1, I3);
-                            g2.i[1].ket = grabBasis ( f1, space, particle1, I4);
-                            if ( overline ){
-                                g2.i[overline].bra.note = interactionCell ;
-                                g2.i[overline].ket.note = interactionCell ;
+                                for ( si = 0 ; si < N1*N1*N1*N1; si++)
+                                    
+                                {
+                                    I1 = ( si ) % N1;
+                                    
+                                    I3 = ( si / N1) % N1;
+                                    I2 = ( si /  (N1*N1) ) % N1;
+                                    I4 = ( si / ( N1*N1*N1) ) % N1;
+                                    
+                                    g2.realFlag = cmpl+1;
+                                    g2.momentumShift = 0;
+                                    g2.gaussianAccelerationFlag = 0;
+                                    g2.point = 2;
+                                    g2.powSpace = 0;
+                                    
+                                    g2.i[0].action = 0;
+                                    g2.i[1].action = 0;
+                                    
+                                    
+                                    g2.i[0].bra = grabBasis ( f1, space, particle1, I1);
+                                    g2.i[0].ket = grabBasis ( f1, space, particle1, I2);
+                                    g2.i[1].bra = grabBasis ( f1, space, particle1, I3);
+                                    g2.i[1].ket = grabBasis ( f1, space, particle1, I4);
+                                    if ( overline ){
+                                        g2.i[overline].bra.note = interactionCell ;
+                                        g2.i[overline].ket.note = interactionCell ;
+                                    }
+                                    
+                                    
+                                    value = collectives(x, &g2)*cpow;
+                                    if (flagPow && constant < 0 )
+                                        value *= -1.;
+                                    streams(f1, quadCube,0,space)[si]=value;
+                                }
+                                flagPow = 0;
+                                
                             }
+                printf("%f %d %d :: ", x,cmpl,space);
+                INT_TYPE info;
+                printf("r%f\n", tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, 'T', quadCube, 0,'N', quadCube, 0));
 
-                            
-                            value = collectives(x, &g2)*cpow;
-                            if (flagPow && constant < 0 )
-                                value *= -1.;
-                            streams(f1, quadCube,0,space)[si]=value;
-                        }
-                        flagPow = 0;
+                fflush(stdout);
 
-                    }
-                tAddTw(f1, interactionExchange, 0,quadCube,0);
-            }
+                tAddTw(f1, interactionExchange, cmpl,quadCube,0);
+        }
     }
     return ;
 }
@@ -4272,7 +4302,7 @@ void mySeparateEwaldCoulomb1(struct field * f1,INT_TYPE nVec, double *  occupy,e
             current = interactionExchange;
             if ( lll == 1 )
                 current = interactionEwald;
-
+            printf("lll %d  r%d\n", lll, CanonicalRank(f1, current, 0));
             for ( r = 0 ; r < CanonicalRank(f1, current, 0); r++){
 
 
@@ -4293,7 +4323,7 @@ void mySeparateEwaldCoulomb1(struct field * f1,INT_TYPE nVec, double *  occupy,e
                         f1->sinc.tulip[diagonalCube].space[dim].block = tv1;
 
 #ifdef OMP
-#pragma omp parallel for private (j1,j2,i1,i2,vor,vor2,streamOut) schedule(dynamic,1)
+#pragma omp parallel for private (rank,j1,j2,i1,i2,vor,vor2,streamOut) schedule(dynamic,1)
 #endif
                         for ( j1 = 0 ; j1 < n1[dim] ; j1++){
 #ifdef OMP
@@ -4302,6 +4332,7 @@ void mySeparateEwaldCoulomb1(struct field * f1,INT_TYPE nVec, double *  occupy,e
                             rank = 0;
 #endif
                             streamOut = streams(f1,diagonalCube,rank,dim);
+                            f1->sinc.tulip[diagonalCube].Current[rank] = 1;
 
 
                             
@@ -4316,24 +4347,25 @@ void mySeparateEwaldCoulomb1(struct field * f1,INT_TYPE nVec, double *  occupy,e
                                     tGEMV(rank, f1, dim, canonicalmeVector, rank, diagonalCube, 0, rank, vo, vor, 0);
                                     f1->sinc.tulip[canonicalmeVector].Current[rank] =1;
                                     for ( vor2 = 0 ; vor2 < vox; vor2++){
-                                        ( streams(f1, copy,0, dim) + n1[dim]*n1[dim]*(vox * vor2 + vor))[j2*n1[dim]+j1] = occupy[vo]*tDOT(rank, f1, dim, 'T', vo, vor2, 0, 'N', canonicalmeVector, 0, rank);
+                                        ( streams(f1, copy,0, dim) + n1[dim]*n1[dim]*(vox * vor2 + vor))[j2*n1[dim]+j1] = (occupy[vo-vectors])*tDOT(rank, f1, dim, 'T', vo, vor2, 0, 'N', canonicalmeVector, 0, rank);
                                     }
                                 }
                             }
                         }
                     }
+                f1->sinc.tulip[copy].Current[0] = vox * vox;
                     tClear(f1,copyTwo);
                     if ( lll == 0 )
-                        tScale(f1, copy, -1.);
+                        tScaleOne(f1, copy,0, -scalar);
+                    else
+                        tScaleOne(f1, copy,0, scalar);
 
+                double va = tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, 'T', copy, 0, 'N', copy, 0) ;
+                if ( va > f1->mem1->rt->CANON){
+                    printf("Ewald ++%d  \t%f\n", CanonicalRank(f1, shorten, 0),va);
                     tCycleDecompostionListOneMP(-1, f1, copy, 0,NULL, copyTwo, 0, f1->mem1->rt->CANON,part1, 1);
-                tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', copyTwo, 0, 'N', copyTwo, 0);
-                if (fabs( traceOne(f1, copy, 0)) > 1e-9){
                     tAddTw(f1, shorten, 0, copyTwo, 0);
-                    //sumDis += sqrt(distance(f1, copy, copyTwo));
-                }
-                printf("Ewald ++%f = %f %d\n", traceOne(f1, copy, 0),traceOne(f1, shorten,0),CanonicalRank(f1, shorten, 0));
-
+                    }
             }
         }
     }
@@ -4591,7 +4623,6 @@ void mySeparateExactOneByOne (struct field * f1, INT_TYPE part1, enum division i
 INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1){
     //https://keisan.casio.com/exec/system/1329114617
     struct field * f1 = &c1->i.c;
-    zero(f1,linear,0);
     
     if ( f1->oneBody.func.fn == nullFunction)
         return 0;
@@ -5129,42 +5160,49 @@ INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYP
 
 INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division akinetic,  double amass, INT_TYPE particle1 ){
     INT_TYPE space,dim,I1,I2;
-    INT_TYPE dims1[SPACE];
+    INT_TYPE dims1[SPACE],cmpl;
     struct general_index o1;
     length1(f1,dims1);
     Stream_Type * stream;
+    DCOMPLEX va;
     f1->sinc.tulip[diagonalCube].Current[0] = 1;
 
-    for ( dim = 0 ; dim < SPACE; dim++){
-        if ( f1->sinc.rose[dim].body != nada )
-            if (( f1->sinc.tulip[akinetic].space[dim].body == one && f1->sinc.rose[dim].particle == particle1  )){
-            for ( space = 0 ;space < SPACE; space++)
-                if ( f1->sinc.rose[space].body != nada )
+    for ( cmpl = 0; cmpl < spins(f1, akinetic ) ; cmpl++){
+        for ( dim = 0 ; dim < SPACE; dim++){
+            if ( f1->sinc.rose[dim].body != nada )
+                if (( f1->sinc.tulip[akinetic].space[dim].body == one && f1->sinc.rose[dim].particle == particle1  )){
+                    for ( space = 0 ;space < SPACE; space++)
+                        if ( f1->sinc.rose[space].body != nada )
+                            
+                        {
+                            stream =  streams( f1, diagonalCube, 0 , space );
+                            for ( I1 = 0 ; I1 < dims1[space] ; I1++)
+                                for( I2 = 0; I2 < dims1[space] ; I2++){
+                                    o1.bra = grabBasis(f1, space, particle1, I1);
+                                    o1.ket = grabBasis ( f1, space, particle1, I2);
+                                    if ( dim == space  ){
+                                        va = - 0.5/amass*Bd2B(o1.bra,o1.ket);
+                                    }
+                                    else{
+                                        va = BoB(o1.bra,o1.ket);
+                                    }
+                                    if ( cmpl == 0 )
+                                        (stream )[dims1[space]*I1+I2] = creal(va);
+                                    else
+                                        (stream )[dims1[space]*I1+I2] = cimag(va);
 
-            {
-                stream =  streams( f1, diagonalCube, 0 , space );
-                for ( I1 = 0 ; I1 < dims1[space] ; I1++)
-                    for( I2 = 0; I2 < dims1[space] ; I2++){
-                        o1.bra = grabBasis(f1, space, particle1, I1);
-                        o1.ket = grabBasis ( f1, space, particle1, I2);
-
-                        if ( dim == space  ){
-                            (stream )[dims1[space]*I1+I2] = - 0.5/amass*Bd2B(o1.bra,o1.ket);
-//                            printf ("%d %d %d %f \n", space,I1,I2,Bd2B(grabBasis(f1, space, particle1, I1),grabBasis(f1, space, particle1, I2))/ Sd2S(I1-I2));
-
+                                }
                         }
-                        else{
-                            (stream )[dims1[space]*I1+I2] = BoB(o1.bra,o1.ket);
-//                            printf("%f\n",BoB(o1.bra,o1.ket));
-                        }
-                    }
-            }
-            tAddTw(f1, akinetic, 0, diagonalCube, 0);
+                    tAddTw(f1, akinetic, cmpl, diagonalCube, 0);
+                }
         }
     }
-    
-    struct name_label k = f1->sinc.tulip[akinetic];
-    double va = traceOne(f1, akinetic, 0);
+    INT_TYPE info;
+    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic, 0,'N', kinetic, 0);
+    printf("r%f\n", traceOne(f1, copy, 0));
+    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic,1,'N', kinetic, 1);
+    printf("r%f\n", traceOne(f1, copy, 0));
+
     return 0;
 }
 
@@ -5334,7 +5372,6 @@ INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat){
     f1->sinc.tulip[mat].Current[0] = CanonicalRank(f1, interactionExchange, 0);
     tScaleOne(f1, mat, 0,  -f1->Ne);
     
-    
     if ( bodies(f1, eigenVectors)==two){
         tClear(f1, copy);
         tId(f1, copy,0);
@@ -5366,29 +5403,59 @@ INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat){
 
 INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat, INT_TYPE spin){
     INT_TYPE space,r,i,j,n,m,N1,N2 ;
-    INT_TYPE n1[space];
+    INT_TYPE n1[SPACE];
     length1(f1,n1);
     double value;
-    if ( ! CanonicalRank(f1, interactionExchange, 0))
+    zero(f1,mat,0);
+    tClear(f1, mat);
+    if ( f1->Ne != 1 ){
+        printf("jellium redundant! %d\n", f1->Ne);
         return 0;
-    for ( r = 0; r < CanonicalRank(f1, interactionExchange, 0); r++){
+    }
+    if ( ! CanonicalRank(f1, interactionEwald, 0))
+        return 0;
+    for ( r = 0; r < CanonicalRank(f1, interactionEwald, 0); r++){
         
-        for ( i = 0; i < N1 ; i++)
-            for ( j = 0; j < N1; j++)
-                for (space = 0; space < SPACE ;space++)
-                    
-                {
-                    N1 = n1[space] ;
-                    N2 = N1*N1;
+        for (space = 0; space < SPACE ;space++){
+            N1 = n1[space]/2 ;
+            N2 = n1[space]*n1[space];
+
+            for ( i = 0; i < n1[space] ; i++)
+                for ( j = 0; j < n1[space]; j++){
                     value = 0.;
                     for ( n = 0 ; n < N1 ; n++)
                         for ( m = 0 ; m < N1 ; m++)
-                            value += streams(f1, interactionExchange, 0,space)[(N2*(N1*i+n)+(N1*j+m))+r*N2*N2];
-                    streams(f1, mat,spin,space)[N1*i+j+r*N2] =value/N1/*NORM OF UNIFORM WAVEFUNCTION*/;
+                            value += streams(f1, interactionEwald, 0,space)[(N2*(n1[space]*i+n)+(n1[space]*j+m))+r*N2*N2];
+                    streams(f1, mat,spin,space)[n1[space]*i+j+r*N2] =value/N1/*NORM OF UNIFORM WAVEFUNCTION*/;
                 }
+        }
     }
-    f1->sinc.tulip[mat].Current[spin] = CanonicalRank(f1, interactionExchange, 0);
+    f1->sinc.tulip[mat].Current[spin] = CanonicalRank(f1, interactionEwald, 0);
     tScaleOne(f1, mat, spin,  -f1->Ne);
+  //  printf("mat%f \n", traceOne(f1, mat, 0));
+
+    if(0)
+    if ( bodies(f1, eigenVectors)==two){
+        tClear(f1, copy);
+        tId(f1, copy,0);
+        tScale(f1, copy,-3.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/sqr(f1->Ne));
+        //
+        tAddTw(f1, mat, 0,copy,0);
+    }
+    else     if ( bodies(f1, eigenVectors)==three){
+        tClear(f1, copy);
+        tId(f1, copy,0);
+        tScale(f1, copy,-6.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/sqr(f1->Ne));
+        //
+        tAddTw(f1, mat,0, copy,0);
+    }
+    else     if ( bodies(f1, eigenVectors)==four){
+        tClear(f1, copy);
+        tId(f1, copy,0);
+        tScale(f1, copy,-10.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/sqr(f1->Ne));
+        //
+        tAddTw(f1, mat, 0,copy,0);
+    }
 
     return 0;
 }
@@ -5407,8 +5474,7 @@ INT_TYPE tZeroSum ( struct field * f1, enum division mat,INT_TYPE spin){
         
                 {
                     flag = 0;
-                    N1= n1[space];
-                    N2 = N1*N1;
+                    N1= n1[space]/2;
                     if ( bodies(f1, mat ) == one)
                         
                         
@@ -5417,7 +5483,7 @@ INT_TYPE tZeroSum ( struct field * f1, enum division mat,INT_TYPE spin){
                         value = 0.;
                         for ( n = 0 ; n < N1 ; n++)
                             for ( m = 0 ; m < N1 ; m++)
-                                value += streams(f1, mat, spin,space)[(N1*(n)+(m))+r*N2];
+                                value += streams(f1, mat, spin,space)[(n1[space]*(n)+(m))+r*n1[space]*n1[space]];
                         prod *= value;
                     }
                     else
@@ -5426,12 +5492,15 @@ INT_TYPE tZeroSum ( struct field * f1, enum division mat,INT_TYPE spin){
                         {
                             value = 0.;
                             for ( n = 0 ; n < N1 ; n++)
-                                for ( m = 0 ; m < N1 ; m++)
+                                for ( m = 0 ; m < N1 ; m++){
+                                    n2 = n;
+                                    m2 = m;
                                     for ( n2 = 0 ; n2 < N1 ; n2++)
                                         for ( m2 = 0 ; m2 < N1 ; m2++)
-                                            value += streams(f1, mat, spin,space)[(N2*(N1*n2+n)+(N1*m2+m))+r*N2*N2];
+                                            value += streams(f1, mat, spin,space)[(n1[space]*n1[space]*(n1[space]*n2+n)+(n1[space]*m2+m))+r*n1[space]*n1[space]*n1[space]*n1[space]];
+                                }
                             prod *= value;
-                            
+                                
                         }
                     sum += prod;
 
@@ -5439,12 +5508,20 @@ INT_TYPE tZeroSum ( struct field * f1, enum division mat,INT_TYPE spin){
             }
     }
     if (! flag ) {
+        
+        
         enum division label;
         if ( bodies(f1, mat) == one )
-            label = diagonalCube;
+            printf("SUM \t %f\n", sum/(N1*N1*N1));
+
+        //    label = diagonalCube;
         else if ( bodies(f1, mat) == two )
-            label = quadCube;
-        else
+            printf("SUM2 \t %f\n", sum/(N1*N1*N1*N1*N1*N1));
+
+      //      label = quadCube;
+        
+        return 0;
+
         {
             printf("zerosum \n");
             exit(0);
