@@ -2,8 +2,12 @@
 	*Parameters
 	#just keep canon BIG..if It asks for MONEY, give more canon!
 		canon 300
+		
 		#system dependent
-		maxRAM 48
+		maxRAM 1
+		#Gb...
+		
+		
 	#OPEN GAME,  trade speed for accuracy!
 	#
 		electronMass 1
