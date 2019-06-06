@@ -19,8 +19,8 @@
 		clampMin 1.8
 		clampMax 3.0
 		levelLevel 0.5
-		foundation 2000
-		latte 0.08
+		foundation 500
+		latte 0.12
 	#end 
 		around
 		target 3
