@@ -2,17 +2,14 @@
 	*Parameters
 	#just keep canon BIG..if It asks for MONEY, give more canon!
 		canon 300
-		
 		#system dependent
 		maxRAM 1
-		#Gb...
-		
-		
+		#Gb..		
 	#OPEN GAME,  trade speed for accuracy!
 	#
 		electronMass 1
 		protonMass 1836.15267245
-		clampMass 1836.15267245
+		pairMass 1836.15267245
 		decompose 9
 		condition 8
 		tolerance 9
