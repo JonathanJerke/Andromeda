@@ -12,9 +12,12 @@
 	.Geometry
 	
 	*Parameters
-		lattice 1.3
-		range 3
-		initRank 2
+		lattice 1.
+		range 4
+		initRank 1	
+		foundation 729
+		matrix 3
+		filter 0
 		basisRank 8
 	.Parameters
 .Body
