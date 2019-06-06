@@ -40,10 +40,9 @@
 #define TEST3 0
 #define TEST4 0
 
-#define APPLE
 //#define OMP
 //#define MKL
-//#define GSL_LIB
+#define GSL_LIB
 
 #ifdef APPLE
 #define MaxCore 2
