@@ -14,10 +14,9 @@
 	
 	*Parameters
 		lattice 1.5
-#		minClamp 1.5
-#		maxClamp 4.0
-#		protonDistance 0.2
-#		around
-		## REQUIRES PARTICLE 2 in system.h 
-	.Parameters
+		range 4
+		initRank 1
+		basisRank 8
+		foundation 729
+.Parameters
 .Body
