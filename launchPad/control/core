@@ -26,6 +26,7 @@
 		#Matrix of few could modify FOUNDATION
 		matrix 1
 		range 4
+		boot 9
 		phase 0
 		attack 0.5
 		entropy 0
@@ -36,6 +37,7 @@
 		sectors 1
 		cycles 0	
 		filter 1
+		initRank 1
 		iterations 2
 		foundation 200
 .Parameters
