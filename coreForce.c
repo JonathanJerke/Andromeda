@@ -3477,28 +3477,26 @@ double inverseLaplaceTransform(double beta, struct function_label * fl){
     value2 = 0.0;
     if ( fl->fn == Yukawa ){
         double m = fl->param[2];
-        value2  += 2/sqrt(pi)*exp(-sqr(m/2./beta));
+        value2  += exp(-sqr(m/2./beta));
     }
     else if ( fl->fn == Morse ){
         double R = fl->param[2];
         double a = fl->param[3];
         value2  += - a * exp (     R * a - sqr(a/beta /2.))/sqr(beta);
         value2  +=   a * exp ( 2 * R * a - sqr(a/beta    ))/sqr(beta);
-        value2 *= 2/sqrt(pi);
+        value2 *= 1.;
     }
     else if ( fl->fn == Coulomb || fl->fn == Pseudo || fl->fn == nullFunction ){
         if ( beta > fl->param[1] && fl->fn == Pseudo )
             value2 = 0.;
         else
-            value2 += 2./sqrt(pi);//
+            value2 += 1.;//
     } else if ( fl->fn == LennardJones ){
         double rm = fl->param[2];
-        if ( beta < fl->param[1] ){
-            value2 += 2./sqrt(pi) * (- 2.   *rm * pow(rm * beta,5 ) ) ;
-            value2 += 2./sqrt(pi) * ( 1./12 *rm * pow(rm * beta,9) ) ;
-        }
+        value2 +=  1 *   ( 1./60 *  rm * pow(rm * beta,11) ) ;
+        value2 += -2 *   ( 1.    *  rm * pow(rm * beta,5 ) ) ;
     }
-    return value2*fl->param[0];
+    return 2./sqrt(pi)*value2*fl->param[0];
 }
 
 double collectives (double beta , struct general_2index * pa ){
@@ -3671,17 +3669,17 @@ double elementCal (double a, double b,struct general_2index * aAf ){
 //    length1(f1,N1);
 //    INT_TYPE N2 = N1*N1;
 //    INT_TYPE N12 = (N1-1)/2;
-//    double value,d = f1->sinc.d;
+//    double value,d = f1.d;
 //    if ( scalar < 0 )
 //        scalar = -pow(fabs(scalar), 1./SPACE);
 //    else
 //        scalar =  pow(fabs(scalar), 1./SPACE);
 //
-//    f1->sinc.tulip[diagonalCube].header = Cube;
+//    f1.tulip[diagonalCube].header = Cube;
 //
 //
 //    tClear(f1, quadCube);
-//    f1->sinc.tulip[quadCube].Current[0] = 1;
+//    f1.tulip[quadCube].Current[0] = 1;
 //
 //    for ( alpha = 0 ; alpha < CanonicalRank(f1, interactionExchange, 0) ; alpha++){
 //        zero(f1, quadCube,0);
@@ -4115,40 +4113,40 @@ double gaussQuad(INT_TYPE pt , INT_TYPE nm, INT_TYPE which ){
         return 0.5*gkW[nm];//shift to interval [0,1]
 }
 
-void mySeparateExactTwo (struct field * f1, enum division interactionExchange, double scalar,  enum division basis,INT_TYPE overline, INT_TYPE particle1){//overline = ##particle number ...  = intercellular interaction
+void mySeparateExactTwo (struct sinc_label  f1, struct interaction_label twoBody,enum division interactionExchange, double scalar,  enum division basis,INT_TYPE overline, INT_TYPE particle1){//overline = ##particle number ...  = intercellular interaction
     //https://keisan.casio.com/exec/system/1329114617
     zero(f1,interactionExchange,0);
     
-    if ( f1->twoBody.func.fn == nullFunction)
+    if ( twoBody.func.fn == nullFunction)
         return ;
     
-    if(0){
-        INT_TYPE comp[COMPONENT+1],c,space,flagc=1,dim=0;
-        
-        for ( c = 0; c <= COMPONENT; c++)
-            comp[c]= 0;
-        for ( space = 0; space < SPACE ; space++)
-            if ( f1->sinc.rose[space].body >= one && f1->sinc.rose[space].particle == particle1 ){
-                dim++;
-        
-            if ( f1->sinc.tulip[interactionExchange].space[space].body == two ){
-                comp[f1->sinc.rose[space].component] += f1->sinc.tulip[interactionExchange].space[space].body;
-                if (f1->sinc.rose[space].body < two )
-                    flagc = 0;
-            }else if ( f1->sinc.tulip[interactionExchange].space[space].body != nada ){
-                flagc = 0;
-            }
-        }
-        for ( c = 1 ; c <= dim ; c++)
-            if ( 2 != comp[c] )
-                flagc = 0;
-        
-        if ( ! flagc ){
-            printf("error in two setup \n");
-            exit(1);
-            
-        }
-    }
+//    if(0){
+//        INT_TYPE comp[COMPONENT+1],c,space,flagc=1,dim=0;
+//
+//        for ( c = 0; c <= COMPONENT; c++)
+//            comp[c]= 0;
+//        for ( space = 0; space < SPACE ; space++)
+//            if ( f1.rose[space].body >= one && f1.rose[space].particle == particle1 ){
+//                dim++;
+//
+//            if ( f1.tulip[interactionExchange].space[space].body == two ){
+//                comp[f1.rose[space].component] += f1.tulip[interactionExchange].space[space].body;
+//                if (f1.rose[space].body < two )
+//                    flagc = 0;
+//            }else if ( f1.tulip[interactionExchange].space[space].body != nada ){
+//                flagc = 0;
+//            }
+//        }
+//        for ( c = 1 ; c <= dim ; c++)
+//            if ( 2 != comp[c] )
+//                flagc = 0;
+//
+//        if ( ! flagc ){
+//            printf("error in two setup \n");
+//            exit(1);
+//
+//        }
+//    }
     INT_TYPE flagPow;
     long double cpow ;
     INT_TYPE spaces;
@@ -4161,16 +4159,16 @@ void mySeparateExactTwo (struct field * f1, enum division interactionExchange, d
     INT_TYPE N1,space;
     spaces = 0;
     for ( space = 0 ;space < SPACE  ; space++)
-        if ( f1->sinc.rose[space].body != nada )
-            if ( f1->sinc.rose[space].component != nullComponent )
-                if ( f1->sinc.rose[space].particle == particle1 )
+        if ( f1.rose[space].body != nada )
+            if ( f1.rose[space].component != nullComponent )
+                if ( f1.rose[space].particle == particle1 )
 
-                if ( f1->sinc.tulip[interactionExchange].space[space].body == two )
+                if ( f1.tulip[interactionExchange].space[space].body == two )
             spaces++;
 
     
     
-    enum functionType fn = f1->twoBody.func.fn;
+    enum functionType fn = twoBody.func.fn;
     if ( fn == nullFunction )
         return ;
     
@@ -4178,13 +4176,13 @@ void mySeparateExactTwo (struct field * f1, enum division interactionExchange, d
     g2.realFlag = 1;
     double value,g,x;
     double constant;
-    struct function_label fl = f1->twoBody.func;
+    struct function_label fl = twoBody.func;
     INT_TYPE cmpl,si,interval = fl.interval;
     double * param   = fl.param;
     getDescription(&fl, scalar, stdout);
     
     INT_TYPE ngk;
-    f1->sinc.tulip[quadCube].header = Cube;
+    f1.tulip[quadCube].header = Cube;
     
     tClear(f1, quadCube);
     tId(f1,quadCube,0 );
@@ -4221,8 +4219,8 @@ void mySeparateExactTwo (struct field * f1, enum division interactionExchange, d
                 x = ( g ) / (1. - g)+1 ;
                 constant /= sqr(1.-g);
             }
-            x *=  param[1];
-            constant *= param[1];
+            x *=  param[1];//beta
+            constant *= param[1];//weighting
             
             //divide 0->infinity
             
@@ -4230,9 +4228,9 @@ void mySeparateExactTwo (struct field * f1, enum division interactionExchange, d
             cpow = powl(fabsl(constant),1./spaces);
             
                 for ( space = 0; space < SPACE ; space++)
-                    if ( f1->sinc.rose[space].body != nada )
-                        if ( f1->sinc.rose[space].component != nullComponent )
-                            if ( f1->sinc.tulip[interactionExchange].space[space].body == two && f1->sinc.rose[space].particle == particle1 )
+                    if ( f1.rose[space].body != nada )
+                        if ( f1.rose[space].component != nullComponent )
+                            if ( f1.tulip[interactionExchange].space[space].body == two && f1.rose[space].particle == particle1 )
                             {
                                 N1 = n1[space];
 #ifdef OMP
@@ -4277,7 +4275,7 @@ void mySeparateExactTwo (struct field * f1, enum division interactionExchange, d
                             }
                 printf("%f %d %d :: ", x,cmpl,space);
                 INT_TYPE info;
-                printf("r%f\n", tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, 'T', quadCube, 0,'N', quadCube, 0));
+//                printf("r%f\n", tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, 'T', quadCube, 0,'N', quadCube, 0));
 
                 fflush(stdout);
 
@@ -4287,7 +4285,7 @@ void mySeparateExactTwo (struct field * f1, enum division interactionExchange, d
     return ;
 }
 
-
+#if 0
 void mySeparateEwaldCoulomb1(struct field * f1,INT_TYPE nVec, double *  occupy,enum division vectors, INT_TYPE part1, enum division interactionExchange, enum division interactionEwald,enum division shorten, double scalar,INT_TYPE plus,double rescale, enum particleType particle){
     INT_TYPE info,dim,rank=0,l,vol,vos=0,x,r,rr = 0,n1[SPACE],space,j1,j2,i1,i2,vor,vor2, vox,lll;
     length1(f1,n1);
@@ -4318,9 +4316,9 @@ void mySeparateEwaldCoulomb1(struct field * f1,INT_TYPE nVec, double *  occupy,e
                 
                 
                 for ( dim = 0 ;dim < SPACE ; dim++)
-                    if ( f1->sinc.rose[dim].body != nada && f1->sinc.rose[dim].particle == particle){
+                    if ( f1.rose[dim].body != nada && f1.rose[dim].particle == particle){
                         streamIn = streams(f1,current,0,dim)+r*n1[dim]*n1[dim]*n1[dim]*n1[dim];
-                        f1->sinc.tulip[diagonalCube].space[dim].block = tv1;
+                        f1.tulip[diagonalCube].space[dim].block = tv1;
 
 #ifdef OMP
 #pragma omp parallel for private (rank,j1,j2,i1,i2,vor,vor2,streamOut) schedule(dynamic,1)
@@ -4332,7 +4330,7 @@ void mySeparateEwaldCoulomb1(struct field * f1,INT_TYPE nVec, double *  occupy,e
                             rank = 0;
 #endif
                             streamOut = streams(f1,diagonalCube,rank,dim);
-                            f1->sinc.tulip[diagonalCube].Current[rank] = 1;
+                            f1.tulip[diagonalCube].Current[rank] = 1;
 
 
                             
@@ -4343,24 +4341,24 @@ void mySeparateEwaldCoulomb1(struct field * f1,INT_TYPE nVec, double *  occupy,e
                                         streamOut[i2*n1[dim]+i1] = streamIn[(j2*n1[dim]+i2)*n1[dim]*n1[dim] + j1*n1[dim]+i1];
                                     }
                                 for ( vor = 0 ; vor < vox; vor++){
-                                    f1->sinc.tulip[canonicalmeVector].Current[rank] =0;
+                                    f1.tulip[canonicalmeVector].Current[rank] =0;
                                     tGEMV(rank, f1, dim, canonicalmeVector, rank, diagonalCube, 0, rank, vo, vor, 0);
-                                    f1->sinc.tulip[canonicalmeVector].Current[rank] =1;
+                                    f1.tulip[canonicalmeVector].Current[rank] =1;
                                     for ( vor2 = 0 ; vor2 < vox; vor2++){
-                                        ( streams(f1, copy,0, dim) + n1[dim]*n1[dim]*(vox * vor2 + vor))[j2*n1[dim]+j1] = (occupy[vo-vectors])*tDOT(rank, f1, dim, 'T', vo, vor2, 0, 'N', canonicalmeVector, 0, rank);
+                                        ( streams(f1, copy,0, dim) + n1[dim]*n1[dim]*(vox * vor2 + vor))[j2*n1[dim]+j1] = (occupy[vo-vectors])*tDOT(rank, f1, dim, CDT, vo, vor2, 0, 'N', canonicalmeVector, 0, rank);
                                     }
                                 }
                             }
                         }
                     }
-                f1->sinc.tulip[copy].Current[0] = vox * vox;
+                f1.tulip[copy].Current[0] = vox * vox;
                     tClear(f1,copyTwo);
                     if ( lll == 0 )
                         tScaleOne(f1, copy,0, -scalar);
                     else
                         tScaleOne(f1, copy,0, scalar);
 
-                double va = tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, 'T', copy, 0, 'N', copy, 0) ;
+                double va = tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, CDT, copy, 0, 'N', copy, 0) ;
                 if ( va > f1->mem1->rt->CANON){
                     printf("Ewald ++%d  \t%f\n", CanonicalRank(f1, shorten, 0),va);
                     tCycleDecompostionListOneMP(-1, f1, copy, 0,NULL, copyTwo, 0, f1->mem1->rt->CANON,part1, 1);
@@ -4370,46 +4368,129 @@ void mySeparateEwaldCoulomb1(struct field * f1,INT_TYPE nVec, double *  occupy,e
         }
     }
 }
+#else
+void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occupy,enum division vectors, INT_TYPE part1, enum division interactionExchange, enum division interactionEwald,enum division shorten, double scalar,INT_TYPE plus,double rescale, enum particleType particle){
+    INT_TYPE jj,flagPow,info,dim,rank=0,l,vol,vos=0,x,r,rr = 0,n1[SPACE],space,j1,j2,i1,i2,vor,vor2, vox,lll;
+    length1(f1,n1);
+    double sumDis =0 ;
+    Stream_Type * streamIn, *streamOut;
+    enum division vo = vectors ,current;
+    tClear(f1,shorten);
+    
+    for ( lll = 0; lll < 2 ; lll++){
+        for ( vo = vectors ; vo < vectors+nVec ; vo++){
+            vox = CanonicalRank(f1, vo, 0);
+            current = interactionExchange;
+            if ( lll == 1 )
+                current = interactionEwald;
+            printf("lll %d  r%d\n", lll, CanonicalRank(f1, current, 0));
+            for ( r = 0 ; r < CanonicalRank(f1, current, 0); r++){
+                
+                
+                tClear(f1, diagonalCube );
+                tId(f1, diagonalCube, 0);//set protons to 1
+                
+                for ( vor = 0 ; vor < vox; vor++){
+                    for ( vor2 = 0 ; vor2 < vox; vor2++){
+                        tId(f1, copyTwo,0);
+                    }
+                }
+                flagPow = 1;
+
+                for ( dim = 0 ;dim < SPACE ; dim++)
+                    if ( f1.rose[dim].body != nada && f1.rose[dim].particle == particle){
+                        streamIn = streams(f1,current,0,dim)+r*n1[dim]*n1[dim]*n1[dim]*n1[dim];
+                        f1.tulip[diagonalCube].space[dim].block = tv1;
+                        
+#ifdef OMP
+#pragma omp parallel for private (rank,jj,j1,j2,i1,i2,vor,vor2,streamOut) schedule(dynamic,1)
+#endif
+                        for ( jj = 0; jj < n1[dim]*n1[dim]; jj++){
+#ifdef OMP
+                            rank = omp_get_thread_num();
+#else
+                            rank = 0;
+#endif
+                            streamOut = streams(f1,diagonalCube,rank,dim);
+                            f1.tulip[diagonalCube].Current[rank] = 1;
+                            
+                            j1 = jj%n1[dim];
+                            j2 = (jj/n1[dim])%n1[dim];
+                            
+                            {
+                                for ( i1 = 0 ; i1 < n1[dim]; i1++)
+                                    for ( i2 = 0; i2 < n1[dim]; i2++){
+                                        streamOut[i1*n1[dim]+i2] = streamIn[(j2*n1[dim]+i2)*n1[dim]*n1[dim] + j1*n1[dim]+i1];
+                                    }
+                                for ( vor = 0 ; vor < vox; vor++){
+                                    f1.tulip[canonicalmeVector].Current[rank] =0;
+                                    tGEMV(rank, f1, dim, canonicalmeVector, rank, diagonalCube, 0, rank, vo, vor, 0);
+                                    f1.tulip[canonicalmeVector].Current[rank] =1;
+                                    for ( vor2 = 0 ; vor2 < vox; vor2++){
+                                        ( streams(f1, copyTwo,0, dim) + n1[dim]*n1[dim]*(f1.tulip[copyTwo].Current[0]+vox * vor2 + vor-vox*vox))[j2*n1[dim]+j1] = (occupy[vo-vectors])*tDOT(rank, f1, dim, CDT, vo, vor2, 0, 'N', canonicalmeVector, 0, rank);
+                                        if ( lll == 0 && flagPow )
+                                            ( streams(f1, copyTwo,0, dim) + n1[dim]*n1[dim]*(f1.tulip[copyTwo].Current[0]+vox * vor2 + vor))[j2*n1[dim]+j1] *= -1.;
+                                    }
+                                }
+                            }
+                        }
+                        flagPow = 0;
+                    }
+            
+                if ( part(f1,copyTwo ) < f1.tulip[copyTwo].Current[0]){
+                    printf("have not!\n");
+                    exit(0);
+                }
+            }
+            printf("= %d\n", CanonicalRank(f1, copyTwo, 0));
+        }
+    }
+        tCycleDecompostionGridOneMP(-1, f1, copyTwo, 0, NULL, shorten, 0, f1.rt->CANON, part1, 1);
+        printf("Ewald ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),traceOne(f1, shorten, 0), distance(f1, shorten, copyTwo));    
+
+}
+
+
+#endif
 
 
 
-
-void mySeparateExactOneByOne (struct field * f1, INT_TYPE part1, enum division interactionExchangePlus,enum division shorten, double scalar,INT_TYPE plus,double rescale, enum particleType particle1,enum particleType particle2){
+void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label twoBody,INT_TYPE part1, enum division interactionExchangePlus,enum division shorten, double scalar,INT_TYPE plus,double rescale, enum particleType particle1,enum particleType particle2){
     //https://keisan.casio.com/exec/system/1329114617
     zero(f1,interactionExchangePlus,0);
     struct name_label n;
     INT_TYPE Mt=0,mm,xx,dim;
     INT_TYPE cra;
     double sumDis = 0.;
-    if ( f1->twoBody.func.fn == nullFunction)
+    if ( twoBody.func.fn == nullFunction)
         return ;
 
-    if(0){
-        INT_TYPE comp[COMPONENT+1],c,space,flagc=1,dim=0;
-        
-        for ( c = 0; c <= COMPONENT; c++)
-            comp[c]= 0;
-        for ( space = 0; space < SPACE ; space++)
-            if ( f1->sinc.rose[space].body >= one && f1->sinc.rose[space].particle == particle1 ){
-                dim++;
-                if ( f1->sinc.tulip[interactionExchangePlus ].space[space].body == one ){
-                    comp[f1->sinc.rose[space].component] += f1->sinc.tulip[interactionExchangePlus].space[space].body;
-                    if (f1->sinc.rose[space].body < one )
-                        flagc = 0;
-                }else if ( f1->sinc.tulip[interactionExchangePlus].space[space].body != nada ){
-                    flagc = 0;
-                }
-            }
-        for ( c = 1 ; c <= dim ; c++)
-            if ( comp[c] > 2  )
-                flagc = 0;
-        
-        if ( ! flagc ){
-            printf("error in two setup \n");
-            exit(1);
-            
-        }
-    }
+//    if(0){
+//        INT_TYPE comp[COMPONENT+1],c,space,flagc=1,dim=0;
+//
+//        for ( c = 0; c <= COMPONENT; c++)
+//            comp[c]= 0;
+//        for ( space = 0; space < SPACE ; space++)
+//            if ( f1.rose[space].body >= one && f1.rose[space].particle == particle1 ){
+//                dim++;
+//                if ( f1.tulip[interactionExchangePlus ].space[space].body == one ){
+//                    comp[f1.rose[space].component] += f1.tulip[interactionExchangePlus].space[space].body;
+//                    if (f1.rose[space].body < one )
+//                        flagc = 0;
+//                }else if ( f1.tulip[interactionExchangePlus].space[space].body != nada ){
+//                    flagc = 0;
+//                }
+//            }
+//        for ( c = 1 ; c <= dim ; c++)
+//            if ( comp[c] > 2  )
+//                flagc = 0;
+//
+//        if ( ! flagc ){
+//            printf("error in two setup \n");
+//            exit(1);
+//
+//        }
+//    }
     INT_TYPE flagPow;;
     long double cpow ;
     INT_TYPE spaces;
@@ -4422,15 +4503,15 @@ void mySeparateExactOneByOne (struct field * f1, INT_TYPE part1, enum division i
     INT_TYPE N1,space;
     
     for ( space = 0 ;space < SPACE  ; space++)
-        if ( f1->sinc.rose[space].body != nada )
-            if ( f1->sinc.rose[space].component != nullComponent )
-            if ( f1->sinc.tulip[interactionExchangePlus].space[space].body >= one )
-                if ( f1->sinc.rose[space].particle == particle1 || f1->sinc.rose[space].particle == particle2 )
+        if ( f1.rose[space].body != nada )
+            if ( f1.rose[space].component != nullComponent )
+            if ( f1.tulip[interactionExchangePlus].space[space].body >= one )
+                if ( f1.rose[space].particle == particle1 || f1.rose[space].particle == particle2 )
 
             spaces++;
 
     
-    enum functionType fn = f1->twoBody.func.fn;
+    enum functionType fn = twoBody.func.fn;
     if ( fn == nullFunction )
         return ;
     
@@ -4439,10 +4520,10 @@ void mySeparateExactOneByOne (struct field * f1, INT_TYPE part1, enum division i
     g2.realFlag = 1;
     double value,g,x;
     double constant;
-    INT_TYPE si,interval = f1->twoBody.func.interval;
-    double * param   = f1->twoBody.func.param;
-    getDescription(&f1->twoBody.func, scalar, stdout);
-    struct function_label fl = f1->twoBody.func;
+    INT_TYPE si,interval = twoBody.func.interval;
+    double * param   = twoBody.func.param;
+    getDescription(&twoBody.func, scalar, stdout);
+    struct function_label fl = twoBody.func;
     
     INT_TYPE ngk,co;
     tClear(f1, interactionExchangePlus);
@@ -4490,11 +4571,11 @@ void mySeparateExactOneByOne (struct field * f1, INT_TYPE part1, enum division i
 
             for ( co = 1 ; co <= COMPONENT ; co++)
                 for ( space = 0 ; space < SPACE ; space++)
-                    if ( f1->sinc.rose[space].component == co && f1->sinc.rose[space].particle == particle1)
+                    if ( f1.rose[space].component == co && f1.rose[space].particle == particle1)
                         for (space2 = space+1 ; space2 < SPACE ; space2++)
-                            if (  co == f1->sinc.rose[space2].component && f1->sinc.rose[space2].particle == particle2 )
+                            if (  co == f1.rose[space2].component && f1.rose[space2].particle == particle2 )
                                 if (space != space2 ){
-                                    if (f1->sinc.rose[space].body != nada &&  f1->sinc.rose[space2].body != nada && f1->sinc.tulip[interactionExchangePlus].space[space].body == one && f1->sinc.tulip[interactionExchangePlus].space[space2].body == one  )
+                                    if (f1.rose[space].body != nada &&  f1.rose[space2].body != nada && f1.tulip[interactionExchangePlus].space[space].body == one && f1.tulip[interactionExchangePlus].space[space2].body == one  )
                                         {
                                             N1 = n1[space];
                                             N2 = n1[space2];
@@ -4517,10 +4598,10 @@ void mySeparateExactOneByOne (struct field * f1, INT_TYPE part1, enum division i
                                                 g2.i[0].action = 0;
                                                 g2.i[1].action = 0;
                                                 
-                                                g2.i[0].bra = grabBasis ( f1, space, f1->sinc.rose[space].particle, I1);
-                                                g2.i[0].ket = grabBasis ( f1, space, f1->sinc.rose[space].particle, I3);
-                                                g2.i[1].bra = grabBasis( f1, space2, f1->sinc.rose[space2].particle, I2);
-                                                g2.i[1].ket = grabBasis( f1, space2, f1->sinc.rose[space2].particle, I4);
+                                                g2.i[0].bra = grabBasis ( f1, space, f1.rose[space].particle, I1);
+                                                g2.i[0].ket = grabBasis ( f1, space, f1.rose[space].particle, I3);
+                                                g2.i[1].bra = grabBasis( f1, space2, f1.rose[space2].particle, I2);
+                                                g2.i[1].ket = grabBasis( f1, space2, f1.rose[space2].particle, I4);
                                                 g2.i[1].bra.length *= rescale;
                                                 g2.i[1].ket.length *= rescale;
                                                 if ( plus == -1 ){
@@ -4546,7 +4627,7 @@ void mySeparateExactOneByOne (struct field * f1, INT_TYPE part1, enum division i
                                         
                                         
                                         {//default to space 1.
-                                            if (f1->sinc.rose[space].body == nada || f1->sinc.tulip[interactionExchangePlus].space[space].body == nada  )
+                                            if (f1.rose[space].body == nada || f1.tulip[interactionExchangePlus].space[space].body == nada  )
                                             {
                                                 printf("oops\n");//try changing order of particle inputs
                                                 exit(0);
@@ -4572,11 +4653,11 @@ void mySeparateExactOneByOne (struct field * f1, INT_TYPE part1, enum division i
                                                 g2.i[0].action = 0;
                                                 g2.i[1].action = 0;
                                                 
-                                                g2.i[1].bra.type = f1->sinc.rose[space].component;
-                                                g2.i[1].ket.type = f1->sinc.rose[space].component;
+                                                g2.i[1].bra.type = f1.rose[space].component;
+                                                g2.i[1].ket.type = f1.rose[space].component;
 
-                                                g2.i[0].bra = grabBasis ( f1, space, f1->sinc.rose[space].particle, I1);
-                                                g2.i[0].ket = grabBasis ( f1, space, f1->sinc.rose[space].particle, I3);
+                                                g2.i[0].bra = grabBasis ( f1, space, f1.rose[space].particle, I1);
+                                                g2.i[0].ket = grabBasis ( f1, space, f1.rose[space].particle, I3);
                                                 g2.i[1].bra.basis = DiracDeltaElement ;
                                                 g2.i[1].bra.origin = 0;
                                                 g2.i[1].ket.basis = nullBasisElement;
@@ -4598,10 +4679,10 @@ void mySeparateExactOneByOne (struct field * f1, INT_TYPE part1, enum division i
 
                                     }
             
-            f1->sinc.tulip[copy].Current[0] = Mt;
+            f1.tulip[copy].Current[0] = Mt;
             if ( part1 ){
                 tClear(f1,copyTwo);
-                tCycleDecompostionListOneMP(-1, f1, copy, 0,NULL, copyTwo, 0, f1->mem1->rt->CANON,part1, 1);
+                tCycleDecompostionListOneMP(-1, f1, copy, 0,NULL, copyTwo, 0, f1.rt->CANON,part1, 1);
                 tAddTw(f1, shorten, 0, copyTwo, 0);
                 sumDis += sqrt(distance(f1, copy, copyTwo));
             }else {
@@ -4622,41 +4703,41 @@ void mySeparateExactOneByOne (struct field * f1, INT_TYPE part1, enum division i
 
 INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1){
     //https://keisan.casio.com/exec/system/1329114617
-    struct field * f1 = &c1->i.c;
+    struct sinc_label  f1 = c1->i.c.sinc;
     
-    if ( f1->oneBody.func.fn == nullFunction)
+    if ( c1->i.oneBody.func.fn == nullFunction)
         return 0;
     
     INT_TYPE flagPow;
     long double cpow ;
     INT_TYPE spaces;
    
-    if(0){
-        INT_TYPE comp[COMPONENT+1],c,space,flagc=1,dim= 0;
-        
-        for ( c = 0; c <= COMPONENT ; c++)
-            comp[c]= 0;
-        for ( space = 0; space < SPACE ; space++)
-            if ( f1->sinc.rose[space].body >= one && f1->sinc.rose[space].particle == particle1 ){
-                dim++;
-                if ( f1->sinc.tulip[linear].space[space].body == one ){
-                    comp[f1->sinc.rose[space].component] += f1->sinc.tulip[linear].space[space].body;
-                    if ( f1->sinc.rose[space].body < one )
-                        flagc = 0;
-                }
-                else if ( f1->sinc.tulip[linear].space[space].body != nada )
-                    flagc = 0;
-            }
-        for ( c = 1 ; c <= dim ; c++)
-            if ( 1 != comp[c] )
-                flagc = 0;
-        
-        if ( ! flagc ){
-            printf("error in linear setup \n");
-            exit(1);
-            
-        }
-    }
+//    if(0){
+//        INT_TYPE comp[COMPONENT+1],c,space,flagc=1,dim= 0;
+//        
+//        for ( c = 0; c <= COMPONENT ; c++)
+//            comp[c]= 0;
+//        for ( space = 0; space < SPACE ; space++)
+//            if ( f1.rose[space].body >= one && f1.rose[space].particle == particle1 ){
+//                dim++;
+//                if ( f1.tulip[linear].space[space].body == one ){
+//                    comp[f1.rose[space].component] += f1.tulip[linear].space[space].body;
+//                    if ( f1.rose[space].body < one )
+//                        flagc = 0;
+//                }
+//                else if ( f1.tulip[linear].space[space].body != nada )
+//                    flagc = 0;
+//            }
+//        for ( c = 1 ; c <= dim ; c++)
+//            if ( 1 != comp[c] )
+//                flagc = 0;
+//        
+//        if ( ! flagc ){
+//            printf("error in linear setup \n");
+//            exit(1);
+//            
+//        }
+//    }
     
 
     const INT_TYPE psu_stride = 17;
@@ -4704,49 +4785,49 @@ INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYP
     INT_TYPE gPoint = 2,i,beta,I1,space,I2,a,ii,spin;
     spaces = 0;
     for ( space = 0 ;space < SPACE  ; space++)
-        if ( f1->sinc.rose[space].body != nada )
-            if ( f1->sinc.rose[space].component != nullComponent )
-                if ( f1->sinc.tulip[linear].space[space].body == one )
-                    if ( f1->sinc.rose[space].particle == particle1 )
+        if ( f1.rose[space].body != nada )
+            if ( f1.rose[space].component != nullComponent )
+                if ( f1.tulip[linear].space[space].body == one )
+                    if ( f1.rose[space].particle == particle1 )
                         spaces++;
 
     double constant,value,x,g;
     Stream_Type  *stream[SPACE];
     struct function_label fl;
     struct general_2index g2;
-    struct name_label u = f1->sinc.tulip[diagonalCube];
-    f1->sinc.tulip[diagonalCube].header = Cube;
+    struct name_label u = f1.tulip[diagonalCube];
+    f1.tulip[diagonalCube].header = Cube;
     for ( i = 0; i < SPACE ; i++)
-        if ( f1->sinc.rose[i].body != nada )
+        if ( f1.rose[i].body != nada )
         stream[i] =  streams( f1, diagonalCube,0,i  );
     zero(f1, diagonalCube , 0);
-    f1->sinc.tulip[diagonalCube].Current[0] = 1;
+    f1.tulip[diagonalCube].Current[0] = 1;
     
     
     /////IGNORE TRAIN COMMAND
     INT_TYPE *n1,*m1;
     if ( basis ){
-        f1->sinc.tulip[linear].header = f1->sinc.tulip[basis].header-1;
+        f1.tulip[linear].header = f1.tulip[basis].header-1;
         n1 = dims1;
         m1 = n1;
-        f1->sinc.tulip[diagonalCube].header = Cube;
+        f1.tulip[diagonalCube].header = Cube;
     }
     //    else if ( header (f1, linear ) == SincSub  ){
-    //        n1 = f1->sinc.n1;
-    //        m1 = f1->sinc.n1;
-    //        f1->sinc.tulip[diagonalCube].header = SincSub;
-    //        f1->sinc.tulip[linear].header = SincSub;
+    //        n1 = f1.n1;
+    //        m1 = f1.n1;
+    //        f1.tulip[diagonalCube].header = SincSub;
+    //        f1.tulip[linear].header = SincSub;
     //    }
     else {
         n1 = dims1;
         m1 = n1 ;
-        f1->sinc.tulip[diagonalCube].header = Cube;
-        f1->sinc.tulip[linear].header = Cube;
+        f1.tulip[diagonalCube].header = Cube;
+        f1.tulip[linear].header = Cube;
         
     }
     spin = 0;
-   // f1->sinc.tulip[linear].stop[0][0] = CanonicalRank(f1, linear, 0);
-    enum functionType fn = f1->oneBody.func.fn;
+   // f1.tulip[linear].stop[0][0] = CanonicalRank(f1, linear, 0);
+    enum functionType fn = c1->i.oneBody.func.fn;
     if ( fn == nullFunction )
         return 0;
     
@@ -4757,8 +4838,8 @@ INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYP
     else if ( fn == BLYP )
         psu = blyp;
     
-    INT_TYPE interval = f1->oneBody.func.interval;
-    double * param   = f1->oneBody.func.param;
+    INT_TYPE interval = c1->i.oneBody.func.interval;
+    double * param   = c1->i.oneBody.func.param;
 
     double *gkX, *gkW,Z, gGX[10],gGW[10];
     INT_TYPE si,ngk,ai,powSpace[SPACE][10];
@@ -4766,7 +4847,7 @@ INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYP
     struct basisElement boa;
     INT_TYPE mA,xA;
     if ( ! atom ){
-        xA = f1->Na;
+        xA = c1->i.Na;
         mA = 1;
     } else if ( atom > 0 ) {
         mA = atom;
@@ -4779,7 +4860,7 @@ INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYP
     printf("\t  Load %d Nuclear Fields |\n",xA);
     for ( a = mA ; a <= xA; a++){
         ii = 0;
-        printf("\t  %1.3f\t %1.3f\t %1.3f \t|\t",getPosition(f1, a, 1),getPosition(f1, a, 2),getPosition(f1, a, 3));
+        printf("\t  %1.3f\t %1.3f\t %1.3f \t|\t",c1->i.atoms[a].position[1],c1->i.atoms[a].position[2],c1->i.atoms[a].position[3]);
         
         //section 0    long range
         //section 1    SHORT RANGE
@@ -4801,7 +4882,7 @@ INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYP
             }
             PSU = NULL;
             for ( ai = 0; ai < psu_length ; ai++){
-                if ( psu[psu_stride*ai] ==  f1->atoms[a].label.Z)
+                if ( psu[psu_stride*ai] ==  c1->i.atoms[a].label.Z)
                     PSU = psu+psu_stride * ai;
             }
             if ( PSU == NULL )
@@ -4829,7 +4910,7 @@ INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYP
             fl.param[2] = param[2];
             fl.param[3] = param[3];
             fl.fn = fn;
-            Z = f1->atoms[a].label.Z;
+            Z = c1->i.atoms[a].label.Z;
         }
         getDescription(&fl, Z * scalar, stdout);
         
@@ -4839,7 +4920,8 @@ INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYP
             if ( (( fn == LDA || fn == BLYP )&& section == 0) || ( ( fn != LDA && fn != BLYP ) && section < 2)  ){
                 gPoint = 2;
                 
-                
+                if ( fn == LennardJones && section )
+                    continue;
                 
                 
                 if ( imax(0,interval - section) == 0 ) {
@@ -5091,7 +5173,7 @@ INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYP
                 else
                     constant *= inverseLaplaceTransform(x,&fl);
                 //end weirdness
-
+                
                 tClear(f1,diagonalCube);
                 zero(f1,diagonalCube,0);
                 tId(f1,diagonalCube,0);
@@ -5099,13 +5181,13 @@ INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYP
                 cpow = powl(fabsl(constant),1./spaces);
 
                 for ( space = 0 ;space < SPACE  ; space++)
-                    if ( f1->sinc.rose[space].body != nada )
+                    if ( f1.rose[space].body != nada )
 
-                    if ( f1->sinc.rose[space].component != nullComponent )
+                    if ( f1.rose[space].component != nullComponent )
                         
                         
-                    if ( f1->sinc.tulip[linear].space[space].body == one )
-                        if(f1->sinc.rose[space].particle == particle1  )
+                    if ( f1.tulip[linear].space[space].body == one )
+                        if(f1.rose[space].particle == particle1  )
                 {
 #ifdef OMP
 #pragma omp parallel for private (si,I1,I2,g2,value) schedule(dynamic,1)
@@ -5128,11 +5210,11 @@ INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYP
                         
                         g2.i[0].bra = grabBasis(f1, space, particle1, I1);
                         g2.i[0].ket = grabBasis ( f1, space, particle1, I2);
-                        g2.i[1].bra.type = f1->sinc.rose[space].component;
-                        g2.i[1].ket.type = f1->sinc.rose[space].component;
+                        g2.i[1].bra.type = f1.rose[space].component;
+                        g2.i[1].ket.type = f1.rose[space].component;
 
                         g2.i[1].bra.basis = DiracDeltaElement;
-                        g2.i[1].bra.origin = f1->atoms[a].position[space%COMPONENT + 1 ];
+                        g2.i[1].bra.origin = c1->i.atoms[a].position[space%COMPONENT + 1 ];
                         g2.i[1].ket.basis = nullBasisElement;
                         g2.i[1].action = ( dim == space ) ;
                         
@@ -5140,14 +5222,13 @@ INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYP
                //         printf("%1.15f\n", value);
                         if (flagPow && constant < 0 )
                             value *= -1.;
-
+                        
                         (stream[space])[I1*dims1[space]+I2] = value;
                     }
                     flagPow = 0;
 
                 }
-               // printf("trace %f\n", traceOne(f1, diagonalCube, 0));
-               // exit(0);
+                printf("%d %d trace %f\n",section, beta, traceOne(f1, diagonalCube, 0));
 
                 tAddTw(f1, linear,0, diagonalCube,0);
 
@@ -5158,21 +5239,21 @@ INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYP
     return 0;
 }
 
-INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division akinetic,  double amass, INT_TYPE particle1 ){
+INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division akinetic,  double amass, INT_TYPE particle1 ){
     INT_TYPE space,dim,I1,I2;
     INT_TYPE dims1[SPACE],cmpl;
     struct general_index o1;
     length1(f1,dims1);
     Stream_Type * stream;
     DCOMPLEX va;
-    f1->sinc.tulip[diagonalCube].Current[0] = 1;
-
+    f1.tulip[diagonalCube].Current[0] = 1;
+    tClear(f1, kinetic);
     for ( cmpl = 0; cmpl < spins(f1, akinetic ) ; cmpl++){
         for ( dim = 0 ; dim < SPACE; dim++){
-            if ( f1->sinc.rose[dim].body != nada )
-                if (( f1->sinc.tulip[akinetic].space[dim].body == one && f1->sinc.rose[dim].particle == particle1  )){
+            if ( f1.rose[dim].body != nada )
+                if (( f1.tulip[akinetic].space[dim].body == one && f1.rose[dim].particle == particle1  )){
                     for ( space = 0 ;space < SPACE; space++)
-                        if ( f1->sinc.rose[space].body != nada )
+                        if ( f1.rose[space].body != nada )
                             
                         {
                             stream =  streams( f1, diagonalCube, 0 , space );
@@ -5197,17 +5278,18 @@ INT_TYPE separateKinetic( struct field * f1, INT_TYPE periodic,enum division aki
                 }
         }
     }
+  //  outputFormat(f1, stderr,kinetic1, 0);
     INT_TYPE info;
-    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic, 0,'N', kinetic, 0);
-    printf("r%f\n", traceOne(f1, copy, 0));
-    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic,1,'N', kinetic, 1);
-    printf("r%f\n", traceOne(f1, copy, 0));
+//    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic, 0,'N', kinetic, 0);
+//    printf("r%f\n", traceOne(f1, copy, 0));
+//    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic,1,'N', kinetic, 1);
+//    printf("r%f\n", traceOne(f1, copy, 0));
 
     return 0;
 }
 
 
-void separateDerivatives( struct field * f1, INT_TYPE periodic,enum division mat, INT_TYPE *x, INT_TYPE *grad,double mag,INT_TYPE particle1 ){
+void separateDerivatives( struct sinc_label f1, INT_TYPE periodic,enum division mat, INT_TYPE *x, INT_TYPE *grad,double mag,INT_TYPE particle1 ){
     DCOMPLEX bca;
     double b0 = 0.0001,powSpace,spaces=0;
     INT_TYPE space,I1,I2,flagCMPL=0;
@@ -5223,7 +5305,7 @@ void separateDerivatives( struct field * f1, INT_TYPE periodic,enum division mat
     
     tId(f1,mat,0);
     for (space = 0; space < SPACE ; space++)
-        if ( f1->sinc.rose[space].body != nada )
+        if ( f1.rose[space].body != nada )
             if ( grad[space] % 2 == 1 )
                 flagCMPL = 1;
     
@@ -5231,14 +5313,14 @@ void separateDerivatives( struct field * f1, INT_TYPE periodic,enum division mat
     if (flagCMPL)
         tId(f1,mat,1);
     for (space = 0; space < SPACE ; space++)
-        if ( f1->sinc.rose[space].body != nada )
+        if ( f1.rose[space].body != nada )
             spaces++;
     
         powSpace = pow( fabs(mag),1./spaces);
 
    // printf("mag %f\n", mag);
     for (space = 0; space < SPACE ; space++)
-        if ( f1->sinc.rose[space].body != nada )
+        if ( f1.rose[space].body != nada )
         {
             
             stream[0] =  streams( f1, mat, 0 , space ) + dims[space]*dims[space]*cur[0];//last one is COMPLEX:: cmpl!
@@ -5252,12 +5334,14 @@ void separateDerivatives( struct field * f1, INT_TYPE periodic,enum division mat
                         mag *= -1;
 
                     (stream[0])[dims[space]*I1+I2] = creal(bca);
+//                    if ( I1 == I2 )
+//                        printf ( "%f \n", (stream[0])[dims[space]*I1+I2]);
                     if ( flagCMPL )
                         (stream[1])[dims[space]*I1+I2] = cimag(bca);
                     
 //                    if ( x[space] == 2 ){
 //                        if ( I1 == I2 )
-//                            (stream[0])[dims[space]*I1+I2] = mag*sqr((I1-(dims[space]-1)/2) * f1->sinc.rose[space].lattice);
+//                            (stream[0])[dims[space]*I1+I2] = mag*sqr((I1-(dims[space]-1)/2) * f1.rose[space].lattice);
 //                        else
 //                            (stream[0])[dims[space]*I1+I2] = 0.;
 //                    }else {
@@ -5285,7 +5369,7 @@ void separateDerivatives( struct field * f1, INT_TYPE periodic,enum division mat
 
 
 //double tTestTwoBody( struct field * f1, enum division mat,INT_TYPE periodic, INT_TYPE * p){
-//    INT_TYPE r,space,N1 = f1->sinc.N1;
+//    INT_TYPE r,space,N1 = f1.N1;
 //
 //
 //    double sum = 0.,product;
@@ -5299,8 +5383,8 @@ void separateDerivatives( struct field * f1, INT_TYPE periodic,enum division mat
 //    struct general_2index g3[3];
 //    for ( i = 0; i < 3; i++){
 //        g3[i].realFlag = 1;
-//        g3[i].i[0].d = f1->sinc.d;
-//        g3[i].i[1].d = f1->sinc.d;
+//        g3[i].i[0].d = f1.d;
+//        g3[i].i[1].d = f1.d;
 //
 //        g3[i].i[0].n = p[i*4];
 //        g3[i].i[0].m = p[i*4+2];
@@ -5340,7 +5424,7 @@ void separateDerivatives( struct field * f1, INT_TYPE periodic,enum division mat
 //    double sum = 0.;
 //    for ( i = 0; i < Nc ; i++){
 //        for ( j = 0 ; j < 12 ; j++)
-//            p[j] = rand()% f1->sinc.N1;
+//            p[j] = rand()% f1.N1;
 //        sum += tTestTwoBody(f1, mat, periodic, p);
 //    
 //    }
@@ -5351,7 +5435,7 @@ void separateDerivatives( struct field * f1, INT_TYPE periodic,enum division mat
 //CEG paper
 
 INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat){
-    INT_TYPE space,r,i,j,n,m,N1 = f1->sinc.N1, N2 = f1->sinc.N1*f1->sinc.N1;
+    INT_TYPE space,r,i,j,n,m,N1 = f1.N1, N2 = f1.N1*f1.N1;
     double value;
     if ( ! CanonicalRank(f1, interactionExchange, 0))
         return 0;
@@ -5369,7 +5453,7 @@ INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat){
                     streams(f1, mat,0,space)[N1*i+j+r*N2] =value/N1;
             }
     }
-    f1->sinc.tulip[mat].Current[0] = CanonicalRank(f1, interactionExchange, 0);
+    f1.tulip[mat].Current[0] = CanonicalRank(f1, interactionExchange, 0);
     tScaleOne(f1, mat, 0,  -f1->Ne);
     
     if ( bodies(f1, eigenVectors)==two){
@@ -5395,23 +5479,23 @@ INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat){
     }
     
     
-    f1->sinc.tulip[mat].stop[0][0] = CanonicalRank(f1, mat,0);
+    f1.tulip[mat].stop[0][0] = CanonicalRank(f1, mat,0);
     
     return 0;
 }
 #endif
 
-INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat, INT_TYPE spin){
+INT_TYPE buildElectronProtonInteraction ( struct sinc_label f1, enum division mat, INT_TYPE spin){
     INT_TYPE space,r,i,j,n,m,N1,N2 ;
     INT_TYPE n1[SPACE];
     length1(f1,n1);
     double value;
     zero(f1,mat,0);
     tClear(f1, mat);
-    if ( f1->Ne != 1 ){
-        printf("jellium redundant! %d\n", f1->Ne);
-        return 0;
-    }
+//    if ( f1->Ne != 1 ){
+//        printf("jellium redundant! %d\n", f1->Ne);
+//        return 0;
+//    }
     if ( ! CanonicalRank(f1, interactionEwald, 0))
         return 0;
     for ( r = 0; r < CanonicalRank(f1, interactionEwald, 0); r++){
@@ -5430,29 +5514,29 @@ INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat, 
                 }
         }
     }
-    f1->sinc.tulip[mat].Current[spin] = CanonicalRank(f1, interactionEwald, 0);
-    tScaleOne(f1, mat, spin,  -f1->Ne);
+    f1.tulip[mat].Current[spin] = CanonicalRank(f1, interactionEwald, 0);
+  //  tScaleOne(f1, mat, spin,  -f1->Ne);
   //  printf("mat%f \n", traceOne(f1, mat, 0));
 
     if(0)
     if ( bodies(f1, eigenVectors)==two){
         tClear(f1, copy);
         tId(f1, copy,0);
-        tScale(f1, copy,-3.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/sqr(f1->Ne));
+    //    tScale(f1, copy,-3.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/sqr(f1->Ne));
         //
         tAddTw(f1, mat, 0,copy,0);
     }
     else     if ( bodies(f1, eigenVectors)==three){
         tClear(f1, copy);
         tId(f1, copy,0);
-        tScale(f1, copy,-6.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/sqr(f1->Ne));
+     //   tScale(f1, copy,-6.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/sqr(f1->Ne));
         //
         tAddTw(f1, mat,0, copy,0);
     }
     else     if ( bodies(f1, eigenVectors)==four){
         tClear(f1, copy);
         tId(f1, copy,0);
-        tScale(f1, copy,-10.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/sqr(f1->Ne));
+      //  tScale(f1, copy,-10.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/sqr(f1->Ne));
         //
         tAddTw(f1, mat, 0,copy,0);
     }
@@ -5460,7 +5544,7 @@ INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat, 
     return 0;
 }
 
-INT_TYPE tZeroSum ( struct field * f1, enum division mat,INT_TYPE spin){
+INT_TYPE tZeroSum ( struct sinc_label f1, enum division mat,INT_TYPE spin){
     INT_TYPE space,r,n,m,N1 , N2 ,n2,m2,flag = 1;
     INT_TYPE n1[SPACE];
     length1(f1,n1);
@@ -5468,9 +5552,9 @@ INT_TYPE tZeroSum ( struct field * f1, enum division mat,INT_TYPE spin){
     for ( r = 0; r < CanonicalRank(f1, mat, spin); r++){
         prod = 1.;
         for (space = 0; space < SPACE ;space++)
-            if ( f1->sinc.rose[space].body != nada ){
-              //  printf("%d %d\n",space,f1->sinc.rose[space].component );
-                if ( f1->sinc.rose[space].component > 3 )
+            if ( f1.rose[space].body != nada ){
+              //  printf("%d %d\n",space,f1.rose[space].component );
+                if ( f1.rose[space].component > 3 )
         
                 {
                     flag = 0;
@@ -5543,7 +5627,7 @@ INT_TYPE tZeroSum ( struct field * f1, enum division mat,INT_TYPE spin){
 }
 
 
-void separateX ( struct field * f1,  double vectorDipole ){
+void separateX ( struct sinc_label f1,  double vectorDipole ){
     INT_TYPE space, i;
     INT_TYPE N1;
     INT_TYPE n1[SPACE];
@@ -5556,7 +5640,7 @@ void separateX ( struct field * f1,  double vectorDipole ){
     for ( space = 0; space < 1 ; space++){
         N1 = n1[space];
         for ( i = 0; i < N1 ; i++){
-            //streams(f1,X,0,space)[i*N1+i+space*N1*N1] = f1->sinc.d*(i-(N1-1)/2)*vectorDipole;
+            //streams(f1,X,0,space)[i*N1+i+space*N1*N1] = f1.d*(i-(N1-1)/2)*vectorDipole;
         }
     }
     return;

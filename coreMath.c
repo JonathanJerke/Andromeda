@@ -500,44 +500,7 @@ DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
 #endif
 
 
-
-double traceOne( struct field * f1 , enum division label , INT_TYPE spin ){
-    Stream_Type * base;
-    double sum,sum2,product;
-    INT_TYPE l,i,space;
-    INT_TYPE N2[SPACE],N1[SPACE];
-    length(f1, label,N2);
-    for ( i = 0; i < SPACE ; i++)
-        N1[i] = sqrt(N2[i]);
-    struct name_label lab = f1->sinc.tulip[label];
-    
-    if ( species(f1, name(f1,label)) != matrix ){
-        return inner( f1,label, spin);
-    }
-    sum2 = 0.;
-    for ( l = 0 ; l < CanonicalRank(f1,label,spin); l++)
-    {
-        product = 1.;
-        for ( space = 0; space < SPACE ; space++)
-            if ( N2[space] ){
-                sum = 0.;
-                base = streams(f1, label, spin, space )+l*N2[space];
-                
-                for ( i = 0; i < N1[space] ; i++ ){
-                    sum += base[ i*N1[space]+i];
-                }
-                product *= sum;
-                
-            }
-        sum2 += product;
-    }
-    
-    
-    return sum2;
-}
-
-
-INT_TYPE maxZ( struct field * f1 ){
+INT_TYPE maxZ( struct input * f1 ){
     INT_TYPE maxz = 0;
     INT_TYPE a,ai;
     for ( a= 1 ;a <= f1->Na ; a++)
@@ -548,7 +511,7 @@ INT_TYPE maxZ( struct field * f1 ){
     return maxz;
 }
 
-INT_TYPE sumZ( struct field * f1 ){
+INT_TYPE sumZ( struct input * f1 ){
     INT_TYPE a,ai=0;
     for ( a= 1 ;a <= f1->Na ; a++)
         ai +=  f1->atoms[a].label.Z;

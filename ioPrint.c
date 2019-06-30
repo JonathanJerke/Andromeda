@@ -25,10 +25,9 @@
 
 #include "ioPrint.h"
 
-INT_TYPE printVector (struct calculation *c, char * name,char * vectorName,  INT_TYPE iv, INT_TYPE irrep,DCOMPLEX * vector){
+INT_TYPE printVector (struct calculation *c,struct sinc_label f1, char * name,char * vectorName,  INT_TYPE iv, INT_TYPE irrep,DCOMPLEX * vector){
     if ( vector == NULL )
         return 1;
-    struct field * f1 = &c->i.c;
     INT_TYPE iii;
     char str [MAXSTRING];
     FILE * outf ;
@@ -44,7 +43,7 @@ INT_TYPE printVector (struct calculation *c, char * name,char * vectorName,  INT
     outf = fopen (str,"a");
     for ( iii = iv; iii <= iv  ; iii++)
     {
-        if ( cabs(*vector)> f1->mem1->rt->TARGET){
+        if ( cabs(*vector)> c->rt.TARGET){
             if( spins(f1, eigenVectors )== 2)
                 fprintf(outf, "\"%s\",%d,%15.15f,%15.15f\n",name, iii+1,creal(*vector),cimag(*vector));
             else
@@ -55,9 +54,8 @@ INT_TYPE printVector (struct calculation *c, char * name,char * vectorName,  INT
     return 0;
 }
 
-INT_TYPE print(struct calculation *c , INT_TYPE reset,INT_TYPE mv, INT_TYPE lv,enum division eigenVectors){
+INT_TYPE print(struct calculation *c , struct sinc_label f1,INT_TYPE reset,INT_TYPE mv, INT_TYPE lv,enum division eigenVectors){
     INT_TYPE irrep;
-    struct field * f1 = & c->i.c;
     INT_TYPE iii,jjj=1,cmpl;
     char str [MAXSTRING];
     DCOMPLEX one = 1.;
@@ -71,11 +69,11 @@ INT_TYPE print(struct calculation *c , INT_TYPE reset,INT_TYPE mv, INT_TYPE lv,e
           //  if( (! c->i.irrep || f1->sinc.tulip[eigenVectors+iii].value.symmetry  == irrep)&& irrep == c->i.irrep)
         {
                 tEdges(c , eigenVectors+iii);
-            irrep = f1->sinc.tulip[eigenVectors+iii].value.symmetry;
-                printf("State%d:%d:,%d ,%1.15f, %d, %d , %1.1f,%1.15f\n", iii+1, c->i.epi*2+1,iii+1,f1->sinc.tulip[eigenVectors+iii].value.value,bodies(f1,eigenVectors+iii),irrep, deg(f1, irrep),f1->sinc.tulip[eigenVectors+iii].value.value2);
+            irrep = f1.tulip[eigenVectors+iii].value.symmetry;
+                printf("State%d:%d:,%d ,%1.15f, %d, %d , %1.1f,%1.15f\n", iii+1, c->i.epi*2+1,iii+1,f1.tulip[eigenVectors+iii].value.value,bodies(f1,eigenVectors+iii),irrep, deg(f1, irrep),f1.tulip[eigenVectors+iii].value.value2);
                 
             //    if ( (c->i.outputFlag) % 2 == 1){
-                    printVector(c, c->name,c->name, iii,irrep, &one);
+                    printVector(c,f1, c->name,c->name, iii,irrep, &one);
                     for ( cmpl = 0 ; cmpl < spins(f1, eigenVectors+iii) ; cmpl++)
                     {
 #ifndef APPLE
@@ -83,7 +81,7 @@ INT_TYPE print(struct calculation *c , INT_TYPE reset,INT_TYPE mv, INT_TYPE lv,e
                         
                         FILE * out = fopen ( str,"w" );
                         if ( out != NULL ){
-                            outputFormat(&c->i.c, out, eigenVectors+iii,cmpl  );
+                            outputFormat(f1, out, eigenVectors+iii,cmpl  );
                             fclose(out);
                         }
 #endif
@@ -97,7 +95,7 @@ INT_TYPE print(struct calculation *c , INT_TYPE reset,INT_TYPE mv, INT_TYPE lv,e
 }
 
 
-INT_TYPE ioStoreMatrix(struct field * f1, enum division op, INT_TYPE spin, char * filename, INT_TYPE ioIn ){
+INT_TYPE ioStoreMatrix(struct sinc_label f1, enum division op, INT_TYPE spin, char * filename, INT_TYPE ioIn ){
     INT_TYPE matchFlag = 0,tempFlag=1,space;
     //check if previous is acceptable...
     //0 genus
@@ -110,12 +108,12 @@ INT_TYPE ioStoreMatrix(struct field * f1, enum division op, INT_TYPE spin, char 
 
         if (  inputFormat(f1, filename, nullName, 0) == 2 ){
             for ( space = 0;space < SPACE ; space++)
-                if ( f1->sinc.rose[space].body != nada ){
-                if ( f1->sinc.tulip[op].space[space].body != inputFormat(f1, filename, nullName, 100+space/COMPONENT)){
+                if ( f1.rose[space].body != nada ){
+                if ( f1.tulip[op].space[space].body != inputFormat(f1, filename, nullName, 100+space/COMPONENT)){
                   //  printf("body");
                     tempFlag = 0;
                 }
-                if ( f1->sinc.rose[space].count1Basis != inputFormat(f1, filename, nullName, 200+space/COMPONENT)){
+                if ( f1.rose[space].count1Basis != inputFormat(f1, filename, nullName, 200+space/COMPONENT)){
                  //   printf("count");
                  //   printf("%d--%d != %d \n",space,f1->sinc.rose[space].count1Basis ,inputFormat(f1, filename, nullName, 200+space/COMPONENT) );
                     tempFlag = 0;
@@ -153,7 +151,7 @@ INT_TYPE ioStoreMatrix(struct field * f1, enum division op, INT_TYPE spin, char 
     return 0;
 }
 
-void outputFormat(struct field  * f1, FILE * out, enum division output ,INT_TYPE spin){
+void outputFormat(struct sinc_label f1, FILE * out, enum division output ,INT_TYPE spin){
     INT_TYPE  parts,p1,flag2,flag3,flag4,r,l,space, M[SPACE];
     length(f1, output, M);
     if ( header (f1, output ) != Cube )
@@ -170,19 +168,19 @@ void outputFormat(struct field  * f1, FILE * out, enum division output ,INT_TYPE
     fprintf(out,"header = %d\n", header(f1, output));
     fprintf(out,"canonRank = %d\n",CanonicalRank(f1, output,spin ) );
     fprintf(out,"spin = %d\n", spin);
-    fprintf(out,"symmetry = %d\n", f1->sinc.tulip[output].value.symmetry);
+    fprintf(out,"symmetry = %d\n", f1.tulip[output].value.symmetry);
     parts=0;
     while ( parts*COMPONENT < SPACE )
         parts++;
     fprintf(out,"particles = %d\n",parts);
     for ( p1 = 0 ; p1 < parts;p1++){
         if ( species(f1, output)  == vector )
-            fprintf(out,"%cbody = %d\n", 'A'+p1,f1->sinc.rose[COMPONENT * p1].body);
+            fprintf(out,"%cbody = %d\n", 'A'+p1,f1.rose[COMPONENT * p1].body);
         else if ( species(f1, output)  == matrix || species(f1,output) == outerVector )
-            fprintf(out,"%cbody = %d\n", 'A'+p1,f1->sinc.tulip[output].space[COMPONENT * p1].body);
+            fprintf(out,"%cbody = %d\n", 'A'+p1,f1.tulip[output].space[COMPONENT * p1].body);
 
             
-        fprintf(out,"%ccount1Basis = %d\n", 'A'+p1, f1->sinc.rose[COMPONENT * p1].count1Basis);
+        fprintf(out,"%ccount1Basis = %d\n", 'A'+p1, f1.rose[COMPONENT * p1].count1Basis);
     }
     
     fprintf (out,"Tensor = {\n");
@@ -198,7 +196,7 @@ void outputFormat(struct field  * f1, FILE * out, enum division output ,INT_TYPE
         
         
         for ( space = 0; space < SPACE ; space++)
-            if ( f1->sinc.rose[space].body != nada)
+            if ( f1.rose[space].body != nada)
             {
             
             if ( ! flag3 ){
@@ -253,7 +251,7 @@ DCOMPLEX tFromReadToFilename (char * cycleName, char * read , char * filename,IN
 }
 
 #if 1
-INT_TYPE inputFormat(struct field * f1,char * name,  enum division buffer, INT_TYPE input){
+INT_TYPE inputFormat(struct sinc_label f1,char * name,  enum division buffer, INT_TYPE input){
     size_t maxRead = MAXSTRING;
     char input_line [maxRead];
     double value,lvalue;
@@ -383,7 +381,7 @@ INT_TYPE inputFormat(struct field * f1,char * name,  enum division buffer, INT_T
         exit(0);
     }
 
-    f1->sinc.tulip[buffer].value.symmetry = sy;
+    f1.tulip[buffer].value.symmetry = sy;
     
     if ( r1 > part(f1, buffer ) ){
         printf("io error\n");
@@ -399,7 +397,7 @@ INT_TYPE inputFormat(struct field * f1,char * name,  enum division buffer, INT_T
         flag3 = 0;
 
         for ( space = 0; space < SPACE ; space++)
-            if ( f1->sinc.rose[space].body != nada)
+            if ( f1.rose[space].body != nada)
 {
 //            if ( ! flag3 ){
 //                flag3 = 1 ;
@@ -437,7 +435,7 @@ INT_TYPE inputFormat(struct field * f1,char * name,  enum division buffer, INT_T
     getline(&inputPt,&maxRead, in   );
     
     
-    f1->sinc.tulip[buffer].Current[sp] = r1;
+    f1.tulip[buffer].Current[sp] = r1;
     
     
     
@@ -836,68 +834,7 @@ INT_TYPE inputFormat(struct field * f1,char * name,  enum division buffer, INT_T
 //    return res;
 //}
 
-INT_TYPE tFillBasis(Stream_Type ** pt/*3 vectors*/, double * coordinates/*3 numbers*/, INT_TYPE class,INT_TYPE N1,double lattice){
-    INT_TYPE space,h,N12 = (N1-1)/2,aPeriodic;
-    for ( space = 0 ; space < SPACE ;space++)
-    {
-        
-        if ( space == 0 ){
-            aPeriodic = class%2;
-        }
-        else if ( space == 1 ){
-            aPeriodic = (class/2)%2;
-        }
-        else
-            aPeriodic = (class/4)%2;
-        
-        if ( ! aPeriodic ){
-            double * position = coordinates;
-            for ( h = 0 ; h < N1 ; h++)
-                pt[space][h] = Sinc(lattice,position[space]-lattice*(h-N12))/sqrt(lattice);
-        }
-//        else
-//        {
-//                double periodicPosition;
-//                periodicPosition = coordinates[space];
-//                for ( h = 0 ; h < N1 ; h++)
-//                    pt[space][h] = periodicSinc(lattice,periodicPosition-lattice*(h-N12),N1)/sqrt(lattice);
-//
-//        }
-            
-//        {
-//            double phase ;
-//            double * waveNumber = coordinates;
-//            if ( class == 1 )
-//                phase = 0.;
-//            else
-//                phase = 0.5;
-//            for ( h = 0 ; h < N1 ; h++){
-//                pt[space][h] = cos(waveNumber[space]*lattice*(h+phase))/sqrt(N1);
-//            }
-//            for ( h = 0 ; h < N1 ; h++)
-//                if ( space == 0)
-//                    pt[space][h] = -sin(waveNumber[space]*lattice*(h+phase))/sqrt(N1);
-//                else
-//                    pt[space][h] = cos(waveNumber[space]*lattice*(h+phase))/sqrt(N1);
-//
-//            for ( h = 0 ; h < N1 ; h++)
-//                if ( space == 1)
-//                    pt[space][h] = -sin(waveNumber[space]*lattice*(h+phase))/sqrt(N1);
-//                else
-//                    pt[space][h] = cos(waveNumber[space]*lattice*(h+phase))/sqrt(N1);
-//
-//            for ( h = 0 ; h < N1 ; h++)
-//                if ( space == 2)
-//                    pt[space][h] = -sin(waveNumber[space]*lattice*(h+phase))/sqrt(N1);
-//                else
-//                    pt[space][h] = cos(waveNumber[space]*lattice*(h+phase))/sqrt(N1);
-//
-//        }
-        
-    }
-            return 1;
-    
-}
+
 
 //double evaluateDensityBracket( double x [], size_t dim , void * params ){
 //    double y[3],sum=0.;;
@@ -1074,11 +1011,10 @@ INT_TYPE tFillBasis(Stream_Type ** pt/*3 vectors*/, double * coordinates/*3 numb
 //    
 //}
 
-INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum division inputVectors){
+INT_TYPE tLoadEigenWeights (struct calculation * c1, struct sinc_label f1,char * filename, enum division inputVectors){
     INT_TYPE space,ct = 0,ct2,number,class,weight,cmpl;
     FILE * in = NULL;
     in = fopen(filename, "r");
-    struct field *f1 = &c1->i.c;
     if ( in == NULL ){
         printf("file of occupations is missing\n");
         exit(0);
@@ -1095,37 +1031,39 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
             if ( (!comment(input_line)) && (strlen(input_line) > 1) ){
                 Occ = 0.;
                 flagLoad = 0;
-                for ( cmpl = 0; cmpl < spins(&c1->i.c, inputVectors); cmpl++)
+                for ( cmpl = 0; cmpl < spins(f1, inputVectors); cmpl++)
                 {
                     Occ = tFromReadToFilename(NULL, input_line,  name, spins(f1,eigenVectors)-1,cmpl);
                     if ( cabs(Occ) > c1->rt.TARGET){
                         {
-                            f1->sinc.tulip[inputVectors+ct].Current[cmpl] = 0;
+                            f1.tulip[inputVectors+ct].Current[cmpl] = 0;
 
                             struct calculation c2 = *c1;
                             c2.rt.body = inputFormat(f1, name, nullName, 100);
-                            c2.i.c.mem1->bootedMemory =0;
+                            c2.i.c.mem->bootedMemory =0;
                             c2.i.c.sinc.tulip = NULL;
                             c2.i.sectors = 0;
                             c2.i.decomposeRankMatrix = 1;
                             for ( space = 0; space <= SPACE ; space++)
                                 c2.i.c.sinc.rose[space].stream = NULL;
                             c2.rt.boot = noMatrices;
-                            c2.i.nStates= 0;
                             c2.i.vectorOperatorFlag= 0;
                             c2.i.springFlag= 0;
-                            c2.i.heliumFlag = 0;
-                            c2.i.nTargets = 0;
+                            c2.i.nStates= 1;
+
                             c2.i.qFloor = 0;
+                        
 #ifdef OMP
                             c2.rt.NLanes = spins(f1, eigenVectors);
 #endif
 #ifdef MKL
                             c2.rt.NParallel = 1;
 #endif
-                            c2.i.canonRank = imax(c1->i.bRank,2+inputFormat(f1, name, nullName, 2));
-                            c2.i.c.oneBody.func.fn = nullFunction;
-                            c2.i.c.twoBody.func.fn = nullFunction;
+                            c2.i.bRank  = inputFormat(f1, name, nullName, 2);
+                            c2.i.canonRank = 0;
+                            c2.i.nStates = 1;
+                            c2.i.oneBody.func.fn = nullFunction;
+                            c2.i.twoBody.func.fn = nullFunction;
                             if ( SPACE > COMPONENT ){
                                 if ( c2.rt.runFlag )
                                     c2.i.around = (inputFormat(f1, name, nullName, 201)/2-1)/2;
@@ -1150,12 +1088,12 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                             
                             
                             iModel(&c2);
-                            c2.i.c.sinc.tulip[totalVector].Current[0] = 0;
-                            inputFormat(&c2.i.c, name, totalVector,1);
-                            xEqua(f1,inputVectors+ct, cmpl, &c2.i.c, totalVector,0);
-                            f1->sinc.tulip[inputVectors+ct].value.symmetry = c2.i.c.sinc.tulip[totalVector].value.symmetry;
+                            c2.i.c.sinc.tulip[eigenVectors].Current[0] = 0;
+                            inputFormat(c2.i.c.sinc, name, eigenVectors,1);
+                            xEqua(f1,inputVectors+ct, cmpl, c2.i.c.sinc, eigenVectors,0);
+                            f1.tulip[inputVectors+ct].value.symmetry = c2.i.c.sinc.tulip[eigenVectors].value.symmetry;
 
-                            printf("%s\tSA%d\n", name,f1->sinc.tulip[inputVectors+ct].value.symmetry);
+                            printf("%s\tSA%d\n", name,f1.tulip[inputVectors+ct].value.symmetry);
                             flagLoad = 1;
                             fModel(&c2);
                         }
@@ -1165,7 +1103,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                 }
                 if ( ! flagLoad )
                     continue;
-                if (( ct > c1->i.vectorOperatorFlag&& inputVectors == f1->sinc.vectorOperator )|| ( ct > c1->i.nStates&& inputVectors == eigenVectors  )){
+                if (( ct > c1->i.vectorOperatorFlag&& inputVectors == f1.vectorOperator )|| ( ct > c1->i.nStates&& inputVectors == eigenVectors  )){
                     printf("maxed out buffer of states\n");
                     exit(0);
                 }
@@ -1174,7 +1112,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, char * filename, enum divis
                     exit(1);
                 }
 
-                tScale(&c1->i.c, inputVectors+ct, creal(Occ));
+                tScale(c1->i.c.sinc, inputVectors+ct, creal(Occ));
                 
                 ov = magnitude(f1, inputVectors+ct);
 

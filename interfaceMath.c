@@ -197,7 +197,7 @@ void transpose(INT_TYPE N, INT_TYPE M, Stream_Type * orig, Stream_Type* targ){
 
 }
 
-INT_TYPE tdsyev( INT_TYPE rank, struct field * f1, char job , INT_TYPE n, double * ar, INT_TYPE ns , double * w ){
+INT_TYPE tdsyev( INT_TYPE rank, struct sinc_label f1, char job , INT_TYPE n, double * ar, INT_TYPE ns , double * w ){
 #ifdef APPLE
 
     char charU = 'U';
@@ -209,7 +209,7 @@ INT_TYPE tdsyev( INT_TYPE rank, struct field * f1, char job , INT_TYPE n, double
 #endif
 }
 
-INT_TYPE tzheev( INT_TYPE rank, struct field * f1, char job , INT_TYPE n, DCOMPLEX * ar, INT_TYPE ns , double * w ){
+INT_TYPE tzheev( INT_TYPE rank, struct sinc_label f1, char job , INT_TYPE n, DCOMPLEX * ar, INT_TYPE ns , double * w ){
     INT_TYPE i;
 
 #ifdef APPLE
@@ -234,7 +234,7 @@ INT_TYPE tzheev( INT_TYPE rank, struct field * f1, char job , INT_TYPE n, DCOMPL
 }
 
 
-INT_TYPE tdsygv( INT_TYPE rank, struct field * f1, char job , INT_TYPE n, double * sr, double * ar, INT_TYPE ns , double * w ){
+INT_TYPE tdsygv( INT_TYPE rank, struct sinc_label f1, char job , INT_TYPE n, double * sr, double * ar, INT_TYPE ns , double * w ){
     INT_TYPE info;
     INT_TYPE type = 1;
     char charU = 'U';
@@ -249,7 +249,7 @@ INT_TYPE tdsygv( INT_TYPE rank, struct field * f1, char job , INT_TYPE n, double
 }
 
                      
-INT_TYPE tzhegv( INT_TYPE rank, struct field * f1, char job , INT_TYPE n,DCOMPLEX * sr, DCOMPLEX * ar, INT_TYPE ns , double * w ){
+INT_TYPE tzhegv( INT_TYPE rank, struct sinc_label f1, char job , INT_TYPE n,DCOMPLEX * sr, DCOMPLEX * ar, INT_TYPE ns , double * w ){
     INT_TYPE info;
 //    INT_TYPE liwork = 3+5*n;
 //    INT_TYPE lrwork = 1+5*n+2*n*n;
@@ -285,7 +285,7 @@ INT_TYPE tzhegv( INT_TYPE rank, struct field * f1, char job , INT_TYPE n,DCOMPLE
                                
 
                               
-INT_TYPE tdgeqr( INT_TYPE rank, struct field * f1,INT_TYPE len, INT_TYPE n, double * ar, INT_TYPE ns ,double *w){
+INT_TYPE tdgeqr( INT_TYPE rank, struct sinc_label f1,INT_TYPE len, INT_TYPE n, double * ar, INT_TYPE ns ,double *w){
     INT_TYPE info,info2;
     if ( len > n ){
         printf("%d -> %d\n", len, n);
@@ -336,7 +336,7 @@ info =  LAPACKE_dpotrf(LAPACK_COL_MAJOR,'U',L1,  array, L1 );
     return info;
 }
 
-INT_TYPE tdgels ( INT_TYPE rank,struct field * f1 , INT_TYPE L1, INT_TYPE M2, double * array, double * arrayo ,INT_TYPE inc){
+INT_TYPE tdgels ( INT_TYPE rank,struct sinc_label  f1 , INT_TYPE L1, INT_TYPE M2, double * array, double * arrayo ,INT_TYPE inc){
     char charT = 'N';
     INT_TYPE lbuffer = part(f1, dsyBuffers),info=0;
     dgels_(&charT, &L1, &L1,& M2, array,& L1, arrayo, &inc, myStreams(f1, dsyBuffers,rank ), &lbuffer, &info);
@@ -373,7 +373,7 @@ dpotrs_(&charU,&L1,  &M2, array, &L1, arrayo, &inc, &info );
 
 }
 
-double tdpocon (INT_TYPE rank,struct field * f1,  INT_TYPE L1 , double * Matrix ){
+double tdpocon (INT_TYPE rank,struct sinc_label  f1,  INT_TYPE L1 , double * Matrix ){
     INT_TYPE info;
     char charU = 'U';
     double rcond;
@@ -407,7 +407,7 @@ double tdpocon (INT_TYPE rank,struct field * f1,  INT_TYPE L1 , double * Matrix 
 
 //tdgesvd(0, f1, N1*N1,N2*N2, streams(f1, quadCube,0,space), streams(f1, interactionExchangePlus,0,space)+CanonicalRank(f1, interactionExchangePlus, 0)*N1*N1, streams(f1, interactionExchangePlus,0,space2)+CanonicalRank(f1, interactionExchangePlus, 0)*N2*N2)
 #if 1
-INT_TYPE tdgesvd ( INT_TYPE rank, struct field *f1 ,  INT_TYPE M1, INT_TYPE M2, Stream_Type * ge, Stream_Type * m1, Stream_Type* m2 ){
+INT_TYPE tdgesvd ( INT_TYPE rank, struct sinc_label f1 ,  INT_TYPE M1, INT_TYPE M2, Stream_Type * ge, Stream_Type * m1, Stream_Type* m2 ){
     INT_TYPE info,Mm =imin(M1,M2),i;
     char Job = 'S';
     INT_TYPE lbuffer = part(f1, dsyBuffers)-M1-M2;
@@ -461,7 +461,7 @@ INT_TYPE tdgesvd ( INT_TYPE rank, struct field *f1 ,  INT_TYPE M1, INT_TYPE M2, 
     return Mm;
 }
 #else
-INT_TYPE tdgesvd ( INT_TYPE rank, struct field *f1 ,  INT_TYPE M1, INT_TYPE M2, Stream_Type * ge, Stream_Type * m1, Stream_Type* m2 ){
+INT_TYPE tdgesvd ( INT_TYPE rank, struct sinc_label f1 ,  INT_TYPE M1, INT_TYPE M2, Stream_Type * ge, Stream_Type * m1, Stream_Type* m2 ){
     INT_TYPE info,Mm =imin(M1,M2),i;
     char Job = 'S';
     INT_TYPE lbuffer = part(f1, dsyBuffers)-M1-M2;

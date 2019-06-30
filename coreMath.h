@@ -38,8 +38,8 @@ INT_TYPE imax( INT_TYPE x1, INT_TYPE x2 );
 INT_TYPE imin( INT_TYPE x1, INT_TYPE x2 );
 double max( double x1, double x2 );
 double min( double x1, double x2 );
-INT_TYPE maxZ( struct field * f1 );
-INT_TYPE sumZ( struct field * f1 );
+INT_TYPE maxZ( struct input * f1 );
+INT_TYPE sumZ( struct input * f1 );
 DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta);
 DCOMPLEX periodicBoostOverlapBasis (  INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, INT_TYPE kki );
 DCOMPLEX periodicBoostMomentumBasis (  INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, INT_TYPE kki );
@@ -51,6 +51,5 @@ DCOMPLEX periodicBoostOverlapBasisBasis (  double p, INT_TYPE N1, double d, INT_
 DCOMPLEX periodicBoostMomentumBasisBasis (double p ,  INT_TYPE N1, double d, INT_TYPE b, INT_TYPE ki ,double d2, INT_TYPE bb, INT_TYPE kki );
 DCOMPLEX periodicBoostKineticBasisBasis (  INT_TYPE N1, double d, INT_TYPE b, INT_TYPE ki ,double d2, INT_TYPE bb, INT_TYPE kki );
 
-double traceOne( struct field * f1 , enum division label , INT_TYPE spin );
 
 #endif /* coreMath_h */

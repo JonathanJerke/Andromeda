@@ -26,12 +26,12 @@
 #include "coreUtil.h"
 #include "mAls.h"
 
-INT_TYPE normalize (struct field * f1,  enum division alloy,INT_TYPE l3,INT_TYPE l4, INT_TYPE spin, INT_TYPE space){
+INT_TYPE normalize (struct sinc_label  f1,  enum division alloy,INT_TYPE l3,INT_TYPE l4, INT_TYPE spin, INT_TYPE space){
     INT_TYPE l,flag=0;
     double norm;
     INT_TYPE M2[SPACE];
     length(f1,alloy,M2);
-    struct name_label u = f1->sinc.tulip[alloy];
+    struct name_label u = f1.tulip[alloy];
     
     INT_TYPE iOne = 1;
     {
@@ -57,8 +57,8 @@ INT_TYPE normalize (struct field * f1,  enum division alloy,INT_TYPE l3,INT_TYPE
                     }
                 } else {
                     flag = 1;
-                    if (f1->sinc.tulip[alloy].Current[spin] > 2 )
-                        f1->sinc.tulip[alloy].Current[spin]--;
+                    if (f1.tulip[alloy].Current[spin] > 2 )
+                        f1.tulip[alloy].Current[spin]--;
                     else{
                         tReplace(f1, alloy, spin, space, l);
                     }
@@ -70,7 +70,7 @@ INT_TYPE normalize (struct field * f1,  enum division alloy,INT_TYPE l3,INT_TYPE
     
 }
 
-INT_TYPE spread (struct field * f1, enum division origin, INT_TYPE l1, INT_TYPE l2,INT_TYPE os, enum division alloy, INT_TYPE l3, INT_TYPE l4,INT_TYPE spin, INT_TYPE space, Stream_Type * output,Stream_Type * output2){
+INT_TYPE spread (struct sinc_label  f1, enum division origin, INT_TYPE l1, INT_TYPE l2,INT_TYPE os, enum division alloy, INT_TYPE l3, INT_TYPE l4,INT_TYPE spin, INT_TYPE space, Stream_Type * output,Stream_Type * output2){
     INT_TYPE m,n;
     if (normalize(f1,alloy,l3,l4,spin,space) )
         return 1;
@@ -99,7 +99,7 @@ INT_TYPE spread (struct field * f1, enum division origin, INT_TYPE l1, INT_TYPE 
     return 0;
 }
 
-INT_TYPE pSpread (struct field * f1, enum division origin, INT_TYPE l1, INT_TYPE l2, INT_TYPE os, enum division alloy, INT_TYPE l3, INT_TYPE l4, INT_TYPE spin, INT_TYPE space, Stream_Type * output,Stream_Type * output2){
+INT_TYPE pSpread (struct sinc_label  f1, enum division origin, INT_TYPE l1, INT_TYPE l2, INT_TYPE os, enum division alloy, INT_TYPE l3, INT_TYPE l4, INT_TYPE spin, INT_TYPE space, Stream_Type * output,Stream_Type * output2){
     INT_TYPE m,n;
     if (normalize(f1,alloy,l3,l4,spin,space) )
         return 1;
@@ -134,7 +134,7 @@ INT_TYPE pSpread (struct field * f1, enum division origin, INT_TYPE l1, INT_TYPE
 }
 
 
-INT_TYPE balance (struct field * f1,  enum division alloy, INT_TYPE spin){
+INT_TYPE balance (struct sinc_label  f1,  enum division alloy, INT_TYPE spin){
     INT_TYPE l;
     INT_TYPE L1 = CanonicalRank(f1, alloy,spin),sign[SPACE],signs;
     double sum,snorm,value;
@@ -151,7 +151,7 @@ INT_TYPE balance (struct field * f1,  enum division alloy, INT_TYPE spin){
         for ( l = 0; l < L1 ;l++){
             
             for ( space = 0; space < SPACE ; space++)
-                if ( f1->sinc.rose[space].body != nada){
+                if ( f1.rose[space].body != nada){
                     spaces++;
                     norm[space] = cblas_dnrm2(M2[space], streams(f1, alloy,spin,space)+l*M2[space],iOne);
                     sum = 0.;
@@ -168,7 +168,7 @@ INT_TYPE balance (struct field * f1,  enum division alloy, INT_TYPE spin){
             prod = 1;
            // printf("%d ::", alloy);
             for ( space = 0 ;space < SPACE ; space++)
-                if ( f1->sinc.rose[space].body != nada){
+                if ( f1.rose[space].body != nada){
                     prod *= sign[space]*norm[space];
               //      printf("%f ", sign[space]*norm[space]);
                     
@@ -180,7 +180,7 @@ INT_TYPE balance (struct field * f1,  enum division alloy, INT_TYPE spin){
                 signs = -1;
             factor = powl( fabsl(prod),1./spaces);
             for ( space = 0; space < SPACE ; space++)
-               if ( f1->sinc.rose[space].body != nada)
+               if ( f1.rose[space].body != nada)
                {
                 snorm = factor/norm[space]*signs/sign[space] ;
                 cblas_dscal(M2[space], snorm, streams(f1, alloy,spin,space)+l*M2[space],iOne);
@@ -192,7 +192,7 @@ INT_TYPE balance (struct field * f1,  enum division alloy, INT_TYPE spin){
 }
 
 
-double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Type * cofact, enum division origin,INT_TYPE os,   enum division alloy ,  INT_TYPE spin ,double tolerance,double magn, INT_TYPE preferred){
+double canonicalListDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Stream_Type * cofact, enum division origin,INT_TYPE os,   enum division alloy ,  INT_TYPE spin ,double tolerance,double magn, INT_TYPE preferred){
     if ( tolerance < 0 ){
         tolerance = -(tolerance);
     }
@@ -207,7 +207,7 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
     INT_TYPE g,l,count = 1 ,spaces=0;
     
     INT_TYPE ns = iNS;
-    double ALPHA = f1->mem1->rt->ALPHA;
+    double ALPHA = f1.rt->ALPHA;
 //    if ( cofact != NULL )
 //    for ( l = 0 ; l < CanonicalRank(f1, origin, os); l++)
 //        printf("%d %f\n", l, cofact[l]);
@@ -219,12 +219,12 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
     INT_TYPE L1 = CanonicalRank(f1,alloy,spin);;
     INT_TYPE G1 = CanonicalRank(f1,origin,os);
     if ( G1 == 0 ){
-        f1->sinc.tulip[alloy].Current[spin] = 0;
+        f1.tulip[alloy].Current[spin] = 0;
         printf("CD: empty origin %d _%lld -> %d _%lld\n", origin, os , alloy, spin);
         return 0;
     }
     for ( space = 0; space < SPACE ; space++)
-        if ( f1->sinc.rose[space].body != nada )
+        if ( f1.rose[space].body != nada )
             spaces++;
 
     if ( L1 == 0 ){
@@ -284,19 +284,19 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
         dim0=0;
         if ( preferred == -1 ){
             for ( space = 0; space < SPACE ; space++)
-                if ( f1->sinc.rose[space].body != nada)
+                if ( f1.rose[space].body != nada)
                     dim[(space0+space)%(spaces)] = dim0++;
             
         } else {
             for ( space = 0; space < SPACE ; space++)
-                if ( f1->sinc.rose[space].body != nada)
+                if ( f1.rose[space].body != nada)
                     
                     dim[dim0++] = (preferred+space)%(spaces);
             
 
         }
         for ( space = 0; space < dim0 ; space++)
-            if ( f1->sinc.rose[dim[space]].body != nada){
+            if ( f1.rose[dim[space]].body != nada){
                 
                 
                 if ( !singleFlag){
@@ -310,7 +310,7 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
 //        {
 //            INT_TYPE spa;
 //            for ( spa = 0 ; spa < SPACE ; spa++)
-//                if ( f1->sinc.rose[spa].body != nada )
+//                if ( f1.rose[spa].body != nada )
 //                    printf("*%1.3f*", cblas_dnrm2(L1*M2[spa], streams(f1, alloy, spin, spa), 1)/sqrt(L1));
 //            printf("\n");
 //        }
@@ -322,14 +322,14 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
             dim0 = 0;
             if ( preferred == -1 ){
                 for ( space = 0; space < SPACE ; space++)
-                    if ( f1->sinc.rose[space].body != nada)
+                    if ( f1.rose[space].body != nada)
 
                         dim[(space0+space)%(spaces)] = dim0++;
                 
             }
             cblas_dcopy(L1*L1, array[dim[1]],1,track,1);
             for ( space = 2; space < dim0 ; space++)
-                if ( f1->sinc.rose[dim[space]].body != nada)
+                if ( f1.rose[dim[space]].body != nada)
                 cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1*L1, 0,array[dim[space]],1, track,1 );
             if ( L1 >1 )
                 for ( l = 0 ; l < L1; l++)
@@ -353,7 +353,7 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
             }
             cblas_dcopy(T1, array2[dim[1]],1,guide,1);
             for ( space = 2; space < dim0 ; space++)
-                if ( f1->sinc.rose[dim[space]].body != nada)
+                if ( f1.rose[dim[space]].body != nada)
                 cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,T1, 0,array2[dim[space]],1, guide,1 );
             if ( cofact != NULL )
                 for ( g = 0; g < G1 ; g++)
@@ -432,7 +432,7 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
 //            {
 //                INT_TYPE spa;
 //                for ( spa = 0 ; spa < SPACE ; spa++)
-//                    if ( f1->sinc.rose[spa].body != nada )
+//                    if ( f1.rose[spa].body != nada )
 //                        printf("%1.3f ", cblas_dnrm2(L1*M2[spa], streams(f1, alloy, spin, spa), 1)/sqrt(L1));
 //                printf("\n");
 //            }
@@ -472,7 +472,7 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
 }
 
 
-double canonicalGridDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Type * cofact, enum division origin,INT_TYPE l1,INT_TYPE l2,INT_TYPE os,   enum division alloy ,INT_TYPE l3,INT_TYPE l4,  INT_TYPE spin ,double tolerance,double magn, INT_TYPE preferred){
+double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Stream_Type * cofact, enum division origin,INT_TYPE l1,INT_TYPE l2,INT_TYPE os,   enum division alloy ,INT_TYPE l3,INT_TYPE l4,  INT_TYPE spin ,double tolerance,double magn, INT_TYPE preferred){
     if ( tolerance < 0 ){
         tolerance = -(tolerance);
     }
@@ -487,7 +487,7 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
     INT_TYPE g,l,count = 1 ,spaces=0;
     
     INT_TYPE ns = iNS;
-    double ALPHA = f1->mem1->rt->ALPHA;
+    double ALPHA = f1.rt->ALPHA;
     //    if ( cofact != NULL )
     //    for ( l = 0 ; l < CanonicalRank(f1, origin, os); l++)
     //        printf("%d %f\n", l, cofact[l]);
@@ -499,13 +499,13 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
     INT_TYPE L1 = l4-l3;
     INT_TYPE G1 = l2-l1;
     if ( G1 == 0 ){
-        f1->sinc.tulip[alloy].Current[spin] = 0;
+        f1.tulip[alloy].Current[spin] = 0;
         printf("CD: empty origin %d _%lld -> %d _%lld\n", origin, os , alloy, spin);
         exit(0);
         return 0;
     }
     for ( space = 0; space < SPACE ; space++)
-        if ( f1->sinc.rose[space].body != nada )
+        if ( f1.rose[space].body != nada )
             spaces++;
     
     if ( L1 == 0 ){
@@ -566,19 +566,19 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
         dim0=0;
         if ( preferred == -1 ){
             for ( space = 0; space < SPACE ; space++)
-                if ( f1->sinc.rose[space].body != nada)
+                if ( f1.rose[space].body != nada)
                     dim[(space0+space)%(spaces)] = dim0++;
             
         } else {
             for ( space = 0; space < SPACE ; space++)
-                if ( f1->sinc.rose[space].body != nada)
+                if ( f1.rose[space].body != nada)
                     
                     dim[dim0++] = (preferred+space)%(spaces);
             
             
         }
         for ( space = 0; space < dim0 ; space++)
-            if ( f1->sinc.rose[dim[space]].body != nada){
+            if ( f1.rose[dim[space]].body != nada){
                 
                 
                 if ( !singleFlag){
@@ -592,7 +592,7 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
         //        {
         //            INT_TYPE spa;
         //            for ( spa = 0 ; spa < SPACE ; spa++)
-        //                if ( f1->sinc.rose[spa].body != nada )
+        //                if ( f1.rose[spa].body != nada )
         //                    printf("*%1.3f*", cblas_dnrm2(L1*M2[spa], streams(f1, alloy, spin, spa), 1)/sqrt(L1));
         //            printf("\n");
         //        }
@@ -604,14 +604,14 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
             dim0 = 0;
             if ( preferred == -1 ){
                 for ( space = 0; space < SPACE ; space++)
-                    if ( f1->sinc.rose[space].body != nada)
+                    if ( f1.rose[space].body != nada)
                         
                         dim[(space0+space)%(spaces)] = dim0++;
                 
             }
             cblas_dcopy(L1*L1, array[dim[1]],1,track,1);
             for ( space = 2; space < dim0 ; space++)
-                if ( f1->sinc.rose[dim[space]].body != nada)
+                if ( f1.rose[dim[space]].body != nada)
                     cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1*L1, 0,array[dim[space]],1, track,1 );
             if ( L1 >1 )
                 for ( l = 0 ; l < L1; l++)
@@ -634,7 +634,7 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
             }
             cblas_dcopy(T1, array2[dim[1]],1,guide,1);
             for ( space = 2; space < dim0 ; space++)
-                if ( f1->sinc.rose[dim[space]].body != nada)
+                if ( f1.rose[dim[space]].body != nada)
                     cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,T1, 0,array2[dim[space]],1, guide,1 );
             if ( cofact != NULL )
                 for ( g = 0; g < G1 ; g++)
@@ -712,13 +712,13 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
             
             subValue3 = subValue2;
             
-            //            {
-            //                INT_TYPE spa;
-            //                for ( spa = 0 ; spa < SPACE ; spa++)
-            //                    if ( f1->sinc.rose[spa].body != nada )
-            //                        printf("%1.3f ", cblas_dnrm2(L1*M2[spa], streams(f1, alloy, spin, spa), 1)/sqrt(L1));
-            //                printf("\n");
-            //            }
+//                        {
+//                            INT_TYPE spa;
+//                            for ( spa = 0 ; spa < SPACE ; spa++)
+//                                if ( f1.rose[spa].body != nada )
+//                                    printf("%1.3f ", cblas_dnrm2(L1*M2[spa], streams(f1, alloy, spin, spa), 1)/sqrt(L1));
+//                            printf("\n");
+//                        }
             
             subValue2 =  cblas_dnrm2(L1*M2[dim[0]], streams(f1, alloy, spin, dim[0])+l3*M2[dim[0]], 1)/magn/sqrt(L1);
             
@@ -755,7 +755,7 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct field * f1 , Stream_Ty
 }
 
 
-double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
+double tCycleDecompostionListOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
     INT_TYPE ct,ft;
     if ( CanonicalRank(f1, origin, os) <= maxRun){
         tEqua(f1, alloy, spin, origin, os);
@@ -769,7 +769,7 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum div
     if (! CanonicalRank(f1, origin, os ) )
         return 0;
 //    if ( value2 < f1->mem1->rt->TARGET ){
-//        f1->sinc.tulip[alloy].Current[spin]=0;
+//        f1.tulip[alloy].Current[spin]=0;
 //        return 0;
 //    }
     do{
@@ -786,7 +786,7 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum div
             ft = 1;
             printf("%d (%d) %f\n",alloy,CanonicalRank(f1, alloy, spin),value/value2);
             fflush(stdout);
-            if ( fabs(value ) < f1->mem1->rt->TARGET*fabs(value2)  ){
+            if ( fabs(value ) < f1.rt->TARGET*fabs(value2)  ){
                 return 0;
             }
         }else {
@@ -796,7 +796,7 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum div
 #if 1
             printf("List bailed \n");
 #endif
-            f1->sinc.tulip[alloy].Current[spin]--;
+            f1.tulip[alloy].Current[spin]--;
             canonicalListDecompositionMP(rank, f1, coeff, origin, os,alloy, spin, toleranceAdjust*tolerance,value2,-1);
             return 0;
         }
@@ -825,7 +825,7 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct field * f1 , enum div
     }while(1);
     return 0.;
 }
-double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct field * f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
+double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
     printf("((%d %d))\n", CanonicalRank(f1, origin, os), maxRun);
     INT_TYPE ran1,step,ct,run;
     INT_TYPE numberSplit= 100,split = 1;
@@ -850,19 +850,19 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct field * f1 , enum div
     printf("/%f/\n", value2);
     
     //    if ( value2 < f1->mem1->rt->TARGET ){
-    //        f1->sinc.tulip[alloy].Current[spin]=0;
+    //        f1.tulip[alloy].Current[spin]=0;
     //        return 0;
     //    }
     assignCores(f1, 1);
-    f1->sinc.tulip[alloy].Current[spin] = 0;
+    f1.tulip[alloy].Current[spin] = 0;
     for ( run = 0; run < maxRun ; run++){
         tId(f1, alloy,spin);
       //  printf("%d ** %d\n", run, CanonicalRank(f1, alloy, 0));
     }
-    f1->sinc.tulip[alloy].Current[spin] = maxRun;
+    f1.tulip[alloy].Current[spin] = maxRun;
     numberSplit =maxRun;
 
-    for (split = 1 ; split <= imin(f1->mem1->rt->powDecompose,run - 2); split++){
+    for (split = 1 ; split < maxRun; split++){
         step = CanonicalRank(f1, origin, os)/(maxRun)+(!(!(CanonicalRank(f1, origin, os)%maxRun)));
         if ( rank < 0 && numberSplit > 3){
             numberSplit = 0;
@@ -921,13 +921,14 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct field * f1 , enum div
         }
         printf("%d-grid%d: %f \n",numberSplit,split,value/value2);
         fflush(stdout);
-        if (( fabs(value ) < f1->mem1->rt->TARGET*fabs(value2)  )){
-            return 0;
-        }
 
         if( numberSplit <= 2 || bailFlag )
         {
             break;
+        }
+        
+        if (( fabs(value ) < f1.rt->TARGET*fabs(value2)  ) && numberSplit <= f1.rt->powDecompose){
+            return 0;
         }
 
     }
@@ -953,7 +954,7 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct field * f1 , enum div
     return 0.;
 
 }
-double tInnerVectorListMP( INT_TYPE rank, struct field * f1 , enum division origin, double * coeff, enum division vector,INT_TYPE spin ){
+double tInnerVectorListMP( INT_TYPE rank, struct sinc_label f1 , enum division origin, double * coeff, enum division vector,INT_TYPE spin ){
     
     double sum = 0.,prod;
     INT_TYPE i = 0,space,vv;
@@ -962,7 +963,7 @@ double tInnerVectorListMP( INT_TYPE rank, struct field * f1 , enum division orig
             {
                 prod = 1;
                 for ( space = 0 ; space < SPACE ; space++)
-                    if ( f1->sinc.rose[space].body != nada )
+                    if ( f1.rose[space].body != nada )
                     prod *= tMultiplyOne(rank, f1, space, nullName, 0, origin, i, 0, vector,vv, spin);
                 
                 sum += coeff[i]*prod;
@@ -971,7 +972,7 @@ double tInnerVectorListMP( INT_TYPE rank, struct field * f1 , enum division orig
     return sum;
 }
 
-double tInnerListMP( INT_TYPE rank, struct field * f1 , enum division origin, double * coeff ){
+double tInnerListMP( INT_TYPE rank, struct sinc_label  f1 , enum division origin, double * coeff ){
     
     double sum = 0.,prod;
     INT_TYPE j,i = 0,space;
@@ -979,7 +980,7 @@ double tInnerListMP( INT_TYPE rank, struct field * f1 , enum division origin, do
         for ( j = 0 ;j < CanonicalRank(f1, origin, 0); j++){
             prod = 1;
             for ( space = 0 ; space < SPACE ; space++)
-                if ( f1->sinc.rose[space].body != nada )
+                if ( f1.rose[space].body != nada )
 
                 prod *= tMultiplyOne(rank, f1, space, nullName, 0, origin, i, 0, origin, j, 0);
             
@@ -989,7 +990,7 @@ double tInnerListMP( INT_TYPE rank, struct field * f1 , enum division origin, do
     return sum;
 }
 
-INT_TYPE printExpectationValues (struct field * f1 , enum division ha  , enum division vector){
+INT_TYPE printExpectationValues (struct sinc_label  f1 , enum division ha  , enum division vector){
     DCOMPLEX co,expat,totx,me,ov,exov;
     totx = 0.;
     assignCores(f1, 1);
@@ -1007,31 +1008,31 @@ INT_TYPE printExpectationValues (struct field * f1 , enum division ha  , enum di
         pMatrixElements( f1, vector,  Mat,  vector,&me,&ov);
         if ( Rank(f1, name(f1,Mat))){
             if (CanonicalRank(f1, name(f1,Mat), 1))
-                printf("%d\t ::\t %d \t| (%d + i%d)\t\t%f %f\n",bodies(f1, Mat),name(f1,Mat), CanonicalRank(f1, name(f1,Mat), 0),CanonicalRank(f1, name(f1,Mat), 1),creal(me/ov), cimag(me/ov));
+                printf("term-Expectation%d:\t%d\t ::\t %d \t| (%d + i%d)\t\t%f %f\n",vector,bodies(f1, Mat),name(f1,Mat), CanonicalRank(f1, name(f1,Mat), 0),CanonicalRank(f1, name(f1,Mat), 1),creal(me/ov), cimag(me/ov));
                 else
-                    printf("%d\t ::\t %d \t| (%d) \t\t%f\n",bodies(f1, Mat),name(f1,Mat), CanonicalRank(f1, name(f1,Mat), 0),creal(me/ov));
+                    printf("partExpectation%d:\t%d\t ::\t %d \t| (%d) \t\t%f\n",vector,bodies(f1, Mat),name(f1,Mat), CanonicalRank(f1, name(f1,Mat), 0),creal(me/ov));
             }
         fflush(stdout);
         totx += me/ov;
-        leftP = f1->sinc.tulip[leftP].linkNext;
+        leftP = f1.tulip[leftP].linkNext;
         
     } while ( leftP != nullName);
-    f1->sinc.tulip[vector].value.value = totx;
+    f1.tulip[vector].value.value = totx;
 
     if (fabs(cimag(totx)) > 0. )
-        printf("\t\t\t%f\t%f\n",creal(totx),cimag(totx));
+        printf("sum-Expectation%d:\t\t%f\t%f\n",vector,creal(totx),cimag(totx));
     else
-        printf("\t\t\t%f\n",creal(totx));
+        printf("sum-Expectation%d:\t\t%f\n",vector,creal(totx));
 
     return 0;
 }
 
 
-void matrixElements ( INT_TYPE rank,struct field * f1 , enum division bra, enum division mat, enum division ket, DCOMPLEX *ME,DCOMPLEX *OV ){
+void matrixElements ( INT_TYPE rank,struct sinc_label  f1 , enum division bra, enum division mat, enum division ket, DCOMPLEX *ME,DCOMPLEX *OV ){
     INT_TYPE r,l,e,dim,sp,im,sp2,spm,spx,sp2m,sp2x,imr1,imr2;
     double prod,bracket[SPACE];
     DCOMPLEX co,co2,coi;
-    if ( f1->sinc.tulip[bra].spinor == parallel || f1->sinc.tulip[ket].spinor == parallel){
+    if ( f1.tulip[bra].spinor == parallel || f1.tulip[ket].spinor == parallel){
         spm = rank;
         spx = rank+1;
         sp2m = rank;
@@ -1047,6 +1048,8 @@ void matrixElements ( INT_TYPE rank,struct field * f1 , enum division bra, enum 
     {
         if ( species(f1, mat ) == outerVector ){
             tContract (rank, f1, copy,rank, mat,0 , mat,0 );
+           // tScaleOne(f1, copy, rank, -1.);
+
             mat = copy;
             imr1 = rank;
             imr2 = rank+1;
@@ -1059,19 +1062,19 @@ void matrixElements ( INT_TYPE rank,struct field * f1 , enum division bra, enum 
         
         co = 1;
         for ( sp = spm ; sp < spx;sp++){
-            if (sp == 1 && f1->sinc.tulip[bra].spinor == cmpl)
+            if (sp == 1 && f1.tulip[bra].spinor == cmpl)
                 co *= -I;
             co2 = 1.;
             for ( e = 0 ; e < CanonicalRank(f1, bra, sp);e++)
 
             for ( sp2 = sp2m ; sp2 < sp2x;sp2++){
-                if (sp2 == 1&& f1->sinc.tulip[ket].spinor == cmpl)
+                if (sp2 == 1&& f1.tulip[ket].spinor == cmpl)
                     co2 *= I;
                 for ( r = 0 ; r < CanonicalRank(f1, ket, sp2);r++){
                     prod = 1.;
                     for ( dim = 0 ; dim < SPACE ; dim++)
-                        if ( f1->sinc.rose[dim].body != nada){
-                            bracket[dim] = tDOT(rank, f1,dim,'T' , bra, e,sp,'N' ,  ket, r, sp2);
+                        if ( f1.rose[dim].body != nada){
+                            bracket[dim] = tDOT(rank, f1,dim,CDT , bra, e,sp,'N' ,  ket, r, sp2);
                             prod *= bracket[dim];
                         }
                     *OV += co*co2*prod;
@@ -1079,26 +1082,26 @@ void matrixElements ( INT_TYPE rank,struct field * f1 , enum division bra, enum 
                         continue;
                     coi=1.;
                     for ( im = imr1 ; im < imr2;im++){
-                        if (im == 1 && f1->sinc.tulip[mat].spinor == cmpl)
+                        if (im == 1 && f1.tulip[mat].spinor == cmpl)
                             coi*= I;
                         
                         for ( l = 0 ; l < CanonicalRank(f1, name(f1,mat), im);l++){
                             
                             prod = 1;
                             for ( dim = 0 ; dim < SPACE ; dim++)
-                                if ( f1->sinc.rose[dim].body != nada){
+                                if ( f1.rose[dim].body != nada){
                                     
                                     ////bra-ket
-                                    if ( f1->sinc.tulip[mat].space[dim].block == id0 ){
+                                    if ( f1.tulip[mat].space[dim].block == id0 ){
                                         if ( im == 0 )
                                             prod *= bracket[dim];
                                         else
                                             prod = 0;
                                     }
                                     else {
-                                        f1->sinc.tulip[canonicalmeVector].Current[rank] =0;
+                                        f1.tulip[canonicalmeVector].Current[rank] =0;
                                         tGEMV(rank, f1, dim,canonicalmeVector, rank, mat, l, im, ket, r, sp2);
-                                        prod *= tDOT(rank, f1,dim,'T', bra, e, sp,'N', canonicalmeVector, 0, rank);
+                                        prod *= tDOT(rank, f1,dim,CDT, bra, e, sp,'N', canonicalmeVector, 0, rank);
                                     }
                                 }
                             *ME += co2*co *coi* prod;
@@ -1111,12 +1114,21 @@ void matrixElements ( INT_TYPE rank,struct field * f1 , enum division bra, enum 
     return ;
 }
 
-void pMatrixElements ( struct field * f1 , enum division bra, enum division mat, enum division ket, DCOMPLEX *ME,DCOMPLEX *OV ){
+void pMatrixElements ( struct sinc_label  f1 , enum division bra, enum division mat, enum division ket, DCOMPLEX *ME,DCOMPLEX *OV ){
     INT_TYPE rank,r,l,e,dim,sp,im,sp2,spm,spx,sp2m,sp2x,imr1,imr2;
-    double prod,bracket[SPACE];
-    DCOMPLEX co,co2,coi;
+    double prod;
+    DCOMPLEX co=1.,co2 = 1.,coi;
     double OVr[MaxCore],OVi[MaxCore],MEi[MaxCore],MEr[MaxCore];
-    if ( f1->sinc.tulip[bra].spinor == parallel ){
+    
+    
+    for ( rank = 0; rank < MaxCore ; rank++){
+        OVr[rank] = 0.;
+        OVi[rank] = 0.;
+        MEr[rank] = 0.;
+        MEi[rank] = 0.;
+    }
+
+    if ( f1.tulip[bra].spinor == parallel ){
         spm = 0;
         spx = 0+1;
     }
@@ -1124,7 +1136,7 @@ void pMatrixElements ( struct field * f1 , enum division bra, enum division mat,
         spm = 0;
         spx = spins(f1, bra);
     }
-    if ( f1->sinc.tulip[ket].spinor == parallel ){
+    if ( f1.tulip[ket].spinor == parallel ){
         sp2m = 0;
         sp2x = 0+1;
     }
@@ -1137,6 +1149,8 @@ void pMatrixElements ( struct field * f1 , enum division bra, enum division mat,
     {
         if ( species(f1, mat ) == outerVector ){
             tContract (0, f1, copy,0, mat,0 , mat,0 );
+           // tScaleOne(f1, copy, 0, -1.);
+
             mat = copy;
             imr1 = 0;
             imr2 = 1;
@@ -1149,26 +1163,18 @@ void pMatrixElements ( struct field * f1 , enum division bra, enum division mat,
         
         co = 1;
         for ( sp = spm ; sp < spx;sp++){
-            if (sp == 1 && f1->sinc.tulip[bra].spinor == cmpl)
+            if (sp == 1 && f1.tulip[bra].spinor == cmpl)
                 co *= -I;
-            co2 = 1.;
             
             
-            for ( e = 0 ; e < CanonicalRank(f1, bra, sp);e++)
-                
-                for ( sp2 = sp2m ; sp2 < sp2x;sp2++){
-                    if (sp2 == 1&& f1->sinc.tulip[ket].spinor == cmpl)
+            for ( e = 0 ; e < CanonicalRank(f1, bra, sp);e++){
+                co2 = 1.;
+            for ( sp2 = sp2m ; sp2 < sp2x;sp2++){
+                    if (sp2 == 1&& f1.tulip[ket].spinor == cmpl)
                         co2 *= I;
                     
-                    
-                    for ( rank = 0; rank < MaxCore ; rank++){
-                        OVr[rank] = 0.;
-                        OVi[rank] = 0.;
-                        MEr[rank] = 0.;
-                        MEi[rank] = 0.;
-                    }
 #ifdef OMP
-#pragma omp parallel for private (rank,r,dim,prod,im,l,coi,bracket) schedule(dynamic,1)
+#pragma omp parallel for private (rank,r,dim,prod,im,l,coi) schedule(dynamic,1)
 
 #endif
                 for ( r = 0 ; r < CanonicalRank(f1, ket, sp2);r++){
@@ -1180,9 +1186,8 @@ void pMatrixElements ( struct field * f1 , enum division bra, enum division mat,
 
                         prod = 1.;
                         for ( dim = 0 ; dim < SPACE ; dim++)
-                            if ( f1->sinc.rose[dim].body != nada){
-                                bracket[dim] = tDOT(rank, f1,dim,'T' , bra, e,sp,'N' ,  ket, r, sp2);
-                                prod *= bracket[dim];
+                            if ( f1.rose[dim].body != nada){
+                                prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,'N' ,  ket, r, sp2);
                             }
                         OVr[rank] += creal(co*co2*prod);
                         OVi[rank] += cimag(co*co2*prod);
@@ -1190,26 +1195,26 @@ void pMatrixElements ( struct field * f1 , enum division bra, enum division mat,
                             continue;
                         coi=1.;
                         for ( im = imr1 ; im < imr2;im++){
-                            if (im == 1 && f1->sinc.tulip[mat].spinor == cmpl)
+                            if (im == 1 && f1.tulip[mat].spinor == cmpl)
                                 coi*= I;
                             
                             for ( l = 0 ; l < CanonicalRank(f1, name(f1,mat), im);l++){
                                 
                                 prod = 1;
                                 for ( dim = 0 ; dim < SPACE ; dim++)
-                                    if ( f1->sinc.rose[dim].body != nada){
+                                    if ( f1.rose[dim].body != nada){
                                         
                                         ////bra-ket
-                                        if ( f1->sinc.tulip[mat].space[dim].block == id0 ){
+                                        if ( f1.tulip[mat].space[dim].block == id0 ){
                                             if ( im == 0 )
-                                                prod *= bracket[dim];
+                                                prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,'N' ,  ket, r, sp2);
                                             else
                                                 prod = 0;
                                         }
                                         else {
-                                            f1->sinc.tulip[canonicalmeVector].Current[rank] =0;
+                                            f1.tulip[canonicalmeVector].Current[rank] =0;
                                             tGEMV(rank, f1, dim,canonicalmeVector, rank, mat, l, im, ket, r, sp2);
-                                            prod *= tDOT(rank, f1,dim,'T', bra, e, sp,'N', canonicalmeVector, 0, rank);
+                                            prod *= tDOT(rank, f1,dim,CDT, bra, e, sp,'N', canonicalmeVector, 0, rank);
                                         }
                                     }
                                 MEr[rank] += creal(co2*co *coi* prod);
@@ -1217,22 +1222,30 @@ void pMatrixElements ( struct field * f1 , enum division bra, enum division mat,
                             }
                         }
                     }
-                    
-                    for ( rank = 0; rank < MaxCore ; rank++){
-                        *OV += OVr[rank] + I * OVi[rank];
-                        if ( mat == nullName )
-                            continue;
-
-                        *ME += MEr[rank] + I * MEi[rank];
-
-                    }
+            }
                 }
         }
     }
+    
+    for ( rank = 0; rank < MaxCore ; rank++){
+        *OV += OVr[rank] + I * OVi[rank];
+        if ( mat == nullName )
+            continue;
+        
+        *ME += MEr[rank] + I * MEi[rank];
+        
+    }
+
+    if ( cimag(*OV) > 0.1 || creal (*OV) < 0.1 )
+    {
+        
+        
+    }
+//    printf("%f< >%f\n", creal(*OV),cimag(*OV));
     return ;
 }
 
-//double canonicalMultiplyMP( INT_TYPE rank,struct field * f1 , INT_TYPE begin, INT_TYPE end,char mc,enum division mat,INT_TYPE ms, enum division vec, INT_TYPE vs,   enum division alloy ,  INT_TYPE spin ,double tolerance){
+//double canonicalMultiplyMP( INT_TYPE rank,struct sinc_label * f1 , INT_TYPE begin, INT_TYPE end,char mc,enum division mat,INT_TYPE ms, enum division vec, INT_TYPE vs,   enum division alloy ,  INT_TYPE spin ,double tolerance){
 //    if ( tolerance < 0 ){
 //        tolerance = -(tolerance);
 //    }
@@ -1249,10 +1262,10 @@ void pMatrixElements ( struct field * f1 , enum division bra, enum division mat,
 //    INT_TYPE R1 = CanonicalRank(f1, mat,ms);
 //    INT_TYPE V1 = CanonicalRank(f1, vec, vs);
 //    if ( R1*V1 == 0 ){
-//     //   printf("%d %d %d\n", mat, f1->sinc.tulip[mat].name, name(f1,mat));
+//     //   printf("%d %d %d\n", mat, f1.tulip[mat].name, name(f1,mat));
 //     //   printf("%d %d %d\n", CanonicalRank(f1,mat,0), CanonicalRank(f1, name(f1,mat),0));
 //
-//        f1->sinc.tulip[alloy].Current[spin] = 0;
+//        f1.tulip[alloy].Current[spin] = 0;
 //        return 1;
 //    }
 //    double ALPHA = f1->mem1->rt->ALPHA;
@@ -1302,41 +1315,41 @@ void pMatrixElements ( struct field * f1 , enum division bra, enum division mat,
 //    }
 //    else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == one){
 //
-//        f1->sinc.tulip[trainMatrix].header = header(f1,alloy);
+//        f1.tulip[trainMatrix].header = header(f1,alloy);
 //
 //        alloyBak = trainMatrix;
 //    }else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == two){
 //
-//        f1->sinc.tulip[trainMatrix2].header = header(f1,alloy);
+//        f1.tulip[trainMatrix2].header = header(f1,alloy);
 //
 //        alloyBak = trainMatrix2;
 //    }
 //    else if ( species(f1, alloy ) == vector && bodies(f1,alloy) == three){
 //
-//        f1->sinc.tulip[trainVector3].header = header(f1,alloy);
+//        f1.tulip[trainVector3].header = header(f1,alloy);
 //
 //        alloyBak = trainVector3;
 //    }
 //    else if ( species(f1, alloy ) == vector && bodies(f1,alloy) == four){
 //
-//        f1->sinc.tulip[trainVector4].header = header(f1,alloy);
+//        f1.tulip[trainVector4].header = header(f1,alloy);
 //
 //        alloyBak = trainVector4;
 //    }
 //    else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == three){
 //
-//        f1->sinc.tulip[trainMatrix3].header = header(f1,alloy);
+//        f1.tulip[trainMatrix3].header = header(f1,alloy);
 //
 //        alloyBak = trainMatrix3;
 //    }
 //    else if ( species(f1, alloy ) == matrix && bodies(f1,alloy) == four){
 //
-//        f1->sinc.tulip[trainMatrix4].header = header(f1,alloy);
+//        f1.tulip[trainMatrix4].header = header(f1,alloy);
 //
 //        alloyBak = trainMatrix4;
 //    }
 ////    else if ( species(f1, alloy ) == quartic ){
-////        f1->sinc.tulip[trainQuartic].header = header(f1,alloy);
+////        f1.tulip[trainQuartic].header = header(f1,alloy);
 ////
 ////        alloyBak = trainQuartic;
 //    else{
@@ -1475,13 +1488,13 @@ void pMatrixElements ( struct field * f1 , enum division bra, enum division mat,
 //            for ( r = 0; r < L1*M2[space0] ; r++)
 //                array2[space0][r] = 0.;
 ////            assignView(4, f1, mat, 1);
-//            if (name(f1, mat)< f1->sinc.vectorOperator){
+//            if (name(f1, mat)< f1.vectorOperator){
 //                for ( r = begin ; r < imin(R1,end) ; r++){
-//                    f1->sinc.tulip[productVector].Current[rank] = 0;
+//                    f1.tulip[productVector].Current[rank] = 0;
 //                    for (ll = 0 ;ll < CanonicalRank(f1, vec, vs);ll++ ){
 //                            for ( dimmer = 0 ;dimmer < SPACE ; dimmer++)
 //                                tMultiplyOne(rank, f1, dimmer, productVector, rank, mat, r, ms, vec, ll, vs);
-//                        f1->sinc.tulip[productVector].Current[rank]++;
+//                        f1.tulip[productVector].Current[rank]++;
 //                    }
 ////                    tMultiplyMP(rank, &info, f1, 1., -1, productVector, rank, mc,ocean(4,f1,r,ms),ms, 'N', vec, vs);
 //                    {
@@ -1545,7 +1558,7 @@ void pMatrixElements ( struct field * f1 , enum division bra, enum division mat,
 //}
 
 
-//double tCycleMultiplyMP ( INT_TYPE rank,struct field * f1 , INT_TYPE begin, INT_TYPE end,char mc,enum division mat,INT_TYPE ms, enum division vec, INT_TYPE vs,   enum division alloy ,  INT_TYPE spin ,double tolerance, INT_TYPE maxRun, double power){
+//double tCycleMultiplyMP ( INT_TYPE rank,struct sinc_label * f1 , INT_TYPE begin, INT_TYPE end,char mc,enum division mat,INT_TYPE ms, enum division vec, INT_TYPE vs,   enum division alloy ,  INT_TYPE spin ,double tolerance, INT_TYPE maxRun, double power){
 //    if ( ! CanonicalRank(f1, mat, ms ) )//likely has zer
 //        return 0;
 //
@@ -1555,7 +1568,7 @@ void pMatrixElements ( struct field * f1 , enum division bra, enum division mat,
 //            printf("Multiply  bailed %d %d %d %d -- %d\n",mat,ms,alloy,spin , CanonicalRank(f1, alloy, spin));
 //            fflush(stdout);
 //#endif
-//            f1->sinc.tulip[alloy].Current[spin]--;
+//            f1.tulip[alloy].Current[spin]--;
 //            canonicalMultiplyMP(rank, f1,begin,end, mc,mat,ms, vec, vs,alloy, spin, tolerance);
 //            return 0;
 //        }
@@ -1569,7 +1582,7 @@ void pMatrixElements ( struct field * f1 , enum division bra, enum division mat,
 
 
 
-INT_TYPE tOuterProductSu( struct field * f1,enum division vector , INT_TYPE a, enum division vector2,INT_TYPE b, enum division proj, INT_TYPE c){
+INT_TYPE tOuterProductSu( struct sinc_label  f1,enum division vector , INT_TYPE a, enum division vector2,INT_TYPE b, enum division proj, INT_TYPE c){
     INT_TYPE ma = CanonicalRank(f1, vector,a), mb = CanonicalRank(f1, vector,b), zc = CanonicalRank(f1, proj, c),l,r,space,i;
     INT_TYPE n[SPACE];
     length(f1,vector,n);
@@ -1596,11 +1609,11 @@ INT_TYPE tOuterProductSu( struct field * f1,enum division vector , INT_TYPE a, e
         for ( r = 0; r < mb; r++)
             for ( space = 0; space < SPACE; space++)
                 cblas_dger(CblasColMajor, n[space],n[space], 1. , streams(f1, vector,a,space)+l*n2[space],1, streams(f1, vector2,b,space)+r*n2[space],1, streams(f1, proj,c,space)+(l*mb+r+zc)*N2[space],n[space]);
-    f1->sinc.tulip[proj].Current[c] += ma*mb;
+    f1.tulip[proj].Current[c] += ma*mb;
     return 0;
 }
 
-INT_TYPE tOuterProductSuOne( struct field * f1,INT_TYPE space,enum division vector , INT_TYPE a, enum division vector2,INT_TYPE b, enum division proj, INT_TYPE c){
+INT_TYPE tOuterProductSuOne( struct sinc_label  f1,INT_TYPE space,enum division vector , INT_TYPE a, enum division vector2,INT_TYPE b, enum division proj, INT_TYPE c){
     INT_TYPE ma = CanonicalRank(f1, vector,a), mb = CanonicalRank(f1, vector,b), zc = CanonicalRank(f1, proj, c),l,r,i;
     INT_TYPE N2 = alloc(f1, proj, space), n2 = alloc(f1, vector,space), n[SPACE];
     length(f1,vector,n);
@@ -1623,24 +1636,24 @@ INT_TYPE tOuterProductSuOne( struct field * f1,INT_TYPE space,enum division vect
     for ( l = 0 ; l < ma; l++)
         for ( r = 0; r < mb; r++)
                 cblas_dger(CblasColMajor, n[space],n[space], 1. , streams(f1, vector,a,space)+l*n2,1, streams(f1, vector2,b,space)+r*n2,1, streams(f1, proj,c,space)+(l*mb+r+zc)*N2,n[space]);
-//    f1->sinc.tulip[proj].Current[c] += ma*mb;
+//    f1.tulip[proj].Current[c] += ma*mb;
     return 0;
 }
 
-INT_TYPE tGEMV (INT_TYPE rank,  struct field * f1, INT_TYPE space, enum division equals, INT_TYPE espin,enum division left,INT_TYPE l,INT_TYPE lspin, enum division right,INT_TYPE r, INT_TYPE rspin ){
+INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum division equals, INT_TYPE espin,enum division left,INT_TYPE l,INT_TYPE lspin, enum division right,INT_TYPE r, INT_TYPE rspin ){
     if ( header(f1, left ) != header(f1, right ) ){
         printf("Two Head types\n");
         exit(1);
     }
-    f1->sinc.tulip[canonicalmvVector].Current[rank] = 0;
-    f1->sinc.tulip[canonicalmv2Vector].Current[rank] = 0;
-    f1->sinc.tulip[canonicalmv3Vector].Current[rank] = 0;
-    if ( species(f1,left) == matrix&& species(f1, right ) == vector && f1->sinc.tulip[left].space[space].block != id0 ){
-       char  in =  matrixAction( bodies(f1, right), f1->sinc.tulip[left].space[space].block,1);
-       char  out = matrixAction( bodies(f1, right), f1->sinc.tulip[left].space[space].block,-1);
+    f1.tulip[canonicalmvVector].Current[rank] = 0;
+    f1.tulip[canonicalmv2Vector].Current[rank] = 0;
+    f1.tulip[canonicalmv3Vector].Current[rank] = 0;
+    if ( species(f1,left) == matrix&& species(f1, right ) == vector && f1.tulip[left].space[space].block != id0 ){
+       char  in =  matrixAction( bodies(f1, right), f1.tulip[left].space[space].block,1);
+       char  out = matrixAction( bodies(f1, right), f1.tulip[left].space[space].block,-1);
        // printf("(%d %d), %c %c\n",l,r ,in, out);
 
-        if ( iv1 <= f1->sinc.tulip[left].space[space].block && f1->sinc.tulip[left].space[space].block <= iv4 ){
+        if ( iv1 <= f1.tulip[left].space[space].block && f1.tulip[left].space[space].block <= iv4 ){
             tPermuteOne(rank, f1, space, in, right, r, rspin, canonicalmvVector, rank);
             tMultiplyOne(rank, f1, space, canonicalmv2Vector, rank, inversion, 0, 0, canonicalmvVector, 0, rank);
             tMultiplyOne(rank,  f1, space,canonicalmv3Vector, rank, left,l,lspin, canonicalmv2Vector,0, rank);
@@ -1653,14 +1666,14 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct field * f1, INT_TYPE space, enum division
         }
     }else {
         printf("\n\n\n%d\n", species(f1, right ) );
-        printf("%d %d %d\n",species(f1,left) == matrix, species(f1, right ) == vector , f1->sinc.tulip[left].space[space].block != id0);
+        printf("%d %d %d\n",species(f1,left) == matrix, species(f1, right ) == vector , f1.tulip[left].space[space].block != id0);
         printf("odd\n");
         exit(1);
     }
     return 0;
 }
 
-INT_TYPE tGEMM (INT_TYPE rank,  struct field * f1, INT_TYPE space, enum division equals, INT_TYPE espin,enum division left,INT_TYPE l,INT_TYPE lspin, enum division right, INT_TYPE r,INT_TYPE rspin ){
+INT_TYPE tGEMM (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum division equals, INT_TYPE espin,enum division left,INT_TYPE l,INT_TYPE lspin, enum division right, INT_TYPE r,INT_TYPE rspin ){
     
     if ( header(f1, left ) != header(f1, right ) ){
         printf("Two Head types\n");
@@ -1672,13 +1685,27 @@ INT_TYPE tGEMM (INT_TYPE rank,  struct field * f1, INT_TYPE space, enum division
     return 0;
 }
 
-INT_TYPE tGEVV (INT_TYPE rank,  struct field * f1,  INT_TYPE space,enum division equals, INT_TYPE espin,INT_TYPE leftChar, enum division left,INT_TYPE l,INT_TYPE lspin, INT_TYPE rightChar, enum division right,INT_TYPE r, INT_TYPE rspin ){
+INT_TYPE tGEVV (INT_TYPE rank,  struct sinc_label  f1,  INT_TYPE space,enum division equals, INT_TYPE espin,INT_TYPE leftChar, enum division left,INT_TYPE l,INT_TYPE lspin, INT_TYPE rightChar, enum division right,INT_TYPE r, INT_TYPE rspin ){
     if ( header(f1, left ) != header(f1, right ) ){
         printf("Two Head types\n");
         exit(0);
     }
-    if ( species(f1,left) == outerVector && species(f1, right ) == outerVector && species(f1, equals ) == matrix ){
-            tMultiplyOne(rank,  f1, space,equals, espin, left,l,lspin, right,r, rspin);
+    if (( species(f1,left) == outerVector && species(f1, right ) == outerVector && species(f1, equals ) == matrix )|| ( species(f1,left) == vector && species(f1, right ) == vector && species(f1, equals ) == matrix ) ){
+        
+        if( bodies(f1, left ) == bodies (f1, right )){
+            if ( bodies(f1, left ) > one )
+        
+                tMultiplyOne(rank,  f1, space,equals, espin, left,l,lspin, right,r, rspin);
+            else{
+                INT_TYPE n1[SPACE];
+                length1(f1,n1);
+                struct name_label equ = f1.tulip[equals];
+                cblas_dger(CblasColMajor, n1[space],n1[space], 1. , streams(f1, left,lspin,space)+l*n1[space],1, streams(f1, right,rspin,space)+r*n1[space],1, streams(f1, equals,espin,space)+CanonicalRank(f1,equals,espin)*n1[space]*n1[space],n1[space]);
+            }
+
+                
+                
+                }
     }else {
         printf ("gevv\n");
         exit(0);
@@ -1686,53 +1713,50 @@ INT_TYPE tGEVV (INT_TYPE rank,  struct field * f1,  INT_TYPE space,enum division
     return 0;
 }
 
-void tContract ( INT_TYPE rank,struct field * f1, enum division mat,INT_TYPE ms, enum division vector ,INT_TYPE vs1, enum division vector2,INT_TYPE vs2){
-    if ( spins(f1, vector ) > 1 ){
-        printf("workout spins\n");
-        exit(0);
-    }
+void tContract ( INT_TYPE rank,struct sinc_label  f1, enum division mat,INT_TYPE ms, enum division vector ,INT_TYPE vs1, enum division vector2,INT_TYPE vs2){
+    
     INT_TYPE space,l,r;
-    f1->sinc.tulip[mat].Current[ms] = 0;
     for ( l = 0; l < CanonicalRank(f1, vector, vs1); l++)
         for ( r = 0; r < CanonicalRank(f1, vector2, vs2); r++){
             for ( space = 0; space < SPACE ; space++)
-                if ( f1->sinc.rose[space].body != nada )
+                if ( f1.rose[space].body != nada )
                     //perhaps allow a block type to modify the particle number expressed (not summed in contraction)
-                    tGEVV(0, f1, space, mat, ms, 'T', vector, l, vs1, 'N', vector2, r, vs2);
-            f1->sinc.tulip[mat].Current[ms]++;
-            if ( part(f1, mat ) < f1->sinc.tulip[mat].Current[ms] )
+                    tGEVV(0, f1, space, mat, ms, CDT, vector, l, vs1, 'N', vector2, r, vs2);
+            f1.tulip[mat].Current[ms]++;
+            if ( part(f1, mat ) < f1.tulip[mat].Current[ms] )
             {
                 printf("buffer outMat ");
                 exit(0);
             }
         }
-    tScaleOne(f1, mat,ms, -1.);
- //   printf("%f\n", traceOne(f1, copy, 0));
+    struct name_label eg = f1.tulip[eigenVectors];
+    struct name_label ma = f1.tulip[mat];
+//    printf("tr%f\n", traceOne(f1, mat, 0));
     return;
 }
 
 
 
 //could parallelize.
-double tDOT (INT_TYPE rank,  struct field * f1,INT_TYPE dim,char leftChar, enum division left,INT_TYPE l,INT_TYPE lspin, char rightChar, enum division right,INT_TYPE r, INT_TYPE rspin ){
+double tDOT (INT_TYPE rank,  struct sinc_label  f1,INT_TYPE dim,char leftChar, enum division left,INT_TYPE l,INT_TYPE lspin, char rightChar, enum division right,INT_TYPE r, INT_TYPE rspin ){
     INT_TYPE space = dim;
     double prod = 0.;
-    f1->sinc.tulip[canonicaldotVector].Current[rank] = 0;
-    f1->sinc.tulip[canonicaldot2Vector].Current[rank] = 0;
-    f1->sinc.tulip[canonicaldot3Vector].Current[rank] = 0;
+    f1.tulip[canonicaldotVector].Current[rank] = 0;
+    f1.tulip[canonicaldot2Vector].Current[rank] = 0;
+    f1.tulip[canonicaldot3Vector].Current[rank] = 0;
 
-        if ( leftChar != 'T' && rightChar != 'N'){
+        if ( leftChar != CDT && rightChar != 'N'){
             tPermuteOne(rank, f1, space, rightChar, right, r, rspin, canonicaldotVector, rank);
             tPermuteOne(rank, f1, space, leftChar, left, l, lspin, canonicaldot2Vector, rank);
             prod = tMultiplyOne(rank,  f1, space,nullScalar, 0, canonicaldot2Vector,0,rank, canonicaldotVector,0, rank);
             
-        } else if ( leftChar == 'T' && rightChar != 'N'){
+        } else if ( leftChar == CDT && rightChar != 'N'){
             tPermuteOne(rank, f1, space, rightChar, right, r, rspin, canonicaldotVector, rank);
             prod = tMultiplyOne(rank,  f1, space,nullScalar, 0, left,l,lspin, canonicaldotVector,0, rank);
-        }else if ( leftChar != 'T' && rightChar == 'N'){
+        }else if ( leftChar != CDT && rightChar == 'N'){
                 tPermuteOne(rank, f1, space, leftChar, left, l, lspin, canonicaldot2Vector, rank);
                 prod = tMultiplyOne(rank,  f1, space,nullScalar, 0, canonicaldot2Vector,0,rank, right,r, rspin);
-        }else if ( leftChar == 'T' && rightChar == 'N'){
+        }else if ( leftChar == CDT && rightChar == 'N'){
                 prod = tMultiplyOne(rank,  f1, space,nullScalar, 0, left,l,lspin, right,r, rspin);
         }
     
@@ -1740,11 +1764,11 @@ double tDOT (INT_TYPE rank,  struct field * f1,INT_TYPE dim,char leftChar, enum 
 }
 
 
-double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double number, INT_TYPE beta,  enum division equals, INT_TYPE espin ,char leftChar, enum division left,INT_TYPE lspin, char rightChar,enum division right, INT_TYPE rspin ){
+double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct sinc_label  f1,double number, INT_TYPE beta,  enum division equals, INT_TYPE espin ,char leftChar, enum division left,INT_TYPE lspin, char rightChar,enum division right, INT_TYPE rspin ){
     INT_TYPE l,r,dim;
     double sum,prod;
     if ( beta == -1 )
-        f1->sinc.tulip[equals].Current[espin] = 0;
+        f1.tulip[equals].Current[espin] = 0;
     *info = 0;
     enum genus a = species(f1,left), b = species(f1,right);
     if ( number != 1.0 )
@@ -1755,7 +1779,7 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
         for ( r = 0 ; r < CanonicalRank(f1, right, rspin) ; r++){
             prod = 1.;
             for ( dim = 0; dim < SPACE ; dim++)
-            if ( f1->sinc.rose[dim].body != nada )
+            if ( f1.rose[dim].body != nada )
             {
                 if ( species(f1,equals)== scalar)
                     prod *= tDOT(rank, f1, dim,leftChar, left,l, lspin, rightChar, right,r, rspin);
@@ -1771,7 +1795,7 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
                 }
             }
             sum += prod ;
-            f1->sinc.tulip[equals].Current[espin]++;
+            f1.tulip[equals].Current[espin]++;
 
         }
     if ( species(f1,equals)== scalar ){
@@ -1780,9 +1804,9 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct field * f1,double num
     return 0.;
 }
 
-double tMultiplyOne (INT_TYPE rank, struct field * f1,INT_TYPE space,  enum division equals,INT_TYPE espin , enum division left,INT_TYPE l,INT_TYPE lspin, enum division right,INT_TYPE r, INT_TYPE rspin){
+double tMultiplyOne (INT_TYPE rank, struct sinc_label  f1,INT_TYPE space,  enum division equals,INT_TYPE espin , enum division left,INT_TYPE l,INT_TYPE lspin, enum division right,INT_TYPE r, INT_TYPE rspin){
     INT_TYPE LN2,RN2,EN2 ;
-    if ( f1->sinc.rose[space].body == nada)
+    if ( f1.rose[space].body == nada)
         return 0.;
     INT_TYPE N1;
     LN2 = alloc(f1,left,space );
@@ -1822,14 +1846,14 @@ double tMultiplyOne (INT_TYPE rank, struct field * f1,INT_TYPE space,  enum divi
                     
                 }else if (  (species(f1, equals) == vector && species(f1, left) == matrix && species(f1, right) == vector && bodies(f1,name(f1,left)) > bodies(f1,name(f1,right))))
                 {
-                    struct name_label l = f1->sinc.tulip[left];
-                    struct name_label r = f1->sinc.tulip[right];
-                    struct name_label e = f1->sinc.tulip[equals];
+                    struct name_label l = f1.tulip[left];
+                    struct name_label r = f1.tulip[right];
+                    struct name_label e = f1.tulip[equals];
 
                     printf("body count\n");
                     exit(0);
                 }
-                else if ( species(f1, equals) == matrix && species(f1, left)  ==outerVector && outerVector == species(f1, right)){
+                else if ( species(f1, equals) == matrix && ((species(f1, left)  ==outerVector && outerVector == species(f1, right)) || (species(f1, left)  ==vector && vector == species(f1, right)))){
                     N1 = sqrt(EN2);
                     if ( LN2 != RN2 )
                     {
@@ -1848,7 +1872,7 @@ double tMultiplyOne (INT_TYPE rank, struct field * f1,INT_TYPE space,  enum divi
                     cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N1,N1,1.,streams( f1, left, lspin,space )+l*LN2,N1,streams(f1, right, rspin,space)+r*RN2,N1, 0., streams( f1, equals, espin,space)+cur*EN2,N1);
                 }
     else   {
-        struct name_label n = f1->sinc.tulip[equals];
+        struct name_label n = f1.tulip[equals];
 
         printf("tM: wrong type %d=  %d * %d \n", equals, left, right);
         exit(0);
@@ -1858,10 +1882,10 @@ double tMultiplyOne (INT_TYPE rank, struct field * f1,INT_TYPE space,  enum divi
 
 
 
-void tHYpY(  INT_TYPE rank, struct field * f1 ,INT_TYPE targSpin, enum division left, INT_TYPE l, INT_TYPE im, double product, double productCmpl, enum division ket , INT_TYPE k, INT_TYPE sp2, enum division oket, INT_TYPE o,INT_TYPE ospin ){
-    
+INT_TYPE tHYpY(  INT_TYPE rank, struct sinc_label f1 ,INT_TYPE targSpin, enum division left, INT_TYPE l, INT_TYPE im, double product, double productCmpl, enum division ket , INT_TYPE k, INT_TYPE sp2, enum division oket, INT_TYPE o,INT_TYPE ospin ){
+    INT_TYPE su = 0;
     if ( left == nullName || species(f1, left ) == scalar)
-        return;
+        return 0;
     INT_TYPE N2;
     double prod ;
     INT_TYPE dim,im2,ll1,ll2;
@@ -1878,11 +1902,11 @@ void tHYpY(  INT_TYPE rank, struct field * f1 ,INT_TYPE targSpin, enum division 
             coi=1.;
                 if (im == 1 )
                     coi*= I;
-                if (( fabs(creal(co2 * coi * pro)) > f1->mem1->rt->TARGET && targSpin == 0 )|| ( fabs(cimag(co2 * coi * pro)) > f1->mem1->rt->TARGET && targSpin == 1 )){
+                if (( fabs(creal(co2 * coi * pro)) > f1.rt->TARGET && targSpin == 0 )|| ( fabs(cimag(co2 * coi * pro)) > f1.rt->TARGET && targSpin == 1 )){
                     for ( dim = 0 ; dim < SPACE ; dim++)
-                        if ( f1->sinc.rose[dim].body != nada){
+                        if ( f1.rose[dim].body != nada){
                             N2 = alloc(f1, ket, dim);
-                            if ( f1->sinc.tulip[left].space[dim].block == id0 ){
+                            if ( f1.tulip[left].space[dim].block == id0 ){
                                 xsAdd(1.,dim, f1, oket, ospin, f1, ket, k, sp2);
                             }
                             else {
@@ -1894,25 +1918,26 @@ void tHYpY(  INT_TYPE rank, struct field * f1 ,INT_TYPE targSpin, enum division 
                                 prod = cimag(co2 * coi*pro );
                             cblas_dscal(N2, prod, streams(f1,oket,ospin, dim)+o*N2, 1);
                         }
-                   // f1->sinc.tulip[oket].Current[ospin] += 1;//potential total addition of 4
+                   // f1.tulip[oket].Current[ospin] += 1;//potential total addition of 4
+                    su++;
+
                 }
                 
                 
             }
     
-    return ;
+    return su;
 }
     
-void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shiftFlag, double product, double productCmpl,  enum division right ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo){
+void tHXpX (  INT_TYPE rank, struct sinc_label f1 , enum division left,INT_TYPE shiftFlag, double product, double productCmpl,  enum division right ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo){
     rank = 0;
     INT_TYPE ilr,Ll,sp2,Rr,im,l , k,targSpin,space;
     enum division pt,Mat;
-    //struct name_label *fz = &f1->sinc.tulip[totalFuzzyVector];
-    struct name_label *rg = &f1->sinc.tulip[right];
+    //struct name_label *fz = &f1.tulip[totalFuzzyVector];
+    struct name_label *rg = &f1.tulip[right];
     assignCores(f1, 1);
     struct name_label nm ;
-    f1->sinc.tulip[totalVector].Current[0] = 0;
-    //f1->sinc.tulip[productVector].Current[rank] = 0;
+    //f1.tulip[productVector].Current[rank] = 0;
     
     if ( right == productVector || right == totalVector){
         printf("oops\n");
@@ -1921,43 +1946,47 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
     //cpy in if shifted.
     for ( targSpin = 0 ; targSpin < spins(f1, right ) ;targSpin++){
         pt = left;
-        if ( shiftFlag && targSpin == 0 )
+        if ( shiftFlag  )
             tEqua(f1, totalVector, 0, right, targSpin);
+        else
+            f1.tulip[totalVector].Current[0] = 0;
 
         //cycle over all links in left.
         do {
-            nm = f1->sinc.tulip[pt];
+            nm = f1.tulip[pt];
 #if VERBOSE
             Mat = pt;
             printf("%d-%d\t%d\t%d\t %f || \t",Mat,name(f1,Mat),bodies(f1, Mat),CanonicalRank(f1, name(f1,Mat), 0),traceOne(f1, name(f1,Mat), 0));
             //INT_TYPE space;
             printf(":");
             for ( space = 0; space < SPACE ; space++)
-                printf("%d:", f1->sinc.tulip[Mat].space[space].block );
+                printf("%d:", f1.tulip[Mat].space[space].block );
             printf("\n");
             fflush(stdout);
 #endif
             
             if ( species(f1, pt ) == outerVector ){
                 tContract (0, f1, copy,0, pt ,0, pt,0 );
+               // tScaleOne(f1, copy, 0, -1.);
                 Mat = copy;
             }else
                 Mat = pt;
             
 
-            if ( spins(f1, Mat ) > 1 || spins(f1,right)> 1){
-                printf("complete HXpX\n");
-                exit(0);
-            }
+//            if ( spins(f1, Mat ) > 1 || spins(f1,right)> 1){
+//                printf("complete HXpX\n");
+//                exit(0);
+//            }
+            struct name_label Matx = f1.tulip[Mat];
             
-            
-            for ( im = 0; im < 1; im++)
-                for ( sp2 = 0; sp2 < 1; sp2++){
+            for ( im = 0; im < spins(f1, Mat ); im++)
+                for ( sp2 = 0; sp2 < spins(f1,right); sp2++){
                     Rr = CanonicalRank ( f1, right,sp2 );
                     Ll = CanonicalRank(f1, name(f1,Mat), im);
+                    INT_TYPE su = 0 ;
                     
 #ifdef OMP
-#pragma omp parallel for private (rank,ilr,l,k) schedule(dynamic,1)
+#pragma omp parallel for private (rank,ilr,l,k) schedule(dynamic,1) reduction(+:su)
 #endif
                     
 
@@ -1972,29 +2001,29 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
                             k = ilr/Ll;
                             
                             
-                            tHYpY(rank, f1, targSpin,Mat, l, im,product, productCmpl, right, k,  sp2,totalVector,ilr +f1->sinc.tulip[totalVector].Current[0], 0);
+                           su += tHYpY(rank, f1, targSpin,Mat, l, im,product, productCmpl, right, k,  sp2,totalVector,ilr +f1.tulip[totalVector].Current[0], 0);
                         }
                     
-                    f1->sinc.tulip[totalVector].Current[0] += Ll*Rr;
+                    f1.tulip[totalVector].Current[0] += su;
 
                 }
-            pt = f1->sinc.tulip[pt].linkNext;
+            pt = f1.tulip[pt].linkNext;
 
         }while ( pt != nullName );
     
        // printExpectationValues(f1, Ha, totalVector);
         
-        tCycleDecompostionGridOneMP(-1, f1, totalVector, 0, NULL,productVector, 0, tolerance, maxRun, f1->mem1->rt->powDecompose);
+        tCycleDecompostionGridOneMP(-1, f1, totalVector, 0, NULL,productVector, 0, tolerance, maxRun, f1.rt->powDecompose);
 
         tEqua(f1, right, targSpin, productVector, 0);
 
     }
-    //struct name_label r = f1->sinc.tulip[right];
+    //struct name_label r = f1.tulip[right];
 
     return;
 }
 
-//double distanceOne(INT_TYPE rank,struct field * f1 , enum division alloy , INT_TYPE spin , enum division alloyBak, INT_TYPE spin2){
+//double distanceOne(INT_TYPE rank,struct sinc_label * f1 , enum division alloy , INT_TYPE spin , enum division alloyBak, INT_TYPE spin2){
 //    double value,value2;
 //    INT_TYPE info;
 //
@@ -2006,12 +2035,12 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
 //
 //}
 
-//double inner(INT_TYPE rank,struct field * f1 , enum division alloy , INT_TYPE spin ){
+//double inner(INT_TYPE rank,struct sinc_label * f1 , enum division alloy , INT_TYPE spin ){
 //    INT_TYPE info;
 //    return tMultiplyMP(rank,&info,f1,1., -1,nullName, 0 ,'T', alloy, spin,'N', alloy ,spin);;
 //}
 
-//double magnitude ( struct field * f1 , enum division alloy ){
+//double magnitude ( struct sinc_label * f1 , enum division alloy ){
 //   // printf ("%f \t %f\n", inner ( 0 , f1, alloy , 0 ),inner ( 0 , f1, alloy ,1 ));
 //    double sum = 0.;
 //    INT_TYPE i;
@@ -2020,19 +2049,20 @@ void tHXpX (  INT_TYPE rank, struct field * f1 , enum division left,INT_TYPE shi
 //    return sqrt(sum);
 //}
 
-double distance (struct field * f1 , enum division alloy , enum division alloyBak){
+double distance (struct sinc_label  f1 , enum division alloy , enum division alloyBak){
     DCOMPLEX OV11,OV12,OV22;
     pMatrixElements(f1, alloy, nullName, alloy, NULL, &OV11);
     pMatrixElements(f1, alloyBak, nullName, alloyBak, NULL, &OV22);
     pMatrixElements(f1, alloy, nullName, alloyBak, NULL, &OV12);
     return sqrt(creal( OV11 + OV22 - 2*OV12 ));
 }
-double magnitude ( struct field * f1 , enum division alloy ){
+double magnitude ( struct sinc_label  f1 , enum division alloy ){
     DCOMPLEX OV = 0.;
     pMatrixElements(f1, alloy, nullName, alloy, NULL, &OV);
+    //printf("norms %f\n", creal(OV));
     return sqrt(creal(OV));
 }
-double inner ( struct field * f1 , enum division alloy, INT_TYPE os ){
+double inner ( struct sinc_label  f1 , enum division alloy, INT_TYPE os ){
     DCOMPLEX OV=0.;
     INT_TYPE sp;
     INT_TYPE *vs = malloc( sizeof(INT_TYPE ) * spins(f1, alloy));
@@ -2040,19 +2070,52 @@ double inner ( struct field * f1 , enum division alloy, INT_TYPE os ){
         if ( sp != os )
         {
             vs[sp] = CanonicalRank(f1, alloy, sp);
-            f1->sinc.tulip[alloy].Current[sp] = 0;
+            f1.tulip[alloy].Current[sp] = 0;
         }
     pMatrixElements(f1, alloy, nullName, alloy, NULL, &OV);
     for ( sp = 0; sp < spins ( f1, alloy); sp++)
         if ( sp != os )
         {
-            f1->sinc.tulip[alloy].Current[sp] = vs[sp];
+            f1.tulip[alloy].Current[sp] = vs[sp];
         }
     free(vs);
     return (creal(OV));
 }
 
-
+double traceOne( struct sinc_label  f1 , enum division label , INT_TYPE spin ){
+    Stream_Type * base;
+    double sum,sum2,product;
+    INT_TYPE l,i,space;
+    INT_TYPE N2[SPACE],N1[SPACE];
+    length(f1, label,N2);
+    for ( i = 0; i < SPACE ; i++)
+        N1[i] = sqrt(N2[i]);
+    struct name_label lab = f1.tulip[label];
+    
+    if ( species(f1, name(f1,label)) != matrix ){
+        return inner( f1,label, spin);
+    }
+    sum2 = 0.;
+    for ( l = 0 ; l < CanonicalRank(f1,label,spin); l++)
+    {
+        product = 1.;
+        for ( space = 0; space < SPACE ; space++)
+            if ( N2[space] ){
+                sum = 0.;
+                base = streams(f1, label, spin, space )+l*N2[space];
+                
+                for ( i = 0; i < N1[space] ; i++ ){
+                    sum += base[ i*N1[space]+i];
+                }
+                product *= sum;
+                
+            }
+        sum2 += product;
+    }
+    
+    
+    return sum2;
+}
 
 INT_TYPE ready ( struct calculation * c ){
     INT_TYPE readyMemory = 1;
@@ -2068,7 +2131,7 @@ INT_TYPE ready ( struct calculation * c ){
     
     
     if ( readyMemory )
-        if ( CanonicalRank(&c->i.c, eigenVectors , 0 ) == 0 ){
+        if ( CanonicalRank(c->i.c.sinc, eigenVectors , 0 ) == 0 ){
             printf("passing over stage because vector is null\n");
             readyVector = 0;
         }
@@ -2079,23 +2142,23 @@ INT_TYPE ready ( struct calculation * c ){
 
 
 
-INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, INT_TYPE UR, struct calculation * calc2, enum division usz, INT_TYPE UZ ,INT_TYPE mx){
-    INT_TYPE *f = (INT_TYPE*)myStreams(&calc2->i.c, dsyBuffers, 0);
+INT_TYPE xConstructFoundation (struct sinc_label calc , enum division usr, INT_TYPE UR, struct sinc_label  calc2, enum division usz, INT_TYPE UZ ,INT_TYPE mx){
+    INT_TYPE *f = (INT_TYPE*)myStreams(calc2, dsyBuffers, 0);
     INT_TYPE final,mdi,ii,iii,iv,rank = 0,cmpl,i;
     
     ii = 0;
     iii= 0;
     iv = 0;
     for ( i = 0; i < UZ ; i++)
-        if ( CanonicalRank(&calc2->i.c, usz+i, 0)+CanonicalRank(&calc2->i.c, usz+i, 1))
+        if ( CanonicalRank(calc2, usz+i, 0)+CanonicalRank(calc2, usz+i, 1))
         //if ( calc2->i.c.sinc.tulip[usz+i].value.symmetry == calc2->i.irrep|| ! calc2->i.irrep)
         {
 //            fflush(stdout);
-            if ( mx <= (CanonicalRank(&calc2->i.c,usz+i,0)+CanonicalRank(&calc2->i.c,usz+i,1)) ){
+            if ( mx <= (CanonicalRank(calc2,usz+i,0)+CanonicalRank(calc2,usz+i,1)) ){
                 f[ii++]  = i ;
 
                 iii += mx ;
-                iv = imax(iv , (CanonicalRank(&calc2->i.c,usz+i,0)+CanonicalRank(&calc2->i.c,usz+i,1))/mx + !(!((CanonicalRank(&calc2->i.c,usz+i,0)+CanonicalRank(&calc2->i.c,usz+i,1)%mx ))) ) ;
+                iv = imax(iv , (CanonicalRank(calc2,usz+i,0)+CanonicalRank(calc2,usz+i,1))/mx + !(!((CanonicalRank(calc2,usz+i,0)+CanonicalRank(calc2,usz+i,1)%mx ))) ) ;
            //    printf("%d -%d - %d - %d\n",iv, iii,ii,i);
 
             }
@@ -2110,14 +2173,14 @@ INT_TYPE xConstructFoundation (struct calculation * calc , enum division usr, IN
     }
 
     for ( i = 0; i < ii ; i++){
-        for ( cmpl = 0; cmpl < spins(&calc2->i.c,usz) ; cmpl++)
+        for ( cmpl = 0; cmpl < spins(calc2,usz) ; cmpl++)
         {
-            xEqua(&calc->i.c, usr+i, cmpl, &calc2->i.c, usz+f[i], cmpl);
+            xEqua(calc, usr+i, cmpl, calc2, usz+f[i], cmpl);
    
 #if VERBOSE
             INT_TYPE info;
 for ( iii = 0 ; iii <= i ; iii++)
-    printf("%d %d %1.15f\n", i,iii, tMultiplyMP(0, &info, &calc->i.c, 1., -1, nullName, 0, 'T', usr+i, 0, 'N', usr+iii, 0));
+    printf("%d %d %1.15f\n", i,iii, tMultiplyMP(0, &info, calc, 1., -1, nullName, 0, CDT, usr+i, 0, 'N', usr+iii, 0));
 #endif
         }
         
@@ -2126,13 +2189,13 @@ for ( iii = 0 ; iii <= i ; iii++)
     for ( i = 0; i < ii*mx ; i++){
         double value;
         
-        value = magnitude(&calc->i.c, usr+i);
+        value = magnitude(calc, usr+i);
         if ( value > 0. ){
-            tScale(&calc->i.c , usr+i,1./value);
+            tScale(calc , usr+i,1./value);
             final++;
         }
         else
-            tClear(&calc->i.c,usr+i);
+            tClear(calc,usr+i);
     }
 #if VERBOSE
     printf("complete transfer %d\n", ii*mx);

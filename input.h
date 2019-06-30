@@ -30,7 +30,6 @@
 #include"constants.h"
 #include"coreMath.h"
 #include <dirent.h>
-INT_TYPE defineSpinors (struct field *f1 );
 INT_TYPE rotateGeometry (struct calculation * c, double * u  );
 INT_TYPE getInitialGeneral(struct calculation * c, const char * input_line );
 INT_TYPE initCalculation(struct calculation * c );

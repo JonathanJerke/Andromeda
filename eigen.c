@@ -67,8 +67,8 @@ int sort2Comp (const void * elem1, const void * elem2)
 }
 
 INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
-    assignCores(&c1->i.c,1);
-    struct field * f1 = &(c1->i.c);
+    assignCores(c1->i.c.sinc,1);
+    struct sinc_label f1 = c1->i.c.sinc;
     enum bodyType bootBodies = c1->rt.body;
     INT_TYPE n1[SPACE];
     length1(f1,n1);
@@ -79,11 +79,11 @@ INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
     INT_TYPE cmplFlag = 0;
 
     for ( space = 0 ;space < SPACE ; space++)
-        if( f1->sinc.rose[space].body != nada){
+        if( f1.rose[space].body != nada){
             
             N1 = n1[space];
-            INT_TYPE Nx = imin(N1,c1->i.decomposeRankMatrix);
-
+            INT_TYPE Nx = imin(N1,c1->i.bootRestriction);
+            
             N2 = N1*N1;
             myZero(f1,canonicalBuffersBM,0);
             ar = myStreams(f1, canonicalBuffersBM, 0);
@@ -92,7 +92,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
             w = ar + 2*N2;
             if ( c1->rt.calcType == electronicStuctureCalculation ){
                 for ( v = 0 ; v < N2 ; v++)
-                    if ( f1->sinc.tulip[kinetic].spinor == cmpl){
+                    if ( f1.tulip[kinetic].spinor == cmpl){
                         cmplFlag = 1;
                         arc[v] = (streams(f1, kinetic,0,space)+space*N2)[v] + I * (streams(f1, kinetic,1,space)+space*N2)[v];
                     }
@@ -105,9 +105,13 @@ INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
                     cblas_dcopy(N2, streams(f1, kinetic,0,space)+space*N2, 1, ar, 1);
                 else {
                     cblas_dcopy(N2,streams(f1, kineticMass,0,space), 1, ar, 1);
-//                    for ( i = 0; i < CanonicalRank(f1, protonRepulsion, 0);i++)
-//                        cblas_daxpy(N2, 1., streams(f1,protonRepulsion,0,space)+i*N2, 1,ar,1 );
+                    if ( c1->i.oneBody.func.fn == LennardJones){
                     
+                   for ( i = 0; i < CanonicalRank(f1, protonRepulsion, 0);i++)
+                       cblas_daxpy(N2, 1., streams(f1,protonRepulsion,0,space)+i*N2, 1,ar,1 );
+                    
+                    printf("LJ %d\n", CanonicalRank(f1, protonRepulsion, 0));
+                    }
                     if (0)
                     for ( i = 0 ; i < N1 ; i++) printf("%1.3f,", ar[i*N1+i]);
                     // N12 >= 3
@@ -152,12 +156,6 @@ INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
             }
 
             if ( bootBodies == nada ){
-                for ( i = 0 ; i < N1 ; i++){
-                    printf("\n\n%f \n\n", w[i]);
-                    
-                    for ( ii = 0; ii < N1 ; ii++)
-                        printf("%f,", ar[i*N1+ii]);
-                }
 
             }   else
 
@@ -202,10 +200,10 @@ INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
                         
                         
                         cblas_dcopy(N1, ar+i*N1, 1, streams(f1,diagonal1VectorA,rank,space), 1);
-                        f1->sinc.tulip[diagonal1VectorA].Current[rank] = 1;
+                        f1.tulip[diagonal1VectorA].Current[rank] = 1;
                         cblas_dcopy(N1, ar+ii*N1, 1, streams(f1,diagonal1VectorB,rank,space), 1);
-                        f1->sinc.tulip[diagonal1VectorB].Current[rank] = 1;
-                        f1->sinc.tulip[diagonalVectorA].Current[rank] = 0;
+                        f1.tulip[diagonal1VectorB].Current[rank] = 1;
+                        f1.tulip[diagonalVectorA].Current[rank] = 0;
                         tOuterProductSuOne(f1,space, diagonal1VectorA, rank, diagonal1VectorB, rank, diagonalVectorA, rank);
                         cblas_dcopy(N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
                         
@@ -242,24 +240,24 @@ INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
                     cblas_dcopy(N1, ar+i*N1, 1, streams(f1,diagonal1VectorA,rank,space), 1);
                     double va = cblas_dnrm2(N1, streams(f1,diagonal1VectorA,rank,space), 1);
 
-                    f1->sinc.tulip[diagonal1VectorA].Current[rank] = 1;
+                    f1.tulip[diagonal1VectorA].Current[rank] = 1;
                     cblas_dcopy(N1, ar+ii*N1, 1, streams(f1,diagonal1VectorB,rank,space), 1);
                     va = cblas_dnrm2(N1, streams(f1,diagonal1VectorB,rank,space), 1);
 
-                    f1->sinc.tulip[diagonal1VectorB].Current[rank] = 1;
-                    f1->sinc.tulip[diagonal2VectorA].Current[rank] = 0;
+                    f1.tulip[diagonal1VectorB].Current[rank] = 1;
+                    f1.tulip[diagonal2VectorA].Current[rank] = 0;
                     
-                    struct name_label d2 = f1->sinc.tulip[diagonal2VectorA];
+                    struct name_label d2 = f1.tulip[diagonal2VectorA];
                     
                     
                     tOuterProductSuOne(f1, space,diagonal1VectorA, rank, diagonal1VectorB,rank, diagonal2VectorA, rank);
                     va = cblas_dnrm2(N1*N1, streams(f1,diagonal2VectorA,rank,space), 1);
                     cblas_dcopy(N1, ar+iii*N1, 1, streams(f1,diagonal1VectorC,rank,space), 1);
                     
-                    f1->sinc.tulip[diagonal1VectorC].Current[rank] = 1;
-                    f1->sinc.tulip[diagonal2VectorA].Current[rank] = 1;
+                    f1.tulip[diagonal1VectorC].Current[rank] = 1;
+                    f1.tulip[diagonal2VectorA].Current[rank] = 1;
 
-                    f1->sinc.tulip[diagonalVectorA].Current[rank] = 0;
+                    f1.tulip[diagonalVectorA].Current[rank] = 0;
                     tOuterProductSuOne(f1,space, diagonal2VectorA, rank, diagonal1VectorC, rank, diagonalVectorA, rank);
                     
                     cblas_dcopy(N1*N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
@@ -289,33 +287,33 @@ INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
                     if( w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0] + w[iv]-w[0]< c1->i.level ){
                     cblas_dcopy(N1, ar+i*N1, 1, streams(f1,diagonal1VectorA,rank,space), 1);
                     
-                    f1->sinc.tulip[diagonal1VectorA].Current[rank] = 1;
+                    f1.tulip[diagonal1VectorA].Current[rank] = 1;
                     cblas_dcopy(N1, ar+ii*N1, 1, streams(f1,diagonal1VectorB,rank,space), 1);
                     
-                    f1->sinc.tulip[diagonal1VectorB].Current[rank] = 1;
-                    f1->sinc.tulip[diagonal2VectorA].Current[rank] = 0;
+                    f1.tulip[diagonal1VectorB].Current[rank] = 1;
+                    f1.tulip[diagonal2VectorA].Current[rank] = 0;
                     tOuterProductSuOne(f1, space,diagonal1VectorA, rank, diagonal1VectorB, rank, diagonal2VectorA, rank);
 
                     cblas_dcopy(N1, ar+iii*N1, 1, streams(f1,diagonal1VectorC,rank,space), 1);
-                        double u0 = cblas_dnrm2(N1, ar+iii*N1, 1);
+                    //    double u0 = cblas_dnrm2(N1, ar+iii*N1, 1);
 
-                    f1->sinc.tulip[diagonal1VectorC].Current[rank] = 1;
+                    f1.tulip[diagonal1VectorC].Current[rank] = 1;
                     
                     cblas_dcopy(N1, ar+iv*N1, 1, streams(f1,diagonal1VectorD,rank,space), 1);
                     
-                    f1->sinc.tulip[diagonal1VectorD].Current[rank] = 1;
+                    f1.tulip[diagonal1VectorD].Current[rank] = 1;
                     
-                    f1->sinc.tulip[diagonal2VectorB].Current[rank] = 0;
-                    f1->sinc.tulip[diagonalVectorA].Current[rank] = 0;
+                    f1.tulip[diagonal2VectorB].Current[rank] = 0;
+                    f1.tulip[diagonalVectorA].Current[rank] = 0;
                     
                     tOuterProductSuOne(f1, space,diagonal1VectorC, rank, diagonal1VectorD, rank, diagonal2VectorB, rank);
                         
-                        f1->sinc.tulip[diagonal2VectorA].Current[rank] = 1;
-                        f1->sinc.tulip[diagonal2VectorB].Current[rank] = 1;
+                        f1.tulip[diagonal2VectorA].Current[rank] = 1;
+                        f1.tulip[diagonal2VectorB].Current[rank] = 1;
 
                     tOuterProductSuOne(f1,space, diagonal2VectorA, rank, diagonal2VectorB, rank, diagonalVectorA, rank);
                     
-                        double u = cblas_dnrm2(N2*N2, streams(f1, diagonalVectorA,rank,space), 1);
+                       // double u = cblas_dnrm2(N2*N2, streams(f1, diagonalVectorA,rank,space), 1);
                         cblas_dcopy(N2*N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2*N2, 1);
                     
                     streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0] + w[iv]-w[0];
@@ -329,7 +327,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
 }
 
 INT_TYPE tMap (struct calculation * c1 ){
-    struct field * f1 = & c1->i.c;
+    struct sinc_label f1 =  c1->i.c.sinc;
     size_t ms = MAXSTRING;
     char line0[MAXSTRING];
     char name[MAXSTRING];
@@ -348,7 +346,7 @@ INT_TYPE tMap (struct calculation * c1 ){
     DCOMPLEX one = 1.;
     int lines= 0,n[6],r[6],space,N1;
 
-    printVector(c1,c1->name,c1->name,-1,0, &one);
+    printVector(c1,c1->i.c.sinc,c1->name,c1->name,-1,0, &one);
 
     getline(&line, &ms, list);
     while(!feof(list)){
@@ -357,21 +355,21 @@ INT_TYPE tMap (struct calculation * c1 ){
             sscanf(line, "(%d,%d)(%d,%d)(%d,%d)", &n[0],&r[0], &n[1],&r[1],&n[2],&r[2]);
             
             for ( space = 0; space < SPACE ; space++)
-                if ( f1->sinc.rose[space].body != nada )
+                if ( f1.rose[space].body != nada )
                 {
-                    N1 = f1->sinc.rose[space].count1Basis;
-                    cblas_dcopy(N1, streams(f1,f1->sinc.user + n[0],0,space)+N1*r[0], 1, streams(f1,diagonal1VectorA,rank,space), 1);
-                    cblas_dcopy(N1, streams(f1,f1->sinc.user + n[1],0,space)+N1*r[1], 1, streams(f1,diagonal1VectorB,rank,space), 1);
-                    cblas_dcopy(N1, streams(f1,f1->sinc.user + n[2],0,space)+N1*r[2], 1, streams(f1,diagonal1VectorC,rank,space), 1);
+                    N1 = f1.rose[space].count1Basis;
+                    cblas_dcopy(N1, streams(f1,f1.user + n[0],0,space)+N1*r[0], 1, streams(f1,diagonal1VectorA,rank,space), 1);
+                    cblas_dcopy(N1, streams(f1,f1.user + n[1],0,space)+N1*r[1], 1, streams(f1,diagonal1VectorB,rank,space), 1);
+                    cblas_dcopy(N1, streams(f1,f1.user + n[2],0,space)+N1*r[2], 1, streams(f1,diagonal1VectorC,rank,space), 1);
 
                 }
-            f1->sinc.tulip[diagonal1VectorA].Current[rank] = 1;
-            f1->sinc.tulip[diagonal1VectorB].Current[rank] = 1;
-            f1->sinc.tulip[diagonal1VectorC].Current[rank] = 1;
+            f1.tulip[diagonal1VectorA].Current[rank] = 1;
+            f1.tulip[diagonal1VectorB].Current[rank] = 1;
+            f1.tulip[diagonal1VectorC].Current[rank] = 1;
 
             
-            f1->sinc.tulip[diagonal2VectorA].Current[rank] = 0;
-            f1->sinc.tulip[diagonal3VectorA].Current[rank] = 0;
+            f1.tulip[diagonal2VectorA].Current[rank] = 0;
+            f1.tulip[diagonal3VectorA].Current[rank] = 0;
 
             tOuterProductSu(f1, diagonal1VectorA, rank, diagonal1VectorB, rank, diagonal2VectorA, rank);
             tOuterProductSu(f1, diagonal2VectorA, rank, diagonal1VectorC, rank, diagonal3VectorA, rank);
@@ -382,7 +380,7 @@ INT_TYPE tMap (struct calculation * c1 ){
                 FILE * outVector = fopen(name, "w");
                 outputFormat(f1, outVector, diagonal3VectorA, rank);
                 fclose(outVector);
-                printVector(c1,c1->name,c1->name,lines,0, &one);
+                printVector(c1,c1->i.c.sinc,c1->name,c1->name,lines,0, &one);
             }
         }
     
@@ -395,7 +393,7 @@ INT_TYPE tMap (struct calculation * c1 ){
     return 0;
 }
 
-INT_TYPE tSlam (struct field * f1,INT_TYPE allc, enum division vl, double fmax2){
+INT_TYPE tSlam (struct sinc_label f1,INT_TYPE allc, enum division vl, double fmax2){
     INT_TYPE tot =0,space,t,n1[SPACE];
     
     
@@ -413,10 +411,10 @@ INT_TYPE tSlam (struct field * f1,INT_TYPE allc, enum division vl, double fmax2)
     for ( t = 0; t < tot ; t++){
         mm = mmm + 2*SPACE * t ;
         for ( space = 0; space < SPACE ; space++)
-            if ( f1->sinc.rose[space].body != nada){
+            if ( f1.rose[space].body != nada){
                 cblas_dcopy(n1[space], myStreams(f1, bill1+space, 0)+(mm[2*space])*n1[space]+(mm[2*space+1])*n1[space]*n1[space],1,streams(f1,vl+t,0,space),1);
             }
-        f1->sinc.tulip[vl+t].Current[0] = 1;
+        f1.tulip[vl+t].Current[0] = 1;
     }
     free(mmm);
     printf("loaded %d alloc %d\n", tot, allc);
@@ -424,133 +422,133 @@ INT_TYPE tSlam (struct field * f1,INT_TYPE allc, enum division vl, double fmax2)
 }
 
 
-INT_TYPE tBootManyConstruction (struct calculation * c1){
-    struct field * f1 = &(c1->i.c);
-    enum bodyType bootBodies = c1->rt.body;
-    INT_TYPE sp,cmpl,space,matrixNumber = c1->i.decomposeRankMatrix;
-    //THRESING FLOOR
-    tClear(f1, eigen);
-    INT_TYPE r,i,im;
-    INT_TYPE n2[SPACE];
-    length(f1, eigen,n2);
-    double mx= 1e99;
-    INT_TYPE n1[SPACE];
-    length(f1,eigenVectors,n1);
-    DCOMPLEX * hmat = (DCOMPLEX*)myStreams(f1, matrixHbuild,0), sum ,minus = -1.;
-    cmpl = 0;
-        //for ( cmpl = 0; cmpl < spins(f1,eigen);cmpl++){
-            tClear(f1, build);
-            tClear(f1,eigen);
-            zero(f1,eigen,cmpl);
-
-            if (cmpl == 0 ){
-                tClear(f1, copy);
-                zero(f1,copy,0);
-                tClear(f1,copy);
-                tCycleDecompostionListOneMP(-1, f1, linear, 0,NULL, copy, 0, f1->mem1->rt->CANON, c1->i.decomposeRankMatrix, -1);
-                tAddTw(f1, copy ,0, kinetic,0);
-                tAddTw(f1,copy,0, vectorMomentum ,0);
-                tSumMatrices(f1, build,0, copy);// B x (1+S) * 3
-                if ( c1->rt.calcType == clampProtonElectronCalculation ){
-                    zero(f1,copy,0);
-                    tClear(f1,copy);
-                    tId(f1,copy,0);
-                    INT_TYPE N2 = vectorLen(f1, 3)*vectorLen(f1,3);
-                        for ( i = 0; i < CanonicalRank(f1, protonRepulsion, 0);i++)
-                            cblas_daxpy(N2, 1., streams(f1,protonRepulsion,0,3)+i*N2, 1,streams(f1,copy,0,3),1 );
-                    tSumMatrices(f1, build,0, copy);// B x (1+S) * 3
-
-                    tClear(f1, copy);
-                    tCycleDecompostionListOneMP(-1, f1, interactionExchangePlus, 0,NULL,copy, 0, f1->mem1->rt->CANON, 1 , -1);
-                    tSumMatrices(f1, build,0, copy);//B2:1 || B3 : 3
-                }
-                
-                
-                if ( bootBodies > one ){
-                    if ( c1->rt.runFlag == 0 ){
-                        if ( CanonicalRank(f1, interactionExchange, 0)){
-                            tClear(f1,squareTwo);
-                            tCycleDecompostionListOneMP(-1, f1, interactionExchange, 0,NULL,squareTwo, 0, f1->mem1->rt->CANON, 1 , -1);
-                            tSumMatrices(f1, build,0, squareTwo);//B2:1 || B3 : 3
-                        }
-                    }else {
-                        if ( CanonicalRank(f1, interactionEwald, 0)){
-                            tClear(f1,squareTwo);
-                            tCycleDecompostionListOneMP(-1, f1, interactionEwald, 0,NULL,squareTwo, 0, f1->mem1->rt->CANON, 1 , -1);
-                            tSumMatrices(f1, build,0, squareTwo);//B2:1 || B3 : 3
-                        }
-                    }
-                }
-                
-            }
-//            else {
-//                if ( CanonicalRank(f1, vectorMomentum,1 ) ){
-//                    tEqua(f1, copy ,0, vectorMomentum,1);
+//INT_TYPE tBootManyConstruction (struct calculation * c1){
+//    struct sinc_label  f1 = (c1->i.c.sinc);
+//    enum bodyType bootBodies = c1->rt.body;
+//    INT_TYPE sp,cmpl,space,matrixNumber = c1->i.decomposeRankMatrix;
+//    //THRESING FLOOR
+//    tClear(f1, eigen);
+//    INT_TYPE r,i,im;
+//    INT_TYPE n2[SPACE];
+//    length(f1, eigen,n2);
+//    double mx= 1e99;
+//    INT_TYPE n1[SPACE];
+//    length(f1,eigenVectors,n1);
+//    DCOMPLEX * hmat = (DCOMPLEX*)myStreams(f1, matrixHbuild,0), sum ,minus = -1.;
+//    cmpl = 0;
+//        //for ( cmpl = 0; cmpl < spins(f1,eigen);cmpl++){
+//            tClear(f1, build);
+//            tClear(f1,eigen);
+//            zero(f1,eigen,cmpl);
+//
+//            if (cmpl == 0 ){
+//                tClear(f1, copy);
+//                zero(f1,copy,0);
+//                tClear(f1,copy);
+//                tCycleDecompostionListOneMP(-1, f1, linear, 0,NULL, copy, 0, f1->mem1->rt->CANON, c1->i.decomposeRankMatrix, -1);
+//                tAddTw(f1, copy ,0, kinetic,0);
+//                tAddTw(f1,copy,0, vectorMomentum ,0);
+//                tSumMatrices(f1, build,0, copy);// B x (1+S) * 3
+//                if ( c1->rt.calcType == clampProtonElectronCalculation ){
+//                    zero(f1,copy,0);
+//                    tClear(f1,copy);
+//                    tId(f1,copy,0);
+//                    INT_TYPE N2 = vectorLen(f1->sinc, 3)*vectorLen(f1->sinc,3);
+//                        for ( i = 0; i < CanonicalRank(f1, protonRepulsion, 0);i++)
+//                            cblas_daxpy(N2, 1., streams(f1,protonRepulsion,0,3)+i*N2, 1,streams(f1,copy,0,3),1 );
 //                    tSumMatrices(f1, build,0, copy);// B x (1+S) * 3
+//
+//                    tClear(f1, copy);
+//                    tCycleDecompostionListOneMP(-1, f1, interactionExchangePlus, 0,NULL,copy, 0, f1->mem1->rt->CANON, 1 , -1);
+//                    tSumMatrices(f1, build,0, copy);//B2:1 || B3 : 3
 //                }
-//            }
-            //balance(f1,build,0);
-
-            for ( space =  0; space < SPACE ; space++ )
-                if ( f1->sinc.rose[space].body != nada){
-                    tClear(f1,eigen);
-                    zero(f1,eigen,0);
-                    while ( CanonicalRank(f1, eigen, cmpl) < part(f1,eigen)){
-                        tId(f1 ,eigen,cmpl);
-                        canonicalListDecompositionMP(0, f1, NULL, build, 0, eigen, cmpl, f1->mem1->rt->CANON, magnitude(f1, build), space);
-                     //   printf("%f-- \n", traceOne(f1,build,0));
-                    }
-                    for ( r = 0; r <part(f1,eigen) ; r++){
-                        for ( i = 0; i < n2[space]; i++){
-                            hmat[i] =0.;
-                            for ( sp = 0 ; sp < 1;sp++)
-                                if ( sp == 0 )
-                                    hmat[i] += streams(f1, eigen,sp,space)[i+r*n2[space]] ;
-                                else
-                                    hmat[i] += I*streams(f1, eigen,sp,space)[i+r*n2[space]] ;
-                            
-                        }
-//                        sum = 0.;
-//                        for (i = 0; i < n1[space];i++){
-//                            sum += hmat[i*n1[space]+i] ;
-//                          //  printf("%d %d %f \n", r,i,creal(hmat[i*n1[space]+i]));
+//
+//
+//                if ( bootBodies > one ){
+//                    if ( c1->rt.runFlag == 0 ){
+//                        if ( CanonicalRank(f1, interactionExchange, 0)){
+//                            tClear(f1,squareTwo);
+//                            tCycleDecompostionListOneMP(-1, f1, interactionExchange, 0,NULL,squareTwo, 0, f1->mem1->rt->CANON, 1 , -1);
+//                            tSumMatrices(f1, build,0, squareTwo);//B2:1 || B3 : 3
 //                        }
-                        //   if ( creal(sum ) < 0 )
-                        //     cblas_zscal(n2[space], &minus, hmat, 1);
-                        
-                        tzheev (0,f1,'V',n1[space],hmat,n1[space],streams(f1,foundationStructure,0,space)+r*n1[space]);
-                        
-                        for ( i = 0; i < n2[space]; i++){
-                            myStreams(f1, bill1+space,0)[i+r*n2[space]] = creal(hmat[i]);
-                            if ( spins (f1, eigen) > 1 )
-                                myStreams(f1, bill1+space,1)[i+r*n2[space]] = cimag(hmat[i]);
-                        }
-                        for (i = 0; i < n1[space];i++)
-                            if (((streams(f1,foundationStructure,0,space)+r*n1[space])[i])-((streams(f1,foundationStructure,0,space)+r*n1[space])[0]) < c1->i.level  ){
-                                (streams(f1,foundationStructure,1,space)+r*n1[space])[i] = 1;
-                                if ( mx >(streams(f1,foundationStructure,0,space)+r*n1[space])[i]  )
-                                    mx = (streams(f1,foundationStructure,0,space)+r*n1[space])[i]  ;
-                            }
-                        
-                    }
-                    for ( r = 0; r <part(f1,eigen) ; r++){
-                        for (i = 0; i < n1[space];i++)
-                            (streams(f1,foundationStructure,0,space)+r*n1[space])[i] -= mx;
-                    }
-                }
-    return 0;
-}
+//                    }else {
+//                        if ( CanonicalRank(f1, interactionEwald, 0)){
+//                            tClear(f1,squareTwo);
+//                            tCycleDecompostionListOneMP(-1, f1, interactionEwald, 0,NULL,squareTwo, 0, f1->mem1->rt->CANON, 1 , -1);
+//                            tSumMatrices(f1, build,0, squareTwo);//B2:1 || B3 : 3
+//                        }
+//                    }
+//                }
+//
+//            }
+////            else {
+////                if ( CanonicalRank(f1, vectorMomentum,1 ) ){
+////                    tEqua(f1, copy ,0, vectorMomentum,1);
+////                    tSumMatrices(f1, build,0, copy);// B x (1+S) * 3
+////                }
+////            }
+//            //balance(f1,build,0);
+//
+//            for ( space =  0; space < SPACE ; space++ )
+//                if ( f1.rose[space].body != nada){
+//                    tClear(f1,eigen);
+//                    zero(f1,eigen,0);
+//                    while ( CanonicalRank(f1, eigen, cmpl) < part(f1,eigen)){
+//                        tId(f1 ,eigen,cmpl);
+//                        canonicalListDecompositionMP(0, f1, NULL, build, 0, eigen, cmpl, f1->mem1->rt->CANON, magnitude(f1, build), space);
+//                     //   printf("%f-- \n", traceOne(f1,build,0));
+//                    }
+//                    for ( r = 0; r <part(f1,eigen) ; r++){
+//                        for ( i = 0; i < n2[space]; i++){
+//                            hmat[i] =0.;
+//                            for ( sp = 0 ; sp < 1;sp++)
+//                                if ( sp == 0 )
+//                                    hmat[i] += streams(f1, eigen,sp,space)[i+r*n2[space]] ;
+//                                else
+//                                    hmat[i] += I*streams(f1, eigen,sp,space)[i+r*n2[space]] ;
+//
+//                        }
+////                        sum = 0.;
+////                        for (i = 0; i < n1[space];i++){
+////                            sum += hmat[i*n1[space]+i] ;
+////                          //  printf("%d %d %f \n", r,i,creal(hmat[i*n1[space]+i]));
+////                        }
+//                        //   if ( creal(sum ) < 0 )
+//                        //     cblas_zscal(n2[space], &minus, hmat, 1);
+//
+//                        tzheev (0,f1,'V',n1[space],hmat,n1[space],streams(f1,foundationStructure,0,space)+r*n1[space]);
+//
+//                        for ( i = 0; i < n2[space]; i++){
+//                            myStreams(f1, bill1+space,0)[i+r*n2[space]] = creal(hmat[i]);
+//                            if ( spins (f1, eigen) > 1 )
+//                                myStreams(f1, bill1+space,1)[i+r*n2[space]] = cimag(hmat[i]);
+//                        }
+//                        for (i = 0; i < n1[space];i++)
+//                            if (((streams(f1,foundationStructure,0,space)+r*n1[space])[i])-((streams(f1,foundationStructure,0,space)+r*n1[space])[0]) < c1->i.level  ){
+//                                (streams(f1,foundationStructure,1,space)+r*n1[space])[i] = 1;
+//                                if ( mx >(streams(f1,foundationStructure,0,space)+r*n1[space])[i]  )
+//                                    mx = (streams(f1,foundationStructure,0,space)+r*n1[space])[i]  ;
+//                            }
+//
+//                    }
+//                    for ( r = 0; r <part(f1,eigen) ; r++){
+//                        for (i = 0; i < n1[space];i++)
+//                            (streams(f1,foundationStructure,0,space)+r*n1[space])[i] -= mx;
+//                    }
+//                }
+//    return 0;
+//}
 
 
 
-INT_TYPE tFoundationLevel( struct field * f1, enum division A , double lvlm, double lvlx,INT_TYPE ops,enum division build,INT_TYPE xB, double lvl1, double lvl2, double lvl3,INT_TYPE *mmm, INT_TYPE irrep,double seekPower){
+INT_TYPE tFoundationLevel( struct sinc_label  f1, enum division A , double lvlm, double lvlx,INT_TYPE ops,enum division build,INT_TYPE xB, double lvl1, double lvl2, double lvl3,INT_TYPE *mmm, INT_TYPE irrep,double seekPower){
     //GRID
     /// GRID
     ///// GRID
     ////////GRID
     ADDRESS_TYPE mx=1,i,j,k,r1,r2,r3,ii,jj,kk,xx[SPACE];
     INT_TYPE vaMax=0, classicalBasisSize,*mm,space;
-    enum bodyType bd = f1->mem1->rt->body;
+    enum bodyType bd = f1.rt->body;
     INT_TYPE nG = 1;//tSize(bd);
     INT_TYPE n1[SPACE];
     INT_TYPE r[SPACE];
@@ -640,11 +638,11 @@ INT_TYPE tFoundationLevel( struct field * f1, enum division A , double lvlm, dou
 
 
 
-INT_TYPE tFilter(struct field * f1, INT_TYPE Ve, INT_TYPE irrep, enum division usr){
-    INT_TYPE ii,cmpl=0,rank,nP = tPerms(f1->mem1->rt->body);
+INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum division usr){
+    INT_TYPE i,ii,space,cmpl=0,rank,nP = tPerms(f1.rt->body);
     assignCores(f1, 2);
 #ifdef OMP
-#pragma omp parallel for private (ii,rank,cmpl) schedule(dynamic,1)
+#pragma omp parallel for private (ii,rank) schedule(dynamic,1)
 #endif
     for ( ii = 0; ii < Ve ; ii++)
     {
@@ -653,28 +651,36 @@ INT_TYPE tFilter(struct field * f1, INT_TYPE Ve, INT_TYPE irrep, enum division u
 #else
         rank = 0;
 #endif
-
-        //moving filter procedure INTO decompose//krylov
-//        if ( irrep && bodies(f1, usr+ii ) > one  ){
-//            for ( cmpl = 0 ; cmpl < spins(f1, usr+ii) ; cmpl++){
-//                f1->sinc.tulip[permutationVector].Current[rank] = 0;
-//                tBuildIrr(rank, f1, irrep+nP, usr+ii, cmpl, permutationVector, rank);
-//        //        tCycleDecompostionGridOneMP(rank, f1, permutationVector, rank, NULL,usr+ii , cmpl, f1->mem1->rt->TARGET, part(f1,usr+ii), 1.);
-//                tCycleDecompostionListOneMP(rank, f1, permutationVector, rank, NULL,  usr+ii,cmpl,f1->mem1->rt->TARGET, part(f1,usr+ii), 1);
-//            }
-//        }
-        
-//#endif
-        f1->sinc.tulip[usr+ii].value.symmetry = tClassify(rank, f1, usr+ii);
-      //  printf(" %d->%d (%d) = %d\n",ii+usr, CanonicalRank(f1,usr+ii,cmpl),tPath(f1,usr+ii),f1->sinc.tulip[usr+ii].symmetry);
-      //  fflush(stdout);
+        f1.tulip[usr+ii].value.symmetry = tClassify(rank, f1, usr+ii);
     }
+    if ( irrep && bodies(f1, usr+ii ) > one ){
+        printf("Symmetry Adaption %d-body -> %d-irrep\n",f1.rt->body, irrep );
+        for ( ii = 0; ii < Ve ; ii++)
+        {
+            rank = 0;
+            
+            for ( cmpl = 0 ; cmpl < spins(f1, usr+ii) ; cmpl++){
+                f1.tulip[permutationVector].Current[rank] = 0;
+                for ( i = 0 ; i < CanonicalRank(f1, usr+ii, cmpl);i++)
+                {
+                    f1.tulip[copyVector].Current[rank] = 0;
+                    for ( space = 0; space < SPACE ; space++)
+                        xsAdd(1., space, f1, copyVector, rank, f1, usr+ii, i, cmpl);
+                    f1.tulip[copyVector].Current[rank] = 1;
+
+                    tBuildIrr(rank, f1, irrep, copyVector, rank, permutationVector, rank);
+                }
+                tCycleDecompostionGridOneMP(-2, f1, permutationVector, rank, NULL,usr+ii , cmpl, f1.rt->TARGET, part(f1,usr+ii), 1.);
+            }
+        }
+    }
+    
     
     return 0;
 }
 
-INT_TYPE tSelect(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division usr, enum division usa, INT_TYPE testFlag){
-    INT_TYPE sp,info,rank=0,maxEV = f1->sinc.maxEV,n,m;
+INT_TYPE tSelect(struct sinc_label  f1, INT_TYPE Ve, INT_TYPE type, enum division usr, enum division usa, INT_TYPE testFlag){
+    INT_TYPE sp,info,rank=0,maxEV = f1.maxEV,n,m;
     INT_TYPE stride = maxEV;
     double value;
     
@@ -685,9 +691,9 @@ INT_TYPE tSelect(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division us
     if ( type ) {
         tClear(f1, usr+Ve);
         for ( sp = 0; sp < spins(f1, usr+Ve);sp++){
-            f1->sinc.tulip[permutationVector].Current[rank] = 0;
+            f1.tulip[permutationVector].Current[rank] = 0;
             tBuildIrr(rank, f1, type, usa, sp, permutationVector, rank);
-            tCycleDecompostionListOneMP(rank, f1, permutationVector, rank, NULL,usr+Ve, sp, f1->mem1->rt->vCANON, part(f1,usr+Ve), -1);
+            tCycleDecompostionListOneMP(rank, f1, permutationVector, rank, NULL,usr+Ve, sp, f1.rt->vCANON, part(f1,usr+Ve), -1);
         }
         
         value = magnitude(f1, usr+Ve);
@@ -744,7 +750,7 @@ INT_TYPE tSelect(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division us
     tzheev(0, f1, 'N', Ve+1,S, stride, ov);
     if ( testFlag ){
 
-        if ( ov[Ve]/ov[0] < f1->mem1->rt->TOL && ov[Ve]/ov[0] >0 && ov[0] > 0 ){
+        if ( ov[Ve]/ov[0] < f1.rt->TOL && ov[Ve]/ov[0] >0 && ov[0] > 0 ){
                 printf("\t%f\t%d\n",  ov[Ve]/ov[0],Ve+1 );
                 fflush(stdout);
 
@@ -757,12 +763,12 @@ INT_TYPE tSelect(struct field * f1, INT_TYPE Ve, INT_TYPE type, enum division us
 }
 
 
-INT_TYPE tCollect (struct field * f1, INT_TYPE irrep,enum division usz, INT_TYPE target,double seekPower){
+INT_TYPE tCollect (struct sinc_label  f1, INT_TYPE irrep,enum division usz, INT_TYPE target,double seekPower){
     INT_TYPE  Ve = 0,Vex;
-    f1->sinc.tulip[diagonalVectorA].header = Cube;
-    f1->sinc.tulip[diagonalVectorB].header = Cube;
-    struct name_label bd = f1->sinc.tulip[build];
-    struct name_label eg = f1->sinc.tulip[eigen];
+    f1.tulip[diagonalVectorA].header = Cube;
+    f1.tulip[diagonalVectorB].header = Cube;
+    struct name_label bd = f1.tulip[build];
+    struct name_label eg = f1.tulip[eigen];
 
     INT_TYPE space, nG = part(f1,eigen);
     INT_TYPE flag = 1,ct = 0;
@@ -814,10 +820,10 @@ INT_TYPE tCollect (struct field * f1, INT_TYPE irrep,enum division usz, INT_TYPE
             for ( i = 0; i < ct ; i++){
                 mm = mmm+sc[i].i*2*SPACE;
                 tClear(f1,diagonalVectorA);
-                f1->sinc.tulip[diagonalVectorA].Current[0] = 1;;
+                f1.tulip[diagonalVectorA].Current[0] = 1;;
                 
                 for ( space = 0; space < SPACE ; space++)
-                    if ( f1->sinc.rose[space].body != nada)
+                    if ( f1.rose[space].body != nada)
                     cblas_dcopy(n1[space], myStreams(f1, bill1+space, 0)+(mm[2*space])*n1[space]+(mm[2*space+1])*n1[space]*n1[space],1,streams(f1,diagonalVectorA,0,space),1);
                 
                 Vex =  tSASplit(f1, irrep, Ve,target, usz, diagonalVectorA);
@@ -855,15 +861,15 @@ INT_TYPE tCollect (struct field * f1, INT_TYPE irrep,enum division usz, INT_TYPE
 }
 
 
-INT_TYPE tSASplit ( struct field * f1, INT_TYPE irrep , INT_TYPE Ve , INT_TYPE target,enum division usz, enum division vector){
+INT_TYPE tSASplit ( struct sinc_label  f1, INT_TYPE irrep , INT_TYPE Ve , INT_TYPE target,enum division usz, enum division vector){
     INT_TYPE map[24],nDeg=0,ii;
     
-    if ( f1->mem1->rt->body == one || irrep == 0 ){
+    if ( f1.rt->body == one || irrep == 0 ){
         nDeg = 1;
         map[1] = 0;
     }else
         
-        if ( f1->mem1->rt->body == two ){
+        if ( f1.rt->body == two ){
             if ( irrep == 1 ){
                 map[1] = 1;
                 nDeg = 1;
@@ -873,7 +879,7 @@ INT_TYPE tSASplit ( struct field * f1, INT_TYPE irrep , INT_TYPE Ve , INT_TYPE t
                     map[1] = 2;
                 }
         }else
-            if ( f1->mem1->rt->body== three ){
+            if ( f1.rt->body== three ){
                 if ( irrep == 1 ){
                     map[1] = 1;
                     nDeg = 1;
@@ -889,7 +895,7 @@ INT_TYPE tSASplit ( struct field * f1, INT_TYPE irrep , INT_TYPE Ve , INT_TYPE t
                         map[4] = 6;
                     }
             }
-            else if ( f1->mem1->rt->body == four ){
+            else if ( f1.rt->body == four ){
                 //
                 if ( irrep == 1 ){
                     nDeg = 1;
@@ -931,7 +937,7 @@ INT_TYPE tSASplit ( struct field * f1, INT_TYPE irrep , INT_TYPE Ve , INT_TYPE t
     
     for ( ii = 1 ; ii <= nDeg ; ii++)
         
-        if ( tSelect(f1, Ve, map[ii]+tPerms(f1->mem1->rt->body), usz, vector, 1)){
+        if ( tSelect(f1, Ve, map[ii]+tPerms(f1.rt->body), usz, vector, 1)){
             Ve++;
             if ( Ve > target-2 )
                 return Ve;
@@ -943,7 +949,7 @@ INT_TYPE tSASplit ( struct field * f1, INT_TYPE irrep , INT_TYPE Ve , INT_TYPE t
 
 INT_TYPE tSquareVectors(struct calculation * c1, INT_TYPE EV2, enum division usz,enum division usr ){
     INT_TYPE i,j;
-    struct field *f1 = & c1->i.c;
+    struct sinc_label f1 = c1->i.c.sinc;
 
     for ( i = 0; i < EV2 ; i++)
         for ( j = 0 ; j < EV2 ; j++)
@@ -956,7 +962,7 @@ INT_TYPE tSquareVectors(struct calculation * c1, INT_TYPE EV2, enum division usz
 }
 
 
-INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct field * f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift){
+INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct sinc_label f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift){
     INT_TYPE expon,info;
     INT_TYPE rank ;
     //time_t start_t, lapse_t;
@@ -964,6 +970,12 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct
     //time(&start_t);
     INT_TYPE iii = 0;
     assignCores(f1, 1);
+    
+    if ( translateFlag ){
+        printf ("( 1 + (%1.3f) H )PSI",realPart);
+    }else {
+        printf ("( H )PSI");
+    }
     
     for( expon = 1 ; foundation*expon < nMult  ; expon++){
         
@@ -985,7 +997,7 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct
 //                matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
 //                tScale(f1, usz+iii+expon*foundation, 1./sqrt(cabs(vhhv)));
 
-                tHXpX(rank, f1, A, translateFlag, translateFlag*realPart+ (!translateFlag)*1., 0.0, usz+iii+expon*foundation, f1->mem1->rt->TARGET , part(f1,usz+(expon)*foundation+iii),1 == 1);
+                tHXpX(rank, f1, A, translateFlag, translateFlag*realPart+ (!translateFlag)*1., 0.0, usz+iii+expon*foundation, f1.rt->TARGET , part(f1,usz+(expon)*foundation+iii),1 == 1);
                 
                 pMatrixElements( f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
                 pMatrixElements( f1, usz+iii+expon*foundation, nullName, usz+iii+(expon-1)*foundation, NULL, &vhv);
@@ -1019,13 +1031,13 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct
     return nMult; 
 }
 
-INT_TYPE tLesserDivideIteration ( struct field * f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
+INT_TYPE tLesserDivideIteration ( struct sinc_label  f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
 
 INT_TYPE tEdges(struct calculation *c1, enum division vector){
-    struct field * f1 = &c1->i.c;
+    struct sinc_label f1 = c1->i.c.sinc;
     INT_TYPE info,spatial;
     DCOMPLEX ov,me;
-    enum bodyType bootBodies = f1->body;
+    enum bodyType bootBodies = f1.rose[0].body;
     if ( 1 ){
         //EDGES ALT
         enum block b,bx;
@@ -1033,7 +1045,7 @@ INT_TYPE tEdges(struct calculation *c1, enum division vector){
         double sum = 0;
         //for ( irrep = 0 ;irrep <= 5 ; irrep++)
         {
-              //  if ((! c1->i.irrep || f1->sinc.tulip[vector].value.symmetry  == irrep) && irrep == c1->i.irrep)
+              //  if ((! c1->i.irrep || f1.tulip[vector].value.symmetry  == irrep) && irrep == c1->i.irrep)
                 {
                     bx = tv1;
                     if ( bootBodies == two )
@@ -1056,7 +1068,7 @@ INT_TYPE tEdges(struct calculation *c1, enum division vector){
                                     tAlt(f1, edgeElectronMatrix, 0, dim);
                                 me = 0.;
                                 enum division u = edgeElectronMatrix+b;
-                                struct name_label uu = f1->sinc.tulip[u];
+                                struct name_label uu = f1.tulip[u];
                                 pMatrixElements( f1, vector, edgeElectronMatrix+b, vector, &me, &ov);
                                 printf("%1.8f ", (creal(me/ov)));
                                 sum += (creal(me/ov));
@@ -1070,7 +1082,7 @@ INT_TYPE tEdges(struct calculation *c1, enum division vector){
 
                                 sum = 0;
                                 for ( dim = COMPONENT; dim < 2*COMPONENT ; dim++)
-                                    if ( f1->sinc.rose[dim].body != nada ){
+                                    if ( f1.rose[dim].body != nada ){
                                         
                                     tClear(f1,edgeProtonMatrix );
                                     if ( spatial == 0 )
@@ -1097,7 +1109,7 @@ INT_TYPE tEdges(struct calculation *c1, enum division vector){
 //
 //
 //    {
-//        struct field * f1 = &c1->i.c;
+//        struct sinc_label * f1 = &c1->i.c;
 //        double sum2,sum;
 //        enum division Mat, leftP,ml[1000];
 //        INT_TYPE Lane = MaxCore,iii,i,i2,j,j2,rk,s1=0,cat=0,rank,iiii= 0;
@@ -1111,7 +1123,7 @@ INT_TYPE tEdges(struct calculation *c1, enum division vector){
 //
 //            if ( linear == name(f1,leftP) ){
 //                Mat = rivers(Lane++, f1, linear, cat );
-//                f1->sinc.tulip[Mat].block = f1->sinc.tulip[leftP].;
+//                f1.tulip[Mat].block = f1.tulip[leftP].;
 //            }else {
 //                Mat = leftP;
 //            }
@@ -1129,12 +1141,12 @@ INT_TYPE tEdges(struct calculation *c1, enum division vector){
 //                cat++;
 //
 //                if ( cat > f1->Na ){
-//                    leftP = f1->sinc.tulip[leftP].linkNext;
+//                    leftP = f1.tulip[leftP].linkNext;
 //                    cat = 0;
 //                }
 //
 //            } else {
-//                leftP = f1->sinc.tulip[leftP].linkNext;
+//                leftP = f1.tulip[leftP].linkNext;
 //            }
 //        } while ( leftP != nullName);
 //
@@ -1198,14 +1210,14 @@ INT_TYPE tEdges(struct calculation *c1, enum division vector){
 
 
 
-INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE iterations, INT_TYPE foundation, INT_TYPE irrep,INT_TYPE flag,  enum division outputSpace, enum division outputValues){
+INT_TYPE tEigenCycle (struct sinc_label  f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE iterations, INT_TYPE foundation, INT_TYPE irrep,INT_TYPE flag,  enum division outputSpace, enum division outputValues){
     INT_TYPE in,gvOut,prevBuild;
     time_t start_t, lapse_t;
     myZero(f1, matrixHbuild, 0);
     myZero(f1, matrixSbuild, 0);
     time(&start_t);
     enum division Mat;
-    INT_TYPE cmpl,cmpl2,cmpl3,cat,iii = 0,maxEV = f1->sinc.maxEV,rank;
+    INT_TYPE cmpl,cmpl2,cmpl3,cat,iii = 0,maxEV = f1.maxEV,rank;
     INT_TYPE stride = maxEV;
     double * ritz = myStreams(f1, outputValues, 0);
     double * overlap = myStreams(f1, conditionOverlapNumbers, 0);
@@ -1238,13 +1250,13 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
             if ( Rank(f1,name(f1, Mat))){
                 INT_TYPE space;
                 for ( space = 0 ;space < SPACE ; space++)
-                    printf("%2d", f1->sinc.tulip[name(f1,Mat)].space[space].body);
+                    printf("%2d", f1.tulip[name(f1,Mat)].space[space].body);
                 if (CanonicalRank(f1, name(f1,Mat), 1))
                     printf("\t::\t %d \t| (%d+i%d)\t",name(f1,Mat), CanonicalRank(f1, name(f1,Mat), 0),CanonicalRank(f1, name(f1,Mat), 1));
                 else
                     printf("\t::\t %d \t| (%d)\t",name(f1,Mat), CanonicalRank(f1, name(f1,Mat), 0));
                 for ( space = 0 ;space < SPACE ; space++)
-                    printf("%3d", f1->sinc.tulip[Mat].space[space].block);
+                    printf("%3d", f1.tulip[Mat].space[space].block);
                // printf("\t%f\n", traceOne(f1,name(f1, Mat),0));
                 printf("\n");
             }
@@ -1270,7 +1282,7 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
                 }
             }
             
-            leftP = f1->sinc.tulip[leftP].linkNext;
+            leftP = f1.tulip[leftP].linkNext;
         } while ( leftP != nullName);
 
   
@@ -1347,11 +1359,11 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
           if ( 0 ){
               cblas_zcopy(maxEV*stride , S , 1 , S+maxEV*stride , 1);
               tzheev(0, f1, 'N', quantumBasisSize, S+maxEV*stride, stride, overlap);
-              if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < f1->mem1->rt->TOL && flag <= 2)
+              if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < f1.rt->TOL && flag <= 2)
                   printf(" Krylov-2\t %f \n",  overlap[quantumBasisSize-1]/overlap[0]);
-              else         if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < f1->mem1->rt->TOL && flag == 3)
+              else         if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < f1.rt->TOL && flag == 3)
                   printf(" Krylov-3 \t %f \n",  overlap[quantumBasisSize-1]/overlap[0]);
-              else         if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < f1->mem1->rt->TOL && flag == 4)
+              else         if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < f1.rt->TOL && flag == 4)
                   printf(" Krylov-4 \t %f \n",  overlap[quantumBasisSize-1]/overlap[0]);
               else {
                   printf("Linear dependent! %f\t%1.16f\n",overlap[quantumBasisSize-1],overlap[0]);
@@ -1375,7 +1387,7 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
     {       //printf("\nHeader,Number,CEG,Linear,BODY,CLASS,WEIGHT\n");
         for ( iii = 0; iii < imin(quantumBasisSize,Ne) ; iii++)
         {
-            f1->sinc.tulip[eigenVectors+iii].value.value = ritz[iii];
+            f1.tulip[eigenVectors+iii].value.value = ritz[iii];
             printf("Press%d:,%1.15f, %f\n", iii+1, ritz[iii],cblas_dznrm2(quantumBasisSize,T+iii*stride, 1));
         }
     //    fflush(stdout);
@@ -1403,13 +1415,13 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
 //        }
 //
 ////        for ( u = 0; u < Ne ; u++)
-////            f1->sinc.tulip[el+u].path = -1;
+////            f1.tulip[el+u].path = -1;
 //
 //        INT_TYPE sp,nG= tSize(f1->body),path,fpath,ipath,i,h,xx,six,ii2,jj2,kk2,fx,nm,v;
 //        double mag2,*pointers[MaxCore];
 //
-//        f1->sinc.tulip[eigenList].ptRank[0] = 0;
-//        f1->sinc.tulip[eigenList].purpose = ptObject;
+//        f1.tulip[eigenList].ptRank[0] = 0;
+//        f1.tulip[eigenList].purpose = ptObject;
 //        {
 //            ipath = 0;
 //            fpath = 0;
@@ -1427,14 +1439,14 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
 //                                if ( tPath(f1, usz+xx) == path ){
 //                                    if  ( xx < foundation )
 //                                        if (! (fx++) ){
-//                                            f1->sinc.tulip[eigenList].name = usz+xx;
+//                                            f1.tulip[eigenList].name = usz+xx;
 //                                    //        printf("begin ");
 //                                        }
 //                                    six+= spins(f1, usz+xx)*part(f1, usz+xx);
 //                                   // printf ("%d,%d %d\n",  usz+xx, spins(f1, usz+xx),part(f1, usz+xx));
 //                                }
 //                           // printf(" fx %d\n", fx);
-//                            f1->sinc.tulip[eigenList].Current[0] = six;
+//                            f1.tulip[eigenList].Current[0] = six;
 //
 //
 //                            if ( CanonicalRank(f1, eigenList, 0) )
@@ -1493,7 +1505,7 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
 //                                      //      fflush(stdout);
 //
 //                                            tCycleDecompostionListOneMP(rank,f1, eigenList, pointers[rank],el+nm, cmpl, f1->mem1->rt->vCANON, part(f1, el+nm), 1.);
-////                                            f1->sinc.tulip[el+nm].path = path;
+////                                            f1.tulip[el+nm].path = path;
 //                                            mag2 = 0;
 //                                            for ( sp = 0; sp < spins(f1, el+nm) ; sp++)
 //                                                mag2 += inner(rank, f1, el+nm, sp);
@@ -1527,15 +1539,15 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
         {
             double norms,*pointers[MaxCore];
             if (1){
-                f1->sinc.tulip[eigenList].name = usz;
-                f1->sinc.tulip[eigenList].species = vector;
-                f1->sinc.tulip[eigenList].Partition= 0;
+                f1.tulip[eigenList].name = usz;
+                f1.tulip[eigenList].species = vector;
+                f1.tulip[eigenList].Partition= 0;
                 for( g = 0; g < quantumBasisSize ; g++)
                     for ( cmpl = 0 ;cmpl < spins(f1,usz+g) ; cmpl++)
                         for ( r = 0; r < part(f1, usz+g); r++){
-                            f1->sinc.tulip[eigenList].Partition++;//memory inline. need this.
+                            f1.tulip[eigenList].Partition++;//memory inline. need this.
                         }
-                // printf("[[%d %d %lld %lld]]\n", eigenList, usz,f1->sinc.tulip[usz].Address, streams(f1, eigenList, 0, 0 )-streams(f1, usz, 0, 0 ));
+                // printf("[[%d %d %lld %lld]]\n", eigenList, usz,f1.tulip[usz].Address, streams(f1, eigenList, 0, 0 )-streams(f1, usz, 0, 0 ));
                 for ( cmpl = 0 ;cmpl < spins(f1,eigenVectors) ; cmpl++)
                     
                     for ( powerMat = 1 ; powerMat <= 1 ; powerMat++){
@@ -1589,7 +1601,7 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
 
                                 exit(0);
                             }
-                            tCycleDecompostionGridOneMP(-2,f1, eigenList,0, pointers[rank],el+iii   , cmpl, f1->mem1->rt->vCANON, part(f1, el+iii), f1->mem1->rt->powDecompose);
+                            tCycleDecompostionGridOneMP(-2,f1, eigenList,0, pointers[rank],el+iii   , cmpl, f1.rt->vCANON, part(f1, el+iii), f1.rt->powDecompose);
                         
 //                            INT_TYPE jj;
   //                          for ( jj = 0 ;jj <= iii ; jj++)
@@ -1605,8 +1617,8 @@ INT_TYPE tEigenCycle (struct field * f1, enum division A ,char permutation,  INT
         }
     
     
-    //f1->sinc.tulip[matrixHbuild].Current[0] = quantumBasisSize;
-    //f1->sinc.tulip[matrixSbuild].Current[0] = quantumBasisSize;
+    //f1.tulip[matrixHbuild].Current[0] = quantumBasisSize;
+    //f1.tulip[matrixSbuild].Current[0] = quantumBasisSize;
 
     return 0;
 }

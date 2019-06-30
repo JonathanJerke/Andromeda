@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 6.2.1
+//VERSION 6.2.2
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -120,7 +120,7 @@ typedef double __complex__ DCOMPLEX_PRIME;
 ////
 
 #define NO_ACTION 'N'
-#define CDT 'T'
+#define CDT 'N'
 #define MaxSpin 2
 #define nSAG 5
 
@@ -200,6 +200,29 @@ enum shape{
     BandBasis,
 };
 
+enum functionType{
+    nullFunction,//0
+    Pseudo,//1
+    Yukawa,//2
+    Coulomb,//3
+    Morse,//4
+    LennardJones,//5
+    LDA,//6
+    BLYP//7
+};
+
+struct function_label{
+    INT_TYPE interval;
+    enum   functionType fn;
+    double param[MaxParamFunc];
+};
+
+struct interaction_label{
+    INT_TYPE num;
+    struct function_label func;
+};
+
+
 struct atom_label {
     INT_TYPE Z;
     INT_TYPE label;
@@ -207,7 +230,7 @@ struct atom_label {
 
 struct atom {
 	double position[4];
-	struct atom_label label;
+    struct atom_label label;
 };
 
 enum spinType {
@@ -223,16 +246,6 @@ enum memoryType {
     bufferAllocation
 };
 
-enum functionType{
-    nullFunction,//0
-    Pseudo,//1
-    Yukawa,//2
-    Coulomb,//3
-    Morse,//4
-    LennardJones,//5
-    LDA,//6
-    BLYP//7
-};
 
 enum basisElementType {
     nullBasisElement,
@@ -272,7 +285,6 @@ struct basisElement {
     double origin;
     INT_TYPE grid;
 };
-
 struct canon {
     Stream_Type *stream ;
     //vector types
@@ -284,18 +296,6 @@ struct canon {
     double lattice;
     double origin;
 };
-
-
-
-
-
-
-
-
-
-
-
-
 enum division{
     nullName,
     kineticMass,
@@ -621,35 +621,19 @@ struct name_label {
 
 struct sinc_label {
     INT_TYPE maxEV;
-    double d;//input lattice spacing
     struct canon rose[SPACE+1];
     struct name_label *tulip;//vectors
     enum division user;
     enum division vectorOperator;
     enum division end;
-
+    struct runTime * rt;
 };
 
-struct function_label{
-    INT_TYPE interval;
-    enum   functionType fn;
-    double param[MaxParamFunc];
-};
-
-struct interaction_label{
-    INT_TYPE num;
-    struct function_label func;
-};
 
 struct field {
-    struct atom atoms[MAXATOM+1];
-    INT_TYPE Na;
-    INT_TYPE Ne;
-    enum bodyType body;
-	struct sinc_label sinc;
-    struct interaction_label twoBody;
-    struct interaction_label oneBody;
-    struct MEM * mem1;
+    struct sinc_label sinc;//defined by primitives
+    struct sinc_label arch;//defined by "struct sinc_label sinc" structures
+    struct MEM * mem;
 };
 
 struct general_index{//one dimension
@@ -700,8 +684,6 @@ struct runTime {
 #ifdef MKL
     INT_TYPE NParallel;
 #endif
-    
-    INT_TYPE monteCarlo;
     INT_TYPE samples;
     INT_TYPE printFlag;
 
@@ -721,10 +703,17 @@ struct runTime {
 struct MEM {
     INT_TYPE bootedMemory;
     INT_TYPE files ;
-    char fileList [MAXSTRING][MAXSTRING];
     
     INT_TYPE filesVectorOperator ;
+#ifdef APPLE
+    char fileVectorOperator [1][MAXSTRING];
+    char fileList [1][MAXSTRING];
+#else
     char fileVectorOperator [MAXSTRING][MAXSTRING];
+    char fileList [MAXSTRING][MAXSTRING];
+#endif
+    
+    
     struct runTime * rt;
 };
 
@@ -754,9 +743,7 @@ struct input {
 #ifdef MKL
     INT_TYPE mkl;
 #endif
-
     INT_TYPE l2;
-    INT_TYPE nTargets;
     double scalar;
     double turn;
     double param1;
@@ -764,10 +751,6 @@ struct input {
     INT_TYPE interval;
     INT_TYPE sectors;
     double attack;
-//    INT_TYPE cSA[nSAG*nSAG*nSAG];
-    INT_TYPE side;
-    
-//    INT_TYPE hartreeFockFlag;
     INT_TYPE vectorOperatorFlag;
     INT_TYPE M1;
     double vectorMomentum;
@@ -776,6 +759,7 @@ struct input {
     INT_TYPE OCSBflag;
     INT_TYPE potentialFlag;
     INT_TYPE RAMmax ;
+    INT_TYPE bootRestriction;
     INT_TYPE decomposeRankMatrix;
     INT_TYPE iCharge;
 	INT_TYPE epi;
@@ -785,10 +769,7 @@ struct input {
     INT_TYPE outputFlag;
     INT_TYPE cycles;
     INT_TYPE Iterations;
-    INT_TYPE charge;
     INT_TYPE canonRank;
-    INT_TYPE heliumFlag;
- //   INT_TYPE paths;
     INT_TYPE nStates;
     INT_TYPE iRank ;
     INT_TYPE bRank;
@@ -796,6 +777,10 @@ struct input {
     INT_TYPE qFloor;
     INT_TYPE Angstroms;
     struct field c;
+    struct atom atoms[MAXATOM+1];
+    INT_TYPE Na;
+    struct interaction_label twoBody;
+    struct interaction_label oneBody;
 
 };
 

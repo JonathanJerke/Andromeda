@@ -25,7 +25,7 @@
 
 #include "input.h"
 
-INT_TYPE add_atom( struct field *f1, INT_TYPE l, double x1,double y1,double z1 ){
+INT_TYPE add_atom( struct input *f1, INT_TYPE l, double x1,double y1,double z1 ){
     INT_TYPE n = f1->Na;
     INT_TYPE Z1,label ;
     if ( n+1 == MAXATOM ){
@@ -57,10 +57,10 @@ INT_TYPE centerMass ( struct calculation * c1){
     
     
     
-    for ( alpha = 1 ; alpha <= c1->i.c.Na ; alpha++){
+    for ( alpha = 1 ; alpha <= c1->i.Na ; alpha++){
         for( l = 1 ; l <= 3 ; l++){
-            cm[l] += c1->i.c.atoms[alpha].label.Z*c1->i.c.atoms[alpha].position[l];
-            wcm[l] += c1->i.c.atoms[alpha].label.Z;
+            cm[l] += c1->i.atoms[alpha].label.Z*c1->i.atoms[alpha].position[l];
+            wcm[l] += c1->i.atoms[alpha].label.Z;
         }
     }
     
@@ -68,9 +68,9 @@ INT_TYPE centerMass ( struct calculation * c1){
     cm[2] /= wcm[2];
     cm[3] /= wcm[3];
     
-    for ( a = 1 ; a <= c1->i.c.Na ;a++){
+    for ( a = 1 ; a <= c1->i.Na ;a++){
         for ( l = 1 ; l<= 3 ; l++){
-            c1->i.c.atoms[a].position[l] -= cm[l];
+            c1->i.atoms[a].position[l] -= cm[l];
             //            printf("%f\n",cm[l]);
         }
     }
@@ -117,7 +117,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
     INT_TYPE i,d,ivalue;
     char test_line [MAXSTRING];
     double value;
-    INT_TYPE NINT_TYPE = 116;
+    INT_TYPE NINT_TYPE = 117;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -133,18 +133,18 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "zone","eZone","cycles","weightRank","printConvergence",//60
         "runFlag","LOST10","annulus","exclusion","runType",//65
         "SpinSqr","setRange","range","golden","bandStage",//70
-        "matrix","jCycle","fermi","signature","filter",//75
+        "boot","jCycle","fermi","signature","filter",//75
         "minRank","skipBuild","printLevel","stack","lanes",//80
         "sectors","body","LOST100","rds1","rds2",//85
         "rds3","interactionOne","interactionTwo","oCycle","interactionZero",//90
         "breakBody","interval","RAM","monteCarlo","samples",//95
         "hartreeFock","basisStage","iterations","group","states",//100
-        "length","side","lookBack","step","theory",
+        "length","XHA","lookBack","step","theory",
         "configuration","densityRank","densityBody","parallel","phase",
         "around","cmpl","clampStage","OCSB","decompose",
-        "shiftNO"
+        "shiftNO","matrix"
     };
-    INT_TYPE NDOUBLE = 71;
+    INT_TYPE NDOUBLE = 72;
     char *list_DOUBLE []= {"#",
         "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST" ,//1-5
         "xB", "yB", "zB", "xyRange" , "zRange",//6-10
@@ -160,7 +160,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "entropy","attack","scalar","turn","augment",
         "linearDependence","condition","seek","width","latte",
         "magnetismZ","clampMin","clampMax","electronMass","protonMass",
-        "pairMass"
+        "pairMass","gamma0"
     };
     
     for ( i = 1 ; i <= NINT_TYPE ; i++){
@@ -190,9 +190,9 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                  //   c->i.spinor = ivalue;
                     return i;
                     
-                case 4 :
-                    c->i.charge = ivalue;
-                    return i;
+//                case 4 :
+//                    c->i.charge = ivalue;
+//                    return i;
                     
 //                case 5 :
 //                    if ( ivalue == 0 || ivalue == 1) {
@@ -335,7 +335,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
 //                    c->i.mWeylet = ivalue;
 //                    return i;
                 case 32:
-                    c->i.heliumFlag = ivalue;
+//                    c->i.heliumFlag = ivalue;
                     return i;
 //                case 33:
 //                    c->i.correlationFlag = ivalue;
@@ -476,7 +476,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     return i;
 
                 case 71:
-                    c->i.decomposeRankMatrix = ivalue;
+                    c->i.bootRestriction = ivalue;
                     return i;
              
                 case 72:
@@ -631,23 +631,23 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     return i;
                 
                 case 87:
-                        c->i.c.oneBody.func.interval = c->i.interval;
-                        c->i.c.oneBody.func.fn = ivalue;
-                        c->i.c.oneBody.func.param[0] = c->i.scalar;
-                        c->i.c.oneBody.func.param[1] = c->i.turn;
-                        c->i.c.oneBody.func.param[2] = c->i.param1;
-                        c->i.c.oneBody.func.param[3] = c->i.param2;
+                        c->i.oneBody.func.interval = c->i.interval;
+                        c->i.oneBody.func.fn = ivalue;
+                        c->i.oneBody.func.param[0] = c->i.scalar;
+                        c->i.oneBody.func.param[1] = c->i.turn;
+                        c->i.oneBody.func.param[2] = c->i.param1;
+                        c->i.oneBody.func.param[3] = c->i.param2;
 
                         return i;
 
                     
                 case 88:
-                        c->i.c.twoBody.func.interval = c->i.interval;
-                        c->i.c.twoBody.func.fn = ivalue;
-                        c->i.c.twoBody.func.param[0] = c->i.scalar;
-                        c->i.c.twoBody.func.param[1] = c->i.turn;
-                        c->i.c.twoBody.func.param[2] = c->i.param1;
-                        c->i.c.twoBody.func.param[3] = c->i.param2;
+                        c->i.twoBody.func.interval = c->i.interval;
+                        c->i.twoBody.func.fn = ivalue;
+                        c->i.twoBody.func.param[0] = c->i.scalar;
+                        c->i.twoBody.func.param[1] = c->i.turn;
+                        c->i.twoBody.func.param[2] = c->i.param1;
+                        c->i.twoBody.func.param[3] = c->i.param2;
 
                         return i;
                 case 89:
@@ -669,8 +669,8 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     c->i.RAMmax = ivalue;
                     return i;
                 case 94:
-                    c->rt.monteCarlo = ivalue;
-                    return i;
+//                    c->rt.monteCarlo = ivalue;
+//                    return i;
                 case 95:
                     c->rt.samples = ivalue;
                     return i;
@@ -687,16 +687,14 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
             //        c->i.group = ivalue;
                     return i;
                 case 100:
-                    c->i.nTargets = ivalue;
-                    c->i.heliumFlag = ivalue;
-                    c->i.nStates = ivalue;
+//                    c->i.nStates = ivalue;
                     return i;
                 case 101:
                     c->i.l2 = ivalue;
                     return i;
-                case 102:
-                    c->i.side = ivalue;
-                    return i;
+//                case 102:
+//                    c->i.side = ivalue;
+//                    return i;
                 case 103:
                     c->i.lookBack = ivalue;
                     return i;
@@ -755,6 +753,9 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     return i;
                 case 116:
                     c->i.shiftFlag = 0;
+                    return i;
+                case 117:
+                    c->i.decomposeRankMatrix = ivalue;
                     return i;
 
             }
@@ -1029,6 +1030,11 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                 case 71:
                     c->i.massClampPair = value;
                     return d;
+                case 72:
+                    //Jacek Karwowski 06/17/2019
+                    c->i.turn = pow(120.*(1.+sqrt(value/(20.*2*c->i.param1*c->i.param1*(c->i.massProton * c->i.massClampPair/(c->i.massProton + c->i.massClampPair) )*c->i.scalar))) ,1./6);
+                    return d;
+
 
             }
 
@@ -1072,9 +1078,9 @@ INT_TYPE getGeometry(struct calculation * c, const char * input_line ){
             
             
             if ( c->i.Angstroms )
-                add_atom ( &(c->i.c), l,x/a0,y/a0,z/a0 );
+                add_atom ( &(c->i), l,x/a0,y/a0,z/a0 );
             else
-                add_atom ( &(c->i.c), l,x,y,z );
+                add_atom ( &(c->i), l,x,y,z );
 //            
 //            if ( Z > 12 ){
 //                (c->i.c).atoms[(c->i.c).Na].label.iZ = Z -10;
@@ -1147,17 +1153,17 @@ INT_TYPE rotateGeometry (struct calculation * c, double * u  ){
     cblas_daxpy(9,sin(mag),ux,1,R,1);
     cblas_daxpy(9,1-cos(mag),uu,1,R,1);
     
-    for ( alpha = 1; alpha <= c->i.c.Na ; alpha++)
+    for ( alpha = 1; alpha <= c->i.Na ; alpha++)
     {
-        x [0] = c->i.c.atoms[alpha].position[1];
-        x [1] = c->i.c.atoms[alpha].position[2];
-        x [2] = c->i.c.atoms[alpha].position[3];
+        x [0] = c->i.atoms[alpha].position[1];
+        x [1] = c->i.atoms[alpha].position[2];
+        x [2] = c->i.atoms[alpha].position[3];
         
         cblas_dgemv(CblasColMajor, CblasNoTrans,3,3,1.,R,3,x,1,0.,y,1);
         
-        c->i.c.atoms[alpha].position[1] = y[0];
-        c->i.c.atoms[alpha].position[2] = y[1];
-        c->i.c.atoms[alpha].position[3] = y[2];
+        c->i.atoms[alpha].position[1] = y[0];
+        c->i.atoms[alpha].position[2] = y[1];
+        c->i.atoms[alpha].position[3] = y[2];
 
     }
     
@@ -1177,17 +1183,17 @@ INT_TYPE modGeometry(struct calculation * c, const char * input_line ){
    input =  sscanf ( input_line, "%lld %lf %lf %lf ", &l, &x,&y,&z );
 #endif
     if ( input == 4 ){
-        if ( l > 0 && l <= c->i.c.Na ){
+        if ( l > 0 && l <= c->i.Na ){
             if ( c->i.Angstroms )
             {
-                c->i.c.atoms[l].position[1] += x/a0;
-                c->i.c.atoms[l].position[2] += y/a0;
-                c->i.c.atoms[l].position[3] += z/a0;
+                c->i.atoms[l].position[1] += x/a0;
+                c->i.atoms[l].position[2] += y/a0;
+                c->i.atoms[l].position[3] += z/a0;
             } else {
                 {
-                    c->i.c.atoms[l].position[1] += x;
-                    c->i.c.atoms[l].position[2] += y;
-                    c->i.c.atoms[l].position[3] += z;
+                    c->i.atoms[l].position[1] += x;
+                    c->i.atoms[l].position[2] += y;
+                    c->i.atoms[l].position[3] += z;
                 }
                 
                 
@@ -1238,9 +1244,9 @@ INT_TYPE intervalGeometry(struct calculation * c, const char * input_line ){
             y3 = (y+ lambda*(y2-y));
             z3 = (z+ lambda*(z2-z));
             if ( c->i.Angstroms )
-                add_atom ( &(c->i.c), l,x3/a0,y3/a0,z3/a0 );
+                add_atom ( &(c->i), l,x3/a0,y3/a0,z3/a0 );
             else
-                add_atom ( &(c->i.c), l,x3,y3,z3 );
+                add_atom ( &(c->i), l,x3,y3,z3 );
 
         }
         
@@ -1654,7 +1660,7 @@ INT_TYPE initCalculation(struct calculation * c ){
     c->i.outputFlag = 0;
     c->i.magFlag = 0;
     c->i.M1 = 0;
-    c->i.c.Na = 0;
+    c->i.Na = 0;
     c->mem.files = 0;
     c->mem.filesVectorOperator  = 0;
     c->i.OCSBflag = 0;
@@ -1672,6 +1678,23 @@ INT_TYPE initCalculation(struct calculation * c ){
     return 0;
 }
 
+INT_TYPE estSize ( INT_TYPE interval ){
+    
+    if ( interval == 0 ) {
+        return 14;
+    }
+    if ( interval == 1 ) {
+        return 22;
+    }
+    if ( interval == 2 ){
+        return 50;
+    }
+    if ( interval == 3 ){
+        return 134;
+    }
+    return 0;
+}
+
 
 
 INT_TYPE finalizeInit(struct calculation * c ){
@@ -1679,27 +1702,13 @@ INT_TYPE finalizeInit(struct calculation * c ){
     INT_TYPE a,nc;
     nc = 0;
     
-    for ( a = 1 ; a <= c->i.c.Na ; a++ ){
+    for ( a = 1 ; a <= c->i.Na ; a++ ){
         {
-            nc += c->i.c.atoms[a].label.Z;
+            nc += c->i.atoms[a].label.Z;
         }
     }
-    c->i.c.Ne = nc-c->i.charge;//set charges
-    
-    
-    if ( c->i.c.oneBody.func.interval <= 1 )
-        c->i.c.oneBody.num =23;
-    else {
-        printf("interval 1\n");
-        exit(9);
-    }
-    if ( c->i.c.twoBody.func.interval <= 1 )
-        c->i.c.twoBody.num =23;
-    else {
-        printf("interval 1\n");
-
-        exit(9);
-    }
+    c->i.oneBody.num =estSize(c->i.oneBody.func.interval);
+    c->i.twoBody.num =estSize(c->i.twoBody.func.interval);
     c->i.vectorOperatorFlag  =  countLinesFromFile(c,1);
     return 0;
 }
