@@ -31,27 +31,25 @@
 #define system_h
 
 #define COMPONENT 3
-#define PARTICLE 1
+#define PARTICLE 2
 #define SPACE (COMPONENT * PARTICLE)
 #define MAXATOM 4
 
-#define TEST1 0
-#define TEST2 0 
-#define TEST3 0
-#define TEST4 0
+#define MAXSTRING 1024
+#define MAXFILE 16
 
-//#define OMP
-//#define MKL
-#define GSL_LIB
+#define APPLE
 
 #ifdef APPLE
 #define MaxCore 2
 #endif
 
 #ifndef APPLE
+#define OMP
+//#define MKL
+#define GSL_LIB
 
 #define MaxCore 24
-
 
 #ifndef GSL_LIB
     THIS PROGRAM NEEDS INTEGRATION ROUTINES

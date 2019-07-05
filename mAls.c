@@ -2117,21 +2117,21 @@ double traceOne( struct sinc_label  f1 , enum division label , INT_TYPE spin ){
     return sum2;
 }
 
-INT_TYPE ready ( struct calculation * c ){
+INT_TYPE ready ( struct sinc_label f1){
     INT_TYPE readyMemory = 1;
     INT_TYPE readyVector = 1;
     INT_TYPE space;
-    if ( ! c->mem.bootedMemory || c->i.c.sinc.tulip == NULL )
+    if ( ! f1.bootedMemory || f1.tulip == NULL )
         readyMemory = 0;
     
     if ( readyMemory )
         for ( space = 0 ; space <= SPACE ; space++)
-            if ( c->i.c.sinc.rose[space].stream == NULL )
+            if ( f1.rose[space].stream == NULL )
             readyMemory = 0;
     
     
     if ( readyMemory )
-        if ( CanonicalRank(c->i.c.sinc, eigenVectors , 0 ) == 0 ){
+        if ( CanonicalRank(f1, eigenVectors , 0 ) == 0 ){
             printf("passing over stage because vector is null\n");
             readyVector = 0;
         }

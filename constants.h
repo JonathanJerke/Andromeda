@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 6.2.2
+//VERSION 6.3.3
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -94,7 +94,7 @@ typedef double __complex__ DCOMPLEX_PRIME;
 
 #endif
 
-#define MAXSTRING 1024
+
 #define MaxParamFunc 4
 
 #define Mag  0.0000021271911715764754 // Hartree/Tesla
@@ -124,8 +124,6 @@ typedef double __complex__ DCOMPLEX_PRIME;
 #define MaxSpin 2
 #define nSAG 5
 
-//pseudo-potentials
-
 
 enum bodyType {
     nada,
@@ -147,11 +145,10 @@ enum phaseType{
     productKrylov,//1
     solveRitz,//2
     decomposeTensor,//3
-    bandStage,//4
+    dummyPhase,//4
     frameDensity, //5
     svdOperation, //6
-    scaleBody,//7
-    collectKrylov//8
+    collectKrylov//7
 };
 
 enum calculationType{
@@ -285,17 +282,20 @@ struct basisElement {
     double origin;
     INT_TYPE grid;
 };
+
 struct canon {
     Stream_Type *stream ;
+    struct basisElement *basisList;
     //vector types
     enum basisElementType basis;
     enum componentType component;
     enum bodyType body;
     enum particleType particle;
     INT_TYPE count1Basis;
-    double lattice;
-    double origin;
 };
+
+
+
 enum division{
     nullName,
     kineticMass,
@@ -591,6 +591,12 @@ enum division{
     eigenVectors
 };
 
+//struct divisionRange {
+//    enum division begin;
+//    enum division end;
+//};
+
+
 struct space_label{
     ADDRESS_TYPE Address;
     
@@ -620,7 +626,9 @@ struct name_label {
 };
 
 struct sinc_label {
+    enum bootType boot;
     INT_TYPE maxEV;
+    INT_TYPE bootedMemory;
     struct canon rose[SPACE+1];
     struct name_label *tulip;//vectors
     enum division user;
@@ -630,10 +638,33 @@ struct sinc_label {
 };
 
 
+struct input_label {
+    INT_TYPE sectors;
+    INT_TYPE M1;
+    INT_TYPE body;
+    INT_TYPE irrep;
+    INT_TYPE files ;
+    INT_TYPE filesVectorOperator ;
+    char fileVectorOperator [MAXFILE][MAXSTRING];
+    char fileList [MAXFILE][MAXSTRING];
+    INT_TYPE epi;
+    INT_TYPE around;
+    double d;
+    double D;
+    double attack;
+    INT_TYPE Iterations;
+    INT_TYPE nStates;
+    INT_TYPE iRank ;
+    INT_TYPE bRank;
+    INT_TYPE qFloor;
+    INT_TYPE nOperator;
+    INT_TYPE filter;
+};
+
+
 struct field {
-    struct sinc_label sinc;//defined by primitives
-    struct sinc_label arch;//defined by "struct sinc_label sinc" structures
-    struct MEM * mem;
+    struct input_label i;
+    struct sinc_label f;
 };
 
 struct general_index{//one dimension
@@ -671,7 +702,6 @@ struct general_2index{//one dimension
 };
 
 struct runTime {
-    enum bootType boot;
     INT_TYPE powDecompose;
     INT_TYPE runFlag;
 #ifdef OMP
@@ -684,8 +714,7 @@ struct runTime {
 #ifdef MKL
     INT_TYPE NParallel;
 #endif
-    INT_TYPE samples;
-    INT_TYPE printFlag;
+//    INT_TYPE samples;
 
     double maxEntropy;
     double TARGET ;
@@ -695,34 +724,14 @@ struct runTime {
     double vCANON;
     double targetCondition;
     
-    enum bodyType body;
     enum calculationType calcType;
     enum phaseType phaseType;
 };
-
-struct MEM {
-    INT_TYPE bootedMemory;
-    INT_TYPE files ;
-    
-    INT_TYPE filesVectorOperator ;
-#ifdef APPLE
-    char fileVectorOperator [1][MAXSTRING];
-    char fileList [1][MAXSTRING];
-#else
-    char fileVectorOperator [MAXSTRING][MAXSTRING];
-    char fileList [MAXSTRING][MAXSTRING];
-#endif
-    
-    
-    struct runTime * rt;
-};
-
 
 struct input {
     double massElectron;//electron
     double massProton;//protons
     double massClampPair;//clamped second particle
-    INT_TYPE bodyFlag;
     INT_TYPE shiftFlag ;
     double realPart ;
     double minClamp;
@@ -732,10 +741,8 @@ struct input {
     double level;
     INT_TYPE magFlag;
     double  mag ;
-    INT_TYPE cycleStep;
-    INT_TYPE lookBack;
     INT_TYPE filter;
-    int irrep;
+    INT_TYPE irrep;
 #ifdef OMP
     INT_TYPE omp;
 #endif
@@ -743,45 +750,26 @@ struct input {
 #ifdef MKL
     INT_TYPE mkl;
 #endif
-    INT_TYPE l2;
+    INT_TYPE canonRank;
     double scalar;
     double turn;
     double param1;
     double param2;
     INT_TYPE interval;
-    INT_TYPE sectors;
     double attack;
-    INT_TYPE vectorOperatorFlag;
     INT_TYPE M1;
     double vectorMomentum;
     double springConstant;
     INT_TYPE springFlag;
-    INT_TYPE OCSBflag;
-    INT_TYPE potentialFlag;
+  //  INT_TYPE OCSBflag;
     INT_TYPE RAMmax ;
-    INT_TYPE bootRestriction;
+  //  INT_TYPE bootRestriction;
     INT_TYPE decomposeRankMatrix;
-    INT_TYPE iCharge;
-	INT_TYPE epi;
-    INT_TYPE around;
-	double d;
-    double D;
-    INT_TYPE outputFlag;
-    INT_TYPE cycles;
-    INT_TYPE Iterations;
-    INT_TYPE canonRank;
-    INT_TYPE nStates;
-    INT_TYPE iRank ;
-    INT_TYPE bRank;
-    INT_TYPE dRank;
-    INT_TYPE qFloor;
     INT_TYPE Angstroms;
-    struct field c;
     struct atom atoms[MAXATOM+1];
     INT_TYPE Na;
     struct interaction_label twoBody;
     struct interaction_label oneBody;
-
 };
 
 
@@ -789,7 +777,6 @@ struct calculation {
 	char name[MAXSTRING];
 	struct input i;
     struct runTime rt;
-    struct MEM mem;
 };
 
 #endif

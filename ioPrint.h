@@ -35,7 +35,7 @@ struct fieldArray {
     INT_TYPE class;
     INT_TYPE number;
 };
-INT_TYPE print(struct calculation *c,struct sinc_label f1, INT_TYPE reset,INT_TYPE mv,INT_TYPE lv,enum division eigenVectors );
+INT_TYPE print(struct calculation *c,struct field f1, INT_TYPE reset,INT_TYPE mv,INT_TYPE lv,enum division eigenVectors );
 INT_TYPE printVector (struct calculation *c,struct sinc_label f1,char * name,char * vectorName,INT_TYPE iv, INT_TYPE irrep, DCOMPLEX * vector);
 double evaluateDensityBracket( double x [], size_t dim , void * params );
 double evaluateVectorBracket( double x [], size_t dim , void * params );
@@ -50,7 +50,7 @@ INT_TYPE printOutput ( struct sinc_label f1,INT_TYPE number);
 INT_TYPE printVectorOutput ( struct sinc_label f1,INT_TYPE number);
 INT_TYPE printFaceOutput ( struct sinc_label f1,INT_TYPE number);
 
-INT_TYPE tLoadEigenWeights ( struct calculation * c1,struct sinc_label f1, char * filename , enum division input);
+INT_TYPE tLoadEigenWeights ( struct calculation * c1,struct field f1, char * filename , enum division input);
 
 void tFilename (char * cycleName, INT_TYPE count, INT_TYPE body ,INT_TYPE IRREP, INT_TYPE cmpl, char * filename);
 DCOMPLEX tFromReadToFilename (char * cycleName, char * read , char * filename,INT_TYPE cmplFlag, INT_TYPE cmpl);

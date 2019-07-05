@@ -66,10 +66,9 @@ int sort2Comp (const void * elem1, const void * elem2)
     return 0;
 }
 
-INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
-    assignCores(c1->i.c.sinc,1);
-    struct sinc_label f1 = c1->i.c.sinc;
-    enum bodyType bootBodies = c1->rt.body;
+INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum division eigen){
+    assignCores(f1,1);
+    enum bodyType bootBodies = f1.rose[0].body;
     INT_TYPE n1[SPACE];
     length1(f1,n1);
     INT_TYPE N1,rank;
@@ -82,7 +81,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
         if( f1.rose[space].body != nada){
             
             N1 = n1[space];
-            INT_TYPE Nx = imin(N1,c1->i.bootRestriction);
+            INT_TYPE Nx = N1;//imin(N1,c1->i.bootRestriction);
             
             N2 = N1*N1;
             myZero(f1,canonicalBuffersBM,0);
@@ -326,72 +325,72 @@ INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen){
     return 0;
 }
 
-INT_TYPE tMap (struct calculation * c1 ){
-    struct sinc_label f1 =  c1->i.c.sinc;
-    size_t ms = MAXSTRING;
-    char line0[MAXSTRING];
-    char name[MAXSTRING];
-
-    char *line = line0;
-    INT_TYPE rank = 0;
-    FILE  * list = NULL;
-
-    
-    sprintf(name, "%s.body", c1->name);
-    list = fopen(name, "r");
-    if ( list == NULL ){
-        printf("nop");
-        exit(0);
-    }
-    DCOMPLEX one = 1.;
-    int lines= 0,n[6],r[6],space,N1;
-
-    printVector(c1,c1->i.c.sinc,c1->name,c1->name,-1,0, &one);
-
-    getline(&line, &ms, list);
-    while(!feof(list)){
-        enum bodyType outBody = three;
-        if ( outBody == three ){
-            sscanf(line, "(%d,%d)(%d,%d)(%d,%d)", &n[0],&r[0], &n[1],&r[1],&n[2],&r[2]);
-            
-            for ( space = 0; space < SPACE ; space++)
-                if ( f1.rose[space].body != nada )
-                {
-                    N1 = f1.rose[space].count1Basis;
-                    cblas_dcopy(N1, streams(f1,f1.user + n[0],0,space)+N1*r[0], 1, streams(f1,diagonal1VectorA,rank,space), 1);
-                    cblas_dcopy(N1, streams(f1,f1.user + n[1],0,space)+N1*r[1], 1, streams(f1,diagonal1VectorB,rank,space), 1);
-                    cblas_dcopy(N1, streams(f1,f1.user + n[2],0,space)+N1*r[2], 1, streams(f1,diagonal1VectorC,rank,space), 1);
-
-                }
-            f1.tulip[diagonal1VectorA].Current[rank] = 1;
-            f1.tulip[diagonal1VectorB].Current[rank] = 1;
-            f1.tulip[diagonal1VectorC].Current[rank] = 1;
-
-            
-            f1.tulip[diagonal2VectorA].Current[rank] = 0;
-            f1.tulip[diagonal3VectorA].Current[rank] = 0;
-
-            tOuterProductSu(f1, diagonal1VectorA, rank, diagonal1VectorB, rank, diagonal2VectorA, rank);
-            tOuterProductSu(f1, diagonal2VectorA, rank, diagonal1VectorC, rank, diagonal3VectorA, rank);
-            if ( magnitude(f1, diagonal3VectorA) > 0.01 ){
-                printf("%d %d %d | %d %d %d ", n[0],n[1],n[2],r[0],r[1],r[2]);
-                printf("mag %f\n",magnitude(f1, diagonal3VectorA) );
-                tFilename(c1->name, lines+1, outBody, 0, 0, name);
-                FILE * outVector = fopen(name, "w");
-                outputFormat(f1, outVector, diagonal3VectorA, rank);
-                fclose(outVector);
-                printVector(c1,c1->i.c.sinc,c1->name,c1->name,lines,0, &one);
-            }
-        }
-    
-        lines++;
-        getline(&line, &ms, list);
-
-    }
-    
-    fclose(list);
-    return 0;
-}
+//INT_TYPE tMap (struct calculation * c1 ){
+//    struct sinc_label f1 =  c1->i.c.sinc;
+//    size_t ms = MAXSTRING;
+//    char line0[MAXSTRING];
+//    char name[MAXSTRING];
+//
+//    char *line = line0;
+//    INT_TYPE rank = 0;
+//    FILE  * list = NULL;
+//
+//
+//    sprintf(name, "%s.body", c1->name);
+//    list = fopen(name, "r");
+//    if ( list == NULL ){
+//        printf("nop");
+//        exit(0);
+//    }
+//    DCOMPLEX one = 1.;
+//    int lines= 0,n[6],r[6],space,N1;
+//
+//    printVector(c1,c1->i.c.sinc,c1->name,c1->name,-1,0, &one);
+//
+//    getline(&line, &ms, list);
+//    while(!feof(list)){
+//        enum bodyType outBody = three;
+//        if ( outBody == three ){
+//            sscanf(line, "(%d,%d)(%d,%d)(%d,%d)", &n[0],&r[0], &n[1],&r[1],&n[2],&r[2]);
+//
+//            for ( space = 0; space < SPACE ; space++)
+//                if ( f1.rose[space].body != nada )
+//                {
+//                    N1 = f1.rose[space].count1Basis;
+//                    cblas_dcopy(N1, streams(f1,f1.user + n[0],0,space)+N1*r[0], 1, streams(f1,diagonal1VectorA,rank,space), 1);
+//                    cblas_dcopy(N1, streams(f1,f1.user + n[1],0,space)+N1*r[1], 1, streams(f1,diagonal1VectorB,rank,space), 1);
+//                    cblas_dcopy(N1, streams(f1,f1.user + n[2],0,space)+N1*r[2], 1, streams(f1,diagonal1VectorC,rank,space), 1);
+//
+//                }
+//            f1.tulip[diagonal1VectorA].Current[rank] = 1;
+//            f1.tulip[diagonal1VectorB].Current[rank] = 1;
+//            f1.tulip[diagonal1VectorC].Current[rank] = 1;
+//
+//
+//            f1.tulip[diagonal2VectorA].Current[rank] = 0;
+//            f1.tulip[diagonal3VectorA].Current[rank] = 0;
+//
+//            tOuterProductSu(f1, diagonal1VectorA, rank, diagonal1VectorB, rank, diagonal2VectorA, rank);
+//            tOuterProductSu(f1, diagonal2VectorA, rank, diagonal1VectorC, rank, diagonal3VectorA, rank);
+//            if ( magnitude(f1, diagonal3VectorA) > 0.01 ){
+//                printf("%d %d %d | %d %d %d ", n[0],n[1],n[2],r[0],r[1],r[2]);
+//                printf("mag %f\n",magnitude(f1, diagonal3VectorA) );
+//                tFilename(c1->name, lines+1, outBody, 0, 0, name);
+//                FILE * outVector = fopen(name, "w");
+//                outputFormat(f1, outVector, diagonal3VectorA, rank);
+//                fclose(outVector);
+//                printVector(c1,c1->i.c.sinc,c1->name,c1->name,lines,0, &one);
+//            }
+//        }
+//
+//        lines++;
+//        getline(&line, &ms, list);
+//
+//    }
+//
+//    fclose(list);
+//    return 0;
+//}
 
 INT_TYPE tSlam (struct sinc_label f1,INT_TYPE allc, enum division vl, double fmax2){
     INT_TYPE tot =0,space,t,n1[SPACE];
@@ -548,7 +547,6 @@ INT_TYPE tFoundationLevel( struct sinc_label  f1, enum division A , double lvlm,
     ////////GRID
     ADDRESS_TYPE mx=1,i,j,k,r1,r2,r3,ii,jj,kk,xx[SPACE];
     INT_TYPE vaMax=0, classicalBasisSize,*mm,space;
-    enum bodyType bd = f1.rt->body;
     INT_TYPE nG = 1;//tSize(bd);
     INT_TYPE n1[SPACE];
     INT_TYPE r[SPACE];
@@ -639,7 +637,7 @@ INT_TYPE tFoundationLevel( struct sinc_label  f1, enum division A , double lvlm,
 
 
 INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum division usr){
-    INT_TYPE i,ii,space,cmpl=0,rank,nP = tPerms(f1.rt->body);
+    INT_TYPE i,ii,space,cmpl=0,rank;
     assignCores(f1, 2);
 #ifdef OMP
 #pragma omp parallel for private (ii,rank) schedule(dynamic,1)
@@ -654,7 +652,7 @@ INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum divisio
         f1.tulip[usr+ii].value.symmetry = tClassify(rank, f1, usr+ii);
     }
     if ( irrep && bodies(f1, usr+ii ) > one ){
-        printf("Symmetry Adaption %d-body -> %d-irrep\n",f1.rt->body, irrep );
+        printf("Symmetry Adaption -> %d-irrep\n", irrep );
         for ( ii = 0; ii < Ve ; ii++)
         {
             rank = 0;
@@ -763,193 +761,193 @@ INT_TYPE tSelect(struct sinc_label  f1, INT_TYPE Ve, INT_TYPE type, enum divisio
 }
 
 
-INT_TYPE tCollect (struct sinc_label  f1, INT_TYPE irrep,enum division usz, INT_TYPE target,double seekPower){
-    INT_TYPE  Ve = 0,Vex;
-    f1.tulip[diagonalVectorA].header = Cube;
-    f1.tulip[diagonalVectorB].header = Cube;
-    struct name_label bd = f1.tulip[build];
-    struct name_label eg = f1.tulip[eigen];
-
-    INT_TYPE space, nG = part(f1,eigen);
-    INT_TYPE flag = 1,ct = 0;
-    double min0= 0,max0= 1+2*tFoundationLevel(f1, build,0,0,2,0,target,1e9,1e9,1e9,NULL,irrep,seekPower) ;
-    double min = min0, max =  max0,vx= 100.,va = 1.;
-    printf("\n\n\t| Seek %d Body vectors in %d components \t|\n", bodies(f1, eigenVectors), SPACE);
-    printf("\t| Greater than Target \t: %6d\t\t|\n",target);
-    
-    ct = tFoundationLevel(f1, build,0,max0,1,0,target,1e9,1e9,1e9,NULL,irrep,seekPower);
-    while(1){
-        if ( flag ){
-            if ( ct < target*va )
-                min = 0.5*(max+min);
-            else
-                max = 0.5*(max+min);
-        }
-        ct = tFoundationLevel(f1, build,0,0.5*(min+max),1,usz,target,1e9,1e9,1e9,NULL,irrep,seekPower);
-        printf("\t| Current \t: %6d \t %f\t\t|\n",ct,0.5*(min+max) );
-        if ( max-min < 1e-9  ){
-            printf("conv");
-            exit(0);
-        }
-        if ( ct >= target && ct <= target*va*vx)
-        {
-            
-            Ve = 0;
-            INT_TYPE *mmm = malloc(sizeof(INT_TYPE ) *2*SPACE*ct),i,*mm;
-            ct = tFoundationLevel(f1, build,0,0.5*(min+max),0,usz,target,1e9,1e9,1e9,mmm,irrep,seekPower);
-            INT_TYPE n1[SPACE];
-            {
-                INT_TYPE space ;
-                for ( space = 0 ; space < SPACE ; space++)
-                    n1[space]= vectorLen(f1, space);
-            }
-            struct sortClass * sc = malloc ( sizeof( struct sortClass )*ct); ;
-            for ( i = 0; i < ct ; i++){
-                for ( space = 0; space < SPACE ; space++){
-                    sc[i].n1[space] = n1[space];
-                    sc[i].str[space] = streams(f1,foundationStructure,0,space);
-                }
-                sc[i].i = i;
-                sc[i].nG = nG;
-                sc[i].mmm = mmm;
-            }
-            
-            qsort(sc, ct, sizeof(struct sortClass), &sortComp);
-            
-            
-            for ( i = 0; i < ct ; i++){
-                mm = mmm+sc[i].i*2*SPACE;
-                tClear(f1,diagonalVectorA);
-                f1.tulip[diagonalVectorA].Current[0] = 1;;
-                
-                for ( space = 0; space < SPACE ; space++)
-                    if ( f1.rose[space].body != nada)
-                    cblas_dcopy(n1[space], myStreams(f1, bill1+space, 0)+(mm[2*space])*n1[space]+(mm[2*space+1])*n1[space]*n1[space],1,streams(f1,diagonalVectorA,0,space),1);
-                
-                Vex =  tSASplit(f1, irrep, Ve,target, usz, diagonalVectorA);
-                if ( Vex - Ve ){
-                    printf(" |%d| %d %d %d -> %f\n",i, mm[0],mm[2],mm[4],vale(sc+i));
-                }
-                Ve = Vex;
-                if ( Ve > target -2)
-                    break;
-            }
-            free(mmm);
-            free ( sc);
-
-//            if ( Ve == target )
-               break;
-//            else
-//            {
-//                printf("instead try floorFlag %d\n", Ve);
-//                va *= 1.5;
-//                max = max0;
-//                printf("\t| increasing buffer region to %1.3f\t|\n", va);
+//INT_TYPE tCollect (struct sinc_label  f1, INT_TYPE irrep,enum division usz, INT_TYPE target,double seekPower){
+//    INT_TYPE  Ve = 0,Vex;
+//    f1.tulip[diagonalVectorA].header = Cube;
+//    f1.tulip[diagonalVectorB].header = Cube;
+//    struct name_label bd = f1.tulip[build];
+//    struct name_label eg = f1.tulip[eigen];
 //
-//                if ( va > 2 )
-//                    exit(2);
+//    INT_TYPE space, nG = part(f1,eigen);
+//    INT_TYPE flag = 1,ct = 0;
+//    double min0= 0,max0= 1+2*tFoundationLevel(f1, build,0,0,2,0,target,1e9,1e9,1e9,NULL,irrep,seekPower) ;
+//    double min = min0, max =  max0,vx= 100.,va = 1.;
+//    printf("\n\n\t| Seek %d Body vectors in %d components \t|\n", bodies(f1, eigenVectors), SPACE);
+//    printf("\t| Greater than Target \t: %6d\t\t|\n",target);
+//    
+//    ct = tFoundationLevel(f1, build,0,max0,1,0,target,1e9,1e9,1e9,NULL,irrep,seekPower);
+//    while(1){
+//        if ( flag ){
+//            if ( ct < target*va )
+//                min = 0.5*(max+min);
+//            else
+//                max = 0.5*(max+min);
+//        }
+//        ct = tFoundationLevel(f1, build,0,0.5*(min+max),1,usz,target,1e9,1e9,1e9,NULL,irrep,seekPower);
+//        printf("\t| Current \t: %6d \t %f\t\t|\n",ct,0.5*(min+max) );
+//        if ( max-min < 1e-9  ){
+//            printf("conv");
+//            exit(0);
+//        }
+//        if ( ct >= target && ct <= target*va*vx)
+//        {
+//            
+//            Ve = 0;
+//            INT_TYPE *mmm = malloc(sizeof(INT_TYPE ) *2*SPACE*ct),i,*mm;
+//            ct = tFoundationLevel(f1, build,0,0.5*(min+max),0,usz,target,1e9,1e9,1e9,mmm,irrep,seekPower);
+//            INT_TYPE n1[SPACE];
+//            {
+//                INT_TYPE space ;
+//                for ( space = 0 ; space < SPACE ; space++)
+//                    n1[space]= vectorLen(f1, space);
 //            }
-        }
-        
-    }
-//    if ( target != Ve ){
-//        printf("ack no !\n");
-//        exit(0);
+//            struct sortClass * sc = malloc ( sizeof( struct sortClass )*ct); ;
+//            for ( i = 0; i < ct ; i++){
+//                for ( space = 0; space < SPACE ; space++){
+//                    sc[i].n1[space] = n1[space];
+//                    sc[i].str[space] = streams(f1,foundationStructure,0,space);
+//                }
+//                sc[i].i = i;
+//                sc[i].nG = nG;
+//                sc[i].mmm = mmm;
+//            }
+//            
+//            qsort(sc, ct, sizeof(struct sortClass), &sortComp);
+//            
+//            
+//            for ( i = 0; i < ct ; i++){
+//                mm = mmm+sc[i].i*2*SPACE;
+//                tClear(f1,diagonalVectorA);
+//                f1.tulip[diagonalVectorA].Current[0] = 1;;
+//                
+//                for ( space = 0; space < SPACE ; space++)
+//                    if ( f1.rose[space].body != nada)
+//                    cblas_dcopy(n1[space], myStreams(f1, bill1+space, 0)+(mm[2*space])*n1[space]+(mm[2*space+1])*n1[space]*n1[space],1,streams(f1,diagonalVectorA,0,space),1);
+//                
+//                //Vex =  tSASplit(f1, irrep, Ve,target, usz, diagonalVectorA);
+//                if ( Vex - Ve ){
+//                    printf(" |%d| %d %d %d -> %f\n",i, mm[0],mm[2],mm[4],vale(sc+i));
+//                }
+//                Ve = Vex;
+//                if ( Ve > target -2)
+//                    break;
+//            }
+//            free(mmm);
+//            free ( sc);
+//
+////            if ( Ve == target )
+//               break;
+////            else
+////            {
+////                printf("instead try floorFlag %d\n", Ve);
+////                va *= 1.5;
+////                max = max0;
+////                printf("\t| increasing buffer region to %1.3f\t|\n", va);
+////
+////                if ( va > 2 )
+////                    exit(2);
+////            }
+//        }
+//        
 //    }
-    
-    return Ve;
-}
+////    if ( target != Ve ){
+////        printf("ack no !\n");
+////        exit(0);
+////    }
+//    
+//    return Ve;
+//}
 
 
-INT_TYPE tSASplit ( struct sinc_label  f1, INT_TYPE irrep , INT_TYPE Ve , INT_TYPE target,enum division usz, enum division vector){
-    INT_TYPE map[24],nDeg=0,ii;
-    
-    if ( f1.rt->body == one || irrep == 0 ){
-        nDeg = 1;
-        map[1] = 0;
-    }else
-        
-        if ( f1.rt->body == two ){
-            if ( irrep == 1 ){
-                map[1] = 1;
-                nDeg = 1;
-            }else
-                if ( irrep == 2 ){
-                    nDeg = 1;
-                    map[1] = 2;
-                }
-        }else
-            if ( f1.rt->body== three ){
-                if ( irrep == 1 ){
-                    map[1] = 1;
-                    nDeg = 1;
-                }else
-                    if ( irrep == 2 ){
-                        map[1] = 2;
-                        nDeg = 1;
-                    } else if ( irrep == 3 ){
-                        nDeg = 4;
-                        map[1] = 3;
-                        map[2] = 4;
-                        map[3] = 5;
-                        map[4] = 6;
-                    }
-            }
-            else if ( f1.rt->body == four ){
-                //
-                if ( irrep == 1 ){
-                    nDeg = 1;
-                    map [1] = 1;
-                }else if ( irrep == 2 ){
-                    map[1] = 2;
-                    nDeg = 1;
-                } else if ( irrep == 3 ){
-                    map[1] = 3;
-                    map[2] = 4;
-                    map[3] = 5;
-                    map[4] = 6;
-                    nDeg = 4;
-                } else if ( irrep == 4){
-                    map[1] = 7;
-                    map[2] = 8;
-                    map[3] = 9;
-                    map[4] = 10;
-                    map[5] = 11;
-                    map[6] = 12;
-                    map[7] = 13;
-                    map[8] = 14;
-                    map[9] = 15;
-                    nDeg = 9;
-                }else if ( irrep == 5 ){
-                    map[1] = 16;
-                    map[2] = 17;
-                    map[3] = 18;
-                    map[4] = 19;
-                    map[5] = 20;
-                    map[6] = 21;
-                    map[7] = 22;
-                    map[8] = 23;
-                    map[9] = 24;
-                    nDeg = 9;
-                }
-            }
-    
-    
-    for ( ii = 1 ; ii <= nDeg ; ii++)
-        
-        if ( tSelect(f1, Ve, map[ii]+tPerms(f1.rt->body), usz, vector, 1)){
-            Ve++;
-            if ( Ve > target-2 )
-                return Ve;
-        
-        }
-    return Ve;
-}
+//INT_TYPE tSASplit ( struct sinc_label  f1, INT_TYPE irrep , INT_TYPE Ve , INT_TYPE target,enum division usz, enum division vector){
+//    INT_TYPE map[24],nDeg=0,ii;
+//    enum bodyType body = f1.rose[0].body;
+//
+//    if ( body == one || irrep == 0 ){
+//        nDeg = 1;
+//        map[1] = 0;
+//    }else
+//
+//        if ( body == two ){
+//            if ( irrep == 1 ){
+//                map[1] = 1;
+//                nDeg = 1;
+//            }else
+//                if ( irrep == 2 ){
+//                    nDeg = 1;
+//                    map[1] = 2;
+//                }
+//        }else
+//            if ( body== three ){
+//                if ( irrep == 1 ){
+//                    map[1] = 1;
+//                    nDeg = 1;
+//                }else
+//                    if ( irrep == 2 ){
+//                        map[1] = 2;
+//                        nDeg = 1;
+//                    } else if ( irrep == 3 ){
+//                        nDeg = 4;
+//                        map[1] = 3;
+//                        map[2] = 4;
+//                        map[3] = 5;
+//                        map[4] = 6;
+//                    }
+//            }
+//            else if ( body == four ){
+//                //
+//                if ( irrep == 1 ){
+//                    nDeg = 1;
+//                    map [1] = 1;
+//                }else if ( irrep == 2 ){
+//                    map[1] = 2;
+//                    nDeg = 1;
+//                } else if ( irrep == 3 ){
+//                    map[1] = 3;
+//                    map[2] = 4;
+//                    map[3] = 5;
+//                    map[4] = 6;
+//                    nDeg = 4;
+//                } else if ( irrep == 4){
+//                    map[1] = 7;
+//                    map[2] = 8;
+//                    map[3] = 9;
+//                    map[4] = 10;
+//                    map[5] = 11;
+//                    map[6] = 12;
+//                    map[7] = 13;
+//                    map[8] = 14;
+//                    map[9] = 15;
+//                    nDeg = 9;
+//                }else if ( irrep == 5 ){
+//                    map[1] = 16;
+//                    map[2] = 17;
+//                    map[3] = 18;
+//                    map[4] = 19;
+//                    map[5] = 20;
+//                    map[6] = 21;
+//                    map[7] = 22;
+//                    map[8] = 23;
+//                    map[9] = 24;
+//                    nDeg = 9;
+//                }
+//            }
+//
+//
+//    for ( ii = 1 ; ii <= nDeg ; ii++)
+//
+//        if ( tSelect(f1, Ve, map[ii]+tPerms(body), usz, vector, 1)){
+//            Ve++;
+//            if ( Ve > target-2 )
+//                return Ve;
+//
+//        }
+//    return Ve;
+//}
 
 
-INT_TYPE tSquareVectors(struct calculation * c1, INT_TYPE EV2, enum division usz,enum division usr ){
+INT_TYPE tSquareVectors(struct sinc_label f1, INT_TYPE EV2, enum division usz,enum division usr ){
     INT_TYPE i,j;
-    struct sinc_label f1 = c1->i.c.sinc;
 
     for ( i = 0; i < EV2 ; i++)
         for ( j = 0 ; j < EV2 ; j++)
@@ -1033,77 +1031,76 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct
 
 INT_TYPE tLesserDivideIteration ( struct sinc_label  f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
 
-INT_TYPE tEdges(struct calculation *c1, enum division vector){
-    struct sinc_label f1 = c1->i.c.sinc;
-    INT_TYPE info,spatial;
-    DCOMPLEX ov,me;
-    enum bodyType bootBodies = f1.rose[0].body;
-    if ( 1 ){
-        //EDGES ALT
-        enum block b,bx;
-        INT_TYPE iii,jjj=1,dim,irrep;
-        double sum = 0;
-        //for ( irrep = 0 ;irrep <= 5 ; irrep++)
-        {
-              //  if ((! c1->i.irrep || f1.tulip[vector].value.symmetry  == irrep) && irrep == c1->i.irrep)
-                {
-                    bx = tv1;
-                    if ( bootBodies == two )
-                        bx = tv2;
-                    else if ( bootBodies == three )
-                        bx = tv3;
-                    else if ( bootBodies == four )
-                        bx = tv4;
-                    for ( b = tv1 ; b <= bx; b++){
-                        
-                        for ( spatial = 0 ; spatial < 2 ; spatial++){
-                            printf("electron %d:%d\t",b,spatial);
-
-                            sum = 0;
-                            for ( dim = 0; dim < COMPONENT ; dim++){
-                                tClear(f1,edgeElectronMatrix );
-                                if ( spatial == 0 )
-                                    tEnd(f1, edgeElectronMatrix, 0, dim);
-                                if ( spatial == 1 )
-                                    tAlt(f1, edgeElectronMatrix, 0, dim);
-                                me = 0.;
-                                enum division u = edgeElectronMatrix+b;
-                                struct name_label uu = f1.tulip[u];
-                                pMatrixElements( f1, vector, edgeElectronMatrix+b, vector, &me, &ov);
-                                printf("%1.8f ", (creal(me/ov)));
-                                sum += (creal(me/ov));
-                            }
-                            printf(": %1.8f\n", sum);
-                        }
-
-                        if ( c1->rt.calcType == clampProtonElectronCalculation)
-                            for ( spatial = 0 ; spatial < 2 ; spatial++){
-                                printf("proton %d:%d\t",b,spatial);
-
-                                sum = 0;
-                                for ( dim = COMPONENT; dim < 2*COMPONENT ; dim++)
-                                    if ( f1.rose[dim].body != nada ){
-                                        
-                                    tClear(f1,edgeProtonMatrix );
-                                    if ( spatial == 0 )
-                                        tEnd(f1, edgeProtonMatrix, 0, dim);
-                                    if ( spatial == 1 )
-                                        tAlt(f1, edgeProtonMatrix, 0, dim);
-                                    me = 0.;
-                                    pMatrixElements( f1, vector, edgeProtonMatrix+b, vector, &me, &ov);
-                                    printf("%1.8f ", creal(me/ov));
-                                    sum += (creal(me/ov));
-                                }
-                                printf(": %1.8f\n", sum);
-                            }
-                        
-                    }
-                    printf("\n\n");
-                }
-        }
-    }
-    return 0;
-}
+//INT_TYPE tEdges(struct sinc_label f1, enum division vector){
+//    INT_TYPE info,spatial;
+//    DCOMPLEX ov,me;
+//    enum bodyType bootBodies = f1.rose[0].body;
+//    if ( 1 ){
+//        //EDGES ALT
+//        enum block b,bx;
+//        INT_TYPE iii,jjj=1,dim,irrep;
+//        double sum = 0;
+//        //for ( irrep = 0 ;irrep <= 5 ; irrep++)
+//        {
+//              //  if ((! c1->i.irrep || f1.tulip[vector].value.symmetry  == irrep) && irrep == c1->i.irrep)
+//                {
+//                    bx = tv1;
+//                    if ( bootBodies == two )
+//                        bx = tv2;
+//                    else if ( bootBodies == three )
+//                        bx = tv3;
+//                    else if ( bootBodies == four )
+//                        bx = tv4;
+//                    for ( b = tv1 ; b <= bx; b++){
+//                        
+//                        for ( spatial = 0 ; spatial < 2 ; spatial++){
+//                            printf("electron %d:%d\t",b,spatial);
+//
+//                            sum = 0;
+//                            for ( dim = 0; dim < COMPONENT ; dim++){
+//                                tClear(f1,edgeElectronMatrix );
+//                                if ( spatial == 0 )
+//                                    tEnd(f1, edgeElectronMatrix, 0, dim);
+//                                if ( spatial == 1 )
+//                                    tAlt(f1, edgeElectronMatrix, 0, dim);
+//                                me = 0.;
+//                                enum division u = edgeElectronMatrix+b;
+//                                struct name_label uu = f1.tulip[u];
+//                                pMatrixElements( f1, vector, edgeElectronMatrix+b, vector, &me, &ov);
+//                                printf("%1.8f ", (creal(me/ov)));
+//                                sum += (creal(me/ov));
+//                            }
+//                            printf(": %1.8f\n", sum);
+//                        }
+//
+//                        if ( c1->rt.calcType == clampProtonElectronCalculation)
+//                            for ( spatial = 0 ; spatial < 2 ; spatial++){
+//                                printf("proton %d:%d\t",b,spatial);
+//
+//                                sum = 0;
+//                                for ( dim = COMPONENT; dim < 2*COMPONENT ; dim++)
+//                                    if ( f1.rose[dim].body != nada ){
+//                                        
+//                                    tClear(f1,edgeProtonMatrix );
+//                                    if ( spatial == 0 )
+//                                        tEnd(f1, edgeProtonMatrix, 0, dim);
+//                                    if ( spatial == 1 )
+//                                        tAlt(f1, edgeProtonMatrix, 0, dim);
+//                                    me = 0.;
+//                                    pMatrixElements( f1, vector, edgeProtonMatrix+b, vector, &me, &ov);
+//                                    printf("%1.8f ", creal(me/ov));
+//                                    sum += (creal(me/ov));
+//                                }
+//                                printf(": %1.8f\n", sum);
+//                            }
+//                        
+//                    }
+//                    printf("\n\n");
+//                }
+//        }
+//    }
+//    return 0;
+//}
 
 //INT_TYPE tConvergeTest (struct calculation * c1, enum division input){
 //

@@ -43,14 +43,14 @@ int sortComp (const void * elem1, const void * elem2);
 int sort2Comp (const void * elem1, const void * elem2);
 
 INT_TYPE tBootManyConstruction (struct calculation * c1);
-INT_TYPE tBoot1Construction(struct calculation * c1, enum division eigen);
+INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label, enum division eigen);
 INT_TYPE tSlam (struct sinc_label  f1,INT_TYPE allc, enum division vl, double fmax2);
-INT_TYPE tSASplit ( struct sinc_label  f1, INT_TYPE type , INT_TYPE Ve ,INT_TYPE target, enum division usz, enum division vector);
+//INT_TYPE tSASplit ( struct sinc_label  f1, INT_TYPE type , INT_TYPE Ve ,INT_TYPE target, enum division usz, enum division vector);
 
 INT_TYPE tFoundationLevel( struct sinc_label  f1, enum division A , double lvlm,double lvlx, INT_TYPE ops,enum division build,INT_TYPE xB, double lvl1, double lvl2, double lvl3,INT_TYPE * mmm, INT_TYPE type,double seekPower);
 //void tDFTChallenge(struct sinc_label * f1, INT_TYPE index);
 INT_TYPE tOCSB (struct calculation * c1 , enum division usz);
-INT_TYPE tSquareVectors(struct calculation * c1, INT_TYPE EV2, enum division usz,enum division usr );
+INT_TYPE tSquareVectors(struct sinc_label f1, INT_TYPE EV2, enum division usz,enum division usr );
 INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart,  struct sinc_label  f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
 INT_TYPE tLesserDivideIteration ( struct sinc_label f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
 INT_TYPE tMinorDivideIteration ( struct sinc_label f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, double shift);
@@ -59,5 +59,5 @@ INT_TYPE tEigenCycle (struct sinc_label  f1, enum division A ,char permutation, 
 INT_TYPE tSelect(struct sinc_label  f1, INT_TYPE Ve, INT_TYPE type, enum division usr, enum division usa, INT_TYPE testFlag);
 INT_TYPE tCollect (struct sinc_label  f1, INT_TYPE type,enum division usz, INT_TYPE target,double seekPower);
 INT_TYPE tFilter(struct sinc_label  f1, INT_TYPE Ve, INT_TYPE type, enum division usr);
-INT_TYPE tEdges(struct calculation *c1, enum division vector);
+INT_TYPE tEdges(struct sinc_label f1, enum division vector);
 #endif /* eigen_h */

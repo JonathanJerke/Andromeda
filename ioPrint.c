@@ -54,7 +54,7 @@ INT_TYPE printVector (struct calculation *c,struct sinc_label f1, char * name,ch
     return 0;
 }
 
-INT_TYPE print(struct calculation *c , struct sinc_label f1,INT_TYPE reset,INT_TYPE mv, INT_TYPE lv,enum division eigenVectors){
+INT_TYPE print(struct calculation *c , struct field f1,INT_TYPE reset,INT_TYPE mv, INT_TYPE lv,enum division eigenVectors){
     INT_TYPE irrep;
     INT_TYPE iii,jjj=1,cmpl;
     char str [MAXSTRING];
@@ -68,25 +68,24 @@ INT_TYPE print(struct calculation *c , struct sinc_label f1,INT_TYPE reset,INT_T
         for ( iii = mv; iii < lv  ; iii++)
           //  if( (! c->i.irrep || f1->sinc.tulip[eigenVectors+iii].value.symmetry  == irrep)&& irrep == c->i.irrep)
         {
-                tEdges(c , eigenVectors+iii);
-            irrep = f1.tulip[eigenVectors+iii].value.symmetry;
-                printf("State%d:%d:,%d ,%1.15f, %d, %d , %1.1f,%1.15f\n", iii+1, c->i.epi*2+1,iii+1,f1.tulip[eigenVectors+iii].value.value,bodies(f1,eigenVectors+iii),irrep, deg(f1, irrep),f1.tulip[eigenVectors+iii].value.value2);
+            //    tEdges(c , eigenVectors+iii);
+            irrep = f1.f.tulip[eigenVectors+iii].value.symmetry;
+                printf("State%d:%d:,%d ,%1.15f, %d, %d , %1.1f,%1.15f\n", iii+1, f1.i.epi*2+1,iii+1,f1.f.tulip[eigenVectors+iii].value.value,bodies(f1.f,eigenVectors+iii),irrep, deg(f1.f, irrep),f1.f.tulip[eigenVectors+iii].value.value2);
                 
-            //    if ( (c->i.outputFlag) % 2 == 1){
-                    printVector(c,f1, c->name,c->name, iii,irrep, &one);
-                    for ( cmpl = 0 ; cmpl < spins(f1, eigenVectors+iii) ; cmpl++)
+                    printVector(c,f1.f, c->name,c->name, iii,irrep, &one);
+                    for ( cmpl = 0 ; cmpl < spins(f1.f, eigenVectors+iii) ; cmpl++)
                     {
 #ifndef APPLE
-                        tFilename(c->name,iii+1,bodies(f1, eigenVectors+iii) ,irrep, cmpl,str);
+                        tFilename(c->name,iii+1,bodies(f1.f, eigenVectors+iii) ,irrep, cmpl,str);
                         
-                        FILE * out = fopen ( str,"w" );
+                        FILE * out = NULL;
+                        out = fopen ( str,"w" );
                         if ( out != NULL ){
-                            outputFormat(f1, out, eigenVectors+iii,cmpl  );
+                            outputFormat(f1.f, out, eigenVectors+iii,cmpl  );
                             fclose(out);
                         }
 #endif
                     }
-               // }
             
             }
 
@@ -1011,7 +1010,8 @@ INT_TYPE inputFormat(struct sinc_label f1,char * name,  enum division buffer, IN
 //    
 //}
 
-INT_TYPE tLoadEigenWeights (struct calculation * c1, struct sinc_label f1,char * filename, enum division inputVectors){
+INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filename, enum division inputVectors){
+    struct sinc_label f1 = f.f;
     INT_TYPE space,ct = 0,ct2,number,class,weight,cmpl;
     FILE * in = NULL;
     in = fopen(filename, "r");
@@ -1038,64 +1038,43 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct sinc_label f1,char *
                         {
                             f1.tulip[inputVectors+ct].Current[cmpl] = 0;
 
-                            struct calculation c2 = *c1;
-                            c2.rt.body = inputFormat(f1, name, nullName, 100);
-                            c2.i.c.mem->bootedMemory =0;
-                            c2.i.c.sinc.tulip = NULL;
-                            c2.i.sectors = 0;
-                            c2.i.decomposeRankMatrix = 1;
-                            for ( space = 0; space <= SPACE ; space++)
-                                c2.i.c.sinc.rose[space].stream = NULL;
-                            c2.rt.boot = noMatrices;
-                            c2.i.vectorOperatorFlag= 0;
-                            c2.i.springFlag= 0;
-                            c2.i.nStates= 1;
-
-                            c2.i.qFloor = 0;
+                            struct field f2 = initField();
+                            
+                            f2.i = f.i;
+                            f2.i.Iterations = 1;
+                            f2.i.files = 0;
+                            f2.i.filesVectorOperator = 0;
+                            f2.i.sectors = 0;
+                            f2.i.qFloor = 0;
+                            
+                            f2.i.body = inputFormat(f1,name, nullName, 100);
                         
-#ifdef OMP
-                            c2.rt.NLanes = spins(f1, eigenVectors);
-#endif
-#ifdef MKL
-                            c2.rt.NParallel = 1;
-#endif
-                            c2.i.bRank  = inputFormat(f1, name, nullName, 2);
-                            c2.i.canonRank = 0;
-                            c2.i.nStates = 1;
-                            c2.i.oneBody.func.fn = nullFunction;
-                            c2.i.twoBody.func.fn = nullFunction;
+                            f2.f.boot = noMatrices;
+                            
+                            f2.i.bRank  = inputFormat(f1, name, nullName, 2);
+                            f2.i.nStates = 1;
                             if ( SPACE > COMPONENT ){
-                                if ( c2.rt.runFlag )
-                                    c2.i.around = (inputFormat(f1, name, nullName, 201)/2-1)/2;
+                                if ( c1->rt.runFlag )
+                                    f2.i.around = (inputFormat(f1, name, nullName, 201)/2-1)/2;
                                 else
-                                    c2.i.around = (inputFormat(f1, name, nullName, 201)-1)/2;
-                                c2.i.D = c1->i.D * pow( (2.* c1->i.around + 1.) /(2.*c2.i.around + 1),1.);
+                                    f2.i.around = (inputFormat(f1, name, nullName, 201)-1)/2;
+                                f2.i.D = f2.i.D * pow( (2.* f2.i.around + 1.) /(2.*f.i.around + 1),1.);
                             }
-                            if ( c2.rt.runFlag )
-                                c2.i.epi =(inputFormat(f1, name, nullName, 200)/2-1)/2;
+                            if ( c1->rt.runFlag )
+                                f2.i.epi =(inputFormat(f1, name, nullName, 200)/2-1)/2;
                             else
-                                c2.i.epi =(inputFormat(f1, name, nullName, 200)-1)/2;
+                                f2.i.epi =(inputFormat(f1, name, nullName, 200)-1)/2;
 
-                            c2.i.d = c1->i.d* pow( (2.* c1->i.epi + 1.) /(2.*c2.i.epi + 1),c2.i.attack);
+                            f2.i.d = f2.i.d* pow( (2.* f2.i.epi + 1.) /(2.*f.i.epi + 1),f.i.attack);
+                            
+                            iModel(c1,&f2);
+                            inputFormat(f2.f, name, eigenVectors,1);
+                            xEqua(f1,inputVectors+ct, cmpl, f2.f, eigenVectors,0);
+                            f1.tulip[inputVectors+ct].value.symmetry = f2.f.tulip[eigenVectors].value.symmetry;
 
-                            
-                            printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t\n",2* c2.i.epi + 1,c2.i.d);
-                            
-                            if ( SPACE > 3 )
-                                printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t\n",2* c2.i.around + 1,c2.i.D);
-                            
-
-                            
-                            
-                            iModel(&c2);
-                            c2.i.c.sinc.tulip[eigenVectors].Current[0] = 0;
-                            inputFormat(c2.i.c.sinc, name, eigenVectors,1);
-                            xEqua(f1,inputVectors+ct, cmpl, c2.i.c.sinc, eigenVectors,0);
-                            f1.tulip[inputVectors+ct].value.symmetry = c2.i.c.sinc.tulip[eigenVectors].value.symmetry;
-
-                            printf("%s\tSA%d\n", name,f1.tulip[inputVectors+ct].value.symmetry);
+                            printf("%s\tSA%d\n", name,  f1.tulip[inputVectors+ct].value.symmetry);
                             flagLoad = 1;
-                            fModel(&c2);
+                            fModel(&f2.f);
                         }
                         
                         
@@ -1103,7 +1082,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct sinc_label f1,char *
                 }
                 if ( ! flagLoad )
                     continue;
-                if (( ct > c1->i.vectorOperatorFlag&& inputVectors == f1.vectorOperator )|| ( ct > c1->i.nStates&& inputVectors == eigenVectors  )){
+                if (( ct > f1.vectorOperator && inputVectors == f1.vectorOperator )){
                     printf("maxed out buffer of states\n");
                     exit(0);
                 }
@@ -1112,11 +1091,11 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct sinc_label f1,char *
                     exit(1);
                 }
 
-                tScale(c1->i.c.sinc, inputVectors+ct, creal(Occ));
+                tScale(f1, inputVectors+ct, creal(Occ));
                 
                 ov = magnitude(f1, inputVectors+ct);
 
-                if ( inputVectors >= c1->i.c.sinc.vectorOperator){
+                if ( inputVectors >= f1.vectorOperator){
                     printf("Density %f\n",sqr(creal(ov)));
                     if ( sqr(cabs(ov)) > c1->rt.TARGET)
                         ct++;

@@ -53,7 +53,7 @@ double inner(struct sinc_label  f1 , enum division alloy, INT_TYPE os );
 double magnitude ( struct sinc_label  f1 , enum division alloy );
 void tHXpX (  INT_TYPE rank, struct sinc_label  f1 , enum division left,INT_TYPE shiftFlag, double product, double productCmpl, enum division equals ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo  );
 double positioningElectrons2 (INT_TYPE rank, struct sinc_label  f1 , enum division oneVector, enum division wavefunction,double x1, double y1, double z1, double x2, double y2, double z2);
-INT_TYPE ready ( struct calculation * c );
+INT_TYPE ready ( struct sinc_label f1 );
 INT_TYPE xConstructFoundation (struct sinc_label calc , enum division usr, INT_TYPE UR, struct sinc_label calc2, enum division usz, INT_TYPE UZ ,INT_TYPE mx);
 INT_TYPE printExpectationValues (struct sinc_label  f1 , enum division ha  , enum division vector);
 INT_TYPE tOuterProductSuOne( struct sinc_label  f1,INT_TYPE space,enum division vector , INT_TYPE a, enum division vector2,INT_TYPE b, enum division proj, INT_TYPE c);

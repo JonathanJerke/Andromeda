@@ -25,47 +25,59 @@
 
 #include "jobs.h"
 
-INT_TYPE foundation(struct calculation *c1){
-    struct field * f1 = &c1->i.c;
-
+INT_TYPE foundation(struct calculation *c1, struct field f1){
     INT_TYPE EV;
 
-    if ( !c1->i.OCSBflag ){
+    if ( 1 ){
         c1->i.irrep = 0;
         c1->i.twoBody.func.fn = nullFunction;
-        iModel(c1);
-        tBoot1Construction(c1, build);
+        iModel(c1,&f1);
+        tBoot1Construction(c1,f1.f ,build);
 
-        if ( c1->i.irrep && c1->i.filter )
-            EV =   tCollect(f1->sinc,c1->i.irrep,f1->sinc.user,c1->i.qFloor ,1);
-        else
-            EV =   tSlam(f1->sinc,c1->i.qFloor,f1->sinc.user,c1->i.level);
-        tFilter(f1->sinc, EV,0, f1->sinc.user);//classify
+//        if ( f1.i.irrep && f1.i.filter )
+//            EV =   tCollect(f1.f,f1.i.irrep,f1.f.user,f1.i.qFloor ,1);
+//        else
+            EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
+        tFilter(f1.f, EV,0, f1.f.user);//classify
+    }else {
+        exit(1);
     }
+    
+    INT_TYPE ii,flag = 1;;
+    if ( c1->i.irrep )
+        for ( ii = 0 ;ii < EV ;ii++){
+            if ( f1.f.tulip[f1.f.user+ii].value.symmetry == f1.i.irrep ){
+                print(c1,f1,flag,ii,ii+1 , f1.f.user);
+                flag = 0;
+            }
+        }
+    else
+        print(c1,f1,1,0,EV , f1.f.user);
+    
+    fModel(&f1.f);
 //    else{
 //        iModel(c1);
 //
 ////tBootManyConstruction(c1);
-//        EV =   tCollect(f1->sinc,c1->i.irrep,f1->sinc.user,c1->i.qFloor ,1);
-//        tFilter(f1->sinc, EV, 0, f1->sinc.user);//classify
+//        EV =   tCollect(f1,c1->i.irrep,f1.user,c1->i.qFloor ,1);
+//        tFilter(f1, EV, 0, f1.user);//classify
 //    }
     return EV;
 }
 
 
-INT_TYPE krylov ( struct calculation *c1){
-    struct field * f1 = &c1->i.c;
+INT_TYPE krylov ( struct calculation *c1, struct field f1){
     INT_TYPE EV = 0,i,fi;
 
 
-    c1->i.qFloor = countLinesFromFile(c1,0);
+    f1.i.qFloor = countLinesFromFile(f1,0,&f1.i.iRank);
     //count canonical-rank...
 
     
-    c1->i.nStates =c1->i.qFloor* c1->i.Iterations  ;
-    iModel(c1);
-    for ( fi =0 ; fi < c1->mem.files ; fi++){
-        EV +=  tLoadEigenWeights (c1,c1->i.c.sinc, c1->mem.fileList[fi], f1->sinc.user );//UNUSUAL!!!
+    f1.i.nStates =f1.i.qFloor* f1.i.Iterations  ;
+    iModel(c1,&f1);
+    for ( fi =0 ; fi < f1.i.files ; fi++){
+        EV +=  tLoadEigenWeights (c1,f1, f1.i.fileList[fi], f1.f.user );//UNUSUAL!!!
     }
         if (EV == 0 ){
         printf ("ack!\n");
@@ -78,36 +90,38 @@ INT_TYPE krylov ( struct calculation *c1){
         INT_TYPE iii,sp ;
         for ( iii = 0; iii < EV ; iii++){
             printf ( "\n Vector \t%d \n", iii+1);
-            for ( sp = 0 ; sp < spins(f1->sinc, f1->sinc.user); sp++)
-                tCycleDecompostionGridOneMP(-1, f1->sinc, f1->sinc.user+iii, sp, NULL, eigenVectors+iii, sp, f1->mem->rt->vCANON, part(f1->sinc,eigenVectors+iii), -1);
+            for ( sp = 0 ; sp < spins(f1.f, f1.f.user); sp++)
+                tCycleDecompostionGridOneMP(-1, f1.f, f1.f.user+iii, sp, NULL, eigenVectors+iii, sp, c1->rt.vCANON, part(f1.f,eigenVectors+iii), -1);
             
-            tFilter(f1->sinc, EV, 0, eigenVectors+RdsSize-EV);//classify
-            printExpectationValues(f1->sinc, Ha, eigenVectors+RdsSize-EV+iii);
+            tFilter(f1.f, EV, 0, eigenVectors+RdsSize-EV);//classify
+            printExpectationValues(f1.f, Ha, eigenVectors+RdsSize-EV+iii);
             fflush(stdout);
-            print(c1,c1->i.c.sinc,1,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
+            print(c1,f1,1,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
         }
     }
 
     
-    for ( iterator = 1 ; iterator < c1->i.Iterations ; iterator++){
-        RdsSize += tGreatDivideIteration(c1->i.shiftFlag, c1->i.realPart,  f1->sinc,Iterator, 1,0,eigenVectors+RdsSize-EV,EV,2*EV,0)-EV;
+    for ( iterator = 1 ; iterator < f1.i.Iterations ; iterator++){
+        RdsSize += tGreatDivideIteration(c1->i.shiftFlag, c1->i.realPart,  f1.f,Iterator, 1,0,eigenVectors+RdsSize-EV,EV,2*EV,0)-EV;
         if(1){
-            tFilter(f1->sinc, EV, !(!c1->i.filter )* c1->i.irrep, eigenVectors+RdsSize-EV);//filter
+            tFilter(f1.f, EV, !(!c1->i.filter )* c1->i.irrep, eigenVectors+RdsSize-EV);//filter
             printf ("Step \t%d\n", iterator);
             INT_TYPE iii ;
             for ( iii = 0; iii < EV ; iii++){
                 printf ( "\n Vector \t%d \n", iii+1);
-                printExpectationValues(f1->sinc, Ha, eigenVectors+RdsSize-EV+iii);
+                printExpectationValues(f1.f, Ha, eigenVectors+RdsSize-EV+iii);
                 fflush(stdout);
-                print(c1,c1->i.c.sinc,0,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
+                print(c1,f1,0,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
             }
         }
         fflush(stdout);
     }
+    fModel(&f1.f);
+
     return 0;
 }
 
-INT_TYPE ritz( struct calculation * c1 ){
+INT_TYPE ritz( struct calculation * c1, struct field f1){
     size_t ms = MAXSTRING;
     char line0[MAXSTRING];
     char filename[MAXSTRING];    char str[MAXSTRING];
@@ -115,50 +129,49 @@ INT_TYPE ritz( struct calculation * c1 ){
 
     char * line = line0;
     c1->i.canonRank = 0;
-    struct field * f1 = &c1->i.c;
     INT_TYPE fi,EV = 0,i,j,sp;
     double va;
     INT_TYPE lines = 0,flines = 0;
 
-    c1->i.qFloor = countLinesFromFile(c1,0);
+    f1.i.qFloor = countLinesFromFile(f1,0,&f1.i.iRank);
 
    // c1->i.iRank = c1->i.bRank;
-    iModel(c1);
+    iModel(c1,&f1);
     
-    if ( CanonicalRank(f1->sinc,interactionExchange,0) )
-        ioStoreMatrix(f1->sinc,interactionExchange ,0,"interactionExchange.matrix",0);
-    if ( CanonicalRank(f1->sinc,interactionEwald,0) )
-        ioStoreMatrix(f1->sinc,interactionEwald ,0,"interactionEwald.matrix",0);
+    if ( CanonicalRank(f1.f,interactionExchange,0) )
+        ioStoreMatrix(f1.f,interactionExchange ,0,"interactionExchange.matrix",0);
+    if ( CanonicalRank(f1.f,interactionEwald,0) )
+        ioStoreMatrix(f1.f,interactionEwald ,0,"interactionEwald.matrix",0);
 
     
-        if ( CanonicalRank(f1->sinc,shortenPlus,0) )
-            ioStoreMatrix(f1->sinc,shortenPlus ,0,"shortenExchangePlus.matrix",0);
+        if ( CanonicalRank(f1.f,shortenPlus,0) )
+            ioStoreMatrix(f1.f,shortenPlus ,0,"shortenExchangePlus.matrix",0);
         
-        if ( CanonicalRank(f1->sinc,shortenMinus,0) )
-            ioStoreMatrix(f1->sinc,shortenMinus ,0,"shortenExchangeMinus.matrix",0);
+        if ( CanonicalRank(f1.f,shortenMinus,0) )
+            ioStoreMatrix(f1.f,shortenMinus ,0,"shortenExchangeMinus.matrix",0);
 
     
-    if ( CanonicalRank(f1->sinc,linear,0) )
-        ioStoreMatrix(f1->sinc,linear ,0,"linear.matrix",0);
+    if ( CanonicalRank(f1.f,linear,0) )
+        ioStoreMatrix(f1.f,linear ,0,"linear.matrix",0);
 
     
     
     
 #ifndef APPLE
-    for ( fi =0 ; fi < c1->mem.files ; fi++)
-        EV +=  tLoadEigenWeights (c1,c1->i.c.sinc, c1->mem.fileList[fi], f1->sinc.user+EV);//UNUSUAL!!!
+    for ( fi =0 ; fi < f1.i.files ; fi++)
+        EV +=  tLoadEigenWeights (c1,f1, f1.i.fileList[fi], f1.f.user+EV);//UNUSUAL!!!
     if (EV == 0 ){
         printf ("ack!\n");
         exit(0);
     }
 #endif
-    tEigenCycle(c1->i.c.sinc,Ha,CDT, c1->i.nStates, f1->sinc.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
+    tEigenCycle(f1.f,Ha,CDT, f1.i.nStates, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
     
     
-    DCOMPLEX *V = (DCOMPLEX*)myStreams(c1->i.c.sinc,matrixHbuild,0);
-    INT_TYPE iii,stride = c1->i.c.sinc.maxEV;
+    DCOMPLEX *V = (DCOMPLEX*)myStreams(f1.f,matrixHbuild,0);
+    INT_TYPE iii,stride = f1.f.maxEV;
     char * token = filename;
-    for ( iii = 0; iii < c1->i.nStates ; iii++){
+    for ( iii = 0; iii < f1.i.nStates ; iii++){
         
         {
             FILE * outf ;
@@ -168,9 +181,9 @@ INT_TYPE ritz( struct calculation * c1 ){
         }
         lines = 0;
 
-        for ( fi =0 ; fi < c1->mem.files ; fi++){
+        for ( fi =0 ; fi <f1.i.files ; fi++){
             flines = 0;
-            FILE * fp = fopen(c1->mem.fileList[fi],"r");
+            FILE * fp = fopen(f1.i.fileList[fi],"r");
             if ( fp == NULL ) {
                 printf("file?\n");
                 exit(0);
@@ -193,7 +206,7 @@ INT_TYPE ritz( struct calculation * c1 ){
                         pa0 = strtok(NULL, "\"");
                         si = sscanf ( pa0, ",%d,",&number );
                         if ( si == 1  ) {
-                            printVector(c1,c1->i.c.sinc,token,str,number-1,c1->i.irrep, V+stride*iii+lines);
+                            printVector(c1,f1.f,token,str,number-1,f1.i.irrep, V+stride*iii+lines);
                         }
                     }
                     lines++;
@@ -207,25 +220,25 @@ INT_TYPE ritz( struct calculation * c1 ){
             fclose(fp);
         }
     }
-    
+    fModel(&f1.f);
+
     return 0;
 }
 
-INT_TYPE decompose( struct calculation * c1 ){
-    struct field * f1 = &c1->i.c;
+INT_TYPE decompose( struct calculation * c1 , struct field f1){
 
     INT_TYPE i,g,r,cmpl,cmpl2,rr,EV=0,fi;
 
-    c1->i.qFloor = countLinesFromFile(c1,0);
+    f1.i.qFloor = countLinesFromFile(f1,0,&f1.i.iRank);
 
     c1->i.twoBody.func.fn = nullFunction;
     c1->i.oneBody.func.fn = nullFunction;
-    c1->i.nStates =1 ;
-    iModel(c1);
+    f1.i.nStates =1 ;
+    iModel(c1,&f1);
     
 #ifndef APPLE
-    for ( fi =0 ; fi < c1->mem.files ; fi++)
-        EV +=  tLoadEigenWeights (c1, c1->i.c.sinc,c1->mem.fileList[fi], f1->sinc.user+EV);//UNUSUAL!!!
+    for ( fi =0 ; fi < f1.i.files ; fi++)
+        EV +=  tLoadEigenWeights (c1, f1,f1.i.fileList[fi], f1.f.user+EV);//UNUSUAL!!!
 #endif
     if (EV == 0 ){
         printf ("ack!\n");
@@ -233,39 +246,43 @@ INT_TYPE decompose( struct calculation * c1 ){
     }
     
     
-        for ( cmpl = 0; cmpl < spins(f1->sinc, f1->sinc.user) ; cmpl++){
-            tClear(f1->sinc,totalVector);
+        for ( cmpl = 0; cmpl < spins(f1.f, f1.f.user) ; cmpl++){
+            tClear(f1.f,totalVector);
             if ( c1->i.filter  && c1->i.irrep )
             {
-                for( g = 0; g < c1->i.qFloor ; g++)
-                    tBuildIrr(0, f1->sinc, c1->i.irrep, f1->sinc.user+g, cmpl, totalVector, 0);
+                for( g = 0; g < f1.i.qFloor ; g++)
+                    tBuildIrr(0, f1.f, c1->i.irrep, f1.f.user+g, cmpl, totalVector, 0);
             }else {
-            for( g = 0; g < c1->i.qFloor ; g++)
-                tAddTw(f1->sinc, totalVector, 0, f1->sinc.user+g, cmpl);
+            for( g = 0; g < f1.i.qFloor ; g++)
+                tAddTw(f1.f, totalVector, 0, f1.f.user+g, cmpl);
             }
-            tCycleDecompostionGridOneMP(-2, f1->sinc, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1->sinc,eigenVectors), c1->rt.powDecompose);
+            tCycleDecompostionGridOneMP(-2, f1.f, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1.f,eigenVectors), c1->rt.powDecompose);
        //     tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1,eigenVectors), 1.);
         }
-        tFilter(f1->sinc, c1->i.nStates, 0, eigenVectors);//classify
-    for ( i = 0; i < c1->i.nStates ; i++){
-        tScale(f1->sinc, eigenVectors+i, 1./magnitude(f1->sinc, eigenVectors+i));
+        tFilter(f1.f, f1.i.nStates, 0, eigenVectors);//classify
+    for ( i = 0; i < f1.i.nStates ; i++){
+        tScale(f1.f, eigenVectors+i, 1./magnitude(f1.f, eigenVectors+i));
        // printf("printf %f\n", magnitude(f1, eigenVectors+i));
     }
+    print(c1,f1,1,0,f1.i.nStates, eigenVectors);
+    fModel(&f1.f);
+
     return 0;
 }
 
-
+#if 1
 
 int main (INT_TYPE argc , char * argv[]){
-    struct calculation c = bootShell(argc, argv);
+    struct calculation c;
+    struct field f;
+    bootShell(argc, argv,&c,&f);
    // test2();
     
     INT_TYPE space,i,a,plusSize,nStatesTrans=0,nStatesFound=0 ,RdsSize = 0,totalIter = 0;
     FILE * out = stdout;
     struct runTime * rt = & c.rt;
+    f.f.rt = rt;
     
-    struct field *f1 = &(c.i.c);
-    c.i.iCharge = c.rt.body;
     
 #ifdef OMP
     if ( c.i.omp > MaxCore ){
@@ -298,179 +315,136 @@ int main (INT_TYPE argc , char * argv[]){
     fflush(stdout);
 #endif
     
-    
-    
-    printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t\n",2* c.i.epi + 1,c.i.d);
-    
-    if ( SPACE > 3 )
-        printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t\n",2* c.i.around + 1,c.i.D );
-    
     //0//...   //A//B//C//D//E
     if ( c.rt.phaseType == buildFoundation ){//0
-        INT_TYPE EV= foundation(&c);
-        INT_TYPE ii,flag = 1;;
-        if ( c.i.irrep )
-            for ( ii = 0 ;ii < EV ;ii++){
-                if ( f1->sinc.tulip[f1->sinc.user+ii].value.symmetry == c.i.irrep ){
-                    print(&c,c.i.c.sinc,flag,ii,ii+1 , f1->sinc.user);
-                    flag = 0;
-                }
-            }
-        else
-            print(&c,c.i.c.sinc,1,0,EV , f1->sinc.user);
-
+        foundation(&c,f);
     }
     else if ( c.rt.phaseType == productKrylov ){//C
-        krylov(&c);
+        krylov(&c,f);
     }
     else if ( c.rt.phaseType == solveRitz ){//A
-        ritz(&c);
+        ritz(&c,f);
     }
     else if ( c.rt.phaseType == decomposeTensor ){//B
-        decompose(&c);
-        print(&c,c.i.c.sinc,1,0,c.i.nStates, eigenVectors);
+        decompose(&c,f);
     }else if ( c.rt.phaseType == frameDensity ){//D
-        if ( ! c.i.vectorOperatorFlag){
+        if ( ! f.f.vectorOperator){
             printf("vectorOperator flag\n");
             exit(1);
         }
-        c.i.OCSBflag = 0;
+    //    c.i.OCSBflag = 0;
 
-        INT_TYPE EV = foundation(&c);
+        INT_TYPE EV = foundation(&c,f);
         printf("finished foundation\n");
         fflush(stdout);
-        tEigenCycle(c.i.c.sinc,Ha,CDT, c.i.nStates, c.i.c.sinc.user,EV,0, EV,0,0,eigenVectors,twoBodyRitz);
+        tEigenCycle(f.f,Ha,CDT, f.i.nStates, f.f.user,EV,0, EV,0,0,eigenVectors,twoBodyRitz);
         
         INT_TYPE i,j=0;
-        for ( i = 0 ; i < c.i.nStates ; i++ ){
-            if ( -myStreams(f1->sinc, twoBodyRitz, 0)[i] > c.rt.TARGET ){
-                printf("load %f\n", -myStreams(f1->sinc, twoBodyRitz, 0)[i]);
+        for ( i = 0 ; i < f.i.nStates ; i++ ){
+            if ( -myStreams(f.f, twoBodyRitz, 0)[i] > c.rt.TARGET ){
+                printf("load %f\n", -myStreams(f.f, twoBodyRitz, 0)[i]);
                 j++;
             }
         }
-        tEigenCycle(c.i.c.sinc,Ha,CDT, j, c.i.c.sinc.user,EV,0, EV,0,4,eigenVectors,twoBodyRitz);
+        tEigenCycle(f.f,Ha,CDT, j, f.f.user,EV,0, EV,0,4,eigenVectors,twoBodyRitz);
         
         {
 //            INT_TYPE i ;
 //            double sum = 0;
 //            for ( i = 0; i < j ; i++)
-//                sum += -myStreams(f1, twoBodyRitz, 0)[i];
+//                sum += -myStreams(f, twoBodyRitz, 0)[i];
             
-            cblas_dscal(j, -1., myStreams(f1->sinc, twoBodyRitz, 0), 1);
+            cblas_dscal(j, -1., myStreams(f.f, twoBodyRitz, 0), 1);
         }
         
         if ( 0 ){
             INT_TYPE ii;
             j = 1;
-            myStreams(f1->sinc, twoBodyRitz, 0)[0] = 1.;
+            myStreams(f.f, twoBodyRitz, 0)[0] = 1.;
             for ( space = 0; space < SPACE ; space++)
-                if ( f1->sinc.rose[space].body != nada   ){
-                    for ( i = 0 ; i < vectorLen(f1->sinc, space); i++)
-                                if (  i < vectorLen(f1->sinc, space)/2)
-                                    streams(f1->sinc, eigenVectors, 0, space)[i] = 1./sqrt(vectorLen(f1->sinc, space)/2);
+                if ( f.f.rose[space].body != nada   ){
+                    for ( i = 0 ; i < vectorLen(f.f, space); i++)
+                                if (  i < vectorLen(f.f, space)/2)
+                                    streams(f.f, eigenVectors, 0, space)[i] = 1./sqrt(vectorLen(f.f, space)/2);
                                     else
-                                        streams(f1->sinc, eigenVectors, 0, space)[i] = 0.;
+                                        streams(f.f, eigenVectors, 0, space)[i] = 0.;
                     
                 }
-            f1->sinc.tulip[eigenVectors].Current[0] = 1;
+            f.f.tulip[eigenVectors].Current[0] = 1;
             
-            f1->sinc.tulip[diagonal2VectorA].Current[0] = 1;
+            f.f.tulip[diagonal2VectorA].Current[0] = 1;
             for ( space = 0; space < SPACE ; space++)
-                if ( f1->sinc.rose[space].body != nada   ){
-                    for ( i = 0 ; i < vectorLen(f1->sinc, space); i++)
-                        for ( ii = 0 ; ii < vectorLen(f1->sinc, space); ii++)
-                            if ( ii < vectorLen(f1->sinc, space)/2 && i < vectorLen(f1->sinc, space)/2)
-                                streams(f1->sinc, diagonal2VectorA, 0, space)[ii*vectorLen(f1->sinc,space)+i] = 1./(vectorLen(f1->sinc, space)/2);
+                if ( f.f.rose[space].body != nada   ){
+                    for ( i = 0 ; i < vectorLen(f.f, space); i++)
+                        for ( ii = 0 ; ii < vectorLen(f.f, space); ii++)
+                            if ( ii < vectorLen(f.f, space)/2 && i < vectorLen(f.f, space)/2)
+                                streams(f.f, diagonal2VectorA, 0, space)[ii*vectorLen(f.f,space)+i] = 1./(vectorLen(f.f, space)/2);
                             else
-                                streams(f1->sinc, diagonal2VectorA, 0, space)[ii*vectorLen(f1->sinc,space)+i] = 0.;
+                                streams(f.f, diagonal2VectorA, 0, space)[ii*vectorLen(f.f,space)+i] = 0.;
                     
                 }
 
             
             
-            printf("mag %f\n", magnitude(f1->sinc, diagonal2VectorA));
+            printf("mag %f\n", magnitude(f.f, diagonal2VectorA));
             FILE *out = fopen("uniform.1.0_mac","w");
-            outputFormat(f1->sinc, out, diagonal2VectorA, 0);
+            outputFormat(f.f, out, diagonal2VectorA, 0);
         }
         
         
-        mySeparateEwaldCoulomb1(c.i.c.sinc,j,myStreams(f1->sinc, twoBodyRitz, 0),eigenVectors, c.i.decomposeRankMatrix, interactionExchange,interactionEwald, shortenEwald, 1., 0, 0, electron);
-        ioStoreMatrix(c.i.c.sinc, shortenEwald, 0, "shortenEwald.matrix", 0);
+        mySeparateEwaldCoulomb1(f.f,j,myStreams(f.f, twoBodyRitz, 0),eigenVectors, c.i.decomposeRankMatrix, interactionExchange,interactionEwald, shortenEwald, 1., 0, 0, electron);
+        ioStoreMatrix(f.f, shortenEwald, 0, "shortenEwald.matrix", 0);
         
     }
-    else if ( c.rt.phaseType == scaleBody ){//E
-        if ( ! c.i.bodyFlag){
-            printf("body flag\n");
-            exit(1);
-        }
-        INT_TYPE fi,EV=0;
-        c.i.qFloor = countLinesFromFile(&c,0);
-        c.i.twoBody.func.fn = nullFunction;
-        c.i.oneBody.func.fn = nullFunction;
-        c.i.iRank = c.i.bRank;
-        c.i.nStates =1 ;
-        iModel(&c);
-        
-#ifndef APPLE
-        for ( fi =0 ; fi < c.mem.files ; fi++)
-            EV +=  tLoadEigenWeights (&c, c.i.c.sinc,c.mem.fileList[fi], c.i.c.sinc.user+EV);//UNUSUAL!!!
-#endif
-        if (EV == 0 ){
-            printf ("ack!\n");
-            exit(0);
-        }
-        
-        tMap(&c);
-    }
-    else if ( c.rt.phaseType == collectKrylov ){//F
-        struct field * f1 = &c.i.c;
-        INT_TYPE on,EV = 0,i,fi,ev,Ve,Ven;
-        DCOMPLEX one = 1.;
-        char name[MAXSTRING];
-        c.i.qFloor = countLinesFromFile(&c,0);
-        c.i.iRank = c.i.bRank;
-        
-        c.i.nStates = c.i.qFloor ;
-        iModel(&c);
-        for ( fi =0 ; fi < c.mem.files ; fi++){
-            EV =  tLoadEigenWeights (&c, c.i.c.sinc, c.mem.fileList[fi], c.i.c.sinc.user+EV);
-            
-        }
-        if (EV == 0 ){
-            printf ("ack!\n");
-            exit(0);
-        }
-        Ven = 0;
-        Ve = 0;
-        for ( ev = 0 ;ev < EV ; ev++){
-            Ve += tSelect(f1->sinc, Ve, 0, eigenVectors, f1->sinc.user + ev, 1);
-            // Ve =  tSASplit(f1, c.i.irrep, Ve,EV, eigenVectors,f1->sinc.user + ev);
-        }
-        printVector(&c,c.i.c.sinc,c.name,c.name,-1,0, &one);
-        for ( ev =0 ; ev < Ve ; ev++){
-            tFilename(c.name, ev+1, c.rt.body, 0, 0, name);
-            FILE * outVector = fopen(name, "w");
-            outputFormat(f1->sinc, outVector, eigenVectors+ev, 0);
-            fclose(outVector);
-            printVector(&c,c.i.c.sinc,c.name,c.name,ev,0, &one);
-        }
-    }else if ( c.rt.phaseType == svdOperation ){//G
-        if ( ! c.i.vectorOperatorFlag){
-            printf("vectorOperator flag\n");
-            exit(1);
-        }
-        INT_TYPE iterator,EV,iii;
-        struct calculation *c1 = &c;
-        c.i.OCSBflag = 0;
-        EV = foundation(&c);
-        RdsSize = EV;
-        
-        
-        tEigenCycle(c.i.c.sinc,Ha,CDT, c.i.nStates, c.i.c.sinc.user,RdsSize,0, EV,0,4,eigenVectors,twoBodyRitz);
-        for ( iii = 0; iii < EV ; iii++)
-            print(&c,c.i.c.sinc,0,iii,iii+1,eigenVectors);
-
-    }
+//    else if ( c.rt.phaseType == collectKrylov ){//F
+//        INT_TYPE on,EV = 0,i,fi,ev,Ve,Ven;
+//        DCOMPLEX one = 1.;
+//        char name[MAXSTRING];
+//        c.i.qFloor = countLinesFromFile(&c,f,0);
+//        c.i.iRank = c.i.bRank;
+//        
+//        c.i.nStates = c.i.qFloor ;
+//        iModel(&c,f1);
+//        for ( fi =0 ; fi < f1.files ; fi++){
+//            EV =  tLoadEigenWeights (&c, f1, f1.fileList[fi], f1.user+EV);
+//            
+//        }
+//        if (EV == 0 ){
+//            printf ("ack!\n");
+//            exit(0);
+//        }
+//        Ven = 0;
+//        Ve = 0;
+//        for ( ev = 0 ;ev < EV ; ev++){
+//            Ve += tSelect(f1, Ve, 0, eigenVectors, f1.user + ev, 1);
+//            // Ve =  tSASplit(f1, c.i.irrep, Ve,EV, eigenVectors,f1.user + ev);
+//        }
+//        printVector(&c,c.i.c.sinc,c.name,c.name,-1,0, &one);
+//        for ( ev =0 ; ev < Ve ; ev++){
+//            tFilename(c.name, ev+1, c.rt.body, 0, 0, name);
+//            FILE * outVector = fopen(name, "w");
+//            outputFormat(f1, outVector, eigenVectors+ev, 0);
+//            fclose(outVector);
+//            printVector(&c,c.i.c.sinc,c.name,c.name,ev,0, &one);
+//        }
+//    }else
+//        if ( c.rt.phaseType == svdOperation ){//G
+//        if ( ! f1.f.vectorOperator){
+//            printf("vectorOperator flag\n");
+//            exit(1);
+//        }
+//        INT_TYPE iterator,EV,iii;
+//      //  c.i.OCSBflag = 0;
+//        EV = foundation(&c);
+//        RdsSize = EV;
+//
+//
+//        tEigenCycle(f1.f,Ha,CDT, f1.i.nStates, f1.f.user,RdsSize,0, EV,0,4,eigenVectors,twoBodyRitz);
+//        for ( iii = 0; iii < EV ; iii++)
+//            print(&c,f1,0,iii,iii+1,eigenVectors);
+//
+//    }
     
-    fModel(&c);
 }
+
+#endif

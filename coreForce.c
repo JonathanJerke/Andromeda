@@ -451,7 +451,7 @@ DCOMPLEX FSSp ( double p , struct general_index * pa ){
 
 DCOMPLEX periodicFSSp (double p , struct general_index * pa ){
     DCOMPLEX sum = 0.;
-    if ( TEST2 )
+    if ( 0 )
         sum = periodicBoostOverlap0(pa->bra.grid, pa->bra.length, pa->bra.index, 2*pa->bra.index2*pi/(pa->bra.length*pa->bra.grid)+p,pa->ket.length, pa->ket.index, 2*pa->ket.index2*pi/(pa->ket.length*pa->ket.grid));
     else
         sum = periodicBoostOverlapBasisBasis(p,pa->bra.grid, pa->bra.length, pa->bra.index, pa->bra.index2, pa->ket.length, pa->ket.index, pa->ket.index2);
@@ -3323,7 +3323,7 @@ double collective( double beta ,struct general_2index * pa){
             INT_TYPE k;
             for ( k = - 2*N1 ; k <= 2*N1 ; k++)
             {
-                if ( TEST1  )
+                if ( 0  )
                     value += sumGaussianSinc(kSmall*k+pa->momentumShift,pa)*kSmall;
                 else
                     value += gaussianSinc(kSmall*k+pa->momentumShift,pa)*kSmall;
@@ -3349,7 +3349,7 @@ double collective( double beta ,struct general_2index * pa){
                 
 #ifdef APPLE
                 quadrature_integrate_function g;
-                if ( TEST1 )
+                if ( 0 )
                     g.fun = sumGaussianSincFunc;
                 else
                     g.fun = gaussianSincFunc;                               // Called to evaluate the function to integrate
@@ -3370,9 +3370,9 @@ double collective( double beta ,struct general_2index * pa){
                 
                 gsl_function F;
                 
-                if ( TEST1 )
-                    F.function = &sumGaussianSinc;
-                else
+//                if ( TEST1 )
+//                    F.function = &sumGaussianSinc;
+//                else
                     F.function = &gaussianSinc;
                 F.params = pa;
 
@@ -4701,9 +4701,8 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
 
 
 
-INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1){
+INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum division linear, INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1){
     //https://keisan.casio.com/exec/system/1329114617
-    struct sinc_label  f1 = c1->i.c.sinc;
     
     if ( c1->i.oneBody.func.fn == nullFunction)
         return 0;
@@ -5261,6 +5260,7 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
                                 for( I2 = 0; I2 < dims1[space] ; I2++){
                                     o1.bra = grabBasis(f1, space, particle1, I1);
                                     o1.ket = grabBasis ( f1, space, particle1, I2);
+                                    
                                     if ( dim == space  ){
                                         va = - 0.5/amass*Bd2B(o1.bra,o1.ket);
                                     }

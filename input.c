@@ -113,7 +113,7 @@ INT_TYPE control ( const char * line ){
 }
 
 
-INT_TYPE getParam ( struct calculation * c, const char * input_line ){
+INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * input_line ){
     INT_TYPE i,d,ivalue;
     char test_line [MAXSTRING];
     double value;
@@ -124,7 +124,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
         "center","xTranslate","yTranslate","zTranslate","postCalc",//15
         "goK","goV","goC","goX","goS",//20
         "iGold","LOST", "LOST2" ,"core","canon",//25
-        "pseudo","minDIIS","iCharge","weylet", "nWeylet",//30
+        "pseudo","minDIIS","LOST","weylet", "nWeylet",//30
         "mWeylet","helium","correlation","initRank","LOST3",//35
         "spinBlocks","LOST5", "LOST6", "maxLevelShift","diis",//40
         "minSPC","maxEV","inverseQuad","maxSPC","maxDIIS",//45
@@ -323,8 +323,8 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                   //  c->i.minDIIS = ivalue;
                     return i;
                 case 28 :
-                    c->i.iCharge = ivalue;
-                    return i;
+                 //   c->i.iCharge = ivalue;
+               //     return i;
                 case 29:
                   //  c->i.weyletFlag = ivalue;
                     return i;
@@ -341,7 +341,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
 //                    c->i.correlationFlag = ivalue;
 //                    return i;
                 case 34:
-                    c->i.iRank = ivalue;
+                    f1->iRank = ivalue;
                     return i;
                 case 35:
                 ///    c->p.iTarget = ivalue;
@@ -383,14 +383,14 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
 //                    c->p.iTrace = ivalue;
 //                    return i;
                 case 48 :
-                    c->i.bRank = ivalue;
+                    f1->bRank = ivalue;
                     return i;
                 case 49 :
               //      c->i.lumos = ivalue;
                     return i;
                 case 50 :
-                    c->i.qFloor = ivalue;
-                    c->i.sectors = !(!ivalue);
+                    f1->qFloor = ivalue;
+                    f1->sectors = !(!ivalue);
                     return i;
                 case 51 :
                     c->i.Angstroms = ivalue;
@@ -414,7 +414,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                  //   c->i.eZone = ivalue;
                     return i;
                 case 58 :
-                    c->i.cycles = ivalue;
+//                    c->i.cycles = ivalue;
                     return i;
                 case 59 :
                  //   c->i.wRank  = ivalue;
@@ -442,8 +442,8 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     return i;
                 case 67 :
 
-                    c->i.d /= (2*ivalue+1)/(2*c->i.epi+1);
-                    c->i.epi = ivalue;
+                    f1->d /= (2*ivalue+1)/(2*f1->epi+1);
+                    f1->epi = ivalue;
                     
                     
                     
@@ -455,7 +455,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     
                 case 68 :
 
-                    c->i.epi = ivalue;
+                    f1->epi = ivalue;
                     
                     
                     return i;
@@ -468,15 +468,15 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     
                 case 70:
                     //expand range by number given.
-                    c->i.d *= pow( (2.* c->i.epi + 1.) /(2.*c->i.epi + 2*ivalue + 1),c->i.attack);
-                    c->i.epi  += ivalue;
+                    f1->d *= pow( (2.* f1->epi + 1.) /(2.*f1->epi + 2*ivalue + 1),f1->attack);
+                    f1->epi  += ivalue;
                     
                     
 
                     return i;
 
                 case 71:
-                    c->i.bootRestriction = ivalue;
+         //           c->i.bootRestriction = ivalue;
                     return i;
              
                 case 72:
@@ -504,12 +504,12 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     return i;
 
                 case 78 :
-                    if ( c->rt.printFlag ){
-                        
-                        c->rt.printFlag = ivalue;
-
-                        return i;
-                    }
+//                    if ( c->rt.printFlag ){
+//
+//                        c->rt.printFlag = ivalue;
+//
+//                        return i;
+//                    }
                     return 0;
                     
                 case 79:
@@ -543,20 +543,20 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                 case 81:
                     if ( ivalue < 0 )
                         return 0;
-                    c->i.sectors = ivalue;
+                    f1->sectors = ivalue;
                     return i;
                     
                 case 82:
                     if ( ivalue == 0 )
-                        c->rt.body = nada;
+                        f1->body = nada;
                   else   if ( ivalue == 1 )
-                        c->rt.body = one;
+                        f1->body = one;
                     else if ( ivalue == 2 )
-                        c->rt.body = two;
+                        f1->body = two;
                     else if ( ivalue == 3 )
-                        c->rt.body = three;
+                        f1->body = three;
                     else if ( ivalue == 4 )
-                        c->rt.body = four;
+                        f1->body = four;
                     else
                     {
                         return 0;
@@ -672,34 +672,34 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
 //                    c->rt.monteCarlo = ivalue;
 //                    return i;
                 case 95:
-                    c->rt.samples = ivalue;
+                 //   c->rt.samples = ivalue;
                     return i;
                 case 96:
 //                    c->i.hartreeFockFlag = ivalue;
                     return i;
                 case 97:
-                    c->i.bRank += ivalue;
+                    f1->bRank += ivalue;
                     return i;
                 case 98:
-                    c->i.Iterations = ivalue;
+                   f1->Iterations = ivalue;
                     return i;
                 case 99:
             //        c->i.group = ivalue;
                     return i;
                 case 100:
-//                    c->i.nStates = ivalue;
+                    f1->nStates = ivalue;
                     return i;
                 case 101:
-                    c->i.l2 = ivalue;
-                    return i;
+               //     c->i.l2 = ivalue;
+              //      return i;
 //                case 102:
 //                    c->i.side = ivalue;
 //                    return i;
                 case 103:
-                    c->i.lookBack = ivalue;
+                 //   c->i.lookBack = ivalue;
                     return i;
                 case 104:
-                    c->i.cycleStep = ivalue;
+                   // c->i.cycleStep = ivalue;
                     return i;
                 case 105:
                    // c->i.theory = ivalue;
@@ -715,7 +715,6 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     }
                     return i;
                 case 107:
-                    c->i.dRank = ivalue;
                     return i;
                 case 108:
                     return 0;
@@ -730,10 +729,8 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     
                 case 111:
                     c->rt.calcType = 2;
-                    printf("%f - %f in spacing %f\n", c->i.minClamp, c->i.maxClamp, c->i.D);
                     c->i.orgClamp = 0.5*(c->i.minClamp+c->i.maxClamp);
-                    c->i.around = floor((c->i.orgClamp-c->i.minClamp)/c->i.D);
-                    printf("grid %d\n", 2*c->i.around +1);
+                    f1->around = floor((c->i.orgClamp-c->i.minClamp)/f1->D);
                     return i;
                     
                 case 112:
@@ -741,12 +738,12 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     return i;
                     
                 case 113:
-                    c->i.D *= pow( (2.* c->i.around + 1.) /(2.*c->i.around + 2*ivalue + 1),1.);
-                    c->i.around  += ivalue;
+                    f1->D *= pow( (2.* f1->around + 1.) /(2.*f1->around + 2*ivalue + 1),1.);
+                    f1->around  += ivalue;
                     return i;
                     
                 case 114:
-                    c->i.OCSBflag = ivalue;
+            //        c->i.OCSBflag = ivalue;
                     return i;
                 case 115:
                     c->rt.powDecompose = ivalue;
@@ -774,11 +771,11 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
             switch ( d ){
                 case 1 :
                     if ( value > 0 ){
-                        c->i.d = value;
+                        f1->d = value;
                         return d;
                     } else {
-                        c->i.d = 1;
-                        c->i.epi = 0;
+                        f1->d = 1;
+                        f1->epi = 0;
                         return d;
                     }
                 case 2 :
@@ -821,7 +818,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     // return d;
                     
                 case 10:
-                    c->i.epi = value;
+                   f1->epi = value;
                     return d;
                     
                 case 11 :
@@ -849,8 +846,8 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     //                    c->i.xxOffSpace = value;
                     //                    return d;
                 case 18 :
-                    c->i.epi *= c->i.d / value ;
-                    c->i.d = value;
+                    f1->epi *= f1->d / value ;
+                    f1->d = value;
                     return d;
                 case 19 :
                     //   c->p.sTarget = value;
@@ -931,7 +928,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                 //    c->i.valueFloor = value;
                     return d;
                 case 45 :
-                    c->i.d = pow( 4. * pi /3. *c->rt.body ,0.33333333333333333333)* value / (2.*c->i.epi+1.);
+                   f1->d = pow( 4. * pi /3. *f1->body ,0.33333333333333333333)* value / (2.*f1->epi+1.);
                     //value = Rs
 
                     //4pi/3 Rs^3 = pow(d * N1 ,3.0)/f1->Ne
@@ -946,7 +943,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                 case 48 :
                     printf("Crystal Momentum -universal- \t%f\n", value);
 
-                    value /= c->i.d*( 2.*c->i.epi+1.);
+                    value /= f1->d*( 2.*f1->epi+1.);
                     c->i.vectorMomentum = value;
                     return d;
                     
@@ -955,8 +952,7 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                         return 0;
                     else{
                     //    c->i.jelliumSphereRadius = value;
-                        c->i.potentialFlag = 1;
-                        return d;
+//                        return d;
                     }
                     
                 case 50:
@@ -1005,11 +1001,11 @@ INT_TYPE getParam ( struct calculation * c, const char * input_line ){
                     return d;
                 case 64:
                     c->i.springFlag = 1;
-                    c->i.springConstant = 1./(c->i.d*value)/(c->i.d*value);
-                    printf("spring %f (%f,%f)\n",c->i.springConstant,c->i.d,value);
+                    c->i.springConstant = 1./(f1->d*value)/(f1->d*value);
+                    printf("spring %f (%f,%f)\n",c->i.springConstant,f1->d,value);
                     return d;
                 case 65:
-                    c->i.D = value;
+                    f1->D = value;
                     return d;
                 case 66:
                     c->i.mag = value;
@@ -1259,7 +1255,7 @@ INT_TYPE intervalGeometry(struct calculation * c, const char * input_line ){
 }
 
 
-INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
+INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const char * input_line ){
     INT_TYPE io;
     INT_TYPE Nio = 31;
     char test_line [MAXSTRING];
@@ -1358,7 +1354,7 @@ INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
                 if( mid == NULL )
                     return 0;
                 strcpy(test_line,c->name);
-                if ( readInput( c, mid ) )
+                if ( readInput( c, f1,mid ) )
                     return 0;
                 strcpy(c->name, test_line);//does not inheret name of run
                 fclose( mid);
@@ -1484,28 +1480,26 @@ INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
                 
             case 28:
             {
-                sprintf(c->mem.fileList[c->mem.files++],"%s.vector", filename);
-                if ( (c->rt.printFlag/2 ) % 2 == 0 )
-                    c->rt.printFlag += 2;//vector
-
+                sprintf(f1->fileList[f1->files++],"%s.vector", filename);
+//                if ( (c->rt.printFlag/2 ) % 2 == 0 )
+//                    c->rt.printFlag += 2;//vector
+//
                 return io;
             }
             case 29:
             {
-                sprintf(c->mem.fileVectorOperator[c->mem.filesVectorOperator++],"%s.vector", filename);
-                if ( c->i.vectorOperatorFlag % 2 == 0 )
-                    c->i.vectorOperatorFlag += 1;//vectorOperator
+                sprintf(f1->fileVectorOperator[f1->filesVectorOperator++],"%s.vector", filename);
                 return io;
             }
             case 30:
             {
-                c->i.outputFlag = 1;
+//                c->i.outputFlag = 1;
                 return io;
             }
             case 31:
             {
-                c->i.bodyFlag = 1;
-                return io;
+//                c->i.bodyFlag = 1;
+//                return io;
             }
 
         }
@@ -1518,7 +1512,7 @@ INT_TYPE getInputOutput(struct calculation * c, const char * input_line ){
 
 //default includes write to outFileName = name.kappa
 
-INT_TYPE readInput(struct calculation *c , FILE * in){
+INT_TYPE readInput(struct calculation *c , struct input_label * f1, FILE * in){
     size_t ms = MAXSTRING;
     size_t read;
     INT_TYPE state,com;
@@ -1574,7 +1568,7 @@ INT_TYPE readInput(struct calculation *c , FILE * in){
                 }
             else {
                if ( state == 2 ){
-                   if (! getParam(c,input_line)){
+                   if (! getParam(c,f1,input_line)){
                        printf("%s", input_line);
                        return state;
                    }
@@ -1595,7 +1589,7 @@ INT_TYPE readInput(struct calculation *c , FILE * in){
                 
                 }
                 else if ( state == 6 ){
-                    temp =   getInputOutput(c,input_line);
+                    temp =   getInputOutput(c,f1,input_line);
                     //printf("*%lld\n", temp);
                     if (!temp) {
                         printf("%s", input_line);
@@ -1640,41 +1634,32 @@ INT_TYPE readInput(struct calculation *c , FILE * in){
     }
 }
 
-
 INT_TYPE initCalculation(struct calculation * c ){
-    INT_TYPE g;
+    INT_TYPE g,space;
     c->i.level = 1e9;
     c->i.massElectron = 1.;
     c->i.massProton = 1836.15267245;
     c->i.massClampPair = 1836.15267245;
-    c->rt.boot = fullMatrices;
     c->rt.powDecompose = 1;
     c->i.shiftFlag = 0;
-    c->i.bodyFlag = 0;
     c->i.complexType = 1;//real =1 , cmpl = 2
     c->i.RAMmax = 0;//Gb  needs updating
-    c->rt.printFlag = 0;
-    c->i.potentialFlag = 0;
-    c->i.vectorOperatorFlag = 0;
     c->i.springFlag = 0;
-    c->i.outputFlag = 0;
     c->i.magFlag = 0;
     c->i.M1 = 0;
     c->i.Na = 0;
-    c->mem.files = 0;
-    c->mem.filesVectorOperator  = 0;
-    c->i.OCSBflag = 0;
+ //   c->i.OCSBflag = 0;
 //    for ( g = 0; g < nSAG*nSAG*nSAG ; g++)
 //        c->i.cSA[g] = 0;
-#ifdef PARAMETER_PATH
-    FILE * same;
-    char filename[MAXSTRING];
-    sprintf(*&filename, "%s/%s.%s", PARAMETER_PATH, "default","alpha" );
-    same = fopen (filename, "r");
-    if (  readInput(c,same) )
-       exit(0);
-    fclose(same);
-#endif
+//#ifdef PARAMETER_PATH
+//    FILE * same;
+//    char filename[MAXSTRING];
+//    sprintf(*&filename, "%s/%s.%s", PARAMETER_PATH, "default","alpha" );
+//    same = fopen (filename, "r");
+//    if (  readInput(c,same) )
+//       exit(0);
+//    fclose(same);
+//#endif
     return 0;
 }
 
@@ -1699,23 +1684,23 @@ INT_TYPE estSize ( INT_TYPE interval ){
 
 INT_TYPE finalizeInit(struct calculation * c ){
     //count up atoms and electrons//
-    INT_TYPE a,nc;
-    nc = 0;
-    
-    for ( a = 1 ; a <= c->i.Na ; a++ ){
-        {
-            nc += c->i.atoms[a].label.Z;
-        }
-    }
+//    INT_TYPE a,nc;
+//    nc = 0;
+//
+//    for ( a = 1 ; a <= c->i.Na ; a++ ){
+//        {
+//            nc += c->i.atoms[a].label.Z;
+//        }
+//    }
     c->i.oneBody.num =estSize(c->i.oneBody.func.interval);
     c->i.twoBody.num =estSize(c->i.twoBody.func.interval);
-    c->i.vectorOperatorFlag  =  countLinesFromFile(c,1);
     return 0;
 }
 
 
-struct calculation bootShell (INT_TYPE argc , char * argv[]){
+INT_TYPE bootShell (INT_TYPE argc , char * argv[],struct calculation * c1, struct field *f){
 #ifndef APPLE
+    argc--;
     
     
     INT_TYPE broke;
@@ -1724,21 +1709,40 @@ struct calculation bootShell (INT_TYPE argc , char * argv[]){
     /* Intializes random number generator */
     srand((unsigned) time(&t));
     
-    struct calculation c1 = initCal();
     INT_TYPE i,c,EV,EV2,ER;
     FILE * in = stdin;
     char str[MAXSTRING];
-    initCalculation(&c1);
-    broke = readInput(&c1,in );
-    if ( broke )
-        exit(1);
-        finalizeInit(&c1);
+    initCalculation(c1);
+    *f = initField();
+
+//
+//    if ( argc > 0 && argc < MAXFIELD ){
+//
+//        for ( i = argc ; i > 0 ; i++){
+//            broke = readInput(&c1,list[i],in );
+//            if ( broke )
+//                exit(1);
+//        }
+//        printf("erasing previous geometries");
+//        c1.i.Na = 0;
+//    }
+
+    //    
+    {
+        broke = readInput(c1,&f->i,in);
+        if ( broke )
+            exit(1);
+    }
+    finalizeInit(c1);
+    f->f.boot = fullMatrices;
+
 #else
-        struct calculation c1 =initCal();
+    *c1 =initCal();
+    *f = initField();
 #endif
 #ifdef GSL_LIB
         gsl_set_error_handler_off ();
 #endif
         
-        return c1;
+        return 1;
 }

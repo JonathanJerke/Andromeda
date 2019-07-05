@@ -318,10 +318,10 @@ INT_TYPE tClear ( struct sinc_label f1 , enum division label ){
     return 0 ;
 }
 
-double volume ( struct input * f1 ){
-    return pow( vectorLen(f1->c.sinc,0)*f1->d,3. );
-}
-     
+//double volume ( struct input * f1 ){
+//    return pow( vectorLen(f1->c.sinc,0)*f1->d,3. );
+//}
+
 INT_TYPE CanonicalRank( struct sinc_label f1 , enum division label , INT_TYPE spin ){
     if ( label > f1.end ){
         printf("Can rank past end\n");
@@ -1447,53 +1447,53 @@ double matrixElement (struct sinc_label f1, enum division label, INT_TYPE i , IN
     return sum;
 }
 
-void nuclearArray (struct input * f1,  enum division array,INT_TYPE M1){
-    INT_TYPE n1[SPACE] ;
-    length1(f1->c.sinc,n1);
-    INT_TYPE N1[SPACE];
-    INT_TYPE l = 2;
-    length(f1->c.sinc, oneVector, N1);
-    INT_TYPE i,k,j,at,mi,mj,mk;
-    double * array3d = myStreams(f1->c.sinc, array, 0),x,y,z,d,mini,dis;
-
-    for ( i = 0; i < M1*M1*M1 ; i++)
-        array3d[i] = 0.;
-
-
-    for ( at = 1 ; at <= f1->Na ; at++){
-        mini = M1;
-        mi = 0;
-        mj = 0;
-        mk = 0;
-        d = 1./ (double)(M1)  * (double)(n1[0]) * f1->d;
-        for ( i = 0; i < M1 ; i++){
-            for ( j = 0; j < M1 ; j++){
-                for ( k = 0 ; k < M1 ; k++){
-                    x = ( i - (M1-1)/2 ) * d ;
-                    y = ( j - (M1-1)/2 ) * d;
-                    z = ( k - (M1-1)/2 ) * d;
-
-                    dis = sqr( x - f1->atoms[at].position[1] ) + sqr( y - f1->atoms[at].position[2] ) + sqr( z - f1->atoms[at].position[3] );
-                    if (  dis < mini ){
-                        mini = dis;
-                        mi= i;
-                        mj = j;
-                        mk = k;
-                    }
-                }
-            }
-        }
-        for ( i = imax(0,mi-l); i < imin(M1,mi+l); i++)
-            for ( j = imax(0,mj-l); j < imin(M1,mj+l); j++)
-                for ( k = imax(0,mk-l); k < imin(M1,mk+l); k++)
-                    if ( sqr(mi-i) + sqr( mj-j)+ sqr(k-mk) < l)
-                        array3d[i+j*M1+k*M1*M1] += 1.;
-        
-    }
-
-
-
-}
+//void nuclearArray (struct input * f1,  enum division array,INT_TYPE M1){
+//    INT_TYPE n1[SPACE] ;
+//    length1(f1->c.sinc,n1);
+//    INT_TYPE N1[SPACE];
+//    INT_TYPE l = 2;
+//    length(f1->c.sinc, oneVector, N1);
+//    INT_TYPE i,k,j,at,mi,mj,mk;
+//    double * array3d = myStreams(f1->c.sinc, array, 0),x,y,z,d,mini,dis;
+//
+//    for ( i = 0; i < M1*M1*M1 ; i++)
+//        array3d[i] = 0.;
+//
+//
+//    for ( at = 1 ; at <= f1->Na ; at++){
+//        mini = M1;
+//        mi = 0;
+//        mj = 0;
+//        mk = 0;
+//        d = 1./ (double)(M1)  * (double)(n1[0]) * f1->d;
+//        for ( i = 0; i < M1 ; i++){
+//            for ( j = 0; j < M1 ; j++){
+//                for ( k = 0 ; k < M1 ; k++){
+//                    x = ( i - (M1-1)/2 ) * d ;
+//                    y = ( j - (M1-1)/2 ) * d;
+//                    z = ( k - (M1-1)/2 ) * d;
+//
+//                    dis = sqr( x - f1->atoms[at].position[1] ) + sqr( y - f1->atoms[at].position[2] ) + sqr( z - f1->atoms[at].position[3] );
+//                    if (  dis < mini ){
+//                        mini = dis;
+//                        mi= i;
+//                        mj = j;
+//                        mk = k;
+//                    }
+//                }
+//            }
+//        }
+//        for ( i = imax(0,mi-l); i < imin(M1,mi+l); i++)
+//            for ( j = imax(0,mj-l); j < imin(M1,mj+l); j++)
+//                for ( k = imax(0,mk-l); k < imin(M1,mk+l); k++)
+//                    if ( sqr(mi-i) + sqr( mj-j)+ sqr(k-mk) < l)
+//                        array3d[i+j*M1+k*M1*M1] += 1.;
+//
+//    }
+//
+//
+//
+//}
 
 void vectorArray (struct sinc_label f1, enum division oneVector,  enum division array,INT_TYPE M1){
     INT_TYPE n1[SPACE];
@@ -1569,7 +1569,7 @@ double levelDetermine ( INT_TYPE M1 , double * array , double level){
     return temp[i-1];
 }
 
-INT_TYPE  countLinesFromFile(struct calculation *c1, INT_TYPE location){
+INT_TYPE  countLinesFromFile( struct field f1,INT_TYPE location, INT_TYPE *ir ){
     INT_TYPE fi,lines = 0;
     size_t ms = MAXSTRING;
     char line0[MAXSTRING];
@@ -1579,17 +1579,17 @@ INT_TYPE  countLinesFromFile(struct calculation *c1, INT_TYPE location){
     char *line = line0;
     INT_TYPE FIT ;
     if ( location == 0 )
-        FIT = c1->mem.files ;
+        FIT = f1.i.files ;
     else if ( location == 1 )
-        FIT = c1->mem.filesVectorOperator ;
+        FIT = f1.i.filesVectorOperator ;
     else
         exit(1);
     
         for ( fi =0 ; fi < FIT; fi++){
             if ( location == 0 )
-                strcpy(name,c1->mem.fileList[fi] );
+                strcpy(name,f1.i.fileList[fi] );
             else if ( location == 1)
-                strcpy(name,c1->mem.fileVectorOperator[fi] );
+                strcpy(name,f1.i.fileVectorOperator[fi] );
             else
                 exit(0);
             FILE * fp = fopen(name,"r");
@@ -1608,7 +1608,7 @@ INT_TYPE  countLinesFromFile(struct calculation *c1, INT_TYPE location){
                    // printf("%s\n", name2);
                    // fflush(stdout);
 
-                    c1->i.iRank = imax(c1->i.iRank,inputFormat(c1->i.c.sinc, name2, nullName, 2));
+                    *ir = imax(*ir,inputFormat(f1.f, name2, nullName, 2));
                    // printf("%d \n", c1->i.iRank );
                    // fflush(stdout);
 
@@ -1616,7 +1616,7 @@ INT_TYPE  countLinesFromFile(struct calculation *c1, INT_TYPE location){
                 }
                 getline(&line, &ms, fp);
             }
-            if ( fi > MAXSTRING)
+            if ( fi > MAXFILE)
             {
                 printf("too many files, increase MAXSTRING\n");
                 exit(0);
@@ -1657,9 +1657,9 @@ INT_TYPE assignCores(struct sinc_label f1, INT_TYPE parallel ){
 
 }
 
-double lattice ( struct input * f1, INT_TYPE space ){
-    return f1->d;
-}
+//double lattice ( struct input * f1, INT_TYPE space ){
+//    return f1->d;
+//}
 
 void printVectorAllocations(struct sinc_label f1){
     INT_TYPE space;
@@ -1668,21 +1668,22 @@ void printVectorAllocations(struct sinc_label f1){
         printf("%d --vector Contribution \t G%f",space,vecG/1000000000./(sizeof(Stream_Type)));
     }
 }
-struct basisElement grabBasis (struct sinc_label f1, INT_TYPE component, INT_TYPE particle, INT_TYPE elementIndex){
+
+struct basisElement defineBasis (enum noteType note, enum componentType component, enum basisElementType basis, double lattice , double origin, INT_TYPE count1, INT_TYPE elementIndex ){
     struct basisElement boa;
     
     
-    boa.note = nullNote;
+    boa.note = note;
     
-    boa.type = f1.rose[component].component;
+    boa.type = component;
     
-    boa.basis = f1.rose[component].basis;
+    boa.basis = basis;
     
-    boa.length = f1.rose[component].lattice;
+    boa.length = lattice;
     
-    boa.origin = f1.rose[component].origin;
+    boa.origin = origin;
     
-    boa.grid = f1.rose[component].count1Basis;
+    boa.grid = count1;
     
     boa.index = 0;
     boa.index2 = 0;
@@ -1714,8 +1715,17 @@ struct basisElement grabBasis (struct sinc_label f1, INT_TYPE component, INT_TYP
 
 }
 
-
-
+struct basisElement grabBasis (struct sinc_label f1, INT_TYPE space, INT_TYPE particle, INT_TYPE elementIndex){
+    particle--;
+    if (  0 <= elementIndex && 0 <= space && space < SPACE && 0<= particle && particle < PARTICLE ){
+        if ( elementIndex < f1.rose[space].count1Basis  )
+            return f1.rose[space].basisList[elementIndex];
+    }
+    
+    
+    exit(0);
+}
+        
 //double interpolateOne( struct field * f1 , double * position ,enum division vec){
 //    double *pt[SPACE];
 //    INT_TYPE n1[SPACE],info,space;

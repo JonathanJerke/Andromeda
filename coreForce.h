@@ -46,7 +46,7 @@ double collective( double beta ,struct general_2index * pa);
 DCOMPLEX ei ( double arg );
 double No(double beta1);
 double GoG( double beta1, double beta2 , double x );
-double test2 ();
+//double test2 ();
 DCOMPLEX FS ( double p , struct general_index * pa );
 DCOMPLEX FSS ( double p , struct general_index * pa );
 DCOMPLEX FSSp ( double p , struct general_index * pa );
@@ -73,7 +73,7 @@ void mySeparateExactOne (struct sinc_label f1, double scalar, enum division basi
 void mySeparateExactTwo (struct sinc_label f1, struct interaction_label twoBody,enum division interactionExchange, double scalar,  enum division basis,INT_TYPE periodicOverRide, INT_TYPE particle1);
 void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec,double *  occupy, enum division vectors,INT_TYPE part1,enum division interactionExchange, enum division interactionEwald,enum division shorten, double scalar,INT_TYPE plus,double rescale, enum particleType particle);
 void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label twoBody,INT_TYPE periodic, enum division interactionExchangePlus,enum division shorten ,double scalar,  INT_TYPE plus,double rescale, enum particleType particle1,enum particleType particle2);
-INT_TYPE separateExternal( struct calculation * c1,enum division linear, INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1 );
+INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum division linear, INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1 );
 INT_TYPE separateBackground( struct calculation * c1,INT_TYPE periodic, INT_TYPE Ns,INT_TYPE background, INT_TYPE dim, enum division basis );
 INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division akinetic, double mass , INT_TYPE particle1);
 INT_TYPE separateBoost( struct sinc_label f1, enum division in,INT_TYPE dim ,double vectorMomentum );
