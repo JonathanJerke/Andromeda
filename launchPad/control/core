@@ -22,11 +22,11 @@
 	#
 		#default
 		OCSB 0
+		collect 1
 		configuration 0
 		#Matrix of few could modify FOUNDATION
 		matrix 1
 		range 4
-		boot 9
 		phase 0
 		attack 0.5
 		entropy 0
