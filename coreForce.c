@@ -5274,6 +5274,11 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
 
                                 }
                         }
+                    if ( dim == space && space == 2 )
+                    {
+                        ;
+                        
+                    }
                     tAddTw(f1, akinetic, cmpl, diagonalCube, 0);
                 }
         }

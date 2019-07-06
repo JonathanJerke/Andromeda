@@ -1010,9 +1010,9 @@ INT_TYPE inputFormat(struct sinc_label f1,char * name,  enum division buffer, IN
 //    
 //}
 
-INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filename, enum division inputVectors){
+INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filename, INT_TYPE *ct,enum division inputVectors, INT_TYPE collect){
     struct sinc_label f1 = f.f;
-    INT_TYPE space,ct = 0,ct2,number,class,weight,cmpl;
+    INT_TYPE space,ct2,number,class,weight,cmpl;
     FILE * in = NULL;
     in = fopen(filename, "r");
     if ( in == NULL ){
@@ -1036,7 +1036,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                     Occ = tFromReadToFilename(NULL, input_line,  name, spins(f1,eigenVectors)-1,cmpl);
                     if ( cabs(Occ) > c1->rt.TARGET){
                         {
-                            f1.tulip[inputVectors+ct].Current[cmpl] = 0;
+                            f1.tulip[inputVectors+*ct].Current[cmpl] = 0;
 
                             struct field f2 = initField();
                             
@@ -1065,24 +1065,38 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                             else
                                 f2.i.epi =(inputFormat(f1, name, nullName, 200)-1)/2;
 
-                            f2.i.d = f2.i.d* pow( (2.* f2.i.epi + 1.) /(2.*f.i.epi + 1),f.i.attack);
+                            f2.i.d = f2.i.d * pow( (2.* f2.i.epi + 1.) /(2.*f.i.epi + 1),f.i.attack);
                             
                             iModel(c1,&f2);
                             inputFormat(f2.f, name, eigenVectors,1);
-                            xEqua(f1,inputVectors+ct, cmpl, f2.f, eigenVectors,0);
-                            f1.tulip[inputVectors+ct].value.symmetry = f2.f.tulip[eigenVectors].value.symmetry;
+                            if ( collect ){
+                                xEqua(f1,copyVector, 0, f2.f, eigenVectors,0);
+                                
+                                if ( tSelect(f1, *ct, 0, inputVectors, copyVector, 1) ) {
+                                    
+                                    
+                                    f1.tulip[inputVectors+*ct].value.symmetry = f2.f.tulip[eigenVectors].value.symmetry;
+                                    printf("%s\tSA%d\n", name,  f1.tulip[inputVectors+*ct].value.symmetry);
+                                    flagLoad = 1;
 
-                            printf("%s\tSA%d\n", name,  f1.tulip[inputVectors+ct].value.symmetry);
-                            flagLoad = 1;
+                                }
+                            }else {
+                                xEqua(f1,inputVectors+*ct, cmpl, f2.f, eigenVectors,0);
+                                f1.tulip[inputVectors+*ct].value.symmetry = f2.f.tulip[eigenVectors].value.symmetry;
+                                
+                                printf("%s\tSA%d\n", name,  f1.tulip[inputVectors+*ct].value.symmetry);
+                                flagLoad = 1;
+
+                            }
                             fModel(&f2.f);
                         }
                         
                         
                     }
                 }
-                if ( ! flagLoad )
-                    continue;
-                if (( ct > f1.vectorOperator && inputVectors == f1.vectorOperator )){
+
+
+                if (( *ct > f1.vectorOperator && inputVectors == f1.vectorOperator )){
                     printf("maxed out buffer of states\n");
                     exit(0);
                 }
@@ -1091,24 +1105,27 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                     exit(1);
                 }
 
-                tScale(f1, inputVectors+ct, creal(Occ));
-                
-                ov = magnitude(f1, inputVectors+ct);
-
-                if ( inputVectors >= f1.vectorOperator){
-                    printf("Density %f\n",sqr(creal(ov)));
-                    if ( sqr(cabs(ov)) > c1->rt.TARGET)
-                        ct++;
-                    else
-                        printf("skipped\n");
-
-                }
-                else{
-                    printf("Norm %f\n",(creal(ov)));
-                    if ( (cabs(ov)) > c1->rt.TARGET)
-                        ct++;
-                    else
-                        printf("skipped\n");
+                if ( flagLoad ) {
+                    
+                    tScale(f1, inputVectors+*ct, creal(Occ));
+                    
+                    ov = magnitude(f1, inputVectors+*ct);
+                    
+                    if ( inputVectors >= f1.vectorOperator){
+                        printf("Density %f\n",sqr(creal(ov)));
+                        if ( sqr(cabs(ov)) > c1->rt.TARGET)
+                            (*ct)++;
+                        else
+                            printf("skipped\n");
+                        
+                    }
+                    else{
+                        printf("Norm %f\n",(creal(ov)));
+                        if ( (cabs(ov)) > c1->rt.TARGET)
+                            (*ct)++;
+                        else
+                            printf("skipped\n");
+                    }
                 }
             }
         }else {
@@ -1116,5 +1133,5 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
         }
     }
     
-    return ct;
+    return 0;
 };

@@ -82,13 +82,14 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
             
             N1 = n1[space];
             INT_TYPE Nx = N1;//imin(N1,c1->i.bootRestriction);
+            struct name_label u = f1.tulip[canonicalBuffersBM];
             
             N2 = N1*N1;
             myZero(f1,canonicalBuffersBM,0);
             ar = myStreams(f1, canonicalBuffersBM, 0);
             INT_TYPE part1 = part(f1, canonicalBuffersBM);
             arc = (DCOMPLEX*)myStreams(f1, canonicalBuffersBM, 0);
-            w = ar + 2*N2;
+            w = ar + 4*N2;
             if ( c1->rt.calcType == electronicStuctureCalculation ){
                 for ( v = 0 ; v < N2 ; v++)
                     if ( f1.tulip[kinetic].spinor == cmpl){
@@ -128,13 +129,19 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
 //                    cblas_daxpy(N2, 1.0,streams(f1, harmonium,0,2)+2*N2, 1, ar, 1);
 //                }
 //            }
-            
+            INT_TYPE complete;
             if ( cmplFlag )
-                tzheev(0, f1, 'V', N1, arc, N1, w);
+               complete =  tzheev(0, f1, 'V', N1, arc, N1, w);
             else
-                tdsyev(0, f1, 'V', N1, ar, N1, w);
+              complete =   tdsyev(0, f1, 'V', N1, ar, N1, w);
             
-            if ( space == 0 || space == COMPONENT ){
+            if ( complete ){
+                printf("eigensovle failed\n");
+                exit(0);
+            }
+            
+            
+            if ( 1|| space == 0 || space == COMPONENT ){
             if ( cmplFlag ){
                 for ( i = 0 ; i < N1 ; i++){
                     printf("\n\n%f \n\n", w[i]);
@@ -144,8 +151,8 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                 }
                 
             }else {
-                for ( i = 0 ; i < N1 ; i++){
-                    printf("\n\n%f \n\n", w[i]);
+                for ( i = 0 ; i < 1 ; i++){
+                    printf("\n\n%d %f \n\n",i+1, w[i]);
                     
                     for ( ii = 0; ii < N1 ; ii++)
                         printf("%f,", ar[i*N1+ii]);
@@ -638,7 +645,7 @@ INT_TYPE tFoundationLevel( struct sinc_label  f1, enum division A , double lvlm,
 
 INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum division usr){
     INT_TYPE i,ii,space,cmpl=0,rank;
-    assignCores(f1, 2);
+    assignCores(f1, 1);
 #ifdef OMP
 #pragma omp parallel for private (ii,rank) schedule(dynamic,1)
 #endif
@@ -651,6 +658,7 @@ INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum divisio
 #endif
         f1.tulip[usr+ii].value.symmetry = tClassify(rank, f1, usr+ii);
     }
+
     if ( irrep && bodies(f1, usr+ii ) > one ){
         printf("Symmetry Adaption -> %d-irrep\n", irrep );
         for ( ii = 0; ii < Ve ; ii++)
@@ -724,7 +732,7 @@ INT_TYPE tSelect(struct sinc_label  f1, INT_TYPE Ve, INT_TYPE type, enum divisio
     DCOMPLEX HH, * S = (DCOMPLEX*)(myStreams(f1, matrixSbuild, 0));
     myZero(f1, matrixSbuild,0);
     double * ov = myStreams(f1, twoBodyRitz, 0);
-    assignCores(f1, 2);
+    assignCores(f1, 1);
 #ifdef OMP
 #pragma omp parallel for private (m,n,rank,HH) schedule(dynamic,1)
 #endif
@@ -743,13 +751,18 @@ INT_TYPE tSelect(struct sinc_label  f1, INT_TYPE Ve, INT_TYPE type, enum divisio
         }
         
     }
-    
     assignCores(f1, 0);
-    tzheev(0, f1, 'N', Ve+1,S, stride, ov);
+    INT_TYPE complete;
+    complete = tzheev(0, f1, 'N', Ve+1,S, stride, ov);
+    if ( complete ){
+        printf("eigensovle failed\n");
+        exit(0);
+    }
+
     if ( testFlag ){
 
         if ( ov[Ve]/ov[0] < f1.rt->TOL && ov[Ve]/ov[0] >0 && ov[0] > 0 ){
-                printf("\t%f\t%d\n",  ov[Ve]/ov[0],Ve+1 );
+                printf("\t**%f**\t%d\n",  ov[Ve]/ov[0],Ve+1 );
                 fflush(stdout);
 
                 return 1;
@@ -967,7 +980,6 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct
     DCOMPLEX temp,temp2, sum = 0,vhhv,vhv;
     //time(&start_t);
     INT_TYPE iii = 0;
-    assignCores(f1, 1);
     
     if ( translateFlag ){
         printf ("( 1 + (%1.3f) H )PSI",realPart);
@@ -1236,7 +1248,7 @@ INT_TYPE tEigenCycle (struct sinc_label  f1, enum division A ,char permutation, 
  //       tScale(f1, usz+n, 1./magnitude(f1, usz+n));
     }
     
-    assignCores(f1, 2);
+    assignCores(f1, 1);
 
         leftP = A;
         
@@ -1338,8 +1350,6 @@ INT_TYPE tEigenCycle (struct sinc_label  f1, enum division A ,char permutation, 
 //                T[m*stride+n] = T[n*stride+m];
 //            }
 //        }
-    //assignCores(f1, 1);
-    
 //    f1->mem1->rt->matrixElementsTotal += countTot;
 //    f1->mem1->rt->matrixElementsZero += countLam;
 //    time(&lapse_t);
@@ -1347,7 +1357,7 @@ INT_TYPE tEigenCycle (struct sinc_label  f1, enum division A ,char permutation, 
 //    time(&start_t);]
       if (1){
         assignCores(f1, 0);
-
+          INT_TYPE complete;
         char Job = 'N';
 //        if (flag)
             Job = 'V';
@@ -1369,12 +1379,16 @@ INT_TYPE tEigenCycle (struct sinc_label  f1, enum division A ,char permutation, 
               
               cblas_zcopy(maxEV*stride , S , 1 , S+maxEV*stride , 1);
           }
-        gvOut = tzhegv (0,f1,Job,quantumBasisSize,T,S,stride,ritz);
+        complete = tzhegv (0,f1,Job,quantumBasisSize,T,S,stride,ritz);
+          if ( complete ){
+              printf("eigensovle failed\n");
+              exit(1);
+          }
+
 #if VERBOSE
           printf("eigenSolved\n");
 #endif
         fflush(stdout);
-        assignCores(f1, 1);
     }
     time(&lapse_t);
 
@@ -1534,6 +1548,7 @@ INT_TYPE tEigenCycle (struct sinc_label  f1, enum division A ,char permutation, 
 //    }else
         if ( flag == 4 )
         {
+
             double norms,*pointers[MaxCore];
             if (1){
                 f1.tulip[eigenList].name = usz;

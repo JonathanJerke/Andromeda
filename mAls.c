@@ -993,7 +993,6 @@ double tInnerListMP( INT_TYPE rank, struct sinc_label  f1 , enum division origin
 INT_TYPE printExpectationValues (struct sinc_label  f1 , enum division ha  , enum division vector){
     DCOMPLEX co,expat,totx,me,ov,exov;
     totx = 0.;
-    assignCores(f1, 1);
     enum division leftP = ha,Mat;
     if (CanonicalRank(f1, vector, 1))
         printf("%d (%d + i%d)\n", vector, CanonicalRank(f1, vector, 0), CanonicalRank(f1, vector, 1));
@@ -1048,7 +1047,7 @@ void matrixElements ( INT_TYPE rank,struct sinc_label  f1 , enum division bra, e
     {
         if ( species(f1, mat ) == outerVector ){
             tContract (rank, f1, copy,rank, mat,0 , mat,0 );
-           // tScaleOne(f1, copy, rank, -1.);
+           tScaleOne(f1, copy, rank, -1.);
 
             mat = copy;
             imr1 = rank;
@@ -1119,7 +1118,7 @@ void pMatrixElements ( struct sinc_label  f1 , enum division bra, enum division 
     double prod;
     DCOMPLEX co=1.,co2 = 1.,coi;
     double OVr[MaxCore],OVi[MaxCore],MEi[MaxCore],MEr[MaxCore];
-    
+    assignCores(f1, 1);
     
     for ( rank = 0; rank < MaxCore ; rank++){
         OVr[rank] = 0.;
@@ -1149,7 +1148,7 @@ void pMatrixElements ( struct sinc_label  f1 , enum division bra, enum division 
     {
         if ( species(f1, mat ) == outerVector ){
             tContract (0, f1, copy,0, mat,0 , mat,0 );
-           // tScaleOne(f1, copy, 0, -1.);
+            tScaleOne(f1, copy, 0, -1.);
 
             mat = copy;
             imr1 = 0;

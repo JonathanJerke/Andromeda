@@ -34,10 +34,7 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
         iModel(c1,&f1);
         tBoot1Construction(c1,f1.f ,build);
 
-//        if ( f1.i.irrep && f1.i.filter )
-//            EV =   tCollect(f1.f,f1.i.irrep,f1.f.user,f1.i.qFloor ,1);
-//        else
-            EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
+        EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
         tFilter(f1.f, EV,0, f1.f.user);//classify
     }else {
         exit(1);
@@ -55,13 +52,7 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
         print(c1,f1,1,0,EV , f1.f.user);
     
     fModel(&f1.f);
-//    else{
-//        iModel(c1);
-//
-////tBootManyConstruction(c1);
-//        EV =   tCollect(f1,c1->i.irrep,f1.user,c1->i.qFloor ,1);
-//        tFilter(f1, EV, 0, f1.user);//classify
-//    }
+
     return EV;
 }
 
@@ -77,7 +68,7 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
     f1.i.nStates =f1.i.qFloor* f1.i.Iterations  ;
     iModel(c1,&f1);
     for ( fi =0 ; fi < f1.i.files ; fi++){
-        EV +=  tLoadEigenWeights (c1,f1, f1.i.fileList[fi], f1.f.user );//UNUSUAL!!!
+        tLoadEigenWeights (c1,f1, f1.i.fileList[fi], &EV,f1.f.user , f1.i.collect);//UNUSUAL!!!
     }
         if (EV == 0 ){
         printf ("ack!\n");
@@ -157,14 +148,12 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
     
     
     
-#ifndef APPLE
     for ( fi =0 ; fi < f1.i.files ; fi++)
-        EV +=  tLoadEigenWeights (c1,f1, f1.i.fileList[fi], f1.f.user+EV);//UNUSUAL!!!
+        tLoadEigenWeights (c1,f1, f1.i.fileList[fi],&EV, f1.f.user,f1.i.collect);//UNUSUAL!!!
     if (EV == 0 ){
         printf ("ack!\n");
         exit(0);
     }
-#endif
     tEigenCycle(f1.f,Ha,CDT, f1.i.nStates, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
     
     
@@ -236,10 +225,8 @@ INT_TYPE decompose( struct calculation * c1 , struct field f1){
     f1.i.nStates =1 ;
     iModel(c1,&f1);
     
-#ifndef APPLE
     for ( fi =0 ; fi < f1.i.files ; fi++)
-        EV +=  tLoadEigenWeights (c1, f1,f1.i.fileList[fi], f1.f.user+EV);//UNUSUAL!!!
-#endif
+        tLoadEigenWeights (c1, f1,f1.i.fileList[fi], &EV,f1.f.user,f1.i.collect);//UNUSUAL!!!
     if (EV == 0 ){
         printf ("ack!\n");
         exit(0);
@@ -270,6 +257,125 @@ INT_TYPE decompose( struct calculation * c1 , struct field f1){
     return 0;
 }
 
+INT_TYPE frameEwald( struct calculation * c , struct field f)
+{//D
+    INT_TYPE space,EV ;
+
+    INT_TYPE oi =1;
+    f.i.nOperator = countLinesFromFile(f,1,&oi);
+
+    if ( ! f.i.nOperator){
+        printf("vectorOperator flag\n");
+        exit(1);
+    }
+    
+    {
+        c->i.irrep = 0;
+        iModel(c,&f);
+        tBoot1Construction(c,f.f ,build);
+        
+        EV =   tSlam(f.f,f.i.qFloor,f.f.user,c->i.level);
+    }
+    
+    
+    printf("finished foundation\n");
+    fflush(stdout);
+    tEigenCycle(f.f,Ha,CDT, f.i.nStates, f.f.user,EV,0, EV,0,0,eigenVectors,twoBodyRitz);
+    
+    
+    cblas_dscal(EV, -1., myStreams(f.f, twoBodyRitz, 0), 1);
+
+    INT_TYPE i,j=0;
+    double totalElectron = 0., consideredElectron = 0.;
+    for ( i = 0 ; i < EV ; i++ ){
+        if ( myStreams(f.f, twoBodyRitz, 0)[i] > c->rt.TARGET ){
+            printf("load-%d %f\n",i+1, myStreams(f.f, twoBodyRitz, 0)[i]);
+            consideredElectron += myStreams(f.f, twoBodyRitz, 0)[i];
+            j++;//in order
+        }
+        totalElectron += myStreams(f.f, twoBodyRitz, 0)[i];
+
+    }
+    printf ( " encapsulating %f electrons\n considering %f electron using target %f\n",totalElectron, consideredElectron, c->rt.TARGET );
+    tEigenCycle(f.f,Ha,CDT, j, f.f.user,EV,0, EV,0,4,eigenVectors,twoBodyRitz);
+    
+    if ( 0 ){
+        INT_TYPE ii;
+        j = 1;
+        myStreams(f.f, twoBodyRitz, 0)[0] = 1.;
+        for ( space = 0; space < SPACE ; space++)
+            if ( f.f.rose[space].body != nada   ){
+                for ( i = 0 ; i < vectorLen(f.f, space); i++)
+                    if (  i < vectorLen(f.f, space)/2)
+                        streams(f.f, eigenVectors, 0, space)[i] = 1./sqrt(vectorLen(f.f, space)/2);
+                    else
+                        streams(f.f, eigenVectors, 0, space)[i] = 0.;
+                
+            }
+        f.f.tulip[eigenVectors].Current[0] = 1;
+        
+        f.f.tulip[diagonal2VectorA].Current[0] = 1;
+        for ( space = 0; space < SPACE ; space++)
+            if ( f.f.rose[space].body != nada   ){
+                for ( i = 0 ; i < vectorLen(f.f, space); i++)
+                    for ( ii = 0 ; ii < vectorLen(f.f, space); ii++)
+                        if ( ii < vectorLen(f.f, space)/2 && i < vectorLen(f.f, space)/2)
+                            streams(f.f, diagonal2VectorA, 0, space)[ii*vectorLen(f.f,space)+i] = 1./(vectorLen(f.f, space)/2);
+                        else
+                            streams(f.f, diagonal2VectorA, 0, space)[ii*vectorLen(f.f,space)+i] = 0.;
+                
+            }
+        
+        
+        
+        printf("mag %f\n", magnitude(f.f, diagonal2VectorA));
+        FILE *out = fopen("uniform.1.0_mac","w");
+        outputFormat(f.f, out, diagonal2VectorA, 0);
+    }
+    
+    
+    mySeparateEwaldCoulomb1(f.f,j,myStreams(f.f, twoBodyRitz, 0),eigenVectors, c->i.decomposeRankMatrix, interactionExchange,interactionEwald, shortenEwald, 1., 0, 0, electron);
+    ioStoreMatrix(f.f, shortenEwald, 0, "shortenEwald.matrix", 0);
+    fModel(&f.f);
+
+    return 0;
+}
+
+
+INT_TYPE collectSet( struct calculation * c , struct field f)
+{
+            INT_TYPE EV = 0,fi,ev,Ve,Ven;
+            DCOMPLEX one = 1.;
+            char name[MAXSTRING];
+            f.i.qFloor = countLinesFromFile(f,0,&f.i.iRank);
+            f.i.iRank = f.i.bRank;
+    
+            f.i.nStates = f.i.qFloor ;
+            iModel(c,&f);
+            for ( fi =0 ; fi < f.i.files ; fi++){
+                tLoadEigenWeights (c, f, f.i.fileList[fi], &EV,f.f.user, f.i.collect);
+    
+            }
+            if (EV == 0 ){
+                printf ("ack!\n");
+                exit(0);
+            }
+            Ven = 0;
+            Ve = 0;
+            for ( ev = 0 ;ev < EV ; ev++){
+                Ve += tSelect(f.f, Ve, 0, eigenVectors, f.f.user + ev, 1);
+            }
+            printVector(c,f.f,c->name,c->name,-1,0, &one);
+            for ( ev =0 ; ev < Ve ; ev++){
+                tFilename(c->name, ev+1, f.i.body, 0, 0, name);
+                FILE * outVector = fopen(name, "w");
+                outputFormat(f.f, outVector, eigenVectors+ev, 0);
+                fclose(outVector);
+                printVector(c,f.f,c->name,c->name,ev,0, &one);
+            }
+    return 0;
+}
+
 #if 1
 
 int main (INT_TYPE argc , char * argv[]){
@@ -295,24 +401,21 @@ int main (INT_TYPE argc , char * argv[]){
         rt->NSlot = omp_get_num_threads();
     }
     if ( rt->NLanes > rt->NSlot ){
-        printf("lanes > available\n");
+        printf("decrease lanes or increase your number of OMP cores\n");
         exit(0);
     }
     
 #ifdef MKL
     if ( rt->NSlot < c.i.mkl * c.i.omp )
     {
-        printf("not enought slots for mkl*omp\n" );
+        printf("not enough slots for mkl*omp\n" );
         exit(0);
     }
     else
     {
-        printf("mkl %d\n", c.i.mkl);
+        rt->NParallel = c.i.mkl;
     }
 #endif
-    printf("lanes %lld\n", rt->NLanes);
-    printf("slots %lld\n", rt->NSlot);
-    fflush(stdout);
 #endif
     
     //0//...   //A//B//C//D//E
@@ -328,123 +431,10 @@ int main (INT_TYPE argc , char * argv[]){
     else if ( c.rt.phaseType == decomposeTensor ){//B
         decompose(&c,f);
     }else if ( c.rt.phaseType == frameDensity ){//D
-        if ( ! f.f.vectorOperator){
-            printf("vectorOperator flag\n");
-            exit(1);
-        }
-    //    c.i.OCSBflag = 0;
-
-        INT_TYPE EV = foundation(&c,f);
-        printf("finished foundation\n");
-        fflush(stdout);
-        tEigenCycle(f.f,Ha,CDT, f.i.nStates, f.f.user,EV,0, EV,0,0,eigenVectors,twoBodyRitz);
-        
-        INT_TYPE i,j=0;
-        for ( i = 0 ; i < f.i.nStates ; i++ ){
-            if ( -myStreams(f.f, twoBodyRitz, 0)[i] > c.rt.TARGET ){
-                printf("load %f\n", -myStreams(f.f, twoBodyRitz, 0)[i]);
-                j++;
-            }
-        }
-        tEigenCycle(f.f,Ha,CDT, j, f.f.user,EV,0, EV,0,4,eigenVectors,twoBodyRitz);
-        
-        {
-//            INT_TYPE i ;
-//            double sum = 0;
-//            for ( i = 0; i < j ; i++)
-//                sum += -myStreams(f, twoBodyRitz, 0)[i];
-            
-            cblas_dscal(j, -1., myStreams(f.f, twoBodyRitz, 0), 1);
-        }
-        
-        if ( 0 ){
-            INT_TYPE ii;
-            j = 1;
-            myStreams(f.f, twoBodyRitz, 0)[0] = 1.;
-            for ( space = 0; space < SPACE ; space++)
-                if ( f.f.rose[space].body != nada   ){
-                    for ( i = 0 ; i < vectorLen(f.f, space); i++)
-                                if (  i < vectorLen(f.f, space)/2)
-                                    streams(f.f, eigenVectors, 0, space)[i] = 1./sqrt(vectorLen(f.f, space)/2);
-                                    else
-                                        streams(f.f, eigenVectors, 0, space)[i] = 0.;
-                    
-                }
-            f.f.tulip[eigenVectors].Current[0] = 1;
-            
-            f.f.tulip[diagonal2VectorA].Current[0] = 1;
-            for ( space = 0; space < SPACE ; space++)
-                if ( f.f.rose[space].body != nada   ){
-                    for ( i = 0 ; i < vectorLen(f.f, space); i++)
-                        for ( ii = 0 ; ii < vectorLen(f.f, space); ii++)
-                            if ( ii < vectorLen(f.f, space)/2 && i < vectorLen(f.f, space)/2)
-                                streams(f.f, diagonal2VectorA, 0, space)[ii*vectorLen(f.f,space)+i] = 1./(vectorLen(f.f, space)/2);
-                            else
-                                streams(f.f, diagonal2VectorA, 0, space)[ii*vectorLen(f.f,space)+i] = 0.;
-                    
-                }
-
-            
-            
-            printf("mag %f\n", magnitude(f.f, diagonal2VectorA));
-            FILE *out = fopen("uniform.1.0_mac","w");
-            outputFormat(f.f, out, diagonal2VectorA, 0);
-        }
-        
-        
-        mySeparateEwaldCoulomb1(f.f,j,myStreams(f.f, twoBodyRitz, 0),eigenVectors, c.i.decomposeRankMatrix, interactionExchange,interactionEwald, shortenEwald, 1., 0, 0, electron);
-        ioStoreMatrix(f.f, shortenEwald, 0, "shortenEwald.matrix", 0);
-        
+        frameEwald (&c,f);
+    }else if ( c.rt.phaseType == collectKrylov ){//F
+        collectSet(&c,f);
     }
-//    else if ( c.rt.phaseType == collectKrylov ){//F
-//        INT_TYPE on,EV = 0,i,fi,ev,Ve,Ven;
-//        DCOMPLEX one = 1.;
-//        char name[MAXSTRING];
-//        c.i.qFloor = countLinesFromFile(&c,f,0);
-//        c.i.iRank = c.i.bRank;
-//        
-//        c.i.nStates = c.i.qFloor ;
-//        iModel(&c,f1);
-//        for ( fi =0 ; fi < f1.files ; fi++){
-//            EV =  tLoadEigenWeights (&c, f1, f1.fileList[fi], f1.user+EV);
-//            
-//        }
-//        if (EV == 0 ){
-//            printf ("ack!\n");
-//            exit(0);
-//        }
-//        Ven = 0;
-//        Ve = 0;
-//        for ( ev = 0 ;ev < EV ; ev++){
-//            Ve += tSelect(f1, Ve, 0, eigenVectors, f1.user + ev, 1);
-//            // Ve =  tSASplit(f1, c.i.irrep, Ve,EV, eigenVectors,f1.user + ev);
-//        }
-//        printVector(&c,c.i.c.sinc,c.name,c.name,-1,0, &one);
-//        for ( ev =0 ; ev < Ve ; ev++){
-//            tFilename(c.name, ev+1, c.rt.body, 0, 0, name);
-//            FILE * outVector = fopen(name, "w");
-//            outputFormat(f1, outVector, eigenVectors+ev, 0);
-//            fclose(outVector);
-//            printVector(&c,c.i.c.sinc,c.name,c.name,ev,0, &one);
-//        }
-//    }else
-//        if ( c.rt.phaseType == svdOperation ){//G
-//        if ( ! f1.f.vectorOperator){
-//            printf("vectorOperator flag\n");
-//            exit(1);
-//        }
-//        INT_TYPE iterator,EV,iii;
-//      //  c.i.OCSBflag = 0;
-//        EV = foundation(&c);
-//        RdsSize = EV;
-//
-//
-//        tEigenCycle(f1.f,Ha,CDT, f1.i.nStates, f1.f.user,RdsSize,0, EV,0,4,eigenVectors,twoBodyRitz);
-//        for ( iii = 0; iii < EV ; iii++)
-//            print(&c,f1,0,iii,iii+1,eigenVectors);
-//
-//    }
-    
 }
 
 #endif

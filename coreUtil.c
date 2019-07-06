@@ -1638,16 +1638,13 @@ INT_TYPE assignCores(struct sinc_label f1, INT_TYPE parallel ){
     INT_TYPE omp;
     if ( parallel == 0){
         omp = 1;
-    }else if ( parallel /*== 1*/ ){
+    }else if ( parallel ){
         omp = nLanes;
-    }else {
-        printf (" unknown parallel\n");
-        exit(0);
     }
     omp_set_num_threads(omp);
 #endif
 #ifdef MKL
-    if ( omp == 1 )
+    if ( omp == 0 )
         mkl_set_num_threads(nParallel*nLanes);
     else
         mkl_set_num_threads(nParallel);

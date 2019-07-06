@@ -123,6 +123,7 @@ struct field initField (void ) {
     i.i.filter = 0;
     i.i.irrep = 0;
     i.i.sectors = 0;
+    i.i.collect = 0;
     
     i.i.Iterations = 0;
     i.i.M1 = 0;
@@ -139,11 +140,11 @@ struct field initField (void ) {
 #ifdef APPLE
     i.f.boot = fullMatrices;
     i.i.body = one;
+    i.i.epi = 4;
 #endif
     return i;
 }
 struct calculation initCal (void ) {
-    INT_TYPE space;
     struct calculation i;
    // i.i.OCSBflag = 0;
     i.i.springConstant = 0.;
@@ -180,7 +181,7 @@ struct calculation initCal (void ) {
         //THESE
         if ( SPACE == 3 ){
             i.rt.calcType = electronicStuctureCalculation;
-
+            i.rt.runFlag = 7;
         } else {
 
             i.rt.calcType = clampProtonElectronCalculation;
@@ -199,7 +200,7 @@ struct calculation initCal (void ) {
     i.rt.phaseType = buildFoundation ;
     
     i.i.twoBody.func.fn = nullFunction;
-    i.i.oneBody.func.fn = Coulomb;
+    i.i.oneBody.func.fn = nullFunction;
     //i.i.springFlag = 1;
     i.i.springConstant = 0.25;
     i.i.canonRank = 50;
@@ -352,13 +353,16 @@ INT_TYPE singleModel( struct calculation * c1, struct field * f){
             f1->rose[space].basis = SincBasisElement;
             f1->rose[space].body = f->i.body;
             f1->rose[space].component = spatialComponent1+space%COMPONENT + ((c1->rt.runFlag/periodic)%2)*3;
+            if (  f1->rose[space].component > 3){
+                printf("\nperiodic boundaries %d\n",f1->rose[space].component);
+            }
             periodic *= 2;
             f1->rose[space].count1Basis = N1;
             if (f1->rose[space].component > 3  )
                 f1->rose[space].count1Basis *= 2;
             f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
             for ( bl = 0 ; bl < f1->rose[space].count1Basis  ; bl++)
-                f1->rose[space].basisList[bl] = defineBasis(nullNote, spatialComponent1+space%COMPONENT + ((c1->rt.runFlag/periodic)%2)*3, SincBasisElement, f->i.d, 0.,             f1->rose[space].count1Basis,bl);
+                f1->rose[space].basisList[bl] = defineBasis(nullNote, f1->rose[space].component, SincBasisElement, f->i.d, 0.,             f1->rose[space].count1Basis,bl);
 
         }
     } else  if ( c1->rt.calcType == clampProtonElectronCalculation){
@@ -369,10 +373,14 @@ INT_TYPE singleModel( struct calculation * c1, struct field * f){
             f1->rose[space].body = f->i.body;
             f1->rose[space].component = spatialComponent1+space+ ((c1->rt.runFlag/periodic)%2)*3;
             periodic *= 2;
+            if (  f1->rose[space].component > 3){
+                printf("\nperiodic boundaries %d\n",f1->rose[space].component);
+            }
+
             f1->rose[space].count1Basis = N1;
             f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
             for ( bl = 0 ; bl < f1->rose[space].count1Basis  ; bl++)
-                f1->rose[space].basisList[bl] = defineBasis(nullNote, spatialComponent1+space%COMPONENT + ((c1->rt.runFlag/periodic)%2)*3, SincBasisElement, f->i.d, 0.,             f1->rose[space].count1Basis,bl);
+                f1->rose[space].basisList[bl] = defineBasis(nullNote, f1->rose[space].component, SincBasisElement, f->i.d, 0.,             f1->rose[space].count1Basis,bl);
 
 
         }
@@ -383,10 +391,14 @@ INT_TYPE singleModel( struct calculation * c1, struct field * f){
             f1->rose[space].body = one;
             f1->rose[space].component = spatialComponent1+space%COMPONENT+ ((c1->rt.runFlag/periodic)%2)*3;
             periodic *= 2;
+            if (  f1->rose[space].component > 3){
+                printf("\nperiodic boundaries %d\n",f1->rose[space].component);
+            }
+
             f1->rose[space].count1Basis = N2;
             f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
             for ( bl = 0 ; bl < f1->rose[space].count1Basis  ; bl++)
-                f1->rose[space].basisList[bl] = defineBasis(nullNote, spatialComponent1+space%COMPONENT + ((c1->rt.runFlag/periodic)%2)*3, SincBasisElement, f->i.D, 0.,             f1->rose[space].count1Basis,bl);
+                f1->rose[space].basisList[bl] = defineBasis(nullNote, f1->rose[space].component, SincBasisElement, f->i.D, 0.,             f1->rose[space].count1Basis,bl);
 
 
         }
@@ -441,7 +453,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         
         bootShape = Cube;
         
-        
+
     INT_TYPE FloorV = imax(0, f->i.qFloor), CeilV = imax(0,0);
         INT_TYPE maxArray,EV,maxEV,NV = 0,FV = FloorV+CeilV ;
     
@@ -570,7 +582,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     booting[di] = 0;
                 
                 
-                if ( f1->vectorOperator )
+                if ( f->i.filesVectorOperator )
                     
                 {
                     enum bodyType bd;
@@ -602,7 +614,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                                 for (space = 0; space < SPACE ; space++){
                                     bd = inputFormat(*f1, name, nullName, 100+space/COMPONENT);
                                     f1->tulip[vectorOperator+lines].space[space].body = bd;
-                                  //  printf("%d %d %d\n", lines+1, space, bd);//space/COMPONENT = particle
+                                    printf("%d %d %d\n", lines+1, space, bd);//space/COMPONENT = particle
                                     booting[ bd - bootBodies ] = 1;
 
                                 }
@@ -648,13 +660,16 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
 
             if(1 /* !si*/){
+                enum division last = eigenVectors;
                 INT_TYPE di,d0=0;
 #if VERBOSE
                 printf("std USERs\n\n");
 #endif
                 for ( di = 0 ; di < maxEV+f->i.nStates; di++){
-                    if ( di )
-                        fromBeginning(*f1, eigenVectors+di, eigenVectors+di-1);
+                    if ( di ){
+                        fromBeginning(*f1, eigenVectors+di, last);
+                        last = eigenVectors+di;
+                    }
                     f1->tulip[eigenVectors+di].spinor =c1->i.complexType;
                     if ( d0 < f->i.nStates ){
                         f1->tulip[eigenVectors+di].Partition = f->i.bRank;
@@ -671,7 +686,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     }
                     f1->tulip[eigenVectors+di].species = vector;
                 }
-                fromBeginning(*f1, diagonalVectorA, eigenVectors+di-1);
+                fromBeginning(*f1, diagonalVectorA, last);
                 ;
                  u = f1->tulip[eigenVectors];
                  u2 = f1->tulip[eigenVectors+di-1];
@@ -1228,7 +1243,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         }
 
         f1->bootedMemory = 1;
-        assignCores(*f1, 2);
+        assignCores(*f1, 1);
 
         INT_TYPE RdsSize;
         RdsSize = 0;
@@ -1260,10 +1275,10 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                         printf("running without ewald-self interaction\n");
                         tClear(*f1,shortenEwald);
                     }
-                    if (c1->i.twoBody.func.fn != nullFunction && c1->rt.phaseType == frameDensity)
+                    if (c1->i.twoBody.func.fn != nullFunction && (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz ))
                     if ( !  ioStoreMatrix(*f1, interactionEwald, 0, "interactionEwald.matrix",1) ){
-                        if ( c1->rt.phaseType != solveRitz ){
-                            printf("you can remove this barrier, but I would recommend you run ritz first\n");
+                        if (! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ){
+                            printf("you can remove this barrier, but I would recommend you run ritz or frame first\n");
                             exit(0);
                         }
                         mySeparateExactTwo(*f1, c1->i.twoBody,interactionEwald, 1., 0, 1, electron);
@@ -1275,8 +1290,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     if ( c1->i.twoBody.func.fn != nullFunction&& c1->rt.phaseType == frameDensity)
                     if ( ! ioStoreMatrix(*f1, interactionExchange, 0, "interactionExchange.matrix",1) ){
                         
-                        if ( c1->rt.phaseType != solveRitz ){
-                            printf("you can remove this barrier, but I would recommend you run ritz first\n");
+                        if (c1->rt.phaseType != frameDensity ){
+                            printf("you can remove this barrier, but I would recommend you run frame first\n");
                             exit(0);
                         }
 
@@ -1446,7 +1461,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 f1->tulip[Iterator].linkNext = vectorOperator;
                 INT_TYPE fi,fe=0,ff;
                 for ( fi =0 ; fi < f->i.filesVectorOperator ; fi++){
-                    fe +=  tLoadEigenWeights (c1,*f,f->i.fileVectorOperator[fi], f1->vectorOperator+fe);
+                    tLoadEigenWeights (c1,*f,f->i.fileVectorOperator[fi], &fe,f1->vectorOperator,0);
                 }
                 
                 for ( ff = 1; ff < fe ; ff++)

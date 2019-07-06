@@ -138,7 +138,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "sectors","body","LOST100","rds1","rds2",//85
         "rds3","interactionOne","interactionTwo","oCycle","interactionZero",//90
         "breakBody","interval","RAM","monteCarlo","samples",//95
-        "hartreeFock","basisStage","iterations","group","states",//100
+        "hartreeFock","basisStage","iterations","collect","states",//100
         "length","XHA","lookBack","step","theory",
         "configuration","densityRank","densityBody","parallel","phase",
         "around","cmpl","clampStage","OCSB","decompose",
@@ -684,7 +684,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                    f1->Iterations = ivalue;
                     return i;
                 case 99:
-            //        c->i.group = ivalue;
+                    f1->collect = ivalue;
                     return i;
                 case 100:
                     f1->nStates = ivalue;

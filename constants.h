@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 6.3.3
+//VERSION 6.3.4
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -659,6 +659,7 @@ struct input_label {
     INT_TYPE qFloor;
     INT_TYPE nOperator;
     INT_TYPE filter;
+    INT_TYPE collect;
 };
 
 
