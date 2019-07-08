@@ -21,7 +21,6 @@
 
 	#
 		#default
-		OCSB 0
 		collect 1
 		configuration 0
 		#Matrix of few could modify FOUNDATION
@@ -34,7 +33,6 @@
 		lanes 1
 		parallel 1
 		Angstroms 0
-		sectors 1
 		cycles 0	
 		filter 1
 		initRank 1
