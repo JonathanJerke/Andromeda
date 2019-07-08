@@ -25,13 +25,13 @@
 
 
 //HERE LIES THE external CODE level changes!
-
+#define OVERFLAG 0
 
 #ifndef system_h
 #define system_h
 
 #define COMPONENT 3
-#define PARTICLE 2
+#define PARTICLE 1
 #define SPACE (COMPONENT * PARTICLE)
 #define MAXATOM 4
 

@@ -38,6 +38,7 @@ DCOMPLEX aaGGCGG( double beta, struct general_2index * pa);
 //DCOMPLEX aabGdnGdm( INT_TYPE n,INT_TYPE m, double boost, struct general_index * pa);
 DCOMPLEX aaGdnGdm( INT_TYPE n, INT_TYPE m, struct general_index * pa);
 DCOMPLEX aaGGCD( double invbeta,  double position,struct general_index * pa);
+double aaGetGamma (  double b1,INT_TYPE l1, double o1,double b2,INT_TYPE l2,double o2);
 
 DCOMPLEX BgB (double beta, struct basisElement b1, INT_TYPE action , INT_TYPE powSpace,double origin, struct basisElement b2);
 double GTOnorm ( struct basisElement ba );
@@ -57,7 +58,7 @@ double periodicSSGSSa( double alpha ,struct general_2index * pa);
 double periodicSGSa( double alpha ,struct general_2index * pa);
 double periodicSGS ( double a, double x0, INT_TYPE power, double d , INT_TYPE n, INT_TYPE m, INT_TYPE N1  );
 double periodicSSGSS ( double a, double d , INT_TYPE n  , INT_TYPE m ,INT_TYPE n2, INT_TYPE m2 , INT_TYPE N1);
-
+INT_TYPE separateOverlap( struct sinc_label f1, INT_TYPE periodic,enum division akinetic,  double amass, INT_TYPE particle1 );
 double eeFunc ( double k , double alpha , struct general_2index * pa );
 double potFunc ( double k, double alpha, struct general_2index * pa );
 double collectives (double beta , struct general_2index * pa );

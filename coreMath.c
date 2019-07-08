@@ -315,42 +315,42 @@ DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
             value = 1;
             break;
         case 1:
-            value = delta;
+            value = I * delta;
             break;
         case 2:
-            value = Power(delta,2) - 2*Power(gamma,2);
+            value = -Power(delta,2) + 2*Power(gamma,2);
             break;
         case 3:
-            value = Power(delta,3) - 6*delta*Power(gamma,2);
+            value = -I * Power(delta,3) - 6*delta*Power(gamma,2);
             break;
         case 4:
             value = Power(delta,4) - 12*Power(delta,2)*Power(gamma,2) + 12*Power(gamma,4);
             break;
         case 5:
-            value = Power(delta,5) - 20*Power(delta,3)*Power(gamma,2) + 60*delta*Power(gamma,4);
+            value = I * Power(delta,5) - 20*Power(delta,3)*Power(gamma,2) + 60*delta*Power(gamma,4);
             break;
         case 6:
-            value = Power(delta,6) - 30*Power(delta,4)*Power(gamma,2) + 180*Power(delta,2)*Power(gamma,4) - 120*Power(gamma,6);
+            value = -Power(delta,6) - 30*Power(delta,4)*Power(gamma,2) + 180*Power(delta,2)*Power(gamma,4) - 120*Power(gamma,6);
             break;
         case 7:
-            value = Power(delta,7) - 42*Power(delta,5)*Power(gamma,2) + 420*Power(delta,3)*Power(gamma,4) - 840*delta*Power(gamma,6);
+            value = -I*Power(delta,7) - 42*Power(delta,5)*Power(gamma,2) + 420*Power(delta,3)*Power(gamma,4) - 840*delta*Power(gamma,6);
             break;
         case 8:
             value = Power(delta,8) - 56*Power(delta,6)*Power(gamma,2) + 840*Power(delta,4)*Power(gamma,4) - 3360*Power(delta,2)*Power(gamma,6) + 1680*Power(gamma,8);
             break;
         case 9:
-            value = Power(delta,9) - 72*Power(delta,7)*Power(gamma,2) +
+            value = I*Power(delta,9) - 72*Power(delta,7)*Power(gamma,2) +
             1512*Power(delta,5)*Power(gamma,4) -
             10080*Power(delta,3)*Power(gamma,6) + 15120*delta*Power(gamma,8);
             break;
         case 10:
-            value = Power(delta,10) - 90*Power(delta,8)*Power(gamma,2) +
+            value = -Power(delta,10) - 90*Power(delta,8)*Power(gamma,2) +
             2520*Power(delta,6)*Power(gamma,4) -
             25200*Power(delta,4)*Power(gamma,6) +
             75600*Power(delta,2)*Power(gamma,8) - 30240*Power(gamma,10);
             break;
         case 11:
-            value = Power(delta,11) - 110*Power(delta,9)*Power(gamma,2) +
+            value = -I*Power(delta,11) - 110*Power(delta,9)*Power(gamma,2) +
             3960*Power(delta,7)*Power(gamma,4) -
             55440*Power(delta,5)*Power(gamma,6) +
             277200*Power(delta,3)*Power(gamma,8) - 332640*delta*Power(gamma,10);
@@ -363,14 +363,14 @@ DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
             1995840*Power(delta,2)*Power(gamma,10) + 665280*Power(gamma,12);
             break;
         case 13:
-            value = Power(delta,13) - 156*Power(delta,11)*Power(gamma,2) +
+            value = I*Power(delta,13) - 156*Power(delta,11)*Power(gamma,2) +
             8580*Power(delta,9)*Power(gamma,4) -
             205920*Power(delta,7)*Power(gamma,6) +
             2162160*Power(delta,5)*Power(gamma,8) -
             8648640*Power(delta,3)*Power(gamma,10) + 8648640*delta*Power(gamma,12);
             break;
         case 14:
-            value = Power(delta,14) - 182*Power(delta,12)*Power(gamma,2) +
+            value = -Power(delta,14) - 182*Power(delta,12)*Power(gamma,2) +
             12012*Power(delta,10)*Power(gamma,4) -
             360360*Power(delta,8)*Power(gamma,6) +
             5045040*Power(delta,6)*Power(gamma,8) -
@@ -378,7 +378,7 @@ DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
             60540480*Power(delta,2)*Power(gamma,12) - 17297280*Power(gamma,14);
             break;
         case 15:
-            value =Power(delta,15) - 210*Power(delta,13)*Power(gamma,2) +
+            value = -I*Power(delta,15) - 210*Power(delta,13)*Power(gamma,2) +
             16380*Power(delta,11)*Power(gamma,4) -
             600600*Power(delta,9)*Power(gamma,6) +
             10810800*Power(delta,7)*Power(gamma,8) -
@@ -396,7 +396,7 @@ DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
             2075673600*Power(delta,2)*Power(gamma,14) + 518918400*Power(gamma,16);
             break;
         case 17:
-            value =Power(delta,17) - 272*Power(delta,15)*Power(gamma,2) +
+            value = I*Power(delta,17) - 272*Power(delta,15)*Power(gamma,2) +
             28560*Power(delta,13)*Power(gamma,4) -
             1485120*Power(delta,11)*Power(gamma,6) +
             40840800*Power(delta,9)*Power(gamma,8) -
@@ -406,7 +406,7 @@ DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
             8821612800*delta*Power(gamma,16) ;
             break;
         case 18:
-            value = Power(delta,18) - 306*Power(delta,16)*Power(gamma,2) +
+            value = -Power(delta,18) - 306*Power(delta,16)*Power(gamma,2) +
             36720*Power(delta,14)*Power(gamma,4) -
             2227680*Power(delta,12)*Power(gamma,6) +
             73513440*Power(delta,10)*Power(gamma,8) -
@@ -417,7 +417,7 @@ DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
             17643225600*Power(gamma,18);
             break;
         case 19:
-            value = Power(delta,19) - 342*Power(delta,17)*Power(gamma,2) +
+            value = -I*Power(delta,19) - 342*Power(delta,17)*Power(gamma,2) +
             46512*Power(delta,15)*Power(gamma,4) -
             3255840*Power(delta,13)*Power(gamma,6) +
             126977760*Power(delta,11)*Power(gamma,8) -
@@ -439,7 +439,7 @@ DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
             670442572800*Power(gamma,20);
             break;
         case 21:
-            value = Power(delta,21) - 420*Power(delta,19)*Power(gamma,2) +
+            value = I * Power(delta,21) - 420*Power(delta,19)*Power(gamma,2) +
             71820*Power(delta,17)*Power(gamma,4) -
             6511680*Power(delta,15)*Power(gamma,6) +
             341863200*Power(delta,13)*Power(gamma,8) -
@@ -451,7 +451,7 @@ DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
             14079294028800*delta*Power(gamma,20);
             break;
         case 22:
-            value = Power(delta,22) - 462*Power(delta,20)*Power(gamma,2) +
+            value = -Power(delta,22) - 462*Power(delta,20)*Power(gamma,2) +
             87780*Power(delta,18)*Power(gamma,4) -
             8953560*Power(delta,16)*Power(gamma,6) +
             537213600*Power(delta,14)*Power(gamma,8) -
@@ -463,7 +463,7 @@ DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
             28158588057600*Power(gamma,22);
             break;
         case 23:
-            value = Power(delta,23) - 506*Power(delta,21)*Power(gamma,2) +
+            value = -I*Power(delta,23) - 506*Power(delta,21)*Power(gamma,2) +
             106260*Power(delta,19)*Power(gamma,4) -
             12113640*Power(delta,17)*Power(gamma,6) +
             823727520*Power(delta,15)*Power(gamma,8) -
@@ -490,7 +490,7 @@ DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
             break;
     }
 
-    value *= 1.7724538509055159/*sqrt(pi)*/*exp(-sqr( delta/2./gamma))/(pow(gamma,2*lambdad)*gamma);
+    value *= 1.7724538509055159/*sqrt(pi)*/*exp(-sqr( delta/2./gamma))/(pow(gamma,2*lambdad)*gamma)/pow(2.,lambdad);
 
     return value;
 }

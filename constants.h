@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 6.3.4
+//VERSION 6.3.5
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -330,11 +330,16 @@ enum division{
     interaction14Ewald,
     interaction24Ewald,
     interaction34Ewald,
-    shortenEwald,
-    shorten1Ewald,
-    shorten2Ewald,
-    shorten3Ewald,
-    shorten4Ewald,
+    intercellularSelfEwald,
+    intercellularSelf1Ewald,
+    intercellularSelf2Ewald,
+    intercellularSelf3Ewald,
+    intercellularSelf4Ewald,
+    intracellularSelfEwald,
+    intracellularSelf1Ewald,
+    intracellularSelf2Ewald,
+    intracellularSelf3Ewald,
+    intracellularSelf4Ewald,
     shortenPlus,
     shorten1Plus,
     shorten2Plus,
@@ -639,8 +644,6 @@ struct sinc_label {
 
 
 struct input_label {
-    INT_TYPE sectors;
-    INT_TYPE M1;
     INT_TYPE body;
     INT_TYPE irrep;
     INT_TYPE files ;
@@ -757,7 +760,6 @@ struct input {
     double param1;
     double param2;
     INT_TYPE interval;
-    double attack;
     INT_TYPE M1;
     double vectorMomentum;
     double springConstant;

@@ -36,6 +36,9 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
 
         EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
         tFilter(f1.f, EV,0, f1.f.user);//classify
+        if ( OVERFLAG )
+            tEigenCycle(f1.f,Ha,CDT, 3, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
+
     }else {
         exit(1);
     }
@@ -334,8 +337,12 @@ INT_TYPE frameEwald( struct calculation * c , struct field f)
     }
     
     
-    mySeparateEwaldCoulomb1(f.f,j,myStreams(f.f, twoBodyRitz, 0),eigenVectors, c->i.decomposeRankMatrix, interactionExchange,interactionEwald, shortenEwald, 1., 0, 0, electron);
-    ioStoreMatrix(f.f, shortenEwald, 0, "shortenEwald.matrix", 0);
+    mySeparateEwaldCoulomb1(f.f,j,myStreams(f.f, twoBodyRitz, 0),eigenVectors, c->i.decomposeRankMatrix, interactionExchange,interactionEwald, intracellularSelfEwald, 1., 0, 0, electron);
+    ioStoreMatrix(f.f, intracellularSelfEwald, 0, "intracellularEwald.matrix", 0);
+    
+    mySeparateEwaldCoulomb1(f.f,j,myStreams(f.f, twoBodyRitz, 0),eigenVectors, c->i.decomposeRankMatrix, interactionExchange,interactionEwald, intercellularSelfEwald, 1., 1, 0, electron);
+    ioStoreMatrix(f.f, intercellularSelfEwald, 0, "intercellularEwald.matrix", 0);
+
     fModel(&f.f);
 
     return 0;

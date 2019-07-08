@@ -390,7 +390,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     return i;
                 case 50 :
                     f1->qFloor = ivalue;
-                    f1->sectors = !(!ivalue);
+               //     f1->sectors = !(!ivalue);
                     return i;
                 case 51 :
                     c->i.Angstroms = ivalue;
@@ -543,7 +543,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                 case 81:
                     if ( ivalue < 0 )
                         return 0;
-                    f1->sectors = ivalue;
+                  //  f1->sectors = ivalue;
                     return i;
                     
                 case 82:
@@ -978,7 +978,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     c->rt.maxEntropy = pow(0.1,value);
                     return d;
                 case 57:
-                      c->i.attack = value;
+                      f1->attack = value;
                     return d;
                 case 58:
                     c->i.scalar = value;
@@ -1712,8 +1712,9 @@ INT_TYPE bootShell (INT_TYPE argc , char * argv[],struct calculation * c1, struc
     INT_TYPE i,c,EV,EV2,ER;
     FILE * in = stdin;
     char str[MAXSTRING];
-    initCalculation(c1);
     *f = initField();
+    *c1 = initCal();
+    initCalculation(c1);
 
 //
 //    if ( argc > 0 && argc < MAXFIELD ){

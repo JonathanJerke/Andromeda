@@ -94,6 +94,8 @@ double xFourBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, stru
 double xOneBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struct sinc_label  f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
 void printVectorAllocations(struct sinc_label f1);
 struct basisElement grabBasis (struct sinc_label  f1, INT_TYPE space, INT_TYPE particle, INT_TYPE elementIndex);
-struct basisElement defineBasis (enum noteType note, enum componentType space, enum basisElementType basis, double lattice , double origin, INT_TYPE count1, INT_TYPE elementIndex );
+struct basisElement defineSincBasis (enum noteType note, enum componentType space, enum basisElementType basis, double lattice , double origin, INT_TYPE count1, INT_TYPE elementIndex );
+struct basisElement defineGaussBasis (enum noteType note, enum componentType space, enum basisElementType basis, double lattice , double origin, INT_TYPE count1, INT_TYPE elementIndex );
+
 INT_TYPE  countLinesFromFile( struct field f1,INT_TYPE location, INT_TYPE * ir);
 #endif /* coreUtil_h */

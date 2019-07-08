@@ -1073,7 +1073,13 @@ void matrixElements ( INT_TYPE rank,struct sinc_label  f1 , enum division bra, e
                     prod = 1.;
                     for ( dim = 0 ; dim < SPACE ; dim++)
                         if ( f1.rose[dim].body != nada){
-                            bracket[dim] = tDOT(rank, f1,dim,CDT , bra, e,sp,'N' ,  ket, r, sp2);
+                            if (OVERFLAG){
+                                f1.tulip[canonicalmeVector].Current[rank] =0;
+                                tGEMV(rank, f1, dim,canonicalmeVector, rank, overlap, 0, 0, ket, r, sp2);
+                                bracket[dim] = tDOT(rank, f1,dim,CDT , bra, e,sp,'N' ,  canonicalmeVector, 0, rank);
+                            } else {
+                                bracket[dim] = tDOT(rank, f1,dim,CDT , bra, e,sp,'N' ,  ket, r, sp2);
+                            }
                             prod *= bracket[dim];
                         }
                     *OV += co*co2*prod;
@@ -1186,7 +1192,13 @@ void pMatrixElements ( struct sinc_label  f1 , enum division bra, enum division 
                         prod = 1.;
                         for ( dim = 0 ; dim < SPACE ; dim++)
                             if ( f1.rose[dim].body != nada){
-                                prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,'N' ,  ket, r, sp2);
+                                
+                                if ( OVERFLAG ){
+                                    f1.tulip[canonicalmeVector].Current[rank] =0;
+                                    tGEMV(rank, f1, dim,canonicalmeVector, rank, overlap, 0, 0, ket, r, sp2);
+                                    prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,'N' ,  canonicalmeVector,0 , rank);
+                                }else
+                                    prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,'N' ,  ket, r, sp2);
                             }
                         OVr[rank] += creal(co*co2*prod);
                         OVi[rank] += cimag(co*co2*prod);
@@ -1663,7 +1675,11 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
             tMultiplyOne(rank,  f1, space,canonicalmv2Vector, rank, left,l,lspin, canonicalmvVector,0, rank);
             tPermuteOne(rank, f1, space, out, canonicalmv2Vector, 0, rank, equals, espin);
         }
-    }else {
+    }else if ( species(f1,left) == matrix&& species(f1, right ) == vector  ){
+        tMultiplyOne(rank,  f1, space,equals, espin, left,l,lspin, right,r, rank);
+    }
+    else
+    {
         printf("\n\n\n%d\n", species(f1, right ) );
         printf("%d %d %d\n",species(f1,left) == matrix, species(f1, right ) == vector , f1.tulip[left].space[space].block != id0);
         printf("odd\n");
@@ -2057,8 +2073,12 @@ double distance (struct sinc_label  f1 , enum division alloy , enum division all
 }
 double magnitude ( struct sinc_label  f1 , enum division alloy ){
     DCOMPLEX OV = 0.;
+    double y= streams(f1,alloy,0,0)[0];
+    double y2= streams(f1,alloy,0,0)[1];
+    double y3= streams(f1,alloy,0,0)[2];
+
     pMatrixElements(f1, alloy, nullName, alloy, NULL, &OV);
-    //printf("norms %f\n", creal(OV));
+   // printf("norms %f\n", creal(OV));
     return sqrt(creal(OV));
 }
 double inner ( struct sinc_label  f1 , enum division alloy, INT_TYPE os ){

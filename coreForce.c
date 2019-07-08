@@ -507,7 +507,7 @@ DCOMPLEX FB ( double p , struct general_index * pa ){
             exit(0);
         }
         return FDD(p, pa);
-    }else if ( pa->bra.basis == GaussianBasisElement || pa->ket.basis == GaussianBasisElement){
+    }else if ( pa->bra.basis == GaussianBasisElement && pa->ket.basis == GaussianBasisElement){
         return FGG(p,pa);
     }else     if ( pa->bra.basis == SincBasisElement && pa->ket.basis == nullBasisElement){
         pa->n = pa->bra.index+pa->bra.origin/pa->bra.length;
@@ -2533,11 +2533,11 @@ DCOMPLEX aaGdnGdm( INT_TYPE n,INT_TYPE m,  struct general_index * pa){
     DCOMPLEX in,im,value=0.;
     DCOMPLEX xv[1+l2+l1+n+m],hg[1+l2+n+m+l1],dn[1+n+l1],dm[1+m+l2];
     
-    for ( ll = 0; ll <= l1+n+l2+m ; ll++)
+    for ( ll = 0; ll <= l1+l2 ; ll++)
         xv[ll] = 0.;
-    for ( ll = 0; ll <= l1+n ; ll++)
+    for ( ll = 0; ll <= l1 ; ll++)
         dn[ll] = 0.;
-    for ( ll = 0; ll <= l2+m ; ll++)
+    for ( ll = 0; ll <= l2 ; ll++)
         dm[ll] = 0.;
 
     gamma = 0.;
@@ -2545,9 +2545,10 @@ DCOMPLEX aaGdnGdm( INT_TYPE n,INT_TYPE m,  struct general_index * pa){
     delta = 0.;
     delta +=  b1.origin - k1.origin;
     
-    for ( ll = 0; ll <= m+n+l1+l2; ll++){
-        hg[ll] =  hyperGeometric(sqrt(gamma), ll, delta);
+    for ( ll = 0; ll <= l1+l2; ll++){
+        hg[ll] =  hyperGeometric(sqrt(gamma), ll+n+m, delta);
     }
+    
     
     in = 1.;
     for ( i = 0 ; i < n ; i++)
@@ -2558,17 +2559,17 @@ DCOMPLEX aaGdnGdm( INT_TYPE n,INT_TYPE m,  struct general_index * pa){
         im *= -I;
 
     for ( ll = 0; ll <= l1; ll++){
-        dn[ll+n] = conj(gauGetPoly(b1.length, b1.index, b1.origin,ll));
+        dn[ll] = conj(gauGetPoly(b1.length, b1.index, b1.origin,ll));
     }
     for ( ll2 = 0; ll2 <= l2; ll2++){
-        dm[ll2+m] = (gauGetPoly(k1.length, k1.index,k1.origin,ll2));
+        dm[ll2] = (gauGetPoly(k1.length, k1.index,k1.origin,ll2));
     }
 
-    for ( ll = 0; ll <= l1+n ; ll++)
-        for ( ll2= 0; ll2 <= l2+m ; ll2++){
+    for ( ll = 0; ll <= l1 ; ll++)
+        for ( ll2= 0; ll2 <= l2 ; ll2++){
             xv[ll+ll2] += dn[ll]*hg[ll+ll2]*dm[ll2];
         }
-    for ( ll = 0; ll <= l1+n+l2+m ; ll++){
+    for ( ll = 0; ll <= l1+l2 ; ll++){
         value += xv[ll];
     }
     return in*im*value;
@@ -3115,8 +3116,8 @@ DCOMPLEX Bd2B (struct basisElement b1, struct basisElement b2){
             struct general_index pa ;
             pa.bra = b1;
             pa.ket = b2;
-            
-            return aaGdnGdm(0, 2, &pa);
+            double u = aaGdnGdm(0, 2, &pa);
+            return u;
         }else{
             printf("p-Gd2G?");
             exit(0);
@@ -4376,8 +4377,11 @@ void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occup
     Stream_Type * streamIn, *streamOut;
     enum division vo = vectors ,current;
     tClear(f1,shorten);
-    
-    for ( lll = 0; lll < 2 ; lll++){
+    if ( plus == 1 )
+        lll = 1;
+    else
+        lll = 0;
+    {
         for ( vo = vectors ; vo < vectors+nVec ; vo++){
             vox = CanonicalRank(f1, vo, 0);
             current = interactionExchange;
@@ -5250,7 +5254,7 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
     for ( cmpl = 0; cmpl < spins(f1, akinetic ) ; cmpl++){
         for ( dim = 0 ; dim < SPACE; dim++){
             if ( f1.rose[dim].body != nada )
-                if (( f1.tulip[akinetic].space[dim].body == one && f1.rose[dim].particle == particle1  )){
+                if (( f1.tulip[akinetic].space[dim].body == one && (f1.rose[dim].particle == particle1|| particle1 == all) )){
                     for ( space = 0 ;space < SPACE; space++)
                         if ( f1.rose[space].body != nada )
                             
@@ -5258,8 +5262,8 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
                             stream =  streams( f1, diagonalCube, 0 , space );
                             for ( I1 = 0 ; I1 < dims1[space] ; I1++)
                                 for( I2 = 0; I2 < dims1[space] ; I2++){
-                                    o1.bra = grabBasis(f1, space, particle1, I1);
-                                    o1.ket = grabBasis ( f1, space, particle1, I2);
+                                    o1.bra = grabBasis(f1, space, f1.rose[dim].particle, I1);
+                                    o1.ket = grabBasis ( f1, space, f1.rose[dim].particle, I2);
                                     
                                     if ( dim == space  ){
                                         va = - 0.5/amass*Bd2B(o1.bra,o1.ket);
@@ -5274,11 +5278,6 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
 
                                 }
                         }
-                    if ( dim == space && space == 2 )
-                    {
-                        ;
-                        
-                    }
                     tAddTw(f1, akinetic, cmpl, diagonalCube, 0);
                 }
         }
@@ -5293,6 +5292,53 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
     return 0;
 }
 
+INT_TYPE separateOverlap( struct sinc_label f1, INT_TYPE periodic,enum division akinetic,  double amass, INT_TYPE particle1 ){
+    INT_TYPE space,dim,I1,I2;
+    INT_TYPE dims1[SPACE],cmpl;
+    struct general_index o1;
+    length1(f1,dims1);
+    Stream_Type * stream;
+    DCOMPLEX va;
+    f1.tulip[diagonalCube].Current[0] = 1;
+    tClear(f1, overlap);
+    for ( cmpl = 0; cmpl < spins(f1, akinetic ) ; cmpl++){
+        for ( dim = 0 ; dim < 1; dim++){
+            if ( f1.rose[dim].body != nada )
+                if (( f1.tulip[akinetic].space[dim].body == one && (f1.rose[dim].particle == particle1 || particle1 == all ) )){
+                    for ( space = 0 ;space < SPACE; space++)
+                        if ( f1.rose[space].body != nada )
+                            
+                        {
+                            stream =  streams( f1, diagonalCube, 0 , space );
+                            for ( I1 = 0 ; I1 < dims1[space] ; I1++)
+                                for( I2 = 0; I2 < dims1[space] ; I2++){
+                                    o1.bra = grabBasis(f1, space, f1.rose[dim].particle, I1);
+                                    o1.ket = grabBasis ( f1, space, f1.rose[dim].particle, I2);
+                                    
+                                    va = BoB(o1.bra,o1.ket);
+                                    if ( cmpl == 0 )
+                                        (stream )[dims1[space]*I1+I2] = creal(va);
+                                    else
+                                        (stream )[dims1[space]*I1+I2] = cimag(va);
+                                    
+                                }
+                        }
+
+                    tAddTw(f1, akinetic, cmpl, diagonalCube, 0);
+                }
+        }
+    }
+    struct name_label u = f1.tulip[overlap];
+
+    //  outputFormat(f1, stderr,kinetic1, 0);
+    INT_TYPE info;
+    //    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic, 0,'N', kinetic, 0);
+    //    printf("r%f\n", traceOne(f1, copy, 0));
+    //    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic,1,'N', kinetic, 1);
+    //    printf("r%f\n", traceOne(f1, copy, 0));
+    
+    return 0;
+}
 
 void separateDerivatives( struct sinc_label f1, INT_TYPE periodic,enum division mat, INT_TYPE *x, INT_TYPE *grad,double mag,INT_TYPE particle1 ){
     DCOMPLEX bca;

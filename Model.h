@@ -39,6 +39,6 @@ INT_TYPE iModel( struct calculation * c1, struct field *f1);
 INT_TYPE fModel( struct sinc_label *f1);
 void resetExternal(struct calculation * i, INT_TYPE number, double scale );
 struct field initField (void );
-INT_TYPE singleModel( struct calculation * c1, struct field *f);
+INT_TYPE singleSincModel( struct calculation * c1, struct field *f);
 INT_TYPE multModel( struct calculation * c1,INT_TYPE nv, struct field * v,struct field *f);
 #endif /* Model_h */

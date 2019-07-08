@@ -1044,7 +1044,6 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                             f2.i.Iterations = 1;
                             f2.i.files = 0;
                             f2.i.filesVectorOperator = 0;
-                            f2.i.sectors = 0;
                             f2.i.qFloor = 0;
                             
                             f2.i.body = inputFormat(f1,name, nullName, 100);
@@ -1058,14 +1057,14 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                                     f2.i.around = (inputFormat(f1, name, nullName, 201)/2-1)/2;
                                 else
                                     f2.i.around = (inputFormat(f1, name, nullName, 201)-1)/2;
-                                f2.i.D = f2.i.D * pow( (2.* f2.i.around + 1.) /(2.*f.i.around + 1),1.);
+                                f2.i.D = f.i.D * pow( (2.* f.i.around + 1.) /(2.*f2.i.around + 1),1.);
                             }
                             if ( c1->rt.runFlag )
                                 f2.i.epi =(inputFormat(f1, name, nullName, 200)/2-1)/2;
                             else
                                 f2.i.epi =(inputFormat(f1, name, nullName, 200)-1)/2;
 
-                            f2.i.d = f2.i.d * pow( (2.* f2.i.epi + 1.) /(2.*f.i.epi + 1),f.i.attack);
+                            f2.i.d = f.i.d * pow( (2.* f.i.epi + 1.) /(2.*f2.i.epi + 1),f.i.attack);
                             
                             iModel(c1,&f2);
                             inputFormat(f2.f, name, eigenVectors,1);

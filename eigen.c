@@ -91,14 +91,22 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
             arc = (DCOMPLEX*)myStreams(f1, canonicalBuffersBM, 0);
             w = ar + 4*N2;
             if ( c1->rt.calcType == electronicStuctureCalculation ){
-                for ( v = 0 ; v < N2 ; v++)
-                    if ( f1.tulip[kinetic].spinor == cmpl){
-                        cmplFlag = 1;
-                        arc[v] = (streams(f1, kinetic,0,space)+space*N2)[v] + I * (streams(f1, kinetic,1,space)+space*N2)[v];
-                    }
-                    else
-                        ar[v] = (streams(f1, kinetic,0,space)+space*N2)[v];
-                
+                if ( OVERFLAG ){
+                    INT_TYPE j;
+                    for ( i = 0; i < N1 ; i++)
+                        for ( j =0 ; j < N1 ; j++)
+                            ar[i*N1+j] = delta(i-j);
+                    
+                }else {
+                    for ( v = 0 ; v < N2 ; v++)
+                        if ( f1.tulip[kinetic].spinor == cmpl){
+                            cmplFlag = 1;
+                            arc[v] = (streams(f1, kinetic,0,space)+space*N2)[v] + I * (streams(f1, kinetic,1,space)+space*N2)[v];
+                        }
+                        else{
+                            ar[v] = (streams(f1, kinetic,0,space)+space*N2)[v];
+                        }
+                }
             }
             else if ( c1->rt.calcType == clampProtonElectronCalculation ){
                 if ( space < COMPONENT )

@@ -1278,15 +1278,9 @@ INT_TYPE tId ( struct sinc_label f1 , enum division label,INT_TYPE spin ){
                 Stream_Type * stream = streams(f1,label,spin,space)+Current*B1*B1;
                 for ( I1 = 0 ; I1 < B1 ; I1++)
                     for ( I2 = 0 ; I2 < B1 ; I2++)
-                        stream[I1*B1+I2] =0.;
+                        stream[I1*B1+I2] =BoB(f1.rose[space].basisList[I1], f1.rose[space].basisList[I2]);
                 
-                for ( I1 = 0 ; I1 < B1 ; I1++)
-                    {
-                        
-                            stream[I1*B1+I1] = 1;
-                        
-                    }
-            }
+                }
         }
         
         
@@ -1666,7 +1660,7 @@ void printVectorAllocations(struct sinc_label f1){
     }
 }
 
-struct basisElement defineBasis (enum noteType note, enum componentType component, enum basisElementType basis, double lattice , double origin, INT_TYPE count1, INT_TYPE elementIndex ){
+struct basisElement defineSincBasis (enum noteType note, enum componentType component, enum basisElementType basis, double lattice , double origin, INT_TYPE count1, INT_TYPE elementIndex ){
     struct basisElement boa;
     
     
@@ -1710,6 +1704,29 @@ struct basisElement defineBasis (enum noteType note, enum componentType componen
     }
     return boa;
 
+}
+
+struct basisElement defineGaussBasis (enum noteType note, enum componentType component, enum basisElementType basis, double lattice , double origin, INT_TYPE count1, INT_TYPE elementIndex ){
+    struct basisElement boa;
+    
+    
+    boa.note = note;
+    
+    boa.type = component;
+    
+    boa.basis = basis;
+    
+    boa.length = lattice;
+    
+    boa.origin = origin;
+    
+    boa.grid = count1;
+    
+    boa.index = 0;
+    boa.index2 = 0;
+    
+    return boa;
+    
 }
 
 struct basisElement grabBasis (struct sinc_label f1, INT_TYPE space, INT_TYPE particle, INT_TYPE elementIndex){
