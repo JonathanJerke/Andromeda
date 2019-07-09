@@ -38,7 +38,7 @@
 #define MAXSTRING 1024
 #define MAXFILE 16
 
-#define APPLE
+//#define APPLE
 
 #ifdef APPLE
 #define MaxCore 2
@@ -46,7 +46,7 @@
 
 #ifndef APPLE
 #define OMP
-//#define MKL
+#define MKL
 #define GSL_LIB
 
 #define MaxCore 24
