@@ -29,13 +29,15 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
     INT_TYPE EV;
 
     if ( 1 ){
-        c1->i.irrep = 0;
+        f1.i.irrep = 0;
         c1->i.twoBody.func.fn = nullFunction;
         iModel(c1,&f1);
         tBoot1Construction(c1,f1.f ,build);
 
         EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
-        tFilter(f1.f, EV,0, f1.f.user);//classify
+
+////        tGreatDivideIteration(0, 0, f1.f, Ha, 1, 0, f1.f.user, 1, 2, 0);
+    //    tFilter(f1.f, EV,1, f1.f.user);//classify
         if ( OVERFLAG )
             tEigenCycle(f1.f,Ha,CDT, 3, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
 
@@ -44,7 +46,7 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
     }
     
     INT_TYPE ii,flag = 1;;
-    if ( c1->i.irrep )
+    if ( f1.i.irrep )
         for ( ii = 0 ;ii < EV ;ii++){
             if ( f1.f.tulip[f1.f.user+ii].value.symmetry == f1.i.irrep ){
                 print(c1,f1,flag,ii,ii+1 , f1.f.user);
@@ -98,11 +100,12 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
     for ( iterator = 1 ; iterator < f1.i.Iterations ; iterator++){
         RdsSize += tGreatDivideIteration(c1->i.shiftFlag, c1->i.realPart,  f1.f,Iterator, 1,0,eigenVectors+RdsSize-EV,EV,2*EV,0)-EV;
         if(1){
-            tFilter(f1.f, EV, !(!c1->i.filter )* c1->i.irrep, eigenVectors+RdsSize-EV);//filter
+            tFilter(f1.f, EV, !(!f1.i.filter )* f1.i.irrep, eigenVectors+RdsSize-EV);//filter
             printf ("Step \t%d\n", iterator);
+            fflush(stdout);
             INT_TYPE iii ;
             for ( iii = 0; iii < EV ; iii++){
-                printf ( "\n Vector \t%d \n", iii+1);
+                printf ( "\n Vector \t%d \t %d\n", iii+1, +RdsSize-EV+iii);
                 printExpectationValues(f1.f, Ha, eigenVectors+RdsSize-EV+iii);
                 fflush(stdout);
                 print(c1,f1,0,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
@@ -238,10 +241,10 @@ INT_TYPE decompose( struct calculation * c1 , struct field f1){
     
         for ( cmpl = 0; cmpl < spins(f1.f, f1.f.user) ; cmpl++){
             tClear(f1.f,totalVector);
-            if ( c1->i.filter  && c1->i.irrep )
+            if ( f1.i.filter  && f1.i.irrep )
             {
                 for( g = 0; g < f1.i.qFloor ; g++)
-                    tBuildIrr(0, f1.f, c1->i.irrep, f1.f.user+g, cmpl, totalVector, 0);
+                    tBuildIrr(0, f1.f, f1.i.irrep, f1.f.user+g, cmpl, totalVector, 0);
             }else {
             for( g = 0; g < f1.i.qFloor ; g++)
                 tAddTw(f1.f, totalVector, 0, f1.f.user+g, cmpl);
@@ -273,7 +276,7 @@ INT_TYPE frameEwald( struct calculation * c , struct field f)
     }
     
     {
-        c->i.irrep = 0;
+        f.i.irrep = 0;
         iModel(c,&f);
         tBoot1Construction(c,f.f ,build);
         
@@ -337,10 +340,10 @@ INT_TYPE frameEwald( struct calculation * c , struct field f)
     }
     
     
-    mySeparateEwaldCoulomb1(f.f,j,myStreams(f.f, twoBodyRitz, 0),eigenVectors, c->i.decomposeRankMatrix, interactionExchange,interactionEwald, intracellularSelfEwald, 1., 0, 0, electron);
+    mySeparateEwaldCoulomb1(f.f,j,myStreams(f.f, twoBodyRitz, 0),eigenVectors, c->i.decomposeRankMatrix, interactionExchange, intracellularSelfEwald, -1., 0, 0, electron);
     ioStoreMatrix(f.f, intracellularSelfEwald, 0, "intracellularEwald.matrix", 0);
     
-    mySeparateEwaldCoulomb1(f.f,j,myStreams(f.f, twoBodyRitz, 0),eigenVectors, c->i.decomposeRankMatrix, interactionExchange,interactionEwald, intercellularSelfEwald, 1., 1, 0, electron);
+    mySeparateEwaldCoulomb1(f.f,j,myStreams(f.f, twoBodyRitz, 0),eigenVectors, c->i.decomposeRankMatrix,interactionEwald, intercellularSelfEwald, 1., 0, 0, electron);
     ioStoreMatrix(f.f, intercellularSelfEwald, 0, "intercellularEwald.matrix", 0);
 
     fModel(&f.f);

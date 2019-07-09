@@ -643,16 +643,14 @@ enum division ocean(INT_TYPE lane, struct sinc_label f1, INT_TYPE l, INT_TYPE sp
 }
 
 void xsAdd ( double scalar , INT_TYPE dim ,struct sinc_label f1 , enum division targ ,INT_TYPE tspin,struct sinc_label  f2 , enum division orig,INT_TYPE o,INT_TYPE ospin ){
-    INT_TYPE M2[SPACE];
-    length(f2, orig, M2);
-    INT_TYPE N2[SPACE];
-    length(f1,targ,N2);
-    INT_TYPE flag = (N2[dim] == M2[dim]),space=dim;
+    INT_TYPE M2 = alloc(f1, orig, dim);
+    INT_TYPE N2 = alloc(f1, targ, dim);
+    INT_TYPE flag = (N2 == M2),space=dim;
 
     if ( flag && f2.tulip[orig].memory == objectAllocation && f1.tulip[targ].memory == objectAllocation){
-        cblas_dcopy(M2[space], streams(f2,orig,ospin,space)+M2[space]*o,1,streams(f1,targ,tspin,space)+CanonicalRank(f1, targ, tspin)*N2[space],1);
+        cblas_dcopy(N2, streams(f2,orig,ospin,space)+N2*o,1,streams(f1,targ,tspin,space)+CanonicalRank(f1, targ, tspin)*N2,1);
         if ( scalar != 1. )
-            cblas_dscal(M2[space], scalar, streams(f1,targ,tspin,space)+CanonicalRank(f1, targ, tspin)*N2[space],1);
+            cblas_dscal(N2, scalar, streams(f1,targ,tspin,space)+CanonicalRank(f1, targ, tspin)*N2,1);
     }
     else {
         printf("add\n");
@@ -860,7 +858,7 @@ INT_TYPE xAddTw( struct sinc_label f1 , enum division left, INT_TYPE lspin,struc
         length(f1, left, M2);
         if ( f1.tulip[right].memory == objectAllocation ){
             for ( space = 0; space < SPACE; space++)
-                if (f1.rose[space].body != nada)
+                if (f1.rose[space].body != nada){
                 if ( (species(f1, right ) == vector) || (f1.tulip[right].space[space].body != nada && species(f1, right ) == matrix)){
                     cblas_dcopy(LR*M2[space], streams(f2,right,rspin,space),1,streams(f1,left,lspin,space)+LL*M2[space],1);
                 }else if ((f1.tulip[right].space[space].body == nada && species(f1, right ) == matrix && f1.tulip[right].space[space].body == id0) ){
@@ -875,7 +873,7 @@ INT_TYPE xAddTw( struct sinc_label f1 , enum division left, INT_TYPE lspin,struc
             
             
             
-        
+                }
         }else if ( f1.tulip[right].memory == bufferAllocation )
         {
             printf("buf\n");
@@ -1278,8 +1276,66 @@ INT_TYPE tId ( struct sinc_label f1 , enum division label,INT_TYPE spin ){
                 Stream_Type * stream = streams(f1,label,spin,space)+Current*B1*B1;
                 for ( I1 = 0 ; I1 < B1 ; I1++)
                     for ( I2 = 0 ; I2 < B1 ; I2++)
-                        stream[I1*B1+I2] =BoB(f1.rose[space].basisList[I1], f1.rose[space].basisList[I2]);
-                
+                        stream[I1*B1+I2] =0.;
+                for ( I1 = 0 ; I1 < B1 ; I1++)
+                    {
+                        
+                        stream[I1*B1+I1] = 1;
+                        
+                    }
+
+                }
+        }
+        
+        
+    }
+    return 0;
+}
+
+INT_TYPE tOv ( struct sinc_label f1 , enum division label,INT_TYPE spin ){
+    
+    INT_TYPE I1,I2,space;
+    INT_TYPE Current ;
+    {
+        
+        if ( f1.tulip[label].Current[spin] >= f1.tulip[label].Partition ){
+            printf("%d %d\n", label, spin);
+            printf("tryed to add to full array\n");
+            return 0;
+        }
+        Current =  f1.tulip[label].Current[spin]++;
+    }
+    
+    {
+        if ( f1.tulip[label].species == vector || f1.tulip[label].species == outerVector){
+            
+            INT_TYPE B1[SPACE];
+            length(f1, label, B1);
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1.rose[space].body != nada)
+                {
+                    
+                    Stream_Type  * stream = streams(f1,label,spin,space)+Current*B1[space];
+                    for ( I2 = 0 ; I2 < B1[space] ; I2++){
+                        stream[I2] = sign(I2);
+                    }
+                }
+        }
+        
+        else if  ( f1.tulip[label].species == matrix && bodies(f1, label) == one) {
+            INT_TYPE B1;
+            
+            
+            
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1.rose[space].body != nada)
+                {
+                    B1 = outerVectorLen(f1,bodies(f1, name(f1,label)), space);
+                    Stream_Type * stream = streams(f1,label,spin,space)+Current*B1*B1;
+                    for ( I1 = 0 ; I1 < B1 ; I1++)
+                        for ( I2 = 0 ; I2 < B1 ; I2++)
+                            stream[I1*B1+I2] =BoB(f1.rose[space].basisList[I1], f1.rose[space].basisList[I2]);
+                    
                 }
         }
         

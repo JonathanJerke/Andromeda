@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 6.3.5
+//VERSION 6.3.6
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -745,8 +745,6 @@ struct input {
     double level;
     INT_TYPE magFlag;
     double  mag ;
-    INT_TYPE filter;
-    INT_TYPE irrep;
 #ifdef OMP
     INT_TYPE omp;
 #endif

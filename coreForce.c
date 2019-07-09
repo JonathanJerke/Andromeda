@@ -4286,96 +4286,13 @@ void mySeparateExactTwo (struct sinc_label  f1, struct interaction_label twoBody
     return ;
 }
 
-#if 0
-void mySeparateEwaldCoulomb1(struct field * f1,INT_TYPE nVec, double *  occupy,enum division vectors, INT_TYPE part1, enum division interactionExchange, enum division interactionEwald,enum division shorten, double scalar,INT_TYPE plus,double rescale, enum particleType particle){
-    INT_TYPE info,dim,rank=0,l,vol,vos=0,x,r,rr = 0,n1[SPACE],space,j1,j2,i1,i2,vor,vor2, vox,lll;
-    length1(f1,n1);
-    double sumDis =0 ;
-    Stream_Type * streamIn, *streamOut;
-    enum division vo = vectors ,current;
-    tClear(f1,shorten);
-    
-    for ( lll = 0; lll < 2 ; lll++){
-        for ( vo = vectors ; vo < vectors+nVec ; vo++){
-            vox = CanonicalRank(f1, vo, 0);
-            current = interactionExchange;
-            if ( lll == 1 )
-                current = interactionEwald;
-            printf("lll %d  r%d\n", lll, CanonicalRank(f1, current, 0));
-            for ( r = 0 ; r < CanonicalRank(f1, current, 0); r++){
 
-
-                tClear(f1,copy);
-                tClear(f1, diagonalCube );
-                tId(f1, diagonalCube, 0);//set protons to 1
-                
-                for ( vor = 0 ; vor < vox; vor++){
-                    for ( vor2 = 0 ; vor2 < vox; vor2++){
-                        tId(f1, copy,0);
-                    }
-                }
-                
-                
-                for ( dim = 0 ;dim < SPACE ; dim++)
-                    if ( f1.rose[dim].body != nada && f1.rose[dim].particle == particle){
-                        streamIn = streams(f1,current,0,dim)+r*n1[dim]*n1[dim]*n1[dim]*n1[dim];
-                        f1.tulip[diagonalCube].space[dim].block = tv1;
-
-#ifdef OMP
-#pragma omp parallel for private (rank,j1,j2,i1,i2,vor,vor2,streamOut) schedule(dynamic,1)
-#endif
-                        for ( j1 = 0 ; j1 < n1[dim] ; j1++){
-#ifdef OMP
-                            rank = omp_get_thread_num();
-#else
-                            rank = 0;
-#endif
-                            streamOut = streams(f1,diagonalCube,rank,dim);
-                            f1.tulip[diagonalCube].Current[rank] = 1;
-
-
-                            
-                            for ( j2 = 0; j2 < n1[dim];j2++){
-
-                                for ( i1 = 0 ; i1 < n1[dim]; i1++)
-                                    for ( i2 = 0; i2 < n1[dim]; i2++){
-                                        streamOut[i2*n1[dim]+i1] = streamIn[(j2*n1[dim]+i2)*n1[dim]*n1[dim] + j1*n1[dim]+i1];
-                                    }
-                                for ( vor = 0 ; vor < vox; vor++){
-                                    f1.tulip[canonicalmeVector].Current[rank] =0;
-                                    tGEMV(rank, f1, dim, canonicalmeVector, rank, diagonalCube, 0, rank, vo, vor, 0);
-                                    f1.tulip[canonicalmeVector].Current[rank] =1;
-                                    for ( vor2 = 0 ; vor2 < vox; vor2++){
-                                        ( streams(f1, copy,0, dim) + n1[dim]*n1[dim]*(vox * vor2 + vor))[j2*n1[dim]+j1] = (occupy[vo-vectors])*tDOT(rank, f1, dim, CDT, vo, vor2, 0, 'N', canonicalmeVector, 0, rank);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                f1.tulip[copy].Current[0] = vox * vox;
-                    tClear(f1,copyTwo);
-                    if ( lll == 0 )
-                        tScaleOne(f1, copy,0, -scalar);
-                    else
-                        tScaleOne(f1, copy,0, scalar);
-
-                double va = tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, CDT, copy, 0, 'N', copy, 0) ;
-                if ( va > f1->mem1->rt->CANON){
-                    printf("Ewald ++%d  \t%f\n", CanonicalRank(f1, shorten, 0),va);
-                    tCycleDecompostionListOneMP(-1, f1, copy, 0,NULL, copyTwo, 0, f1->mem1->rt->CANON,part1, 1);
-                    tAddTw(f1, shorten, 0, copyTwo, 0);
-                    }
-            }
-        }
-    }
-}
-#else
-void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occupy,enum division vectors, INT_TYPE part1, enum division interactionExchange, enum division interactionEwald,enum division shorten, double scalar,INT_TYPE plus,double rescale, enum particleType particle){
+void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occupy,enum division vectors, INT_TYPE part1, enum division interaction,enum division shorten, double scalar,INT_TYPE plus,double rescale, enum particleType particle){
     INT_TYPE jj,flagPow,info,dim,rank=0,l,vol,vos=0,x,r,rr = 0,n1[SPACE],space,j1,j2,i1,i2,vor,vor2, vox,lll;
     length1(f1,n1);
     double sumDis =0 ;
     Stream_Type * streamIn, *streamOut;
-    enum division vo = vectors ,current;
+    enum division vo = vectors ,current = interaction;
     tClear(f1,shorten);
     if ( plus == 1 )
         lll = 1;
@@ -4384,9 +4301,6 @@ void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occup
     {
         for ( vo = vectors ; vo < vectors+nVec ; vo++){
             vox = CanonicalRank(f1, vo, 0);
-            current = interactionExchange;
-            if ( lll == 1 )
-                current = interactionEwald;
             printf("lll %d  r%d\n", lll, CanonicalRank(f1, current, 0));
             for ( r = 0 ; r < CanonicalRank(f1, current, 0); r++){
                 
@@ -4432,8 +4346,6 @@ void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occup
                                     f1.tulip[canonicalmeVector].Current[rank] =1;
                                     for ( vor2 = 0 ; vor2 < vox; vor2++){
                                         ( streams(f1, copyTwo,0, dim) + n1[dim]*n1[dim]*(f1.tulip[copyTwo].Current[0]+vox * vor2 + vor-vox*vox))[j2*n1[dim]+j1] = (occupy[vo-vectors])*tDOT(rank, f1, dim, CDT, vo, vor2, 0, 'N', canonicalmeVector, 0, rank);
-                                        if ( lll == 0 && flagPow )
-                                            ( streams(f1, copyTwo,0, dim) + n1[dim]*n1[dim]*(f1.tulip[copyTwo].Current[0]+vox * vor2 + vor))[j2*n1[dim]+j1] *= -1.;
                                     }
                                 }
                             }
@@ -4449,13 +4361,11 @@ void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occup
             printf("= %d\n", CanonicalRank(f1, copyTwo, 0));
         }
     }
-        tCycleDecompostionGridOneMP(-1, f1, copyTwo, 0, NULL, shorten, 0, f1.rt->CANON, part1, 1);
-        printf("Ewald ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),traceOne(f1, shorten, 0), distance(f1, shorten, copyTwo));    
+    tCycleDecompostionGridOneMP(-1, f1, copyTwo, 0, NULL, shorten, 0, f1.rt->CANON, part1, 1);
+    tScale(f1, shorten, scalar);
+    printf("Ewald ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),traceOne(f1, shorten, 0), distance(f1, shorten, copyTwo));    
 
 }
-
-
-#endif
 
 
 
@@ -4608,12 +4518,6 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
                                                 g2.i[1].ket = grabBasis( f1, space2, f1.rose[space2].particle, I4);
                                                 g2.i[1].bra.length *= rescale;
                                                 g2.i[1].ket.length *= rescale;
-                                                if ( plus == -1 ){
-                                                    g2.i[1].bra.origin *= -1.;
-                                                    g2.i[1].ket.origin *= -1.;
-                                                    g2.i[1].bra.index *= -1;
-                                                    g2.i[1].ket.index *= -1;
-                                                }
                                                 value = collectives(x, &g2)*cpow;
                                                 if (flagPow && constant < 0 )
                                                     value *= -1.;
@@ -5285,7 +5189,7 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
   //  outputFormat(f1, stderr,kinetic1, 0);
     INT_TYPE info;
 //    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic, 0,'N', kinetic, 0);
-//    printf("r%f\n", traceOne(f1, copy, 0));
+    printf("r%f\n", traceOne(f1, akinetic, 0));
 //    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic,1,'N', kinetic, 1);
 //    printf("r%f\n", traceOne(f1, copy, 0));
 
@@ -5569,7 +5473,7 @@ INT_TYPE buildElectronProtonInteraction ( struct sinc_label f1, enum division ma
   //  tScaleOne(f1, mat, spin,  -f1->Ne);
   //  printf("mat%f \n", traceOne(f1, mat, 0));
 
-    if(0)
+    if(0){
     if ( bodies(f1, eigenVectors)==two){
         tClear(f1, copy);
         tId(f1, copy,0);
@@ -5591,7 +5495,7 @@ INT_TYPE buildElectronProtonInteraction ( struct sinc_label f1, enum division ma
         //
         tAddTw(f1, mat, 0,copy,0);
     }
-
+    }
     return 0;
 }
 
@@ -5647,11 +5551,11 @@ INT_TYPE tZeroSum ( struct sinc_label f1, enum division mat,INT_TYPE spin){
         
         enum division label;
         if ( bodies(f1, mat) == one )
-            printf("SUM \t %f\n", sum/(N1*N1*N1));
+            printf("SUM \t %f\n", sum/(n1[0]*n1[1]*n1[2]));
 
         //    label = diagonalCube;
         else if ( bodies(f1, mat) == two )
-            printf("SUM2 \t %f\n", sum/(N1*N1*N1*N1*N1*N1));
+            printf("SUM2 \t %f\n", sum/sqr(n1[0]*n1[1]*n1[2]));
 
       //      label = quadCube;
         

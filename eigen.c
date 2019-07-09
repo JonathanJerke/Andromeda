@@ -654,20 +654,8 @@ INT_TYPE tFoundationLevel( struct sinc_label  f1, enum division A , double lvlm,
 INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum division usr){
     INT_TYPE i,ii,space,cmpl=0,rank;
     assignCores(f1, 1);
-#ifdef OMP
-#pragma omp parallel for private (ii,rank) schedule(dynamic,1)
-#endif
-    for ( ii = 0; ii < Ve ; ii++)
-    {
-#ifdef OMP
-        rank = omp_get_thread_num();
-#else
-        rank = 0;
-#endif
-        f1.tulip[usr+ii].value.symmetry = tClassify(rank, f1, usr+ii);
-    }
 
-    if ( irrep && bodies(f1, usr+ii ) > one ){
+    if ( irrep && bodies(f1, usr ) > one ){
         printf("Symmetry Adaption -> %d-irrep\n", irrep );
         for ( ii = 0; ii < Ve ; ii++)
         {
@@ -689,7 +677,19 @@ INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum divisio
         }
     }
     
-    
+#ifdef OMP
+#pragma omp parallel for private (ii,rank) schedule(dynamic,1)
+#endif
+    for ( ii = 0; ii < Ve ; ii++)
+    {
+#ifdef OMP
+        rank = omp_get_thread_num();
+#else
+        rank = 0;
+#endif
+        f1.tulip[usr+ii].value.symmetry = tClassify(rank, f1, usr+ii);
+    }
+
     return 0;
 }
 

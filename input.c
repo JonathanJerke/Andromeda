@@ -405,7 +405,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
               //      c->i.inversionSymm = ivalue;
                     return i;
                 case 55 :
-                    c->i.irrep = ivalue;
+                    f1->irrep = ivalue;
                     return i;
                 case 56 :
                 //    c->i.zone = ivalue;
@@ -492,7 +492,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     return i;
 
                 case 75:
-                    c->i.filter = ivalue;
+                    f1->filter = ivalue;
                     return i;
                     
                 case 76:

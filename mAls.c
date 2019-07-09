@@ -839,7 +839,7 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
 
     double bailFlag = 0,*co,toleranceAdjust = 1.,past = 1e9,prev=1e9,value,value2,cross,other2 ;//= cblas_dnrm2 ( part(f1, origin), coeff, 1);
    
-    if ( rank == -2 ){
+    if ( 0&&rank == -2 ){
         value2 = 1.00;
     }else {
         if ( coeff == NULL )
@@ -864,33 +864,33 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
 
     for (split = 1 ; split < maxRun; split++){
         step = CanonicalRank(f1, origin, os)/(maxRun)+(!(!(CanonicalRank(f1, origin, os)%maxRun)));
-        if ( rank < 0 && numberSplit > 3){
-            numberSplit = 0;
-            bailFlag = 0;
-#ifdef OMP
-#pragma omp parallel for private (ran1,run,ct,toleranceAdjust) schedule(dynamic,1) reduction(+:numberSplit)
-#endif
-            for ( run = 0; run < maxRun ; run+=split){
-#ifdef OMP
-                ran1 = omp_get_thread_num();
-#else
-                ran1 = 0;
-#endif
-                numberSplit += 1;
-                toleranceAdjust = 1.;
-                do{
-                    ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,imin(CanonicalRank(f1, origin, os)-1,run*step),imin(CanonicalRank(f1, origin, os),(run+split)*step), os,alloy, run,imin(maxRun,run+split),spin, toleranceAdjust*tolerance,value2,-1);
-                  //  printf("%d ++ %d\n", ran1, ct);
-                    toleranceAdjust *= 1.2;
-                    if ( ct == -1 ){
-                        bailFlag = 1;
-                        printf("List bailed \n");
-                        break;
-                        
-                    }
-                }while ( ct == 1 );
-            }
-        }else {
+//        if ( rank < 0 && numberSplit > 3){
+//            numberSplit = 0;
+//            bailFlag = 0;
+//#ifdef OMP
+//#pragma omp parallel for private (ran1,run,ct,toleranceAdjust) schedule(dynamic,1) reduction(+:numberSplit)
+//#endif
+//            for ( run = 0; run < maxRun ; run+=split){
+//#ifdef OMP
+//                ran1 = omp_get_thread_num();
+//#else
+//                ran1 = 0;
+//#endif
+//                numberSplit += 1;
+//                toleranceAdjust = 1.;
+//                do{
+//                    ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,imin(CanonicalRank(f1, origin, os)-1,run*step),imin(CanonicalRank(f1, origin, os),(run+split)*step), os,alloy, run,imin(maxRun,run+split),spin, toleranceAdjust*tolerance,value2,-1);
+//                  //  printf("%d ++ %d\n", ran1, ct);
+//                    toleranceAdjust *= 1.2;
+//                    if ( ct == -1 ){
+//                        bailFlag = 1;
+//                        printf("List bailed \n");
+//                        break;
+//
+//                    }
+//                }while ( ct == 1 );
+//            }
+//        }else {
             numberSplit = 0;
             for ( run = 0; run < maxRun ; run+=split){
                 ran1 = 0;
@@ -911,7 +911,7 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
 
                 }while ( ct == 1 );
             }
-        }
+        
         if ( coeff == NULL ){
             value = distance( f1, origin,  alloy);
         }else {
@@ -998,7 +998,7 @@ INT_TYPE printExpectationValues (struct sinc_label  f1 , enum division ha  , enu
         printf("%d (%d + i%d)\n", vector, CanonicalRank(f1, vector, 0), CanonicalRank(f1, vector, 1));
     else
         printf("%d (%d)\n", vector, CanonicalRank(f1, vector, 0));
-
+    
     do {
         Mat = leftP;
         me = 0.;
@@ -1009,7 +1009,7 @@ INT_TYPE printExpectationValues (struct sinc_label  f1 , enum division ha  , enu
             if (CanonicalRank(f1, name(f1,Mat), 1))
                 printf("term-Expectation%d:\t%d\t ::\t %d \t| (%d + i%d)\t\t%f %f\n",vector,bodies(f1, Mat),name(f1,Mat), CanonicalRank(f1, name(f1,Mat), 0),CanonicalRank(f1, name(f1,Mat), 1),creal(me/ov), cimag(me/ov));
                 else
-                    printf("partExpectation%d:\t%d\t ::\t %d \t| (%d) \t\t%f\n",vector,bodies(f1, Mat),name(f1,Mat), CanonicalRank(f1, name(f1,Mat), 0),creal(me/ov));
+                    printf("term-Expectation%d:\t%d\t ::\t %d \t| (%d) \t\t%f\n",vector,bodies(f1, Mat),name(f1,Mat), CanonicalRank(f1, name(f1,Mat), 0),creal(me/ov));
             }
         fflush(stdout);
         totx += me/ov;
@@ -1898,13 +1898,12 @@ double tMultiplyOne (INT_TYPE rank, struct sinc_label  f1,INT_TYPE space,  enum 
 
 
 INT_TYPE tHYpY(  INT_TYPE rank, struct sinc_label f1 ,INT_TYPE targSpin, enum division left, INT_TYPE l, INT_TYPE im, double product, double productCmpl, enum division ket , INT_TYPE k, INT_TYPE sp2, enum division oket, INT_TYPE o,INT_TYPE ospin ){
-    INT_TYPE su = 0;
     if ( left == nullName || species(f1, left ) == scalar)
         return 0;
     INT_TYPE N2;
     double prod ;
-    INT_TYPE dim,im2,ll1,ll2;
-    DCOMPLEX co2,coi,coi2,pro = product + I * productCmpl;
+    INT_TYPE dim;
+    DCOMPLEX co2,coi,pro = product + I * productCmpl;
     
     if ( species(f1, left ) != matrix ){
         printf("shots fired\n");
@@ -1922,10 +1921,14 @@ INT_TYPE tHYpY(  INT_TYPE rank, struct sinc_label f1 ,INT_TYPE targSpin, enum di
                         if ( f1.rose[dim].body != nada){
                             N2 = alloc(f1, ket, dim);
                             if ( f1.tulip[left].space[dim].block == id0 ){
-                                xsAdd(1.,dim, f1, oket, ospin, f1, ket, k, sp2);
+                                printf("talk w/ me\n");
+                                exit(1);
+                            //    xsAdd(1.,dim, f1, oket, ospin, f1, ket, k, sp2);
                             }
                             else {
-                                tGEMV(rank, f1, dim,oket, ospin, left, l, im, ket, k, sp2);
+                                f1.tulip[productVector].Current[rank] = 0;
+                                tGEMV(rank, f1, dim,productVector, rank, left, l, im, ket, k, sp2);
+                                cblas_dcopy(N2, streams(f1,productVector,rank,dim), 1, streams(f1, oket,ospin,dim)+o*N2, 1);
                             }//both procedues will add to end of oket no incremen
                             if ( targSpin == 0 )
                                 prod = creal(co2 * coi*pro );
@@ -1933,34 +1936,28 @@ INT_TYPE tHYpY(  INT_TYPE rank, struct sinc_label f1 ,INT_TYPE targSpin, enum di
                                 prod = cimag(co2 * coi*pro );
                             cblas_dscal(N2, prod, streams(f1,oket,ospin, dim)+o*N2, 1);
                         }
-                   // f1.tulip[oket].Current[ospin] += 1;//potential total addition of 4
-                    su++;
-
+                   // su++;
                 }
-                
-                
             }
     
-    return su;
+    return 1;
 }
     
 void tHXpX (  INT_TYPE rank, struct sinc_label f1 , enum division left,INT_TYPE shiftFlag, double product, double productCmpl,  enum division right ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo){
     rank = 0;
-    INT_TYPE ilr,Ll,sp2,Rr,im,l , k,targSpin,space;
+    INT_TYPE ilr,Ll,sp2,Rr,im,l , k,targSpin;
     enum division pt,Mat;
-    //struct name_label *fz = &f1.tulip[totalFuzzyVector];
-    struct name_label *rg = &f1.tulip[right];
     assignCores(f1, 1);
     struct name_label nm ;
-    //f1.tulip[productVector].Current[rank] = 0;
     
-    if ( right == productVector || right == totalVector){
+    if (  right == totalVector){
         printf("oops\n");
         exit(0);
     }
     //cpy in if shifted.
     for ( targSpin = 0 ; targSpin < spins(f1, right ) ;targSpin++){
         pt = left;
+        zero(f1, totalVector, 0);
         if ( shiftFlag  )
             tEqua(f1, totalVector, 0, right, targSpin);
         else
@@ -1982,7 +1979,7 @@ void tHXpX (  INT_TYPE rank, struct sinc_label f1 , enum division left,INT_TYPE 
             
             if ( species(f1, pt ) == outerVector ){
                 tContract (0, f1, copy,0, pt ,0, pt,0 );
-               // tScaleOne(f1, copy, 0, -1.);
+                tScaleOne(f1, copy, 0, -1.);
                 Mat = copy;
             }else
                 Mat = pt;
@@ -1998,10 +1995,9 @@ void tHXpX (  INT_TYPE rank, struct sinc_label f1 , enum division left,INT_TYPE 
                 for ( sp2 = 0; sp2 < spins(f1,right); sp2++){
                     Rr = CanonicalRank ( f1, right,sp2 );
                     Ll = CanonicalRank(f1, name(f1,Mat), im);
-                    INT_TYPE su = 0 ;
-                    
+                    INT_TYPE su = f1.tulip[totalVector].Current[0];
 #ifdef OMP
-#pragma omp parallel for private (rank,ilr,l,k) schedule(dynamic,1) reduction(+:su)
+#pragma omp parallel for private (rank,ilr,l,k) schedule(dynamic,1)
 #endif
                     
 
@@ -2016,25 +2012,23 @@ void tHXpX (  INT_TYPE rank, struct sinc_label f1 , enum division left,INT_TYPE 
                             k = ilr/Ll;
                             
                             
-                           su += tHYpY(rank, f1, targSpin,Mat, l, im,product, productCmpl, right, k,  sp2,totalVector,ilr +f1.tulip[totalVector].Current[0], 0);
+                            tHYpY(rank, f1, targSpin,Mat, l, im,product, productCmpl, right, k,  sp2,totalVector,ilr +su, 0);
                         }
                     
-                    f1.tulip[totalVector].Current[0] += su;
-
+                    f1.tulip[totalVector].Current[0] += Ll*Rr;
+                    if (f1.tulip[totalVector].Current[0] > part(f1, totalVector ) )
+                    {
+                        printf("bailing\n");
+                        exit(1);
+                    }
                 }
             pt = f1.tulip[pt].linkNext;
 
         }while ( pt != nullName );
-    
-       // printExpectationValues(f1, Ha, totalVector);
         
-        tCycleDecompostionGridOneMP(-1, f1, totalVector, 0, NULL,productVector, 0, tolerance, maxRun, f1.rt->powDecompose);
-
-        tEqua(f1, right, targSpin, productVector, 0);
+        tCycleDecompostionGridOneMP(-1, f1, totalVector, 0, NULL,right, targSpin, tolerance, maxRun, f1.rt->powDecompose);
 
     }
-    //struct name_label r = f1.tulip[right];
-
     return;
 }
 

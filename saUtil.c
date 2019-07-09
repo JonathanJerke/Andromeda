@@ -810,7 +810,6 @@ INT_TYPE tClassifyComponents( struct sinc_label  f1 , double * up, double * entr
         if ( fabs(up[irrep]) > 1e-6 ){
             entr += -(fabs(up[irrep])/sum)*log(fabs(up[irrep])/sum);
         }
-     //   printf("%1.3f,", up[irrep]);
     }
     *entropy = entr;
     if ( entr < f1.rt->maxEntropy ){
@@ -837,9 +836,8 @@ INT_TYPE tClassify(INT_TYPE rank, struct sinc_label  f1 , enum division label){
     for ( i = 0; i < 48 ; i++)
         up[i] = 0.;
     tTabulateInnerProjection(rank, f1, label, up);
-    f1.tulip[label].value.symmetry =  tClassifyComponents(f1, up,&entropy);
+    irrep =  tClassifyComponents(f1, up,&entropy);
     f1.tulip[label].value.value2 =entropy;
-    irrep =  f1.tulip[label].value.symmetry;
 
     return irrep;
 }
@@ -849,7 +847,7 @@ INT_TYPE tClassify(INT_TYPE rank, struct sinc_label  f1 , enum division label){
 
 
 INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, char meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin){
-    INT_TYPE map[24],perm,irrep;
+    INT_TYPE irrep;
 
     if ( meta == 0 || bodies(f1,origin ) == one ){
         tEqua(f1, targ, tspin, origin, ospin);
@@ -858,18 +856,12 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, char meta , enum divi
     if (! CanonicalRank(f1, origin, ospin ))
         return 0;
     
-    INT_TYPE i,nPerm=0,nDeg=0;
+    INT_TYPE i,nPerm=0;
     char train[24];
     if ( bodies(f1, origin ) == two ){
         nPerm = 2;
-        nDeg = 1;
         train[0] = 'N';
         train[1] = 'T';
-        map[1] = 1;
-        if ( meta == 2 ){
-            nDeg = 1;
-            map[1] = 2;
-        }
     }
     if ( bodies(f1, origin ) == three ){
         train[0] = 'N';
@@ -879,54 +871,10 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, char meta , enum divi
         train[4] = 'D';
         train[5] = 'E';
         nPerm = 6;
-        map[1] = 1;
-        if ( meta == 2 ){
-            map[1] = 2;
-            nDeg = 1;
-        } else {
-            nDeg = 4;
-            map[1] = 3;
-            map[2] = 4;
-            map[3] = 5;
-            map[4] = 6;
-        }
     }
     else if ( bodies(f1, origin ) == four ){
         //
-        nDeg = 1;
-        map [1] = 1;
-        if ( meta == 2 ){
-            map[1] = 2;
-            nDeg = 1;
-        } else if ( meta == 3 ){
-            map[1] = 3;
-            map[2] = 4;
-            map[3] = 5;
-            map[4] = 6;
-            nDeg = 4;
-        } else if ( meta == 4){
-            map[1] = 7;
-            map[2] = 8;
-            map[3] = 9;
-            map[4] = 10;
-            map[5] = 11;
-            map[6] = 12;
-            map[7] = 13;
-            map[8] = 14;
-            map[9] = 15;
-            nDeg = 9;
-        }else if ( meta == 5 ){
-            map[1] = 16;
-            map[2] = 17;
-            map[3] = 18;
-            map[4] = 19;
-            map[5] = 20;
-            map[6] = 21;
-            map[7] = 22;
-            map[8] = 23;
-            map[9] = 24;
-            nDeg = 9;
-        }
+
         train[0] = 'N';
         train[1] = 'a';
         train[2] = 'b';
@@ -955,16 +903,10 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, char meta , enum divi
     }
     if ( CanonicalRank(f1, origin, ospin)*nPerm > part(f1,targ)){
         printf("Irr\n");
+        printf("%d %d %d\n", CanonicalRank(f1, origin, ospin), part(f1, origin), part(f1, targ));
         exit(0);
     }
     
-    if ( meta < 0 ){//stack perms without multiply
-        for ( i = 0; i < nPerm ; i++){
-            f1.tulip[permutation2Vector].Current[rank] = 0;
-            tPermute(rank,f1, train[i], origin, ospin, permutation2Vector, rank);
-            tAddTw(f1, targ, tspin, permutation2Vector, rank);
-        }
-    }else {
         for ( i = 0; i < nPerm ; i++){
             irrep = meta;
             f1.tulip[permutation2Vector].Current[rank] = 0;
@@ -972,9 +914,6 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, char meta , enum divi
             tScaleOne(f1, permutation2Vector, rank, tGetProjection(bodies(f1, origin), irrep, i));
             tAddTw(f1, targ, tspin, permutation2Vector, rank);
         }
-
-        
-    }
     
     return 0;
 }
@@ -1115,33 +1054,37 @@ char matrixAction ( enum bodyType bd, enum block bk, char direction){
 }
 
 INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, char leftChar , enum division left, INT_TYPE l, INT_TYPE lspin, enum division equals, INT_TYPE espin){
-    INT_TYPE LN2[SPACE];
-    length(f1, left, LN2);
+    INT_TYPE LN2 = alloc(f1,left,dim);
     INT_TYPE cur = CanonicalRank(f1, equals, espin);
-    INT_TYPE flagTranspose,flagTranspose2,flagTranspose3,flagTranspose4,space,N1[SPACE], A[SPACE],B[SPACE],AA[SPACE],BB[SPACE];
+    INT_TYPE N1 = vector1Len(f1, dim),flagTranspose,flagTranspose2,flagTranspose3,flagTranspose4,space,A,B,AA,BB;
     double *array[6];
+    {
+        INT_TYPE bs;
+        for ( bs = 0; bs < 6 ; bs++)
+            array[bs] = myStreams( f1, tensorBuffers+bs, rank);
+    }
+    double * pleft;
+
     if ( part(f1, equals ) < CanonicalRank(f1, equals, espin ) ){
         printf("too small %d\n",equals);
         exit(0);
     }
     if ( bodies(f1, eigenVectors) == one ){
-            cblas_dcopy(LN2[dim], streams(f1, left, lspin, dim)+l*LN2[dim], 1, streams(f1, equals, espin, dim)+cur*LN2[dim], 1);
+            cblas_dcopy(LN2, streams(f1, left, lspin, dim)+l*LN2, 1, streams(f1, equals, espin, dim)+cur*LN2, 1);
     }
     
     if ( bodies(f1, eigenVectors) == two)
     {
-        length1(f1,N1);
         if ( leftChar == 'N' ){//the Transpose is IMPLICIT!!!!
-            cblas_dcopy(LN2[dim], streams(f1, left, lspin, dim)+l*LN2[dim], 1, streams(f1, equals, espin, dim)+cur*LN2[dim], 1);
+            cblas_dcopy(LN2, streams(f1, left, lspin, dim)+l*LN2, 1, streams(f1, equals, espin, dim)+cur*LN2, 1);
         }else {
-            transpose(N1[dim], N1[dim],streams(f1, left, lspin, dim)+l*LN2[dim],streams(f1, equals, espin, dim)+cur*LN2[dim]);
+            transpose(N1, N1,streams(f1, left, lspin, dim)+l*LN2,streams(f1, equals, espin, dim)+cur*LN2);
         }
     }
     
     
     else if ( bodies(f1, eigenVectors) == three)
     {
-        length1(f1,N1);
 
         
         //
@@ -1153,126 +1096,110 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, char le
         //            train[5] = 'E';//(23)           132
         
         flagTranspose3 = 0;
-        for ( space = 0; space < SPACE ; space++){
-            A[space] = N1[space]*N1[space];
-            B[space] = N1[space];
-        }
+      //  for ( space = 0; space < SPACE ; space++){
+            A = N1*N1;
+            B = N1;
+       // }
         
         if ( leftChar == 'N' ){
             flagTranspose = 0;
             flagTranspose2 = 0;
-            cblas_dcopy(LN2[dim], streams(f1, left, lspin, dim)+l*LN2[dim], 1, streams(f1, equals, espin, dim)+cur*LN2[dim], 1);
+            cblas_dcopy(LN2, streams(f1, left, lspin, dim)+l*LN2, 1, streams(f1, equals, espin, dim)+cur*LN2, 1);
             return 0;
         }
         else  if ( leftChar == 'A' ){
             flagTranspose = 1;// a | b c
             
             flagTranspose2 = 0;
-            for ( space = 0; space < SPACE ; space++){
-                A[space] = N1[space];
-                B[space] = N1[space]*N1[space];
-            }
+                A = N1;
+                B = N1*N1;
         }else  if ( leftChar == 'B' ){
             flagTranspose = 1; // a b | c
             flagTranspose2 = 0;
-            for ( space = 0; space < SPACE ; space++){
-                A[space] = N1[space]*N1[space];
-                B[space] = N1[space];
-            }
+                A = N1*N1;
+                B = N1;
         } else if ( leftChar == 'C' ){
             flagTranspose = 0;
             flagTranspose2 = 1;
         } else  if ( leftChar == 'D' ){
             flagTranspose = 1; // a b | c
             flagTranspose2 = 1;
-            for ( space = 0; space < SPACE ; space++){
-                A[space] = N1[space]*N1[space];
-                B[space] = N1[space];
-            }
+                A = N1*N1;
+                B = N1;
+            
         }else  if ( leftChar == 'E' ){
             flagTranspose = 1; // a b | c
             flagTranspose2 = 0;
             flagTranspose3 = 1;
-            for ( space = 0; space < SPACE ; space++){
-                A[space] = N1[space]*N1[space];
-                B[space] = N1[space];
-            }
+            A = N1*N1;
+                B = N1;
         }
         
         else {
             printf("unknown flag %c\n",leftChar);
             exit(0);
         }
-        {
-        INT_TYPE dim;
-            for ( dim = 0; dim < 6 ; dim++)
-                array[dim] = myStreams( f1, tensorBuffers+dim, rank);
-        }
         
-        double * pleft[SPACE];
-        {
+        
+    
             INT_TYPE bs,o;
-            {
+    
                 {
                     space = dim;
             //
-                    pleft[space] = streams( f1, left, lspin,space )+l*LN2[space];
+                    pleft = streams( f1, left, lspin,space )+l*LN2;
                     
                     bs = 0;
                     
                     if (flagTranspose2){
-                        for ( o = 0 ; o < N1[space] ;o++){
-                            transpose(N1[space], N1[space],pleft[space]+N1[space]*N1[space]*o,array[bs]+N1[space]*N1[space]*o);
+                        for ( o = 0 ; o < N1 ;o++){
+                            transpose(N1, N1,pleft+N1*N1*o,array[bs]+N1*N1*o);
                             
                         }
-                        pleft[space] = array[bs++];
+                        pleft = array[bs++];
                     }
                     if ( flagTranspose  ){
-                        transpose(A[space], B[space],pleft[space] ,array[bs]);
+                        transpose(A, B,pleft ,array[bs]);
                         
-                        pleft[space] = array[bs++];
+                        pleft = array[bs++];
                         
                     }
                     
                     if ( flagTranspose3){
-                        for ( o = 0 ; o < N1[space] ;o++){
-                            transpose(N1[space], N1[space],pleft[space]+N1[space]*N1[space]*o,array[bs]+N1[space]*N1[space]*o);
+                        for ( o = 0 ; o < N1 ;o++){
+                            transpose(N1, N1,pleft+N1*N1*o,array[bs]+N1*N1*o);
                         }
-                        pleft[space] = array[bs++];
+                        pleft = array[bs++];
                         
                     }
-                    cblas_dcopy(LN2[space], pleft[space], 1, streams(f1,equals, espin, space)+cur*LN2[space] ,1);
+                    cblas_dcopy(LN2, pleft, 1, streams(f1,equals, espin, space)+cur*LN2 ,1);
                     
                 }
             }
             
             
             
-        }
         
         
-    }
+        
+
     else if (bodies ( f1, eigenVectors ) == four ){
         {
-            {
-                double * pleft[SPACE];
-                length1(f1, N1);
+            
                 flagTranspose = 0;
                 flagTranspose2 = 0;
                 flagTranspose3 = 0;
                 flagTranspose4 = 0;
                 
-                for ( space = 0; space < SPACE ; space++){
-                    A[space] = N1[space]*N1[space];
-                    B[space] = N1[space]*N1[space];
-                }
-                for ( space = 0; space < SPACE ; space++){
-                    AA[space] = N1[space];
-                    BB[space] = N1[space]*N1[space]*N1[space];
-                }
+                    A = N1*N1;
+                    B = N1*N1;
+                
+                    AA = N1;
+                BB = N1*N1*N1;
+            
                 
                 
-                // 0,0,0,0 : i,j,k,l   :: T 0
+                // 0,0,0,0 : i,j,k,l   :: 'N' 0
                 // 0,2,1,2 : i,j,l,k   :: 'a'24
                 // 1,3,1,2 : i,k,j,l   :: 'b'20
                 // 1,1,0,0 : i,k,l,j   :: 'c'4
@@ -1300,69 +1227,53 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, char le
                 
                 
                 if ( leftChar == 'N' ){//(i,j,k,l)
-                    cblas_dcopy(LN2[dim], streams(f1, left, lspin, dim)+l*LN2[dim], 1, streams(f1, equals, espin, dim)+cur*LN2[dim], 1);
+                    cblas_dcopy(LN2, streams(f1, left, lspin, dim)+l*LN2, 1, streams(f1, equals, espin, dim)+cur*LN2, 1);
                     return 0;
 
                 } else if ( leftChar == 'a' ){//(i,j,l,k)
                     flagTranspose2 = 1;
                     flagTranspose3 = 1;
                     flagTranspose4 = 1;
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space];
-                        B[space] = N1[space]*N1[space];
-                    }
-                    
-                    for ( space = 0; space < SPACE ; space++){
-                        AA[space] = N1[space]*N1[space];
-                        BB[space] = N1[space]*N1[space];
-                    }
+                    A = N1*N1;
+                        B = N1*N1;
+                        AA = N1*N1;
+                        BB = N1*N1;
                     
                 }else if ( leftChar == 'b' ){//(i,j,k,l)->(j,i,k,l)->(l,j,i,k)->(j,l,i,k)->(i,k,j,l)->(i,k,j,l)
                     flagTranspose = 1;
                     flagTranspose2 = 1;
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space]*N1[space];
-                        B[space] = N1[space];
-                    }
+                        A = N1*N1*N1;
+                        B = N1;
                     flagTranspose3 = 1;
                     flagTranspose4 = 1;
-                    for ( space = 0; space < SPACE ; space++){
-                        AA[space] = N1[space]*N1[space];
-                        BB[space] = N1[space]*N1[space];
-                    }
+                        AA = N1*N1;
+                        BB = N1*N1;
                     
                     
                 }else  if ( leftChar == 'c' ){//(i,k,l,j)
                     flagTranspose = 1; // a b | c
                     flagTranspose2 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space];
-                        B[space] = N1[space]*N1[space]*N1[space];
-                    }
+                        A = N1;
+                        B = N1*N1*N1;
                 }else  if ( leftChar == 'd' ){//(i,l,j,k)
                     flagTranspose2 = 1;
                     flagTranspose3 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space]*N1[space];
-                        B[space] = N1[space];
-                    }
+                        A = N1*N1*N1;
+                        B = N1;
                 }else  if ( leftChar == 'e' ){//(i,l,k,j) 6
                     flagTranspose = 1; // a b | c
                     flagTranspose2 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space];
-                        B[space] = N1[space]*N1[space];
-                    }
+                        A = N1*N1;
+                        B = N1*N1;
+                    
                     flagTranspose3 = 1;
                     flagTranspose4 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        AA[space] = N1[space]*N1[space]*N1[space];
-                        BB[space] = N1[space];
-                    }
+                        AA = N1*N1*N1;
+                        BB = N1;
                     
                 }else  if ( leftChar == 'f' ){//(j,i,k,l)
                     flagTranspose = 1; // a b | c
@@ -1370,192 +1281,152 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, char le
                     flagTranspose = 1; // a b | c
                     flagTranspose2 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space];
-                        B[space] = N1[space]*N1[space];
-                    }
+                        A = N1*N1;
+                        B = N1*N1;
                     flagTranspose3 = 1;
                     flagTranspose4 = 1;
-                    for ( space = 0; space < SPACE ; space++){
-                        AA[space] = N1[space]*N1[space];
-                        BB[space] = N1[space]*N1[space];
-                    }
+                        AA = N1*N1;
+                        BB = N1*N1;
                     
                 }else  if ( leftChar == 'h' ){//(j,k,i,l)
                     flagTranspose = 0; // a b | c
                     flagTranspose2 = 1;
                     
                     for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space]*N1[space];
-                        B[space] = N1[space];
+                        A = N1*N1*N1;
+                        B = N1;
                     }
                     
                     flagTranspose3 = 1; // a b | c
                     flagTranspose4 = 1;
-                    for ( space = 0; space < SPACE ; space++){
-                        AA[space] = N1[space]*N1[space];
-                        BB[space] = N1[space]*N1[space];
-                    }
+                        AA= N1*N1;
+                        BB = N1*N1;
                     
                 }else  if ( leftChar == 'i' ){//(j,k,l,i)
                     flagTranspose = 0; // a b | c
                     flagTranspose2 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space];
-                        B[space] = N1[space]*N1[space]*N1[space];
-                    }
+                        A = N1;
+                        B = N1*N1*N1;
                 }
                 else  if ( leftChar == 'j' ){//(j,l,i,k)
                     flagTranspose = 1; // a b | c
                     flagTranspose2 = 1;
                     flagTranspose3 = 1;
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space]*N1[space];
-                        B[space] = N1[space];
-                    }
+                        A = N1*N1*N1;
+                    B = N1;
+                    
                 }else  if ( leftChar == 'k' ){//(j,l,k,i)12
                     flagTranspose2 = 2;
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space];
-                        B[space] = N1[space]*N1[space];
-                    }
+                        A = N1*N1;
+                        B = N1*N1;
                     flagTranspose3 = 1;
                     flagTranspose4 = 1;
-                    for ( space = 0; space < SPACE ; space++){
-                        AA[space] = N1[space]*N1[space]*N1[space];
-                        BB[space] = N1[space];
-                    }
+                        AA = N1*N1*N1;
+                        BB = N1;
                     
                 }else  if ( leftChar == 'l' ){//(k,i,j,l)
                     flagTranspose = 0; // a b | c
                     flagTranspose2 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space];
-                        B[space] = N1[space]*N1[space];
-                    }
-                    
+                        A = N1*N1;
+                        B = N1*N1;
                     flagTranspose3 = 1;
                     flagTranspose4 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        AA[space] = N1[space];
-                        BB[space] = N1[space]*N1[space]*N1[space];
-                    }
+                        AA = N1;
+                        BB = N1*N1*N1;
                     
                 }else  if ( leftChar == 'm' ){//(k,i,l,j)
                     flagTranspose = 1; // a b | c
                     flagTranspose2 = 1;
                     flagTranspose3 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space];
-                        B[space] = N1[space]*N1[space]*N1[space];
-                    }
+                        A = N1;
+                        B = N1*N1*N1;
                 }else  if ( leftChar == 'n' ){//(k,j,i,l)
                     flagTranspose = 1; // a b | c
                     flagTranspose2 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space];
-                        B[space] = N1[space]*N1[space];
-                    }
+                        A = N1*N1;
+                        B = N1*N1;
                     
                     flagTranspose3 = 1;
                     flagTranspose4 = 1;
-                    for ( space = 0; space < SPACE ; space++){
-                        AA[space] = N1[space];
-                        BB[space] = N1[space]*N1[space]*N1[space];
-                    }
+                        AA = N1;
+                        BB = N1*N1*N1;
                     
                     
                 }else  if ( leftChar == 'o' ){//(k,j,l,i)
                     flagTranspose2 = 1;
                     flagTranspose3 = 1;
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space];
-                        B[space] = N1[space]*N1[space]*N1[space];
-                    }
+                        A = N1;
+                        B = N1*N1*N1;
                 }else  if ( leftChar == 'p' ){//(k,l,i,j)
                     flagTranspose2 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space];
-                        B[space] = N1[space]*N1[space];
-                    }
+                        A = N1*N1;
+                        B = N1*N1;
                 }else  if ( leftChar == 'q' ){//i,j,k,l->j,i,k,l->i,k,l,j->k,l,j,i->(k,l,j,i)//18
                     flagTranspose = 1; // a b | c
                     flagTranspose2 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space];
-                        B[space] = N1[space]*N1[space]*N1[space];
-                    }
+                        A = N1;
+                        B = N1*N1*N1;
+                    
                     flagTranspose4 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        AA[space] = N1[space];
-                        BB[space] = N1[space]*N1[space]*N1[space];
-                    }
-                    
+                        AA = N1;
+                        BB = N1*N1*N1;
+            
                 }
                 else  if ( leftChar == 'r' ){//(l,i,j,k)
                     flagTranspose2 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space]*N1[space];
-                        B[space] = N1[space];
-                    }
+                        A = N1*N1*N1;
+                        B = N1;
+                    
                 }
                 else  if ( leftChar == 's' ){//(l,i,k,j)
                     flagTranspose = 1; // a b | c
                     flagTranspose2 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space]*N1[space];
-                        B[space] = N1[space];
-                    }
+                        A = N1*N1*N1;
+                        B = N1;
                     flagTranspose3 = 1; // a b | c
                     flagTranspose4 = 1;
-                    for ( space = 0; space < SPACE ; space++){
-                        AA[space] = N1[space];
-                        BB[space] = N1[space]*N1[space]*N1[space];
-                    }
+                        AA = N1;
+                        BB = N1*N1*N1;
                     
                 }
                 else  if ( leftChar == 't' ){//(l,j,i,k)
                     flagTranspose = 1; // a b | c
                     flagTranspose2 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space]*N1[space];
-                        B[space] = N1[space];
-                    }
+                        A = N1*N1*N1;
+                        B = N1;
+                    
                 }
                 else  if ( leftChar == 'u' ){//(l,j,k,i)
                     flagTranspose2 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space]*N1[space];
-                        B[space] = N1[space];
-                    }
+                        A = N1*N1*N1;
+                        B = N1;
+                    
                     
                     flagTranspose3 = 1;
                     flagTranspose4 = 1;
-                    for ( space = 0; space < SPACE ; space++){
-                        AA[space] = N1[space];
-                        BB[space] = N1[space]*N1[space]*N1[space];
-                    }
+                        AA = N1;
+                        BB = N1*N1*N1;
+                    
                 }
                 // 0,2,1,0 : l,k,i,j   :: 'v'6
                 else  if ( leftChar == 'v' ){//i,j,k,l->j,i,k,l->k,l,j,i->(l,k,i,j)
                     flagTranspose2 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space];
-                        B[space] = N1[space]*N1[space];
-                    }
+                        A = N1*N1;
+                        B = N1*N1;
+                    
                     flagTranspose3 = 1;
                     
                 }
@@ -1564,10 +1435,9 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, char le
                     flagTranspose2 = 1;
                     flagTranspose3 = 1;
                     
-                    for ( space = 0; space < SPACE ; space++){
-                        A[space] = N1[space]*N1[space];
-                        B[space] = N1[space]*N1[space];
-                    }
+                        A = N1*N1;
+                        B = N1*N1;
+                
                 }
                 
                 
@@ -1577,12 +1447,7 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, char le
                     printf("unknown flag %c\n",leftChar);
                     exit(0);
                 }
-                {
-                INT_TYPE dim;
-                    for ( dim = 0; dim < 6 ; dim++)
-                        array[dim] = myStreams( f1, tensorBuffers+dim, rank);
-                                    
-                }
+            
                 {
                     INT_TYPE bs,o;
                     {
@@ -1590,34 +1455,34 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, char le
                             space = dim;
                             bs = 0;
                             //
-                            pleft[space] = streams( f1, left, lspin,space )+l*LN2[space];
+                            pleft = streams( f1, left, lspin,space )+l*LN2;
                             
                             
                             if (flagTranspose){
-                                for ( o = 0 ; o < N1[space]*N1[space] ;o++)
-                                    transpose(N1[space], N1[space],pleft[space]+N1[space]*N1[space]*o,array[bs]+N1[space]*N1[space]*o);
-                                pleft[space] = array[bs++];
+                                for ( o = 0 ; o < N1*N1 ;o++)
+                                    transpose(N1, N1,pleft+N1*N1*o,array[bs]+N1*N1*o);
+                                pleft = array[bs++];
                             }
                             
                             if ( flagTranspose2  ){
-                                transpose(A[space], B[space],pleft[space],array[bs]);
-                                pleft[space] = array[bs++];
+                                transpose(A, B,pleft,array[bs]);
+                                pleft = array[bs++];
                             }
                             
                             if ( flagTranspose3){
-                                for ( o = 0 ; o < N1[space]*N1[space] ;o++)
-                                    transpose(N1[space], N1[space],pleft[space]+N1[space]*N1[space]*o ,array[bs]+N1[space]*N1[space]*o);
-                                pleft[space] = array[bs++];
+                                for ( o = 0 ; o < N1*N1 ;o++)
+                                    transpose(N1, N1,pleft+N1*N1*o ,array[bs]+N1*N1*o);
+                                pleft = array[bs++];
                                 
                                 
                             }
                             
                             if ( flagTranspose4  ){
-                                transpose(AA[space], BB[space],pleft[space],array[bs]);
-                                pleft[space] = array[bs++];
+                                transpose(AA, BB,pleft,array[bs]);
+                                pleft= array[bs++];
                                 
                             }
-                            cblas_dcopy(LN2[space], pleft[space], 1, streams(f1,equals, espin, space)+cur*LN2[space] ,1);
+                            cblas_dcopy(LN2, pleft, 1, streams(f1,equals, espin, space)+cur*LN2 ,1);
                             
                         }
                         
@@ -1627,11 +1492,11 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, char le
                     
                 }
                 
+
                 
                 
-                
-            }
         }
+
     }
     
     return 0;
@@ -1723,9 +1588,6 @@ INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct sinc_label  f1 , enum div
 
 
 INT_TYPE tTabulateInnerProjection( INT_TYPE rank, struct sinc_label  f1 , enum division vec, double *up){
-    INT_TYPE i;
-    for ( i = 0; i<= nSAG ;i++)
-        up[i] = 0.;
 
     if ( bodies(f1,vec ) == one ){
         up[0] = 1;
@@ -1751,7 +1613,6 @@ INT_TYPE tTabulateInnerProjection( INT_TYPE rank, struct sinc_label  f1 , enum d
         fflush(stdout);
         exit(0);
     }
-    enum bodyType bd = bodies(f1, vec);
     double buff[720];
 
     tAllCompPermMultiplyMP(rank, f1, vec, 0, vec,0, buff);
