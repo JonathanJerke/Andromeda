@@ -820,9 +820,9 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         //f1->tulip[permutationVector].spinor = parallel;
         
         fromBeginning(*f1,permutation2Vector,permutationVector);
-        f1->tulip[permutation2Vector].Partition = f->i.filter *ra;
+        f1->tulip[permutation2Vector].Partition = f->i.filter *ra*maxVector;
         f1->tulip[permutation2Vector].species = vector;
-//        f1->tulip[permutation2Vector].spinor = parallel;
+        f1->tulip[permutation2Vector].spinor = parallel;
     
         fromBeginning(*f1,canonicalmvVector,permutation2Vector);
         f1->tulip[canonicalmvVector].Partition = 1;

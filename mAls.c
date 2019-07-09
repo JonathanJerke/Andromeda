@@ -1729,7 +1729,8 @@ INT_TYPE tGEVV (INT_TYPE rank,  struct sinc_label  f1,  INT_TYPE space,enum divi
 }
 
 void tContract ( INT_TYPE rank,struct sinc_label  f1, enum division mat,INT_TYPE ms, enum division vector ,INT_TYPE vs1, enum division vector2,INT_TYPE vs2){
-    
+    f1.tulip[mat].Current[ms] = 0;
+
     INT_TYPE space,l,r;
     for ( l = 0; l < CanonicalRank(f1, vector, vs1); l++)
         for ( r = 0; r < CanonicalRank(f1, vector2, vs2); r++){

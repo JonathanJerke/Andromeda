@@ -70,7 +70,7 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
     //count canonical-rank...
 
     
-    f1.i.nStates =f1.i.qFloor* f1.i.Iterations  ;
+    f1.i.nStates =f1.i.Iterations  ;
     iModel(c1,&f1);
     for ( fi =0 ; fi < f1.i.files ; fi++){
         tLoadEigenWeights (c1,f1, f1.i.fileList[fi], &EV,f1.f.user , f1.i.collect);//UNUSUAL!!!
@@ -83,18 +83,34 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
 
     if(1){
         printf ("Step \t%d\n", iterator);
-        INT_TYPE iii,sp ;
-        for ( iii = 0; iii < EV ; iii++){
-            printf ( "\n Vector \t%d \n", iii+1);
-            for ( sp = 0 ; sp < spins(f1.f, f1.f.user); sp++)
-                tCycleDecompostionGridOneMP(-1, f1.f, f1.f.user+iii, sp, NULL, eigenVectors+iii, sp, c1->rt.vCANON, part(f1.f,eigenVectors+iii), -1);
-            
-            tFilter(f1.f, EV, 0, eigenVectors+RdsSize-EV);//classify
-            printExpectationValues(f1.f, Ha, eigenVectors+RdsSize-EV+iii);
-            fflush(stdout);
-            print(c1,f1,1,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
+        INT_TYPE cmpl,g ;
+//        for ( iii = 0; iii < EV ; iii++){
+//            printf ( "\n Vector \t%d \n", iii+1);
+//            for ( sp = 0 ; sp < spins(f1.f, f1.f.user); sp++)
+//                tCycleDecompostionGridOneMP(-1, f1.f, f1.f.user+iii, sp, NULL, eigenVectors+iii, sp, c1->rt.vCANON, part(f1.f,eigenVectors+iii), -1);
+
+        for ( cmpl = 0; cmpl < spins(f1.f, f1.f.user) ; cmpl++){
+            tClear(f1.f,totalVector);
+            if ( f1.i.filter  && f1.i.irrep )
+            {
+                for( g = 0; g < EV ; g++)
+                    tBuildIrr(0, f1.f, f1.i.irrep, f1.f.user+g, cmpl, totalVector, 0);
+            }else {
+                for( g = 0; g < EV ; g++)
+                    tAddTw(f1.f, totalVector, 0, f1.f.user+g, cmpl);
+            }
+            tCycleDecompostionGridOneMP(-2, f1.f, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1.f,eigenVectors), c1->rt.powDecompose);
+            //     tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1,eigenVectors), 1.);
         }
-    }
+        
+        EV = 1;
+        RdsSize = 1;
+            tFilter(f1.f, EV, 0, eigenVectors);//classify
+            printExpectationValues(f1.f, Ha, eigenVectors);
+            fflush(stdout);
+            print(c1,f1,1,0,1,eigenVectors);
+        }
+    
 
     
     for ( iterator = 1 ; iterator < f1.i.Iterations ; iterator++){
