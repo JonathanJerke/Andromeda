@@ -5,7 +5,7 @@
 if $#argv == 3 then
 set src = $1
 set dir = $2
-set prev = $src/C.kry
+set prev = $src/B.kry
 set file = $dir/A.riz
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
