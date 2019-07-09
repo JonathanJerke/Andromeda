@@ -46,7 +46,7 @@
 
 #ifndef APPLE
 #define OMP
-#define MKL
+//#define MKL
 #define GSL_LIB
 
 #define MaxCore 24
