@@ -70,8 +70,10 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
     //count canonical-rank...
 
     
+    f1.i.nStates =1  ;
     f1.i.nStates =f1.i.Iterations  ;
-    iModel(c1,&f1);
+   
+ iModel(c1,&f1);
     for ( fi =0 ; fi < f1.i.files ; fi++){
         tLoadEigenWeights (c1,f1, f1.i.fileList[fi], &EV,f1.f.user , f1.i.collect);//UNUSUAL!!!
     }
@@ -305,22 +307,27 @@ INT_TYPE frameEwald( struct calculation * c , struct field f)
     tEigenCycle(f.f,Ha,CDT, f.i.nStates, f.f.user,EV,0, EV,0,0,eigenVectors,twoBodyRitz);
     
     
-    cblas_dscal(EV, -1., myStreams(f.f, twoBodyRitz, 0), 1);
 
     INT_TYPE i,j=0;
     double totalElectron = 0., consideredElectron = 0.;
     for ( i = 0 ; i < EV ; i++ ){
-        if ( myStreams(f.f, twoBodyRitz, 0)[i] > c->rt.TARGET ){
+        if ( -myStreams(f.f, twoBodyRitz, 0)[i] > c->rt.EWALD ){
             printf("load-%d %f\n",i+1, myStreams(f.f, twoBodyRitz, 0)[i]);
-            consideredElectron += myStreams(f.f, twoBodyRitz, 0)[i];
+            consideredElectron -= myStreams(f.f, twoBodyRitz, 0)[i];
             j++;//in order
         }
-        totalElectron += myStreams(f.f, twoBodyRitz, 0)[i];
-
+        totalElectron -= myStreams(f.f, twoBodyRitz, 0)[i];
     }
-    printf ( " encapsulating %f electrons\n considering %f electron using target %f\n",totalElectron, consideredElectron, c->rt.TARGET );
+    printf ( " encapsulating %f probability\n considering %f probability using target %f\n",totalElectron, consideredElectron, c->rt.TARGET );
+    
+    
     tEigenCycle(f.f,Ha,CDT, j, f.f.user,EV,0, EV,0,4,eigenVectors,twoBodyRitz);
     
+    if (1 ) {
+        printf("normalizing considered probability to 1\n");
+        cblas_dscal(EV, 1./consideredElectron, myStreams(f.f, twoBodyRitz, 0), 1);
+    }
+
     if ( 0 ){
         INT_TYPE ii;
         j = 1;
@@ -342,7 +349,7 @@ INT_TYPE frameEwald( struct calculation * c , struct field f)
                 for ( i = 0 ; i < vectorLen(f.f, space); i++)
                     for ( ii = 0 ; ii < vectorLen(f.f, space); ii++)
                         if ( ii < vectorLen(f.f, space)/2 && i < vectorLen(f.f, space)/2)
-                            streams(f.f, diagonal2VectorA, 0, space)[ii*vectorLen(f.f,space)+i] = 1./(vectorLen(f.f, space)/2);
+                           streams(f.f, diagonal2VectorA, 0, space)[ii*vectorLen(f.f,space)+i] = 1./(vectorLen(f.f, space)/2);
                         else
                             streams(f.f, diagonal2VectorA, 0, space)[ii*vectorLen(f.f,space)+i] = 0.;
                 
@@ -356,7 +363,7 @@ INT_TYPE frameEwald( struct calculation * c , struct field f)
     }
     
     
-    mySeparateEwaldCoulomb1(f.f,j,myStreams(f.f, twoBodyRitz, 0),eigenVectors, c->i.decomposeRankMatrix, interactionExchange, intracellularSelfEwald, -1., 0, 0, electron);
+    mySeparateEwaldCoulomb1(f.f,j,myStreams(f.f, twoBodyRitz, 0),eigenVectors, c->i.decomposeRankMatrix, interactionExchange, intracellularSelfEwald,-1., 0, 0, electron);
     ioStoreMatrix(f.f, intracellularSelfEwald, 0, "intracellularEwald.matrix", 0);
     
     mySeparateEwaldCoulomb1(f.f,j,myStreams(f.f, twoBodyRitz, 0),eigenVectors, c->i.decomposeRankMatrix,interactionEwald, intercellularSelfEwald, 1., 0, 0, electron);

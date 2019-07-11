@@ -726,6 +726,7 @@ struct runTime {
     double CANON ; //threshold
     double TOL;
     double vCANON;
+    double EWALD;
     double targetCondition;
     
     enum calculationType calcType;

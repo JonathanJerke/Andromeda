@@ -4294,14 +4294,9 @@ void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occup
     Stream_Type * streamIn, *streamOut;
     enum division vo = vectors ,current = interaction;
     tClear(f1,shorten);
-    if ( plus == 1 )
-        lll = 1;
-    else
-        lll = 0;
     {
         for ( vo = vectors ; vo < vectors+nVec ; vo++){
             vox = CanonicalRank(f1, vo, 0);
-            printf("lll %d  r%d\n", lll, CanonicalRank(f1, current, 0));
             for ( r = 0 ; r < CanonicalRank(f1, current, 0); r++){
                 
                 
@@ -4345,7 +4340,7 @@ void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occup
                                     tGEMV(rank, f1, dim, canonicalmeVector, rank, diagonalCube, 0, rank, vo, vor, 0);
                                     f1.tulip[canonicalmeVector].Current[rank] =1;
                                     for ( vor2 = 0 ; vor2 < vox; vor2++){
-                                        ( streams(f1, copyTwo,0, dim) + n1[dim]*n1[dim]*(f1.tulip[copyTwo].Current[0]+vox * vor2 + vor-vox*vox))[j2*n1[dim]+j1] = (occupy[vo-vectors])*tDOT(rank, f1, dim, CDT, vo, vor2, 0, 'N', canonicalmeVector, 0, rank);
+                                        ( streams(f1, copyTwo,0, dim) + n1[dim]*n1[dim]*(f1.tulip[copyTwo].Current[0]+vox * vor2 + vor-vox*vox))[j2*n1[dim]+j1] = (fabs(occupy[vo-vectors]))*tDOT(rank, f1, dim, CDT, vo, vor2, 0, 'N', canonicalmeVector, 0, rank);
                                     }
                                 }
                             }
@@ -4358,13 +4353,13 @@ void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occup
                     exit(0);
                 }
             }
-            printf("= %d\n", CanonicalRank(f1, copyTwo, 0));
+ //           printf("= %d\n", CanonicalRank(f1, copyTwo, 0));
         }
     }
     tCycleDecompostionGridOneMP(-1, f1, copyTwo, 0, NULL, shorten, 0, f1.rt->CANON, part1, 1);
-    tScale(f1, shorten, scalar);
-    printf("Ewald ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),traceOne(f1, shorten, 0), distance(f1, shorten, copyTwo));    
-
+    //tScale(f1, shorten, scalar);
+    printf("Ewald ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),scalar*traceOne(f1, shorten, 0), distance(f1, shorten, copyTwo));    
+	tScaleOne(f1, shorten,0, scalar);
 }
 
 
@@ -5189,7 +5184,7 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
   //  outputFormat(f1, stderr,kinetic1, 0);
     INT_TYPE info;
 //    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic, 0,'N', kinetic, 0);
-    printf("r%f\n", traceOne(f1, akinetic, 0));
+  //  printf("r%f\n", traceOne(f1, akinetic, 0));
 //    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic,1,'N', kinetic, 1);
 //    printf("r%f\n", traceOne(f1, copy, 0));
 

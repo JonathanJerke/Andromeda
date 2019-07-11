@@ -144,7 +144,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "around","cmpl","clampStage","OCSB","decompose",
         "shiftNO","matrix"
     };
-    INT_TYPE NDOUBLE = 72;
+    INT_TYPE NDOUBLE = 73;
     char *list_DOUBLE []= {"#",
         "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST" ,//1-5
         "xB", "yB", "zB", "xyRange" , "zRange",//6-10
@@ -160,7 +160,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "entropy","attack","scalar","turn","augment",
         "linearDependence","condition","seek","width","latte",
         "magnetismZ","clampMin","clampMax","electronMass","protonMass",
-        "pairMass","gamma0"
+        "pairMass","gamma0","ewald"
     };
     
     for ( i = 1 ; i <= NINT_TYPE ; i++){
@@ -1030,8 +1030,9 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     //Jacek Karwowski 06/17/2019
                     c->i.turn = pow(120.*(1.+sqrt(value/(20.*2*c->i.param1*c->i.param1*(c->i.massProton * c->i.massClampPair/(c->i.massProton + c->i.massClampPair) )*c->i.scalar))) ,1./6);
                     return d;
-
-
+                case 73:
+                    c->rt.EWALD = pow(0.1, value);
+                    return d;
             }
 
         }
