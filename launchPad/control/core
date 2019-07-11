@@ -16,6 +16,7 @@
 		threshold 3
 		vectorThreshold 4
 		target 3
+		ewald 3
 	#Just keep this big enough, but does take memory
 		initRank 50
 		#default
