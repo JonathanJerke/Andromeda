@@ -18,8 +18,6 @@
 		target 3
 	#Just keep this big enough, but does take memory
 		initRank 50
-
-	#
 		#default
 		collect 1
 		configuration 0
