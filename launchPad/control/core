@@ -12,7 +12,7 @@
 		pairMass 1836.15267245
 		decompose 9
 		condition 8
-		tolerance 9
+		tolerance 6
 		threshold 3
 		vectorThreshold 4
 		target 3
