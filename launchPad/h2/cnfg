@@ -15,8 +15,8 @@
 	*Parameters
 		lattice 1.5
 		range 4
-		foundation 729
-		matrix 3
+		foundation 1000
+		levelLevel 0.5
 		initRank 1
 		filter 0
 		basisRank 8
