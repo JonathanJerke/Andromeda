@@ -12,8 +12,8 @@
 	
 	*Parameters
 		matrix 3
-		levelLevel 1
-		foundation 100
+		levelLevel 0.33
+		foundation 1000
 		lattice 1.666
 		range 4
 		initRank 2
