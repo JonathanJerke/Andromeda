@@ -20,7 +20,5 @@
 		foundation 500
 		latte 0.12
 		around
-		target 3
-		vectorThreshold 4
 	.Parameters
 .Body
