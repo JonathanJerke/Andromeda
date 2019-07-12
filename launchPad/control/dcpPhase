@@ -1,11 +1,11 @@
 *Body print
 	*Parameters
-		phase 1
-	 	filter 1
+		phase 3
+		filter 1
 	.Parameters
 
-
 	*InputOutput
+		read ../../interaction/nullFunc
 		read ../../control/two
 	.InputOutput
 .Body

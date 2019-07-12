@@ -144,7 +144,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "around","cmpl","clampStage","OCSB","decompose",
         "shiftNO","matrix"
     };
-    INT_TYPE NDOUBLE = 73;
+    INT_TYPE NDOUBLE = 74;
     char *list_DOUBLE []= {"#",
         "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST" ,//1-5
         "xB", "yB", "zB", "xyRange" , "zRange",//6-10
@@ -160,7 +160,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "entropy","attack","scalar","turn","augment",
         "linearDependence","condition","seek","width","latte",
         "magnetismZ","clampMin","clampMax","electronMass","protonMass",
-        "pairMass","gamma0","ewald"
+        "pairMass","gamma0","ewald","levelScale"
     };
     
     for ( i = 1 ; i <= NINT_TYPE ; i++){
@@ -1002,7 +1002,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                 case 64:
                     c->i.springFlag = 1;
                     c->i.springConstant = 1./(f1->d*value)/(f1->d*value);
-                    printf("spring %f (%f,%f)\n",c->i.springConstant,f1->d,value);
+//                    printf("spring %f (%f,%f)\n",c->i.springConstant,f1->d,value);
                     return d;
                 case 65:
                     f1->D = value;
@@ -1033,6 +1033,10 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                 case 73:
                     c->rt.EWALD = pow(0.1, value);
                     return d;
+                case 74:
+                    c->i.level = value/sqr( f1->d );
+                    return d;
+
             }
 
         }

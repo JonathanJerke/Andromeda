@@ -1,0 +1,13 @@
+*Body 
+	*InputOutput
+		read symmetry
+	.InputOutput
+
+	*Parameters
+		lattice 2
+		range 2
+		levelScale 4
+		foundation 1000	
+	.Parameters
+				
+.Body

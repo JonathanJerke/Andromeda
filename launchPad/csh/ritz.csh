@@ -10,7 +10,7 @@ set file = $dir/A.riz
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
 echo "read ../../control/found" >> $file
-echo "read character ">> $file
+#echo "read go ">> $file
 echo "read $dir/stage " >> $file
 foreach f (`cat $3`)
 echo "vector $prev.$f" >> $file

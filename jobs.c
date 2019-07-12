@@ -322,7 +322,8 @@ INT_TYPE frameEwald( struct calculation * c , struct field f)
     
     
     tEigenCycle(f.f,Ha,CDT, j, f.f.user,EV,0, EV,0,4,eigenVectors,twoBodyRitz);
-    
+    print(c,f,1,0,j,f.f.user);
+
     if (1 ) {
         printf("normalizing considered probability to 1\n");
         cblas_dscal(EV, 1./consideredElectron, myStreams(f.f, twoBodyRitz, 0), 1);

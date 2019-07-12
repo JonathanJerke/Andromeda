@@ -2,10 +2,9 @@
 	*Parameters
 		phase 5
 		type 0
-		levelLevel 10
-		foundation 1000
+		levelLevel 50
 		body 1
-		matrix 1
+		foundation 400
 	.Parameters
 
 	*InputOutput

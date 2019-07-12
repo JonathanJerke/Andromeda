@@ -8,12 +8,11 @@ set dir = $2
 set prev = $src/A.riz
 foreach i (`cat $3`)
 echo "$i"
-sleep 1
 set file = $dir/B.kry.$i
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
 echo "read ../../control/found" >> $file
-echo "read character " >> $file
+#echo "read character " >> $file
 echo "read $dir/stage " >> $file
 echo "vector $prev-$i" >> $file
 echo "read ../../control/kryPhase ">> $file

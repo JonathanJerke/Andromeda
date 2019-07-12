@@ -10,7 +10,7 @@ head -n 1 $1/B.kry.1.vector > $1/D.fed.gs.vector
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
 echo "read ../../control/found" >> $file
-echo "read character ">> $file
+#echo "read character ">> $file
 echo "read $dir/stage " >> $file
 echo "operator $prev" >> $file
 endif

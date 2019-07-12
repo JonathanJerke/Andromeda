@@ -1,6 +1,8 @@
 *Body 
+	*InputOutput
+	.InputOutput
+
 	*Parameters
-		lanes 6
-		parallel 1
 	.Parameters
+				
 .Body

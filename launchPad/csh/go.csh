@@ -1,11 +1,15 @@
 #!/bin/csh
 
-#source launch.csh
-#if $#argv == 1 then
-
-foreach com ( $argv )
-date > $com.hout
-cat $com | ~/Perci/olympics >> $com.hout 
-sleep 2
-date >> $com.hout
-end
+if ( -f waiter ) then
+	foreach com ( $argv )
+		#cat $com >>  $com.a
+		echo "$com" >> commands
+	end	
+else 
+	foreach com ( $argv )
+		date > $com.hout
+		cat $com | olympics >> $com.hout
+		sleep 2
+		date >> $com.hout
+	end                                                                               
+endif

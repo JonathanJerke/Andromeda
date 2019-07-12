@@ -2,7 +2,7 @@
 	*InputOutput
 		read ../../control/core
 		read ../cnfg
-		read symmetry
+		read boot
 		read ../../control/moreLanes
 		print 1
 	.InputOutput
