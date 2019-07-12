@@ -3,6 +3,7 @@
 		phase 2
 		iterations 1
 		filter 0
+		collect 1
 		cycles 0
 	.Parameters
 
