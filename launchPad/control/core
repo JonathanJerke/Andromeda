@@ -20,7 +20,7 @@
 	#Just keep this big enough, but does take memory
 		initRank 50
 		#default
-		collect 1
+		collect 0
 		configuration 0
 		#Matrix of few could modify FOUNDATION
 		matrix 1
