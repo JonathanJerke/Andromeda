@@ -30,7 +30,7 @@
 #ifndef system_h
 #define system_h
 
-#define COMPONENT 1
+#define COMPONENT 3
 #define PARTICLE 1
 #define SPACE (COMPONENT * PARTICLE)
 #define MAXATOM 4
