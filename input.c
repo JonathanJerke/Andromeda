@@ -144,7 +144,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "around","cmpl","clampStage","OCSB","decompose",
         "shiftNO","matrix"
     };
-    INT_TYPE NDOUBLE = 74;
+    INT_TYPE NDOUBLE = 76;
     char *list_DOUBLE []= {"#",
         "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST" ,//1-5
         "xB", "yB", "zB", "xyRange" , "zRange",//6-10
@@ -160,7 +160,8 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "entropy","attack","scalar","turn","augment",
         "linearDependence","condition","seek","width","latte",
         "magnetismZ","clampMin","clampMax","electronMass","protonMass",
-        "pairMass","gamma0","ewald","levelScale"
+        "pairMass","gamma0","ewald","levelScale","scaleVectorThreshold",
+        "scaleTarget"
     };
     
     for ( i = 1 ; i <= NINT_TYPE ; i++){
@@ -1036,7 +1037,12 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                 case 74:
                     c->i.level = value/sqr( f1->d );
                     return d;
-
+                case 75:
+                    c->rt.vCANON *= value;
+                    return d;
+                case 76:
+                    c->rt.TARGET *= value;
+                    return d;
             }
 
         }

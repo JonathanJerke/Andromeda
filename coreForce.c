@@ -3050,9 +3050,14 @@ DCOMPLEX BgB (double beta, struct basisElement b1, INT_TYPE action , INT_TYPE po
         double realpart,imagepart;
         g2.i[0].bra = b1;
         g2.i[0].ket = b2;
-        g2.i[0].bra.type = 1;
-        g2.i[1].bra.type = 1;
+//        g2.i[0].bra.type = 4;
+        g2.i[1].bra.type = b1.type;
+    g2.i[1].ket.type = b2.type;
 
+    g2.i[0].bra.note = interactionCell;
+    g2.i[0].ket.note = interactionCell;
+
+    
         g2.i[1].bra.basis = DiracDeltaElement;
         g2.i[1].ket.basis = nullBasisElement;
         g2.i[1].bra.origin = origin;
@@ -3305,7 +3310,7 @@ double collective( double beta ,struct general_2index * pa){
    component =  ( (pa->i[0].bra.type -1) % COMPONENT ) ;
     
     if ( periodic && (( pa->i[0].bra.note == interactionCell && pa->i[0].ket.note == interactionCell ) || ( pa->i[1].bra.note == interactionCell && pa->i[1].ket.note == interactionCell ) )){
-        if ( pa->i[0].bra.basis == SincBasisElement&&pa->i[1].bra.basis == SincBasisElement){
+        if ( pa->i[0].bra.basis == SincBasisElement||pa->i[1].bra.basis == SincBasisElement){
             INT_TYPE targParticle = 0;
             if (( pa->i[0].bra.note == interactionCell && pa->i[0].ket.note == interactionCell ) && !( pa->i[1].bra.note == interactionCell || pa->i[1].ket.note == interactionCell )){
                 targParticle = 0;
@@ -5241,7 +5246,7 @@ INT_TYPE separateOverlap( struct sinc_label f1, INT_TYPE periodic,enum division 
 
 void separateDerivatives( struct sinc_label f1, INT_TYPE periodic,enum division mat, INT_TYPE *x, INT_TYPE *grad,double mag,INT_TYPE particle1 ){
     DCOMPLEX bca;
-    double b0 = 0.0001,powSpace,spaces=0;
+    double b0 = 1,powSpace,spaces=0;
     INT_TYPE space,I1,I2,flagCMPL=0;
     INT_TYPE dims[SPACE],signFlag= 1;
     length1(f1, dims);
@@ -5278,10 +5283,11 @@ void separateDerivatives( struct sinc_label f1, INT_TYPE periodic,enum division 
             for ( I1 = 0 ; I1 < dims[space] ; I1++){
                 for( I2 = 0; I2 < dims[space] ; I2++)
                 {
-                    
-                    bca =  powSpace * BgB(b0,grabBasis(f1, space, particle1, I1),grad[space],x[space],0,grabBasis(f1, space, particle1, I2))/pow(b0,grad[space]);
+                    struct basisElement b1 = grabBasis(f1, space, particle1, I1), b2 = grabBasis(f1, space, particle1, I2);
+                    bca =
+                    powSpace * BgB(b0,grabBasis(f1, space, particle1, I1),grad[space],x[space],0,grabBasis(f1, space, particle1, I2))/pow(b0,grad[space]);
                     if ( mag < 0  && signFlag )
-                        mag *= -1;
+                        bca *= -1;
 
                     (stream[0])[dims[space]*I1+I2] = creal(bca);
 //                    if ( I1 == I2 )

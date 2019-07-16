@@ -276,6 +276,25 @@ DCOMPLEX periodicBoostKineticBasis ( INT_TYPE N1, double d, INT_TYPE b, double k
     return sum;
 }
 
+DCOMPLEX periodicBoostOverlapBasis2 ( INT_TYPE N1, double d, INT_TYPE b, INT_TYPE m ,double d2, INT_TYPE bb, INT_TYPE mm ){
+    DCOMPLEX sum = 0.,check =0.;
+    {//JACKSON WU's CONTRIBUTION...only integer m's
+        if ( abs(m - mm)> N1 ){
+            return 0.;
+        }else if ( b == bb ){
+            sum = 1 + floor(N1/2) + floor ( N1/2 - abs(m-mm));
+        }else {
+            sum =  sin((b - bb)*pi*(1. - abs(m - mm)*1./N1))/sin((1./N1)*(b - bb)*pi);
+        }
+        sum *= ei((b + bb)*(m - mm)*pi/N1);
+    }
+    sum /= N1;
+//    if ( cabs(sum ) > 0.1 ){
+//        check = periodicBoostOverlap0 ( N1,d,b,m*2*pi/N1,d2,bb,mm*2*pi/N1);
+//        double c = 1;
+//    }//checked
+    return sum/N1;
+}
 
 #if 0
 DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){

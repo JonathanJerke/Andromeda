@@ -1263,7 +1263,7 @@ INT_TYPE tEigenCycle (struct sinc_label  f1, enum division A ,char permutation, 
         do {
             Mat = leftP;
         
-#if 1
+#if VERBOSE
             if ( Rank(f1,name(f1, Mat))){
                 INT_TYPE space;
                 for ( space = 0 ;space < SPACE ; space++)

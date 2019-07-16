@@ -36,10 +36,10 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
 
         EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
 
-////        tGreatDivideIteration(0, 0, f1.f, Ha, 1, 0, f1.f.user, 1, 2, 0);
-    //    tFilter(f1.f, EV,1, f1.f.user);//classify
-        if ( OVERFLAG )
-            tEigenCycle(f1.f,Ha,CDT, 3, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
+//        tGreatDivideIteration(0, 0, f1.f, Ha, 1, 0, f1.f.user, 1, 2, 0);
+//        tFilter(f1.f, EV,1, f1.f.user);//classify
+        if ( OVERFLAG  || SPACE == 1 )
+            tEigenCycle(f1.f,Ha,CDT, f1.i.nStates, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
 
     }else {
         exit(1);

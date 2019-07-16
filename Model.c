@@ -136,19 +136,17 @@ struct field initField (void ) {
     i.i.filesVectorOperator = 0;
     
 #ifdef APPLE
-    i.i.d = 2.;
+    i.i.d = 1.;
 
     i.i.bRank = 4;
     i.i.iRank = 2;
-    i.i.nStates = 1;
-    i.i.qFloor = 27;
-    i.i.filter = 1;
-    i.i.irrep = 1;
+    i.i.nStates = 10;
+    i.i.qFloor = 10;
+    i.i.filter = 0;
+    i.i.irrep = 0;
     i.f.boot = fullMatrices;
     i.i.body = one;
-    i.i.epi = 4;
-    i.i.qFloor = 46;
-    i.i.body = three;
+    i.i.epi = 2;
     
 #endif
     return i;
@@ -189,18 +187,23 @@ struct calculation initCal (void ) {
         i.i.magFlag = 0;
         i.i.mag = 0.1;
         //THESE
+    
+    
+    
         if ( SPACE == 3 ){
             i.rt.calcType = electronicStuctureCalculation;
             i.rt.runFlag = 0;
-        } else {
+        } else if ( SPACE == 6 ){
 
             i.rt.calcType = clampProtonElectronCalculation;
             i.i.minClamp = 0.5;
             i.i.maxClamp = 4;
             
             i.i.orgClamp = 0.5*(i.i.minClamp+i.i.maxClamp);
-
-
+        }else if ( SPACE == 1 ){
+            i.rt.calcType = electronicStuctureCalculation;
+            i.rt.runFlag = 7;
+            i.i.level = 1000;
         }
     i.i.massElectron = 1.;
     i.i.massProton = 1836.15267245;
@@ -210,7 +213,7 @@ struct calculation initCal (void ) {
     i.rt.phaseType = buildFoundation ;
     
     i.i.twoBody.func.fn = nullFunction;
-    i.i.oneBody.func.fn = Coulomb;
+    i.i.oneBody.func.fn = nullFunction;
     //i.i.springFlag = 1;
     i.i.springConstant = 0.25;
     i.i.canonRank = 50;
@@ -595,7 +598,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         fromBeginning(*f1, vectorMomentum, protonRepulsion);
         assignOneWithPointers(*f1, vectorMomentum,electron);
         f1->tulip[vectorMomentum].spinor = cmpl;
-        f1->tulip[vectorMomentum].Partition = COMPONENT * c1->i.springFlag+4*c1->i.magFlag;//
+    f1->tulip[vectorMomentum].Partition = COMPONENT* c1->i.springFlag+4*c1->i.magFlag+1;//
 
         fromBeginning(*f1, harmonium, vectorMomentum);
         assignOneWithPointers(*f1, harmonium,electron);
@@ -1253,7 +1256,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[conditionOverlapNumbers].memory = bufferAllocation;
         
         fromBeginning(*f1,matrixHbuild,conditionOverlapNumbers);
-    f1->tulip[matrixHbuild].Partition = (  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == frameDensity ) *  (2*maxArray*maxArray);
+    f1->tulip[matrixHbuild].Partition = ( c1->rt.phaseType == buildFoundation ||  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == frameDensity ) *  (2*maxArray*maxArray);
         f1->tulip[matrixHbuild].memory = bufferAllocation;
 
         fromBeginning(*f1,vectorHbuild,matrixHbuild);
@@ -1345,7 +1348,20 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             if ( c1->rt.calcType == electronicStuctureCalculation  ){
                 separateKinetic(*f1, 0,kinetic, c1->i.massElectron,electron);
                 separateOverlap(*f1, 0,overlap, 0,all);
-
+                if ( SPACE == 1 ){
+                    INT_TYPE deriv[SPACE];
+                    INT_TYPE power[SPACE];
+                
+                
+                    deriv[0] = 0;
+                
+                    power[0] = 0 ;
+                
+                    separateDerivatives(*f1, 0, vectorMomentum, power, deriv, 1, electron);
+                }
+                
+                
+                
                 if ( f1->rose[0].component == periodicComponent1 ){
                     printf("func %d\n",c1->i.twoBody.func.fn);
                     if ( c1->i.twoBody.func.fn != nullFunction)

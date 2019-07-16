@@ -864,53 +864,54 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
 
     for (split = 1 ; split < maxRun; split++){
         step = CanonicalRank(f1, origin, os)/(maxRun)+(!(!(CanonicalRank(f1, origin, os)%maxRun)));
-//        if ( rank < 0 && numberSplit > 3){
+        if ( rank < 0 && numberSplit > 3){
+            numberSplit = 0;
+            bailFlag = 0;
+#ifdef OMP
+#pragma omp parallel for private (ran1,run,ct,toleranceAdjust) schedule(dynamic,1) reduction(+:numberSplit)
+#endif
+            for ( run = 0; run < maxRun ; run+=split){
+#ifdef OMP
+                ran1 = omp_get_thread_num();
+#else
+                ran1 = 0;
+#endif
+                numberSplit += 1;
+                toleranceAdjust = 1.;
+                do{
+                    ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,imin(CanonicalRank(f1, origin, os)-1,run*step),imin(CanonicalRank(f1, origin, os),(run+split)*step), os,alloy, run,imin(maxRun,run+split),spin, toleranceAdjust*tolerance,value2,-1);
+                  //  printf("%d ++ %d\n", ran1, ct);
+                    toleranceAdjust *= 1.2;
+                    if ( ct == -1 ){
+                        bailFlag = 1;
+                        printf("List bailed \n");
+                        break;
+
+                    }
+                }while ( ct == 1 );
+            }
+        }
+//        else {
 //            numberSplit = 0;
-//            bailFlag = 0;
-//#ifdef OMP
-//#pragma omp parallel for private (ran1,run,ct,toleranceAdjust) schedule(dynamic,1) reduction(+:numberSplit)
-//#endif
 //            for ( run = 0; run < maxRun ; run+=split){
-//#ifdef OMP
-//                ran1 = omp_get_thread_num();
-//#else
 //                ran1 = 0;
-//#endif
-//                numberSplit += 1;
+//                numberSplit+=1;
 //                toleranceAdjust = 1.;
 //                do{
-//                    ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,imin(CanonicalRank(f1, origin, os)-1,run*step),imin(CanonicalRank(f1, origin, os),(run+split)*step), os,alloy, run,imin(maxRun,run+split),spin, toleranceAdjust*tolerance,value2,-1);
-//                  //  printf("%d ++ %d\n", ran1, ct);
+//                    ct = canonicalGridDecompositionMP(-1, f1, coeff, origin,imin(CanonicalRank(f1, origin, os)-1,run*step),imin(CanonicalRank(f1, origin, os),(run+split)*step), os,alloy, run,imin(maxRun,run+split),spin, toleranceAdjust*tolerance,value2,-1);
 //                    toleranceAdjust *= 1.2;
+//                  //  printf("%d -- %d\n", ran1, ct);
+//
 //                    if ( ct == -1 ){
 //                        bailFlag = 1;
+//
 //                        printf("List bailed \n");
 //                        break;
 //
 //                    }
+//
 //                }while ( ct == 1 );
 //            }
-//        }else {
-            numberSplit = 0;
-            for ( run = 0; run < maxRun ; run+=split){
-                ran1 = 0;
-                numberSplit+=1;
-                toleranceAdjust = 1.;
-                do{
-                    ct = canonicalGridDecompositionMP(-1, f1, coeff, origin,imin(CanonicalRank(f1, origin, os)-1,run*step),imin(CanonicalRank(f1, origin, os),(run+split)*step), os,alloy, run,imin(maxRun,run+split),spin, toleranceAdjust*tolerance,value2,-1);
-                    toleranceAdjust *= 1.2;
-                  //  printf("%d -- %d\n", ran1, ct);
-
-                    if ( ct == -1 ){
-                        bailFlag = 1;
-
-                        printf("List bailed \n");
-                        break;
-                        
-                    }
-
-                }while ( ct == 1 );
-            }
         
         if ( coeff == NULL ){
             value = distance( f1, origin,  alloy);

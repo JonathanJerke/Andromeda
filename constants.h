@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 6.3.9
+//VERSION 6.3.10
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -205,7 +205,8 @@ enum functionType{
     Morse,//4
     LennardJones,//5
     LDA,//6
-    BLYP//7
+    BLYP,//7
+    Gaussian//8
 };
 
 struct function_label{

@@ -30,7 +30,7 @@
 #ifndef system_h
 #define system_h
 
-#define COMPONENT 3
+#define COMPONENT 1
 #define PARTICLE 1
 #define SPACE (COMPONENT * PARTICLE)
 #define MAXATOM 4
@@ -38,7 +38,7 @@
 #define MAXSTRING 1024
 #define MAXFILE 16
 
-//#define APPLE
+#define APPLE
 
 #ifdef APPLE
 #define MaxCore 2
