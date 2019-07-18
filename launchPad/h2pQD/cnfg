@@ -13,12 +13,13 @@
 	.Geometry
 	
 	*Parameters
-		lattice 1.5
-		clampMin 1.8
-		clampMax 3.0
-		levelLevel 0.5
-		foundation 500
-		latte 0.12
+		lattice 2.0
+		clampMin 1.2
+		clampMax 4.2
+		latte 0.3
+		levelScale 1
+		foundation 1000
 		around
+		basisRank 4
 	.Parameters
 .Body
