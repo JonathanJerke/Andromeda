@@ -4,10 +4,13 @@
 	.InputOutput
 
 	*Parameters
-		lattice 2
+		lattice 2.0
 		range 2
 		levelScale 4
 		foundation 1000	
+		matrix 2
+                basisRank 12
+                states 10
 	.Parameters
 				
 .Body
