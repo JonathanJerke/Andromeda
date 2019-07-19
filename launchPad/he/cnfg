@@ -12,12 +12,6 @@
 	.Geometry
 	
 	*Parameters
-		lattice 1.
-		range 4
-		initRank 1	
-		foundation 729
-		matrix 3
-		filter 0
-		basisRank 8
+		canon 150	
 	.Parameters
 .Body
