@@ -13,11 +13,6 @@
 	.Geometry
 	
 	*Parameters
-		lattice 1.5
-		range 4
-		initRank 1
-		basisRank 8
-		foundation 729
-		levelLevel 0.5
-.Parameters
+		canon 150
+	.Parameters
 .Body
