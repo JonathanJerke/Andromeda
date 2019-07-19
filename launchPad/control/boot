@@ -4,9 +4,10 @@
 	.InputOutput
 
 	*Parameters
+		filter 1
 		lattice 2.0
 		range 2
-		levelScale 4
+		levelScale 0.5
 		foundation 1000	
 		matrix 2
                 basisRank 12
