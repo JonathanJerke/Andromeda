@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 6.3.11
+//VERSION 6.4.1
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -119,18 +119,17 @@ typedef double __complex__ DCOMPLEX_PRIME;
 /////////
 ////
 
-#define NO_ACTION 'N'
-#define CDT 'N'
+#define CDT 1
 #define MaxSpin 2
-#define nSAG 5
-
 
 enum bodyType {
     nada,
     one,
     two,
     three,
-    four
+    four,
+    five,
+    six
 };
 
 enum particleType{
@@ -166,20 +165,32 @@ enum bootType{
 
 enum block{
     id0,
-    tv1,//kinetic + potential block 1
-    tv2,//1-b block 2
+    //nada
+    tv1,
+    tv2,
     tv3,
     tv4,
-    iv1,
-    iv2,
-    iv3,
-    iv4,
-    e12,//ee interaction between label 1 and 2
+    tv5,
+    tv6,
+    //ee interaction between label 1 and 2
+    e12,
     e13,
-    e23,//changed..
+    e23,
+    //four
     e14,
     e24,
-    e34
+    e34,
+    //five
+    e15,
+    e25,
+    e35,
+    e45,
+    //six
+    e16,
+    e26,
+    e36,
+    e46,
+    e56
 };
 
 enum genus{
@@ -294,6 +305,94 @@ struct canon {
     enum particleType particle;
     INT_TYPE count1Basis;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

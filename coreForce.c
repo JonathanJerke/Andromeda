@@ -4280,7 +4280,7 @@ void mySeparateExactTwo (struct sinc_label  f1, struct interaction_label twoBody
                                 
                             }
                 printf("%f %d %d :: ", x,cmpl,space);
-                INT_TYPE info;
+//                INT_TYPE info;
 //                printf("r%f\n", tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, 'T', quadCube, 0,'N', quadCube, 0));
 
                 fflush(stdout);
@@ -4345,7 +4345,7 @@ void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occup
                                     tGEMV(rank, f1, dim, canonicalmeVector, rank, diagonalCube, 0, rank, vo, vor, 0);
                                     f1.tulip[canonicalmeVector].Current[rank] =1;
                                     for ( vor2 = 0 ; vor2 < vox; vor2++){
-                                        ( streams(f1, copyTwo,0, dim) + n1[dim]*n1[dim]*(f1.tulip[copyTwo].Current[0]+vox * vor2 + vor-vox*vox))[j2*n1[dim]+j1] = (fabs(occupy[vo-vectors]))*tDOT(rank, f1, dim, CDT, vo, vor2, 0, 'N', canonicalmeVector, 0, rank);
+                                        ( streams(f1, copyTwo,0, dim) + n1[dim]*n1[dim]*(f1.tulip[copyTwo].Current[0]+vox * vor2 + vor-vox*vox))[j2*n1[dim]+j1] = (fabs(occupy[vo-vectors]))*tDOT(rank, f1, dim, CDT, vo, vor2, 0, CDT, canonicalmeVector, 0, rank);
                                     }
                                 }
                             }

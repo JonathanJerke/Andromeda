@@ -1083,9 +1083,9 @@ void matrixElements ( INT_TYPE rank,struct sinc_label  f1 , enum division bra, e
                             if (OVERFLAG){
                                 f1.tulip[canonicalmeVector].Current[rank] =0;
                                 tGEMV(rank, f1, dim,canonicalmeVector, rank, overlap, 0, 0, ket, r, sp2);
-                                bracket[dim] = tDOT(rank, f1,dim,CDT , bra, e,sp,'N' ,  canonicalmeVector, 0, rank);
+                                bracket[dim] = tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  canonicalmeVector, 0, rank);
                             } else {
-                                bracket[dim] = tDOT(rank, f1,dim,CDT , bra, e,sp,'N' ,  ket, r, sp2);
+                                bracket[dim] = tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  ket, r, sp2);
                             }
                             prod *= bracket[dim];
                         }
@@ -1113,7 +1113,7 @@ void matrixElements ( INT_TYPE rank,struct sinc_label  f1 , enum division bra, e
                                     else {
                                         f1.tulip[canonicalmeVector].Current[rank] =0;
                                         tGEMV(rank, f1, dim,canonicalmeVector, rank, mat, l, im, ket, r, sp2);
-                                        prod *= tDOT(rank, f1,dim,CDT, bra, e, sp,'N', canonicalmeVector, 0, rank);
+                                        prod *= tDOT(rank, f1,dim,CDT, bra, e, sp,CDT, canonicalmeVector, 0, rank);
                                     }
                                 }
                             *ME += co2*co *coi* prod;
@@ -1203,9 +1203,9 @@ void pMatrixElements ( struct sinc_label  f1 , enum division bra, enum division 
                                 if ( OVERFLAG ){
                                     f1.tulip[canonicalmeVector].Current[rank] =0;
                                     tGEMV(rank, f1, dim,canonicalmeVector, rank, overlap, 0, 0, ket, r, sp2);
-                                    prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,'N' ,  canonicalmeVector,0 , rank);
+                                    prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  canonicalmeVector,0 , rank);
                                 }else
-                                    prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,'N' ,  ket, r, sp2);
+                                    prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  ket, r, sp2);
                             }
                         OVr[rank] += creal(co*co2*prod);
                         OVi[rank] += cimag(co*co2*prod);
@@ -1225,14 +1225,14 @@ void pMatrixElements ( struct sinc_label  f1 , enum division bra, enum division 
                                         ////bra-ket
                                         if ( f1.tulip[mat].space[dim].block == id0 ){
                                             if ( im == 0 )
-                                                prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,'N' ,  ket, r, sp2);
+                                                prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  ket, r, sp2);
                                             else
                                                 prod = 0;
                                         }
                                         else {
                                             f1.tulip[canonicalmeVector].Current[rank] =0;
                                             tGEMV(rank, f1, dim,canonicalmeVector, rank, mat, l, im, ket, r, sp2);
-                                            prod *= tDOT(rank, f1,dim,CDT, bra, e, sp,'N', canonicalmeVector, 0, rank);
+                                            prod *= tDOT(rank, f1,dim,CDT, bra, e, sp,CDT, canonicalmeVector, 0, rank);
                                         }
                                     }
                                 MEr[rank] += creal(co2*co *coi* prod);
@@ -1671,13 +1671,14 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
        char  out = matrixAction( bodies(f1, right), f1.tulip[left].space[space].block,-1);
        // printf("(%d %d), %c %c\n",l,r ,in, out);
 
-        if ( iv1 <= f1.tulip[left].space[space].block && f1.tulip[left].space[space].block <= iv4 ){
-            tPermuteOne(rank, f1, space, in, right, r, rspin, canonicalmvVector, rank);
-            tMultiplyOne(rank, f1, space, canonicalmv2Vector, rank, inversion, 0, 0, canonicalmvVector, 0, rank);
-            tMultiplyOne(rank,  f1, space,canonicalmv3Vector, rank, left,l,lspin, canonicalmv2Vector,0, rank);
-            tMultiplyOne(rank, f1, space, canonicalmvVector, rank, inversion, 0, 0, canonicalmv3Vector, 0, rank);
-            tPermuteOne(rank, f1, space, out, canonicalmvVector, 0, rank, equals, espin);
-        }else {
+//        if ( iv1 <= f1.tulip[left].space[space].block && f1.tulip[left].space[space].block <= iv4 ){
+//            tPermuteOne(rank, f1, space, in, right, r, rspin, canonicalmvVector, rank);
+//            tMultiplyOne(rank, f1, space, canonicalmv2Vector, rank, inversion, 0, 0, canonicalmvVector, 0, rank);
+//            tMultiplyOne(rank,  f1, space,canonicalmv3Vector, rank, left,l,lspin, canonicalmv2Vector,0, rank);
+//            tMultiplyOne(rank, f1, space, canonicalmvVector, rank, inversion, 0, 0, canonicalmv3Vector, 0, rank);
+//            tPermuteOne(rank, f1, space, out, canonicalmvVector, 0, rank, equals, espin);
+//        }else
+        {
             tPermuteOne(rank, f1, space, in, right, r, rspin, canonicalmvVector, rank);
             tMultiplyOne(rank,  f1, space,canonicalmv2Vector, rank, left,l,lspin, canonicalmvVector,0, rank);
             tPermuteOne(rank, f1, space, out, canonicalmv2Vector, 0, rank, equals, espin);
@@ -1744,7 +1745,7 @@ void tContract ( INT_TYPE rank,struct sinc_label  f1, enum division mat,INT_TYPE
             for ( space = 0; space < SPACE ; space++)
                 if ( f1.rose[space].body != nada )
                     //perhaps allow a block type to modify the particle number expressed (not summed in contraction)
-                    tGEVV(0, f1, space, mat, ms, CDT, vector, l, vs1, 'N', vector2, r, vs2);
+                    tGEVV(0, f1, space, mat, ms, CDT, vector, l, vs1, CDT, vector2, r, vs2);
             f1.tulip[mat].Current[ms]++;
             if ( part(f1, mat ) < f1.tulip[mat].Current[ms] )
             {
@@ -1768,18 +1769,18 @@ double tDOT (INT_TYPE rank,  struct sinc_label  f1,INT_TYPE dim,char leftChar, e
     f1.tulip[canonicaldot2Vector].Current[rank] = 0;
     f1.tulip[canonicaldot3Vector].Current[rank] = 0;
 
-        if ( leftChar != CDT && rightChar != 'N'){
+        if ( leftChar != CDT && rightChar != CDT){
             tPermuteOne(rank, f1, space, rightChar, right, r, rspin, canonicaldotVector, rank);
             tPermuteOne(rank, f1, space, leftChar, left, l, lspin, canonicaldot2Vector, rank);
             prod = tMultiplyOne(rank,  f1, space,nullScalar, 0, canonicaldot2Vector,0,rank, canonicaldotVector,0, rank);
             
-        } else if ( leftChar == CDT && rightChar != 'N'){
+        } else if ( leftChar == CDT && rightChar != CDT){
             tPermuteOne(rank, f1, space, rightChar, right, r, rspin, canonicaldotVector, rank);
             prod = tMultiplyOne(rank,  f1, space,nullScalar, 0, left,l,lspin, canonicaldotVector,0, rank);
-        }else if ( leftChar != CDT && rightChar == 'N'){
+        }else if ( leftChar != CDT && rightChar == CDT){
                 tPermuteOne(rank, f1, space, leftChar, left, l, lspin, canonicaldot2Vector, rank);
                 prod = tMultiplyOne(rank,  f1, space,nullScalar, 0, canonicaldot2Vector,0,rank, right,r, rspin);
-        }else if ( leftChar == CDT && rightChar == 'N'){
+        }else if ( leftChar == CDT && rightChar == CDT){
                 prod = tMultiplyOne(rank,  f1, space,nullScalar, 0, left,l,lspin, right,r, rspin);
         }
     
@@ -2201,7 +2202,7 @@ INT_TYPE xConstructFoundation (struct sinc_label calc , enum division usr, INT_T
 #if VERBOSE
             INT_TYPE info;
 for ( iii = 0 ; iii <= i ; iii++)
-    printf("%d %d %1.15f\n", i,iii, tMultiplyMP(0, &info, calc, 1., -1, nullName, 0, CDT, usr+i, 0, 'N', usr+iii, 0));
+    printf("%d %d %1.15f\n", i,iii, tMultiplyMP(0, &info, calc, 1., -1, nullName, 0, CDT, usr+i, 0, CDT, usr+iii, 0));
 #endif
         }
         
