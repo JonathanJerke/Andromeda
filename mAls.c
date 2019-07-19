@@ -826,6 +826,7 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
     return 0.;
 }
 double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
+    double last = 1e9;
     printf("((%d %d))\n", CanonicalRank(f1, origin, os), maxRun);
     INT_TYPE ran1,step,ct,run;
     INT_TYPE numberSplit= 100,split = 1;
@@ -923,6 +924,11 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
         printf("%d-grid%d: %f \n",numberSplit,split,value/value2);
         fflush(stdout);
 
+        if ( fabs( last - value ) < f1.rt->TARGET)
+            return 0;
+        last = value;
+        
+        
         if( numberSplit <= 2 || bailFlag )
         {
             break;

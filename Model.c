@@ -1026,7 +1026,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
     
         
         fromBeginning(*f1,canonicalBuffers,inversion);
-        f1->tulip[canonicalBuffers].Partition = maxVector*maxVector+ imax(NV,maxVector*c1->i.canonRank)*maxVector;
+    f1->tulip[canonicalBuffers].Partition = maxVector*maxVector+ imax(NV,maxVector*c1->i.canonRank)*maxVector + ( c1->rt.phaseType == solveRitz ) * (part(*f1, shortenMinus)*part(*f1,shortenMinus)*( part(*f1,shortenMinus)+ c1->i.twoBody.num ) );
+    
         f1->tulip[canonicalBuffers].spinor = parallel;
 
         fromBeginning(*f1,trackBuffer,canonicalBuffers);

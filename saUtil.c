@@ -479,15 +479,24 @@ double tGetProjection (enum bodyType bd , INT_TYPE irrep , INT_TYPE op ){
     
     INT_TYPE nsyp=0 ,msyp=0;
         const static double syp2 [] = {
-            0.5,0.5,
-            0.5,-0.5
+            1.,1.,
+            1.,-1.
     
         };
         const static double syp3 [] = {
-            1./6,1./6,1./6, 1./6, 1./6, 1./6,//A1-36 of them
-            1./6,1./6,1./6,-1./6,-1./6,-1./6,//A2-36 of them
-            2./6,-1./6,-1./6,0.,0.,0.//EE-144 of them
+            1.,1.,1., 1., 1., 1.,//A1-36 of them
+            1.,1.,1.,-1.,-1.,-1.,//A2-36 of them
+            2.,-1.,-1.,0.,0.,0.//EE-144 of them
         };
+    const static double syp4 [] = {1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
+        1., 1., 1., 1., 1., 1., 1., 1., -1., -1., 1., 1., -1., -1., 1., 1.,
+        -1., -1., 1., 1., -1., -1., 1., 1., -1., -1., 1., 1., -1., -1., 1.,
+        2., 0, 0, -1., -1., 0, 0, 2., -1., 0, 0, -1., -1., 0, 0, -1., 2., 0,
+        0, -1., -1., 0, 0, 2., 3., -1., -1., 0, 0, -1., -1., -1., 0, 1., 1.,
+        0, 0, 1., -1., 0, -1., 1., 1., 0, 0, -1., 1., -1., 3., 1., 1., 0, 0,
+        1., 1., -1., 0, -1., -1., 0, 0, -1., 1., 0, -1., -1., -1., 0, 0, 1.,
+        -1., -1.};
+
         if ( bd == one ){
             return 1;
         }
@@ -520,14 +529,14 @@ double tGetProjection (enum bodyType bd , INT_TYPE irrep , INT_TYPE op ){
     
     
         if ( bd == two ){
-            return syp2[(irrep-1)*nsyp+op];
+            return syp2[(irrep-1)*nsyp+op]/nsyp;
         }
         else if ( bd == three ){
-            return syp3[(irrep-1)*nsyp+op];
+            return syp3[(irrep-1)*nsyp+op]/nsyp;
         }
-//        else if ( bd == four ){
-//            return syp4[(irrep-1)*nsyp+op];
-//        }
+        else if ( bd == four ){
+            return syp4[(irrep-1)*nsyp+op]/nsyp;
+        }
         return 0.;
 }
 
