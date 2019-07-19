@@ -11,6 +11,7 @@
 		matrix 2
                 basisRank 12
                 states 10
+		iterations 6
 	.Parameters
 				
 .Body
