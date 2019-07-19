@@ -11,13 +11,7 @@
 	.Geometry
 	
 	*Parameters
-		matrix 3
-		levelLevel 0.33
-		foundation 1000
-		lattice 1.666
-		range 4
-		initRank 2
-		basisRank 8
+		canon 75
 		spring 0.25
 	.Parameters
 .Body
