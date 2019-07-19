@@ -486,7 +486,7 @@ double tGetProjection (enum bodyType bd , INT_TYPE irrep , INT_TYPE op ){
         const static double syp3 [] = {
             1./6,1./6,1./6, 1./6, 1./6, 1./6,//A1-36 of them
             1./6,1./6,1./6,-1./6,-1./6,-1./6,//A2-36 of them
-            2./6,1./6,1./6,0.,0.,0.//EE-144 of them
+            2./6,-1./6,-1./6,0.,0.,0.//EE-144 of them
         };
         if ( bd == one ){
             return 1;
