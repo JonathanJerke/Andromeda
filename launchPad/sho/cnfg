@@ -10,12 +10,7 @@
 	.Geometry
 	
 	*Parameters
-		foundation 729
-		levelLevel 0.3
-		lattice 1.666
-		range 4
-		initRank 2
-		basisRank 8
+		canon 50
 		spring 0.25
 	.Parameters
 .Body
