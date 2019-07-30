@@ -437,8 +437,11 @@ INT_TYPE tdgesvd ( INT_TYPE rank, struct sinc_label f1 ,  INT_TYPE M1, INT_TYPE 
         exit(9);
     }
     
-    
-    
+//    {
+//        INT_TYPE ii;
+////    for ( ii = 0 ; ii < min(M1,M2); ii++)
+//        printf("%d-%f\n", ii, sg[ii]);
+//    }
     
     transpose(Mm, M2, buf, m2);
     

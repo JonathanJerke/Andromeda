@@ -3327,7 +3327,7 @@ double collective( double beta ,struct general_2index * pa){
             double d = pa->i[targParticle].bra.length;
             double kSmall = 2*pi / N1 / d;
             INT_TYPE k;
-            for ( k = - 2*N1 ; k <= 2*N1 ; k++)
+            for ( k = - N1 ; k <= N1 ; k++)
             {
                 if ( 0  )
                     value += sumGaussianSinc(kSmall*k+pa->momentumShift,pa)*kSmall;
@@ -3622,6 +3622,9 @@ void elementFunc(void * arg,size_t n,const double * x,double * y)
 //
 //    return res;
 //}
+
+
+
 
 double elementCal (double a, double b,struct general_2index * aAf ){
 #ifdef APPLE
@@ -4119,6 +4122,58 @@ double gaussQuad(INT_TYPE pt , INT_TYPE nm, INT_TYPE which ){
         return 0.5*gkW[nm];//shift to interval [0,1]
 }
 
+
+double quadCal(struct general_2index * aAf ){
+    
+    INT_TYPE space, ngk,beta,section, interval = aAf->fl->interval;
+    double prod,sum = 0., g,x,constant,*param = aAf->fl->param;
+    
+    
+    for ( section = 0; section < 2 ; section++)
+    {
+        if ( imax(0,interval - section) == 0 ) {
+            ngk = 7;
+        }else if ( imax(0,interval - section) == 1 ){
+            ngk = 15;
+        }else if ( imax(0,interval - section) == 2 ){
+            ngk = 35;
+        }else if ( imax(0,interval - section) == 3 ){
+            ngk = 99;
+        }else {
+            printf("oops\n");
+            exit(0);
+        }
+        
+        for ( beta = 0; beta < ngk ; beta++){
+            
+            g = gaussQuad(ngk,beta,1);
+            constant = gaussQuad(ngk, beta, 0);
+            
+            if ( section == 0 ){
+                x = g ;
+            }
+            else {
+                x = ( g ) / (1. - g)+1 ;
+                constant /= sqr(1.-g);
+            }
+            x *=  param[1];//beta
+            constant *= param[1];//weighting
+            
+            //divide 0->infinity
+            
+            constant *= inverseLaplaceTransform(x,aAf->fl);//for purposes of scaling tw-body interactions by Ne...
+            
+            prod = constant;
+            for ( space = 0; space < COMPONENT ; space++)
+                prod *=collective(x, aAf+space);
+            
+            sum += prod;
+            
+            
+        }
+    }
+    return sum;
+}
 void mySeparateExactTwo (struct sinc_label  f1, struct interaction_label twoBody,enum division interactionExchange, double scalar,  enum division basis,INT_TYPE overline, INT_TYPE particle1){//overline = ##particle number ...  = intercellular interaction
     //https://keisan.casio.com/exec/system/1329114617
     zero(f1,interactionExchange,0);
@@ -4371,7 +4426,7 @@ void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occup
 
 void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label twoBody,INT_TYPE part1, enum division interactionExchangePlus,enum division shorten, double scalar,INT_TYPE plus,double rescale, enum particleType particle1,enum particleType particle2){
     //https://keisan.casio.com/exec/system/1329114617
-    zero(f1,interactionExchangePlus,0);
+    zero(f1,shorten,0);
     struct name_label n;
     INT_TYPE Mt=0,mm,xx,dim;
     INT_TYPE cra;
@@ -4419,7 +4474,7 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
     for ( space = 0 ;space < SPACE  ; space++)
         if ( f1.rose[space].body != nada )
             if ( f1.rose[space].component != nullComponent )
-            if ( f1.tulip[interactionExchangePlus].space[space].body >= one )
+            if ( f1.tulip[shorten].space[space].body >= one )
                 if ( f1.rose[space].particle == particle1 || f1.rose[space].particle == particle2 )
 
             spaces++;
@@ -4440,7 +4495,9 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
     struct function_label fl = twoBody.func;
     
     INT_TYPE ngk,co;
-    tClear(f1, interactionExchangePlus);
+    tClear(f1, shorten);
+    tClear(f1, copyTwo);
+
     for ( section = 0 ; section < 2 ; section++){
         if ( imax(0,interval - section) == 0 ) {
             ngk = 7;
@@ -4457,10 +4514,9 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
         
         
         
-
+        
         for ( beta = 0; beta < ngk ; beta++){
-            tClear(f1, copy);
-
+            
             flagPow = 1;
             
             
@@ -4479,131 +4535,118 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
             
             
             myZero(f1, oneByOneBuffer,0);
-            constant *= scalar*inverseLaplaceTransform(x,&fl);//for purposes of scaling tw-body interactions by Ne...
+            constant *= inverseLaplaceTransform(x,&fl);//for purposes of scaling tw-body interactions by Ne...
             Mt= 0;
             cpow = powl(fabsl(constant),1./COMPONENT);
-
+            
             for ( co = 1 ; co <= COMPONENT ; co++)
                 for ( space = 0 ; space < SPACE ; space++)
-                    if ( f1.rose[space].component == co && f1.rose[space].particle == particle1)
+                    if ( f1.rose[space].component == co && f1.rose[space].particle == electron)
                         for (space2 = space+1 ; space2 < SPACE ; space2++)
-                            if (  co == f1.rose[space2].component && f1.rose[space2].particle == particle2 )
+                            if (  co == f1.rose[space2].component && f1.rose[space2].particle == proton )
                                 if (space != space2 ){
-                                    if (f1.rose[space].body != nada &&  f1.rose[space2].body != nada && f1.tulip[interactionExchangePlus].space[space].body == one && f1.tulip[interactionExchangePlus].space[space2].body == one  )
-                                        {
-                                            N1 = n1[space];
-                                            N2 = n1[space2];
+                                    if (f1.rose[space].body != nada &&  f1.rose[space2].body != nada && f1.tulip[shorten].space[space].body == one && f1.tulip[shorten].space[space2].body == one  )
+                                    {
+                                        N1 = n1[space];
+                                        N2 = n1[space2];
 #ifdef OMP
 #pragma omp parallel for private (si,I1,I2,I3,I4,g2,value) schedule(dynamic,1)
 #endif
-                                            for ( si = 0 ; si < N1*N1*N2*N2 ; si++)
-                                            {
-                                                
-                                                I1 = ( si ) % N1;
-                                                I2 = ( si / N1) % N2;
-                                                I3 = ( si /  (N2*N1) ) % N1;
-                                                I4 = ( si / ( N2*N1*N1) ) % N2;
-                                                g2.realFlag = 1;
-                                                g2.momentumShift = 0;
-                                                g2.gaussianAccelerationFlag = 0;
-                                                g2.point = 2;
-                                                g2.powSpace = 0;
-                                                
-                                                g2.i[0].action = 0;
-                                                g2.i[1].action = 0;
-                                                
-                                                g2.i[0].bra = grabBasis ( f1, space, f1.rose[space].particle, I1);
-                                                g2.i[0].ket = grabBasis ( f1, space, f1.rose[space].particle, I3);
-                                                g2.i[1].bra = grabBasis( f1, space2, f1.rose[space2].particle, I2);
-                                                g2.i[1].ket = grabBasis( f1, space2, f1.rose[space2].particle, I4);
-                                                g2.i[1].bra.length *= rescale;
-                                                g2.i[1].ket.length *= rescale;
-                                                value = collectives(x, &g2)*cpow;
-                                                if (flagPow && constant < 0 )
-                                                    value *= -1.;
-                                                myStreams(f1, oneByOneBuffer,0)[N1*N1*(N2*I4+I2)+(N1*I3+I1)]=value;
-                                            }
+                                        for ( si = 0 ; si < N1*N1*N2*N2 ; si++)
+                                        {
                                             
-                                            Mt = tdgesvd(0, f1, N1*N1,N2*N2, myStreams(f1, oneByOneBuffer,0), streams(f1, copy,0,space), streams(f1, copy,0,space2));
-                                        
-                                            if (Mt !=  imin(N1*N1,N2*N2)){
-                                                printf("congruity\n");
-                                                exit(0);
-                                            }
+                                            I1 = ( si ) % N1;
+                                            I2 = ( si / N1) % N2;
+                                            I3 = ( si /  (N2*N1) ) % N1;
+                                            I4 = ( si / ( N2*N1*N1) ) % N2;
+                                            g2.realFlag = 1;
+                                            g2.momentumShift = 0;
+                                            g2.gaussianAccelerationFlag = 0;
+                                            g2.point = 2;
+                                            g2.powSpace = 0;
                                             
-                                        }else
+                                            g2.i[0].action = 0;
+                                            g2.i[1].action = 0;
+                                            
+                                            g2.i[0].bra = grabBasis ( f1, space, f1.rose[space].particle, I1);
+                                            g2.i[0].ket = grabBasis ( f1, space, f1.rose[space].particle, I3);
+                                            g2.i[1].bra = transformBasis(particle2==pair,rescale,grabBasis( f1, space2, f1.rose[space2].particle, I2));
+                                            g2.i[1].ket = transformBasis(particle2==pair,rescale,grabBasis( f1, space2, f1.rose[space2].particle, I4));
+                                            value = collectives(x, &g2)*cpow;
+                                            if (flagPow && constant < 0 )
+                                                value *= -1.;
+                                            myStreams(f1, oneByOneBuffer,0)[N1*N1*(N2*I4+I2)+(N1*I3+I1)]=value;
+                                        }
                                         
+                                        Mt = tdgesvd(0, f1, N1*N1,N2*N2, myStreams(f1, oneByOneBuffer,0), streams(f1, copyTwo,0,space)+f1.tulip[copyTwo].Current[0]*N1*N1, streams(f1, copyTwo,0,space2)+f1.tulip[copyTwo].Current[0]*N2*N2);
                                         
-                                        {//default to space 1.
-                                            if (f1.rose[space].body == nada || f1.tulip[interactionExchangePlus].space[space].body == nada  )
-                                            {
-                                                printf("oops\n");//try changing order of particle inputs
-                                                exit(0);
-                                            }
+                                        if (Mt !=  imin(N1*N1,N2*N2)){
+                                            printf("congruity\n");
+                                            exit(0);
+                                        }
+                                        flagPow = 0;
 
-                                            
-                                            N1 = n1[space];
+                                    }else
+                                        
+                                        
+                                    {//default to space 1.
+                                        if (f1.rose[space].body == nada || f1.tulip[shorten].space[space].body == nada  )
+                                        {
+                                            printf("oops\n");//try changing order of particle inputs
+                                            exit(0);
+                                        }
+                                        
+                                        
+                                        N1 = n1[space];
 #ifdef OMP
 #pragma omp parallel for private (si,I1,I3,g2,value) schedule(dynamic,1)
 #endif
-
-                                            for ( si = 0 ; si < N1*N1 ; si++)
-                                            {
-                                                
-                                                I1 = ( si ) % N1;
-                                                I3 = ( si / N1) % N1;
-                                                g2.realFlag = 1;
-                                                g2.momentumShift = 0;
-                                                g2.gaussianAccelerationFlag = 0;
-                                                g2.point = 2;
-                                                g2.powSpace = 0;
-                                                
-                                                g2.i[0].action = 0;
-                                                g2.i[1].action = 0;
-                                                
-                                                g2.i[1].bra.type = f1.rose[space].component;
-                                                g2.i[1].ket.type = f1.rose[space].component;
-
-                                                g2.i[0].bra = grabBasis ( f1, space, f1.rose[space].particle, I1);
-                                                g2.i[0].ket = grabBasis ( f1, space, f1.rose[space].particle, I3);
-                                                g2.i[1].bra.basis = DiracDeltaElement ;
-                                                g2.i[1].bra.origin = 0;
-                                                g2.i[1].ket.basis = nullBasisElement;
-                                                value = collectives(x, &g2)*cpow;
-                                                if (flagPow && constant < 0 )
-                                                    value *= -1.;
-                                                myStreams(f1, oneByOneBuffer,0)[(N1*I3+I1)]=value;
-                                            }
-                                            if ( Mt == 0 ){
-                                                printf("order");
-                                                exit(1);
-                                            }
-                                            for ( mm = 0 ; mm < Mt ;mm++){
-                                                cblas_dcopy(N1*N1, myStreams(f1, oneByOneBuffer,0), 1, streams(f1, copy,0,space)+mm*N1*N1, 1);
-                                            }
-
+                                        
+                                        for ( si = 0 ; si < N1*N1 ; si++)
+                                        {
+                                            
+                                            I1 = ( si ) % N1;
+                                            I3 = ( si / N1) % N1;
+                                            g2.realFlag = 1;
+                                            g2.momentumShift = 0;
+                                            g2.gaussianAccelerationFlag = 0;
+                                            g2.point = 2;
+                                            g2.powSpace = 0;
+                                            
+                                            g2.i[0].action = 0;
+                                            g2.i[1].action = 0;
+                                            
+                                            g2.i[1].bra.type = f1.rose[space].component;
+                                            g2.i[1].ket.type = f1.rose[space].component;
+                                            
+                                            g2.i[0].bra = grabBasis ( f1, space, f1.rose[space].particle, I1);
+                                            g2.i[0].ket = grabBasis ( f1, space, f1.rose[space].particle, I3);
+                                            g2.i[1].bra.basis = DiracDeltaElement ;
+                                            g2.i[1].bra.origin = 0;
+                                            g2.i[1].ket.basis = nullBasisElement;
+                                            value = collectives(x, &g2)*cpow;
+//                                            if (flagPow && constant < 0 )
+//                                                value *= -1.;
+                                            myStreams(f1, oneByOneBuffer,0)[(N1*I3+I1)]=value;
                                         }
-                                    flagPow = 0;
-
+                                        if ( Mt == 0 ){
+                                            printf("order");
+                                            exit(1);
+                                        }
+                                        for ( mm = 0 ; mm < Mt ;mm++){
+                                            cblas_dcopy(N1*N1, myStreams(f1, oneByOneBuffer,0), 1, streams(f1, copyTwo,0,space)+mm*N1*N1+f1.tulip[copyTwo].Current[0]*N1*N1, 1);
+                                        }
+                                        
                                     }
+                                }
             
-            f1.tulip[copy].Current[0] = Mt;
-            if ( part1 ){
-                tClear(f1,copyTwo);
-                tCycleDecompostionListOneMP(-1, f1, copy, 0,NULL, copyTwo, 0, f1.rt->CANON,part1, 1);
-                tAddTw(f1, shorten, 0, copyTwo, 0);
-                sumDis += sqrt(distance(f1, copy, copyTwo));
-            }else {
-                tAddTw(f1, interactionExchangePlus, 0, copy, 0);
-            }
+            f1.tulip[copyTwo].Current[0] += Mt;
         }
-        
     }
-    if ( part(f1,interactionExchangePlus) < CanonicalRank(f1, interactionExchangePlus, 0)){
-        printf("whatgives?\n");
-        exit(9);
-    }
-    printf("max error %f percent\n", 100*sumDis/fabs(traceOne(f1,shorten,0)) );
+    tCycleDecompostionGridOneMP(-1, f1, copyTwo, 0, NULL, shorten, 0, f1.rt->CANON, part1, 1);
+    //tScale(f1, shorten, scalar);
+    printf("Split 2-body ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),scalar*traceOne(f1, shorten, 0), distance(f1, shorten, copyTwo));
+    tScaleOne(f1, shorten,0, scalar);
     return ;
 }
 
@@ -5154,7 +5197,7 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
     Stream_Type * stream;
     DCOMPLEX va;
     f1.tulip[diagonalCube].Current[0] = 1;
-    tClear(f1, kinetic);
+    tClear(f1, akinetic);
     for ( cmpl = 0; cmpl < spins(f1, akinetic ) ; cmpl++){
         for ( dim = 0 ; dim < SPACE; dim++){
             if ( f1.rose[dim].body != nada )

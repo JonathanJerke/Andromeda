@@ -1,5 +1,5 @@
 /*
- *  system.h
+ *  eri.h
  *
  *
  *  Copyright 2019 Jonathan Jerke and Bill Poirier.
@@ -23,40 +23,14 @@
  *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#ifndef eri_h
+#define eri_h
 
-//HERE LIES THE external CODE level changes!
-#define OVERFLAG 0
-
-#ifndef system_h
-#define system_h
-
-#define COMPONENT 3
-#define PARTICLE 2
-#define SPACE (COMPONENT * PARTICLE)
-#define MAXATOM 4
-
-#define MAXSTRING 1024
-#define MAXFILE 16
-
-#define APPLE
-
-#ifdef APPLE
-#define MaxCore 2
-#endif
-
+#include "Model.h"
+#include "input.h"
+#include "eigen.h"
 #ifndef APPLE
-#define OMP
-//#define MKL
-#define GSL_LIB
-
-#define MaxCore 24
-
-#ifndef GSL_LIB
-    THIS PROGRAM NEEDS INTEGRATION ROUTINES
+#include "ioPrint.h"
 #endif
 
-#endif
-
-
-
-#endif /* system_h */
+#endif /* eri_h */

@@ -96,6 +96,6 @@ void printVectorAllocations(struct sinc_label f1);
 struct basisElement grabBasis (struct sinc_label  f1, INT_TYPE space, INT_TYPE particle, INT_TYPE elementIndex);
 struct basisElement defineSincBasis (enum noteType note, enum componentType space, enum basisElementType basis, double lattice , double origin, INT_TYPE count1, INT_TYPE elementIndex );
 struct basisElement defineGaussBasis (enum noteType note, enum componentType space, enum basisElementType basis, double lattice , double origin, INT_TYPE count1, INT_TYPE elementIndex );
-
+struct basisElement transformBasis( INT_TYPE flip,double scale, struct basisElement ba );
 INT_TYPE  countLinesFromFile( struct field f1,INT_TYPE location, INT_TYPE * ir);
 #endif /* coreUtil_h */

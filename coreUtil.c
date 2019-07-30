@@ -1778,7 +1778,7 @@ struct basisElement defineGaussBasis (enum noteType note, enum componentType com
     
     boa.grid = count1;
     
-    boa.index = 0;
+    boa.index = elementIndex;
     boa.index2 = 0;
     
     return boa;
@@ -1786,8 +1786,7 @@ struct basisElement defineGaussBasis (enum noteType note, enum componentType com
 }
 
 struct basisElement grabBasis (struct sinc_label f1, INT_TYPE space, INT_TYPE particle, INT_TYPE elementIndex){
-    particle--;
-    if (  0 <= elementIndex && 0 <= space && space < SPACE && 0<= particle && particle < PARTICLE ){
+    if (  0 <= elementIndex && 0 <= space && space < SPACE && electron<= particle && particle < PARTICLE+1){
         if ( elementIndex < f1.rose[space].count1Basis  )
             return f1.rose[space].basisList[elementIndex];
     }
@@ -1812,6 +1811,19 @@ struct basisElement grabBasis (struct sinc_label f1, INT_TYPE space, INT_TYPE pa
 //    //tFillBasis( pt,position, 0, n1[3], f1.rose[3].lattice);
 //    return tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, 'T', copyVector, 0, 'N', vec, 0);
 //}
+
+struct basisElement transformBasis( INT_TYPE flip, double scale, struct basisElement ba ){
+    ba.length *= scale;
+
+    if ( flip ) {
+        ba.origin *= -1.;
+        ba.index *= -1;
+        return ba;
+    }
+    
+    return ba;
+    
+}
 
 
 #if 0

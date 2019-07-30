@@ -364,12 +364,6 @@ INT_TYPE frameEwald( struct calculation * c , struct field f)
     }
     
     
-    mySeparateEwaldCoulomb1(f.f,j,myStreams(f.f, twoBodyRitz, 0),eigenVectors, c->i.decomposeRankMatrix, interactionExchange, intracellularSelfEwald,-1., 0, 0, electron);
-    ioStoreMatrix(f.f, intracellularSelfEwald, 0, "intracellularEwald.matrix", 0);
-    
-    mySeparateEwaldCoulomb1(f.f,j,myStreams(f.f, twoBodyRitz, 0),eigenVectors, c->i.decomposeRankMatrix,interactionEwald, intercellularSelfEwald, 1., 0, 0, electron);
-    ioStoreMatrix(f.f, intercellularSelfEwald, 0, "intercellularEwald.matrix", 0);
-
     fModel(&f.f);
 
     return 0;

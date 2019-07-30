@@ -136,6 +136,7 @@ enum particleType{
     nullParticle,
     electron,
     proton,
+    pair,
     all,
 };
 
@@ -305,7 +306,6 @@ struct canon {
     enum particleType particle;
     INT_TYPE count1Basis;
 };
-
 
 
 
@@ -786,9 +786,9 @@ struct general_index{//one dimension
     double x1;
     
     
-	double d;
-	double n;//function index.
-	double m;
+    double d;
+    double n;//function index.
+    double m;
     
 };
 

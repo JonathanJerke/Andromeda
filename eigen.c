@@ -1051,47 +1051,47 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct
 
 INT_TYPE tLesserDivideIteration ( struct sinc_label  f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
 
-//INT_TYPE tEdges(struct sinc_label f1, enum division vector){
-//    INT_TYPE info,spatial;
-//    DCOMPLEX ov,me;
-//    enum bodyType bootBodies = f1.rose[0].body;
-//    if ( 1 ){
-//        //EDGES ALT
-//        enum block b,bx;
-//        INT_TYPE iii,jjj=1,dim,irrep;
-//        double sum = 0;
-//        //for ( irrep = 0 ;irrep <= 5 ; irrep++)
-//        {
-//              //  if ((! c1->i.irrep || f1.tulip[vector].value.symmetry  == irrep) && irrep == c1->i.irrep)
-//                {
-//                    bx = tv1;
-//                    if ( bootBodies == two )
-//                        bx = tv2;
-//                    else if ( bootBodies == three )
-//                        bx = tv3;
-//                    else if ( bootBodies == four )
-//                        bx = tv4;
-//                    for ( b = tv1 ; b <= bx; b++){
-//                        
-//                        for ( spatial = 0 ; spatial < 2 ; spatial++){
-//                            printf("electron %d:%d\t",b,spatial);
-//
-//                            sum = 0;
-//                            for ( dim = 0; dim < COMPONENT ; dim++){
-//                                tClear(f1,edgeElectronMatrix );
-//                                if ( spatial == 0 )
-//                                    tEnd(f1, edgeElectronMatrix, 0, dim);
-//                                if ( spatial == 1 )
-//                                    tAlt(f1, edgeElectronMatrix, 0, dim);
-//                                me = 0.;
-//                                enum division u = edgeElectronMatrix+b;
-//                                struct name_label uu = f1.tulip[u];
-//                                pMatrixElements( f1, vector, edgeElectronMatrix+b, vector, &me, &ov);
-//                                printf("%1.8f ", (creal(me/ov)));
-//                                sum += (creal(me/ov));
-//                            }
-//                            printf(": %1.8f\n", sum);
-//                        }
+INT_TYPE tEdges(struct sinc_label f1, enum division vector){
+    INT_TYPE info,spatial;
+    DCOMPLEX ov,me;
+    enum bodyType bootBodies = f1.rose[0].body;
+    if ( 1 ){
+        //EDGES ALT
+        enum block b,bx;
+        INT_TYPE iii,jjj=1,dim,irrep;
+        double sum = 0;
+        //for ( irrep = 0 ;irrep <= 5 ; irrep++)
+        {
+              //  if ((! c1->i.irrep || f1.tulip[vector].value.symmetry  == irrep) && irrep == c1->i.irrep)
+                {
+                    bx = tv1;
+                    if ( bootBodies == two )
+                        bx = tv2;
+                    else if ( bootBodies == three )
+                        bx = tv3;
+                    else if ( bootBodies == four )
+                        bx = tv4;
+                    for ( b = tv1 ; b <= bx; b++){
+                        
+                        for ( spatial = 0 ; spatial < 2 ; spatial++){
+                            printf("electron %d:%d\t",b,spatial);
+
+                            sum = 0;
+                            for ( dim = 0; dim < COMPONENT ; dim++){
+                                tClear(f1,edgeElectronMatrix );
+                                if ( spatial == 0 )
+                                    tEnd(f1, edgeElectronMatrix, 0, dim);
+                                if ( spatial == 1 )
+                                    tAlt(f1, edgeElectronMatrix, 0, dim);
+                                me = 0.;
+                                enum division u = edgeElectronMatrix+b;
+                                struct name_label uu = f1.tulip[u];
+                                pMatrixElements( f1, vector, edgeElectronMatrix+b, vector, &me, &ov);
+                                printf("%1.8f ", (creal(me/ov)));
+                                sum += (creal(me/ov));
+                            }
+                            printf(": %1.8f\n", sum);
+                        }
 //
 //                        if ( c1->rt.calcType == clampProtonElectronCalculation)
 //                            for ( spatial = 0 ; spatial < 2 ; spatial++){
@@ -1100,7 +1100,7 @@ INT_TYPE tLesserDivideIteration ( struct sinc_label  f1, enum division A , INT_T
 //                                sum = 0;
 //                                for ( dim = COMPONENT; dim < 2*COMPONENT ; dim++)
 //                                    if ( f1.rose[dim].body != nada ){
-//                                        
+//
 //                                    tClear(f1,edgeProtonMatrix );
 //                                    if ( spatial == 0 )
 //                                        tEnd(f1, edgeProtonMatrix, 0, dim);
@@ -1113,14 +1113,14 @@ INT_TYPE tLesserDivideIteration ( struct sinc_label  f1, enum division A , INT_T
 //                                }
 //                                printf(": %1.8f\n", sum);
 //                            }
-//                        
-//                    }
-//                    printf("\n\n");
-//                }
-//        }
-//    }
-//    return 0;
-//}
+                        
+                    }
+                    printf("\n\n");
+                }
+        }
+    }
+    return 0;
+}
 
 //INT_TYPE tConvergeTest (struct calculation * c1, enum division input){
 //

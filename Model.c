@@ -146,7 +146,7 @@ struct field initField (void ) {
     i.i.irrep = 0;
     i.f.boot = fullMatrices;
     i.i.body = one;
-    i.i.epi = 2;
+    i.i.epi = 5;
     
 #endif
     return i;
@@ -162,7 +162,7 @@ struct calculation initCal (void ) {
     i.i.RAMmax = 1;
     i.rt.runFlag = 0;
     i.i.vectorMomentum = 0.;
-    i.i.decomposeRankMatrix = 1;
+    i.i.decomposeRankMatrix = 22;
     i.i.orgClamp = 2.;
     i.i.Angstroms = 0;
     i.rt.TARGET = 1e-6;
@@ -192,7 +192,7 @@ struct calculation initCal (void ) {
     
         if ( SPACE == 3 ){
             i.rt.calcType = electronicStuctureCalculation;
-            i.rt.runFlag = 0;
+            i.rt.runFlag = 7;
         } else if ( SPACE == 6 ){
 
             i.rt.calcType = clampProtonElectronCalculation;
@@ -210,15 +210,15 @@ struct calculation initCal (void ) {
     i.i.massClampPair = 1836.15267245;
     resetExternal(&i, 1, 1);
 
-    i.rt.phaseType = buildFoundation ;
+    i.rt.phaseType = solveRitz ;
     
-    i.i.twoBody.func.fn = nullFunction;
+    i.i.twoBody.func.fn = Coulomb;
     i.i.oneBody.func.fn = nullFunction;
     //i.i.springFlag = 1;
     i.i.springConstant = 0.25;
     i.i.canonRank = 50;
-    i.i.twoBody.num = 0;
-    i.i.twoBody.func.interval  = 0;
+    i.i.twoBody.num = 50;
+    i.i.twoBody.func.interval  = 1;
     i.i.twoBody.func.param[0]  = 1;
     i.i.twoBody.func.param[1]  = 1;
     i.i.twoBody.func.param[2]  = 1;
@@ -434,7 +434,7 @@ INT_TYPE singleSincModel( struct calculation * c1, struct field * f){
             f1->rose[space].count1Basis = N1;
             f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
             for ( bl = 0 ; bl < f1->rose[space].count1Basis  ; bl++)
-                f1->rose[space].basisList[bl] = defineSincBasis(nullNote, f1->rose[space].component, f1->rose[space].basis, f->i.d, 0.,             f1->rose[space].count1Basis,bl);
+                f1->rose[space].basisList[bl] = defineSincBasis(nullNote, f1->rose[space].component, f1->rose[space].basis, f->i.d, 0.  ,             f1->rose[space].count1Basis,bl);
 
 
         }
@@ -452,7 +452,7 @@ INT_TYPE singleSincModel( struct calculation * c1, struct field * f){
             f1->rose[space].count1Basis = N2;
             f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
             for ( bl = 0 ; bl < f1->rose[space].count1Basis  ; bl++)
-                f1->rose[space].basisList[bl] = defineSincBasis(nullNote, f1->rose[space].component, f1->rose[space].basis, f->i.D, 0.,             f1->rose[space].count1Basis,bl);
+                f1->rose[space].basisList[bl] = defineSincBasis(nullNote, f1->rose[space].component, f1->rose[space].basis, f->i.D, c1->i.orgClamp,             f1->rose[space].count1Basis,bl);
 
 
         }
@@ -1024,22 +1024,27 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[inversion].header = Cube;
         assignParticle(*f1, inversion, all, one);
     
+    {
+        INT_TYPE maxOriginRank = imax( NV , c1->i.canonRank * maxVector );
+        if ( c1->rt.calcType == clampProtonElectronCalculation && c1->rt.phaseType == solveRitz ){
+            maxOriginRank = imax( maxOriginRank, c1->i.twoBody.num * N1*N1);
+        }
+        INT_TYPE maxTrainRank = imax(c1->i.decomposeRankMatrix, maxVector);
         
         fromBeginning(*f1,canonicalBuffers,inversion);
-    f1->tulip[canonicalBuffers].Partition = maxVector*maxVector+ imax(NV,maxVector*c1->i.canonRank)*maxVector + ( c1->rt.phaseType == solveRitz ) * (part(*f1, shortenMinus)*part(*f1,shortenMinus)*( part(*f1,shortenMinus)+ c1->i.twoBody.num ) );
-    
+        f1->tulip[canonicalBuffers].Partition = maxTrainRank*maxTrainRank+ maxOriginRank*maxTrainRank ;
         f1->tulip[canonicalBuffers].spinor = parallel;
-
+        
         fromBeginning(*f1,trackBuffer,canonicalBuffers);
-        f1->tulip[trackBuffer].Partition = (2*maxVector+1)*maxVector;
+        f1->tulip[trackBuffer].Partition = (2*maxTrainRank+1)*maxTrainRank;
         f1->tulip[trackBuffer].spinor = parallel;
         f1->tulip[trackBuffer].memory = bufferAllocation;
-
+        
         fromBeginning(*f1,guideBuffer,trackBuffer);
-        f1->tulip[guideBuffer].Partition = c1->i.canonRank*maxVector*maxVector;
+        f1->tulip[guideBuffer].Partition = maxOriginRank*maxTrainRank*maxTrainRank;
         f1->tulip[guideBuffer].spinor = parallel;
         f1->tulip[guideBuffer].memory = bufferAllocation;
-
+    }
         fromBeginning(*f1,foundationStructure,guideBuffer);
         f1->tulip[foundationStructure].spinor = parallel;
         f1->tulip[foundationStructure].Partition = 1;
@@ -1100,22 +1105,22 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         }
     }
         fromBeginning(*f1,intracellularSelfEwald,interactionEwald);
-        f1->tulip[intracellularSelfEwald].Partition = c1->i.decomposeRankMatrix;
+        f1->tulip[intracellularSelfEwald].Partition = 1;
         f1->tulip[intracellularSelfEwald].species = matrix;
         assignOneWithPointers(*f1, intracellularSelfEwald, electron);
     
         fromBeginning(*f1,intercellularSelfEwald,intracellularSelfEwald);
-        f1->tulip[intercellularSelfEwald].Partition = c1->i.decomposeRankMatrix;
+        f1->tulip[intercellularSelfEwald].Partition = 1;
         f1->tulip[intercellularSelfEwald].species = matrix;
         assignOneWithPointers(*f1, intercellularSelfEwald, electron);
     
         fromBeginning(*f1,shortenPlus,intercellularSelfEwald);
-        f1->tulip[shortenPlus].Partition = c1->i.twoBody.num*c1->i.decomposeRankMatrix*( c1->rt.calcType == clampProtonElectronCalculation );
+        f1->tulip[shortenPlus].Partition = c1->i.decomposeRankMatrix*( c1->rt.calcType == clampProtonElectronCalculation );
         f1->tulip[shortenPlus].species = matrix;
         assignOneWithPointers(*f1, shortenPlus, all);
         
         fromBeginning(*f1,shortenMinus,shortenPlus);
-        f1->tulip[shortenMinus].Partition = c1->i.twoBody.num*c1->i.decomposeRankMatrix*( c1->rt.calcType == clampProtonElectronCalculation );
+        f1->tulip[shortenMinus].Partition = c1->i.decomposeRankMatrix*( c1->rt.calcType == clampProtonElectronCalculation );
         f1->tulip[shortenMinus].species = matrix;
         assignOneWithPointers(*f1, shortenMinus, all);
         
@@ -1239,7 +1244,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         fromBeginning(*f1,canonicalBuffersBM,canonicalBuffersB);//twobody
         f1->tulip[canonicalBuffersBM].Partition = mx1len*mx1len*mx1len*mx1len ;
         f1->tulip[canonicalBuffersBM].memory = bufferAllocation;
-    if ( c1->rt.phaseType == frameDensity    )
+//    if ( c1->rt.phaseType == frameDensity    )
         f1->tulip[canonicalBuffersBM].spinor = parallel;
 
     
@@ -1364,16 +1369,68 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 
                 
                 if ( f1->rose[0].component == periodicComponent1 ){
-                    printf("func %d\n",c1->i.twoBody.func.fn);
-                    if ( c1->i.twoBody.func.fn != nullFunction)
-                    if ( ! ioStoreMatrix(*f1, intracellularSelfEwald, 0, "intracellularEwald.matrix", 1)){
-                        printf("running without ewald-self interaction\n");
+                    
+                    if (c1->i.twoBody.func.fn != nullFunction )
+                    {//intracellular interaction
+                        INT_TYPE i;
+                        struct general_2index aAf[COMPONENT];
+                        for ( i = 0; i < COMPONENT ; i++){
+                            aAf[i].gaussianAccelerationFlag = 0;
+                            aAf[i].point = 2;
+                            aAf[i].powSpace = 0;
+                            aAf[i].momentumShift = 0;
+                            aAf[i].realFlag = 1;
+                            aAf[i].i[0].bra = grabBasis(*f1 , i, electron, 0);
+                            aAf[i].i[0].ket = grabBasis(*f1, i, electron, 0);
+                            aAf[i].i[0].action = 0;
+
+                            aAf[i].i[1].bra = grabBasis(*f1, i, electron, 0);
+                            aAf[i].i[1].ket = grabBasis(*f1, i, electron, 0);
+                            aAf[i].i[1].action = 0;
+
+                            aAf[i].fl = & c1->i.twoBody.func;
+                            
+                        }
+                        double gamma00 = quadCal(aAf);
+                        printf("gamma00 %f\n", gamma00);
+
                         tClear(*f1,intracellularSelfEwald);
+                        tId(*f1, intracellularSelfEwald, 0);
+                        tScale(*f1, intracellularSelfEwald, -gamma00);
                     }
-                    if ( ! ioStoreMatrix(*f1, intercellularSelfEwald, 0, "intercellularEwald.matrix", 1)){
-                        printf("running without ewald-self interaction\n");
+                    
+                    if (c1->i.twoBody.func.fn != nullFunction )
+                    {//intercellular interaction
+                        INT_TYPE i;
+                        struct general_2index aAf[COMPONENT];
+                        for ( i = 0; i < COMPONENT ; i++){
+                            aAf[i].gaussianAccelerationFlag = 0;
+                            aAf[i].point = 2;
+                            aAf[i].powSpace = 0;
+                            aAf[i].momentumShift = 0;
+                            aAf[i].realFlag = 1;
+
+                            aAf[i].i[0].bra = grabBasis(*f1 , i, electron, 0);
+                            aAf[i].i[0].ket = grabBasis(*f1, i, electron, 0);
+                            
+                            aAf[i].i[0].bra.note = interactionCell;
+                            aAf[i].i[0].ket.note = interactionCell;
+
+                            aAf[i].i[1].bra = grabBasis(*f1, i, electron, 0);
+                            aAf[i].i[1].ket = grabBasis(*f1, i, electron, 0);
+                            
+                            aAf[i].fl = & c1->i.twoBody.func;
+                            
+                        }
+                        double gammaBar00 = quadCal(aAf);
+                        printf("gammaBar00 %f\n", gammaBar00);
                         tClear(*f1,intercellularSelfEwald);
+                        tId(*f1, intercellularSelfEwald, 0);
+                        tScale(*f1, intercellularSelfEwald, gammaBar00);
                     }
+
+                    
+                    
                     if (c1->i.twoBody.func.fn != nullFunction )
                     if ( !  ioStoreMatrix(*f1, interactionEwald, 0, "interactionEwald.matrix",1) ){
                         if (! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ){
@@ -1515,7 +1572,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     exit(0);
                 }
 
-                    mySeparateExactOneByOne(*f1,c1->i.twoBody, c1->i.decomposeRankMatrix,interactionExchangePlus, shortenPlus,-1., 1,c1->i.massClampPair/(c1->i.massProton + c1->i.massClampPair),electron, proton);
+                    mySeparateExactOneByOne(*f1,c1->i.twoBody, c1->i.decomposeRankMatrix,interactionExchangePlus, shortenPlus,-1., 1,c1->i.massClampPair/(c1->i.massClampPair+c1->i.massProton),electron, proton);
             }
             if ( c1->i.twoBody.func.fn != nullFunction&& ! ioStoreMatrix(*f1,shortenMinus ,0,"shortenExchangeMinus.matrix",1) ){
                 if ( c1->rt.phaseType != solveRitz ){
@@ -1523,31 +1580,30 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     exit(0);
                 }
 
-                    mySeparateExactOneByOne(*f1,c1->i.twoBody, c1->i.decomposeRankMatrix,interactionExchangeMinus, shortenMinus,-1., -1,c1->i.massProton/(c1->i.massProton + c1->i.massClampPair),electron, proton);
+                    mySeparateExactOneByOne(*f1,c1->i.twoBody, c1->i.decomposeRankMatrix,interactionExchangeMinus, shortenMinus,-1., -1,c1->i.massProton/(c1->i.massClampPair+c1->i.massProton),electron, pair);
 
             }
             struct name_label u = f1->tulip[shortenPlus];
             
             if ( c1->i.oneBody.func.fn != nullFunction&&c1->rt.phaseType != buildFoundation )
-                separateExternal(c1,*f1,protonRepulsion, 0,0,0.5,-1,0,proton);
-            separateKinetic(*f1, 0,kineticMass,4* c1->i.massProton*c1->i.massClampPair/(c1->i.massProton+c1->i.massClampPair),proton);
-
-            separateKinetic(*f1, 0,kinetic, c1->i.massElectron*(c1->i.massProton + c1->i.massClampPair )/(c1->i.massProton + c1->i.massClampPair + bootBodies*c1->i.massElectron ),electron);
-
-            }
-            else if ( c1->rt.calcType == protonsElectronsCalculation  ){
-
-                if ( bootBodies > one ){
-                    mySeparateExactTwo(*f1,c1->i.twoBody,interactionExchange, 1. , 0,0,electron);
-                    mySeparateExactTwo(*f1,c1->i.twoBody,interactionExchangeB, 1. , 0,0,proton);
-                //    tZeroSum(*f1, interactionExchange, 0 );
-                //    tZeroSum(*f1, interactionExchangeB, 0 );
-                }
-                mySeparateExactOneByOne(*f1,c1->i.twoBody,c1->i.decomposeRankMatrix,interactionTwoAcrossDimensions, shortTwoAcrossDimensions,-1., 1,1,electron, proton);
-                separateKinetic(*f1, 0,kineticMass, c1->i.massProton,proton);
-                separateKinetic(*f1, 0,kinetic, c1->i.massElectron,electron);
+                separateExternal(c1,*f1,protonRepulsion, 0,0,1.0,-1,0,proton);
+            separateKinetic(*f1, 0,kineticMass,c1->i.massClampPair*c1->i.massProton/(c1->i.massProton + c1->i.massClampPair),proton);
+            separateKinetic(*f1, 0,kinetic, c1->i.massElectron*(c1->i.massProton + c1->i.massClampPair)/(c1->i.massElectron+c1->i.massProton + c1->i.massClampPair),electron);
 
             }
+//            else if ( c1->rt.calcType == protonsElectronsCalculation  ){
+//
+//                if ( bootBodies > one ){
+//                    mySeparateExactTwo(*f1,c1->i.twoBody,interactionExchange, 1. , 0,0,electron);
+//                    mySeparateExactTwo(*f1,c1->i.twoBody,interactionExchangeB, 1. , 0,0,proton);
+//                //    tZeroSum(*f1, interactionExchange, 0 );
+//                //    tZeroSum(*f1, interactionExchangeB, 0 );
+//                }
+//                mySeparateExactOneByOne(*f1,c1->i.twoBody,c1->i.decomposeRankMatrix,interactionTwoAcrossDimensions, shortTwoAcrossDimensions,-1., 1,1,electron, proton);
+//                separateKinetic(*f1, 0,kineticMass, 2*c1->i.massProton/*only equal masses*/,proton);
+//                separateKinetic(*f1, 0,kinetic, c1->i.massElectron,electron);
+//
+//            }
 
 
         

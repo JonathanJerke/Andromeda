@@ -90,4 +90,5 @@ DCOMPLEX BdB (struct basisElement b1, struct basisElement b2);
 DCOMPLEX Bd2B (struct basisElement b1, struct basisElement b2);
 DCOMPLEX Bx2B (struct basisElement b1, struct basisElement b2);
 DCOMPLEX periodicBoostOverlapBasis2 ( INT_TYPE N1, double d, INT_TYPE b, INT_TYPE m ,double d2, INT_TYPE bb, INT_TYPE mm );
+double quadCal(struct general_2index * aAf );
 #endif /* coreForce_h */
