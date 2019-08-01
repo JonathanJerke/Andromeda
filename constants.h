@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 6.4.2
+//VERSION 6.4.3
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -733,6 +733,8 @@ struct name_label {
 struct sinc_label {
     enum bootType boot;
     INT_TYPE maxEV;
+    INT_TYPE irrep;
+    INT_TYPE cat;
     INT_TYPE bootedMemory;
     struct canon rose[SPACE+1];
     struct name_label *tulip;//vectors
@@ -746,6 +748,7 @@ struct sinc_label {
 struct input_label {
     INT_TYPE body;
     INT_TYPE irrep;
+    INT_TYPE cat;
     INT_TYPE files ;
     INT_TYPE filesVectorOperator ;
     char fileVectorOperator [MAXFILE][MAXSTRING];

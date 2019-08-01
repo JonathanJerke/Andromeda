@@ -854,7 +854,7 @@ INT_TYPE tClassify(INT_TYPE rank, struct sinc_label  f1 , enum division label){
 
 
 
-
+#if 0
 INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin){
     INT_TYPE irrep,p;
 
@@ -883,6 +883,48 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum 
     
     return 0;
 }
+#else
+//SA++
+INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin){
+    INT_TYPE p,space,oo;
+    
+    if ( meta == 0 || bodies(f1,origin ) == one ){
+        tEqua(f1, targ, tspin, origin, ospin);
+        return 0;
+    }
+    if (! CanonicalRank(f1, origin, ospin ))
+        return 0;
+    enum bodyType bd =bodies(f1,origin);
+    INT_TYPE nPerm=tPerms(bd);
+    
+    if ( CanonicalRank(f1, origin, ospin) > part(f1,targ)){
+        printf("Irr\n");
+        printf("%d %d %d\n", CanonicalRank(f1, origin, ospin), part(f1, origin), part(f1, targ));
+        exit(0);
+    }
+    //SA++
+    for ( oo= 0 ; oo < CanonicalRank(f1, origin, ospin); oo++){
+        zero(f1, permutationVector,rank);
+        f1.tulip[permutationVector].Current[rank] = 0;
+        for ( space =0 ; space < SPACE ; space++){
+            INT_TYPE sp = tCat3(bd, meta, f1.cat, space);
+            for ( p = 1 ; p <= nPerm ; p++)
+            {
+                f1.tulip[permutation2Vector].Current[rank] = 0;
+                tPermuteOne(rank, f1, space, p, origin, oo, ospin, permutation2Vector, rank);
+                //printf("%d %d %d %d %f\n", oo, space, p, sp,tGetProjection(bd, sp, p));
+                cblas_daxpy(vectorLen(f1, space),  tGetProjection(bd, sp, p), streams(f1,permutation2Vector,rank,space), 1, streams(f1,permutationVector,rank,space), 1);
+            }
+        }
+        f1.tulip[permutationVector].Current[rank] = 1;
+        tAddTw(f1, targ, tspin, permutationVector, rank);
+    }
+    return 0;
+}
+//SA++
+
+
+#endif
 
 INT_TYPE matrixAction ( enum bodyType bd, enum block bk, INT_TYPE direction){
     
@@ -1495,6 +1537,135 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, char le
 }
 #else
 
+//SA++
+INT_TYPE tCat3(enum bodyType bd ,  INT_TYPE irrep,INT_TYPE cat, INT_TYPE space){
+    cat--;
+    if ( cat < 0 )
+        return 0;
+    
+    
+    INT_TYPE cat2_a1[] = {1, 1, 1, 1, 2, 2, 2, 1, 2, 2, 2, 1};
+    INT_TYPE lat2_a1 = 4;
+    
+    INT_TYPE cat2_a2[] = {1, 1, 2, 1, 2, 1, 2, 1, 1, 2, 2, 2};
+    INT_TYPE lat2_a2 = 4;
+
+    
+    
+    INT_TYPE cat3_a1[] = {1, 1, 1, 1, 2, 2, 1, 3, 3, 2, 1, 2, 2, 2, 1, 2, 3, 3, 3, 1, 3, 3, 2,
+        3, 3, 3, 1, 3, 3, 2, 3, 3, 3};
+    INT_TYPE lat3_a1 = 11;
+    
+    INT_TYPE cat3_a2[] = {1, 1, 2, 1, 2, 1, 1, 3, 3, 2, 1, 1, 2, 2, 2, 2, 3, 3, 3, 1, 3, 3, 2,
+        3, 3, 3, 1, 3, 3, 2, 3, 3, 3};
+    INT_TYPE lat3_a2 = 11;
+
+    INT_TYPE cat3_ee[] = {1, 1, 3, 1, 2, 3, 1, 3, 1, 1, 3, 2, 1, 3, 3, 2, 1, 3, 2, 2, 3, 2, 3,
+        1, 2, 3, 2, 2, 3, 3, 3, 1, 1, 3, 1, 2, 3, 1, 3, 3, 2, 1, 3, 2, 2, 3,
+        2, 3, 3, 3, 1, 3, 3, 2, 3, 3, 3};
+    INT_TYPE lat3_ee = 19;
+    
+    
+    
+    INT_TYPE cat4_a1[] =
+    {1, 1, 1,
+        1, 2, 2, 1, 3, 3, 1, 4, 4, 1, 5, 5, 2, 1, 2, 2, 2, 1, 2, 3,
+        3, 2, 4, 5, 2, 5, 4, 3, 1, 3, 3, 2, 3, 3, 3, 1, 3, 3, 2, 3, 3, 3, 3,
+        4, 4, 3, 4, 5, 3, 5, 4, 3, 5, 5, 4, 1, 4, 4, 3, 4, 4, 3, 5, 4, 4, 1,
+        4, 4, 3, 4, 4, 4, 4, 4, 5, 4, 5, 3, 4, 5, 4, 4, 5, 5, 5, 2, 4, 5, 3,
+        4, 5, 3, 5, 5, 4, 2, 5, 4, 3, 5, 4, 4, 5, 4, 5, 5, 5, 3, 5, 5, 4, 5,
+        5, 5};
+    INT_TYPE lat4_a1 = 39;
+    
+    INT_TYPE cat4_a2[] = {1, 1, 2, 1, 2, 1, 1, 3, 3, 1, 4, 5, 1, 5, 4, 2, 1, 1, 2, 2, 2, 2, 3,
+        3, 2, 4, 4, 2, 5, 5, 3, 1, 3, 3, 2, 3, 3, 3, 1, 3, 3, 2, 3, 3, 3, 3,
+        4, 4, 3, 4, 5, 3, 5, 4, 3, 5, 5, 4, 2, 4, 4, 3, 4, 4, 3, 5, 4, 4, 2,
+        4, 4, 3, 4, 4, 4, 4, 4, 5, 4, 5, 3, 4, 5, 4, 4, 5, 5, 5, 1, 4, 5, 3,
+        4, 5, 3, 5, 5, 4, 1, 5, 4, 3, 5, 4, 4, 5, 4, 5, 5, 5, 3, 5, 5, 4, 5,
+        5, 5};
+    INT_TYPE lat4_a2 = 39;
+    
+    INT_TYPE cat4_ee[] = {1, 1, 3, 1, 2, 3, 1, 3, 1, 1, 3, 2, 1, 3, 3, 1, 4, 4, 1, 4, 5, 1, 5,
+        4, 1, 5, 5, 2, 1, 3, 2, 2, 3, 2, 3, 1, 2, 3, 2, 2, 3, 3, 2, 4, 4, 2,
+        4, 5, 2, 5, 4, 2, 5, 5, 3, 1, 1, 3, 1, 2, 3, 1, 3, 3, 2, 1, 3, 2, 2,
+        3, 2, 3, 3, 3, 1, 3, 3, 2, 3, 3, 3, 3, 4, 4, 3, 4, 5, 3, 5, 4, 3, 5,
+        5, 4, 1, 4, 4, 2, 4, 4, 3, 4, 4, 3, 5, 4, 4, 1, 4, 4, 2, 4, 4, 3, 4,
+        4, 4, 4, 4, 5, 4, 5, 3, 4, 5, 4, 4, 5, 5, 5, 1, 4, 5, 2, 4, 5, 3, 4,
+        5, 3, 5, 5, 4, 1, 5, 4, 2, 5, 4, 3, 5, 4, 4, 5, 4, 5, 5, 5, 3, 5, 5,
+        4, 5, 5, 5};
+    INT_TYPE lat4_ee = 55;
+
+    INT_TYPE cat4_t1[] = {1, 1, 4, 1, 3, 4, 1, 3, 5, 1, 4, 1, 1, 4, 3, 1, 4, 4, 1, 4, 5, 1, 5,
+        3, 1, 5, 4, 1, 5, 5, 3, 1, 4, 3, 2, 4, 3, 3, 4, 3, 3, 5, 3, 4, 1, 3,
+        4, 2, 3, 4, 3, 3, 4, 4, 3, 4, 5, 3, 5, 3, 3, 5, 4, 3, 5, 5, 4, 1, 1,
+        4, 1, 3, 4, 1, 4, 4, 2, 2, 4, 2, 3, 4, 2, 4, 4, 3, 1, 4, 3, 2, 4, 3,
+        3, 4, 3, 4, 4, 3, 5, 4, 4, 1, 4, 4, 2, 4, 4, 3, 4, 4, 4, 4, 4, 5, 4,
+        5, 3, 4, 5, 4, 4, 5, 5, 5, 1, 3, 5, 1, 4, 5, 2, 3, 5, 2, 4, 5, 3, 1,
+        5, 3, 2, 5, 3, 3, 5, 3, 4, 5, 3, 5, 5, 4, 1, 5, 4, 2, 5, 4, 3, 5, 4,
+        4, 5, 4, 5, 5, 5, 3, 5, 5, 4, 5, 5, 5};
+    INT_TYPE lat4_t1 = 58;
+    
+    INT_TYPE cat4_t2[] = {2, 1, 4, 2, 3, 4, 2, 3, 5, 2, 4, 1, 2, 4, 3, 2, 4, 4, 2, 4, 5, 2, 5,
+        3, 2, 5, 4, 2, 5, 5, 3, 1, 4, 3, 2, 4, 3, 3, 4, 3, 3, 5, 3, 4, 1, 3,
+        4, 2, 3, 4, 3, 3, 4, 4, 3, 4, 5, 3, 5, 3, 3, 5, 4, 3, 5, 5, 4, 1, 2,
+        4, 1, 3, 4, 1, 4, 4, 2, 1, 4, 2, 3, 4, 2, 4, 4, 3, 1, 4, 3, 2, 4, 3,
+        3, 4, 3, 4, 4, 3, 5, 4, 4, 1, 4, 4, 2, 4, 4, 3, 4, 4, 4, 4, 4, 5, 4,
+        5, 3, 4, 5, 4, 4, 5, 5, 5, 1, 3, 5, 1, 4, 5, 2, 3, 5, 2, 4, 5, 3, 1,
+        5, 3, 2, 5, 3, 3, 5, 3, 4, 5, 3, 5, 5, 4, 1, 5, 4, 2, 5, 4, 3, 5, 4,
+        4, 5, 4, 5, 5, 5, 3, 5, 5, 4, 5, 5, 5};
+    INT_TYPE lat4_t2 = 58;
+
+
+    switch (bd){
+        case two:
+            switch ( irrep ) {
+                case 1:
+                    if ( cat < lat2_a1 )
+                        return cat2_a1[cat*3+space];
+                case 2:
+                    if ( cat < lat2_a2 )
+                        return cat2_a2[cat*3+space];
+            }
+
+            
+            
+        case three:
+            switch ( irrep ) {
+                case 1:
+                    if ( cat < lat3_a1 )
+                        return cat3_a1[cat*3+space];
+                case 2:
+                    if ( cat < lat3_a2 )
+                        return cat3_a2[cat*3+space];
+                case 3:
+                    if ( cat < lat3_ee )
+                        return cat3_ee[cat*3+space];
+            }
+            
+        case four:
+            switch ( irrep ) {
+                case 1:
+                    if ( cat < lat4_a1 )
+                        return cat4_a1[cat*3+space];
+                case 2:
+                    if ( cat < lat4_a2 )
+                        return cat4_a2[cat*3+space];
+                case 3:
+                    if ( cat < lat4_ee )
+                        return cat4_ee[cat*3+space];
+                case 4:
+                    if ( cat < lat4_t1 )
+                        return cat4_t1[cat*3+space];
+                case 5:
+                    if ( cat < lat4_t2 )
+                        return cat4_t2[cat*3+space];
+
+            }
+
+    }
+    return 0;
+}
+//SA++
 
 
 INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, INT_TYPE leftChar , enum division left, INT_TYPE l, INT_TYPE lspin, enum division equals, INT_TYPE espin){

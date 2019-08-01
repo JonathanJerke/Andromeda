@@ -4174,7 +4174,7 @@ double quadCal(struct general_2index * aAf ){
     }
     return sum;
 }
-void mySeparateExactTwo (struct sinc_label  f1, struct interaction_label twoBody,enum division interactionExchange, double scalar,  enum division basis,INT_TYPE overline, INT_TYPE particle1){//overline = ##particle number ...  = intercellular interaction
+void mySeparateExactTwo (struct sinc_label  f1, struct interaction_label twoBody,enum division interactionExchange, double scalar,  enum division basis,INT_TYPE overline, INT_TYPE particle1,INT_TYPE diagonal){//overline = ##particle number ...  = intercellular interaction
     //https://keisan.casio.com/exec/system/1329114617
     zero(f1,interactionExchange,0);
     
@@ -4305,7 +4305,8 @@ void mySeparateExactTwo (struct sinc_label  f1, struct interaction_label twoBody
                                     I3 = ( si / N1) % N1;
                                     I2 = ( si /  (N1*N1) ) % N1;
                                     I4 = ( si / ( N1*N1*N1) ) % N1;
-                                    
+                                    if ( diagonal && (I1 != I3 || I2 != I4 ) )
+                                        continue;
                                     g2.realFlag = cmpl+1;
                                     g2.momentumShift = 0;
                                     g2.gaussianAccelerationFlag = 0;

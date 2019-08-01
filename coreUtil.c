@@ -552,7 +552,7 @@ void  fromBeginning( struct sinc_label  f1 ,enum division new, enum division hea
 Stream_Type*  myStreams ( struct sinc_label f1, enum division label ,INT_TYPE spin){
     INT_TYPE space = SPACE;//buffer-space
     if ( spin < 0 || spin >= spins(f1, label)){
-        printf("my spins %d\n",label);
+        printf("my spins %d %d\n",label ,spin);
         exit(5);
     }
 

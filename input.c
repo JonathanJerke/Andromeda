@@ -117,7 +117,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
     INT_TYPE i,d,ivalue;
     char test_line [MAXSTRING];
     double value;
-    INT_TYPE NINT_TYPE = 117;
+    INT_TYPE NINT_TYPE = 118;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -142,7 +142,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "length","XHA","lookBack","step","theory",
         "configuration","densityRank","densityBody","parallel","phase",
         "around","cmpl","clampStage","OCSB","decompose",
-        "shiftNO","matrix"
+        "shiftNO","matrix","catalog"
     };
     INT_TYPE NDOUBLE = 76;
     char *list_DOUBLE []= {"#",
@@ -755,7 +755,9 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                 case 117:
                     c->i.decomposeRankMatrix = ivalue;
                     return i;
-
+                case 118:
+                    f1->cat = ivalue;
+                    return i;
             }
         
         }

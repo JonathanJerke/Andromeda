@@ -71,7 +71,7 @@ double monteCarloElementCal (double beta, struct general_2index *aAf  );
 double findMyInterval1 ( struct sinc_label f1  , double gamma , struct interaction_label lab,double lvl, INT_TYPE periodic);
 double findMyInterval2 ( struct sinc_label f1  , double gamma , struct interaction_label lab,double lvl,INT_TYPE periodic);
 void mySeparateExactOne (struct sinc_label f1, double scalar, enum division basis);
-void mySeparateExactTwo (struct sinc_label f1, struct interaction_label twoBody,enum division interactionExchange, double scalar,  enum division basis,INT_TYPE periodicOverRide, INT_TYPE particle1);
+void mySeparateExactTwo (struct sinc_label f1, struct interaction_label twoBody,enum division interactionExchange, double scalar,  enum division basis,INT_TYPE periodicOverRide, INT_TYPE particle1,INT_TYPE diagonal);
 void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec,double *  occupy, enum division vectors,INT_TYPE part1,enum division interaction,enum division shorten, double scalar,INT_TYPE plus,double rescale, enum particleType particle);
 void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label twoBody,INT_TYPE periodic, enum division interactionExchangePlus,enum division shorten ,double scalar,  INT_TYPE plus,double rescale, enum particleType particle1,enum particleType particle2);
 INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum division linear, INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1 );

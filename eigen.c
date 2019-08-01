@@ -149,25 +149,25 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
             }
             
             
-            if ( 1|| space == 0 || space == COMPONENT ){
-            if ( cmplFlag ){
-                for ( i = 0 ; i < N1 ; i++){
-                    printf("\n\n%f \n\n", w[i]);
-                    
-                    for ( ii = 0; ii < N1 ; ii++)
-                        printf("\n%d--%f+I%f,",ii+1, creal(arc[i*N1+ii]),cimag(arc[i*N1+ii]));
-                }
-                
-            }else {
-                for ( i = 0 ; i < 1 ; i++){
-                    printf("\n\n%d %f \n\n",i+1, w[i]);
-                    
-                    for ( ii = 0; ii < N1 ; ii++)
-                        printf("%f,", ar[i*N1+ii]);
-                }
-                
-            }
-            }
+//            if ( 1|| space == 0 || space == COMPONENT ){
+//            if ( cmplFlag ){
+//                for ( i = 0 ; i < N1 ; i++){
+//                    printf("\n\n%f \n\n", w[i]);
+//
+//                    for ( ii = 0; ii < N1 ; ii++)
+//                        printf("\n%d--%f+I%f,",ii+1, creal(arc[i*N1+ii]),cimag(arc[i*N1+ii]));
+//                }
+//
+//            }else {
+//                for ( i = 0 ; i < 1 ; i++){
+//                    printf("\n\n%d %f \n\n",i+1, w[i]);
+//
+//                    for ( ii = 0; ii < N1 ; ii++)
+//                        printf("%f,", ar[i*N1+ii]);
+//                }
+//
+//            }
+            
 
             if ( bootBodies == nada ){
 
@@ -219,14 +219,21 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                         f1.tulip[diagonal1VectorB].Current[rank] = 1;
                         f1.tulip[diagonalVectorA].Current[rank] = 0;
                         tOuterProductSuOne(f1,space, diagonal1VectorA, rank, diagonal1VectorB, rank, diagonalVectorA, rank);
-                        cblas_dcopy(N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
                         
                         
-                        streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0];
-                        //
-                        streams(f1,foundationStructure,1,space)[v] = 1;
-                        //
+                        
+                        //SA++
+                        f1.tulip[diagonalVectorB].Current[rank] = 0;
+                        f1.tulip[diagonalVectorA].Current[rank] = 1;
+                        tBuildIrr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
+                        if ( cblas_dnrm2(N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
+                            cblas_dcopy(N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
+                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0];
+                            streams(f1,foundationStructure,1,space)[v] = 1;
+                        }
                     }
+                    //SA++
+
                 }
                 
                 
@@ -274,11 +281,21 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                     f1.tulip[diagonalVectorA].Current[rank] = 0;
                     tOuterProductSuOne(f1,space, diagonal2VectorA, rank, diagonal1VectorC, rank, diagonalVectorA, rank);
                     
-                    cblas_dcopy(N1*N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
-                    
-                    streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0];
-                    streams(f1,foundationStructure,1,space)[v] = 1;
+                    //SA++
+                    f1.tulip[diagonalVectorB].Current[rank] = 0;
+                    f1.tulip[diagonalVectorA].Current[rank] = 1;
+                    tBuildIrr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
+                       // printf("\n%d %d %f\n",space, v,cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1));
+                        if ( cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
+                            
+                            cblas_dcopy(N1*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
+                            
+                            
+                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0];
+                            streams(f1,foundationStructure,1,space)[v] = 1;
+                        }
                     }
+                    //SA++
                 }
             }else if ( bootBodies == four ){
                 
@@ -327,12 +344,28 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
 
                     tOuterProductSuOne(f1,space, diagonal2VectorA, rank, diagonal2VectorB, rank, diagonalVectorA, rank);
                     
-                       // double u = cblas_dnrm2(N2*N2, streams(f1, diagonalVectorA,rank,space), 1);
-                        cblas_dcopy(N2*N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2*N2, 1);
-                    
-                    streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0] + w[iv]-w[0];
-                    streams(f1,foundationStructure,1,space)[v] = 1;
+                        //SA++
+                        f1.tulip[diagonalVectorB].Current[rank] = 0;
+                        f1.tulip[diagonalVectorA].Current[rank] = 1;
+                        tBuildIrr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
+                        // printf("\n%d %d %f\n",space, v,cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1));
+                        if ( cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
+                            
+                            cblas_dcopy(N1*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
+                            
+                            
+                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0];
+                            streams(f1,foundationStructure,1,space)[v] = 1;
+                        }
                     }
+                    //SA++
+
+//                       // double u = cblas_dnrm2(N2*N2, streams(f1, diagonalVectorA,rank,space), 1);
+//                        cblas_dcopy(N2*N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2*N2, 1);
+//
+//                    streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0] + w[iv]-w[0];
+//                    streams(f1,foundationStructure,1,space)[v] = 1;
+//                    }
                 }
                 
             }
@@ -340,6 +373,42 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
     return 0;
 }
 
+INT_TYPE tSortBoot(struct calculation * c1, struct sinc_label f1, enum division eigen){
+    assignCores(f1,1);
+    enum bodyType bootBodies = f1.rose[0].body;
+    INT_TYPE n1[SPACE];
+    length1(f1,n1);
+    INT_TYPE N1,rank;
+    INT_TYPE space,N2,i,ii,iii,iv,v;
+    double * ar,*w;
+    DCOMPLEX * arc ;
+    INT_TYPE cmplFlag = 0;
+    INT_TYPE tally = 0;
+    DCOMPLEX expect ;
+    for ( space = 0 ;space < SPACE ; space++)
+        if( f1.rose[space].body != nada){
+            
+            N1 = vectorLen(f1, space);
+            
+            tally = 0;
+            for ( i = 0  ; i < N1 ; i++)
+                if (streams(f1, foundationStructure,1,space)[i] > 0.5 ){
+                    if ( i != tally )
+                    {
+                        cblas_dcopy(N1, myStreams(f1,bill1+space,0)+i*N1, 1, myStreams(f1,bill1+space,0)+(tally)*N1,1);
+                        streams(f1, foundationStructure,1,space)[tally] = streams(f1, foundationStructure,1,space)[i];
+                        streams(f1, foundationStructure,1,space)[i] = 0.;
+                     }
+                    cblas_dscal(N1, 1./cblas_dnrm2(N1, myStreams(f1,bill1+space,0)+(tally)*N1, 1), myStreams(f1,bill1+space,0)+(tally)*N1, 1);
+                    pMatrixElements(f1, <#enum division bra#>, <#enum division mat#>, <#enum division ket#>, <#DCOMPLEX *ME#>, <#DCOMPLEX *OV#>)
+                    streams(f1, foundationStructure,0,space)[tally] = streams(f1, foundationStructure,0,space)[i];
+
+                    tally++;
+                    printf("%d\n", tally);
+                }
+        }
+    return 0;
+}
 //INT_TYPE tMap (struct calculation * c1 ){
 //    struct sinc_label f1 =  c1->i.c.sinc;
 //    size_t ms = MAXSTRING;
@@ -406,6 +475,8 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
 //    fclose(list);
 //    return 0;
 //}
+
+
 
 INT_TYPE tSlam (struct sinc_label f1,INT_TYPE allc, enum division vl, double fmax2){
     INT_TYPE tot =0,space,t,n1[SPACE];
@@ -576,9 +647,9 @@ INT_TYPE tFoundationLevel( struct sinc_label  f1, enum division A , double lvlm,
             if ( n1[space] ){
                 xx[space] = 1;
                 for ( i = 0; i < n1[space] ; i++)
-                if ( streams(f1,foundationStructure,1,space)[i] > 0.5 ){
-                    xx[space] = i+1;
-                }
+                    if ( streams(f1,foundationStructure,1,space)[i] > 0.5 ){
+                        xx[space] = i+1;
+                    }
             }else
                 xx[space] = 1;
         //printf("xx %d %d\n", xx[space],n1[space]);
@@ -654,7 +725,7 @@ INT_TYPE tFoundationLevel( struct sinc_label  f1, enum division A , double lvlm,
 INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum division usr){
     INT_TYPE i,ii,space,cmpl=0,rank;
     assignCores(f1, 1);
-
+    DCOMPLEX norm;
     if ( irrep && bodies(f1, usr ) > one ){
         printf("Symmetry Adaption -> %d-irrep\n", irrep );
         for ( ii = 0; ii < Ve ; ii++)
@@ -662,7 +733,7 @@ INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum divisio
             rank = 0;
             
             for ( cmpl = 0 ; cmpl < spins(f1, usr+ii) ; cmpl++){
-                f1.tulip[permutationVector].Current[rank] = 0;
+                f1.tulip[copyTwoVector].Current[rank] = 0;
                 for ( i = 0 ; i < CanonicalRank(f1, usr+ii, cmpl);i++)
                 {
                     f1.tulip[copyVector].Current[rank] = 0;
@@ -670,9 +741,12 @@ INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum divisio
                         xsAdd(1., space, f1, copyVector, rank, f1, usr+ii, i, cmpl);
                     f1.tulip[copyVector].Current[rank] = 1;
 
-                    tBuildIrr(rank, f1, irrep, copyVector, rank, permutationVector, rank);
+                    tBuildIrr(rank, f1, irrep, copyVector, rank, copyTwoVector, rank);
                 }
-                tCycleDecompostionGridOneMP(-2, f1, permutationVector, rank, NULL,usr+ii , cmpl, f1.rt->TARGET, part(f1,usr+ii), 1.);
+                tCycleDecompostionGridOneMP(-2, f1, copyTwoVector, rank, NULL,usr+ii , cmpl, f1.rt->TARGET, part(f1,usr+ii), 1.);
+                pMatrixElements( f1, usr+ii, nullName, usr+ii, NULL, &norm);
+                tScale(f1, usr+ii, 1./sqrt(cabs(norm)));
+
             }
         }
     }
@@ -705,9 +779,9 @@ INT_TYPE tSelect(struct sinc_label  f1, INT_TYPE Ve, INT_TYPE type, enum divisio
     if ( type ) {
         tClear(f1, usr+Ve);
         for ( sp = 0; sp < spins(f1, usr+Ve);sp++){
-            f1.tulip[permutationVector].Current[rank] = 0;
-            tBuildIrr(rank, f1, type, usa, sp, permutationVector, rank);
-            tCycleDecompostionListOneMP(rank, f1, permutationVector, rank, NULL,usr+Ve, sp, f1.rt->vCANON, part(f1,usr+Ve), -1);
+            f1.tulip[copyVector].Current[rank] = 0;
+            tBuildIrr(rank, f1, type, usa, sp, copyVector, rank);
+            tCycleDecompostionListOneMP(rank, f1, copyVector, rank, NULL,usr+Ve, sp, f1.rt->vCANON, part(f1,usr+Ve), -1);
         }
         
         value = magnitude(f1, usr+Ve);
