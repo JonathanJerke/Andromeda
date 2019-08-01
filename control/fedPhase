@@ -1,0 +1,13 @@
+*Body print
+	*Parameters
+		phase 5
+		type 0
+		levelLevel 50
+		body 1
+		foundation 400
+	.Parameters
+
+	*InputOutput
+		read ../../control/parallel
+	.InputOutput
+.Body

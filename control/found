@@ -1,0 +1,10 @@
+*Body found/found
+	*InputOutput
+		read ../../control/core
+		read ../cnfg
+		read boot
+		read symmetry
+		read ../../control/moreLanes
+		print 1
+	.InputOutput
+.Body
