@@ -84,8 +84,14 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
 
         for ( cmpl = 0; cmpl < spins(f1.f, f1.f.user) ; cmpl++){
             tClear(f1.f,totalVector);
-            for( g = 0; g < EV ; g++)
-                tAddTw(f1.f, totalVector, 0, f1.f.user+g, cmpl);
+            if ( f1.i.filter  && f1.i.irrep )
+            {
+                for( g = 0; g < EV ; g++)
+                    tBuildIrr(0, f1.f, f1.i.irrep, f1.f.user+g, cmpl, totalVector, 0);
+            }else {
+                for( g = 0; g < EV ; g++)
+                    tAddTw(f1.f, totalVector, 0, f1.f.user+g, cmpl);
+            }
             tCycleDecompostionGridOneMP(-2, f1.f, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1.f,eigenVectors), c1->rt.powDecompose);
             //     tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1,eigenVectors), 1.);
         }
