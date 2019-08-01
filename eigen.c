@@ -400,7 +400,7 @@ INT_TYPE tSortBoot(struct calculation * c1, struct sinc_label f1, enum division 
                         streams(f1, foundationStructure,1,space)[i] = 0.;
                      }
                     cblas_dscal(N1, 1./cblas_dnrm2(N1, myStreams(f1,bill1+space,0)+(tally)*N1, 1), myStreams(f1,bill1+space,0)+(tally)*N1, 1);
-                    pMatrixElements(f1, <#enum division bra#>, <#enum division mat#>, <#enum division ket#>, <#DCOMPLEX *ME#>, <#DCOMPLEX *OV#>)
+                   // pMatrixElements(f1, <#enum division bra#>, <#enum division mat#>, <#enum division ket#>, <#DCOMPLEX *ME#>, <#DCOMPLEX *OV#>)
                     streams(f1, foundationStructure,0,space)[tally] = streams(f1, foundationStructure,0,space)[i];
 
                     tally++;
