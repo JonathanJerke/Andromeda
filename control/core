@@ -16,6 +16,7 @@
 	#
 	#
 		#default
+		cmpl 1
 		OCSB 0
 		configuration 0
 		#Matrix of few could modify FOUNDATION
