@@ -139,8 +139,8 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "rds3","interactionOne","interactionTwo","oCycle","interactionZero",//90
         "breakBody","interval","RAM","monteCarlo","samples",//95
         "hartreeFock","basisStage","iterations","collect","states",//100
-        "length","XHA","lookBack","step","theory",
-        "configuration","densityRank","densityBody","parallel","phase",
+        "length","XHA","lookBack","step","theory",//105
+        "configuration","densityRank","densityBody","parallel","phase",//1101
         "around","cmpl","clampStage","OCSB","decompose",
         "shiftNO","matrix","catalog"
     };
@@ -735,7 +735,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     return i;
                     
                 case 112:
-                    c->i.complexType = ivalue;
+                    f1->cmpl = ivalue;
                     return i;
                     
                 case 113:
@@ -1494,6 +1494,11 @@ INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const ch
             case 28:
             {
                 sprintf(f1->fileList[f1->files++],"%s.vector", filename);
+                if (  strstr(filename,c->name) != NULL){
+                    printf(" cannot name inputs same as outputs\n");
+                    printf("%s \t %s\n", filename, c->name);
+                    exit(1);
+                }
 //                if ( (c->rt.printFlag/2 ) % 2 == 0 )
 //                    c->rt.printFlag += 2;//vector
 //

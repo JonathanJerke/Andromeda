@@ -405,6 +405,7 @@ void assignOneWithPointers( struct sinc_label f1, enum division oneMat , enum pa
 
     for ( tv = tv1 ; tv <= tv4 ; tv++){
         f1.tulip[oneMat+tv].Partition = part(f1, oneMat);
+        f1.tulip[oneMat+tv].spinor = spins(f1, oneMat);
         f1.tulip[oneMat+tv].species = matrix;
         f1.tulip[oneMat+tv].name = oneMat;
         if ( tv < tv4 )
@@ -441,6 +442,8 @@ void assignTwoWithPointers( struct sinc_label f1, enum division twoMat ){
     for ( e = e12 ; e <= maxee ; e++){
         f1.tulip[twoMat+e].name = twoMat;
         f1.tulip[twoMat+e].species = matrix;
+        f1.tulip[twoMat+e].spinor = spins(f1,twoMat);
+
         for ( space = 0; space < SPACE ; space++){
             f1.tulip[twoMat+e].space[space].block = e;
         }
@@ -832,10 +835,49 @@ INT_TYPE tScaleOne( struct sinc_label f1, enum division label,INT_TYPE spin, dou
 }
 
 
-INT_TYPE tScale( struct sinc_label f1, enum division label, double scalar ){
-    INT_TYPE sp;
-    for ( sp = 0; sp < spins(f1, label) ; sp++)
-        tScaleOne(f1, label, sp,scalar);
+INT_TYPE tScale( struct sinc_label f1, enum division label, DCOMPLEX scalar ){
+    if ( spins(f1, label ) == real ){
+        
+        if ( cimag(scalar) != 0. ){
+            printf("errr in Scalar \n");
+            printf("%f \n", cimag(scalar));
+            exit(1);
+        } else{
+            tScaleOne(f1, label, 0, creal(scalar));
+        }
+    }else{
+        if ( fabs(cimag(scalar)) > f1.rt->TARGET && fabs(creal(scalar)) > f1.rt->TARGET){
+            tClear(f1, scalarTemp);
+            tAddTw(f1, scalarTemp, 0, label, 1);
+            tScaleOne(f1, scalarTemp, 0,  -cimag(scalar)/creal(scalar));
+            tAddTw(f1, scalarTemp, 0, label, 0);
+            tScaleOne(f1, scalarTemp, 0,  creal(scalar));
+            tCycleDecompostionListOneMP(0, f1, scalarTemp, 0, NULL, label, 0, f1.rt->vCANON, part(f1,label), 1);
+            
+            tClear(f1, scalarTemp);
+            tAddTw(f1, scalarTemp, 0, label, 1);
+            tScaleOne(f1, scalarTemp, 0, creal(scalar)/cimag(scalar));
+            tAddTw(f1, scalarTemp, 0, label, 0);
+            tScaleOne(f1, scalarTemp, 0,  cimag(scalar));
+            tCycleDecompostionListOneMP(0, f1, scalarTemp, 0, NULL, label, 1, f1.rt->vCANON, part(f1,label), 1);
+            
+        }else if ( fabs(cimag(scalar)) < f1.rt->TARGET && fabs(creal(scalar)) > f1.rt->TARGET)
+        {
+            tScaleOne(f1, label, 0, creal(scalar));
+            tScaleOne(f1, label, 1, creal(scalar));
+            
+        }else if ( fabs(cimag(scalar)) > f1.rt->TARGET && fabs(creal(scalar)) < f1.rt->TARGET)
+        {
+            tScaleOne(f1, label, 0, cimag(scalar));
+            tScaleOne(f1, label, 1, -cimag(scalar));
+            
+            tEqua(f1, scalarTemp, 0, label, 0);
+            tEqua(f1, label, 0, label, 1);
+            tEqua(f1, label, 1, scalarTemp, 0);
+            
+        }
+    }
+    
     return 0;
 }
 
@@ -1619,12 +1661,13 @@ double levelDetermine ( INT_TYPE M1 , double * array , double level){
     return temp[i-1];
 }
 
-INT_TYPE  countLinesFromFile( struct field f1,INT_TYPE location, INT_TYPE *ir ){
-    INT_TYPE fi,lines = 0;
+INT_TYPE  countLinesFromFile(struct calculation *c1, struct field f1,INT_TYPE location, INT_TYPE *ir ){
+    INT_TYPE fi,cmpl,lines = 0;
     size_t ms = MAXSTRING;
     char line0[MAXSTRING];
     char name[MAXSTRING];
     char name2[MAXSTRING];
+    char line2[MAXSTRING];
 
     char *line = line0;
     INT_TYPE FIT ;
@@ -1645,6 +1688,7 @@ INT_TYPE  countLinesFromFile( struct field f1,INT_TYPE location, INT_TYPE *ir ){
             FILE * fp = fopen(name,"r");
             if ( fp == NULL ) {
                 printf("cannot find file: %s\n", name);
+                printf("perhaps system.h:MAXFILE is too small\n currently %d\n", MAXFILE);
                 exit(0);
             }
             getline(&line, &ms, fp);
@@ -1652,16 +1696,17 @@ INT_TYPE  countLinesFromFile( struct field f1,INT_TYPE location, INT_TYPE *ir ){
             {
                 if (! comment(line))
                 {
-                   // printf("%s\n", line);
-                  //  fflush(stdout);
-                    tFromReadToFilename(NULL, line,  name2, 0,0);
-                   // printf("%s\n", name2);
-                   // fflush(stdout);
+                    if (  strstr(name,c1->name) != NULL){
+                        printf(" cannot name inputs same as outputs\n");
+                        printf("%s \t %s\n", name, c1->name);
+                        exit(0);
+                    }
 
-                    *ir = imax(*ir,inputFormat(f1.f, name2, nullName, 2));
-                   // printf("%d \n", c1->i.iRank );
-                   // fflush(stdout);
-
+                    for ( cmpl = 0 ; cmpl < f1.i.cmpl ; cmpl++){
+                        strcpy(line2,line);
+                        tFromReadToFilename(NULL, line2,  name2, f1.i.cmpl-1,cmpl);
+                        *ir = imax(*ir,inputFormat(f1.f, name2, nullName, 2));
+                    }
                     lines++;
                 }
                 getline(&line, &ms, fp);

@@ -599,6 +599,7 @@ enum division{
     copyTwoVector,
     copyThreeVector,//113
     copyFourVector,
+    scalarTemp,
     productVector,
     permutationVector,
     permutation2Vector,
@@ -741,6 +742,7 @@ struct sinc_label {
     enum division user;
     enum division vectorOperator;
     enum division end;
+    enum spinType cmpl;
     struct runTime * rt;
 };
 
@@ -766,6 +768,7 @@ struct input_label {
     INT_TYPE nOperator;
     INT_TYPE filter;
     INT_TYPE collect;
+    INT_TYPE cmpl;
 };
 
 

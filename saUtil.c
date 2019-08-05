@@ -934,10 +934,10 @@ INT_TYPE matrixAction ( enum bodyType bd, enum block bk, INT_TYPE direction){
     if ( bd == two ){
         switch (bk){
             case tv1 :
-                return 2;
+                return 1;
 
             case tv2 :
-                return 1;
+                return 2;
                 
             case e12:
                 return 1;

@@ -67,7 +67,7 @@ void assignViewBlock(INT_TYPE lane, struct sinc_label  f1,  enum division A );
 enum division ocean(INT_TYPE lane, struct sinc_label f1,  INT_TYPE l, INT_TYPE spin);
 double tEqua ( struct sinc_label f1 , enum division targ ,INT_TYPE tspin, enum division orig,INT_TYPE ospin );
 INT_TYPE tScaleOne( struct sinc_label  f1, enum division label,INT_TYPE spin, double scalar );
-INT_TYPE tScale( struct sinc_label  f1, enum division label, double scalar );
+INT_TYPE tScale( struct sinc_label  f1, enum division label, DCOMPLEX scalar );
 INT_TYPE tAddTw( struct sinc_label f1 , enum division left, INT_TYPE lspin, enum division right , INT_TYPE rspin);
 INT_TYPE tEquals( struct sinc_label  f1 , enum division left , enum division right);
 INT_TYPE tAddTwo( struct sinc_label f1 , enum division left , enum division right);
@@ -97,5 +97,5 @@ struct basisElement grabBasis (struct sinc_label  f1, INT_TYPE space, INT_TYPE p
 struct basisElement defineSincBasis (enum noteType note, enum componentType space, enum basisElementType basis, double lattice , double origin, INT_TYPE count1, INT_TYPE elementIndex );
 struct basisElement defineGaussBasis (enum noteType note, enum componentType space, enum basisElementType basis, double lattice , double origin, INT_TYPE count1, INT_TYPE elementIndex );
 struct basisElement transformBasis( INT_TYPE flip,double scale, struct basisElement ba );
-INT_TYPE  countLinesFromFile( struct field f1,INT_TYPE location, INT_TYPE * ir);
+INT_TYPE  countLinesFromFile( struct calculation *c1,struct field f1,INT_TYPE location, INT_TYPE * ir);
 #endif /* coreUtil_h */

@@ -1066,16 +1066,18 @@ void matrixElements ( INT_TYPE rank,struct sinc_label  f1 , enum division bra, e
 
         }
         
-        co = 1;
         for ( sp = spm ; sp < spx;sp++){
             if (sp == 1 && f1.tulip[bra].spinor == cmpl)
-                co *= -I;
+                co = -I;
+            else
+                co = 1;
             co2 = 1.;
-            for ( e = 0 ; e < CanonicalRank(f1, bra, sp);e++)
-
             for ( sp2 = sp2m ; sp2 < sp2x;sp2++){
                 if (sp2 == 1&& f1.tulip[ket].spinor == cmpl)
-                    co2 *= I;
+                    co2 = I;
+                else
+                    co2 = 1;
+            for ( e = 0 ; e < CanonicalRank(f1, bra, sp);e++)
                 for ( r = 0 ; r < CanonicalRank(f1, ket, sp2);r++){
                     prod = 1.;
                     for ( dim = 0 ; dim < SPACE ; dim++)
@@ -1092,11 +1094,11 @@ void matrixElements ( INT_TYPE rank,struct sinc_label  f1 , enum division bra, e
                     *OV += co*co2*prod;
                     if ( mat == nullName )
                         continue;
-                    coi=1.;
                     for ( im = imr1 ; im < imr2;im++){
                         if (im == 1 && f1.tulip[mat].spinor == cmpl)
-                            coi*= I;
-                        
+                            coi = I;
+                        else
+                            coi = 1;
                         for ( l = 0 ; l < CanonicalRank(f1, name(f1,mat), im);l++){
                             
                             prod = 1;
@@ -1173,18 +1175,20 @@ void pMatrixElements ( struct sinc_label  f1 , enum division bra, enum division 
             
         }
         
-        co = 1;
         for ( sp = spm ; sp < spx;sp++){
             if (sp == 1 && f1.tulip[bra].spinor == cmpl)
-                co *= -I;
+                co = -I;
+            else
+                co = 1;
             
             
             for ( e = 0 ; e < CanonicalRank(f1, bra, sp);e++){
                 co2 = 1.;
             for ( sp2 = sp2m ; sp2 < sp2x;sp2++){
                     if (sp2 == 1&& f1.tulip[ket].spinor == cmpl)
-                        co2 *= I;
-                    
+                        co2 = I;
+                    else
+                        co2 = 1;
 #ifdef OMP
 #pragma omp parallel for private (rank,r,dim,prod,im,l,coi) schedule(dynamic,1)
 
@@ -1211,11 +1215,11 @@ void pMatrixElements ( struct sinc_label  f1 , enum division bra, enum division 
                         OVi[rank] += cimag(co*co2*prod);
                         if ( mat == nullName )
                             continue;
-                        coi=1.;
                         for ( im = imr1 ; im < imr2;im++){
                             if (im == 1 && f1.tulip[mat].spinor == cmpl)
-                                coi*= I;
-                            
+                                coi = I;
+                            else
+                                coi = 1;
                             for ( l = 0 ; l < CanonicalRank(f1, name(f1,mat), im);l++){
                                 
                                 prod = 1;
@@ -2076,9 +2080,9 @@ double distance (struct sinc_label  f1 , enum division alloy , enum division all
 }
 double magnitude ( struct sinc_label  f1 , enum division alloy ){
     DCOMPLEX OV = 0.;
-    double y= streams(f1,alloy,0,0)[0];
-    double y2= streams(f1,alloy,0,0)[1];
-    double y3= streams(f1,alloy,0,0)[2];
+//    double y= streams(f1,alloy,0,0)[0];
+//    double y2= streams(f1,alloy,0,0)[1];
+//    double y3= streams(f1,alloy,0,0)[2];
 
     pMatrixElements(f1, alloy, nullName, alloy, NULL, &OV);
    // printf("norms %f\n", creal(OV));

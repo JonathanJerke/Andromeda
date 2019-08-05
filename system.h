@@ -36,7 +36,7 @@
 #define MAXATOM 4
 
 #define MAXSTRING 1024
-#define MAXFILE 100
+#define MAXFILE 1000
 
 #define APPLE
 

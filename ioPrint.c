@@ -44,7 +44,7 @@ INT_TYPE printVector (struct calculation *c,struct sinc_label f1, char * name,ch
     for ( iii = iv; iii <= iv  ; iii++)
     {
         if ( cabs(*vector)> c->rt.TARGET){
-            if( spins(f1, eigenVectors )== 2)
+            if( f1.cmpl == 2)
                 fprintf(outf, "\"%s\",%d,%15.15f,%15.15f\n",name, iii+1,creal(*vector),cimag(*vector));
             else
                 fprintf(outf, "\"%s\",%d,%15.15f\n", name, iii+1,creal(*vector));
@@ -243,8 +243,11 @@ DCOMPLEX tFromReadToFilename (char * cycleName, char * read , char * filename,IN
     }
     if ( si == 2 || si == 3  ) {
         tFilename(token, number, 0, 0, cmpl, filename);
+        printf("%s\n", filename);
         return Occ+iOcc;
     }else {
+        printf("failed to load\n");
+        exit(0);
         return 0.;
     }
 }
@@ -431,9 +434,9 @@ INT_TYPE inputFormat(struct sinc_label f1,char * name,  enum division buffer, IN
         getline(&inputPt,&maxRead, in   );
         //   printf(">%lld %f\n",r, cblas_dnrm2( M[0],streams(f1, buffer, sp, 0)+ M[1] *r , 1  )*cblas_dnrm2( M[1],streams(f1, buffer, sp, 1)+ M[1] *r , 1  )*cblas_dnrm2( M[2],streams(f1, buffer, sp, 2)+ M[2] *r , 1  ));
     }
-    getline(&inputPt,&maxRead, in   );
+   // getline(&inputPt,&maxRead, in   );
     
-    
+//printf("\n %d -- %d -- %d\n",buffer,r1,sp);
     f1.tulip[buffer].Current[sp] = r1;
     
     
@@ -1023,6 +1026,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
     DCOMPLEX ov;
     size_t ms = MAXSTRING;
     char input_line[MAXSTRING];
+    char input_line2[MAXSTRING];
     char * mask = input_line;
     DCOMPLEX Occ;
     char name[MAXSTRING];
@@ -1033,7 +1037,8 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                 flagLoad = 0;
                 for ( cmpl = 0; cmpl < spins(f1, inputVectors); cmpl++)
                 {
-                    Occ = tFromReadToFilename(NULL, input_line,  name, spins(f1,eigenVectors)-1,cmpl);
+                    strcpy(input_line2 , input_line);
+                    Occ = tFromReadToFilename(NULL, input_line2,  name, spins(f1,eigenVectors)-1,cmpl);
                     if ( cabs(Occ) > c1->rt.TARGET){
                         {
                             f1.tulip[inputVectors+*ct].Current[cmpl] = 0;
@@ -1106,7 +1111,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
 
                 if ( flagLoad ) {
                     
-                    tScale(f1, inputVectors+*ct, creal(Occ));
+                    tScale(f1, inputVectors+*ct, creal(Occ));//error... need to scale real and complex separately!!!
                     
                     ov = magnitude(f1, inputVectors+*ct);
                     

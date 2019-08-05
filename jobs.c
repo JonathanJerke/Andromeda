@@ -57,7 +57,7 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
     INT_TYPE EV = 0,i,fi;
 
 
-    f1.i.qFloor = countLinesFromFile(f1,0,&f1.i.iRank);
+    f1.i.qFloor = countLinesFromFile(c1,f1,0,&f1.i.iRank);
     //count canonical-rank...
 
     
@@ -134,29 +134,36 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
 
 
     char * line = line0;
-    c1->i.canonRank = 0;
+    //c1->i.canonRank = 0;
     INT_TYPE fi,EV = 0,i,j,sp;
     double va;
     INT_TYPE lines = 0,flines = 0;
 
-    f1.i.qFloor = countLinesFromFile(f1,0,&f1.i.iRank);
-
+    f1.i.qFloor = countLinesFromFile(c1,f1,0,&f1.i.iRank);
+    printf("-->%d\n", f1.i.iRank);
    // c1->i.iRank = c1->i.bRank;
     iModel(c1,&f1);
     
     
-    if ( CanonicalRank(f1.f,interactionExchange,0) )
+    if ( CanonicalRank(f1.f,interactionExchange,0) ){
         ioStoreMatrix(f1.f,interactionExchange ,0,"interactionExchange.matrix",0);
+    }
     
-    if ( CanonicalRank(f1.f,intracellularSelfEwald,0) )
+    if ( CanonicalRank(f1.f,intracellularSelfEwald,0) ){
         ioStoreMatrix(f1.f,intracellularSelfEwald ,0,"intracellularSelfEwald.matrix",0);
-    if ( CanonicalRank(f1.f,intercellularSelfEwald,0) )
+        ioStoreMatrix(f1.f,intracellularSelfEwald ,1,"intracellularSelfEwald.1.matrix",0);
+
+    }
+    if ( CanonicalRank(f1.f,intercellularSelfEwald,0) ){
         ioStoreMatrix(f1.f,intercellularSelfEwald ,0,"intercellularSelfEwald.matrix",0);
+        ioStoreMatrix(f1.f,intercellularSelfEwald ,1,"intercellularSelfEwald.1.matrix",0);
 
-    if ( CanonicalRank(f1.f,interactionEwald,0) )
+    }
+
+    if ( CanonicalRank(f1.f,interactionEwald,0) ){
         ioStoreMatrix(f1.f,interactionEwald ,0,"interactionEwald.matrix",0);
-
-    
+        ioStoreMatrix(f1.f,interactionEwald ,1,"interactionEwald.1.matrix",0);
+    }
         if ( CanonicalRank(f1.f,shortenPlus,0) )
             ioStoreMatrix(f1.f,shortenPlus ,0,"shortenExchangePlus.matrix",0);
         
@@ -164,10 +171,11 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
             ioStoreMatrix(f1.f,shortenMinus ,0,"shortenExchangeMinus.matrix",0);
 
     
-    if ( CanonicalRank(f1.f,linear,0) )
+    if ( CanonicalRank(f1.f,linear,0) ){
         ioStoreMatrix(f1.f,linear ,0,"linear.matrix",0);
+        ioStoreMatrix(f1.f,linear ,1,"linear.1.matrix",0);
 
-    
+    }
     
     
     for ( fi =0 ; fi < f1.i.files ; fi++)
@@ -183,7 +191,7 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
     INT_TYPE iii,stride = f1.f.maxEV;
     char * token = filename;
     for ( iii = 0; iii < f1.i.nStates ; iii++){
-        
+        //printf("iii %d\n", iii);
         {
             FILE * outf ;
             sprintf(str, "%s-%d.vector",c1->name,iii+1);
@@ -194,15 +202,18 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
 
         for ( fi =0 ; fi <f1.i.files ; fi++){
             flines = 0;
+          //  printf("fi %d\n", fi);
+
             FILE * fp = fopen(f1.i.fileList[fi],"r");
             if ( fp == NULL ) {
                 printf("file?\n");
                 exit(0);
             }
             getline(&line, &ms, fp);
-
+           // printf("%s\t %s\n", line, f1.i.fileList[fi]);
             while(!feof(fp))
             {
+              //  printf("line %d\n",lines);
                 if (! comment(line))
                 {
                     
@@ -211,13 +222,35 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
                     sprintf(str, "%s-%d", c1->name, iii+1);
                     
                     {
-                        INT_TYPE number,si;
+                        DCOMPLEX out;
+                        INT_TYPE number,si2;
+                        double ir,ii=0.;
                         char pa[MAXSTRING],*pa0;
                         pa0 = pa;
                         pa0 = strtok(NULL, "\"");
-                        si = sscanf ( pa0, ",%d,",&number );
-                        if ( si == 1  ) {
-                            printVector(c1,f1.f,token,str,number-1,f1.i.irrep, V+stride*iii+lines);
+                      //  printf("%s \t %s\n", pa0, token);
+                        if ( f1.f.cmpl == 2 ){
+#if MKL
+                            si2 = sscanf( pa0 , ",%lld,%lf,%lf",&number ,&ir,&ii);
+#else
+                            si2 = sscanf( pa0 , ",%d,%lf,%lf",&number ,&ir,&ii);
+#endif
+                            si2--;
+                        }else {
+#if MKL
+                        si2 = sscanf( pa0 , ",%lld,%lf",&number ,&ir);
+#else
+                        si2 = sscanf( pa0 , ",%d,%lf",&number ,&ir);
+#endif
+                        }
+                     //   printf("%d\n",si2);
+                        if ( si2 == 2   ) {
+                            out =(*(V+stride*iii+lines)) * (ir + I*ii);
+                         //   printf("%s %s %d %f\n", token, str, number-1,creal(out) );
+
+                            printVector(c1,f1.f,token,str,number-1,f1.i.irrep, &out);
+                        }else {
+                            printf("errr\n");
                         }
                     }
                     lines++;

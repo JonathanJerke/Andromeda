@@ -5291,7 +5291,7 @@ INT_TYPE separateOverlap( struct sinc_label f1, INT_TYPE periodic,enum division 
 void separateDerivatives( struct sinc_label f1, INT_TYPE periodic,enum division mat, INT_TYPE *x, INT_TYPE *grad,double mag,INT_TYPE particle1 ){
     DCOMPLEX bca;
     double b0 = 1,powSpace,spaces=0;
-    INT_TYPE space,I1,I2,flagCMPL=0;
+    INT_TYPE space,I1,I2,flagCMPL=f1.cmpl;
     INT_TYPE dims[SPACE],signFlag= 1;
     length1(f1, dims);
     

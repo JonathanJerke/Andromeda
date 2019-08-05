@@ -99,11 +99,12 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                     
                 }else {
                     for ( v = 0 ; v < N2 ; v++)
-                        if ( f1.tulip[kinetic].spinor == cmpl){
-                            cmplFlag = 1;
-                            arc[v] = (streams(f1, kinetic,0,space)+space*N2)[v] + I * (streams(f1, kinetic,1,space)+space*N2)[v];
-                        }
-                        else{
+//                        if ( f1.tulip[kinetic].spinor == cmpl){
+//                            cmplFlag = 1;
+//                            arc[v] = (streams(f1, kinetic,0,space)+space*N2)[v] + I * (streams(f1, kinetic,1,space)+space*N2)[v];
+//                        }
+//                        else
+                    {
                             ar[v] = (streams(f1, kinetic,0,space)+space*N2)[v];
                         }
                 }
@@ -376,15 +377,12 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
 INT_TYPE tSortBoot(struct calculation * c1, struct sinc_label f1, enum division eigen){
     assignCores(f1,1);
     enum bodyType bootBodies = f1.rose[0].body;
-    INT_TYPE n1[SPACE];
-    length1(f1,n1);
     INT_TYPE N1,rank;
     INT_TYPE space,N2,i,ii,iii,iv,v;
     double * ar,*w;
     DCOMPLEX * arc ;
     INT_TYPE cmplFlag = 0;
     INT_TYPE tally = 0;
-    DCOMPLEX expect ;
     for ( space = 0 ;space < SPACE ; space++)
         if( f1.rose[space].body != nada){
             
@@ -400,13 +398,15 @@ INT_TYPE tSortBoot(struct calculation * c1, struct sinc_label f1, enum division 
                         streams(f1, foundationStructure,1,space)[i] = 0.;
                      }
                     cblas_dscal(N1, 1./cblas_dnrm2(N1, myStreams(f1,bill1+space,0)+(tally)*N1, 1), myStreams(f1,bill1+space,0)+(tally)*N1, 1);
-                   // pMatrixElements(f1, <#enum division bra#>, <#enum division mat#>, <#enum division ket#>, <#DCOMPLEX *ME#>, <#DCOMPLEX *OV#>)
                     streams(f1, foundationStructure,0,space)[tally] = streams(f1, foundationStructure,0,space)[i];
 
                     tally++;
-                    printf("%d\n", tally);
                 }
+            double tt[N1];
+            tdgeqr(0, f1, tally, N1, myStreams(f1,bill1+space,0), N1, tt);
         }
+    
+    
     return 0;
 }
 //INT_TYPE tMap (struct calculation * c1 ){
@@ -744,10 +744,9 @@ INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum divisio
                     tBuildIrr(rank, f1, irrep, copyVector, rank, copyTwoVector, rank);
                 }
                 tCycleDecompostionGridOneMP(-2, f1, copyTwoVector, rank, NULL,usr+ii , cmpl, f1.rt->TARGET, part(f1,usr+ii), 1.);
-                pMatrixElements( f1, usr+ii, nullName, usr+ii, NULL, &norm);
-                tScale(f1, usr+ii, 1./sqrt(cabs(norm)));
-
             }
+            pMatrixElements( f1, usr+ii, nullName, usr+ii, NULL, &norm);
+            tScale(f1, usr+ii, 1./sqrt(cabs(norm)));
         }
     }
     
@@ -1327,7 +1326,7 @@ INT_TYPE tEigenCycle (struct sinc_label  f1, enum division A ,char permutation, 
             printf("normaly, I would punch you!\n");
             exit(0);
         }
- //       tScale(f1, usz+n, 1./magnitude(f1, usz+n));
+       // tScale(f1, usz+n, 1./magnitude(f1, usz+n));
     }
     
     assignCores(f1, 1);
