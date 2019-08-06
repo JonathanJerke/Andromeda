@@ -237,14 +237,14 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
                         pa0 = strtok(NULL, "\"");
                       //  printf("%s \t %s\n", pa0, token);
                         if ( f1.f.cmpl == 2 ){
-#if MKL
+#ifdef MKL
                             si2 = sscanf( pa0 , ",%lld,%lf,%lf",&number ,&ir,&ii);
 #else
                             si2 = sscanf( pa0 , ",%d,%lf,%lf",&number ,&ir,&ii);
 #endif
                             si2--;
                         }else {
-#if MKL
+#ifdef MKL
                         si2 = sscanf( pa0 , ",%lld,%lf",&number ,&ir);
 #else
                         si2 = sscanf( pa0 , ",%d,%lf",&number ,&ir);
