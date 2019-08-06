@@ -4,15 +4,12 @@
 	.InputOutput
 
 	*Parameters
-		filter 1
-		lattice 2.0
-		range 2
-		levelScale 0.5
+		catalog 0 
+		levelScale 2
 		foundation 1000	
-		matrix 2
                 basisRank 12
                 states 10
-		iterations 6
+		iterations 12
 	.Parameters
 				
 .Body

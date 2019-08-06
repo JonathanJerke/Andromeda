@@ -5,14 +5,13 @@
 if $#argv == 3 then
 set src = $1
 set dir = $2
-set prev = $src/D.kry
-set file = $dir/A.riz
+set prev = $src/B.kry
+set file = $dir/C.riz
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
 echo "read ../../control/found" >> $file
 echo "read $dir/stage " >> $file
 foreach f (`cat $3`)
-
 if ( `splitFlag.csh` ) then
 echo "read $prev.$f-vector" >> $file
 else 
@@ -22,12 +21,10 @@ endif
 end
 echo "read ../../control/ritzPhase" >> $file
 echo ".InputOutput" >> $file
-echo "*Parameters" >> $file
-echo "  collect 0" >> $file
+echo "*Parameters" >>$file
+echo "	collect 1 " >> $file
 echo ".Parameters" >> $file
-
 echo ".Body" >> $file
-#cat $file | olympics
 ${LAUNCH}/csh/go.csh $file &
 
 endif

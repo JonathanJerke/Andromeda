@@ -1,25 +1,18 @@
 #!/bin/csh
 
-if $#argv == 5 then
-
-set attack = $1
-set stage = $2
-set newRank = $3
-set dir = $5
+if $#argv == 2 then
+set dir = $2
 set newStage = $dir/stage
-set src = $4
+set src = $1
 mkdir $dir
 if ! -e $newStage  then
 
 echo "*Body print " > $newStage
 echo "*InputOutput" >> $newStage
 echo " read $src/stage ">> $newStage
+echo " read $dir/inc" >> $newStage
+cp inc $dir
 echo ".InputOutput" >> $newStage
-echo "*Parameters " >> $newStage
-echo "    attack        $attack " >> $newStage
-echo "    bandStage     $stage " >> $newStage
-echo "    basisStage    $newRank " >> $newStage
-echo ".Parameters" >> $newStage
 echo ".Body" >> $newStage
 
 else
@@ -27,7 +20,7 @@ echo    "cannot overwrite targetDir"
 endif
 
 else
-echo "attack bandStage basisStage originDir targetDir"
+echo "attack originDir targetDir"
 endif
 
 

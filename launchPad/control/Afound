@@ -1,8 +1,7 @@
 *Body found/A.riz
 *InputOutput
 read found/found
-vector found/found
+read found/found-vector
 read ../../control/ritzPhase
-read symmetry
 .InputOutput
 .Body

@@ -2,11 +2,12 @@
 	*Parameters
 	#just keep canon BIG..if It asks for MONEY, give more canon!
 		canon 300
-		decompose 9
+		decompose 2
 		#system dependent
-		maxRAM 48
+		maxRAM 2
 	#OPEN GAME,  trade speed for accuracy!
 	#
+		cmpl 1	
 		condition 8
 		tolerance 6
 		threshold 3
@@ -16,7 +17,6 @@
 	#
 	#
 		#default
-		OCSB 0
 		configuration 0
 		#Matrix of few could modify FOUNDATION
 		matrix 1

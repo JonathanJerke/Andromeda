@@ -10,20 +10,11 @@ echo "*Body $file" > $file
 echo "*InputOutput" >> $file
 echo "read ../../control/found" >> $file
 echo "read $dir/stage " >> $file
-if ( `splitFlag.csh` ) then
-#	$LAUNCH/csh/cats.csh $file $prev-$i &
-else
-	echo "vector $prev-${i}" >> $file
-endif
+echo "vector $prev-${i}" >> $file
 echo "read ../../control/kryPhase ">> $file
 echo ".InputOutput" >> $file
 echo ".Body" >> $file
-
-if ( `splitFlag.csh` ) then
-      		 $LAUNCH/csh/cats.csh $file $prev-$i &
-       else
-		$LAUNCH/csh/go.csh $file	   
-     endif
+$LAUNCH/csh/cats.csh $file &
 end
 else 
 echo "originDir targetDir goSet"

@@ -1,9 +1,5 @@
 #!/bin/csh
 
-set att = 0.5
-set bandStage = 1
-set basisStage = 3
-
 if ( -e commands ) then
 rm commands
 endif
@@ -14,15 +10,27 @@ foreach curr ( $argv )
 	if ( $flag == 1 ) then
 		set flag = 0
 		if ( $curr == found ) then
-			$LAUNCH/csh/go.csh found/found found/Afound   
-			$LAUNCH/csh/krylov.csh found found states          	
+	
+			if ( `splitFlag.csh`) then
+				$LAUNCH/csh/cats.csh found/found
+			else
+				$LAUNCH/csh/gos.csh found/found
+			endif
+			$LAUNCH/csh/go.csh found/Afound   
+			$LAUNCH/csh/krylov.csh $curr $curr states
+			$LAUNCH/csh/ritzB.csh $curr $curr states
+	                $LAUNCH/csh/krylovB.csh  $curr $curr states
+      	
 		endif 
 	else
-		$LAUNCH/csh/addStage.csh $att $bandStage $basisStage $prev $curr
+		$LAUNCH/csh/addStage.csh $prev $curr
 		$LAUNCH/csh/ritz.csh $prev $curr states
-		$LAUNCH/csh/krylov.csh  $curr $curr states		
+		$LAUNCH/csh/krylov.csh  $curr $curr states
+		$LAUNCH/csh/ritzB.csh $curr $curr states
+		$LAUNCH/csh/krylovB.csh  $curr $curr states
 	endif
 	set prev = $curr
+	sleep 4
 end
-sleep 2
+sleep 4
 rm waiter
