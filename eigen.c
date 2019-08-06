@@ -142,7 +142,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
             if ( cmplFlag )
                complete =  tzheev(0, f1, 'V', N1, arc, N1, w);
             else
-              complete =   tdsyev(0, f1, 'V', N1, ar, N1, w);
+                complete =   tdsyev(0, f1, 'V', N1, ar, N1, w);
             
             if ( complete ){
                 printf("eigensovle failed\n");
@@ -224,14 +224,23 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                         
                         
                         //SA++
-                        f1.tulip[diagonalVectorB].Current[rank] = 0;
-                        f1.tulip[diagonalVectorA].Current[rank] = 1;
-                        tBuildIrr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
-                        if ( cblas_dnrm2(N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
-                            cblas_dcopy(N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
+                        if ( f1.cat ){
+                            f1.tulip[diagonalVectorB].Current[rank] = 0;
+                            f1.tulip[diagonalVectorA].Current[rank] = 1;
+
+                            tBuildIrr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
+                            if ( cblas_dnrm2(N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
+                                cblas_dcopy(N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
+                                streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0];
+                                streams(f1,foundationStructure,1,space)[v] = 1;
+                            }
+                        } else {
+                            cblas_dcopy(N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
                             streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0];
                             streams(f1,foundationStructure,1,space)[v] = 1;
+
                         }
+                    
                     }
                     //SA++
 
@@ -283,20 +292,29 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                     tOuterProductSuOne(f1,space, diagonal2VectorA, rank, diagonal1VectorC, rank, diagonalVectorA, rank);
                     
                     //SA++
-                    f1.tulip[diagonalVectorB].Current[rank] = 0;
-                    f1.tulip[diagonalVectorA].Current[rank] = 1;
-                    tBuildIrr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
-                       // printf("\n%d %d %f\n",space, v,cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1));
-                        if ( cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
+                        if ( f1.cat ){
+                            f1.tulip[diagonalVectorB].Current[rank] = 0;
+                            f1.tulip[diagonalVectorA].Current[rank] = 1;
+
+                            tBuildIrr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
+                            // printf("\n%d %d %f\n",space, v,cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1));
+                            if ( cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
+                                
+                                cblas_dcopy(N1*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
+                                
+                                
+                                streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0];
+                                streams(f1,foundationStructure,1,space)[v] = 1;
+                            }
+                            //SA++
                             
-                            cblas_dcopy(N1*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
-                            
-                            
-                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0];
+                        } else {
+                            cblas_dcopy(N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
+                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0];
                             streams(f1,foundationStructure,1,space)[v] = 1;
+                            
                         }
                     }
-                    //SA++
                 }
             }else if ( bootBodies == four ){
                 
@@ -344,23 +362,29 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                         f1.tulip[diagonal2VectorB].Current[rank] = 1;
 
                     tOuterProductSuOne(f1,space, diagonal2VectorA, rank, diagonal2VectorB, rank, diagonalVectorA, rank);
-                    
-                        //SA++
-                        f1.tulip[diagonalVectorB].Current[rank] = 0;
-                        f1.tulip[diagonalVectorA].Current[rank] = 1;
-                        tBuildIrr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
-                        // printf("\n%d %d %f\n",space, v,cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1));
-                        if ( cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
+                        if (f1.cat ){
+                            //SA++
+                            f1.tulip[diagonalVectorB].Current[rank] = 0;
+                            f1.tulip[diagonalVectorA].Current[rank] = 1;
                             
-                            cblas_dcopy(N1*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
+                            tBuildIrr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
+                            // printf("\n%d %d %f\n",space, v,cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1));
+                            if ( cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
+                                
+                                cblas_dcopy(N1*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
+                                
+                                
+                                streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0];
+                                streams(f1,foundationStructure,1,space)[v] = 1;
+                            }
                             
-                            
-                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0];
+                            //SA++
+                        } else {
+                            cblas_dcopy(N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
+                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0];
                             streams(f1,foundationStructure,1,space)[v] = 1;
+                            
                         }
-                    }
-                    //SA++
-
 //                       // double u = cblas_dnrm2(N2*N2, streams(f1, diagonalVectorA,rank,space), 1);
 //                        cblas_dcopy(N2*N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2*N2, 1);
 //
@@ -368,7 +392,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
 //                    streams(f1,foundationStructure,1,space)[v] = 1;
 //                    }
                 }
-                
+                }
             }
         }
     return 0;
@@ -740,8 +764,10 @@ INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum divisio
                     for ( space = 0; space < SPACE ; space++)
                         xsAdd(1., space, f1, copyVector, rank, f1, usr+ii, i, cmpl);
                     f1.tulip[copyVector].Current[rank] = 1;
-
-                    tBuildIrr(rank, f1, irrep, copyVector, rank, copyTwoVector, rank);
+                    if ( f1.cat )
+                        tBuild3Irr(rank, f1, irrep, copyVector, rank, copyTwoVector, rank);
+                    else
+                        tBuildIrr(rank, f1, irrep, copyVector, rank, copyTwoVector, rank);
                 }
                 tCycleDecompostionGridOneMP(-2, f1, copyTwoVector, rank, NULL,usr+ii , cmpl, f1.rt->TARGET, part(f1,usr+ii), 1.);
             }
@@ -1300,7 +1326,7 @@ INT_TYPE tEdges(struct sinc_label f1, enum division vector){
 
 
 
-INT_TYPE tEigenCycle (struct sinc_label  f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE iterations, INT_TYPE foundation, INT_TYPE irrep,INT_TYPE flag,  enum division outputSpace, enum division outputValues){
+INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE iterations, INT_TYPE foundation, INT_TYPE irrep,INT_TYPE flag,  enum division outputSpace, enum division outputValues){
     INT_TYPE in,gvOut,prevBuild;
     time_t start_t, lapse_t;
     myZero(f1, matrixHbuild, 0);
@@ -1308,17 +1334,21 @@ INT_TYPE tEigenCycle (struct sinc_label  f1, enum division A ,char permutation, 
     time(&start_t);
     enum division Mat;
     INT_TYPE cmpl,cmpl2,cmpl3,cat,iii = 0,maxEV = f1.maxEV,rank;
-    INT_TYPE stride = maxEV;
+    INT_TYPE stage, maxStage=0,minStage,stride = maxEV;
     double * ritz = myStreams(f1, outputValues, 0);
     double * overlap = myStreams(f1, conditionOverlapNumbers, 0);
     enum division el ;
     DCOMPLEX *T  =  (DCOMPLEX *) myStreams(f1, matrixHbuild,0/*CORE RANK*/);
     DCOMPLEX *S  =  (DCOMPLEX *) myStreams(f1, matrixSbuild,0/*CORE RANK*/);
+    DCOMPLEX *t  =  T+stride*stride;
+    DCOMPLEX *s  =  S+stride*stride;
+    INT_TYPE qs,aa[stride];
     INT_TYPE powerMat;
 
     INT_TYPE info,n,m,s1,g,r,rr,rx,gx,a,a2;
     enum division leftP ;
     prevBuild = 0;
+    minStage = f1.tulip[usz].value.stage;
     for ( n = prevBuild; n < quantumBasisSize ; n++)
     {
         if ( magnitude(f1, usz+n) == 0. )
@@ -1326,6 +1356,9 @@ INT_TYPE tEigenCycle (struct sinc_label  f1, enum division A ,char permutation, 
             printf("normaly, I would punch you!\n");
             exit(0);
         }
+        maxStage = imax(maxStage ,f1.tulip[usz+n].value.stage);
+        minStage = imin(minStage ,f1.tulip[usz+n].value.stage);
+
        // tScale(f1, usz+n, 1./magnitude(f1, usz+n));
     }
     
@@ -1436,58 +1469,83 @@ INT_TYPE tEigenCycle (struct sinc_label  f1, enum division A ,char permutation, 
 //    time(&lapse_t);
 //    f1->mem1->rt->buildTime += difftime(lapse_t, start_t);
 //    time(&start_t);]
-      if (1){
-        assignCores(f1, 0);
-          INT_TYPE complete;
-        char Job = 'N';
-//        if (flag)
-            Job = 'V';
+    qs = quantumBasisSize;
+    if ( typer == 0 )
+        maxStage = 0;
+    for ( stage = minStage ; stage <= maxStage ; stage++){
+        qs = 0;
+        for ( n = 0; n < quantumBasisSize ; n++)
+            switch ( typer ){
+                case 1:
+                    if (   f1.tulip[usz+n].value.stage <= stage ){
+                        aa[qs++] = n;
+                    }
+                    break;
+                case 0:
+                    aa[qs++] = n;
+                    break;
+                case -1:
+                    if (   f1.tulip[usz+n].value.stage >= stage ){
+                        aa[qs++] = n;
+                    }
+                    break;
+            }
+            
+        for ( n = 0; n < qs ; n++)
+            for ( m = 0; m < qs ; m++){
+                t[n*stride + m ] = T[aa[n]*stride + aa[m] ];
+                s[n*stride + m ] = S[aa[n]*stride + aa[m] ];
+            }
 
-       // cblas_zcopy(maxEV*stride , T , 1 , g+maxEV*stride , 1);
-          if ( 0 ){
-              cblas_zcopy(maxEV*stride , S , 1 , S+maxEV*stride , 1);
-              tzheev(0, f1, 'N', quantumBasisSize, S+maxEV*stride, stride, overlap);
-              if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < f1.rt->TOL && flag <= 2)
-                  printf(" Krylov-2\t %f \n",  overlap[quantumBasisSize-1]/overlap[0]);
-              else         if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < f1.rt->TOL && flag == 3)
-                  printf(" Krylov-3 \t %f \n",  overlap[quantumBasisSize-1]/overlap[0]);
-              else         if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < f1.rt->TOL && flag == 4)
-                  printf(" Krylov-4 \t %f \n",  overlap[quantumBasisSize-1]/overlap[0]);
-              else {
-                  printf("Linear dependent! %f\t%1.16f\n",overlap[quantumBasisSize-1],overlap[0]);
-                  return quantumBasisSize;
-              }
-              
-              cblas_zcopy(maxEV*stride , S , 1 , S+maxEV*stride , 1);
-          }
-        complete = tzhegv (0,f1,Job,quantumBasisSize,T,S,stride,ritz);
-          if ( complete ){
-              printf("eigensovle failed\n");
-              exit(1);
-          }
-
+        
+        if (1){
+            assignCores(f1, 0);
+            INT_TYPE complete;
+            char Job = 'V';
+//            if ( 0 ){
+//                cblas_zcopy(maxEV*stride , S , 1 , S+maxEV*stride , 1);
+//                tzheev(0, f1, 'N', quantumBasisSize, S+maxEV*stride, stride, overlap);
+//                if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < f1.rt->TOL && flag <= 2)
+//                    printf(" Krylov-2\t %f \n",  overlap[quantumBasisSize-1]/overlap[0]);
+//                else         if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < f1.rt->TOL && flag == 3)
+//                    printf(" Krylov-3 \t %f \n",  overlap[quantumBasisSize-1]/overlap[0]);
+//                else         if (  (overlap[0] > 0.) && overlap[quantumBasisSize-1]/overlap[0] < f1.rt->TOL && flag == 4)
+//                    printf(" Krylov-4 \t %f \n",  overlap[quantumBasisSize-1]/overlap[0]);
+//                else {
+//                    printf("Linear dependent! %f\t%1.16f\n",overlap[quantumBasisSize-1],overlap[0]);
+//                    return quantumBasisSize;
+//                }
+//
+//                cblas_zcopy(maxEV*stride , S , 1 , S+maxEV*stride , 1);
+//            }
+            complete = tzhegv (0,f1,Job,qs,t,s,stride,ritz);
+            if ( complete ){
+                printf("eigensovle failed\n");
+                exit(1);
+            }
+            
 #if VERBOSE
-          printf("eigenSolved\n");
+            printf("eigenSolved\n");
 #endif
-        fflush(stdout);
-    }
-    time(&lapse_t);
-
-    //f1->mem1->rt->eigenTime += difftime(lapse_t, start_t);
-    time(&start_t);
-    
-    {       //printf("\nHeader,Number,CEG,Linear,BODY,CLASS,WEIGHT\n");
-        for ( iii = 0; iii < imin(quantumBasisSize,Ne) ; iii++)
-        {
-            f1.tulip[eigenVectors+iii].value.value = ritz[iii];
-            printf("Press%d:,%1.15f, %f\n", iii+1, ritz[iii],cblas_dznrm2(quantumBasisSize,T+iii*stride, 1));
+            fflush(stdout);
         }
-    //    fflush(stdout);
+        time(&lapse_t);
+        
+        //f1->mem1->rt->eigenTime += difftime(lapse_t, start_t);
+        time(&start_t);
+        
+        {       //printf("\nHeader,Number,CEG,Linear,BODY,CLASS,WEIGHT\n");
+            for ( iii = 0; iii < imin(qs,Ne) ; iii++)
+            {
+                f1.tulip[eigenVectors+iii].value.value = ritz[iii];
+                printf("%d-Press%d:,%1.15f, %f\n",stage, iii+1, ritz[iii],cblas_dznrm2(qs,t+iii*stride, 1));
+            }
+            //    fflush(stdout);
+        }
     }
 
+    quantumBasisSize = qs;
 
-
-    
 //    if (flag == 3 ){
 //        if ( Ne > quantumBasisSize ){
 //            printf ("warning basis too small\n");
@@ -1673,9 +1731,9 @@ INT_TYPE tEigenCycle (struct sinc_label  f1, enum division A ,char permutation, 
                                         }else{
                                             if( cmpl2 == cmpl ){
                                                 if ( cmpl == 0 )
-                                                    pointers[rank][rr++] = creal((T + iii*stride)[g]);
+                                                    pointers[rank][rr++] = creal((t + iii*stride)[g]);
                                                 else if ( cmpl == 1 )
-                                                    pointers[rank][rr++] = cimag((T + iii*stride)[g]);
+                                                    pointers[rank][rr++] = cimag((t + iii*stride)[g]);
                                             }
                                             else
                                                 pointers[rank][rr++] = 0.0;//mask off other *SPIN*( or complex vector).

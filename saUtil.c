@@ -854,7 +854,6 @@ INT_TYPE tClassify(INT_TYPE rank, struct sinc_label  f1 , enum division label){
 
 
 
-#if 0
 INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin){
     INT_TYPE irrep,p;
 
@@ -883,9 +882,8 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum 
     
     return 0;
 }
-#else
 //SA++
-INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin){
+INT_TYPE tBuild3Irr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin){
     INT_TYPE p,space,oo;
     
     if ( meta == 0 || bodies(f1,origin ) == one ){
@@ -923,8 +921,6 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum 
 }
 //SA++
 
-
-#endif
 
 INT_TYPE matrixAction ( enum bodyType bd, enum block bk, INT_TYPE direction){
     

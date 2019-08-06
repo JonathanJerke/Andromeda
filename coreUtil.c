@@ -1662,7 +1662,7 @@ double levelDetermine ( INT_TYPE M1 , double * array , double level){
 }
 
 INT_TYPE  countLinesFromFile(struct calculation *c1, struct field f1,INT_TYPE location, INT_TYPE *ir ){
-    INT_TYPE fi,cmpl,lines = 0;
+    INT_TYPE fi,cmpl,lines = 0,num;
     size_t ms = MAXSTRING;
     char line0[MAXSTRING];
     char name[MAXSTRING];
@@ -1704,7 +1704,7 @@ INT_TYPE  countLinesFromFile(struct calculation *c1, struct field f1,INT_TYPE lo
 
                     for ( cmpl = 0 ; cmpl < f1.i.cmpl ; cmpl++){
                         strcpy(line2,line);
-                        tFromReadToFilename(NULL, line2,  name2, f1.i.cmpl-1,cmpl);
+                        tFromReadToFilename(NULL, line2,  name2, f1.i.cmpl-1,cmpl,&num);
                         *ir = imax(*ir,inputFormat(f1.f, name2, nullName, 2));
                     }
                     lines++;

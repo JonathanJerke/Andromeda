@@ -55,6 +55,7 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label , INT_TYPE meta , enum div
 INT_TYPE matrixAction ( enum bodyType bd, enum block bk, INT_TYPE direction);
 INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label , INT_TYPE dim, INT_TYPE leftChar , enum division left, INT_TYPE l, INT_TYPE lspin, enum division equals, INT_TYPE espin);
 INT_TYPE tCat3(enum bodyType bd ,  INT_TYPE irrep,INT_TYPE cat, INT_TYPE space);
+INT_TYPE tBuild3Irr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin);
 INT_TYPE tPermute(INT_TYPE rank, struct sinc_label , INT_TYPE leftChar , enum division left, INT_TYPE lspin, enum division equals, INT_TYPE espin);
 INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct sinc_label  f1 , enum division left ,INT_TYPE lspin, enum division right ,INT_TYPE rspin, double * sequ);
 INT_TYPE tAddUpComponents( INT_TYPE rank, struct sinc_label  f1 , enum division left , enum division right ,  double *up);

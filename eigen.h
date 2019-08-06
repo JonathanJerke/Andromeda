@@ -55,7 +55,7 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart,  struc
 INT_TYPE tLesserDivideIteration ( struct sinc_label f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
 INT_TYPE tMinorDivideIteration ( struct sinc_label f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, double shift);
 INT_TYPE tMap (struct calculation * c1 );
-INT_TYPE tEigenCycle (struct sinc_label  f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE iterations,INT_TYPE foundation, INT_TYPE type,INT_TYPE flag,  enum division outputSpace, enum division outputValues);
+INT_TYPE tEigenCycle (INT_TYPE typer,struct sinc_label  f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE iterations,INT_TYPE foundation, INT_TYPE type,INT_TYPE flag,  enum division outputSpace, enum division outputValues);
 INT_TYPE tSelect(struct sinc_label  f1, INT_TYPE Ve, INT_TYPE type, enum division usr, enum division usa, INT_TYPE testFlag);
 INT_TYPE tCollect (struct sinc_label  f1, INT_TYPE type,enum division usz, INT_TYPE target,double seekPower);
 INT_TYPE tFilter(struct sinc_label  f1, INT_TYPE Ve, INT_TYPE type, enum division usr);

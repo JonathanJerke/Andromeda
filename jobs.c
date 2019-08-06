@@ -38,7 +38,7 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
 //        tGreatDivideIteration(0, 0, f1.f, Ha, 1, 0, f1.f.user, 1, 2, 0);
 //        tFilter(f1.f, EV,1, f1.f.user);//classify
         if ( OVERFLAG  || SPACE == 1 )
-            tEigenCycle(f1.f,Ha,CDT, f1.i.nStates, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
+            tEigenCycle(0,f1.f,Ha,CDT, f1.i.nStates, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
 
     }else {
         exit(1);
@@ -184,8 +184,16 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
         printf ("ack!\n");
         exit(0);
     }
-    tEigenCycle(f1.f,Ha,CDT, f1.i.nStates, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
     
+    {
+        INT_TYPE typer;
+        if ( c1->i.shiftFlag )
+            typer = -1;
+        else
+            typer = 1;
+    
+    tEigenCycle(typer,f1.f,Ha,CDT, f1.i.nStates, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
+    }
     
     DCOMPLEX *V = (DCOMPLEX*)myStreams(f1.f,matrixHbuild,0);
     INT_TYPE iii,stride = f1.f.maxEV;
@@ -209,12 +217,11 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
                 printf("file?\n");
                 exit(0);
             }
-            getline(&line, &ms, fp);
            // printf("%s\t %s\n", line, f1.i.fileList[fi]);
-            while(!feof(fp))
+            if (  getline(&line, &ms, fp) > 0 )
             {
               //  printf("line %d\n",lines);
-                if (! comment(line))
+                if ( (!comment(line)) && (strlen(line) > 1) )
                 {
                     
                     token = strtok(line, "\"");
@@ -230,14 +237,14 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
                         pa0 = strtok(NULL, "\"");
                       //  printf("%s \t %s\n", pa0, token);
                         if ( f1.f.cmpl == 2 ){
-#ifdef MKL
+#if MKL
                             si2 = sscanf( pa0 , ",%lld,%lf,%lf",&number ,&ir,&ii);
 #else
                             si2 = sscanf( pa0 , ",%d,%lf,%lf",&number ,&ir,&ii);
 #endif
                             si2--;
                         }else {
-#ifdef MKL
+#if MKL
                         si2 = sscanf( pa0 , ",%lld,%lf",&number ,&ir);
 #else
                         si2 = sscanf( pa0 , ",%d,%lf",&number ,&ir);
@@ -257,8 +264,7 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
                 }
                 flines++;
 
-                getline(&line, &ms, fp);
-
+                    
             }
             
             fclose(fp);

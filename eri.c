@@ -26,8 +26,8 @@
 
 #include "eri.h"
 
-
-int main (INT_TYPE argc , char * argv[]){
+#if 0
+int main (int argc , char * argv[]){
 
 
     struct function_label func1 ;
@@ -129,3 +129,51 @@ int main (INT_TYPE argc , char * argv[]){
     }
 
 }
+#else
+
+int main (int argc , char * argv[]){
+    INT_TYPE n,i,j,N1;
+    struct calculation c;
+    struct field f;
+    c = initCal();
+    f = initField();
+
+    struct runTime * rt = & c.rt;
+    f.f.rt = rt;
+    FILE * out = fopen(argv[1],"a");
+
+    {
+        c.i.Na = 1;
+        c.i.atoms[1].label.Z = 1;
+        c.i.atoms[1].position[1] = atof(argv[2]);
+        iModel(&c, &f);
+        N1 = vectorLen(f.f, 0);
+        double ar[N1*N1];
+
+        for ( n = 0; n< N1*N1 ; n++)
+            ar[n] = 0.;
+        for ( n = 0; n < 22 ; n++)
+            cblas_daxpy(N1*N1, 1., streams(f.f,linear,0,0)+N1*N1*n, 1, ar, 1);
+        
+        
+        for ( i = 0; i < 32 ; i++)
+            for ( j = 0; j < 32 ; j++)
+            {
+                if ( i || j )
+                    fprintf(out,",");
+                if ( i < N1 && j < N1 )
+                    fprintf(out,"%f", ar[i*N1+j]);
+                else
+                    fprintf(out,"0.");
+
+            }
+        fModel( &f.f);
+        fprintf(out, "\n");
+    }
+    fclose(out);
+
+    
+    
+    return 0;
+}
+#endif

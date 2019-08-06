@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 6.4.4
+//VERSION 6.4.3
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -713,6 +713,7 @@ struct space_label{
 };
 
 struct value_label{
+    INT_TYPE stage;
     double value;
     double value2;
     INT_TYPE symmetry;
@@ -840,6 +841,7 @@ struct runTime {
 };
 
 struct input {
+    INT_TYPE barrier;
     double massElectron;//electron
     double massProton;//protons
     double massClampPair;//clamped second particle

@@ -4873,7 +4873,8 @@ INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum div
                 
                 if ( fn == LennardJones && section )
                     continue;
-                
+                if ( fn == Pseudo && section )
+                    continue;
                 
                 if ( imax(0,interval - section) == 0 ) {
                     ngk = 7;

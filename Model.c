@@ -136,7 +136,7 @@ struct field initField (void ) {
     i.i.files = 0;
     i.i.filesVectorOperator = 0;
     
-#ifdef APPLE
+#if 1
     i.i.d = 1.;
     i.i.cmpl = cmpl;
     i.i.bRank = 4;
@@ -145,9 +145,9 @@ struct field initField (void ) {
     i.i.qFloor = 1000;
     i.i.filter = 0;
     i.f.boot = fullMatrices;
-    i.i.body = three;
+    i.i.body = one;
     i.i.irrep = 0;
-    i.i.cat  = 2;
+    i.i.cat  = 0;
     i.i.epi = 2;
     
 #endif
@@ -157,7 +157,8 @@ struct calculation initCal (void ) {
     struct calculation i;
     
 
-#ifdef APPLE
+#if 1
+    i.i.barrier = 0;
    // i.i.OCSBflag = 0;
     i.i.springConstant = 0.;
     i.i.springFlag = 0;
@@ -205,7 +206,7 @@ struct calculation initCal (void ) {
             i.i.orgClamp = 0.5*(i.i.minClamp+i.i.maxClamp);
         }else if ( SPACE == 1 ){
             i.rt.calcType = electronicStuctureCalculation;
-            i.rt.runFlag = 7;
+            i.rt.runFlag = 0;
             i.i.level = 100;
             i.rt.phaseType = buildFoundation;
 
@@ -215,7 +216,7 @@ struct calculation initCal (void ) {
     i.i.massClampPair = 1836.15267245;
   //  resetExternal(&i, 2, 1);
     
-    i.i.twoBody.func.fn = Coulomb;
+    i.i.twoBody.func.fn = nullFunction;
     i.i.oneBody.func.fn = nullFunction;
     //i.i.springFlag = 1;
     i.i.springConstant = 0.25;
@@ -227,7 +228,7 @@ struct calculation initCal (void ) {
     i.i.twoBody.func.param[2]  = 1;
 
     i.i.oneBody.num = 50;
-    i.i.oneBody.func.interval  = 0;
+    i.i.oneBody.func.interval  = 1;
     i.i.oneBody.func.param[0]  = 1.;
     i.i.oneBody.func.param[1]  = 1;
     i.i.oneBody.func.param[2]  = 1;
@@ -674,7 +675,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     
                 {
                     enum bodyType bd;
-                    INT_TYPE fi,lines = 0;
+                    INT_TYPE fi,lines = 0,num;
                     size_t ms = MAXSTRING;
                     char line0[MAXSTRING];
                     char name[MAXSTRING];
@@ -696,7 +697,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                                     fromBeginning(*f1, vectorOperator+lines, last);
                                     INT_TYPE part1 = 0;
                                     for ( cmpl = f1->cmpl-1 ; cmpl >= 0 ; cmpl--){
-                                        tFromReadToFilename(NULL, line,  name, f1->cmpl-1,cmpl);
+                                        tFromReadToFilename(NULL, line,  name, f1->cmpl-1,cmpl,&num);
                                         part1 = imax(part1,inputFormat(*f1, name, nullName, 2));
                                     }//name = real component here.
                                     f1->tulip[vectorOperator+lines].Partition = part1;
@@ -903,6 +904,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
         fromBeginning(*f1,copyVector,canonicalme3Vector);
         f1->tulip[copyVector].Partition = maxVector;
+        if ( ! f1->cat )
+            f1->tulip[copyVector].Partition *= ra;
         f1->tulip[copyVector].species = vector;
         //f1->tulip[copyVector].spinor = parallel;
 
@@ -1400,7 +1403,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                         
                         
                         if ( ! flag ){
-                            if (! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ){
+                            if ((! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
                                 printf("you can remove this barrier, but I would recommend you run ritz or frame first\n");
                                 exit(0);
                             }
@@ -1441,7 +1444,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                         
                         if ( !flag ){
                             
-                            if (! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ){
+                            if ((! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
                                 printf("you can remove this barrier, but I would recommend you run frame first\n");
                                 exit(0);
                             }
@@ -1481,7 +1484,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     if ( bootBodies > one ){
                         if ( c1->i.twoBody.func.fn != nullFunction )
                             if(  ! ioStoreMatrix(*f1, interactionExchange, 0, "interactionExchange.matrix",1)){
-                            if ( c1->rt.phaseType != solveRitz ){
+                                if ((! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
                                 printf("you can remove this barrier, but I would recommend you run ritz first\n");
                                 exit(0);
                             }
@@ -1489,9 +1492,9 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                             mySeparateExactTwo(*f1,c1->i.twoBody, interactionExchange, 1., 0, 0, electron,0);
                         }
                     }
-                    if ( c1->i.twoBody.func.fn != nullFunction )
+                    if ( c1->i.oneBody.func.fn != nullFunction )
                         if(  ! ioStoreMatrix(*f1, linear, 0, "linear.matrix",1)){
-                            if ( c1->rt.phaseType != solveRitz ){
+                            if ((! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
                                 printf("you can remove this barrier, but I would recommend you run ritz first\n");
                                 exit(0);
                             }
@@ -1593,7 +1596,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 }
             
             if ( c1->i.twoBody.func.fn != nullFunction && !ioStoreMatrix(*f1,shortenPlus ,0,"shortenExchangePlus.matrix",1) ){
-                if ( c1->rt.phaseType != solveRitz ){
+                if ((! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
                     printf("you can remove this barrier, but I would recommend you run ritz first\n");
                     exit(0);
                 }
@@ -1601,7 +1604,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     mySeparateExactOneByOne(*f1,c1->i.twoBody, c1->i.decomposeRankMatrix,interactionExchangePlus, shortenPlus,-1., 1,c1->i.massClampPair/(c1->i.massClampPair+c1->i.massProton),electron, proton);
             }
             if ( c1->i.twoBody.func.fn != nullFunction&& ! ioStoreMatrix(*f1,shortenMinus ,0,"shortenExchangeMinus.matrix",1) ){
-                if ( c1->rt.phaseType != solveRitz ){
+                if ((! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
                     printf("you can remove this barrier, but I would recommend you run ritz first\n");
                     exit(0);
                 }

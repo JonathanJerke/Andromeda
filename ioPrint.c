@@ -226,9 +226,9 @@ void tFilename (char * cycleName, INT_TYPE count, INT_TYPE body ,INT_TYPE IRREP,
 }
 
 
-DCOMPLEX tFromReadToFilename (char * cycleName, char * read , char * filename,INT_TYPE cmplFlag, INT_TYPE cmpl){
+DCOMPLEX tFromReadToFilename (char * cycleName, char * read , char * filename,INT_TYPE cmplFlag, INT_TYPE cmpl, INT_TYPE *number){
     double Occ,iOcc=0;
-    INT_TYPE number,si,str0;
+    INT_TYPE si,str0;
     char tokens[2][MAXSTRING];
     char * token = &*tokens[0];
     char * pa = &* tokens[1];
@@ -236,13 +236,13 @@ DCOMPLEX tFromReadToFilename (char * cycleName, char * read , char * filename,IN
     /* walk through other tokens */
     pa = strtok(NULL, "\"");
     if ( ! cmplFlag )
-        si = sscanf ( pa, ",%d,%lf",&number, &Occ );
+        si = sscanf ( pa, ",%d,%lf",number, &Occ );
     else{
-        si = sscanf ( pa, ",%d,%lf,%lf",&number, &Occ,&iOcc );
+        si = sscanf ( pa, ",%d,%lf,%lf",number, &Occ,&iOcc );
         si--;
     }
     if ( si == 2 || si == 3  ) {
-        tFilename(token, number, 0, 0, cmpl, filename);
+        tFilename(token, *number, 0, 0, cmpl, filename);
         printf("%s\n", filename);
         return Occ+iOcc;
     }else {
@@ -1022,7 +1022,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
         printf("file of occupations is missing\n");
         exit(0);
     }
-    INT_TYPE flagLoad;
+    INT_TYPE flagLoad,stage;
     DCOMPLEX ov;
     size_t ms = MAXSTRING;
     char input_line[MAXSTRING];
@@ -1038,7 +1038,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                 for ( cmpl = 0; cmpl < spins(f1, inputVectors); cmpl++)
                 {
                     strcpy(input_line2 , input_line);
-                    Occ = tFromReadToFilename(NULL, input_line2,  name, spins(f1,eigenVectors)-1,cmpl);
+                    Occ = tFromReadToFilename(NULL, input_line2,  name, spins(f1,eigenVectors)-1,cmpl,&stage);
                     if ( cabs(Occ) > c1->rt.TARGET){
                         {
                             f1.tulip[inputVectors+*ct].Current[cmpl] = 0;
@@ -1092,6 +1092,8 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                                 flagLoad = 1;
 
                             }
+                            f1.tulip[inputVectors+*ct].value.stage = stage;
+
                             fModel(&f2.f);
                         }
                         
