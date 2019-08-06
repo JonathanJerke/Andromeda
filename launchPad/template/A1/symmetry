@@ -1,6 +1,0 @@
-*Body 
-	*InputOutput
-		# ALL IS TRIVIAL
-		read ../../symmetry/A1
-	.InputOutput
-.Body
