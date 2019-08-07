@@ -226,13 +226,14 @@ void tFilename (char * cycleName, INT_TYPE count, INT_TYPE body ,INT_TYPE IRREP,
 }
 
 
-DCOMPLEX tFromReadToFilename (char * cycleName, char * read , char * filename,INT_TYPE cmplFlag, INT_TYPE cmpl, INT_TYPE *number){
+DCOMPLEX tFromReadToFilename (char * cycleName, char * read , char * filename,INT_TYPE cmplFlag, INT_TYPE cmpl,char * title, INT_TYPE *number){
     double Occ,iOcc=0;
     INT_TYPE si,str0;
     char tokens[2][MAXSTRING];
     char * token = &*tokens[0];
     char * pa = &* tokens[1];
     token = strtok(read, "\"");
+    strcpy( title, token);
     /* walk through other tokens */
     pa = strtok(NULL, "\"");
     if ( ! cmplFlag )
@@ -1038,7 +1039,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                 for ( cmpl = 0; cmpl < spins(f1, inputVectors); cmpl++)
                 {
                     strcpy(input_line2 , input_line);
-                    Occ = tFromReadToFilename(NULL, input_line2,  name, spins(f1,eigenVectors)-1,cmpl,&stage);
+                    Occ = tFromReadToFilename(NULL, input_line2,  name, spins(f1,eigenVectors)-1,cmpl,f1.tulip[inputVectors+*ct].value.title,&stage);
                     if ( cabs(Occ) > c1->rt.TARGET){
                         {
                             f1.tulip[inputVectors+*ct].Current[cmpl] = 0;
@@ -1093,7 +1094,6 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
 
                             }
                             f1.tulip[inputVectors+*ct].value.stage = stage;
-
                             fModel(&f2.f);
                         }
                         

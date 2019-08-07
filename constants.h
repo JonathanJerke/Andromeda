@@ -713,6 +713,7 @@ struct space_label{
 };
 
 struct value_label{
+    char title [MAXSTRING];
     INT_TYPE stage;
     double value;
     double value2;

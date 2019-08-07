@@ -679,6 +679,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     size_t ms = MAXSTRING;
                     char line0[MAXSTRING];
                     char name[MAXSTRING];
+                    char title[MAXSTRING];
                     char *line = line0;
                     INT_TYPE FIT ;
                     FIT = f->i.filesVectorOperator ;
@@ -697,7 +698,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                                     fromBeginning(*f1, vectorOperator+lines, last);
                                     INT_TYPE part1 = 0;
                                     for ( cmpl = f1->cmpl-1 ; cmpl >= 0 ; cmpl--){
-                                        tFromReadToFilename(NULL, line,  name, f1->cmpl-1,cmpl,&num);
+                                        tFromReadToFilename(NULL, line,  name, f1->cmpl-1,cmpl,title,&num);
                                         part1 = imax(part1,inputFormat(*f1, name, nullName, 2));
                                     }//name = real component here.
                                     f1->tulip[vectorOperator+lines].Partition = part1;

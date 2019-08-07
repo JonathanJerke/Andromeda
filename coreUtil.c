@@ -1668,6 +1668,7 @@ INT_TYPE  countLinesFromFile(struct calculation *c1, struct field f1,INT_TYPE lo
     char name[MAXSTRING];
     char name2[MAXSTRING];
     char line2[MAXSTRING];
+    char title [MAXSTRING];
 
     char *line = line0;
     INT_TYPE FIT ;
@@ -1704,7 +1705,7 @@ INT_TYPE  countLinesFromFile(struct calculation *c1, struct field f1,INT_TYPE lo
 
                     for ( cmpl = 0 ; cmpl < f1.i.cmpl ; cmpl++){
                         strcpy(line2,line);
-                        tFromReadToFilename(NULL, line2,  name2, f1.i.cmpl-1,cmpl,&num);
+                        tFromReadToFilename(NULL, line2,  name2, f1.i.cmpl-1,cmpl,title,&num);
                         *ir = imax(*ir,inputFormat(f1.f, name2, nullName, 2));
                     }
                     lines++;

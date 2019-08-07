@@ -53,6 +53,6 @@ INT_TYPE printFaceOutput ( struct sinc_label f1,INT_TYPE number);
 INT_TYPE tLoadEigenWeights ( struct calculation * c1,struct field f1, char * filename ,INT_TYPE *ct, enum division input, INT_TYPE collect);
 
 void tFilename (char * cycleName, INT_TYPE count, INT_TYPE body ,INT_TYPE IRREP, INT_TYPE cmpl, char * filename);
-DCOMPLEX tFromReadToFilename (char * cycleName, char * read , char * filename,INT_TYPE cmplFlag, INT_TYPE cmpl,INT_TYPE *number);
+DCOMPLEX tFromReadToFilename (char * cycleName, char * read , char * filename,INT_TYPE cmplFlag, INT_TYPE cmpl,char * title,INT_TYPE *number);
 
 #endif /* ioPrint_h */

@@ -84,10 +84,10 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
 
         for ( cmpl = 0; cmpl < spins(f1.f, f1.f.user) ; cmpl++){
             tClear(f1.f,totalVector);
-            if ( f1.i.filter  && f1.i.irrep )
+            if ( f1.f.cat && f1.i.filter  && f1.i.irrep )
             {
                 for( g = 0; g < EV ; g++)
-                    tBuildIrr(0, f1.f, f1.i.irrep, f1.f.user+g, cmpl, totalVector, 0);
+                    tBuild3Irr(0, f1.f, f1.i.irrep, f1.f.user+g, cmpl, totalVector, 0);
             }else {
                 for( g = 0; g < EV ; g++)
                     tAddTw(f1.f, totalVector, 0, f1.f.user+g, cmpl);
@@ -207,79 +207,9 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
     }
     
     DCOMPLEX *V = (DCOMPLEX*)myStreams(f1.f,matrixHbuild,0);
-    INT_TYPE iii,stride = f1.f.maxEV;
-    char * token = filename;
+    INT_TYPE iii,ii,stride = f1.f.maxEV;
     for ( iii = 0; iii < f1.i.nStates ; iii++){
-        //printf("iii %d\n", iii);
-        {
-            FILE * outf ;
-            sprintf(str, "%s-%d.vector",c1->name,iii+1);
-            outf = fopen (str,"w");
-            fclose(outf);
-        }
-        lines = 0;
-
-        for ( fi =0 ; fi <f1.i.files ; fi++){
-            flines = 0;
-          //  printf("fi %d\n", fi);
-
-            FILE * fp = fopen(f1.i.fileList[fi],"r");
-            if ( fp == NULL ) {
-                printf("file?\n");
-                exit(0);
-            }
-           // printf("%s\t %s\n", line, f1.i.fileList[fi]);
-            while (  getline(&line, &ms, fp) > 0 )
-            {
-              //  printf("line %d\n",lines);
-                if ( (!comment(line)) && (strlen(line) > 1) )
-                {
-                    
-                    token = strtok(line, "\"");
-                    
-                    sprintf(str, "%s-%d", c1->name, iii+1);
-                    
-                    {
-                        DCOMPLEX out;
-                        INT_TYPE number,si2;
-                        double ir,ii=0.;
-                        char pa[MAXSTRING],*pa0;
-                        pa0 = pa;
-                        pa0 = strtok(NULL, "\"");
-                      //  printf("%s \t %s\n", pa0, token);
-                        if ( f1.f.cmpl == 2 ){
-#ifdef MKL
-                            si2 = sscanf( pa0 , ",%lld,%lf,%lf",&number ,&ir,&ii);
-#else
-                            si2 = sscanf( pa0 , ",%d,%lf,%lf",&number ,&ir,&ii);
-#endif
-                            si2--;
-                        }else {
-#ifdef MKL
-                        si2 = sscanf( pa0 , ",%lld,%lf",&number ,&ir);
-#else
-                        si2 = sscanf( pa0 , ",%d,%lf",&number ,&ir);
-#endif
-                        }
-                     //   printf("%d\n",si2);
-                        if ( si2 == 2   ) {
-                            out =(*(V+stride*iii+lines)) * (ir + I*ii);
-                         //   printf("%s %s %d %f\n", token, str, number-1,creal(out) );
-
-                            printVector(c1,f1.f,token,str,number-1,f1.i.irrep, &out);
-                        }else {
-                            printf("errr\n");
-                        }
-                    }
-                    lines++;
-                }
-                flines++;
-
-                    
-            }
-            
-            fclose(fp);
-        }
+        for ( ii = 0; ii < EV ; ii++)  printVector(c1,f1.f,f1.f.tulip[f1.f.user+iii].value.title,c1->name,f1.f.tulip[f1.f.user+iii].value.stage-1,f1.i.irrep, V+stride*iii+ii);
     }
     fModel(&f1.f);
 
