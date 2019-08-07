@@ -209,7 +209,14 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
     DCOMPLEX *V = (DCOMPLEX*)myStreams(f1.f,matrixHbuild,0);
     INT_TYPE iii,ii,stride = f1.f.maxEV;
     for ( iii = 0; iii < f1.i.nStates ; iii++){
-        for ( ii = 0; ii < EV ; ii++)  printVector(c1,f1.f,f1.f.tulip[f1.f.user+iii].value.title,c1->name,f1.f.tulip[f1.f.user+iii].value.stage-1,f1.i.irrep, V+stride*iii+ii);
+        {
+            FILE * outf ;
+            sprintf(str, "%s-%d.vector",c1->name,iii+1);
+            outf = fopen (str,"w");
+            fclose(outf);
+            sprintf(str, "%s-%d",c1->name,iii+1);
+        }
+        for ( ii = 0; ii < EV ; ii++)  printVector(c1,f1.f,f1.f.tulip[f1.f.user+ii].value.title,str,f1.f.tulip[f1.f.user+ii].value.stage-1,f1.i.irrep, V+stride*iii+ii);
     }
     fModel(&f1.f);
 

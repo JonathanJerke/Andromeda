@@ -1481,7 +1481,7 @@ INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,ch
         x2 = minStage;
         xi = -1;
     }
-    for ( stage = x1 ; stage <= x2 ; stage += xi){
+    for ( stage = x1 ; (typer != -1 && stage <= x2) || ( typer == -1  && stage >= x2) ; stage += xi){
         qs = 0;
         for ( n = 0; n < quantumBasisSize ; n++)
             switch ( typer ){
@@ -1556,7 +1556,7 @@ INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,ch
         printf("uhm,  ooops\n");
         exit(0);
     }
-    cblas_ccopy(stride*stride, t, 1, T, 1);
+    cblas_zcopy(stride*stride, t, 1, T, 1);
 
 //    if (flag == 3 ){
 //        if ( Ne > quantumBasisSize ){
