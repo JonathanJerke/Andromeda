@@ -911,6 +911,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
         fromBeginning(*f1,copyTwoVector,copyVector);
         f1->tulip[copyTwoVector].Partition =   maxVector;//f->i.bRank*f->i.bRank;
+        if ( ! f1->cat )
+            f1->tulip[copyTwoVector].Partition *= ra;
         f1->tulip[copyTwoVector].species = vector;
         //f1->tulip[copyTwoVector].spinor = parallel;
 
