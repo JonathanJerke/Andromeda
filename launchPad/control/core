@@ -2,7 +2,7 @@
 	*Parameters
 	#just keep canon BIG..if It asks for MONEY, give more canon!
 		canon 300
-		decompose 2
+		decompose 8
 		#system dependent
 		maxRAM 2
 	#OPEN GAME,  trade speed for accuracy!
