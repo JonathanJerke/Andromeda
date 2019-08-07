@@ -23,7 +23,7 @@ echo ".Parameters" >> $file
 echo ".Body" >> $file
 
 if ( `splitFlag.csh` ) then
-      		 $LAUNCH/csh/cats.csh $file $prev-$i &
+      		 $LAUNCH/csh/cats.csh $file $prev-$i 
        else
 		$LAUNCH/csh/go.csh $file	   
      endif
