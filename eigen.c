@@ -228,7 +228,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                             f1.tulip[diagonalVectorB].Current[rank] = 0;
                             f1.tulip[diagonalVectorA].Current[rank] = 1;
 
-                            tBuildIrr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
+                            tBuild3Irr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
                             if ( cblas_dnrm2(N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
                                 cblas_dcopy(N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
                                 streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0];
@@ -296,7 +296,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                             f1.tulip[diagonalVectorB].Current[rank] = 0;
                             f1.tulip[diagonalVectorA].Current[rank] = 1;
 
-                            tBuildIrr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
+                            tBuild3Irr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
                             // printf("\n%d %d %f\n",space, v,cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1));
                             if ( cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
                                 
@@ -367,7 +367,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                             f1.tulip[diagonalVectorB].Current[rank] = 0;
                             f1.tulip[diagonalVectorA].Current[rank] = 1;
                             
-                            tBuildIrr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
+                            tBuild3Irr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
                             // printf("\n%d %d %f\n",space, v,cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1));
                             if ( cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
                                 
@@ -1359,7 +1359,7 @@ INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,ch
         maxStage = imax(maxStage ,f1.tulip[usz+n].value.stage);
         minStage = imin(minStage ,f1.tulip[usz+n].value.stage);
 
-       // tScale(f1, usz+n, 1./magnitude(f1, usz+n));
+        tScale(f1, usz+n, 1./magnitude(f1, usz+n));
     }
     
     assignCores(f1, 1);
@@ -1470,9 +1470,17 @@ INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,ch
 //    f1->mem1->rt->buildTime += difftime(lapse_t, start_t);
 //    time(&start_t);]
     qs = quantumBasisSize;
-    if ( typer == 0 )
-        maxStage = 0;
-    for ( stage = minStage ; stage <= maxStage ; stage++){
+    INT_TYPE x1=0,x2=0,xi=1;
+    if ( typer == 1 ){
+        x1 = minStage;
+        x2 = maxStage;
+        xi = 1;
+    }else if ( typer == -1 ){
+        x1 = maxStage;
+        x2 = minStage;
+        xi = -1;
+    }
+    for ( stage = x1 ; stage <= x2 ; xi++){
         qs = 0;
         for ( n = 0; n < quantumBasisSize ; n++)
             switch ( typer ){
