@@ -151,19 +151,27 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
     
     if ( CanonicalRank(f1.f,intracellularSelfEwald,0) ){
         ioStoreMatrix(f1.f,intracellularSelfEwald ,0,"intracellularSelfEwald.matrix",0);
-        ioStoreMatrix(f1.f,intracellularSelfEwald ,1,"intracellularSelfEwald.1.matrix",0);
-
     }
+    
+    if ( CanonicalRank(f1.f,intracellularSelfEwald,1) ){
+        ioStoreMatrix(f1.f,intracellularSelfEwald ,1,"intracellularSelfEwald.1.matrix",0);
+    }
+    
     if ( CanonicalRank(f1.f,intercellularSelfEwald,0) ){
         ioStoreMatrix(f1.f,intercellularSelfEwald ,0,"intercellularSelfEwald.matrix",0);
-        ioStoreMatrix(f1.f,intercellularSelfEwald ,1,"intercellularSelfEwald.1.matrix",0);
-
     }
+    if ( CanonicalRank(f1.f,intercellularSelfEwald,1) ){
+        ioStoreMatrix(f1.f,intercellularSelfEwald ,1,"intercellularSelfEwald.1.matrix",0);
+    }
+
 
     if ( CanonicalRank(f1.f,interactionEwald,0) ){
         ioStoreMatrix(f1.f,interactionEwald ,0,"interactionEwald.matrix",0);
+    }
+    if ( CanonicalRank(f1.f,interactionEwald,1) ){
         ioStoreMatrix(f1.f,interactionEwald ,1,"interactionEwald.1.matrix",0);
     }
+
         if ( CanonicalRank(f1.f,shortenPlus,0) )
             ioStoreMatrix(f1.f,shortenPlus ,0,"shortenExchangePlus.matrix",0);
         
@@ -173,10 +181,13 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
     
     if ( CanonicalRank(f1.f,linear,0) ){
         ioStoreMatrix(f1.f,linear ,0,"linear.matrix",0);
-        ioStoreMatrix(f1.f,linear ,1,"linear.1.matrix",0);
 
     }
-    
+    if ( CanonicalRank(f1.f,linear,1) ){
+        ioStoreMatrix(f1.f,linear ,1,"linear.1.matrix",0);
+        
+    }
+
     
     for ( fi =0 ; fi < f1.i.files ; fi++)
         tLoadEigenWeights (c1,f1, f1.i.fileList[fi],&EV, f1.f.user,f1.i.collect);//UNUSUAL!!!
@@ -218,7 +229,7 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
                 exit(0);
             }
            // printf("%s\t %s\n", line, f1.i.fileList[fi]);
-            if (  getline(&line, &ms, fp) > 0 )
+            while (  getline(&line, &ms, fp) > 0 )
             {
               //  printf("line %d\n",lines);
                 if ( (!comment(line)) && (strlen(line) > 1) )

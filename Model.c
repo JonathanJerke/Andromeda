@@ -1292,7 +1292,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[vectorHbuild].memory = bufferAllocation;
 
         fromBeginning(*f1,matrixSbuild,vectorHbuild);
-        f1->tulip[matrixSbuild].Partition = 2*2*maxArray*maxArray;
+        f1->tulip[matrixSbuild].Partition = ( c1->rt.phaseType == buildFoundation ||  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == frameDensity )*2*(2*maxArray*maxArray);
         f1->tulip[matrixSbuild].memory = bufferAllocation;
 
     fromBeginning(*f1,square,matrixSbuild);

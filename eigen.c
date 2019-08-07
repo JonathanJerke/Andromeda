@@ -421,13 +421,14 @@ INT_TYPE tSortBoot(struct calculation * c1, struct sinc_label f1, enum division 
                         streams(f1, foundationStructure,1,space)[tally] = streams(f1, foundationStructure,1,space)[i];
                         streams(f1, foundationStructure,1,space)[i] = 0.;
                      }
-                    cblas_dscal(N1, 1./cblas_dnrm2(N1, myStreams(f1,bill1+space,0)+(tally)*N1, 1), myStreams(f1,bill1+space,0)+(tally)*N1, 1);
                     streams(f1, foundationStructure,0,space)[tally] = streams(f1, foundationStructure,0,space)[i];
-
                     tally++;
                 }
             double tt[N1];
             tdgeqr(0, f1, tally, N1, myStreams(f1,bill1+space,0), N1, tt);
+            
+            for ( i = 0 ; i < tally ; i++)
+                cblas_dscal(N1, 1./cblas_dnrm2(N1, myStreams(f1,bill1+space,0)+(i)*N1, 1), myStreams(f1,bill1+space,0)+(i)*N1, 1);
         }
     
     
@@ -1480,7 +1481,7 @@ INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,ch
         x2 = minStage;
         xi = -1;
     }
-    for ( stage = x1 ; stage <= x2 ; xi++){
+    for ( stage = x1 ; stage <= x2 ; stage += xi){
         qs = 0;
         for ( n = 0; n < quantumBasisSize ; n++)
             switch ( typer ){
@@ -1551,8 +1552,11 @@ INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,ch
             //    fflush(stdout);
         }
     }
-
-    quantumBasisSize = qs;
+    if ( quantumBasisSize != qs){
+        printf("uhm,  ooops\n");
+        exit(0);
+    }
+    cblas_ccopy(stride*stride, t, 1, T, 1);
 
 //    if (flag == 3 ){
 //        if ( Ne > quantumBasisSize ){
@@ -1739,9 +1743,9 @@ INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,ch
                                         }else{
                                             if( cmpl2 == cmpl ){
                                                 if ( cmpl == 0 )
-                                                    pointers[rank][rr++] = creal((t + iii*stride)[g]);
+                                                    pointers[rank][rr++] = creal((T + iii*stride)[g]);
                                                 else if ( cmpl == 1 )
-                                                    pointers[rank][rr++] = cimag((t + iii*stride)[g]);
+                                                    pointers[rank][rr++] = cimag((T + iii*stride)[g]);
                                             }
                                             else
                                                 pointers[rank][rr++] = 0.0;//mask off other *SPIN*( or complex vector).
