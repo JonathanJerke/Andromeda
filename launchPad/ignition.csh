@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Edit to link to your launchPad"
+echo "LAUNCH = `pwd` in PATH"
 export LAUNCH=`pwd`
 export PATH=$LAUNCH/csh:$PATH
 
