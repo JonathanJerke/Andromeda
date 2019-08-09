@@ -13,7 +13,11 @@ else
 		date > $com.hout
 		cat $com | andromeda >> $com.hout
 		date >> $com.hout
-		sleep 2
+		if ( `grep FINIS $com.hout` =~ "FINIS*" ) then
+		else
+			touch stop
+		endif
+
 		if ( $com =~ "*A.riz") then
 	                if ( `splitFlag.csh`) then
 				parse.csh $com
@@ -32,6 +36,7 @@ else
 			sort -n -r $com.vector > $com.tm
 			mv $com.tm $com.vector	
 		endif
+		sleep 2
 	end                                                                               
 endif
 
