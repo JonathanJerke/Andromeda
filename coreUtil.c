@@ -1397,11 +1397,10 @@ INT_TYPE tReplace( struct sinc_label f1 , enum division label,INT_TYPE spin,INT_
        }
     {
         if ( f1.tulip[label].species == vector ){
-            INT_TYPE B1[SPACE];
-            length(f1, label, B1);
+            INT_TYPE B1 = vectorLen(f1, space);
             {
-                Stream_Type  * stream = streams(f1,label,spin,space)+l*B1[space];
-                for ( I2 = 0 ; I2 < B1[space] ; I2++){
+                Stream_Type  * stream = streams(f1,label,spin,space)+l*B1;
+                for ( I2 = 0 ; I2 < B1 ; I2++){
                     stream[I2] = sign(I2%2);
                 }
             }
@@ -1429,26 +1428,24 @@ INT_TYPE tReplace( struct sinc_label f1 , enum division label,INT_TYPE spin,INT_
         //            }
         //        }
         else if  ( f1.tulip[label].species == matrix ) {
-            INT_TYPE B1[SPACE];
-            length(f1, label,B1);
-            
-            
-
+            INT_TYPE B1;
+            B1 = vectorLen(f1, space);
             {
-                Stream_Type * stream = streams(f1,label,spin,space)+l*B1[space]*B1[space];
-                for ( I1 = 0 ; I1 < B1[space] ; I1++)
-                    for ( I2 = 0 ; I2 < B1[space] ; I2++)
-                        stream[I1*B1[space]+I2] =0.;
-                
-                for ( I1 = 0 ; I1 < B1[space] ; I1++)
-                    for ( I2 = 0 ; I2 < B1[space] ; I2++)
+                Stream_Type * stream = streams(f1,label,spin,space)+l*B1*B1;
+                for ( I1 = 0 ; I1 < B1 ; I1++)
+                    for ( I2 = 0 ; I2 < B1 ; I2++)
+                        stream[I1*B1+I2] =0.;
+                for ( I1 = 0 ; I1 < B1 ; I1++)
+                    for ( I2 = 0 ; I2 < B1 ; I2++)
                     {
-                        
-                        if ( I1==I2  )
-                            stream[I1*B1[space]+I2] = 1;
-                        
+                        if ( I1==I2 )
+                            stream[I1*B1+I2] = 1;
                     }
             }
+        }else
+        {
+            printf("ask for upgrade with outer-vectors\n");
+            exit(1);
         }
         
         

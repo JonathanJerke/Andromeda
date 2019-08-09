@@ -140,7 +140,7 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
     INT_TYPE lines = 0,flines = 0;
 
     f1.i.qFloor = countLinesFromFile(c1,f1,0,&f1.i.iRank);
-    printf("-->%d\n", f1.i.iRank);
+  //  printf("-->%d\n", f1.i.iRank);
    // c1->i.iRank = c1->i.bRank;
     iModel(c1,&f1);
     
@@ -276,6 +276,7 @@ int main (INT_TYPE argc , char * argv[]){
     else if ( c.rt.phaseType == solveRitz ){//A
         ritz(&c,f);
     }
+    printf("\n\nFINIS.\n\n");
 }
 
 #endif

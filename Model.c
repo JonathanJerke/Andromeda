@@ -514,7 +514,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f->f.cmpl = f->i.cmpl;
     }//SA++
     
-    if(1){
+    if(f1->boot == fullMatrices){
         printf("\n\n*Parameters\n");
         printf("\t target\t\t\t%1.1f\n", -log(c1->rt.TARGET)/log(10));//quality of decomposition
         printf("\t tolerance\t\t%1.1f\n", log(c1->rt.TOL)/log(10));//max condition of foundation    s
@@ -1325,19 +1325,18 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
     
         {
-          //  printf("\t| SPACE \t:   Gb\t \n");
             double maxMem = 0.,currMem;
             for ( space = 0 ; space <= SPACE ; space++){
                 currMem = (f1->tulip[end].space[space].Address)/(1000000000./(sizeof(Stream_Type)));
-                
-                
-//                if ( space < SPACE )
-//                    printf("\t| %d \t\t: \t%1.9f\n",space,currMem);
-//                else
-//                    printf("\t| my \t\t: \t%1.9f\n",currMem);
-
-                fflush(stdout);
-
+             
+                if ( f1->boot == fullMatrices ){
+//                    printf("\t| SPACE \t:   Gb\t \n");
+                    if ( space < SPACE )
+                        printf("\t| %d \t\t: \t%1.9f\n",space,currMem);
+                    else
+                        printf("\t| my \t\t: \t%1.9f\n",currMem);
+                    fflush(stdout);
+                }
                 maxMem += currMem;
             }
             if ( maxMem > c1->i.RAMmax ){

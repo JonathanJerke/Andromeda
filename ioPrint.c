@@ -242,9 +242,9 @@ DCOMPLEX tFromReadToFilename (char * cycleName, char * read , char * filename,IN
         si = sscanf ( pa, ",%d,%lf,%lf",number, &Occ,&iOcc );
         si--;
     }
-    if ( si == 2 || si == 3  ) {
+    if ( si == 2  ) {
         tFilename(token, *number, 0, 0, cmpl, filename);
-        printf("%s\n", filename);
+      //  printf("%s\n", filename);
         return Occ+iOcc;
     }else {
         printf("failed to load\n");
