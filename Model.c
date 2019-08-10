@@ -137,18 +137,18 @@ struct field initField (void ) {
     i.i.filesVectorOperator = 0;
     
 #if 1
-    i.i.d = 1.;
+    i.i.d = 4.;
     i.i.cmpl = cmpl;
-    i.i.bRank = 4;
-    i.i.iRank = 2;
-    i.i.nStates = 10;
-    i.i.qFloor = 1000;
+    i.i.bRank = 2;
+    i.i.iRank = 1;
+    i.i.nStates = 1;
+    i.i.qFloor = 0;
     i.i.filter = 0;
     i.f.boot = fullMatrices;
     i.i.body = one;
     i.i.irrep = 0;
     i.i.cat  = 0;
-    i.i.epi = 2;
+    i.i.epi = 12;
     
 #endif
     return i;
@@ -172,14 +172,15 @@ struct calculation initCal (void ) {
     i.rt.targetCondition = 1e-7;
     i.rt.ALPHA = 1e-8;
     i.rt.CANON = 1e-7;
-    i.rt.vCANON = 1e-6;
+    i.rt.vCANON = 1e-3;
     i.rt.TOL = 1e5;
     i.rt.maxEntropy = 1;
     i.i.complexType =2;
     i.i.level = 1;
+    i.i.M1 = 25;
     
     
-    i.rt.powDecompose = 2;
+    i.rt.powDecompose = 8;
     
         i.i.turn = 1.;
         i.i.param1 = 1.;
@@ -196,7 +197,7 @@ struct calculation initCal (void ) {
         if ( SPACE == 3 ){
             i.rt.calcType = electronicStuctureCalculation;
             i.rt.runFlag = 0;
-            i.rt.phaseType = buildFoundation;
+            i.rt.phaseType = productKrylov;
         } else if ( SPACE == 6 ){
 
             i.rt.calcType = clampProtonElectronCalculation;
@@ -217,18 +218,18 @@ struct calculation initCal (void ) {
   //  resetExternal(&i, 2, 1);
     
     i.i.twoBody.func.fn = nullFunction;
-    i.i.oneBody.func.fn = nullFunction;
+    i.i.oneBody.func.fn = Pseudo;
     //i.i.springFlag = 1;
     i.i.springConstant = 0.25;
-    i.i.canonRank = 50;
-    i.i.twoBody.num = 50;
+    i.i.canonRank = 45 ;
+    i.i.twoBody.num = 0;
     i.i.twoBody.func.interval  = 0;
     i.i.twoBody.func.param[0]  = 1;
     i.i.twoBody.func.param[1]  = 1;
     i.i.twoBody.func.param[2]  = 1;
 
-    i.i.oneBody.num = 50;
-    i.i.oneBody.func.interval  = 1;
+    i.i.oneBody.num = 15;
+    i.i.oneBody.func.interval  = 0;
     i.i.oneBody.func.param[0]  = 1.;
     i.i.oneBody.func.param[1]  = 1;
     i.i.oneBody.func.param[2]  = 1;
@@ -927,24 +928,21 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[copyFourVector].species = vector;
         f1->tulip[copyFourVector].spinor = parallel;
         
-//        f1->tulip[oneVector].Address = fromBeginning(*f1,copyFourVector);
-//        f1->tulip[oneVector].Partition = !(!c1->rt.printFlag) * 24*imax(*f1->oneBody.num, f1->twoBody.num);;
-//        f1->tulip[oneVector].body = one;
-//        f1->tulip[oneVector].species = vector;
-//        f1->tulip[oneVector].header = Cube;
-//        f1->tulip[oneVector].parallel = 2;
-//
-//        f1->tulip[twoVector].Address = fromBeginning(*f1,oneVector);
-//        f1->tulip[twoVector].Partition = !(!c1->rt.printFlag) * f->i.bRank;;
-//        f1->tulip[twoVector].body = two;
-//        f1->tulip[twoVector].species = vector;
-//        f1->tulip[twoVector].header = Cube;
-//        f1->tulip[twoVector].parallel = 2;
-//        f1->tulip[twoVector].purpose = Object;
-////        f1->tulip[twoVector].symmetryType = nullSymmetry;
-//        f1->tulip[twoVector].name = twoVector;
-//
-        fromBeginning(*f1,totalVector,copyFourVector);
+        fromBeginning(*f1,oneVector,copyFourVector);
+        f1->tulip[oneVector].Partition = 1 * 24*imax(c1->i.oneBody.num, c1->i.twoBody.num);;
+        f1->tulip[oneVector].species = outerVector;
+        f1->tulip[oneVector].header = Cube;
+        f1->tulip[oneVector].spinor = parallel;
+        assignParticle(*f1, oneVector, all, one);
+
+        fromBeginning(*f1,twoVector,oneVector);
+        f1->tulip[twoVector].Partition = 0 * f->i.bRank;;
+        f1->tulip[twoVector].species = outVector;
+        f1->tulip[twoVector].header = Cube;
+        f1->tulip[twoVector].spinor = parallel;
+        assignParticle(*f1, oneVector, all, two);
+
+        fromBeginning(*f1,totalVector,twoVector);
         f1->tulip[totalVector].Partition = (!( c1->rt.phaseType == buildFoundation )|| 1)*  f->i.bRank*(c1->i.canonRank);
         f1->tulip[totalVector].species = vector;
         f1->tulip[totalVector].spinor = real;
@@ -1210,15 +1208,15 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         assignParticle(*f1, quadCube, all, two);
     
         fromBeginning(*f1,oneArray,quadCube);
-//        f1->tulip[oneArray].Partition = f->i.M1*3+f->i.M1*f->i.M1;
+        f1->tulip[oneArray].Partition = c1->i.M1*3+c1->i.M1*c1->i.M1;
         f1->tulip[oneArray].memory = bufferAllocation;
 
         fromBeginning(*f1,threeArray,oneArray);
-//        f1->tulip[threeArray].Partition = 2*f->i.M1*f->i.M1*f->i.M1;
+        f1->tulip[threeArray].Partition = 2*c1->i.M1*c1->i.M1*c1->i.M1;
         f1->tulip[threeArray].memory = bufferAllocation;
 
         fromBeginning(*f1,oneBasis,threeArray);
-//        f1->tulip[oneBasis].Partition = f->i.M1*N1;
+        f1->tulip[oneBasis].Partition = c1->i.M1*N1;
         f1->tulip[oneBasis].memory = bufferAllocation;
 
         INT_TYPE vecLen = 1;
@@ -1359,17 +1357,17 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         RdsSize = 0;
 
         
-//        if (f->i.M1){
-//            INT_TYPE i,ii;
-//            INT_TYPE M1 = f->i.M1,M12 = (M1-1)/2;
-//            double r = (double)(M1-1)/(double)(N1-1);
-//            double * u =myStreams(*f1,oneBasis,0);
-//            for( i = 0; i < N1 ; i++)
-//                for ( ii = 0 ; ii < M1 ; ii++){
-//                    u[i*M1+ii] = Sinc(r, r*(i-N12)- (ii-M12))/sqrt(r);
-//                }
-//        }
-        
+        if (c1->i.M1){
+            INT_TYPE i,ii;
+            INT_TYPE M1 = c1->i.M1,M12 = (M1-1)/2;
+            double r = (double)(M1-1)/(double)(N1-1);
+            double * u =myStreams(*f1,oneBasis,0);
+            for( i = 0; i < N1 ; i++)
+                for ( ii = 0 ; ii < M1 ; ii++){
+                    u[i*M1+ii] = Sinc(r, r*(i-N12)- (ii-M12))/sqrt(r);
+                }
+        }
+    
     
         
         if(f1->boot == fullMatrices){
@@ -1378,16 +1376,19 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             if ( c1->rt.calcType == electronicStuctureCalculation  ){
                separateKinetic(*f1, 0,kinetic, c1->i.massElectron,electron);
                 separateOverlap(*f1, 0,overlap, 0,all);
-                if ( SPACE == 1 ){
+                if ( SPACE == 3 && 0){
                     INT_TYPE deriv[SPACE];
                     INT_TYPE power[SPACE];
                 
                 
                     deriv[0] = 0;
-                
                     power[0] = 0 ;
-                
-                 //   separateDerivatives(*f1, 0, vectorMomentum, power, deriv, 1, electron);
+                    deriv[1] = 0;
+                    power[1] = 0 ;
+                    deriv[2] = 0;
+                    power[2] = 0 ;
+
+                    separateDerivatives(*f1, 0, vectorMomentum, power, deriv, -1000, electron);
                 }
                 
                 

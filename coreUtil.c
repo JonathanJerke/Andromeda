@@ -37,7 +37,9 @@ enum division name ( struct sinc_label f1, enum division label){
     return f1.tulip[f1.tulip[f1.tulip[label].name].name].name;
 }
 
-
+INT_TYPE pPart ( struct sinc_label *f1 , enum division label ){
+    return part(*f1,label);
+}
 INT_TYPE part ( struct sinc_label f1 , enum division label){
     
     if ( label > f1.end || label < 0 ){
@@ -211,7 +213,9 @@ INT_TYPE length ( struct sinc_label f1 , enum division label, INT_TYPE *lens ){
 
     return 0;
 }
-
+INT_TYPE pVectorLen(struct sinc_label *f1, INT_TYPE space){
+    return vectorLen(*f1, space);
+}
 INT_TYPE vectorLen(struct sinc_label f1, INT_TYPE space){
     if ( f1.rose[space].body == one )
         return f1.rose[space].count1Basis ;
@@ -281,7 +285,9 @@ INT_TYPE alloc ( struct sinc_label f1 , enum division label ,INT_TYPE space){
         } else
             return 1;
 }
-
+INT_TYPE pZero ( struct sinc_label * f1 , enum division label, INT_TYPE spin ){
+    return zero(*f1,label,spin);
+}
 INT_TYPE zero ( struct sinc_label f1 , enum division label, INT_TYPE spin ){
     //f1.tulip[label].Current = 0;
     INT_TYPE i, space,M2[SPACE];
@@ -308,7 +314,9 @@ INT_TYPE myZero ( struct sinc_label f1 , enum division label, INT_TYPE spin ){
     }
     return 0 ;
 }
-
+INT_TYPE pClear ( struct sinc_label *f1 , enum division label ){
+    return tClear(*f1,label);
+}
 
 INT_TYPE tClear ( struct sinc_label f1 , enum division label ){
     INT_TYPE spin ;
@@ -551,7 +559,9 @@ void  fromBeginning( struct sinc_label  f1 ,enum division new, enum division hea
 //    }
 //
 //}
-
+Stream_Type* pMyStreams ( struct sinc_label *f1, enum division label ,INT_TYPE spin ){
+    return myStreams(*f1, label, spin);
+}
 Stream_Type*  myStreams ( struct sinc_label f1, enum division label ,INT_TYPE spin){
     INT_TYPE space = SPACE;//buffer-space
     if ( spin < 0 || spin >= spins(f1, label)){
@@ -580,7 +590,9 @@ Stream_Type*  myStreams ( struct sinc_label f1, enum division label ,INT_TYPE sp
     return NULL;
 }
 
-
+Stream_Type* pStreams ( struct sinc_label *f1, enum division label ,INT_TYPE spin, INT_TYPE space ){
+    return streams(*f1, label, spin, space);
+}
 Stream_Type* streams ( struct sinc_label f1, enum division label ,INT_TYPE spin, INT_TYPE space ){
     Stream_Type * uu ;
     if ( spin < 0 || spin >= spins(f1, label)){
@@ -661,6 +673,24 @@ void xsAdd ( double scalar , INT_TYPE dim ,struct sinc_label f1 , enum division 
         exit(0);
     }
 }
+
+void xsEqu ( double scalar , INT_TYPE dim ,struct sinc_label f1 , enum division targ ,INT_TYPE t,INT_TYPE tspin,struct sinc_label  f2 , enum division orig,INT_TYPE o,INT_TYPE ospin ){
+    INT_TYPE M2 = alloc(f1, orig, dim);
+    INT_TYPE N2 = alloc(f1, targ, dim);
+    INT_TYPE flag = (N2 == M2),space=dim;
+    
+    if ( flag && f2.tulip[orig].memory == objectAllocation && f1.tulip[targ].memory == objectAllocation){
+        cblas_dcopy(N2, streams(f2,orig,ospin,space)+N2*o,1,streams(f1,targ,tspin,space)+t*N2,1);
+        if ( scalar != 1. )
+            cblas_dscal(N2, scalar, streams(f1,targ,tspin,space)+t*N2,1);
+    }
+    else {
+        printf("add\n");
+        
+        exit(0);
+    }
+}
+
 
 double xEqua ( struct sinc_label f1 , enum division targ ,INT_TYPE tspin,struct sinc_label  f2 , enum division orig,INT_TYPE ospin ){
     INT_TYPE space,flag=1;
@@ -776,6 +806,9 @@ INT_TYPE tAddTwo( struct sinc_label f1 , enum division left , enum division righ
     return 0;
 }
 
+INT_TYPE pScaleOne( struct sinc_label *f1, enum division label,INT_TYPE spin, double scalar ){
+    return tScaleOne(*f1, label, spin, scalar);
+}
 INT_TYPE tScaleOne( struct sinc_label f1, enum division label,INT_TYPE spin, double scalar ){
     
     if ( scalar == 1. )
@@ -1453,6 +1486,10 @@ INT_TYPE tReplace( struct sinc_label f1 , enum division label,INT_TYPE spin,INT_
     return 0;
 }
 
+INT_TYPE pBoot ( struct sinc_label *f1 , enum division label,INT_TYPE spin ){
+    return tBoot(*f1, label, spin);
+}
+
 INT_TYPE tBoot ( struct sinc_label f1 , enum division label,INT_TYPE spin ){
     
     INT_TYPE I1,I2,space;
@@ -1535,54 +1572,60 @@ double matrixElement (struct sinc_label f1, enum division label, INT_TYPE i , IN
     }
     return sum;
 }
+void pNuclearArray (struct input c, struct field* f1,  enum division array,INT_TYPE M1){
+    return nuclearArray(c, *f1, array, M1);
+}
+void nuclearArray (struct input c, struct field f1,  enum division array,INT_TYPE M1){
+    INT_TYPE n1[SPACE] ;
+    length1(f1.f,n1);
+    INT_TYPE N1[SPACE];
+    INT_TYPE l = 2;
+    length(f1.f, oneVector, N1);
+    INT_TYPE i,k,j,at,mi,mj,mk;
+    double * array3d = myStreams(f1.f, array, 0),x,y,z,d,mini,dis;
 
-//void nuclearArray (struct input * f1,  enum division array,INT_TYPE M1){
-//    INT_TYPE n1[SPACE] ;
-//    length1(f1->c.sinc,n1);
-//    INT_TYPE N1[SPACE];
-//    INT_TYPE l = 2;
-//    length(f1->c.sinc, oneVector, N1);
-//    INT_TYPE i,k,j,at,mi,mj,mk;
-//    double * array3d = myStreams(f1->c.sinc, array, 0),x,y,z,d,mini,dis;
-//
-//    for ( i = 0; i < M1*M1*M1 ; i++)
-//        array3d[i] = 0.;
-//
-//
-//    for ( at = 1 ; at <= f1->Na ; at++){
-//        mini = M1;
-//        mi = 0;
-//        mj = 0;
-//        mk = 0;
-//        d = 1./ (double)(M1)  * (double)(n1[0]) * f1->d;
-//        for ( i = 0; i < M1 ; i++){
-//            for ( j = 0; j < M1 ; j++){
-//                for ( k = 0 ; k < M1 ; k++){
-//                    x = ( i - (M1-1)/2 ) * d ;
-//                    y = ( j - (M1-1)/2 ) * d;
-//                    z = ( k - (M1-1)/2 ) * d;
-//
-//                    dis = sqr( x - f1->atoms[at].position[1] ) + sqr( y - f1->atoms[at].position[2] ) + sqr( z - f1->atoms[at].position[3] );
-//                    if (  dis < mini ){
-//                        mini = dis;
-//                        mi= i;
-//                        mj = j;
-//                        mk = k;
-//                    }
-//                }
-//            }
-//        }
-//        for ( i = imax(0,mi-l); i < imin(M1,mi+l); i++)
-//            for ( j = imax(0,mj-l); j < imin(M1,mj+l); j++)
-//                for ( k = imax(0,mk-l); k < imin(M1,mk+l); k++)
-//                    if ( sqr(mi-i) + sqr( mj-j)+ sqr(k-mk) < l)
-//                        array3d[i+j*M1+k*M1*M1] += 1.;
-//
-//    }
-//
-//
-//
-//}
+    for ( i = 0; i < M1*M1*M1 ; i++)
+        array3d[i] = 0.;
+
+
+    for ( at = 1 ; at <= c.Na ; at++){
+        mini = M1;
+        mi = 0;
+        mj = 0;
+        mk = 0;
+        d = 1./ (double)(M1)  * (double)(n1[0]) * f1.i.d;
+        for ( i = 0; i < M1 ; i++){
+            for ( j = 0; j < M1 ; j++){
+                for ( k = 0 ; k < M1 ; k++){
+                    x = ( i - (M1-1)/2 ) * d ;
+                    y = ( j - (M1-1)/2 ) * d;
+                    z = ( k - (M1-1)/2 ) * d;
+
+                    dis = sqr( x - c.atoms[at].position[1] ) + sqr( y - c.atoms[at].position[2] ) + sqr( z - c.atoms[at].position[3] );
+                    if (  dis < mini ){
+                        mini = dis;
+                        mi= i;
+                        mj = j;
+                        mk = k;
+                    }
+                }
+            }
+        }
+        for ( i = imax(0,mi-l); i < imin(M1,mi+l); i++)
+            for ( j = imax(0,mj-l); j < imin(M1,mj+l); j++)
+                for ( k = imax(0,mk-l); k < imin(M1,mk+l); k++)
+                    if ( sqr(mi-i) + sqr( mj-j)+ sqr(k-mk) < l)
+                        array3d[i+j*M1+k*M1*M1] += 1.;
+
+    }
+
+
+
+}
+
+void pVectorArray (struct sinc_label * f1, enum division oneVector, enum division array,INT_TYPE M1){
+    vectorArray(*f1, oneVector, array, M1);
+}
 
 void vectorArray (struct sinc_label f1, enum division oneVector,  enum division array,INT_TYPE M1){
     INT_TYPE n1[SPACE];

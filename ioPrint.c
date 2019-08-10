@@ -149,7 +149,11 @@ INT_TYPE ioStoreMatrix(struct sinc_label f1, enum division op, INT_TYPE spin, ch
     
     return 0;
 }
+void pOutputFormat(struct sinc_label* f1, FILE * out, enum division output ,INT_TYPE spin){
 
+    outputFormat(*f1, out, output, spin);
+    
+}
 void outputFormat(struct sinc_label f1, FILE * out, enum division output ,INT_TYPE spin){
     INT_TYPE  parts,p1,flag2,flag3,flag4,r,l,space, M[SPACE];
     length(f1, output, M);

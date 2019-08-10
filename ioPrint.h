@@ -41,6 +41,8 @@ double evaluateDensityBracket( double x [], size_t dim , void * params );
 double evaluateVectorBracket( double x [], size_t dim , void * params );
 INT_TYPE tSymmetryClass (char * cycleName, char * read , char * filename,INT_TYPE cmplFlag, INT_TYPE cmpl);
 void tFromReadToToken (char * read , char * token);
+void pOutputFormat(struct sinc_label   *f1, FILE * out, enum division output ,INT_TYPE spin);
+
 void outputFormat(struct sinc_label   f1, FILE * out, enum division output ,INT_TYPE spin);
 INT_TYPE inputFormat(struct sinc_label f1,char * name,  enum division buffer, INT_TYPE input);
 double tComputeRadialPlot(struct sinc_label f1, INT_TYPE number, INT_TYPE class,  double radius,INT_TYPE numC );

@@ -909,7 +909,7 @@ INT_TYPE tBuild3Irr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum
             for ( p = 1 ; p <= nPerm ; p++)
             {
                 f1.tulip[permutation2Vector].Current[rank] = 0;
-                tPermuteOne(rank, f1, space, p, origin, oo, ospin, permutation2Vector, rank);
+                tPermuteOne(rank, f1, space, p, origin, oo, ospin, permutation2Vector,0, rank);
                 //printf("%d %d %d %d %f\n", oo, space, p, sp,tGetProjection(bd, sp, p));
                 cblas_daxpy(vectorLen(f1, space),  tGetProjection(bd, sp, p), streams(f1,permutation2Vector,rank,space), 1, streams(f1,permutationVector,rank,space), 1);
             }
@@ -1664,7 +1664,7 @@ INT_TYPE tCat3(enum bodyType bd ,  INT_TYPE irrep,INT_TYPE cat, INT_TYPE space){
 //SA++
 
 
-INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, INT_TYPE leftChar , enum division left, INT_TYPE l, INT_TYPE lspin, enum division equals, INT_TYPE espin){
+INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, INT_TYPE leftChar , enum division left, INT_TYPE l, INT_TYPE lspin, enum division equals, INT_TYPE e, INT_TYPE espin){
     INT_TYPE at1[] = {1};
     INT_TYPE at2[] = {1, 2, 2, 1};
     INT_TYPE at3[] = {1, 2, 3, 1, 3, 2, 2, 1, 3, 3, 1, 2, 2, 3, 1, 3, 2, 1};
@@ -1922,7 +1922,7 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, INT_TYP
         }
     INT_TYPE v[12],cb,cb2,cb1,ll = vector1Len(f1, dim),prev,d,cur = CanonicalRank(f1, equals, espin);
     Stream_Type * str = streams(f1, left, lspin, dim)+ l * alloc(f1, left, dim);
-    Stream_Type * out = streams(f1, equals, espin, dim)+cur*alloc(f1, equals, dim);
+    Stream_Type * out = streams(f1, equals, espin, dim)+e*alloc(f1, equals, dim);
 //    printf("HERE %d %d\n",left,equals);
 //    printf("%d:%d %d %d\n",leftChar, at[0],at[1],at[2]);
 //    fflush(stdout);
@@ -1960,7 +1960,7 @@ INT_TYPE tPermute(INT_TYPE rank, struct sinc_label f1, INT_TYPE leftChar , enum 
     
     for ( l = 0; l < CanonicalRank(f1,left,lspin); l++){
         for ( space = 0; space < SPACE ; space++)
-            tPermuteOne(rank, f1, space, leftChar, left, l, lspin, equals, espin);
+            tPermuteOne(rank, f1, space, leftChar, left, l, lspin, equals,f1.tulip[equals].Current[espin], espin);
         f1.tulip[equals].Current[espin]++;
     }
 
