@@ -2124,9 +2124,9 @@ void tHXpX (  INT_TYPE rank, struct sinc_label f1 , enum division left,INT_TYPE 
 
         }while ( pt != nullName );
         
-        if ( CanonicalRank(f1, right, targSpin) == maxRun)
-            tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,right, targSpin, tolerance, maxRun, f1.rt->powDecompose);
-        else
+  //      if ( CanonicalRank(f1, right, targSpin) == maxRun)
+  //          tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,right, targSpin, tolerance, maxRun, f1.rt->powDecompose);
+  //      else
             tCycleDecompostionGridOneMP(-1, f1, totalVector, 0, NULL,right, targSpin, tolerance, maxRun, f1.rt->powDecompose);
 
     }
