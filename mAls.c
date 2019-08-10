@@ -1759,7 +1759,7 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
             
         }
         if (out != 1 ){
-            tPermuteOne(rank, f1, space, in, canonicalmv2Vector,0,rank, equals, e,espin);
+            tPermuteOne(rank, f1, space, out, canonicalmv2Vector,0,rank, equals, e,espin);
         }
     }
     return 0;
