@@ -16,6 +16,7 @@ else
 		if ( `grep FINIS $com.hout` =~ "FINIS*" ) then
 		else
 			touch stop
+			echo "stopped... now zombie"
 		endif
 
 		if ( $com =~ "*A.riz") then
