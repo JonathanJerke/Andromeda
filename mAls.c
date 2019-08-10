@@ -1862,9 +1862,9 @@ double tDOT (INT_TYPE rank,  struct sinc_label  f1,INT_TYPE dim,char leftChar, e
         ketk = l;
         kspin = lspin;
     }
-
-    if ( bodies(f1,left) == bodies(f1,right)){
-        INT_TYPE N1 = vectorLen(f1, space);
+    INT_TYPE al = alloc(f1, right, space );
+    if ( alloc(f1, left, space ) == alloc(f1, right, space )){
+        INT_TYPE N1 = al;
         prod = cblas_ddot( N1 , streams(f1,bra,bspin,space)+brab*N1,1 , streams(f1,ket,kspin,space)+ketk*N1, 1);
     }else {
         printf("body count\n");
