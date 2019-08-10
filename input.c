@@ -117,7 +117,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
     INT_TYPE i,d,ivalue;
     char test_line [MAXSTRING];
     double value;
-    INT_TYPE NINT_TYPE = 118;
+    INT_TYPE NINT_TYPE = 119;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -142,7 +142,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "length","XHA","lookBack","step","theory",//105
         "configuration","densityRank","densityBody","parallel","phase",//1101
         "around","cmpl","clampStage","OCSB","decompose",
-        "shiftNO","matrix","catalog"
+        "shiftNO","matrix","catalog","increment"
     };
     INT_TYPE NDOUBLE = 76;
     char *list_DOUBLE []= {"#",
@@ -758,6 +758,10 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                 case 118:
                     f1->cat = ivalue;
                     return i;
+                case 119:
+                    c->i.decomposeRankMatrix += ivalue;
+                    return i;
+
             }
         
         }
@@ -1658,7 +1662,7 @@ INT_TYPE initCalculation(struct calculation * c ){
     c->i.massElectron = 1.;
     c->i.massProton = 1836.15267245;
     c->i.massClampPair = 1836.15267245;
-    c->rt.powDecompose = 1;
+    c->rt.powDecompose = 2;
     c->i.shiftFlag = 0;
     c->i.complexType = 1;//real =1 , cmpl = 2
     c->i.RAMmax = 0;//Gb  needs updating
