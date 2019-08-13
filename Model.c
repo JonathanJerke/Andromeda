@@ -1059,7 +1059,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[trackBuffer].memory = bufferAllocation;
         
         fromBeginning(*f1,guideBuffer,trackBuffer);
-        f1->tulip[guideBuffer].Partition = maxOriginRank*maxTrainRank*maxTrainRank;
+        f1->tulip[guideBuffer].Partition = maxOriginRank*maxTrainRank;
         f1->tulip[guideBuffer].spinor = parallel;
         f1->tulip[guideBuffer].memory = bufferAllocation;
     }
