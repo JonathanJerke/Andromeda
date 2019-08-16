@@ -3,7 +3,7 @@
 		#may work for 3 or higher but need big systems
 		decompose 2
 		#system dependent
-		maxRAM 2
+		maxRAM 12
 	#OPEN GAME,  trade speed for accuracy!
 	#
 		cmpl 1	
@@ -19,7 +19,7 @@
 		phase 0
 		matrix 12
 		range 2
-		lattice 1.8
+		lattice 1.8	
 		lanes 1
 		parallel 1
 		Angstroms 0

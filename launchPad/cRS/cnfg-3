@@ -1,0 +1,31 @@
+*Body
+	
+	*Parameters
+		range 2
+		body 1
+	.Parameters
+	
+	*InputOutput
+                read ../wignerSeitz
+	.InputOutput
+
+
+
+	*Parameters
+		canon 400
+		body 3
+		runFlag 7
+		attack 1.
+	.Parameters
+		
+			
+	*Parameters
+		filter 1
+		basisRank 12
+	.Parameters
+
+	*InputOutput
+		read ../../interaction/coulomb
+	.InputOutput
+
+.Body
