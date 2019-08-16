@@ -27,6 +27,8 @@
 
 
 void getDescription ( struct function_label *fn ,double scalar,FILE * outString){
+    //param[1] is unused!
+    
     if ( fn->fn == nullFunction){
         fprintf(outString,"\tnullFunction\n");
     }else if ( fn->fn == Pseudo ){
@@ -38,8 +40,12 @@ void getDescription ( struct function_label *fn ,double scalar,FILE * outString)
     }else if ( fn->fn == Morse ){
         fprintf(outString,"\tMorse = %1.3f (1-exp[-%1.3f *( r - %1.3f )] )^2 -1 \n",scalar*fn->param[0],fn->param[3],fn->param[2]);//,fn->param[1]);
     }else if ( fn->fn == LennardJones ){
-        fprintf(outString,"\tLennardJones = %1.3f  rm = %f\n",fn->param[0],fn->param[2]);
+        fprintf(outString,"\tLennardJones = %1.3f  rm = %f\n",scalar* fn->param[0],fn->param[2]);
     }
+    else if ( fn->fn == Gaussian ){
+        fprintf(outString,"\t %f Gaussian\n",scalar * fn->param[0]);
+    }
+
     fflush(outString);
 }
 
@@ -3205,56 +3211,56 @@ double gaussianSinc ( double k, void * arg ){
 }
 
 
-double sumGaussianSinc ( double k, void * arg ){
-    struct general_2index ga,*pa = (struct general_2index *) arg;
-    INT_TYPE b1,b2,bb1,bb2,p1,p2,pp1,pp2,N1 = pa->i[0].bra.grid;
-    double d = pa->i[0].bra.length;
-    INT_TYPE N12 = (N1-1)/2;
-    ga = *pa;
-    double va=0.;
-    
-    for ( p1 = - N12; p1 <= N12; p1++)
-        for (p2 = - N12; p2 <= N12; p2++)
-        
-            for ( b1 = 0 ; b1 < N1 ; b1++)
-                for ( b2 = 0 ; b2 < N1 ; b2++)
-
-            
-            for ( pp1 = - N12 ; pp1 <= N12; pp1++)
-                for ( pp2 = - N12; pp2 <= N12; pp2++)
-                    
-                    for ( bb1 = 0 ; bb1 < N1 ; bb1++)
-                        for (bb2 = 0 ; bb2 < N1 ; bb2++){
-
-                    //set type to 10-12//== true-periodic-boost
-                            ga.i[0].bra.type = (pa->i[0].bra.type-1)%3 + 10;
-                            ga.i[0].ket.type = (pa->i[0].ket.type-1)%3 + 10;
-                            ga.i[1].bra.type = (pa->i[1].bra.type-1)%3 + 10;
-                            ga.i[1].ket.type = (pa->i[1].ket.type-1)%3 + 10;
-                    //
-                            ga.i[0].bra.index = b1;
-                            ga.i[0].ket.index = bb1;
-                            ga.i[1].bra.index = b2;
-                            ga.i[1].ket.index = bb2;
-
-                            
-                            ga.i[0].bra.index2 = p1;
-                            ga.i[0].ket.index2 = pp1;
-                            ga.i[1].bra.index2 = p2;
-                            ga.i[1].ket.index2 = pp2;
-
-                    //form // ga
-                    
-                            va += gaussianSinc(k,(void*)(&ga))//conj HERE//
-                            * conj(periodicBoostOverlapBasis( N1, d, b1, 2./N1*pi/d*p1, d, pa->i[0].bra.index, pa->i[0].bra.index2)
-                            * periodicBoostOverlapBasis( N1, d, b2, 2./N1*pi/d*p2, d,pa->i[1].bra.index, pa->i[1].bra.index2)
-                            * conj(periodicBoostOverlapBasis( N1, d, bb1,  2./N1*pi/d*pp1, d, pa->i[0].ket.index, pa->i[0].ket.index2)
-                            * periodicBoostOverlapBasis(N1, d, bb2, 2./N1*pi/d*pp2, d, pa->i[1].ket.index, pa->i[1].ket.index2)))/sqr(2*N1);
-                }
-
-
-    return va;
-}
+//double sumGaussianSinc ( double k, void * arg ){
+//    struct general_2index ga,*pa = (struct general_2index *) arg;
+//    INT_TYPE b1,b2,bb1,bb2,p1,p2,pp1,pp2,N1 = pa->i[0].bra.grid;
+//    double d = pa->i[0].bra.length;
+//    INT_TYPE N12 = (N1-1)/2;
+//    ga = *pa;
+//    double va=0.;
+//    
+//    for ( p1 = - N12; p1 <= N12; p1++)
+//        for (p2 = - N12; p2 <= N12; p2++)
+//        
+//            for ( b1 = 0 ; b1 < N1 ; b1++)
+//                for ( b2 = 0 ; b2 < N1 ; b2++)
+//
+//            
+//            for ( pp1 = - N12 ; pp1 <= N12; pp1++)
+//                for ( pp2 = - N12; pp2 <= N12; pp2++)
+//                    
+//                    for ( bb1 = 0 ; bb1 < N1 ; bb1++)
+//                        for (bb2 = 0 ; bb2 < N1 ; bb2++){
+//
+//                    //set type to 10-12//== true-periodic-boost
+//                            ga.i[0].bra.type = (pa->i[0].bra.type-1)%3 + 10;
+//                            ga.i[0].ket.type = (pa->i[0].ket.type-1)%3 + 10;
+//                            ga.i[1].bra.type = (pa->i[1].bra.type-1)%3 + 10;
+//                            ga.i[1].ket.type = (pa->i[1].ket.type-1)%3 + 10;
+//                    //
+//                            ga.i[0].bra.index = b1;
+//                            ga.i[0].ket.index = bb1;
+//                            ga.i[1].bra.index = b2;
+//                            ga.i[1].ket.index = bb2;
+//
+//                            
+//                            ga.i[0].bra.index2 = p1;
+//                            ga.i[0].ket.index2 = pp1;
+//                            ga.i[1].bra.index2 = p2;
+//                            ga.i[1].ket.index2 = pp2;
+//
+//                    //form // ga
+//                    
+//                            va += gaussianSinc(k,(void*)(&ga))//conj HERE//
+//                            * conj(periodicBoostOverlapBasis( N1, d, b1, 2./N1*pi/d*p1, d, pa->i[0].bra.index, pa->i[0].bra.index2)
+//                            * periodicBoostOverlapBasis( N1, d, b2, 2./N1*pi/d*p2, d,pa->i[1].bra.index, pa->i[1].bra.index2)
+//                            * conj(periodicBoostOverlapBasis( N1, d, bb1,  2./N1*pi/d*pp1, d, pa->i[0].ket.index, pa->i[0].ket.index2)
+//                            * periodicBoostOverlapBasis(N1, d, bb2, 2./N1*pi/d*pp2, d, pa->i[1].ket.index, pa->i[1].ket.index2)))/sqr(2*N1);
+//                }
+//
+//
+//    return va;
+//}
 
 
 
@@ -3269,16 +3275,16 @@ void gaussianSincFunc(void * arg,size_t n,const double * x,double * y)
     
 }
 
-void sumGaussianSincFunc(void * arg,size_t n,const double * x,double * y)
-{
-    struct general_2index *af = (struct general_2index *) arg;
-    size_t i ;
-    for ( i=0;i<n;i++)
-    {
-        y[i] = sumGaussianSinc(x[i],af);
-    }
-    
-}
+//void sumGaussianSincFunc(void * arg,size_t n,const double * x,double * y)
+//{
+//    struct general_2index *af = (struct general_2index *) arg;
+//    size_t i ;
+//    for ( i=0;i<n;i++)
+//    {
+//        y[i] = sumGaussianSinc(x[i],af);
+//    }
+//
+//}
 
 double mcGS ( double x [], size_t dim , void * params ){
     struct general_2index* ga = (struct general_2index*)(params);
@@ -3323,15 +3329,14 @@ double collective( double beta ,struct general_2index * pa){
             
             
             INT_TYPE N1 = pa->i[targParticle].bra.grid;//
-            INT_TYPE N12 = (N1-1)/2;
             double d = pa->i[targParticle].bra.length;
             double kSmall = 2*pi / N1 / d;
             INT_TYPE k;
             for ( k = - N1 ; k <= N1 ; k++)
             {
-                if ( 0  )
-                    value += sumGaussianSinc(kSmall*k+pa->momentumShift,pa)*kSmall;
-                else
+               // if ( 0  )
+              //      value += sumGaussianSinc(kSmall*k+pa->momentumShift,pa)*kSmall;
+               // else
                     value += gaussianSinc(kSmall*k+pa->momentumShift,pa)*kSmall;
             }
             
@@ -3355,9 +3360,9 @@ double collective( double beta ,struct general_2index * pa){
                 
 #ifdef APPLE
                 quadrature_integrate_function g;
-                if ( 0 )
-                    g.fun = sumGaussianSincFunc;
-                else
+//                if ( 0 )
+//                    g.fun = sumGaussianSincFunc;
+//                else
                     g.fun = gaussianSincFunc;                               // Called to evaluate the function to integrate
                 g.fun_arg = pa;                                  // Passed as first argument to the callback
                 
@@ -3481,6 +3486,9 @@ double collective( double beta ,struct general_2index * pa){
 double inverseLaplaceTransform(double beta, struct function_label * fl){
     double value2;
     value2 = 0.0;
+    if ( fl->fn == Gaussian ){
+        return fl->param[0];//identity!  differ from Coulomb by some cofactors
+    }
     if ( fl->fn == Yukawa ){
         double m = fl->param[2];
         value2  += exp(-sqr(m/2./beta));
@@ -3492,10 +3500,7 @@ double inverseLaplaceTransform(double beta, struct function_label * fl){
         value2  +=   a * exp ( 2 * R * a - sqr(a/beta    ))/sqr(beta);
         value2 *= 1.;
     }
-    else if ( fl->fn == Coulomb || fl->fn == Pseudo || fl->fn == nullFunction ){
-        if ( beta > fl->param[1] && fl->fn == Pseudo )
-            value2 = 0.;
-        else
+    else if ( fl->fn == Coulomb || fl->fn == Pseudo || fl->fn == nullFunction  ){
             value2 += 1.;//
     } else if ( fl->fn == LennardJones ){
         double rm = fl->param[2];
@@ -3507,11 +3512,13 @@ double inverseLaplaceTransform(double beta, struct function_label * fl){
 
 double collectives (double beta , struct general_2index * pa ){
     
-     if (  pa->point == 1){
+    if (  pa->point == 1){
         double l,r;
         pa->i[0].pointer = 0;
+        pa->powSpace = pa->pow2[0];
         l = collective(beta, pa);
         pa->i[0].pointer = 1;
+        pa->powSpace = pa->pow2[1];
         r = collective(beta, pa);
         return l*r;
     }
@@ -3714,6 +3721,15 @@ double elementCal (double a, double b,struct general_2index * aAf ){
 //}
 
 double gaussQuad(INT_TYPE pt , INT_TYPE nm, INT_TYPE which ){
+    //https://keisan.casio.com/exec/system/1329114617
+
+    double gk1X [] = {
+        0
+    };
+    double gk1W [] = {
+        1
+    };
+
     double gk3X [] = {
         -0.7745966692414833770359,
         0,
@@ -4085,6 +4101,11 @@ double gaussQuad(INT_TYPE pt , INT_TYPE nm, INT_TYPE which ){
         0.00052747696837833231426};
     double *gkX,*gkW;
     INT_TYPE ngk;
+    if ( pt ==1 ){
+        gkX = gk1X;
+        gkW = gk1W;
+        ngk = 1;
+    }
     if ( pt == 3 ){
         gkX = gk3X;
         gkW = gk3W;
@@ -4497,7 +4518,7 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
     
     INT_TYPE ngk,co;
     tClear(f1, shorten);
-    tClear(f1, copyTwo);
+    tClear(f1, tempOneMatrix);
 
     for ( section = 0 ; section < 2 ; section++){
         if ( imax(0,interval - section) == 0 ) {
@@ -4579,7 +4600,7 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
                                             myStreams(f1, oneByOneBuffer,0)[N1*N1*(N2*I4+I2)+(N1*I3+I1)]=value;
                                         }
                                         
-                                        Mt = tdgesvd(0, f1, N1*N1,N2*N2, myStreams(f1, oneByOneBuffer,0), streams(f1, copyTwo,0,space)+f1.tulip[copyTwo].Current[0]*N1*N1, streams(f1, copyTwo,0,space2)+f1.tulip[copyTwo].Current[0]*N2*N2);
+                                        Mt = tdgesvd(0, f1, N1*N1,N2*N2, myStreams(f1, oneByOneBuffer,0), streams(f1, tempOneMatrix,0,space)+f1.tulip[tempOneMatrix].Current[0]*N1*N1, streams(f1, tempOneMatrix,0,space2)+f1.tulip[tempOneMatrix].Current[0]*N2*N2);
                                         
                                         if (Mt !=  imin(N1*N1,N2*N2)){
                                             printf("congruity\n");
@@ -4635,22 +4656,818 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
                                             exit(1);
                                         }
                                         for ( mm = 0 ; mm < Mt ;mm++){
-                                            cblas_dcopy(N1*N1, myStreams(f1, oneByOneBuffer,0), 1, streams(f1, copyTwo,0,space)+mm*N1*N1+f1.tulip[copyTwo].Current[0]*N1*N1, 1);
+                                            cblas_dcopy(N1*N1, myStreams(f1, oneByOneBuffer,0), 1, streams(f1, tempOneMatrix,0,space)+mm*N1*N1+f1.tulip[tempOneMatrix].Current[0]*N1*N1, 1);
                                         }
                                         
                                     }
                                 }
             
-            f1.tulip[copyTwo].Current[0] += Mt;
+            f1.tulip[tempOneMatrix].Current[0] += Mt;
+            if ( part(f1,tempOneMatrix ) < f1.tulip[tempOneMatrix].Current[0]){
+                printf("have not!\n");
+                exit(0);
+            }
+
         }
     }
-    tCycleDecompostionGridOneMP(-1, f1, copyTwo, 0, NULL, shorten, 0, f1.rt->CANON, part1, 1);
-    //tScale(f1, shorten, scalar);
-    printf("Split 2-body ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),scalar*traceOne(f1, shorten, 0), distance(f1, shorten, copyTwo));
+    tCycleDecompostionGridOneMP(-1, f1, tempOneMatrix, 0, NULL, shorten, 0, f1.rt->CANON, part1, 1);
+    printf("Split 2-body ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),scalar*traceOne(f1, shorten, 0), fabs(scalar)*distance1(f1, shorten,0, tempOneMatrix,0));
     tScaleOne(f1, shorten,0, scalar);
     return ;
 }
 
+//
+//void svdInteraction (struct sinc_label f1, INT_TYPE part1, enum division shorten, enum particleType particle1,enum particleType particle2){
+//    struct name_label n;
+//    INT_TYPE Mt=0,mm,xx,dim;
+//    INT_TYPE cra;
+//    double sumDis = 0.;
+//
+//    //    if(0){
+//    //        INT_TYPE comp[COMPONENT+1],c,space,flagc=1,dim=0;
+//    //
+//    //        for ( c = 0; c <= COMPONENT; c++)
+//    //            comp[c]= 0;
+//    //        for ( space = 0; space < SPACE ; space++)
+//    //            if ( f1.rose[space].body >= one && f1.rose[space].particle == particle1 ){
+//    //                dim++;
+//    //                if ( f1.tulip[interactionExchangePlus ].space[space].body == one ){
+//    //                    comp[f1.rose[space].component] += f1.tulip[interactionExchangePlus].space[space].body;
+//    //                    if (f1.rose[space].body < one )
+//    //                        flagc = 0;
+//    //                }else if ( f1.tulip[interactionExchangePlus].space[space].body != nada ){
+//    //                    flagc = 0;
+//    //                }
+//    //            }
+//    //        for ( c = 1 ; c <= dim ; c++)
+//    //            if ( comp[c] > 2  )
+//    //                flagc = 0;
+//    //
+//    //        if ( ! flagc ){
+//    //            printf("error in two setup \n");
+//    //            exit(1);
+//    //
+//    //        }
+//    //    }
+//    INT_TYPE flagPow;;
+//    long double cpow ;
+//    INT_TYPE spaces;
+//    spaces = 0;
+//
+//    INT_TYPE I1,I2 = 0,I3,I4 = 0,beta,section,space2;
+//    INT_TYPE n1[SPACE];
+//    INT_TYPE N2;
+//    length1(f1,n1);
+//    INT_TYPE N1,space;
+//
+//    for ( space = 0 ;space < SPACE  ; space++)
+//        if ( f1.rose[space].body != nada )
+//            if ( f1.rose[space].component != nullComponent )
+//                if ( f1.tulip[shorten].space[space].body >= one )
+//                    if ( f1.rose[space].particle == particle1 || f1.rose[space].particle == particle2 )
+//
+//                        spaces++;
+//
+//
+//    struct general_2index g2;
+//
+//    g2.realFlag = 1;
+//    double value,g,x;
+//    double constant;
+//    INT_TYPE si;
+//
+//    INT_TYPE ngk,co;
+//
+//
+//        for ( co = 1 ; co <= COMPONENT ; co++)
+//                for ( space = 0 ; space < SPACE ; space++)
+//                    if ( f1.rose[space].component == co && f1.rose[space].particle == electron)
+//                        for (space2 = space+1 ; space2 < SPACE ; space2++)
+//                            if (  co == f1.rose[space2].component && f1.rose[space2].particle == proton )
+//                                if (space != space2 ){
+//                                    if (f1.rose[space].body != nada &&  f1.rose[space2].body != nada && f1.tulip[shorten].space[space].body == one && f1.tulip[shorten].space[space2].body == one  )
+//                                    {
+//                                        N1 = n1[space];
+//                                        N2 = n1[space2];
+//
+//                                        Mt = tdgesvd(0, f1, N1*N1,N2*N2, myStreams(f1, oneByOneBuffer,0), streams(f1, copyTwo,0,space)+f1.tulip[copyTwo].Current[0]*N1*N1, streams(f1, copyTwo,0,space2)+f1.tulip[copyTwo].Current[0]*N2*N2);
+//
+//                                        if (Mt !=  imin(N1*N1,N2*N2)){
+//                                            printf("congruity\n");
+//                                            exit(0);
+//                                        }
+//                                        flagPow = 0;
+//
+//                                    }else
+//
+//
+//                                    {//default to space 1.
+//                                        if (f1.rose[space].body == nada || f1.tulip[shorten].space[space].body == nada  )
+//                                        {
+//                                            printf("oops\n");//try changing order of particle inputs
+//                                            exit(0);
+//                                        }
+//
+//
+//                                        N1 = n1[space];
+//#ifdef OMP
+//#pragma omp parallel for private (si,I1,I3,g2,value) schedule(dynamic,1)
+//#endif
+//
+//                                        for ( si = 0 ; si < N1*N1 ; si++)
+//                                        {
+//
+//                                            I1 = ( si ) % N1;
+//                                            I3 = ( si / N1) % N1;
+//                                            g2.realFlag = 1;
+//                                            g2.momentumShift = 0;
+//                                            g2.gaussianAccelerationFlag = 0;
+//                                            g2.point = 2;
+//                                            g2.powSpace = 0;
+//
+//                                            g2.i[0].action = 0;
+//                                            g2.i[1].action = 0;
+//
+//                                            g2.i[1].bra.type = f1.rose[space].component;
+//                                            g2.i[1].ket.type = f1.rose[space].component;
+//
+//                                            g2.i[0].bra = grabBasis ( f1, space, f1.rose[space].particle, I1);
+//                                            g2.i[0].ket = grabBasis ( f1, space, f1.rose[space].particle, I3);
+//                                            g2.i[1].bra.basis = DiracDeltaElement ;
+//                                            g2.i[1].bra.origin = 0;
+//                                            g2.i[1].ket.basis = nullBasisElement;
+//                                            value = collectives(x, &g2)*cpow;
+//                                            //                                            if (flagPow && constant < 0 )
+//                                            //                                                value *= -1.;
+//                                            myStreams(f1, oneByOneBuffer,0)[(N1*I3+I1)]=value;
+//                                        }
+//                                        if ( Mt == 0 ){
+//                                            printf("order");
+//                                            exit(1);
+//                                        }
+//                                        for ( mm = 0 ; mm < Mt ;mm++){
+//                                            cblas_dcopy(N1*N1, myStreams(f1, oneByOneBuffer,0), 1, streams(f1, copyTwo,0,space)+mm*N1*N1+f1.tulip[copyTwo].Current[0]*N1*N1, 1);
+//                                        }
+//
+//                                    }
+//                                }
+//
+//            f1.tulip[copyTwo].Current[0] += Mt;
+//        }
+//    }
+//    tCycleDecompostionGridOneMP(-1, f1, copyTwo, 0, NULL, shorten, 0, f1.rt->CANON, part1, 1);
+//    printf("Split 2-body ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),scalar*traceOne(f1, shorten, 0), fabs(scalar)*distance(f1, shorten, copyTwo));
+//    tScaleOne(f1, shorten,0, scalar);
+//    return ;
+//}
+
+
+
+INT_TYPE separateInteraction( struct sinc_label f1, double * position, enum division load,struct metric_label metric,enum spinType cmpl,INT_TYPE overline, enum division basis ,INT_TYPE particle1){
+    
+    enum  bodyType body = bodies(f1, load);
+    enum division temp ;
+    
+    if ( body == one ){
+        temp = diagonalCube;
+    }
+    else if ( body == two ){
+        temp = quadCube;
+    }
+    else {
+        printf("bad body!\n");
+        exit(1);
+    }
+    
+    if ( metric.fn.fn == nullFunction){
+        printf("null\n");
+        return 0;
+    }
+    INT_TYPE spaces, n1[SPACE];
+    length1(f1,n1);
+    
+    INT_TYPE minusFlag, i,beta,I1,space,I2,I3,I4,spin,N1;
+    spaces = 0;
+    for ( space = 0 ;space < SPACE  ; space++)
+        if ( f1.rose[space].body != nada )
+            if ( f1.rose[space].component != nullComponent )
+                if ( f1.tulip[load].space[space].body == body )
+                    if ( f1.rose[space].particle == particle1 )
+                        spaces++;
+    
+    double cpow,constant,value,x,g;
+    Stream_Type  *stream[SPACE];
+    struct general_2index g2;
+    for ( i = 0; i < SPACE ; i++)
+        if ( f1.rose[i].body != nada )
+            stream[i] =  streams( f1, temp,0,i  );
+    
+    
+    /////IGNORE TRAIN COMMAND
+    if ( basis ){
+        f1.tulip[load].header = f1.tulip[basis].header-1;
+        f1.tulip[temp].header = Cube;
+    }
+    else {
+        f1.tulip[temp].header = Cube;
+        f1.tulip[load].header = Cube;
+    }
+    spin = 0;
+    
+    INT_TYPE section=2,si,ngk, intv = metric.fn.interval;
+    
+    if ( metric.metric == interval )
+        section = 0;
+    if ( metric.metric == semiIndefinite)
+        section = 1;
+    if ( metric.metric == dirac)
+        section = 2;
+
+    if ( section < 2 ){
+        if ( intv  == 0 ) {
+            ngk = 7;
+        }else if ( intv == 1 ){
+            ngk = 15;
+        }else if ( intv == 2 ){
+            ngk = 35;
+        }else if ( intv == 3 ){
+            ngk = 99;
+        }else {
+            printf("unknown interval\n");
+            exit(1);
+        }
+    }
+    else {
+        ngk = 1;
+    }
+    if ( part(f1, load) < CanonicalRank(f1,load,0)+ngk ){
+        printf("consider increasing allocation %d\n",part(f1, load));
+        exit(1);
+    }
+    
+    for ( beta = 0; beta < ngk ; beta++){//beta is an index.
+        if ( section == 1 ){
+            g = gaussQuad(ngk,beta,1);// [1, inf)
+            constant = gaussQuad(ngk, beta, 0);
+            
+            x = ( g ) / (1. - g)+1 ;
+            constant /= sqr(1.-g);
+            
+            
+            x *=  metric.beta[0];
+            constant *= metric.beta[0];
+            
+        }else if ( section == 0 ) {
+            g = gaussQuad(ngk,beta,1);//interval [0,1]
+            constant = gaussQuad(ngk, beta, 0);
+            
+            x = g;
+            
+            
+            x *=  (metric.beta[1]-metric.beta[0]);
+            constant *= (metric.beta[1]-metric.beta[0]);
+            x += metric.beta[0];
+        } else {
+            x = metric.beta[0];// value;
+            constant = 1;
+        }
+        
+        //x is double beta.
+        
+        tClear(f1,temp);
+        zero(f1,temp,0);
+        tId(f1,temp,0);
+        if ( section < 2 )
+            constant *= inverseLaplaceTransform(x,&metric.fn);
+        cpow = powl(fabsl(constant),1./spaces);
+        minusFlag = 1;
+        for ( space = 0 ;space < SPACE  ; space++)
+            if ( f1.rose[space].body != nada )
+                
+                if ( f1.rose[space].component != nullComponent )
+                    
+                    if ( f1.tulip[load].space[space].body == body )
+                        if(f1.rose[space].particle == particle1  )
+                        {
+                            N1 = n1[space];
+#ifdef OMP
+#pragma omp parallel for private (si,I1,I2,I3,I4,g2,value)
+#endif
+                            for ( si = 0 ; si < N1*N1*(( body == two )* N1*N1 + (body == one )); si++)
+                                
+                            {
+                                if ( body == two ){
+                                    I1 = si % N1;
+                                    I3 = (si/N1)% N1;
+                                    I2 = (si/(N1*N1)) % N1;
+                                    I4 = (si/(N1*N1*N1))% N1;
+                                    if ( (overline/2 % 2) && (I1 != I3 || I2 != I4 ) )
+                                        continue;
+                                }else
+                                {
+                                    I1 = si % N1;
+                                    I2 = (si/N1)% N1;
+                                    I3 = -1;
+                                    I4 = -1;
+                                }
+                                g2.realFlag = cmpl;
+                                g2.gaussianAccelerationFlag = 0;
+                                
+                                g2.i[0].bra = grabBasis(f1, space, particle1, I1);
+                                g2.i[0].ket = grabBasis ( f1, space, particle1, I2);
+                                
+                                if ( body == one ){
+                                    if ( metric.metric == separateDirac)
+                                        g2.point = 1;
+                                    else
+                                        g2.point = 2;
+                                    
+                                    g2.i[1].bra.basis = DiracDeltaElement;
+                                    g2.i[1].bra.origin = position[space];
+                                    g2.i[1].ket.basis = nullBasisElement;
+                                    g2.i[1].bra.type = f1.rose[space].component;
+                                    g2.i[1].ket.type = f1.rose[space].component;
+
+                                    
+                                } else {
+                                    g2.point = 2;
+                                    g2.i[1].bra = grabBasis ( f1, space, particle1, I3);
+                                    g2.i[1].ket = grabBasis ( f1, space, particle1, I4);
+                                }
+                                
+                                if ( overline % 2 ){
+                                    g2.i[0].bra.note = interactionCell ;
+                                    g2.i[0].ket.note = interactionCell ;
+                                }
+                                if ( g2.point == 1 ) {
+                                    g2.pow2[0] = metric.pow[space];
+                                    g2.pow2[1] = metric.powB[space];
+                                }else {
+                                    g2.powSpace = metric.pow[space];
+                                }
+                                g2.i[1].action = metric.deriv[space] ;
+
+                                value = collectives(x, &g2);
+                                if ( minusFlag && constant < 0 ){
+                                    value *= -1.;
+                                }
+                                stream[space][si] = cpow * value;
+                            }
+                            minusFlag = 0;
+
+                        }
+        tAddTw(f1, load,0, temp,0);
+        printf("%f\n", traceOne(f1, temp,0));
+    }
+    
+    return 0;
+}
+
+INT_TYPE buildMetric( struct sinc_label f1,double latticePause,INT_TYPE Z, struct interaction_label inter,INT_TYPE am, struct metric_label * metric){
+    INT_TYPE dim,dimB,nMet = 0,ai,space;
+    const INT_TYPE psu_stride = 17;
+    const INT_TYPE psu_length = 11;
+    double lda[] = {
+        1, 1, 0, 2, 2, 0.2, -4.06633, 0.677832, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        3, 3, 0, 4, 4, 0.4, -14.0094, 9.50991, -1.75327, 0.0834586, 0, 0, 0,0, 0, 0, 0,
+        4, 4, 0, 4, 4, 0.325, -23.991, 17.1718, -3.31896,0.165083, 0, 0, 0, 0, 0, 0, 0,
+        5, 3, 0, 3, 2, 0.4325, -5.60048,0.806284, 0, 0, 1, 0.373882, 6.23522, 0, 0, 0, 0,
+        6, 4, 0, 3, 2,0.346473, -8.57533, 1.23413, 0, 0, 1, 0.304523, 9.53419, 0, 0, 0, 0,
+        7, 5, 0, 3, 2, 0.288905, -12.2046, 1.75582, 0, 0, 1, 0.256912,0.256912, 0, 0, 0, 0,
+        8, 6, 0, 3, 2, 0.247754, -16.4822, 2.37014, 0,0, 1, 0.222203, 18.1996, 0, 0, 0, 0,
+        13, 3, 0, 6, 1, 0.45, -6.83406,0, 0, 0, 2, 0.465436, 2.81408, 1.93952, 3, 0.546243, 1.91601,
+        14, 4,0, 6, 1, 0.44, -6.91363, 0, 0, 0, 2, 0.424334, 3.20813, 2.58888, 3,0.485359,2.65622,
+        15, 5, 0, 6, 1, 0.43, -6.64097, 0, 0, 0, 2, 0.390738, 3.65826, 3.15066, 3, 0.440846, 3.28594,
+        16, 6, 0, 6, 1,0.42, -6.59607, 0, 0, 0, 2, 0.362614, 4.22284, 3.66966, 3, 0.405311,3.88535};
+    double blyp[] = {
+        1, 1, 0, 2, 2, 0.2, -4.10561, 0.692787, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        3, 3, 0, 4, 4, 0.4, -14.1026, 9.65027, -1.79063, 0.0857313, 0, 0, 0,0, 0, 0, 0,
+        4, 4, 0, 4, 4, 0.325, -24.0586, 17.2529, -3.33239,0.165305, 0, 0, 0, 0, 0, 0, 0,
+        5, 3, 0, 3, 2, 0.424087, -6.08744,0.980916, 0, 0, 1, 0.371141, 6.32735, 0, 0, 0, 0,
+        6, 4, 0, 3, 2,0.337633, -9.12847, 1.42513, 0, 0, 1, 0.302528, 9.65073, 0, 0, 0, 0,
+        7, 5, 0, 3, 2, 0.281959, -12.7548, 1.94859, 0, 0, 1, 0.255444,13.6594, 0, 0, 0, 0,
+        8, 6, 0, 3, 2, 0.24245, -17.0171, 2.56133, 0, 0,1, 0.221084, 18.3556, 0, 0, 0, 0,
+        13, 3, 0, 6, 1, 0.45, -5.54822, 0,0, 0, 2, 0.505838, 3.02008, 1.06418, 3, 0.577572, 1.53528,
+        14, 4, 0,6, 1, 0.44, -5.97966, 0, 0, 0, 2, 0.444927, 3.4402, 1.88129, 3,0.503637, 2.28821,
+        15, 5, 0, 6, 1, 0.43, -5.87283, 0, 0, 0, 2,0.403545, 3.8762, 2.54131, 3, 0.452751, 2.9405,
+        16, 6, 0, 6, 1, 0.42,-6.0083, 0, 0, 0, 2, 0.370401, 4.37362, 3.19573, 3, 0.413079, 3.5911};
+    double *def, *PSU;
+    
+    
+    switch ( inter.func.fn ){
+        case Pseudo:
+            if ( latticePause > 1./inter.func.param[2] ){
+                if ( am < 1 )
+                    exit(1);
+                metric[nMet].fn.fn = Pseudo;
+                metric[nMet].fn.param[0] = -Z*inter.func.param[0];
+                metric[nMet].fn.param[2] = inter.func.param[2];
+                metric[nMet].fn.interval = inter.func.interval;
+                metric[nMet].metric = interval;
+                metric[nMet].beta[0] = 0;
+                metric[nMet].beta[1] = 1./inter.func.param[2];
+                for ( space = 0; space < SPACE ; space++){
+                    metric[nMet].pow[space] = 0;
+                    metric[nMet].deriv[space] = 0;
+                }
+                nMet++;
+            }else {
+                if ( am < 2 )
+                    exit(1);
+                metric[nMet].fn.fn = Pseudo;
+                metric[nMet].fn.param[0] = -Z*inter.func.param[0];
+                metric[nMet].fn.param[2] = inter.func.param[2];
+                metric[nMet].fn.interval     = inter.func.interval;
+                metric[nMet].metric = interval;
+                metric[nMet].beta[0] = 0;
+                metric[nMet].beta[1] = latticePause;
+                for ( space = 0; space < SPACE ; space++){
+                    metric[nMet].pow[space] = 0;
+                    metric[nMet].deriv[space] = 0;
+                }
+
+                nMet++;
+                metric[nMet].fn.fn = Pseudo;
+                metric[nMet].fn.param[0] = -Z*inter.func.param[0];
+                metric[nMet].fn.param[2] = inter.func.param[2];
+                metric[nMet].fn.interval = inter.func.interval;
+                metric[nMet].metric = interval;
+                metric[nMet].beta[0] = latticePause;
+                metric[nMet].beta[1] = 1./inter.func.param[2];
+                for ( space = 0; space < SPACE ; space++){
+                    metric[nMet].pow[space] = 0;
+                    metric[nMet].deriv[space] = 0;
+                }
+
+                nMet++;
+            }
+            break;
+        case Coulomb:
+        case Yukawa:
+            if ( am < 2 )
+                exit(1);
+            metric[nMet].fn.fn = inter.func.fn;
+            metric[nMet].fn.param[0] = -Z*inter.func.param[0];
+            metric[nMet].fn.param[2] = inter.func.param[2];
+            metric[nMet].fn.interval = inter.func.interval;
+            metric[nMet].metric = interval;
+            metric[nMet].beta[0] = 0;
+            metric[nMet].beta[1] = latticePause;
+            for ( space = 0; space < SPACE ; space++){
+                metric[nMet].pow[space] = 0;
+                metric[nMet].deriv[space] = 0;
+            }
+
+            nMet++;
+            metric[nMet].fn.fn = inter.func.fn;
+            metric[nMet].fn.param[0] = -Z*inter.func.param[0];
+            metric[nMet].fn.param[2] = inter.func.param[2];
+            metric[nMet].fn.interval = inter.func.interval;
+            metric[nMet].metric = semiIndefinite;
+            metric[nMet].beta[0] = latticePause;
+            for ( space = 0; space < SPACE ; space++){
+                metric[nMet].pow[space] = 0;
+                metric[nMet].deriv[space] = 0;
+            }
+
+            nMet++;
+            break;
+        case LDA:
+            def = lda;
+        case BLYP:
+            def = blyp;
+            PSU = NULL;
+            for ( ai = 0; ai < psu_length ; ai++){
+                if ( def[psu_stride*ai] ==  abs(Z))
+                    PSU = def+psu_stride * ai;
+            }
+            if ( PSU == NULL )
+            {
+                printf ("not coded\n");
+                exit(0);
+            }
+            //add pseudo core.
+            if ( latticePause > 1./(sqrt(2.)*PSU[5]) ){
+                if ( am < 1 )
+                    exit(1);
+                metric[nMet].fn.fn = Pseudo;
+                metric[nMet].fn.param[0] = -PSU[1];
+                metric[nMet].fn.param[2] = (sqrt(2.)*PSU[5]);
+                metric[nMet].fn.interval = inter.func.interval;
+                metric[nMet].metric = interval;
+                metric[nMet].beta[0] = 0;
+                metric[nMet].beta[1] =  1./(sqrt(2.)*PSU[5]);
+                for ( space = 0; space < SPACE ; space++){
+                    metric[nMet].pow[space] = 0;
+                    metric[nMet].deriv[space] = 0;
+                }
+
+                nMet++;
+            }else {
+                if ( am < 2 )
+                    exit(1);
+                metric[nMet].fn.fn = Pseudo;
+                metric[nMet].fn.param[0] = -PSU[1];
+                metric[nMet].fn.param[2] = (sqrt(2.)*PSU[5]);
+                metric[nMet].fn.interval = inter.func.interval;
+                metric[nMet].metric = interval;
+                metric[nMet].beta[0] = 0;
+                metric[nMet].beta[1] = latticePause;
+                for ( space = 0; space < SPACE ; space++){
+                    metric[nMet].pow[space] = 0;
+                    metric[nMet].deriv[space] = 0;
+                }
+
+                nMet++;
+                metric[nMet].fn.fn = Pseudo;
+                metric[nMet].fn.param[0] = -PSU[1];
+                metric[nMet].fn.param[2] = (sqrt(2.)*PSU[5]);
+                metric[nMet].fn.interval = inter.func.interval;
+                metric[nMet].metric = interval;
+                metric[nMet].beta[0] = latticePause;
+                metric[nMet].beta[1] =  1./(sqrt(2.)*PSU[5]);
+                for ( space = 0; space < SPACE ; space++){
+                    metric[nMet].pow[space] = 0;
+                    metric[nMet].deriv[space] = 0;
+                }
+
+                nMet++;
+            }
+            if (fabs(PSU[6])> 0. ){
+                //single gaussian
+                metric[nMet].fn.fn = Gaussian;
+                metric[nMet].fn.param[0] = PSU[6]/pow(PSU[5], 0);
+                metric[nMet].fn.interval = 0;
+                metric[nMet].metric = dirac;
+                metric[nMet].beta[0] =  1./(sqrt(2.)*PSU[5]);
+                for ( space = 0; space < SPACE ; space++){
+                    metric[nMet].pow[space] = 0;
+                    metric[nMet].deriv[space] = 0;
+                }
+
+                nMet++;
+                if ( nMet > am )
+                    exit(1);
+            }
+            if (fabs(PSU[7])> 0. ){
+                //3 gaussians.
+                for ( dim = 0 ; dim < 3 ; dim++){
+                    metric[nMet].fn.fn = Gaussian;
+                    metric[nMet].fn.param[0] = PSU[7]/pow(PSU[5], 2);
+                    metric[nMet].fn.interval = 0;
+                    metric[nMet].metric = dirac;
+                    metric[nMet].beta[0] =  1./(sqrt(2.)*PSU[5]);
+                    for ( space = 0; space < SPACE ; space++){
+                        metric[nMet].pow[space] = 0;
+                        metric[nMet].deriv[space] = 0;
+                    }
+                    metric[nMet].pow[dim] = 2;
+                    
+                    nMet++;
+                    if ( nMet > am )
+                        exit(1);
+                }
+            }
+            if (fabs(PSU[8])> 0. ){
+                //6 gaussians
+                if ( SPACE < 3 ){
+                    printf("ack!");
+                    exit(1);
+                }
+                for ( dim = 0 ; dim < 6 ; dim++){
+                    metric[nMet].fn.fn = Gaussian;
+                    metric[nMet].fn.param[0]= PSU[8]/pow(PSU[5], 4);
+                    metric[nMet].fn.interval = 0;
+                    metric[nMet].metric = dirac;
+                    metric[nMet].beta[0] =  1./(sqrt(2.)*PSU[5]);
+                    for ( space = 0; space < SPACE ; space++){
+                        metric[nMet].pow[space] = 0;
+                        metric[nMet].deriv[space] = 0;
+                    }
+                    //a^2 + 2 a b + b^2 + 2 a c + 2 b c + c^2
+
+                    switch( dim ){
+                        case 0:
+                            metric[nMet].pow[0] = 4;
+                            break;
+                        case 1:
+                            metric[nMet].fn.param[0] *= 2;
+                            metric[nMet].pow[0] = 2;
+                            metric[nMet].pow[1] = 2;
+                            break;
+                        case 2:
+                            metric[nMet].pow[1] = 4;
+                            break;
+                        case 3:
+                            metric[nMet].fn.param[0] *= 2;
+                            metric[nMet].pow[1] = 2;
+                            metric[nMet].pow[2] = 2;
+                            break;
+                        case 4:
+                            metric[nMet].pow[2] =4;
+                            break;
+                        case 5:
+                            metric[nMet].fn.param[0] *= 2;
+                            metric[nMet].pow[0] = 2;
+                            metric[nMet].pow[2] = 2;
+                            break;
+                            
+                    }
+                    
+                    nMet++;
+                    if ( nMet > am )
+                        exit(1);
+
+                }
+            }
+            if (fabs(PSU[9])> 0. ){
+                //6 gaussians
+                if ( SPACE < 3 ){
+                    printf("ack!");
+                    exit(1);
+                }
+                for ( dim = 0 ; dim < 10 ; dim++){
+                    metric[nMet].fn.fn = Gaussian;
+                    metric[nMet].fn.param[0] = PSU[9]/pow(PSU[5], 6);
+                    metric[nMet].fn.interval = 0;
+                    metric[nMet].metric = dirac;
+                    metric[nMet].beta[0] =  1./(sqrt(2.)*PSU[5]);
+                    for ( space = 0; space < SPACE ; space++){
+                        metric[nMet].pow[space] = 0;
+                        metric[nMet].deriv[space] = 0;
+                    }
+                    //a^3 + 3 a^2 b + 3 a b^2 + b^3 + 3 a^2 c + 6 a b c + 3 b^2 c +
+                    //3 a c^2 + 3 b c^2 + c^3
+                    
+
+                    switch( dim ){
+                        case 0:
+                            metric[nMet].pow[0] = 6;
+                            break;
+                        case 1:
+                            metric[nMet].fn.param[0] *= 3;
+                            metric[nMet].pow[0] = 4;
+                            metric[nMet].pow[1] = 2;
+                            break;
+                        case 2:
+                            metric[nMet].fn.param[0] *= 3;
+                            metric[nMet].pow[0] = 2;
+                            metric[nMet].pow[1] = 4;
+                            break;
+                        case 3:
+                            metric[nMet].pow[1] = 6;
+                            break;
+                        case 4:
+                            metric[nMet].fn.param[0] *= 3;
+                            metric[nMet].pow[0] = 4;
+                            metric[nMet].pow[2] = 2;
+                            break;
+                        case 5:
+                            metric[nMet].fn.param[0] *= 6;
+                            metric[nMet].pow[0] = 2;
+                            metric[nMet].pow[1] = 2;
+                            metric[nMet].pow[2] = 2;
+                            break;
+                        case 6:
+                            metric[nMet].fn.param[0] *= 3;
+                            metric[nMet].pow[1] = 4;
+                            metric[nMet].pow[2] = 2;
+                            break;
+                        case 7:
+                            metric[nMet].fn.param[0] *= 3;
+                            metric[nMet].pow[0] = 2;
+                            metric[nMet].pow[2] = 4;
+                            break;
+                        case 8:
+                            metric[nMet].fn.param[0] *= 3;
+                            metric[nMet].pow[1] = 2;
+                            metric[nMet].pow[2] = 4;
+                            break;
+                        case 9:
+                            metric[nMet].pow[2] = 6;
+                            break;
+                    }
+                
+                    nMet++;
+                    if ( nMet > am )
+                        exit(1);
+                    
+                }
+            }
+            if (fabs(PSU[10]) > 0. ){
+                //single separated gaussian
+                metric[nMet].fn.fn = Gaussian;
+                metric[nMet].fn.param[0] = PSU[12]/pow(sqrt(pi)*PSU[11],3);
+                metric[nMet].fn.interval= 0;
+                metric[nMet].metric = separateDirac;
+                metric[nMet].beta[0] =  1./(sqrt(2.)*PSU[5]);
+                for ( space = 0; space < SPACE ; space++){
+                    metric[nMet].pow[space] = 0;
+                    metric[nMet].powB[space] = 0;
+                    metric[nMet].deriv[space] = 0;
+                }
+
+                nMet++;
+                if ( nMet > am )
+                    exit(1);
+            }
+            if (fabs(PSU[10]) > 1. ){
+                //9 separated radial gaussian
+                for ( dim = 0 ;dim < 3 ;dim++)
+                    for ( dimB = 0 ;dimB < 3 ;dimB++){
+                        metric[nMet].fn.fn = Gaussian;
+                        metric[nMet].fn.param[0] = 2./15.*PSU[16]/pow(pi,1.500)/pow(PSU[15],7.);
+                        metric[nMet].fn.interval = 0;
+                        metric[nMet].metric = separateDirac;
+                        metric[nMet].beta[0] =  1./(sqrt(2.)*PSU[11]);
+                        for ( space = 0; space < SPACE ; space++){
+                            metric[nMet].pow[space] = 0;
+                            metric[nMet].powB[space] = 0;
+                            metric[nMet].deriv[space] = 0;
+                        }
+                        //(x2 + y2 + z2 ) ( x'2 + y'2 + z'2 )
+                        metric[nMet].pow[dim] = 2;
+                        metric[nMet].powB[dimB] = 2;
+                        
+                        nMet++;
+                        if ( nMet > am )
+                            exit(1);
+                    }
+            }
+            if (fabs(PSU[14]) > 0. ){
+                //3 separated p-gaussian
+                for ( dim = 0 ;dim < 3 ;dim++){
+                    metric[nMet].fn.fn = Gaussian;
+                    metric[nMet].fn.param[0] = 2.*PSU[16]/pow(pi,1.500)/pow(PSU[15],5.);
+                    metric[nMet].fn.interval = 0;
+                    metric[nMet].metric = separateDirac;
+                    metric[nMet].beta[0] =  1./(sqrt(2.)*PSU[15]);
+                    for ( space = 0; space < SPACE ; space++){
+                        metric[nMet].pow[space] = 0;
+                        metric[nMet].deriv[space] = 0;
+                    }
+                    metric[nMet].pow[dim]  = 1;
+                    metric[nMet].powB[dim] = 1;
+
+                    nMet++;
+                    if ( nMet > am )
+                        exit(1);
+                }
+            }
+            break;
+    }
+    
+    return nMet;
+}
+#define MAXb 30
+
+INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label f1, enum division single,enum particleType particle1, INT_TYPE overline, enum spinType cmpl){
+    INT_TYPE mus=0,m,a,ra=0;
+    struct metric_label mu[MAXb];
+    struct interaction_label inter  = c1->i.oneBody;
+    tClear(f1, tempOneMatrix);
+
+    for ( a = 1 ; a <= c1->i.Na ; a++){
+        mus =  buildMetric(f1, 2./grabBasis(f1, 0, electron, 0).length, c1->i.atoms[a].label.Z, inter, MAXb, mu);
+        for ( m = 0; m < mus ; m++){
+            if ( mu[m].metric == interval || mu[m].metric == semiIndefinite)
+                ra += estSize(mu[m].fn.interval);
+            else if ( mu[m].metric == dirac )
+                ra++;
+        }
+        if ( bootedQ(f1) ){
+                for ( m = 0; m < mus ; m++)
+                    separateInteraction(f1, c1->i.atoms[a].position+1, tempOneMatrix, mu[m], cmpl, overline, 0, particle1);
+                }
+        }
+    if ( bootedQ(f1) ){
+        tCycleDecompostionGridOneMP(-2, f1, tempOneMatrix, 0, NULL, single, cmpl-1, f1.rt->CANON, part(f1, single), 1);
+        printf("Split 1-body ++%d  \t%f %f\n", CanonicalRank(f1, single, cmpl-1),traceOne(f1, single, cmpl-1), distance1(f1, single,cmpl-1, tempOneMatrix,0));
+    }
+
+    return ra;
+}
+
+INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label f1, enum division pair,enum particleType particle1 , INT_TYPE overline, enum spinType cmpl){
+    INT_TYPE mus=0,m,ra=0;
+    struct metric_label mu[MAXb];
+    struct interaction_label inter = c1->i.twoBody ;
+    tClear(f1, tempTwoMatrix);
+    mus =  buildMetric(f1, 2./grabBasis(f1, 0, electron, 0).length, -1, inter, MAXb, mu);
+    for ( m = 0; m < mus ; m++){
+        if ( mu[m].metric == interval || mu[m].metric == semiIndefinite)
+            ra += estSize(mu[m].fn.interval);
+        else
+            ra++;
+    }
+    if ( bootedQ(f1) && part ( f1,tempTwoMatrix) <= ra ){
+            for ( m = 0; m < mus ; m++)
+                separateInteraction(f1, NULL,tempTwoMatrix , mu[m], cmpl, overline, 0, particle1);
+        tCycleDecompostionGridOneMP(-2, f1, tempTwoMatrix, 0, NULL, pair, cmpl-1, f1.rt->CANON, part(f1, pair), 1);
+        printf("Split 2-body ++%d  \t%f %f\n", CanonicalRank(f1, pair, cmpl-1),traceOne(f1, pair, cmpl-1), distance1(f1, pair,cmpl-1, tempTwoMatrix,0));
+        }
+    return ra;
+}
 
 
 INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum division linear, INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1){
@@ -4693,23 +5510,18 @@ INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum div
 
     const INT_TYPE psu_stride = 17;
     const INT_TYPE psu_length = 11;
-    double lda[] = {/*test*/
-       // 2, 1, 0, 1,      10, 1.2, 0,0,0,1,     0, 1, 1, 0, 0, 1.5, 1,/*test*/
+    double lda[] = {
         1, 1, 0, 2, 2, 0.2, -4.06633, 0.677832, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        3, 3, 0, 4, 4, 0.4, -14.0094, 9.50991, -1.75327, 0.0834586, 0, 0, 0,
-        0, 0, 0, 0, 4, 4, 0, 4, 4, 0.325, -23.991, 17.1718, -3.31896,
-        0.165083, 0, 0, 0, 0, 0, 0, 0, 5, 3, 0, 3, 2, 0.4325, -5.60048,
-        0.806284, 0, 0, 1, 0.373882, 6.23522, 0, 0, 0, 0, 6, 4, 0, 3, 2,
-        0.346473, -8.57533, 1.23413, 0, 0, 1, 0.304523, 9.53419, 0, 0, 0, 0,
-        7, 5, 0, 3, 2, 0.288905, -12.2046, 1.75582, 0, 0, 1, 0.256912,
-        0.256912, 0, 0, 0, 0, 8, 6, 0, 3, 2, 0.247754, -16.4822, 2.37014, 0,
-        0, 1, 0.222203, 18.1996, 0, 0, 0, 0, 13, 3, 0, 6, 1, 0.45, -6.83406,
-        0, 0, 0, 2, 0.465436, 2.81408, 1.93952, 3, 0.546243, 1.91601, 14, 4,
-        0, 6, 1, 0.44, -6.91363, 0, 0, 0, 2, 0.424334, 3.20813, 2.58888, 3,
-        0.485359, 2.65622, 15, 5, 0, 6, 1, 0.43, -6.64097, 0, 0, 0, 2,
-        0.390738, 3.65826, 3.15066, 3, 0.440846, 3.28594, 16, 6, 0, 6, 1,
-        0.42, -6.59607, 0, 0, 0, 2, 0.362614, 4.22284, 3.66966, 3, 0.405311,
-        3.88535};
+        3, 3, 0, 4, 4, 0.4, -14.0094, 9.50991, -1.75327, 0.0834586, 0, 0, 0,0, 0, 0, 0,
+        4, 4, 0, 4, 4, 0.325, -23.991, 17.1718, -3.31896,0.165083, 0, 0, 0, 0, 0, 0, 0,
+        5, 3, 0, 3, 2, 0.4325, -5.60048,0.806284, 0, 0, 1, 0.373882, 6.23522, 0, 0, 0, 0,
+        6, 4, 0, 3, 2,0.346473, -8.57533, 1.23413, 0, 0, 1, 0.304523, 9.53419, 0, 0, 0, 0,
+        7, 5, 0, 3, 2, 0.288905, -12.2046, 1.75582, 0, 0, 1, 0.256912,0.256912, 0, 0, 0, 0,
+        8, 6, 0, 3, 2, 0.247754, -16.4822, 2.37014, 0,0, 1, 0.222203, 18.1996, 0, 0, 0, 0,
+        13, 3, 0, 6, 1, 0.45, -6.83406,0, 0, 0, 2, 0.465436, 2.81408, 1.93952, 3, 0.546243, 1.91601,
+        14, 4,0, 6, 1, 0.44, -6.91363, 0, 0, 0, 2, 0.424334, 3.20813, 2.58888, 3,0.485359,2.65622,
+        15, 5, 0, 6, 1, 0.43, -6.64097, 0, 0, 0, 2, 0.390738, 3.65826, 3.15066, 3, 0.440846, 3.28594,
+        16, 6, 0, 6, 1,0.42, -6.59607, 0, 0, 0, 2, 0.362614, 4.22284, 3.66966, 3, 0.405311,3.88535};
     
     double blyp[] = {1, 1, 0, 2, 2, 0.2, -4.10561, 0.692787, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         3, 3, 0, 4, 4, 0.4, -14.1026, 9.65027, -1.79063, 0.0857313, 0, 0, 0,
@@ -5289,6 +6101,8 @@ INT_TYPE separateOverlap( struct sinc_label f1, INT_TYPE periodic,enum division 
     return 0;
 }
 
+
+//replaced separateOneBody.
 void separateDerivatives( struct sinc_label f1, INT_TYPE periodic,enum division mat, INT_TYPE *x, INT_TYPE *grad,double mag,INT_TYPE particle1 ){
     DCOMPLEX bca;
     double b0 = 1,powSpace,spaces=0;

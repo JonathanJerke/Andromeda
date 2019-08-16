@@ -75,7 +75,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
     INT_TYPE space,N2,i,ii,iii,iv,v;
     double * ar,*w;
     DCOMPLEX * arc ;
-    INT_TYPE cmplFlag = 0;
+    INT_TYPE cmplFlag = spins(f1,kinetic)-1;
 
     for ( space = 0 ;space < SPACE ; space++)
         if( f1.rose[space].body != nada){
@@ -99,11 +99,12 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                     
                 }else {
                     for ( v = 0 ; v < N2 ; v++)
-//                        if ( f1.tulip[kinetic].spinor == cmpl){
-//                            cmplFlag = 1;
-//                            arc[v] = (streams(f1, kinetic,0,space)+space*N2)[v] + I * (streams(f1, kinetic,1,space)+space*N2)[v];
-//                        }
-//                        else
+                        if ( f1.tulip[kinetic].spinor == cmpl){
+                            cmplFlag = 1;
+                            arc[v] = (streams(f1, kinetic,0,space)+space*N2)[v] + I * (streams(f1, kinetic,1,space)+space*N2)[v];
+                            printf("%f + I %f\n", creal(arc[v]), cimag(arc[v]));
+                        }
+                        else
                     {
                             ar[v] = (streams(f1, kinetic,0,space)+space*N2)[v];
                         }
@@ -158,6 +159,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
 //                    for ( ii = 0; ii < N1 ; ii++)
 //                        printf("\n%d--%f+I%f,",ii+1, creal(arc[i*N1+ii]),cimag(arc[i*N1+ii]));
 //                }
+//            }
 //
 //            }else {
 //                for ( i = 0 ; i < 1 ; i++){
@@ -1539,15 +1541,15 @@ INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,ch
             fflush(stdout);
         }
         time(&lapse_t);
-        
+        printf("\noffset\t%f\n", f1.offset);
         //f1->mem1->rt->eigenTime += difftime(lapse_t, start_t);
         time(&start_t);
         
         {       //printf("\nHeader,Number,CEG,Linear,BODY,CLASS,WEIGHT\n");
             for ( iii = 0; iii < imin(qs,Ne) ; iii++)
             {
-                f1.tulip[eigenVectors+iii].value.value = ritz[iii];
-                printf("%d-Press%d:,%1.15f, %f\n",stage, iii+1, ritz[iii],cblas_dznrm2(qs,t+iii*stride, 1));
+                f1.tulip[eigenVectors+iii].value.value = ritz[iii] + f1.offset;
+                printf("%d-Press%d:,%1.15f, %f\n",stage, iii+1, f1.tulip[eigenVectors+iii].value.value,cblas_dznrm2(qs,t+iii*stride, 1));
             }
             //    fflush(stdout);
         }

@@ -240,9 +240,10 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
     double rcond;
     enum division canonicalStore;
     INT_TYPE T1 = G1*L1;
-    {//REF CORE NUMBER
+    if (! singleFlag ){//REF CORE NUMBER
         //GET CORE... ALLOCATE TO CORE-LANE.
-        
+        printf("not allocated\n");
+        exit(0);//currently not allocated
         
         for ( space = 0; space < SPACE ; space++){
             array[space] =  streams(f1, canonicalBuffers, rank , space);
@@ -251,7 +252,7 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
         }
         guide =  myStreams(f1, guideBuffer, rank );
         track =  myStreams(f1, trackBuffer, rank );
-
+        
         
         if (  T1 + L1*L1 >  part(f1,canonicalBuffers)){
 #if 1
@@ -262,8 +263,41 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
         
         if ( species(f1, origin ) == matrix )
             canonicalStore = canonicalBuffersBM;
-            else
-        canonicalStore = canonicalBuffersB;
+        else
+            canonicalStore = canonicalBuffersB;
+        
+        if ( part(f1, canonicalStore) < L1  )
+        {
+            printf("list alloc\n");
+            exit(0);
+        }
+        
+        
+    }else
+    {//REF CORE NUMBER
+        //GET CORE... ALLOCATE TO CORE-LANE.
+        
+        
+        for ( space = 0; space < SPACE ; space++){
+            array[space] =  streams(f1, canonicalBuffers0, 0 , space);
+            array2[space] =  streams(f1, canonicalBuffers0, 0 , space) + L1*L1;
+            
+        }
+        guide =  myStreams(f1, guideBuffer0, 0 );
+        track =  myStreams(f1, trackBuffer0, 0 );
+        
+        
+        if (  T1 + L1*L1 >  part(f1,canonicalBuffers0)){
+#if 1
+            printf("mem prob\n %d %d  = %d\n", L1, G1,part(f1,canonicalBuffers0));
+#endif
+            exit(0);
+        }
+        
+        if ( species(f1, origin ) == matrix )
+            canonicalStore = canonicalBuffersBM;
+        else
+            canonicalStore = canonicalBuffersB;
         
         if ( part(f1, canonicalStore) < L1  )
         {
@@ -522,7 +556,7 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
     double rcond;
     enum division canonicalStore;
     INT_TYPE T1 = G1*L1;
-    {//REF CORE NUMBER
+    if (! singleFlag ){//REF CORE NUMBER
         //GET CORE... ALLOCATE TO CORE-LANE.
         
         
@@ -538,6 +572,39 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
         if (  T1 + L1*L1 >  part(f1,canonicalBuffers)){
 #if 1
             printf("mem prob\n %d %d \n", L1, G1);
+#endif
+            exit(0);
+        }
+        
+        if ( species(f1, origin ) == matrix )
+            canonicalStore = canonicalBuffersBM;
+        else
+            canonicalStore = canonicalBuffersB;
+        
+        if ( part(f1, canonicalStore) < L1  )
+        {
+            printf("list alloc\n");
+            exit(0);
+        }
+        
+        
+    }else
+    {//REF CORE NUMBER
+        //GET CORE... ALLOCATE TO CORE-LANE.
+        
+        
+        for ( space = 0; space < SPACE ; space++){
+            array[space] =  streams(f1, canonicalBuffers0, 0 , space);
+            array2[space] =  streams(f1, canonicalBuffers0, 0 , space) + L1*L1;
+            
+        }
+        guide =  myStreams(f1, guideBuffer0, 0 );
+        track =  myStreams(f1, trackBuffer0, 0 );
+        
+        
+        if (  T1 + L1*L1 >  part(f1,canonicalBuffers0)){
+#if 1
+            printf("mem prob\n %d %d  = %d\n", L1, G1,part(f1,canonicalBuffers0));
 #endif
             exit(0);
         }
@@ -861,16 +928,17 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
       //  printf("%d ** %d\n", run, CanonicalRank(f1, alloy, 0));
     }
     f1.tulip[alloy].Current[spin] = maxRun;
-    numberSplit =maxRun;
+    numberSplit =maxRun;//numberSplit different rank-1 terms.
 
     for (split = 1 ; split < maxRun; split++){
         step = CanonicalRank(f1, origin, os)/(maxRun)+(!(!(CanonicalRank(f1, origin, os)%maxRun)));
-        if ( rank < 0 && numberSplit > 3){
+        if ( (rank == -1) && (numberSplit > (f1.rt->powDecompose))){
             numberSplit = 0;
             bailFlag = 0;
 #ifdef OMP
 #pragma omp parallel for private (ran1,run,ct,toleranceAdjust) schedule(dynamic,1) reduction(+:numberSplit)
 #endif
+            //physical ranks of training, split -> unity
             for ( run = 0; run < maxRun ; run+=split){
 #ifdef OMP
                 ran1 = omp_get_thread_num();
@@ -892,28 +960,28 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
                 }while ( ct == 1 );
             }
         }
-//        else {
-//            numberSplit = 0;
-//            for ( run = 0; run < maxRun ; run+=split){
-//                ran1 = 0;
-//                numberSplit+=1;
-//                toleranceAdjust = 1.;
-//                do{
-//                    ct = canonicalGridDecompositionMP(-1, f1, coeff, origin,imin(CanonicalRank(f1, origin, os)-1,run*step),imin(CanonicalRank(f1, origin, os),(run+split)*step), os,alloy, run,imin(maxRun,run+split),spin, toleranceAdjust*tolerance,value2,-1);
-//                    toleranceAdjust *= 1.2;
-//                  //  printf("%d -- %d\n", ran1, ct);
-//
-//                    if ( ct == -1 ){
-//                        bailFlag = 1;
-//
-//                        printf("List bailed \n");
-//                        break;
-//
-//                    }
-//
-//                }while ( ct == 1 );
-//            }
-        
+        else {
+            numberSplit = 0;
+            for ( run = 0; run < maxRun ; run+=split){
+                ran1 = 0;
+                numberSplit+=1;
+                toleranceAdjust = 1.;
+                do{
+                    ct = canonicalGridDecompositionMP(-1, f1, coeff, origin,imin(CanonicalRank(f1, origin, os)-1,run*step),imin(CanonicalRank(f1, origin, os),(run+split)*step), os,alloy, run,imin(maxRun,run+split),spin, toleranceAdjust*tolerance,value2,-1);
+                    toleranceAdjust *= 1.2;
+                  //  printf("%d -- %d\n", ran1, ct);
+
+                    if ( ct == -1 ){
+                        bailFlag = 1;
+
+                        printf("List bailed \n");
+                        break;
+
+                    }
+
+                }while ( ct == 1 );
+            }
+        }
         if ( coeff == NULL ){
             value = distance1( f1, origin,os,  alloy,spin);
         }else {
@@ -928,7 +996,7 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
         fflush(stdout);
 
         if ( fabs( last - value ) < f1.rt->TARGET)
-            return 0;
+            return 0;//stall clause.
         last = value;
         
         
@@ -937,12 +1005,12 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
             break;
         }
         
-        if (( fabs(value ) < f1.rt->TARGET*fabs(value2)  ) && numberSplit <= f1.rt->powDecompose){
+        if (( fabs(value ) < f1.rt->TARGET*fabs(value2)  ) || numberSplit <= f1.rt->powDecompose){
             return 0;
         }
 
     }
-    if ( numberSplit == 2 || bailFlag){
+    if ( f1.rt->powDecompose == 2 || bailFlag){
         do{
             ct = canonicalListDecompositionMP(-1, f1, coeff, origin, os,alloy, spin, toleranceAdjust*tolerance,value2,-1);
             toleranceAdjust *= 1.2;
@@ -1866,7 +1934,7 @@ double tDOT (INT_TYPE rank,  struct sinc_label  f1,INT_TYPE dim,char leftChar, e
     if ( alloc(f1, left, space ) == alloc(f1, right, space )){
         INT_TYPE N1 = al;
         prod = cblas_ddot( N1 , streams(f1,bra,bspin,space)+brab*N1,1 , streams(f1,ket,kspin,space)+ketk*N1, 1);
-    }else {
+    } else {
         printf("body count\n");
         exit(1);
     }
@@ -2124,9 +2192,9 @@ void tHXpX (  INT_TYPE rank, struct sinc_label f1 , enum division left,INT_TYPE 
 
         }while ( pt != nullName );
         
-  //      if ( CanonicalRank(f1, right, targSpin) == maxRun)
-  //          tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,right, targSpin, tolerance, maxRun, f1.rt->powDecompose);
-  //      else
+        if (  f1.rt->powDecompose == 1)
+            tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,right, targSpin, tolerance, maxRun, f1.rt->powDecompose);
+        else
             tCycleDecompostionGridOneMP(-1, f1, totalVector, 0, NULL,right, targSpin, tolerance, maxRun, f1.rt->powDecompose);
 
     }
@@ -2268,6 +2336,21 @@ INT_TYPE ready ( struct sinc_label f1){
     return readyVector && readyMemory;
 }
 
+INT_TYPE bootedQ ( struct sinc_label f1){
+    INT_TYPE readyMemory = 1;
+    INT_TYPE readyVector = 1;
+    INT_TYPE space;
+    if ( ! f1.bootedMemory || f1.tulip == NULL )
+        readyMemory = 0;
+    
+    if ( readyMemory )
+        for ( space = 0 ; space <= SPACE ; space++)
+            if ( f1.rose[space].stream == NULL )
+                readyMemory = 0;
+    
+    
+    return readyMemory;
+}
 
 
 

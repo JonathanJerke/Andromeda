@@ -885,14 +885,14 @@ INT_TYPE tScale( struct sinc_label f1, enum division label, DCOMPLEX scalar ){
             tScaleOne(f1, scalarTemp, 0,  -cimag(scalar)/creal(scalar));
             tAddTw(f1, scalarTemp, 0, label, 0);
             tScaleOne(f1, scalarTemp, 0,  creal(scalar));
-            tCycleDecompostionListOneMP(0, f1, scalarTemp, 0, NULL, label, 0, f1.rt->vCANON, part(f1,label), 1);
+            tCycleDecompostionListOneMP(-1, f1, scalarTemp, 0, NULL, label, 0, f1.rt->vCANON, part(f1,label), 1);
             
             tClear(f1, scalarTemp);
             tAddTw(f1, scalarTemp, 0, label, 1);
             tScaleOne(f1, scalarTemp, 0, creal(scalar)/cimag(scalar));
             tAddTw(f1, scalarTemp, 0, label, 0);
             tScaleOne(f1, scalarTemp, 0,  cimag(scalar));
-            tCycleDecompostionListOneMP(0, f1, scalarTemp, 0, NULL, label, 1, f1.rt->vCANON, part(f1,label), 1);
+            tCycleDecompostionListOneMP(-1, f1, scalarTemp, 0, NULL, label, 1, f1.rt->vCANON, part(f1,label), 1);
             
         }else if ( fabs(cimag(scalar)) < f1.rt->TARGET && fabs(creal(scalar)) > f1.rt->TARGET)
         {
@@ -1729,8 +1729,9 @@ INT_TYPE  countLinesFromFile(struct calculation *c1, struct field f1,INT_TYPE lo
             FILE * fp = fopen(name,"r");
             if ( fp == NULL ) {
                 printf("cannot find file: %s\n", name);
-                printf("perhaps system.h:MAXFILE is too small\n currently %d\n", MAXFILE);
-                exit(0);
+             //   printf("perhaps system.h:MAXFILE is too small\n currently %d\n", MAXFILE);
+                continue;
+                //  exit(0);
             }
             getline(&line, &ms, fp);
             while(!feof(fp))

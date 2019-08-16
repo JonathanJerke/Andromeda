@@ -63,6 +63,7 @@ void pHXpX (  INT_TYPE rank, struct sinc_label  *f1 , enum division left,INT_TYP
 double positioningElectrons2 (INT_TYPE rank, struct sinc_label  f1 , enum division oneVector, enum division wavefunction,double x1, double y1, double z1, double x2, double y2, double z2);
 INT_TYPE pReady ( struct sinc_label *f1 );
 INT_TYPE ready ( struct sinc_label f1 );
+INT_TYPE bootedQ ( struct sinc_label f1);
 
 INT_TYPE xConstructFoundation (struct sinc_label calc , enum division usr, INT_TYPE UR, struct sinc_label calc2, enum division usz, INT_TYPE UZ ,INT_TYPE mx);
 INT_TYPE printExpectationValues (struct sinc_label  f1 , enum division ha  , enum division vector);

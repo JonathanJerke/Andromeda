@@ -70,10 +70,10 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
     }
         if (EV == 0 ){
         print(c1,f1,1,0,0,eigenVectors);
-        exit(0);
-    }
+        return 1;
+        }
     INT_TYPE RdsSize = EV,iterator=0;
-
+    
     if(1){
         printf ("Step \t%d\n", iterator);
         INT_TYPE cmpl,g ;
@@ -92,6 +92,15 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
                 for( g = 0; g < EV ; g++)
                     tAddTw(f1.f, totalVector, 0, f1.f.user+g, cmpl);
             }
+            double norm = magnitude(f1.f, totalVector );
+            if ( norm > c1->rt.TARGET )
+                printf("Normed from %f\n", norm );
+            else
+            {
+                print(c1,f1,1,0,0,eigenVectors);
+                return 1;
+            }
+            tScaleOne(f1.f, totalVector, 0, 1/norm);
             tCycleDecompostionGridOneMP(-2, f1.f, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1.f,eigenVectors), c1->rt.powDecompose);
             //     tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1,eigenVectors), 1.);
         }
@@ -223,6 +232,32 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
     return 0;
 }
 
+INT_TYPE svd ( struct calculation c, struct field f1){//E
+    if ( ! f1.i.filesVectorOperator){
+        printf("vectorOperator flag\n");
+        exit(1);
+    }
+    
+    INT_TYPE EV = foundation(&c,f1);
+    printf("finished foundation\n");
+    fflush(stdout);
+    tEigenCycle(0,f1.f,Ha,'T', f1.i.nStates, f1.f.user,EV,0, EV,0,0,eigenVectors,twoBodyRitz);
+    
+    INT_TYPE i,j=0;
+    for ( i = 0 ; i < f1.i.nStates ; i++ ){
+        if ( -myStreams(f1.f, twoBodyRitz, 0)[i] > c.rt.TARGET ){
+            printf("load %f\n", -myStreams(f1.f, twoBodyRitz, 0)[i]);
+            j++;
+        }
+    }
+//    tEigenCycle(0,f1.f,Ha,'T', j, f1.f.user,EV,0, EV,0,4,eigenVectors,twoBodyRitz);
+//    
+//    {
+//           cblas_dscal(j, -1., myStreams(f1.f, twoBodyRitz, 0), 1);
+//    }
+    return 0;
+}
+
 
 #if 1
 
@@ -276,6 +311,10 @@ int main (INT_TYPE argc , char * argv[]){
     else if ( c.rt.phaseType == solveRitz ){//A
         ritz(&c,f);
     }
+    else if ( c.rt.phaseType == svdOperation ){//E
+        ritz(&c,f);
+    }
+
     printf("\n\nFINIS.\n\n");
 }
 

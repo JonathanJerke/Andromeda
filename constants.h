@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 6.5.0
+//VERSION 6.6.0
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -144,11 +144,7 @@ enum phaseType{
     buildFoundation,//0
     productKrylov,//1
     solveRitz,//2
-    decomposeTensor,//3
-    dummyPhase,//4
-    frameDensity, //5
-    svdOperation, //6
-    collectKrylov//7
+    svdOperation, //3
 };
 
 enum calculationType{
@@ -307,18 +303,22 @@ struct canon {
     INT_TYPE count1Basis;
 };
 
+enum metricType {
+    dirac,
+    separateDirac,
+    interval,
+    semiIndefinite,
+};
 
-
-
-
-
-
-
-
-
-
-
-
+struct metric_label {
+    double pow[SPACE];
+    double powB[SPACE];
+    double deriv[SPACE];
+    struct function_label fn;
+    enum metricType metric;
+    double beta[2];//lower and upper bound
+    //beta here...  -beta^2 is the exponent
+};
 
 
 
@@ -539,6 +539,8 @@ enum division{
     overlap2,
     overlap3,
     overlap4,
+    tempOneMatrix,
+    tempTwoMatrix,
     resolveBufferMatrix,//11
     distanceBufferVector,//12
     distanceBufferMatrix,//13
@@ -595,6 +597,7 @@ enum division{
     quad2Cube,
     diagonalCube,//106,107,108
     canonicalBuffers,
+    canonicalBuffers0,
     copyVector,
     copyTwoVector,
     copyThreeVector,//113
@@ -617,6 +620,8 @@ enum division{
     tensorBuffers6,
     guideBuffer,
     trackBuffer,
+    guideBuffer0,
+    trackBuffer0,
     vectorCubeBuffers,//125,126,127
     diagonalQuad,
     diDiagonalQuad,
@@ -739,6 +744,7 @@ struct sinc_label {
     INT_TYPE irrep;
     INT_TYPE cat;
     INT_TYPE bootedMemory;
+    double offset;
     struct canon rose[SPACE+1];
     struct name_label *tulip;//vectors
     enum division user;
@@ -805,6 +811,7 @@ struct general_2index{//one dimension
     double beta;
     double momentumShift;
     INT_TYPE point;
+    INT_TYPE pow2[2];
     INT_TYPE powSpace;//r^2*pow in Gaussian term!!
     INT_TYPE gaussianAccelerationFlag;//pre-integrated selection
     INT_TYPE realFlag;//1 == real , else == complex

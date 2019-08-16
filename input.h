@@ -50,4 +50,5 @@ INT_TYPE getBuildParameters(struct calculation * c,const char * input_line );
 INT_TYPE defineNaturalBasis ( struct calculation * c , char * input_line );
 INT_TYPE assignNaturalBasis ( struct calculation * c, char * input_line );
 INT_TYPE bootShell (INT_TYPE argc , char * argv[],struct calculation * c1, struct field *f);
+INT_TYPE estSize ( INT_TYPE interval );
 #endif /* input_h */

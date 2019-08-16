@@ -1705,17 +1705,8 @@ INT_TYPE estSize ( INT_TYPE interval ){
 
 
 INT_TYPE finalizeInit(struct calculation * c ){
-    //count up atoms and electrons//
-//    INT_TYPE a,nc;
-//    nc = 0;
-//
-//    for ( a = 1 ; a <= c->i.Na ; a++ ){
-//        {
-//            nc += c->i.atoms[a].label.Z;
-//        }
-//    }
-    c->i.oneBody.num =estSize(c->i.oneBody.func.interval);
-    c->i.twoBody.num =estSize(c->i.twoBody.func.interval);
+    c->i.oneBody.num =estSize(3);
+    c->i.twoBody.num =estSize(2);
     return 0;
 }
 

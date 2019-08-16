@@ -90,18 +90,18 @@ double Power ( double b, INT_TYPE n ){
 
 DCOMPLEX Iv ( INT_TYPE b, INT_TYPE bb, double d, double q, double s ){
     if ( q + s < 0  && q + s +  2*pi/d > 0  )
-        return ei(-((s+pi/d)*bb*d - (s+pi/d)*b*d + d* bb*q));
+        return ei(-((s+pi/d)*b*d - (s+pi/d)*bb*d + d* b*q));
     return 0.;
 }
 
-DCOMPLEX periodicBoostOverlap0 ( INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, double kk ){
+DCOMPLEX periodicBoostOverlap0 ( INT_TYPE N1, double dd, INT_TYPE bb, double kk ,double d, INT_TYPE b, double k ){
     INT_TYPE n;
     //igonore d2...
     DCOMPLEX sum = 0.;
 //    if ( b == bb )
     {
         for ( n = 0 ;n < N1; n++)
-            sum += Iv(b,bb,d,k-kk,-2*pi/d + pi/N1/d *(2*n+1));
+            sum += Iv(b,bb,d,kk-k,-2*pi/d + pi/N1/d *(2*n+1));
     }
 //    else {//JACKSON WU's CONTRIBUTION...only integer k
 //        INT_TYPE m = k / 2 / pi * d ;
@@ -112,45 +112,49 @@ DCOMPLEX periodicBoostOverlap0 ( INT_TYPE N1, double d, INT_TYPE b, double k ,do
     return sum/N1;
 }
 
-DCOMPLEX periodicBoostKinetic0 ( INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, double kk ){
+DCOMPLEX periodicBoostKinetic0 ( INT_TYPE N1, double dd, INT_TYPE bb, double kk ,double d, INT_TYPE b, double k ){
+    INT_TYPE n;
+    if ( fabs( d - dd )/d > 0.1 ){
+        printf("consider a work\n");
+        exit(1);
+    }
+    //igonore d2...
+    DCOMPLEX sum = 0.;
+    for ( n = 0 ;n < N1; n++)
+        sum += sqr(kk+ ((2*n+1)*pi/N1 - pi)/d )* Iv(b,bb,d,kk-k,-2*pi/d + pi/N1/d *(2*n+1));
+    return sum/N1;
+}
+
+DCOMPLEX periodicBoostMomentum0 ( INT_TYPE N1, double dd, INT_TYPE bb, double kk ,double d, INT_TYPE b, double k ){
     INT_TYPE n;
     //igonore d2...
     DCOMPLEX sum = 0.;
     for ( n = 0 ;n < N1; n++)
-        sum += sqr(k+ (2*n+1)*pi/N1/d - pi/d )* Iv(b,bb,d,k-kk,-2*pi/d + pi/N1/d *(2*n+1));
+        sum += (kk + (2*n+1)*pi/N1/d - pi/d )* Iv(b,bb,d,kk-k,-2*pi/d + pi/N1/d *(2*n+1));
     return sum/N1;
 }
 
-DCOMPLEX periodicBoostMomentum0 ( INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, double kk ){
-    INT_TYPE n;
-    //igonore d2...
-    DCOMPLEX sum = 0.;
-    for ( n = 0 ;n < N1; n++)
-        sum += (k + (2*n+1)*pi/N1/d - pi/d )* Iv(b,bb,d,k-kk,-2*pi/d + pi/N1/d *(2*n+1));
-    return sum/N1;
-}
-
-DCOMPLEX  periodicBoostOverlapBasisBasis(double p, INT_TYPE N1, double d, INT_TYPE b, INT_TYPE ki ,double d2, INT_TYPE bb, INT_TYPE kki ){
+DCOMPLEX  periodicBoostOverlapBasisBasis(double p, INT_TYPE N1, double dd, INT_TYPE bb, INT_TYPE kki ,double d, INT_TYPE b, INT_TYPE ki ){
     DCOMPLEX sum = 0.;
     double k = 2*pi/N1/d * ki;
-    double kk = 2*pi/N1/d * kki;
+    double kk = 2*pi/N1/dd * kki;
     if ( ki != 0  && kki != 0 ){
         //b and bb shutdown!!!
-        for ( b = -0 ; b < N1 ; b++)
-            for ( bb = -0 ; bb < N1 ; bb++){
-                sum += ( sign(b+bb)* ei(pi/N1*1.*ki*b-pi/N1*1.*kki*bb) )  * periodicBoostOverlap0( N1, d, b,k+p,d,bb,kk) /N1 ;
+        for ( b = 0 ; b < N1 ; b++)
+            for ( bb = 0 ; bb < N1 ; bb++){
+                sum += ( sign(b+bb)* ei(-pi/N1*1.*ki*b+pi/N1*1.*kki*bb) )  * periodicBoostOverlap0( N1, dd, bb,kk+p,d,b,k) /N1 ;
             }
     }else if ( ki != 0 )   {
         //bb shutdown!!!
-        for ( b = -0 ; b < N1 ; b++)
-            sum +=  ( sign(b)* ei(pi/N1*1.*ki*b) )  * periodicBoostOverlap0 ( N1, d, b,k+p,d,bb,kk)/sqrt(N1) ;
+        for ( b = 0 ; b < N1 ; b++)
+            sum +=  ( sign(b)* ei(-pi/N1*1.*ki*b) )  * periodicBoostOverlap0 ( N1, dd, bb,kk+p,d,b,k)/sqrt(N1) ;
 
     }else if ( kki != 0 )   {
         //b  shutdown!!!
         for ( bb = 0 ; bb < N1 ; bb++)
-            sum +=  periodicBoostOverlap0 ( N1, d, b,k+p,d,bb,kk) * ( sign(bb)* ei(-pi/N1*1.*kki*bb) /sqrt(N1)) ;
+            sum +=  periodicBoostOverlap0 ( N1, dd, bb,kk+p,d,b,k) * ( sign(bb)* ei(pi/N1*1.*kki*bb) /sqrt(N1)) ;
     }else {
-        sum += periodicBoostOverlap0 ( N1, d, b,k+p,d,bb,kk);
+        sum += periodicBoostOverlap0 ( N1, dd, bb,kk+p,d,b,k);
     }
 
     return sum;
@@ -182,120 +186,120 @@ DCOMPLEX periodicBoostMomentumBasisBasis (double p ,  INT_TYPE N1, double d, INT
 //
 //    return sum;
 //}
-#if TEST3
-DCOMPLEX periodicBoostKineticBasisBasis (  INT_TYPE N1, double d, INT_TYPE b, INT_TYPE ki ,double d2, INT_TYPE bb, INT_TYPE kki ){
-    DCOMPLEX sum = 0.;
-    INT_TYPE b1,bb1,p1,pp1;
-    INT_TYPE N12 = (N1-1)/2;
+//#if TEST3
+//DCOMPLEX periodicBoostKineticBasisBasis (  INT_TYPE N1, double d, INT_TYPE b, INT_TYPE ki ,double d2, INT_TYPE bb, INT_TYPE kki ){
+//    DCOMPLEX sum = 0.;
+//    INT_TYPE b1,bb1,p1,pp1;
+//    INT_TYPE N12 = (N1-1)/2;
+//
+//    for ( p1 = - N12; p1 <= N12; p1++)
+//
+//        for ( b1 = 0 ; b1 < N1 ; b1++)
+//
+//            for ( pp1 = - N12 ; pp1 <= N12; pp1++)
+//
+//                for ( bb1 = 0 ; bb1 < N1 ; bb1++)
+//
+//                    sum  += periodicBoostKinetic0(N1, d, b1, 2./N1*pi/d*p1, d, bb1, 2./N1*pi/d*pp1)//conj HERE//
+//                    * conj(periodicBoostOverlapBasis( N1, d, b1, 2./N1*pi/d* p1, d, b, ki)
+//                           * conj( periodicBoostOverlapBasis( N1, d, bb1,2./N1*pi/d* pp1, d2,bb, kki)))/(2*N1);
+//
+//
+//
+//    return sum;
+//}
+//#else
 
-    for ( p1 = - N12; p1 <= N12; p1++)
-
-        for ( b1 = 0 ; b1 < N1 ; b1++)
-
-            for ( pp1 = - N12 ; pp1 <= N12; pp1++)
-
-                for ( bb1 = 0 ; bb1 < N1 ; bb1++)
-
-                    sum  += periodicBoostKinetic0(N1, d, b1, 2./N1*pi/d*p1, d, bb1, 2./N1*pi/d*pp1)//conj HERE//
-                    * conj(periodicBoostOverlapBasis( N1, d, b1, 2./N1*pi/d* p1, d, b, ki)
-                           * conj( periodicBoostOverlapBasis( N1, d, bb1,2./N1*pi/d* pp1, d2,bb, kki)))/(2*N1);
-
-
-
-    return sum;
-}
-#else
-
-DCOMPLEX periodicBoostKineticBasisBasis (  INT_TYPE N1, double d, INT_TYPE b, INT_TYPE ki ,double d2, INT_TYPE bb, INT_TYPE kki ){
+DCOMPLEX periodicBoostKineticBasisBasis (  INT_TYPE N1, double dd, INT_TYPE bb, INT_TYPE kki ,double d, INT_TYPE b, INT_TYPE ki ){
     DCOMPLEX sum = 0.;
     double k = 2*pi/N1 /d* ki;
-    double kk = 2*pi/N1 /d* kki;
+    double kk = 2*pi/N1 /dd* kki;
     if ( ki != 0  && kki != 0 ){
         //b and bb shutdown!!!
         for ( b = -0 ; b < N1 ; b++)
             for ( bb = -0 ; bb < N1 ; bb++){
-                sum += ( sign(b+bb)* ei(pi/N1*1.*ki*b-pi/N1*1.*kki*bb) )  * periodicBoostKinetic0 ( N1, d, b,k,d,bb,kk) /N1 ;
+                sum += ( sign(b+bb)* ei(-pi/N1*1.*ki*b+pi/N1*1.*kki*bb) )  * periodicBoostKinetic0 ( N1, dd, bb,kk,d,b,k) /N1 ;
             }
     }else if ( ki != 0 )   {
         //bb shutdown!!!
-        for ( b = -0 ; b < N1 ; b++)
-            sum +=  ( sign(b)* ei(pi/N1*1.*ki*b) )  * periodicBoostKinetic0 ( N1, d, b,k,d,bb,kk)/sqrt(N1) ;
+        for ( b = 0 ; b < N1 ; b++)
+            sum +=  ( sign(b)* ei(-pi/N1*1.*ki*b) )  * periodicBoostKinetic0 ( N1, dd, bb,kk,d,b,k)/sqrt(N1) ;
 
     }else if ( kki != 0 )   {
         //b  shutdown!!!
         for ( bb = 0 ; bb < N1 ; bb++)
-            sum +=  periodicBoostKinetic0 ( N1, d, b,k,d,bb,kk) * ( sign(bb)* ei(-pi/N1*1.*kki*bb) /sqrt(N1)) ;
+            sum +=  periodicBoostKinetic0 ( N1, dd, bb,kk,d,b,k) * ( sign(bb)* ei(pi/N1*1.*kki*bb) /sqrt(N1)) ;
     }else {
-        sum += periodicBoostKinetic0 ( N1, d, b,k,d,bb,kk);
+        sum += periodicBoostKinetic0 ( N1, dd, bb,kk,d,b,k);
     }
 
     return sum;
 }
-#endif
+//#endif
 
 
-DCOMPLEX periodicBoostOverlapBasis ( INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, INT_TYPE kki ){
-    DCOMPLEX sum = 0.;
-    double kk = 2*pi/N1/d*kki;
-     if ( kki != 0 )   {
-        //bb  shutdown!!!
-        for ( bb = 0 ; bb < N1 ; bb++)
-            sum +=  periodicBoostOverlap0 ( N1, d, b,k,d,bb,kk) * ( sign(bb)* ei(-pi/N1*1.*kki*bb) /sqrt(N1)) ;
-    }else {
-        sum += periodicBoostOverlap0 ( N1, d, b,k,d,bb,kk);
-    }
-    
-    return sum;
-}
+//DCOMPLEX periodicBoostOverlapBasis ( INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, INT_TYPE kki ){
+//    DCOMPLEX sum = 0.;
+//    double kk = 2*pi/N1/d*kki;
+//     if ( kki != 0 )   {
+//        //bb  shutdown!!!
+//        for ( bb = 0 ; bb < N1 ; bb++)
+//            sum +=  periodicBoostOverlap0 ( N1, d, b,k,d,bb,kk) * ( sign(bb)* ei(-pi/N1*1.*kki*bb) /sqrt(N1)) ;
+//    }else {
+//        sum += periodicBoostOverlap0 ( N1, d, b,k,d,bb,kk);
+//    }
+//
+//    return sum;
+//}
+//
+//DCOMPLEX periodicBoostMomentumBasis ( INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, INT_TYPE kki ){
+//    DCOMPLEX sum = 0.;
+//    double kk = 2*pi/N1/d * kki;
+//    if ( kki != 0 )   {
+//        //b  shutdown!!!
+//        for ( bb = 0 ; bb < N1 ; bb++)
+//            sum +=  periodicBoostMomentum0 ( N1, d, b,k,d,bb,kk) * ( sign(bb)* ei(-pi/N1*1.*kki*bb) /sqrt(N1)) ;
+//    }else {
+//        sum += periodicBoostMomentum0 ( N1, d, b,k,d,bb,kk);
+//    }
+//
+//    return sum;
+//}
+//
+//DCOMPLEX periodicBoostKineticBasis ( INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, INT_TYPE kki ){
+//    DCOMPLEX sum = 0.;
+//    double kk = 2*pi/N1/d * kki;
+//    if ( kki != 0 )   {
+//        //b  shutdown!!!
+//        for ( bb = 0 ; bb < N1 ; bb++)
+//            sum +=  periodicBoostKinetic0 ( N1, d, b,k,d,bb,kk) * ( sign(bb)* ei(-pi/N1*1.*kki*bb) /sqrt(N1)) ;
+//    }else {
+//        sum += periodicBoostKinetic0 ( N1, d, b,k,d,bb,kk);
+//    }
+//
+//    return sum;
+//}
 
-DCOMPLEX periodicBoostMomentumBasis ( INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, INT_TYPE kki ){
-    DCOMPLEX sum = 0.;
-    double kk = 2*pi/N1/d * kki;
-    if ( kki != 0 )   {
-        //b  shutdown!!!
-        for ( bb = 0 ; bb < N1 ; bb++)
-            sum +=  periodicBoostMomentum0 ( N1, d, b,k,d,bb,kk) * ( sign(bb)* ei(-pi/N1*1.*kki*bb) /sqrt(N1)) ;
-    }else {
-        sum += periodicBoostMomentum0 ( N1, d, b,k,d,bb,kk);
-    }
-    
-    return sum;
-}
-
-DCOMPLEX periodicBoostKineticBasis ( INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, INT_TYPE kki ){
-    DCOMPLEX sum = 0.;
-    double kk = 2*pi/N1/d * kki;
-    if ( kki != 0 )   {
-        //b  shutdown!!!
-        for ( bb = 0 ; bb < N1 ; bb++)
-            sum +=  periodicBoostKinetic0 ( N1, d, b,k,d,bb,kk) * ( sign(bb)* ei(-pi/N1*1.*kki*bb) /sqrt(N1)) ;
-    }else {
-        sum += periodicBoostKinetic0 ( N1, d, b,k,d,bb,kk);
-    }
-    
-    return sum;
-}
-
-DCOMPLEX periodicBoostOverlapBasis2 ( INT_TYPE N1, double d, INT_TYPE b, INT_TYPE m ,double d2, INT_TYPE bb, INT_TYPE mm ){
-    DCOMPLEX sum = 0.,check =0.;
-    {//JACKSON WU's CONTRIBUTION...only integer m's
-        if ( abs(m - mm)> N1 ){
-            return 0.;
-        }else if ( b == bb ){
-            sum = 1 + floor(N1/2) + floor ( N1/2 - abs(m-mm));
-        }else {
-            sum =  sin((b - bb)*pi*(1. - abs(m - mm)*1./N1))/sin((1./N1)*(b - bb)*pi);
-        }
-        sum *= ei((b + bb)*(m - mm)*pi/N1);
-    }
-    sum /= N1;
-//    if ( cabs(sum ) > 0.1 ){
-//        check = periodicBoostOverlap0 ( N1,d,b,m*2*pi/N1,d2,bb,mm*2*pi/N1);
-//        double c = 1;
-//    }//checked
-    return sum/N1;
-}
-
+//DCOMPLEX periodicBoostOverlapBasis2 ( INT_TYPE N1, double d, INT_TYPE b, INT_TYPE m ,double d2, INT_TYPE bb, INT_TYPE mm ){
+//    DCOMPLEX sum = 0.,check =0.;
+//    {//JACKSON WU's CONTRIBUTION...only integer m's
+//        if ( abs(m - mm)> N1 ){
+//            return 0.;
+//        }else if ( b == bb ){
+//            sum = 1 + floor(N1/2) + floor ( N1/2 - abs(m-mm));
+//        }else {
+//            sum =  sin((b - bb)*pi*(1. - abs(m - mm)*1./N1))/sin((1./N1)*(b - bb)*pi);
+//        }
+//        sum *= ei((b + bb)*(m - mm)*pi/N1);
+//    }
+//    sum /= N1;
+////    if ( cabs(sum ) > 0.1 ){
+////        check = periodicBoostOverlap0 ( N1,d,b,m*2*pi/N1,d2,bb,mm*2*pi/N1);
+////        double c = 1;
+////    }//checked
+//    return sum/N1;
+//}
+//
 #if 0
 DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
     DCOMPLEX value = 0;

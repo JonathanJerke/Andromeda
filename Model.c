@@ -104,6 +104,7 @@ void resetExternal(struct calculation * i, INT_TYPE number, double scale ){
 struct field initField (void ) {
     INT_TYPE space;
     struct field i;
+    i.f.offset = 0.;
     i.i.attack = 0.;
     i.i.body = nada;
     
@@ -137,6 +138,22 @@ struct field initField (void ) {
     i.i.filesVectorOperator = 0;
     
 #if 1
+    if ( SPACE == 1 ){
+        i.i.d = 4;
+        i.i.cmpl = cmpl;
+        i.i.bRank = 4;
+        i.i.iRank = 1;
+        i.i.nStates = 1;
+        i.i.qFloor = 100;
+        i.i.filter = 0;
+        i.f.boot = fullMatrices;
+        i.i.body = one;
+        i.i.irrep = 0;
+        i.i.cat  = 0;
+        i.i.epi = 8;
+
+        
+    }else {
     i.i.d = 4.;
     i.i.cmpl = cmpl;
     i.i.bRank = 2;
@@ -149,7 +166,7 @@ struct field initField (void ) {
     i.i.irrep = 0;
     i.i.cat  = 0;
     i.i.epi = 12;
-    
+    }
 #endif
     return i;
 }
@@ -177,8 +194,13 @@ struct calculation initCal (void ) {
     i.rt.maxEntropy = 1;
     i.i.complexType =2;
     i.i.level = 1;
+    if ( SPACE == 1 ){
+        i.i.M1 = 0;
+        i.i.Na = 0;
+        i.i.level = 100;
+    }else {
     i.i.M1 = 25;
-    
+    }
     
     i.rt.powDecompose = 8;
     
@@ -207,8 +229,7 @@ struct calculation initCal (void ) {
             i.i.orgClamp = 0.5*(i.i.minClamp+i.i.maxClamp);
         }else if ( SPACE == 1 ){
             i.rt.calcType = electronicStuctureCalculation;
-            i.rt.runFlag = 0;
-            i.i.level = 100;
+            i.rt.runFlag = 7;
             i.rt.phaseType = buildFoundation;
 
         }
@@ -502,6 +523,7 @@ INT_TYPE singleGaussModel( struct calculation * c1, struct field * f){
 
 INT_TYPE iModel( struct calculation * c1, struct field *f){
     struct name_label l2;
+    enum spinType c;
     if ( OVERFLAG )
         singleGaussModel(c1, f);
     else
@@ -562,7 +584,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip = malloc ( (end+1) * sizeof(struct name_label));
 
 
-        INT_TYPE outVector  = imax(c1->i.oneBody.num , c1->i.twoBody.num )*maxVector;
+        INT_TYPE outVector  = imax( c1->i.Na,1) * c1->i.decomposeRankMatrix *maxVector;
         
         {//defaults
             //define vectors end
@@ -593,6 +615,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         fromBeginning(*f1, kinetic, 0);
         f1->tulip[kinetic].Partition = COMPONENT;//
         assignOneWithPointers(*f1, kinetic,all);
+        f1->tulip[kinetic].spinor = real;
+
 
         fromBeginning(*f1, kineticMass, kinetic);
         f1->tulip[kineticMass].Partition = COMPONENT;//
@@ -619,7 +643,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         
         fromBeginning(*f1, linear, X);
         assignOneWithPointers (*f1, linear,electron);
-        f1->tulip[linear].Partition = c1->i.Na*c1->i.oneBody.num+c1->i.twoBody.num ;//
+        f1->tulip[linear].Partition = c1->i.Na*c1->i.decomposeRankMatrix  ;//
 
         fromBeginning(*f1, overlap, linear);
         assignOneWithPointers (*f1, overlap,all);
@@ -929,10 +953,10 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[copyFourVector].spinor = parallel;
         
         fromBeginning(*f1,oneVector,copyFourVector);
-        f1->tulip[oneVector].Partition = 1 * 24*imax(c1->i.oneBody.num, c1->i.twoBody.num);;
+        f1->tulip[oneVector].Partition = buildExternalPotential(c1, *f1,nullName,electron ,0,real);
         f1->tulip[oneVector].species = outerVector;
         f1->tulip[oneVector].header = Cube;
-        f1->tulip[oneVector].spinor = parallel;
+       // f1->tulip[oneVector].spinor = parallel;
         assignParticle(*f1, oneVector, all, one);
 
         fromBeginning(*f1,twoVector,oneVector);
@@ -1006,10 +1030,10 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
         
         fromBeginning(*f1,copy,bandBasis);
-        f1->tulip[copy].Partition = imax(f->i.bRank*f->i.bRank,imax(mx1len*mx1len, c1->i.decomposeRankMatrix+ imax(c1->i.oneBody.num,   imax(c1->i.decomposeRankMatrix*c1->i.Na,outVector) )));
-    if ( c1->rt.phaseType == frameDensity){
-    f1->tulip[copy].spinor = parallel;
-    }
+        f1->tulip[copy].Partition = 1+(c1->rt.phaseType == svdOperation)* imax(f->i.bRank*f->i.bRank,imax(mx1len*mx1len, c1->i.decomposeRankMatrix+ imax(c1->i.oneBody.num,   imax(c1->i.decomposeRankMatrix*c1->i.Na,outVector) )));
+        if ( c1->rt.phaseType == svdOperation){
+                f1->tulip[copy].spinor = parallel;
+        }
         f1->tulip[copy].species = matrix;
         assignParticle(*f1, copy, all, one);
         for ( space = 0; space < SPACE ; space++)
@@ -1018,7 +1042,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         
         fromBeginning(*f1,copyTwo,copy);
         f1->tulip[copyTwo].Partition = c1->i.decomposeRankMatrix;
-    if ( c1->rt.phaseType == frameDensity || c1->rt.phaseType == svdOperation ){
+    if (  c1->rt.phaseType == svdOperation ){
         f1->tulip[copyTwo].Partition = 10*2*c1->i.twoBody.num * f->i.qFloor * f->i.iRank *f->i.iRank;
     }
         f1->tulip[copyTwo].species = matrix;
@@ -1035,8 +1059,22 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[squareTwo].species = matrix;
         f1->tulip[squareTwo].header = Cube;
         assignParticle(*f1, squareTwo, all, two);
-        
-        fromBeginning(*f1,inversion,squareTwo);
+    
+    //for new interaction builder
+    fromBeginning(*f1,tempOneMatrix,squareTwo);
+    f1->tulip[tempOneMatrix].Partition= imax((c1->rt.calcType == clampProtonElectronCalculation )*c1->i.twoBody.num*vector1Len(*f1, 0)*vector1Len(*f1, 0), buildExternalPotential(c1, *f1,nullName,electron ,0,real)*(c1->rt.phaseType == solveRitz));//BUILD
+    f1->tulip[tempOneMatrix].species = matrix;
+    f1->tulip[tempOneMatrix].header = Cube;
+    assignParticle(*f1, tempOneMatrix, all, one);
+
+    fromBeginning(*f1,tempTwoMatrix,tempOneMatrix);
+    f1->tulip[tempTwoMatrix].Partition= buildPairWisePotential(c1, *f1,nullName, electron, 0,real)*(c1->rt.phaseType == solveRitz)*((bootBodies > one )||(c1->rt.runFlag> 0 ));//BUILD
+    f1->tulip[tempTwoMatrix].species = matrix;
+    f1->tulip[tempTwoMatrix].header = Cube;
+    assignParticle(*f1, tempTwoMatrix, all, two);
+
+    
+        fromBeginning(*f1,inversion,tempTwoMatrix);
         f1->tulip[inversion].Partition= 1;
         f1->tulip[inversion].species = matrix;
         f1->tulip[inversion].header = Cube;
@@ -1048,29 +1086,55 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             maxOriginRank = imax( maxOriginRank, c1->i.twoBody.num * N1*N1);
         }
         INT_TYPE maxTrainRank = imax(c1->i.decomposeRankMatrix, maxVector);
+        if ( f1->rt->powDecompose < 1 ){
+            printf("adjusted power Decompose to one\n");
+            f1->rt->powDecompose = 1;
+        }
+        
+        INT_TYPE flag = 1;
+        if ( f1->rt->powDecompose == 1 )
+            flag = 0;
+
+        
         
         fromBeginning(*f1,canonicalBuffers,inversion);
-        f1->tulip[canonicalBuffers].Partition = maxTrainRank*maxTrainRank+ maxOriginRank*maxTrainRank ;
+        f1->tulip[canonicalBuffers].Partition = flag*ceil((maxTrainRank*maxTrainRank+ maxOriginRank*maxTrainRank)/sqr(f1->rt->powDecompose)) ;
         f1->tulip[canonicalBuffers].spinor = parallel;
         
         fromBeginning(*f1,trackBuffer,canonicalBuffers);
-        f1->tulip[trackBuffer].Partition = (2*maxTrainRank+1)*maxTrainRank;
+        f1->tulip[trackBuffer].Partition = flag* ceil((2*maxTrainRank/(f1->rt->powDecompose))*(maxTrainRank/(f1->rt->powDecompose)));
         f1->tulip[trackBuffer].spinor = parallel;
         f1->tulip[trackBuffer].memory = bufferAllocation;
         
         fromBeginning(*f1,guideBuffer,trackBuffer);
-        f1->tulip[guideBuffer].Partition = maxOriginRank*maxTrainRank;
+        f1->tulip[guideBuffer].Partition = flag*ceil(maxOriginRank*maxTrainRank/sqr(f1->rt->powDecompose));
         f1->tulip[guideBuffer].spinor = parallel;
         f1->tulip[guideBuffer].memory = bufferAllocation;
+        
+        flag = 0;
+        if ( f1->rt->powDecompose == 1 || f1->rt->powDecompose == 2)
+            flag = 1;
+        
+        fromBeginning(*f1,canonicalBuffers0,guideBuffer);
+        f1->tulip[canonicalBuffers0].Partition = flag * maxTrainRank*maxTrainRank+ maxOriginRank*maxTrainRank ;
+        
+        fromBeginning(*f1,trackBuffer0,canonicalBuffers0);
+        f1->tulip[trackBuffer0].Partition = flag * (2*maxTrainRank+1)*maxTrainRank;
+        f1->tulip[trackBuffer0].memory = bufferAllocation;
+        
+        fromBeginning(*f1,guideBuffer0,trackBuffer0);
+        f1->tulip[guideBuffer0].Partition = flag * maxOriginRank*maxTrainRank;
+        f1->tulip[guideBuffer0].memory = bufferAllocation;
+
     }
-        fromBeginning(*f1,foundationStructure,guideBuffer);
+        fromBeginning(*f1,foundationStructure,guideBuffer0);
         f1->tulip[foundationStructure].spinor = parallel;
         f1->tulip[foundationStructure].Partition = 1;
         f1->tulip[foundationStructure].species = vector;
         f1->tulip[foundationStructure].spinor = cmpl;//need two channels
         
         fromBeginning(*f1,interactionExchange,foundationStructure);
-            f1->tulip[interactionExchange].Partition = c1->i.twoBody.num*(( bootBodies > one )|| c1->rt.runFlag > 0);
+            f1->tulip[interactionExchange].Partition = c1->i.decomposeRankMatrix*(( bootBodies > one )|| c1->rt.runFlag > 0);
             f1->tulip[interactionExchange].species = matrix;
             if ( c1->rt.runFlag > 0 )
                 f1->tulip[interactionExchange].spinor = cmpl;
@@ -1110,7 +1174,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         }
         
         fromBeginning(*f1,interactionEwald,interactionExchangeB);
-        f1->tulip[interactionEwald].Partition = c1->i.twoBody.num * (c1->rt.runFlag > 0 );
+        f1->tulip[interactionEwald].Partition = c1->i.decomposeRankMatrix * (c1->rt.runFlag > 0 );
         f1->tulip[interactionEwald].species = matrix;
         assignParticle(*f1, interactionEwald, electron, two);
 
@@ -1128,12 +1192,12 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         }
     }
         fromBeginning(*f1,intracellularSelfEwald,interactionEwald);
-        f1->tulip[intracellularSelfEwald].Partition = c1->i.twoBody.num* (c1->rt.runFlag > 0 );
+        f1->tulip[intracellularSelfEwald].Partition = c1->i.decomposeRankMatrix* (c1->rt.runFlag > 0 );
         f1->tulip[intracellularSelfEwald].species = matrix;
         assignOneWithPointers(*f1, intracellularSelfEwald, electron);
     
         fromBeginning(*f1,intercellularSelfEwald,intracellularSelfEwald);
-        f1->tulip[intercellularSelfEwald].Partition = c1->i.twoBody.num* (c1->rt.runFlag > 0 );
+        f1->tulip[intercellularSelfEwald].Partition =  c1->i.decomposeRankMatrix* (c1->rt.runFlag > 0 );
         f1->tulip[intercellularSelfEwald].species = matrix;
         assignOneWithPointers(*f1, intercellularSelfEwald, electron);
     
@@ -1256,7 +1320,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[tensorBuffers6].memory = bufferAllocation;
         
         fromBeginning(*f1,oneByOneBuffer,tensorBuffers6);
-        f1->tulip[oneByOneBuffer].Partition = mx1len*mx1len*mx1len*mx1len* (c1->rt.calcType >= clampProtonElectronCalculation);
+        f1->tulip[oneByOneBuffer].Partition = mx1len*mx1len*mx1len*mx1len* (c1->rt.calcType >= clampProtonElectronCalculation)*(c1->rt.phaseType == solveRitz);
         f1->tulip[oneByOneBuffer].memory = bufferAllocation;
         
         fromBeginning(*f1,canonicalBuffersB,oneByOneBuffer);
@@ -1267,12 +1331,12 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         fromBeginning(*f1,canonicalBuffersBM,canonicalBuffersB);//twobody
         f1->tulip[canonicalBuffersBM].Partition = mx1len*mx1len*mx1len*mx1len ;
         f1->tulip[canonicalBuffersBM].memory = bufferAllocation;
-//    if ( c1->rt.phaseType == frameDensity    )
-        f1->tulip[canonicalBuffersBM].spinor = parallel;
+//        if ( c1->rt.phaseType == svdOperation )
+            f1->tulip[canonicalBuffersBM].spinor = parallel;
 
     
         fromBeginning(*f1,canonicalBuffersC,canonicalBuffersBM);
-        f1->tulip[canonicalBuffersC].Partition = (c1->rt.phaseType == frameDensity ) *   NV;
+        f1->tulip[canonicalBuffersC].Partition = (c1->rt.phaseType == svdOperation ) *   NV;
         f1->tulip[canonicalBuffersC].spinor = parallel;
         f1->tulip[canonicalBuffersC].memory = bufferAllocation;
 
@@ -1285,7 +1349,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[conditionOverlapNumbers].memory = bufferAllocation;
         
         fromBeginning(*f1,matrixHbuild,conditionOverlapNumbers);
-    f1->tulip[matrixHbuild].Partition = ( c1->rt.phaseType == buildFoundation ||  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == frameDensity ) *  2*(2*maxArray*maxArray);
+    f1->tulip[matrixHbuild].Partition = ( c1->rt.phaseType == buildFoundation ||  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == svdOperation ) *  2*(2*maxArray*maxArray);
         f1->tulip[matrixHbuild].memory = bufferAllocation;
 
         fromBeginning(*f1,vectorHbuild,matrixHbuild);
@@ -1293,7 +1357,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[vectorHbuild].memory = bufferAllocation;
 
         fromBeginning(*f1,matrixSbuild,vectorHbuild);
-        f1->tulip[matrixSbuild].Partition = ( c1->rt.phaseType == buildFoundation ||  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == frameDensity )*2*(2*maxArray*maxArray);
+        f1->tulip[matrixSbuild].Partition = ( c1->rt.phaseType == buildFoundation ||  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == svdOperation )*2*(2*maxArray*maxArray);
         f1->tulip[matrixSbuild].memory = bufferAllocation;
 
     fromBeginning(*f1,square,matrixSbuild);
@@ -1376,20 +1440,34 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             if ( c1->rt.calcType == electronicStuctureCalculation  ){
                separateKinetic(*f1, 0,kinetic, c1->i.massElectron,electron);
                 separateOverlap(*f1, 0,overlap, 0,all);
-                if ( SPACE == 3 && 0){
-                    INT_TYPE deriv[SPACE];
-                    INT_TYPE power[SPACE];
-                
-                
-                    deriv[0] = 0;
-                    power[0] = 0 ;
-                    deriv[1] = 0;
-                    power[1] = 0 ;
-                    deriv[2] = 0;
-                    power[2] = 0 ;
+                if ( c1->i.Na )
+                if ( c1->i.oneBody.func.fn != nullFunction )
+                    if(  ! ioStoreMatrix(*f1, linear, 0, "linear.matrix",1)){
+                        if ((! ( c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
+                            printf("you can remove this barrier, but I would recommend you run ritz first\n");
+                            exit(0);
+                        }
+                        for ( c = real ; c <= spins (*f1, linear) ; c++)
+                            buildExternalPotential(c1, *f1,linear,electron,1,c);
+                    }
 
-                    separateDerivatives(*f1, 0, vectorMomentum, power, deriv, -1000, electron);
-                }
+                
+                
+                
+//                if ( SPACE == 3 && 0){
+//                    INT_TYPE deriv[SPACE];
+//                    INT_TYPE power[SPACE];
+//
+//
+//                    deriv[0] = 0;
+//                    power[0] = 0 ;
+//                    deriv[1] = 0;
+//                    power[1] = 0 ;
+//                    deriv[2] = 0;
+//                    power[2] = 0 ;
+//
+//                    separateDerivatives(*f1, 0, vectorMomentum, power, deriv, -1000, electron);
+//                }
                 
                 
                 
@@ -1406,11 +1484,12 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                         
                         
                         if ( ! flag ){
-                            if ((! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
+                            if ((! ( c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
                                 printf("you can remove this barrier, but I would recommend you run ritz or frame first\n");
                                 exit(0);
                             }
-                            mySeparateExactTwo(*f1, c1->i.twoBody,interactionEwald, 0.5, 0, 1, electron,0);
+                            for ( c = real ; c <= spins (*f1, interactionEwald) ; c++)                           buildPairWisePotential(c1, *f1,interactionEwald,electron, 1,c);
+
                             {
                                 enum division in = interactionEwald;
                                 enum division out = intercellularSelfEwald;
@@ -1426,15 +1505,58 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                                             for ( n = 0; n < nl ; n++ )
                                                 for ( m = 0 ; m < nl ; m++)
                                                 {
-                                                    (streams(*f1, copy, 0, space))[nl*m+n] = (streams(*f1, in, cmpl, space)+r*nl*nl*nl*nl)[nl*nl*(nl*m+m)+(nl*n+n)];
+                                                    (streams(*f1, copy, 0, space))[nl*m+n] =  (streams(*f1, in, cmpl, space)+r*nl*nl*nl*nl)[nl*nl*(nl*m+m)+(nl*n+n)];
                                                 }
                                         }
                                         tAddTw(*f1, out, cmpl, copy, 0);
                                     }
                                     printf("interaction-%d %f\n", cmpl,traceOne(*f1, out, cmpl));
                                 }
+                                tScaleOne(*f1, out, 0, 0.5);
+                                tScaleOne(*f1, out, 1, 0.5);
+
+                            }
+
+                            }
+
+                        {
+                            double sum,sumt=0.,prod;
+                            enum division in = interactionEwald;
+                            INT_TYPE r, space,m,n,nl,n2,m2,cmpl;
+                            for ( cmpl = 0 ; cmpl < 1; cmpl++){
+                                for ( r = 0 ; r < CanonicalRank(*f1, in, cmpl); r++){
+                                    prod = 1.;
+                                    for ( space = 0; space < SPACE ; space++)
+                                    {
+                                        nl = vector1Len(*f1, space);
+                                        sum = 0.;
+                                        for ( n = 0; n < nl ; n++ )
+                                            for ( m = 0 ; m < nl ; m++)
+                                                for ( n2 = 0; n2 < nl ; n2++ )
+                                                    for ( m2 = 0 ; m2 < nl ; m2++)
+                                                    {
+                                                        sum +=  (streams(*f1, in, cmpl, space)+r*nl*nl*nl*nl)[nl*nl*(nl*n+n2)+(nl*m+m2)]/(nl*nl);
+                                                    }
+                                        prod *= sum;
+                                    }
+                                    sumt += prod;
+                                }
+                            }
+                            printf("jellium background\t %d\t%15.15f\n", N1,sumt);
+                            switch ( bootBodies ) {
+                                case one:
+                                    f1->offset = -sumt;
+                                    break;
+                                case two:
+                                    f1->offset = -2.*sumt;
+                                    break;
+                                case three:
+                                    f1->offset = -3.*sumt;
+                                    break;
+
                             }
                         }
+
                     }
                     if ( c1->i.twoBody.func.fn != nullFunction){
                         
@@ -1447,12 +1569,14 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                         
                         if ( !flag ){
                             
-                            if ((! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
+                            if ((! (c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
                                 printf("you can remove this barrier, but I would recommend you run frame first\n");
                                 exit(0);
                             }
                             
-                            mySeparateExactTwo(*f1,c1->i.twoBody, interactionExchange, 0.5, 0, 0, electron,1);
+                            for ( c = real ; c <= spins (*f1, interactionExchange) ; c++)
+                            buildPairWisePotential(c1, *f1,interactionExchange,electron, 2/*diagonal*/,c);
+
                             {
                                 enum division in = interactionExchange;
                                 enum division out = intracellularSelfEwald;
@@ -1468,42 +1592,35 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                                             for ( n = 0; n < nl ; n++ )
                                                 for ( m = 0 ; m < nl ; m++)
                                                 {
-                                                    (streams(*f1, copy, 0, space))[nl*m+n] = (streams(*f1, in, cmpl, space)+r*nl*nl*nl*nl)[nl*nl*(nl*m+m)+(nl*n+n)];
+                                                    (streams(*f1, copy, 0, space))[nl*m+n] =  (streams(*f1, in, cmpl, space)+r*nl*nl*nl*nl)[nl*nl*(nl*m+m)+(nl*n+n)];
                                                 }
                                         }
                                         tAddTw(*f1, out, cmpl, copy, 0);
                                     }
                                     printf("intraction-%d %f\n", cmpl,traceOne(*f1, out, cmpl));
                                 }
-                                tScale(*f1, out,-1.);
+                                tScaleOne(*f1, out, 0, -0.500);
+                                tScaleOne(*f1, out, 1, -0.500);
                             }
                             tClear(*f1, interactionExchange);
-                            
+
                         }
                     }
-                    separateExternal(c1,*f1,linear,0,0,-1.0,-1,0,electron);
+
                 }else {
 //                    if ( f1->twoBody.func.fn != nullFunction)
                     if ( bootBodies > one ){
                         if ( c1->i.twoBody.func.fn != nullFunction )
                             if(  ! ioStoreMatrix(*f1, interactionExchange, 0, "interactionExchange.matrix",1)){
-                                if ((! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
+                                if ((! ( c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
                                 printf("you can remove this barrier, but I would recommend you run ritz first\n");
                                 exit(0);
                             }
-
-                            mySeparateExactTwo(*f1,c1->i.twoBody, interactionExchange, 1., 0, 0, electron,0);
+                                for ( c = real ; c <= spins (*f1, interactionExchange) ; c++)
+                                    buildPairWisePotential(c1, *f1,interactionExchange,electron,0,c);
                         }
                     }
-                    if ( c1->i.oneBody.func.fn != nullFunction )
-                        if(  ! ioStoreMatrix(*f1, linear, 0, "linear.matrix",1)){
-                            if ((! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
-                                printf("you can remove this barrier, but I would recommend you run ritz first\n");
-                                exit(0);
-                            }
 
-                            separateExternal(c1,*f1,linear,0,0,-1.0,-1,0,electron);
-                        }
                 }
 
                 if ( c1->i.magFlag ){
@@ -1595,11 +1712,19 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
         } else if ( c1->rt.calcType == clampProtonElectronCalculation  ){
                 if ( bootBodies > one ){
-                    mySeparateExactTwo(*f1,c1->i.twoBody,interactionExchange, 1. , 0,0,electron,0);
+                    if ( c1->i.twoBody.func.fn != nullFunction )
+                        if(  ! ioStoreMatrix(*f1, interactionExchange, 0, "interactionExchange.matrix",1)){
+                            if ((! ( c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
+                                printf("you can remove this barrier, but I would recommend you run ritz first\n");
+                                exit(0);
+                            }
+                            for ( c = real ; c <= spins (*f1, interactionExchange) ; c++)
+                                buildPairWisePotential(c1, *f1,interactionExchange,electron,0,c);
+                        }
                 }
             
             if ( c1->i.twoBody.func.fn != nullFunction && !ioStoreMatrix(*f1,shortenPlus ,0,"shortenExchangePlus.matrix",1) ){
-                if ((! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
+                if ((! ( c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
                     printf("you can remove this barrier, but I would recommend you run ritz first\n");
                     exit(0);
                 }
@@ -1607,7 +1732,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     mySeparateExactOneByOne(*f1,c1->i.twoBody, c1->i.decomposeRankMatrix,interactionExchangePlus, shortenPlus,-1., 1,c1->i.massClampPair/(c1->i.massClampPair+c1->i.massProton),electron, proton);
             }
             if ( c1->i.twoBody.func.fn != nullFunction&& ! ioStoreMatrix(*f1,shortenMinus ,0,"shortenExchangeMinus.matrix",1) ){
-                if ((! (c1->rt.phaseType == frameDensity || c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
+                if ((! ( c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
                     printf("you can remove this barrier, but I would recommend you run ritz first\n");
                     exit(0);
                 }

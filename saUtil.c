@@ -1536,14 +1536,16 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, char le
 //SA++
 INT_TYPE tCat3(enum bodyType bd ,  INT_TYPE irrep,INT_TYPE cat, INT_TYPE space){
     cat--;
-    if ( cat < 0 )
+    if ( cat < 0 ){
+        printf("cat3\n");
+        exit(1);
         return 0;
+    }
     
-    
-    INT_TYPE cat2_a1[] = {1, 1, 1, 1, 2, 2, 2, 1, 2, 2, 2, 1};
+    INT_TYPE cat2_a1[] = {1, 1, 1,/**/ 1, 2, 2,/**/ 2, 1, 2,/**/ 2, 2, 1};
     INT_TYPE lat2_a1 = 4;
     
-    INT_TYPE cat2_a2[] = {1, 1, 2, 1, 2, 1, 2, 1, 1, 2, 2, 2};
+    INT_TYPE cat2_a2[] = {1, 1, 2, /**/1, 2, 1,/**/ 2, 1, 1,/**/ 2, 2, 2};
     INT_TYPE lat2_a2 = 4;
 
     
@@ -1616,11 +1618,13 @@ INT_TYPE tCat3(enum bodyType bd ,  INT_TYPE irrep,INT_TYPE cat, INT_TYPE space){
         case two:
             switch ( irrep ) {
                 case 1:
-                    if ( cat < lat2_a1 )
+                    if ( cat < lat2_a1 ){
                         return cat2_a1[cat*3+space];
+                    }
                 case 2:
-                    if ( cat < lat2_a2 )
+                    if ( cat < lat2_a2 ){
                         return cat2_a2[cat*3+space];
+                    }
             }
 
             
@@ -1659,6 +1663,7 @@ INT_TYPE tCat3(enum bodyType bd ,  INT_TYPE irrep,INT_TYPE cat, INT_TYPE space){
             }
 
     }
+    exit(1);
     return 0;
 }
 //SA++
