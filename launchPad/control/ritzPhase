@@ -2,8 +2,6 @@
 	*Parameters
 		phase 2
 		iterations 1
-		canon 100
-		filter 0
 		collect 1
 	.Parameters
 
