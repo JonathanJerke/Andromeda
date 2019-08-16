@@ -16,6 +16,7 @@
 	#
 	#
 		#default
+		phase 0
 		matrix 12
 		range 2
 		lattice 1.8
