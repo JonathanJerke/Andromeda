@@ -2,15 +2,18 @@
 
 if ( $#argv == 4 ) then
 
+if ( -e boot && -e inc ) then 
+
+
 mkdir $1
 chdir $1
 mkdir found
 cp ../../control/*found found
 cp ../../control/stage found
-cp ../../control/boot .
-cp ../../control/inc .
+cp ../boot .
+cp ../inc .
 cp ../../symmetry/$2 symmetry
-
+echo "last" > post
 
 if ( $3 == 1 ) then
         switch ( $2 )
@@ -88,6 +91,12 @@ if ( $3 == 4 ) then
 
 
 endif
+else
+	
+echo "place boot and inc with cnfg"
+endif
+
+
 
 else
 

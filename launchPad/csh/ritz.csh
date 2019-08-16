@@ -27,7 +27,6 @@ echo "  collect 0" >> $file
 echo ".Parameters" >> $file
 
 echo ".Body" >> $file
-#cat $file | olympics
 ${LAUNCH}/csh/go.csh $file &
 
 endif

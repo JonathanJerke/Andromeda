@@ -13,17 +13,20 @@ else
 		date > $com.hout
 		cat $com | andromeda >> $com.hout
 		date >> $com.hout
+		sleep 1
 		if ( `grep FINIS $com.hout` =~ "FINIS*" ) then
-		else
-			touch stop
-			echo "stopped... now zombie"
+		#	echo "finis"
+			else
+			echo "$com" > stop
+			
+		echo "stopped...on $com now zombie"
 		endif
-
-		if ( $com =~ "*A.riz") then
+# allow D to be NORMAL!!
+		if ( $com =~ "*.riz") then
 	                if ( `splitFlag.csh`) then
+				echo "parse"
 				parse.csh $com
 			else 
-		#		copy.csh $com
 			endif
 		endif
 		if ( $com =~ "*Afound") then
@@ -33,9 +36,11 @@ else
 		#	copy.csh found/A.riz
 	              endif
 		endif
-		if ( $com =~ "*B.kry*") then
-			sort -n -r $com.vector > $com.tm
-			mv $com.tm $com.vector	
+		if ( $com =~ "*B.kry*" && `grep shift boot ` =~ "shift *" ) then
+			sleep 1
+			post.csh $com.vector > $com.tm
+			mv $com.tm $com.vector
+			sleep 1	
 		endif
 		sleep 2
 	end                                                                               
