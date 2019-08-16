@@ -9,7 +9,8 @@
 		foundation 1000	
                 basisRank 12
                 states 10
-		iterations 12
+		shift -0.03
+		iterations 9
 	.Parameters
 				
 .Body
