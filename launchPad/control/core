@@ -17,7 +17,7 @@
 	#
 		#default
 		matrix 12
-		range 4
+		range 2
 		lanes 1
 		parallel 1
 		Angstroms 0
