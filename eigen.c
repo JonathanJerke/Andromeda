@@ -427,6 +427,8 @@ INT_TYPE tSortBoot(struct calculation * c1, struct sinc_label f1, enum division 
                     tally++;
                 }
             double tt[N1];
+            if ( ! tally )
+                return 1;
             tdgeqr(0, f1, tally, N1, myStreams(f1,bill1+space,0), N1, tt);
             
             for ( i = 0 ; i < tally ; i++)

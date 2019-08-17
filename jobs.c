@@ -32,9 +32,10 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
         c1->i.twoBody.func.fn = nullFunction;
         iModel(c1,&f1);
         tBoot1Construction(c1,f1.f ,build);
-        tSortBoot(c1,f1.f,build);
-        EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
-
+        if ( ! tSortBoot(c1,f1.f,build) )
+            EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
+        else
+            EV = 0;
 //        tGreatDivideIteration(0, 0, f1.f, Ha, 1, 0, f1.f.user, 1, 2, 0);
 //        tFilter(f1.f, EV,1, f1.f.user);//classify
         if ( OVERFLAG  || SPACE == 1 )
@@ -73,7 +74,7 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
         return 1;
         }
     INT_TYPE RdsSize = EV,iterator=0;
-    
+
     if(1){
         printf ("Step \t%d\n", iterator);
         INT_TYPE cmpl,g ;
