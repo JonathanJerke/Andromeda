@@ -2223,9 +2223,7 @@ double xOneBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struc
                     myStreams(f2, bandBasis,rank )[i] =
                     BoB (grabBasis(f1, space, f1.rose[space].particle,l),grabBasis(f2, space, f2.rose[space].particle, i) );
                 }
-#ifdef OMP
-#pragma omp parallel for private (r)
-#endif
+
                 for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
                     cblas_daxpy(N1, (streams(f1, vector1,s1,space)+r*L1)[l], myStreams(f2, bandBasis, rank), 1, streams(f2, out, s2,space)+r*N1, 1);
                 }
@@ -2281,9 +2279,6 @@ double xTwoBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struc
                 BoB (grabBasis(f1, space, f1.rose[space].particle,l),grabBasis(f2, space, f2.rose[space].particle, i) )*
                 BoB (grabBasis(f1, space, f1.rose[space].particle,l2),grabBasis(f2, space, f2.rose[space].particle, i2) );
             }
-#ifdef OMP
-#pragma omp parallel for private (r)
-#endif
             for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
                 cblas_daxpy(N1*N1, (streams(f1, vector1,s1,space)+r*L1*L1)[sl], myStreams(f2, bandBasis, rank), 1, streams(f2, out, s2,space)+r*N1*N1, 1);
             }
@@ -2332,9 +2327,7 @@ double xThreeBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, str
                     BoB (grabBasis(f1, space, f1.rose[space].particle,l3),grabBasis(f2, space, f2.rose[space].particle, i3) );
                     
                 }
-#ifdef OMP
-#pragma omp parallel for private (r)
-#endif
+
                 for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
                     cblas_daxpy(N1*N1*N1, (streams(f1, vector1,s1,space)+r*L1*L1*L1)[sl], myStreams(f2, bandBasis, rank), 1, streams(f2, out, s2,space)+r*N1*N1*N1, 1);
                 }
@@ -2388,9 +2381,7 @@ double xFourBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, stru
 
                     
                 }
-#ifdef OMP
-#pragma omp parallel for private (r)
-#endif
+
                 for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
                     cblas_daxpy(N1*N1*N1*N1, (streams(f1, vector1,s1,space)+r*L1*L1*L1*L1)[sl], myStreams(f2, bandBasis, rank), 1, streams(f2, out, s2,space)+r*N1*N1*N1*N1, 1);
                 }
