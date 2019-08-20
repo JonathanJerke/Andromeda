@@ -13,11 +13,11 @@ echo "read ../../control/found" >> $file
 echo "read $dir/stage " >> $file
 foreach f (`cat $3`)
 
-if ( `splitFlag.csh` ) then
-echo "read $prev.$f-vector" >> $file
-else 
+#if ( `splitFlag.csh` ) then
+#echo "read $prev.$f-vector" >> $file
+#else 
 echo "vector $prev.$f" >> $file
-endif
+#endif
 
 end
 echo "read ../../control/ritzPhase" >> $file

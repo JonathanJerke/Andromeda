@@ -13,7 +13,8 @@ cp ../../control/stage found
 cp ../boot .
 cp ../inc .
 cp ../../symmetry/$2 symmetry
-echo "last" > post
+echo "none" > post
+echo "PostProcessing `cat post`"
 
 if ( $3 == 1 ) then
         switch ( $2 )

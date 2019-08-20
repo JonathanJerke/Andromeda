@@ -12,7 +12,7 @@ if ( -e driver ) then
 	rm driver
 endif
 
-foreach com ( `cat commands` )
+foreach com (`cat commands` )
 	$LAUNCH/csh/go.csh $com
 	echo "$com" >> driver
 	sleep 3
