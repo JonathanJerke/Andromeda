@@ -8,7 +8,7 @@
 		catalog 1 
 		shift -0.03
 		levelScale 3
-		foundation 1000	
+		foundation 2000	
                 basisRank 12
                 states 10
 		iterations 3

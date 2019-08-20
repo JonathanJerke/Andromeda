@@ -2,7 +2,7 @@
 	
 	*Parameters
 		range 1
-		body 1
+		body 3
 	.Parameters
 	
 	*InputOutput
@@ -13,7 +13,7 @@
 
 	*Parameters
 		canon 400
-		body 3
+	#	body 3
 		runFlag 7
 		attack 1.
 	.Parameters
