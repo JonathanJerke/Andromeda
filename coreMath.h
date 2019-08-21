@@ -41,15 +41,6 @@ double min( double x1, double x2 );
 INT_TYPE maxZ( struct input * f1 );
 INT_TYPE sumZ( struct input * f1 );
 DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta);
-DCOMPLEX periodicBoostOverlapBasis (  INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, INT_TYPE kki );
-DCOMPLEX periodicBoostMomentumBasis (  INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, INT_TYPE kki );
-DCOMPLEX periodicBoostKineticBasis ( INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, INT_TYPE kki );
-DCOMPLEX periodicBoostOverlap0 ( INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, double kk );
-DCOMPLEX periodicBoostMomentum0 ( INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, double kk );
-DCOMPLEX periodicBoostKinetic0 ( INT_TYPE N1, double d, INT_TYPE b, double k ,double d2, INT_TYPE bb, double kk );
-DCOMPLEX periodicBoostOverlapBasisBasis (  double p, INT_TYPE N1, double d, INT_TYPE b, INT_TYPE ki ,double d2, INT_TYPE bb, INT_TYPE kki );
-DCOMPLEX periodicBoostMomentumBasisBasis (double p ,  INT_TYPE N1, double d, INT_TYPE b, INT_TYPE ki ,double d2, INT_TYPE bb, INT_TYPE kki );
-DCOMPLEX periodicBoostKineticBasisBasis (  INT_TYPE N1, double d, INT_TYPE b, INT_TYPE ki ,double d2, INT_TYPE bb, INT_TYPE kki );
-
-
+DCOMPLEX periodicBoost0 (INT_TYPE N, double P, INT_TYPE bb, double kk ,double dd, INT_TYPE LL,INT_TYPE b, double k ,double d,INT_TYPE L);
+DCOMPLEX periodicBoostBasisBasis( INT_TYPE N , double P, INT_TYPE bb, INT_TYPE kki ,double dd, INT_TYPE LL,  INT_TYPE b, INT_TYPE ki,double d,INT_TYPE L );
 #endif /* coreMath_h */

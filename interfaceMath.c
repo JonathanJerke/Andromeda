@@ -290,6 +290,9 @@ INT_TYPE tdgeqr( INT_TYPE rank, struct sinc_label f1,INT_TYPE len, INT_TYPE n, d
     if ( len > n ){
         printf("%d -> %d\n", len, n);
         len = n;
+    }else if ( len <= 0 ){
+        printf("cancel tdgeqr\n");
+        return -1;
     }
     //len is number of elements to consider, if len > n, then you may as well remove some of len...its over-linear dependent.
 #if VERBOSE
@@ -297,7 +300,7 @@ INT_TYPE tdgeqr( INT_TYPE rank, struct sinc_label f1,INT_TYPE len, INT_TYPE n, d
     fflush(stdout);
 #endif
 
-
+    printf("tdgeqr %d %d %d %d\n", rank, len, n, ns );
 #ifdef APPLE
     INT_TYPE lbuffer = part(f1, dsyBuffers);
     dgeqrf_(&n,& len, ar, &ns, w, myStreams(f1, dsyBuffers,rank ), &lbuffer, &info);

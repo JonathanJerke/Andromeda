@@ -1409,7 +1409,7 @@ INT_TYPE tOv ( struct sinc_label f1 , enum division label,INT_TYPE spin ){
                     Stream_Type * stream = streams(f1,label,spin,space)+Current*B1*B1;
                     for ( I1 = 0 ; I1 < B1 ; I1++)
                         for ( I2 = 0 ; I2 < B1 ; I2++)
-                            stream[I1*B1+I2] =BoB(f1.rose[space].basisList[I1], f1.rose[space].basisList[I2]);
+                            stream[I1*B1+I2] =creal(BoB(f1.rose[space].basisList[I1], f1.rose[space].basisList[I2]));
                     
                 }
         }
