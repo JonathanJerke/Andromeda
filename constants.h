@@ -798,7 +798,8 @@ struct general_index{//one dimension
     INT_TYPE l0;
     INT_TYPE l1;
     double x1;
-    
+    enum spinType realFlag;//1 == real , else == complex
+
     
     double d;
     double n;//function index.
@@ -814,7 +815,7 @@ struct general_2index{//one dimension
     INT_TYPE pow2[2];
     INT_TYPE powSpace;//r^2*pow in Gaussian term!!
     INT_TYPE gaussianAccelerationFlag;//pre-integrated selection
-    INT_TYPE realFlag;//1 == real , else == complex
+    enum spinType realFlag;//1 == real , else == complex
     
     //for element calculations
     struct function_label * fl;
@@ -849,6 +850,7 @@ struct runTime {
 };
 
 struct input {
+    double shiftVector[100][2];
     INT_TYPE barrier;
     double massElectron;//electron
     double massProton;//protons

@@ -2094,11 +2094,11 @@ INT_TYPE tHYpY(  INT_TYPE rank, struct sinc_label f1 ,INT_TYPE targSpin, enum di
 }
 
 
-void pHXpX (  INT_TYPE rank, struct sinc_label  *f1 , enum division left,INT_TYPE shiftFlag, double product, double productCmpl, enum division equals ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo  ){
-    tHXpX(rank, *f1, left, shiftFlag, product, productCmpl, equals, tolerance, maxRun, solo);
+void pHXpX (  INT_TYPE rank, struct sinc_label  *f1 , enum division left,INT_TYPE shiftFlag, double sum,double product, double productCmpl, enum division equals ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo  ){
+    tHXpX(rank, *f1, left, shiftFlag,sum, product, productCmpl, equals, tolerance, maxRun, solo);
 }
 
-void tHXpX (  INT_TYPE rank, struct sinc_label f1 , enum division left,INT_TYPE shiftFlag, double product, double productCmpl,  enum division right ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo){
+void tHXpX (  INT_TYPE rank, struct sinc_label f1 , enum division left,INT_TYPE shiftFlag, double sum,double product, double productCmpl,  enum division right ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo){
     rank = 0;
     double prod;
     DCOMPLEX co2,coi,pro = product + I * productCmpl;
@@ -2115,8 +2115,10 @@ void tHXpX (  INT_TYPE rank, struct sinc_label f1 , enum division left,INT_TYPE 
     for ( targSpin = 0 ; targSpin < spins(f1, right ) ;targSpin++){
         pt = left;
         zero(f1, totalVector, 0);
-        if ( shiftFlag  )
+        if ( shiftFlag  ){
             tEqua(f1, totalVector, 0, right, targSpin);
+            tScaleOne(f1, totalVector, 0, sum);
+        }
         else
             f1.tulip[totalVector].Current[0] = 0;
 

@@ -941,6 +941,13 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     //4pi/3 Rs^3 = pow(d * N1 ,3.0)/f1->Ne
                     return d;
                 case 46 :
+                {
+                    INT_TYPE i;
+                    for ( i = 0; i < 100; i++){
+                        c->i.shiftVector[i][0] = 1.;
+                        c->i.shiftVector[i][1] = value;
+                    }
+                }
                     c->i.shiftFlag = 1;
                     c->i.realPart = value;
                     return d;
@@ -948,7 +955,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                  //   c->i.shift = value * pi * pi / c->i.d / c->i.d ;
                     return d;
                 case 48 :
-                    printf("Crystal Momentum -universal- \t%f\n", value);
+                    printf("Crystal Momentum -universal-t%f\n", value);
 
                     value /= f1->d*( 2.*f1->epi+1.);
                     c->i.vectorMomentum = value;
@@ -1274,7 +1281,7 @@ INT_TYPE intervalGeometry(struct calculation * c, const char * input_line ){
 
 INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const char * input_line ){
     INT_TYPE io;
-    INT_TYPE Nio = 31;
+    INT_TYPE Nio = 33;
     char test_line [MAXSTRING];
     char *list_IO[] = {"#",
         "densityIn","hartreeIn", "densityOut" ,//3
@@ -1287,7 +1294,7 @@ INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const ch
         "nameHartreeOut","Eigen" ,"set",//24
         "component","byHand","Spec",//27
         "vector","operator","print",//30
-        "body"
+        "body","shift","twist"//33
     };
     char filename[MAXSTRING];
     FILE * mid;
@@ -1500,7 +1507,7 @@ INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const ch
                 sprintf(f1->fileList[f1->files++],"%s.vector", filename);
                 if (  strstr(filename,c->name) != NULL){
                     printf(" cannot name inputs same as outputs\n");
-                    printf("%s \t %s\n", filename, c->name);
+                    printf("%st %s\n", filename, c->name);
                     exit(1);
                 }
 //                if ( (c->rt.printFlag/2 ) % 2 == 0 )
@@ -1518,12 +1525,67 @@ INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const ch
 //                c->i.outputFlag = 1;
                 return io;
             }
-            case 31:
+            case 32:
             {
+                FILE * in = fopen(filename,"r");
+                INT_TYPE i,ii=0;
+                size_t ms = MAXSTRING;
+                char input_line[MAXSTRING];
+                char * mask = input_line;
+                
+                do{
+                    getline(&mask, &ms, in);
+                    if ( 2 == sscanf(input_line,"%lf,%lf", &c->i.shiftVector[ii][0],&c->i.shiftVector[ii][1]) )
+                        ii++;
+                }while ( ! feof(in ));
+                fclose(in);
+                
 //                c->i.bodyFlag = 1;
 //                return io;
-            }
+                return io;
 
+            }
+            case 33:
+            {
+                double twistedD [] = {0., -0.5, -0.666667, -0.75, -0.8, -0.833333, -0.857143, -0.875,
+                    -0.888889, -0.9, -0.909091, -0.916667, -0.923077, -0.928571,
+                    -0.933333, -0.9375, -0.941176, -0.944444, -0.947368, -0.95,
+                    -0.952381, -0.954545, -0.956522, -0.958333, -0.96, -0.961538,
+                    -0.962963, -0.964286, -0.965517, -0.966667, -0.967742, -0.96875,
+                    -0.969697, -0.970588, -0.971429, -0.972222, -0.972973, -0.973684,
+                    -0.974359, -0.975, -0.97561, -0.97619, -0.976744, -0.977273,
+                    -0.977778, -0.978261, -0.978723, -0.979167, -0.979592, -0.98,
+                    -0.980392, -0.980769, -0.981132, -0.981481, -0.981818, -0.982143,
+                    -0.982456, -0.982759, -0.983051, -0.983333, -0.983607, -0.983871,
+                    -0.984127, -0.984375, -0.984615, -0.984848, -0.985075, -0.985294,
+                    -0.985507, -0.985714, -0.985915, -0.986111, -0.986301, -0.986486,
+                    -0.986667, -0.986842, -0.987013, -0.987179, -0.987342, -0.9875,
+                    -0.987654, -0.987805, -0.987952, -0.988095, -0.988235, -0.988372,
+                    -0.988506, -0.988636, -0.988764, -0.988889, -0.989011, -0.98913,
+                    -0.989247, -0.989362, -0.989474, -0.989583, -0.989691, -0.989796,
+                    -0.989899, -0.99, -0.990099};
+                double twistedC [] = {1., 1.5, 1.66667, 1.75, 1.8, 1.83333, 1.85714, 1.875, 1.88889, 1.9,
+                    1.90909, 1.91667, 1.92308, 1.92857, 1.93333, 1.9375, 1.94118,
+                    1.94444, 1.94737, 1.95, 1.95238, 1.95455, 1.95652, 1.95833, 1.96,
+                    1.96154, 1.96296, 1.96429, 1.96552, 1.96667, 1.96774, 1.96875,
+                    1.9697, 1.97059, 1.97143, 1.97222, 1.97297, 1.97368, 1.97436, 1.975,
+                    1.97561, 1.97619, 1.97674, 1.97727, 1.97778, 1.97826, 1.97872,
+                    1.97917, 1.97959, 1.98, 1.98039, 1.98077, 1.98113, 1.98148, 1.98182,
+                    1.98214, 1.98246, 1.98276, 1.98305, 1.98333, 1.98361, 1.98387,
+                    1.98413, 1.98438, 1.98462, 1.98485, 1.98507, 1.98529, 1.98551,
+                    1.98571, 1.98592, 1.98611, 1.9863, 1.98649, 1.98667, 1.98684,
+                    1.98701, 1.98718, 1.98734, 1.9875, 1.98765, 1.9878, 1.98795, 1.9881,
+                    1.98824, 1.98837, 1.98851, 1.98864, 1.98876, 1.98889, 1.98901,
+                    1.98913, 1.98925, 1.98936, 1.98947, 1.98958, 1.98969, 1.9898, 1.9899,
+                    1.99, 1.9901};
+
+                INT_TYPE i;
+                for ( i= 0; i < 100 ; i++){
+                    c->i.shiftVector[i][0] = twistedD[i];
+                    c->i.shiftVector[i][1] = twistedC[i];
+                }
+                return io;
+            }
         }
         }
     }

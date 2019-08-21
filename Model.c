@@ -139,7 +139,6 @@ struct field initField (void ) {
     
 #if 1
     if ( SPACE == 1 ){
-        i.i.d = 4;
         i.i.cmpl = cmpl;
         i.i.bRank = 4;
         i.i.iRank = 1;
@@ -150,7 +149,8 @@ struct field initField (void ) {
         i.i.body = one;
         i.i.irrep = 0;
         i.i.cat  = 0;
-        i.i.epi = 8;
+        i.i.epi = 4;
+        i.i.d = 2./(2*i.i.epi + 1 );
 
         
     }else {
@@ -202,7 +202,7 @@ struct calculation initCal (void ) {
     i.i.M1 = 25;
     }
     
-    i.rt.powDecompose = 8;
+    i.rt.powDecompose = 2;
     
         i.i.turn = 1.;
         i.i.param1 = 1.;
@@ -229,7 +229,7 @@ struct calculation initCal (void ) {
             i.i.orgClamp = 0.5*(i.i.minClamp+i.i.maxClamp);
         }else if ( SPACE == 1 ){
             i.rt.calcType = electronicStuctureCalculation;
-            i.rt.runFlag = 7;
+          //  i.rt.runFlag = 7;
             i.rt.phaseType = buildFoundation;
 
         }
@@ -1062,7 +1062,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
     
     //for new interaction builder
     fromBeginning(*f1,tempOneMatrix,squareTwo);
-    f1->tulip[tempOneMatrix].Partition= imax((c1->rt.calcType == clampProtonElectronCalculation )*c1->i.twoBody.num*vector1Len(*f1, 0)*vector1Len(*f1, 0), buildExternalPotential(c1, *f1,nullName,electron ,0,real)*(c1->rt.phaseType == solveRitz));//BUILD
+    f1->tulip[tempOneMatrix].Partition= imax((c1->rt.calcType == clampProtonElectronCalculation )*c1->i.twoBody.num*vector1Len(*f1, 0)*vector1Len(*f1, 0), buildExternalPotential(c1, *f1,nullName,electron ,0,real)*(c1->rt.phaseType == solveRitz|| c1->rt.phaseType == buildFoundation));//BUILD
     f1->tulip[tempOneMatrix].species = matrix;
     f1->tulip[tempOneMatrix].header = Cube;
     assignParticle(*f1, tempOneMatrix, all, one);
@@ -1545,13 +1545,13 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                             printf("jellium background\t %d\t%15.15f\n", N1,sumt);
                             switch ( bootBodies ) {
                                 case one:
-                                    f1->offset = -sumt;
+                                    f1->offset = -0.5*sumt;
                                     break;
                                 case two:
-                                    f1->offset = -2.*sumt;
+                                    f1->offset = -(2*0.5+1)*sumt;
                                     break;
                                 case three:
-                                    f1->offset = -3.*sumt;
+                                    f1->offset = -(3*0.5+3.)*sumt;
                                     break;
 
                             }

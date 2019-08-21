@@ -57,8 +57,8 @@ double inner(struct sinc_label  f1 , enum division alloy, INT_TYPE os );
 double magnitude ( struct sinc_label  f1 , enum division alloy );
 double pMagnitude ( struct sinc_label * f1 , enum division alloy );
 
-void tHXpX (  INT_TYPE rank, struct sinc_label  f1 , enum division left,INT_TYPE shiftFlag, double product, double productCmpl, enum division equals ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo  );
-void pHXpX (  INT_TYPE rank, struct sinc_label  *f1 , enum division left,INT_TYPE shiftFlag, double product, double productCmpl, enum division equals ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo  );
+void tHXpX (  INT_TYPE rank, struct sinc_label  f1 , enum division left,INT_TYPE shiftFlag, double sum,double product, double productCmpl, enum division equals ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo  );
+void pHXpX (  INT_TYPE rank, struct sinc_label  *f1 , enum division left,INT_TYPE shiftFlag, double sum,double product, double productCmpl, enum division equals ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo  );
 
 double positioningElectrons2 (INT_TYPE rank, struct sinc_label  f1 , enum division oneVector, enum division wavefunction,double x1, double y1, double z1, double x2, double y2, double z2);
 INT_TYPE pReady ( struct sinc_label *f1 );

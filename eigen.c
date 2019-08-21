@@ -83,7 +83,9 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
             N1 = n1[space];
             INT_TYPE Nx = N1;//imin(N1,c1->i.bootRestriction);
             struct name_label u = f1.tulip[canonicalBuffersBM];
-            
+            outputFormat(f1, stdout,overlap, 0);
+            outputFormat(f1, stdout,kinetic, 0);
+
             N2 = N1*N1;
             myZero(f1,canonicalBuffersBM,0);
             ar = myStreams(f1, canonicalBuffersBM, 0);
@@ -151,26 +153,26 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
             }
             
             
-//            if ( 1|| space == 0 || space == COMPONENT ){
-//            if ( cmplFlag ){
-//                for ( i = 0 ; i < N1 ; i++){
-//                    printf("\n\n%f \n\n", w[i]);
-//
-//                    for ( ii = 0; ii < N1 ; ii++)
-//                        printf("\n%d--%f+I%f,",ii+1, creal(arc[i*N1+ii]),cimag(arc[i*N1+ii]));
-//                }
-//            }
-//
-//            }else {
-//                for ( i = 0 ; i < 1 ; i++){
-//                    printf("\n\n%d %f \n\n",i+1, w[i]);
-//
-//                    for ( ii = 0; ii < N1 ; ii++)
-//                        printf("%f,", ar[i*N1+ii]);
-//                }
-//
-//            }
-            
+            if ( 1|| space == 0 || space == COMPONENT ){
+                if ( cmplFlag ){
+                    for ( i = 0 ; i < N1 ; i++){
+                        printf("\n\n%f \n\n", w[i]);
+                        
+                        for ( ii = 0; ii < N1 ; ii++)
+                            printf("\n%d--%f+I%f,",ii+1, creal(arc[i*N1+ii]),cimag(arc[i*N1+ii]));
+                    }
+                    
+                    
+                }else {
+                    for ( i = 0 ; i < N1 ; i++){
+                        printf("\n\n%d %f \n\n",i+1, w[i]);
+                        
+                        for ( ii = 0; ii < N1 ; ii++)
+                            printf("%f,", ar[i*N1+ii]);
+                    }
+                    
+                }
+            }
 
             if ( bootBodies == nada ){
 
@@ -1085,7 +1087,7 @@ INT_TYPE tSquareVectors(struct sinc_label f1, INT_TYPE EV2, enum division usz,en
 }
 
 
-INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct sinc_label f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift){
+INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag ,double sumPart, double realPart, struct sinc_label f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift){
     INT_TYPE expon,info;
     INT_TYPE rank ;
     //time_t start_t, lapse_t;
@@ -1094,7 +1096,7 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct
     INT_TYPE iii = 0;
     
     if ( translateFlag ){
-        printf ("( 1 + (%1.3f) H )PSI",realPart);
+        printf ("( %1.6f + (%1.6f) H )PSI",sumPart,realPart);
     }else {
         printf ("( H )PSI");
     }
@@ -1119,7 +1121,7 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct
 //                matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
 //                tScale(f1, usz+iii+expon*foundation, 1./sqrt(cabs(vhhv)));
 
-                tHXpX(rank, f1, A, translateFlag, translateFlag*realPart+ (!translateFlag)*1., 0.0, usz+iii+expon*foundation, f1.rt->TARGET , part(f1,usz+(expon)*foundation+iii),1 == 1);
+                tHXpX(rank, f1, A, translateFlag,sumPart, translateFlag*realPart+ (!translateFlag)*1., 0.0, usz+iii+expon*foundation, f1.rt->TARGET , part(f1,usz+(expon)*foundation+iii),1 == 1);
                 
                 pMatrixElements( f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
                 pMatrixElements( f1, usz+iii+expon*foundation, nullName, usz+iii+(expon-1)*foundation, NULL, &vhv);
@@ -1129,7 +1131,7 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct
                     tScale(f1, usz+iii+expon*foundation, 1./sqrt(cabs(vhhv)));
                 else {
                     printf("oops norms \n");
-                    exit(0);
+                    return 1;
                 }
                 pMatrixElements( f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
                if ( fabs(creal(vhhv)-1.0)> 1e-6)
@@ -1150,7 +1152,7 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag , double realPart, struct
     
     printf("-------\n\tAve-Canonical Rank \t| %2.1f \n", sum2*1. / foundation );    
     
-    return nMult; 
+    return 0;
 }
 
 INT_TYPE tLesserDivideIteration ( struct sinc_label  f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);

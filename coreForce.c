@@ -458,9 +458,13 @@ DCOMPLEX FSSp ( double p , struct general_index * pa ){
 DCOMPLEX periodicFSSp (double p , struct general_index * pa ){
     DCOMPLEX sum = 0.;
     if ( 0 )
-        sum = periodicBoostOverlap0(pa->bra.grid, pa->bra.length, pa->bra.index, 2*pa->bra.index2*pi/(pa->bra.length*pa->bra.grid)+p,pa->ket.length, pa->ket.index, 2*pa->ket.index2*pi/(pa->ket.length*pa->ket.grid));
+        sum = periodicBoost0( 0,p,
+                             pa->bra.index, pa->bra.index2,pa->bra.length,pa->bra.grid,
+                             pa->ket.index, pa->ket.index2,pa->ket.length,pa->ket.grid);
     else
-        sum = periodicBoostOverlapBasisBasis(p,pa->bra.grid, pa->bra.length, pa->bra.index, pa->bra.index2, pa->ket.length, pa->ket.index, pa->ket.index2);
+        sum = periodicBoostBasisBasis( 0,p,
+                                      pa->bra.index, pa->bra.index2,pa->bra.length,pa->bra.grid,
+                                      pa->ket.index, pa->ket.index2,pa->ket.length,pa->ket.grid);
 
     return sum;
 }
@@ -2918,7 +2922,8 @@ DCOMPLEX BoB (struct basisElement b1, struct basisElement b2 ){
            va = SS ( b1.length,b1.length*(b1.index)+ b1.origin, b2.length, b2.length*( b2.index ) + b2.origin);
         }
         else {//periodic-boosted
-            va = periodicBoostOverlapBasisBasis(0.,b1.grid, b1.length, b1.index, b1.index2, b2.length, b2.index, b2.index2);
+            va = periodicBoostBasisBasis(0,0., b1.index, b1.index2, b1.length,b1.grid,
+                                          b2.index, b2.index2, b2.length,b2.grid);
         }
         return va;
     }else if ( b1.basis == GaussianBasisElement && b2.basis == GaussianBasisElement ){
@@ -3000,7 +3005,8 @@ DCOMPLEX BdB (struct basisElement b1, struct basisElement b2){
         }
         else {
             double va;
-            va = periodicBoostMomentumBasisBasis(0.,b1.grid, b1.length, b1.index, b1.index2, b2.length, b2.index, b2.index2);
+            va = periodicBoostBasisBasis(1,0., b1.index, b1.index2, b1.length,b1.grid,
+                                         b2.index, b2.index2, b2.length,b2.grid);
             return va;
         }
     }else if ( b1.basis == GaussianBasisElement && b2.basis == GaussianBasisElement ){
@@ -3077,8 +3083,14 @@ DCOMPLEX BgB (double beta, struct basisElement b1, INT_TYPE action , INT_TYPE po
         g2.powSpace = powSpace;
         g2.momentumShift = 0;
         g2.realFlag = 1;
+    g2.i[0].realFlag = g2.realFlag;
+    g2.i[1].realFlag = g2.realFlag;
+
         realpart =  collective(sqrt(beta), &g2);
         g2.realFlag = 0;
+    g2.i[0].realFlag = g2.realFlag;
+    g2.i[1].realFlag = g2.realFlag;
+
         imagepart = collective(sqrt(beta), &g2);
         return (realpart + I * imagepart);
 };
@@ -3118,8 +3130,9 @@ DCOMPLEX Bd2B (struct basisElement b1, struct basisElement b2){
         }
         else {
             DCOMPLEX va;
-            va = periodicBoostKineticBasisBasis(b1.grid, b1.length, b1.index, b1.index2, b2.length, b2.index, b2.index2);
-            return -va;
+            va = -periodicBoostBasisBasis(2,0., b1.index, b1.index2, b1.length,b1.grid,
+                                         b2.index, b2.index2, b2.length,b2.grid);
+            return va;
         }
     }else if ( b1.basis == GaussianBasisElement && b2.basis == GaussianBasisElement ){
         if ( b2.type <= 3 ){
@@ -3209,59 +3222,6 @@ double gaussianSinc ( double k, void * arg ){
     }
     return va;
 }
-
-
-//double sumGaussianSinc ( double k, void * arg ){
-//    struct general_2index ga,*pa = (struct general_2index *) arg;
-//    INT_TYPE b1,b2,bb1,bb2,p1,p2,pp1,pp2,N1 = pa->i[0].bra.grid;
-//    double d = pa->i[0].bra.length;
-//    INT_TYPE N12 = (N1-1)/2;
-//    ga = *pa;
-//    double va=0.;
-//    
-//    for ( p1 = - N12; p1 <= N12; p1++)
-//        for (p2 = - N12; p2 <= N12; p2++)
-//        
-//            for ( b1 = 0 ; b1 < N1 ; b1++)
-//                for ( b2 = 0 ; b2 < N1 ; b2++)
-//
-//            
-//            for ( pp1 = - N12 ; pp1 <= N12; pp1++)
-//                for ( pp2 = - N12; pp2 <= N12; pp2++)
-//                    
-//                    for ( bb1 = 0 ; bb1 < N1 ; bb1++)
-//                        for (bb2 = 0 ; bb2 < N1 ; bb2++){
-//
-//                    //set type to 10-12//== true-periodic-boost
-//                            ga.i[0].bra.type = (pa->i[0].bra.type-1)%3 + 10;
-//                            ga.i[0].ket.type = (pa->i[0].ket.type-1)%3 + 10;
-//                            ga.i[1].bra.type = (pa->i[1].bra.type-1)%3 + 10;
-//                            ga.i[1].ket.type = (pa->i[1].ket.type-1)%3 + 10;
-//                    //
-//                            ga.i[0].bra.index = b1;
-//                            ga.i[0].ket.index = bb1;
-//                            ga.i[1].bra.index = b2;
-//                            ga.i[1].ket.index = bb2;
-//
-//                            
-//                            ga.i[0].bra.index2 = p1;
-//                            ga.i[0].ket.index2 = pp1;
-//                            ga.i[1].bra.index2 = p2;
-//                            ga.i[1].ket.index2 = pp2;
-//
-//                    //form // ga
-//                    
-//                            va += gaussianSinc(k,(void*)(&ga))//conj HERE//
-//                            * conj(periodicBoostOverlapBasis( N1, d, b1, 2./N1*pi/d*p1, d, pa->i[0].bra.index, pa->i[0].bra.index2)
-//                            * periodicBoostOverlapBasis( N1, d, b2, 2./N1*pi/d*p2, d,pa->i[1].bra.index, pa->i[1].bra.index2)
-//                            * conj(periodicBoostOverlapBasis( N1, d, bb1,  2./N1*pi/d*pp1, d, pa->i[0].ket.index, pa->i[0].ket.index2)
-//                            * periodicBoostOverlapBasis(N1, d, bb2, 2./N1*pi/d*pp2, d, pa->i[1].ket.index, pa->i[1].ket.index2)))/sqr(2*N1);
-//                }
-//
-//
-//    return va;
-//}
-
 
 
 void gaussianSincFunc(void * arg,size_t n,const double * x,double * y)
@@ -6010,6 +5970,7 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
     length1(f1,dims1);
     Stream_Type * stream;
     DCOMPLEX va;
+    printf("mass %f\n", amass);
     f1.tulip[diagonalCube].Current[0] = 1;
     tClear(f1, akinetic);
     for ( cmpl = 0; cmpl < spins(f1, akinetic ) ; cmpl++){
@@ -6027,7 +5988,7 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
                                     o1.ket = grabBasis ( f1, space, f1.rose[dim].particle, I2);
                                     
                                     if ( dim == space  ){
-                                        va = - 0.5/amass*Bd2B(o1.bra,o1.ket);
+                                        va = -0.5/amass*Bd2B(o1.bra,o1.ket);
                                     }
                                     else{
                                         va = BoB(o1.bra,o1.ket);
@@ -6043,12 +6004,6 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
                 }
         }
     }
-  //  outputFormat(f1, stderr,kinetic1, 0);
-    INT_TYPE info;
-//    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic, 0,'N', kinetic, 0);
-  //  printf("r%f\n", traceOne(f1, akinetic, 0));
-//    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic,1,'N', kinetic, 1);
-//    printf("r%f\n", traceOne(f1, copy, 0));
 
     return 0;
 }

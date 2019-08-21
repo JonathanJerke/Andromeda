@@ -36,6 +36,19 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
             EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
         else
             EV = 0;
+        
+        
+//        struct field f2 = f1;
+//        f2.f.bootedMemory = 0;
+//        
+//        f2.i.epi++;
+//        f2.i.d = f1.i.d * (2*f1.i.epi+1)*1./( 2* f2.i.epi + 1 );
+//        iModel(c1, &f2);
+//        INT_TYPE x = 0;
+////        xEqua(f2.f, f2.f.user+x, 0, f1.f, f1.f.user+x, 0);
+////        outputFormat(f1.f, stdout, f1.f.user+x, 0);
+////        outputFormat(f2.f, stdout, f2.f.user+x, 0);
+//
 //        tGreatDivideIteration(0, 0, f1.f, Ha, 1, 0, f1.f.user, 1, 2, 0);
 //        tFilter(f1.f, EV,1, f1.f.user);//classify
         if ( OVERFLAG  || SPACE == 1 )
@@ -114,21 +127,33 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
             print(c1,f1,1,0,1,eigenVectors);
         }
     
-
+    INT_TYPE flag;
     
     for ( iterator = 1 ; iterator < f1.i.Iterations ; iterator++){
-        RdsSize += tGreatDivideIteration(c1->i.shiftFlag, c1->i.realPart,  f1.f,Iterator, 1,0,eigenVectors+RdsSize-EV,EV,2*EV,0)-EV;
-        if(1){
-            tFilter(f1.f, EV, !(!f1.i.filter )* f1.i.irrep, eigenVectors+RdsSize-EV);//filter
-            printf ("Step \t%d\n", iterator);
-            fflush(stdout);
-            INT_TYPE iii ;
-            for ( iii = 0; iii < EV ; iii++){
-                printf ( "\n Vector \t%d \t %d\n", iii+1, +RdsSize-EV+iii);
-                printExpectationValues(f1.f, Ha, eigenVectors+RdsSize-EV+iii);
+        
+        
+       
+            flag = 1;
+        
+        
+        
+        if ( ! tGreatDivideIteration(flag, c1->i.shiftVector[iterator-1][0],c1->i.shiftVector[iterator-1][1],  f1.f,Iterator, 1,0,eigenVectors+RdsSize-EV,EV,2*EV,0)){
+            RdsSize += EV;
+            
+            if(1){
+                tFilter(f1.f, EV, !(!f1.i.filter )* f1.i.irrep, eigenVectors+RdsSize-EV);//filter
+                printf ("Step \t%d\n", iterator);
                 fflush(stdout);
-                print(c1,f1,0,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
+                INT_TYPE iii ;
+                for ( iii = 0; iii < EV ; iii++){
+                    printf ( "\n Vector \t%d \t %d\n", iii+1, +RdsSize-EV+iii);
+                    printExpectationValues(f1.f, Ha, eigenVectors+RdsSize-EV+iii);
+                    fflush(stdout);
+                    print(c1,f1,0,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
+                }
             }
+        }else {
+            break;
         }
         fflush(stdout);
     }
