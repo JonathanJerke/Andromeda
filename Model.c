@@ -1451,7 +1451,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                             exit(0);
                         }
                         for ( c = real ; c <= spins (*f1, linear) ; c++)
-                            buildExternalPotential(c1, *f1,linear,electron,1,c);
+                            buildExternalPotential(c1, *f1,linear,electron,!(!c1->rt.runFlag),c);
                     }
 
                 
