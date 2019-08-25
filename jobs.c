@@ -71,7 +71,7 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
     INT_TYPE EV = 0,i,fi;
 
 
-    f1.i.qFloor = countLinesFromFile(c1,f1,0,&f1.i.iRank);
+    f1.i.qFloor = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
     //count canonical-rank...
 
     
@@ -174,7 +174,7 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
     double va;
     INT_TYPE lines = 0,flines = 0;
 
-    f1.i.qFloor = countLinesFromFile(c1,f1,0,&f1.i.iRank);
+    f1.i.qFloor = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
   //  printf("-->%d\n", f1.i.iRank);
    // c1->i.iRank = c1->i.bRank;
     iModel(c1,&f1);

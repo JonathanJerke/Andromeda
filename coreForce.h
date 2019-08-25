@@ -93,4 +93,5 @@ DCOMPLEX periodicBoostOverlapBasis2 ( INT_TYPE N1, double d, INT_TYPE b, INT_TYP
 double quadCal(struct general_2index * aAf );
 INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label f1, enum division pair, enum particleType particle1 , INT_TYPE overline,enum spinType cmpl);
 INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label f1, enum division single, enum particleType particle1, INT_TYPE overline,enum spinType cmpl);
+double testPotential (struct calculation c, struct field f , enum division wavey, enum division potential );
 #endif /* coreForce_h */

@@ -61,6 +61,44 @@ double HeavisideTheta ( double x ){
         return 0.;
 }
 
+double testPotential (struct calculation c, struct field f , enum division wavey, enum division potential ){
+    if ( SPACE != 6 ){
+        return 0.;
+    }
+    double d , D,prob;
+    d = f.i.d;
+    D = f.i.D;
+    double mx = c.i.orgClamp;
+
+    DCOMPLEX ME,OV;
+    INT_TYPE i,i2,i3,i4;
+    INT_TYPE N1 = vector1Len(f.f, 0);
+    INT_TYPE N2 = vector1Len(f.f, 3);
+    double sum = 0.;
+    for ( i = 0; i < N1 ; i++)
+        for ( i2 = 0; i2 < N1 ; i2++)
+            for ( i3 = 0; i3 < N1 ; i3++)
+                for ( i4 = 0 ; i4 < N2 ; i4++)
+                {
+                   prob =  streams(f.f,wavey,0,0)[i]*
+                    streams(f.f,wavey,0,1)[i2]*
+                    streams(f.f,wavey,0,2)[i3]*
+                    streams(f.f,wavey,0,3)[i4]*streams(f.f,wavey,0,0)[i]*
+                    streams(f.f,wavey,0,1)[i2]*
+                    streams(f.f,wavey,0,2)[i3]*
+                    streams(f.f,wavey,0,3)[i4];
+                    if ( fabs(prob)> 0.0001 ){
+                        printf("%f\n",(i4*D-(N2-1)/2*D+mx));
+                        sum +=  prob/sqrt( sqr(i2*d)+sqr(i3*d)+sqr((i*d-(N1-1)/2*d)-0.5*(i4*D-(N2-1)/2*D+mx)));
+                    }
+                }
+    ME = 0.;
+    OV = 0.;
+    pMatrixElements( f.f, wavey, potential, wavey, &ME, &OV);
+    printf("%f %f\n",sum, creal(ME) );
+     return 0.;
+}
+
 DCOMPLEX ei ( double arg ){
     return cexp(I*arg);
 }
@@ -4515,7 +4553,6 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
             x *=  param[1];
             constant *= param[1];
             
-            
             myZero(f1, oneByOneBuffer,0);
             constant *= inverseLaplaceTransform(x,&fl);//for purposes of scaling tw-body interactions by Ne...
             Mt= 0;
@@ -4531,6 +4568,11 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
                                     {
                                         N1 = n1[space];
                                         N2 = n1[space2];
+                                        if (part(f1,oneByOneBuffer) < N1*N1*N2*N2){
+                                            printf("check Model\n");
+                                            exit(0);
+                                        }
+
 #ifdef OMP
 #pragma omp parallel for private (si,I1,I2,I3,I4,g2,value) schedule(dynamic,1)
 #endif
@@ -4623,6 +4665,15 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
                                 }
             
             f1.tulip[tempOneMatrix].Current[0] += Mt;
+            
+//            {
+//                INT_TYPE r,si,N1 = vector1Len(f1, 3);
+//                for ( r = 0 ; r < CanonicalRank(f1, tempOneMatrix,0);r++)
+//                    for(si = 0 ; si < N1; si++){
+//                        printf("{ %f,%d, %f},\n",                           x,si,(streams(f1,tempOneMatrix,0,3)+r*N1*N1)[si*N1+si] );
+//                    }
+//
+//            }
             if ( part(f1,tempOneMatrix ) < f1.tulip[tempOneMatrix].Current[0]){
                 printf("have not!\n");
                 exit(0);
@@ -5388,7 +5439,7 @@ INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label f1, en
     tClear(f1, tempOneMatrix);
 
     for ( a = 1 ; a <= c1->i.Na ; a++){
-        mus =  buildMetric(f1, 2./grabBasis(f1, 0, electron, 0).length, c1->i.atoms[a].label.Z, inter, MAXb, mu);
+        mus =  buildMetric(f1, 2./grabBasis(f1, 0, particle1, 0).length, c1->i.atoms[a].label.Z, inter, MAXb, mu);
         for ( m = 0; m < mus ; m++){
             if ( mu[m].metric == interval || mu[m].metric == semiIndefinite)
                 ra += estSize(mu[m].fn.interval);

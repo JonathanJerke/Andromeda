@@ -1701,7 +1701,8 @@ double levelDetermine ( INT_TYPE M1 , double * array , double level){
     return temp[i-1];
 }
 
-INT_TYPE  countLinesFromFile(struct calculation *c1, struct field f1,INT_TYPE location, INT_TYPE *ir ){
+INT_TYPE  countLinesFromFile(struct calculation *c1, struct field f1,INT_TYPE location, INT_TYPE *ir, INT_TYPE *ix ){
+    *ix = 0;
     INT_TYPE fi,cmpl,lines = 0,num;
     size_t ms = MAXSTRING;
     char line0[MAXSTRING];
@@ -1711,7 +1712,7 @@ INT_TYPE  countLinesFromFile(struct calculation *c1, struct field f1,INT_TYPE lo
     char title [MAXSTRING];
 
     char *line = line0;
-    INT_TYPE FIT ;
+    INT_TYPE FIT,iva ;
     if ( location == 0 )
         FIT = f1.i.files ;
     else if ( location == 1 )
@@ -1747,7 +1748,9 @@ INT_TYPE  countLinesFromFile(struct calculation *c1, struct field f1,INT_TYPE lo
                     for ( cmpl = 0 ; cmpl < f1.i.cmpl ; cmpl++){
                         strcpy(line2,line);
                         tFromReadToFilename(NULL, line2,  name2, f1.i.cmpl-1,cmpl,title,&num);
-                        *ir = imax(*ir,inputFormat(f1.f, name2, nullName, 2));
+                        iva = inputFormat(f1.f, name2, nullName, 2);
+                        *ir = imax(*ir,iva);
+                        *ix += iva;
                     }
                     lines++;
                 }
@@ -1901,7 +1904,7 @@ struct basisElement grabBasis (struct sinc_label f1, INT_TYPE space, INT_TYPE pa
 
 struct basisElement transformBasis( INT_TYPE flip, double scale, struct basisElement ba ){
     ba.length *= scale;
-
+    ba.origin *= scale;
     if ( flip ) {
         ba.origin *= -1.;
         ba.index *= -1;

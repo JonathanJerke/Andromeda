@@ -83,15 +83,20 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
             N1 = n1[space];
             INT_TYPE Nx = N1;//imin(N1,c1->i.bootRestriction);
             struct name_label u = f1.tulip[canonicalBuffersBM];
-            outputFormat(f1, stdout,overlap, 0);
-            outputFormat(f1, stdout,kinetic, 0);
-
+            
             N2 = N1*N1;
             myZero(f1,canonicalBuffersBM,0);
             ar = myStreams(f1, canonicalBuffersBM, 0);
             INT_TYPE part1 = part(f1, canonicalBuffersBM);
             arc = (DCOMPLEX*)myStreams(f1, canonicalBuffersBM, 0);
             w = ar + 4*N2;
+//            {//here
+//                INT_TYPE j;
+//                for ( i = 0; i < N1 ; i++)
+//                    for ( j =0 ; j < N1 ; j++)
+//                        ar[i*N1+j] = delta(i-j);
+//                
+//            }
             if ( c1->rt.calcType == electronicStuctureCalculation ){
                 if ( OVERFLAG ){
                     INT_TYPE j;

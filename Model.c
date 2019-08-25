@@ -121,6 +121,7 @@ struct field initField (void ) {
     
     i.i.bRank = 0;
     i.i.iRank = 0;
+    i.i.xRank = 0;
     i.i.filter = 0;
     i.i.irrep = 0;
     i.i.cat = 0;
@@ -154,18 +155,20 @@ struct field initField (void ) {
 
         
     }else {
-    i.i.d = 4.;
-    i.i.cmpl = cmpl;
+        i.i.d = 1.;
+        i.i.D = 0.1*2;
+    i.i.cmpl = real;
     i.i.bRank = 2;
     i.i.iRank = 1;
     i.i.nStates = 1;
-    i.i.qFloor = 0;
+    i.i.qFloor = 625;
     i.i.filter = 0;
     i.f.boot = fullMatrices;
     i.i.body = one;
     i.i.irrep = 0;
     i.i.cat  = 0;
-    i.i.epi = 12;
+    i.i.epi = 0;
+        i.i.around=5;
     }
 #endif
     return i;
@@ -214,19 +217,19 @@ struct calculation initCal (void ) {
         i.i.mag = 0.1;
         //THESE
     
-    
+    i.rt.calcType = clampProtonElectronCalculation;
+    i.rt.runFlag = 0;
+    i.rt.phaseType = buildFoundation;
+    i.i.Na =1;
     
         if ( SPACE == 3 ){
-            i.rt.calcType = electronicStuctureCalculation;
+            i.rt.calcType = clampProtonElectronCalculation;
             i.rt.runFlag = 0;
-            i.rt.phaseType = productKrylov;
+            i.rt.phaseType = buildFoundation;
         } else if ( SPACE == 6 ){
 
             i.rt.calcType = clampProtonElectronCalculation;
-            i.i.minClamp = 0.5;
-            i.i.maxClamp = 4;
-            
-            i.i.orgClamp = 0.5*(i.i.minClamp+i.i.maxClamp);
+            i.i.orgClamp = 2;
         }else if ( SPACE == 1 ){
             i.rt.calcType = electronicStuctureCalculation;
           //  i.rt.runFlag = 7;
@@ -238,12 +241,12 @@ struct calculation initCal (void ) {
     i.i.massClampPair = 1836.15267245;
   //  resetExternal(&i, 2, 1);
     
-    i.i.twoBody.func.fn = nullFunction;
+    i.i.twoBody.func.fn = Coulomb;
     i.i.oneBody.func.fn = Pseudo;
     //i.i.springFlag = 1;
     i.i.springConstant = 0.25;
     i.i.canonRank = 45 ;
-    i.i.twoBody.num = 0;
+    i.i.twoBody.num = 30;
     i.i.twoBody.func.interval  = 0;
     i.i.twoBody.func.param[0]  = 1;
     i.i.twoBody.func.param[1]  = 1;
@@ -967,7 +970,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         assignParticle(*f1, oneVector, all, two);
 
         fromBeginning(*f1,totalVector,twoVector);
-        f1->tulip[totalVector].Partition = (!( c1->rt.phaseType == buildFoundation )|| 1)*  f->i.bRank*(c1->i.canonRank);
+        f1->tulip[totalVector].Partition = (!( c1->rt.phaseType == buildFoundation ))*imax(( c1->rt.phaseType == productKrylov )*f->i.xRank,f->i.bRank*(c1->i.canonRank));
         f1->tulip[totalVector].species = vector;
         f1->tulip[totalVector].spinor = real;
 

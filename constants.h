@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 6.6.1
+//VERSION 6.6.2
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -772,6 +772,7 @@ struct input_label {
     INT_TYPE nStates;
     INT_TYPE iRank ;
     INT_TYPE bRank;
+    INT_TYPE xRank;
     INT_TYPE qFloor;
     INT_TYPE nOperator;
     INT_TYPE filter;
