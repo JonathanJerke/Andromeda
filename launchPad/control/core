@@ -16,6 +16,7 @@
 	#
 	#
 		#default	
+		initRank 1
 		configuration 0
 		phase 0
 		matrix 30
