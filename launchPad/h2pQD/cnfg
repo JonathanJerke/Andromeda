@@ -13,6 +13,7 @@
 	.Geometry
 	
 	*Parameters
+		configuration 1
 		canon 200
 		clampMin 1.2
 		clampMax 4.2
