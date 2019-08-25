@@ -17,7 +17,7 @@
 	#
 		#default
 		phase 0
-		matrix 12
+		matrix 30
 		range 2
 		lattice 1.8	
 		lanes 1
