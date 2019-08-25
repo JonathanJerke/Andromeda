@@ -4,12 +4,12 @@
 	.InputOutput
 
 	*Parameters
+		flow 0.1
 		catalog 0 
 		levelScale 2
 		foundation 1000	
                 basisRank 12
                 states 10
-		shift -0.03
 		iterations 9
 	.Parameters
 				
