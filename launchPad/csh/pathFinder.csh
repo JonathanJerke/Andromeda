@@ -17,22 +17,33 @@ foreach curr ( $argv )
 				$LAUNCH/csh/gos.csh found/found
 			endif
 			$LAUNCH/csh/go.csh found/Afound   
-			$LAUNCH/csh/krylov.csh $curr $curr states
-			$LAUNCH/csh/ritzB.csh $curr $curr states
-	                $LAUNCH/csh/krylovB.csh  $curr $curr states
+                        if ( `splitFlag.csh`) then
+                        $LAUNCH/csh/catKrylov.csh $curr $curr states
+                        $LAUNCH/csh/mergeRitzB.csh $curr $curr states
+			else
+                        $LAUNCH/csh/prevKrylov.csh $curr $curr states
+                        $LAUNCH/csh/prevRitzB.csh $curr $curr states
+			endif
+	                $LAUNCH/csh/prevKrylovB.csh  $curr $curr states
       	
 		endif 
 	else
-		$LAUNCH/csh/addStage.csh $prev $curr
-		$LAUNCH/csh/ritz.csh $prev $curr states
-		$LAUNCH/csh/krylov.csh  $curr $curr states
-		$LAUNCH/csh/ritzB.csh $curr $curr states
-		$LAUNCH/csh/krylovB.csh  $curr $curr states
+			$LAUNCH/csh/addStage.csh $prev $curr
+			$LAUNCH/csh/prevRitz.csh $prev $curr states
+                        if ( `splitFlag.csh`) then
+                        $LAUNCH/csh/splitKrylov.csh $curr $curr states
+                        $LAUNCH/csh/mergeRitzB.csh $curr $curr states
+                        else
+                        $LAUNCH/csh/prevKrylov.csh $curr $curr states
+                        $LAUNCH/csh/prevRitzB.csh $curr $curr states
+                        endif
+                        $LAUNCH/csh/prevKrylovB.csh  $curr $curr states
 	endif
 	set prev = $curr
-	sleep 4
+	#sleep 4
+	wait
 end
-sleep 4
+wait
 #sort commands > commands.temp
 #mv commands.temp commands
 rm waiter

@@ -1,9 +1,15 @@
 #!/bin/csh
 
-if ( $#argv == 4 ) then
+if ( $#argv == 2 ) then
 
 if ( -e boot && -e inc ) then 
 
+if ( -e cnfg ) then
+set body = `getParam.csh body cnfg`
+set states = `getParam.csh states boot`
+else
+exit
+endif
 
 mkdir $1
 chdir $1
@@ -16,11 +22,11 @@ cp ../../symmetry/$2 symmetry
 echo "none" > post
 echo "PostProcessing `cat post`"
 
-if ( $3 == 1 ) then
+if ( $body == 1 ) then
         switch ( $2 )
                 case "all"
                         seq 1 1 > catalog
-                        seq 1 $4  > states
+                        seq 1 $states  > states
                         breaksw
         endsw
 
@@ -28,15 +34,15 @@ if ( $3 == 1 ) then
 endif
 
 
-if ( $3 == 2 ) then
+if ( $body == 2 ) then
         switch ( $2 )
                 case "A1"
                         seq 1 4 > catalog
-                        seq 1 $4  > states
+                        seq 1 $states  > states
                         breaksw
                 case "A2"
                         seq 1 4> catalog
-                        seq 1 $4  > states
+                        seq 1 $states  > states
                         breaksw
         endsw
 
@@ -45,46 +51,46 @@ endif
 
 
 
-if ( $3 == 3 ) then
+if ( $body == 3 ) then
 	switch ( $2 ) 
 		case "A1"
 			seq 1 11 > catalog
-			seq 1 $4  > states
+			seq 1 $states  > states
 			breaksw
 		case "A2"
 			seq 1 11 > catalog
-			seq 1 $4 > states
+			seq 1 $states > states
 			breaksw
 		case "E"
 			seq 1 19 > catalog
-			seq 1 $4 > states
+			seq 1 $states > states
 			breaksw
 	endsw
 
 
 endif
 
-if ( $3 == 4 ) then
+if ( $body == 4 ) then
         switch ( $2 )
                 case "A1"
                         seq 1 39 > catalog
-                        seq 1 $4  > states
+                        seq 1 $states  > states
                         breaksw
                 case "A2"
                         seq 1 39 > catalog
-                        seq 1 $4 > states
+                        seq 1 $states > states
                         breaksw
                 case "E"
                         seq 1 55 > catalog
-                        seq 1 $4  > states
+                        seq 1 $states  > states
                         breaksw
                 case "T1"
                         seq 1 58 > catalog
-                        seq 1 $4  > states
+                        seq 1 $states  > states
                         breaksw
                 case "T2"
                         seq 1 58 > catalog
-                        seq 1 $4  > states
+                        seq 1 $states  > states
                         breaksw
 
 
@@ -101,5 +107,5 @@ endif
 
 else
 
-        echo "run symmetry BODY #states"
+        echo "run symmetry"
 endif

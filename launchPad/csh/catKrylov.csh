@@ -10,11 +10,10 @@ echo "*Body $file" > $file
 echo "*InputOutput" >> $file
 echo "read ../../control/found" >> $file
 echo "read $dir/stage " >> $file
-echo "vector $prev-${i}" >> $file
 echo "read ../../control/kryPhase ">> $file
 echo ".InputOutput" >> $file
 echo ".Body" >> $file
-$LAUNCH/csh/cats.csh $file 
+$LAUNCH/csh/cats.csh $file $prev-$i 
 end
 else 
 echo "originDir targetDir goSet"
