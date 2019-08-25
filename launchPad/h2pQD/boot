@@ -9,7 +9,7 @@
 		foundation 1000	
                 basisRank 12
                 states 10
-		shift -0.03
+		flow 0.5
 		iterations 9
 	.Parameters
 				
