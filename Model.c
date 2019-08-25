@@ -138,7 +138,7 @@ struct field initField (void ) {
     i.i.files = 0;
     i.i.filesVectorOperator = 0;
     
-#if 1
+#ifdef APPLE
     if ( SPACE == 1 ){
         i.i.cmpl = cmpl;
         i.i.bRank = 4;
@@ -177,7 +177,7 @@ struct calculation initCal (void ) {
     struct calculation i;
     
 
-#if 1
+#ifdef APPLE
     i.i.barrier = 0;
    // i.i.OCSBflag = 0;
     i.i.springConstant = 0.;
