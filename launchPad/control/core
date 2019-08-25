@@ -15,7 +15,8 @@
 		entropy 0
 	#
 	#
-		#default
+		#default	
+		configuration 0
 		phase 0
 		matrix 30
 		range 2
