@@ -8,7 +8,7 @@
 	#
 		cmpl 1	
 		condition 8
-		tolerance 6
+		tolerance 5
 		threshold 3
 		vectorThreshold 4
 		target 3
