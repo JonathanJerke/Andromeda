@@ -36,7 +36,7 @@ else
 		#	copy.csh found/A.riz
 	              endif
 		endif
-		if ( $com =~ "*B.kry*" && `grep shift boot ` =~ "shift *" ) then
+		if ( $com =~ "*B.kry*" ) then
 			sleep 1
 			post.csh $com.vector > $com.tm
 			mv $com.tm $com.vector
