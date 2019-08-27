@@ -9,4 +9,19 @@ else
 	echo "set PPN for speedup"
 	setenv LAUNCHER_PPN 4
 endif
-$LAUNCHER_DIR/paramrun
+
+if ( -e jobDone ) then
+rm jobDone
+endif
+
+echo "touch jobDone" >> launcher
+
+foreach i in ( `seq 1 100`)
+
+        $LAUNCHER_DIR/paramrun
+        if ( -e jobDone ) then
+                exit
+        else
+                sleep 100
+        endif
+end
