@@ -139,19 +139,19 @@ struct field initField (void ) {
     i.i.filesVectorOperator = 0;
     
 #ifdef APPLE
-    if ( SPACE == 1 ){
-        i.i.cmpl = cmpl;
+    if ( OVERFLAG ){
+        i.i.cmpl = real;
         i.i.bRank = 4;
         i.i.iRank = 1;
         i.i.nStates = 1;
-        i.i.qFloor = 100;
+        i.i.qFloor = 9*9*9;
         i.i.filter = 0;
         i.f.boot = fullMatrices;
         i.i.body = one;
         i.i.irrep = 0;
         i.i.cat  = 0;
         i.i.epi = 4;
-        i.i.d = 2./(2*i.i.epi + 1 );
+        i.i.d = 1;
 
         
     }else {
@@ -195,8 +195,7 @@ struct calculation initCal (void ) {
     i.rt.vCANON = 1e-3;
     i.rt.TOL = 1e5;
     i.rt.maxEntropy = 1;
-    i.i.complexType =2;
-    i.i.level = 1;
+    i.i.level = 100;
     if ( SPACE == 1 ){
         i.i.M1 = 0;
         i.i.Na = 0;
@@ -223,7 +222,7 @@ struct calculation initCal (void ) {
     i.i.Na =1;
     
         if ( SPACE == 3 ){
-            i.rt.calcType = clampProtonElectronCalculation;
+            i.rt.calcType = electronicStuctureCalculation;
             i.rt.runFlag = 0;
             i.rt.phaseType = buildFoundation;
         } else if ( SPACE == 6 ){
@@ -232,14 +231,14 @@ struct calculation initCal (void ) {
             i.i.orgClamp = 2;
         }else if ( SPACE == 1 ){
             i.rt.calcType = electronicStuctureCalculation;
-          //  i.rt.runFlag = 7;
+            i.rt.runFlag = 0;
             i.rt.phaseType = buildFoundation;
 
         }
     i.i.massElectron = 1.;
     i.i.massProton = 1836.15267245;
     i.i.massClampPair = 1836.15267245;
-  //  resetExternal(&i, 2, 1);
+    resetExternal(&i, 1, 1);
     
     i.i.twoBody.func.fn = Coulomb;
     i.i.oneBody.func.fn = Pseudo;
@@ -253,7 +252,7 @@ struct calculation initCal (void ) {
     i.i.twoBody.func.param[2]  = 1;
 
     i.i.oneBody.num = 15;
-    i.i.oneBody.func.interval  = 0;
+    i.i.oneBody.func.interval  = 1;
     i.i.oneBody.func.param[0]  = 1.;
     i.i.oneBody.func.param[1]  = 1;
     i.i.oneBody.func.param[2]  = 1;
@@ -274,7 +273,6 @@ struct calculation initCal (void ) {
     i.rt.TOL = 1e5;
     i.rt.maxEntropy = 1;
     i.i.level = 10000;
-    i.i.complexType =2;
     i.i.level = 1;
     i.rt.powDecompose = 2;
     i.i.turn = 1.;
@@ -527,9 +525,6 @@ INT_TYPE singleGaussModel( struct calculation * c1, struct field * f){
 INT_TYPE iModel( struct calculation * c1, struct field *f){
     struct name_label l2;
     enum spinType c;
-    if ( OVERFLAG )
-        singleGaussModel(c1, f);
-    else
         singleSincModel(c1, f);
 
     struct sinc_label *f1 = &f->f;
@@ -679,6 +674,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     fromBeginning(*f1, bill1+space, bill1+space-1);
                 
                 f1->tulip[bill1+space].Partition = (c1->rt.phaseType == buildFoundation) *vectorLen(*f1, space)*vectorLen(*f1, space) ;
+                INT_TYPE p = f1->tulip[bill1+space].Partition;
                 f1->tulip[bill1+space].memory = bufferAllocation;
                 
             }
@@ -787,7 +783,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                         fromBeginning(*f1, eigenVectors+di, last);
                         last = eigenVectors+di;
                     }
-                    f1->tulip[eigenVectors+di].spinor =c1->i.complexType;
+                    f1->tulip[eigenVectors+di].spinor =f1->cmpl;
                     if ( d0 < f->i.nStates ){
                         f1->tulip[eigenVectors+di].Partition = f->i.bRank;
                         d0++;
@@ -1204,7 +1200,12 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[intercellularSelfEwald].species = matrix;
         assignOneWithPointers(*f1, intercellularSelfEwald, electron);
     
-        fromBeginning(*f1,shortenPlus,intercellularSelfEwald);
+        fromBeginning(*f1,jelliumElectron,intercellularSelfEwald);
+        f1->tulip[jelliumElectron].Partition =  c1->i.decomposeRankMatrix* (c1->rt.runFlag > 0 );
+        f1->tulip[jelliumElectron].species = matrix;
+        assignOneWithPointers(*f1, jelliumElectron, electron);
+
+        fromBeginning(*f1,shortenPlus,jelliumElectron);
         f1->tulip[shortenPlus].Partition = c1->i.decomposeRankMatrix*( c1->rt.calcType == clampProtonElectronCalculation );
         f1->tulip[shortenPlus].species = matrix;
         assignOneWithPointers(*f1, shortenPlus, all);
@@ -1445,15 +1446,13 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 separateOverlap(*f1, 0,overlap, 0,all);
                 if ( c1->i.Na )
                 if ( c1->i.oneBody.func.fn != nullFunction )
-                    if(  ! ioStoreMatrix(*f1, linear, 0, "linear.matrix",1)){
+                    if( OVERFLAG ||  ! ioStoreMatrix(*f1, linear, 0, "linear.matrix",1)){
                         if ((! ( c1->rt.phaseType == solveRitz) ) && (c1->i.barrier)){
                             printf("you can remove this barrier, but I would recommend you run ritz first\n");
                             exit(0);
                         }
                         for ( c = real ; c <= spins (*f1, linear) ; c++)
-                        
-                           
-                         buildExternalPotential(c1, *f1,linear,electron,!(!c1->rt.runFlag),c);
+                            buildExternalPotential(c1, *f1,linear,electron,!(!c1->rt.runFlag),c);
                     }
 
                 
@@ -1483,9 +1482,9 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     if (c1->i.twoBody.func.fn != nullFunction ){
                         INT_TYPE flag = 0;
                         
-                        flag = ioStoreMatrix(*f1, interactionEwald, 0, "interactionEwald.matrix",1) &&  ioStoreMatrix(*f1, intercellularSelfEwald, 0, "intercellularSelfEwald.matrix",1);
+                        flag = ioStoreMatrix(*f1, interactionEwald, 0, "interactionEwald.matrix",1) &&  ioStoreMatrix(*f1, intercellularSelfEwald, 0, "intercellularSelfEwald.matrix",1)&&  ioStoreMatrix(*f1, jelliumElectron, 0, "jelliumElectron.matrix",1);
                         if ( f1->cmpl == cmpl )
-                            flag = flag && (  ioStoreMatrix(*f1, intercellularSelfEwald, 1, "intercellularSelfEwald.1.matrix",1) && ioStoreMatrix(*f1, interactionEwald, 1, "interactionEwald.1.matrix",1));
+                            flag = flag && (  ioStoreMatrix(*f1, intercellularSelfEwald, 1, "intercellularSelfEwald.1.matrix",1) && ioStoreMatrix(*f1, interactionEwald, 1, "interactionEwald.1.matrix",1))&&  ioStoreMatrix(*f1, jelliumElectron, 1, "jelliumElectron.1.matrix",1);
                         
                         
                         if ( ! flag ){
@@ -1522,6 +1521,33 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
                             }
 
+                            {
+                                enum division in = interactionEwald;
+                                enum division out = jelliumElectron;
+                                INT_TYPE r, space,m,n,nl,n2,m2,cmpl;
+                                tClear(*f1, out);
+                                tClear(*f1, copy);
+                                tId(*f1, copy,0);
+                                for ( cmpl = 0 ; cmpl < f1->cmpl; cmpl++){
+                                    for ( r = 0 ; r < CanonicalRank(*f1, in, cmpl); r++){
+                                        for ( space = 0; space < SPACE ; space++)
+                                        {
+                                            nl = vector1Len(*f1, space);
+                                            for ( n = 0; n < nl ; n++ )
+                                                for ( m = 0 ; m < nl ; m++)
+                                                {
+                                                    (streams(*f1, copy, 0, space))[nl*m+n] = 0.;
+                                                    for ( n2 = 0; n2 < nl ; n2++ )
+                                                        for ( m2 = 0 ; m2 < nl ; m2++)
+                                                            (streams(*f1, copy, 0, space))[nl*m+n] +=  (streams(*f1, in, cmpl, space)+r*nl*nl*nl*nl)[nl*nl*(nl*m2+m)+(nl*n2+n)]/nl;
+                                                }
+                                        }
+                                        tAddTw(*f1, out, cmpl, copy, 0);
+                                    }
+                                    tScaleOne(*f1, out, cmpl, -1);
+                                    printf("jellium-%d %f\n", cmpl,traceOne(*f1, out, cmpl));
+                                }
+                            }
                             }
 
                         {
@@ -1550,14 +1576,23 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                             printf("jellium background\t %d\t%15.15f\n", N1,sumt);
                             switch ( bootBodies ) {
                                 case one:
-                                    f1->offset = -0.5*sumt;
+                                    f1->offset = +0.5*sumt;
                                     break;
                                 case two:
-                                    f1->offset = -(2*0.5+1)*sumt;
+                                    f1->offset = -(-2*0.5+1)*sumt;
                                     break;
                                 case three:
-                                    f1->offset = -(3*0.5+3.)*sumt;
+                                    f1->offset = -(-3*0.5+3.)*sumt;
                                     break;
+                                case four:
+                                    f1->offset = -(-4*0.5+6.)*sumt;
+                                    break;
+//                                case five:
+//                                    f1->offset = -(-5*0.5+6.)*sumt;
+//                                    break;
+//                                case six:
+//                                    f1->offset = -(-6*0.5+6.)*sumt;
+//                                    break;
 
                             }
                         }
@@ -1796,6 +1831,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             }
             else
             if ( bootBodies == one && ( c1->rt.calcType == electronicStuctureCalculation  )){
+                f1->tulip[jellium1Electron].linkNext = intracellularSelf1Ewald;
                 f1->tulip[intracellularSelf1Ewald].linkNext = intercellularSelf1Ewald;
                 f1->tulip[intercellularSelf1Ewald].linkNext = vectorMomentum1;
                 f1->tulip[vectorMomentum1].linkNext = kinetic1;
@@ -1803,10 +1839,11 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 f1->tulip[external1].linkNext = nullName;
 
                 //active assignment
-                f1->tulip[Ha].linkNext = intracellularSelf1Ewald;
-                f1->tulip[Iterator].linkNext = intracellularSelf1Ewald;
+                f1->tulip[Ha].linkNext = jellium1Electron;
+                f1->tulip[Iterator].linkNext = jellium1Electron;
                 
             } else if ( bootBodies == two && ( c1->rt.calcType == electronicStuctureCalculation  )){
+                f1->tulip[jellium2Electron].linkNext = intracellularSelf1Ewald;
                 f1->tulip[intracellularSelf2Ewald].linkNext = intercellularSelf1Ewald;
                 f1->tulip[intercellularSelf2Ewald].linkNext = vectorMomentum1;
                 f1->tulip[vectorMomentum2].linkNext = kinetic1;
@@ -1821,10 +1858,12 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     f1->tulip[interaction12Ewald].linkNext = nullName;
                 }
                 //active assignment
-                f1->tulip[Ha].linkNext = intracellularSelf1Ewald;
-                f1->tulip[Iterator].linkNext = intracellularSelf1Ewald;
+                f1->tulip[Ha].linkNext = jellium1Electron;
+                f1->tulip[Iterator].linkNext = jellium1Electron;
                 
             }else if ( bootBodies == three && ( c1->rt.calcType == electronicStuctureCalculation  )){
+                f1->tulip[jellium3Electron].linkNext = intracellularSelf1Ewald;
+
                 f1->tulip[intracellularSelf3Ewald].linkNext = intercellularSelf1Ewald;
                 f1->tulip[intercellularSelf3Ewald].linkNext = vectorMomentum1;
 
@@ -1839,12 +1878,14 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     f1->tulip[interaction23Ewald].linkNext = nullName;
                 }
                 //active assignment
-                    f1->tulip[Ha].linkNext = intracellularSelf1Ewald;
-                    f1->tulip[Iterator].linkNext = intracellularSelf1Ewald;
+                    f1->tulip[Ha].linkNext = jellium1Electron;
+                    f1->tulip[Iterator].linkNext = jellium1Electron;
                 
             }
             
             else if ( bootBodies == four && ( c1->rt.calcType == electronicStuctureCalculation  )){
+                f1->tulip[jellium4Electron].linkNext = intracellularSelf1Ewald;
+
                 f1->tulip[intracellularSelf4Ewald].linkNext = intercellularSelf1Ewald;
                 f1->tulip[intercellularSelf4Ewald].linkNext = vectorMomentum1;
 
@@ -1860,8 +1901,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 }
 
                 //active assignment
-                f1->tulip[Ha].linkNext = intracellularSelf1Ewald;
-                f1->tulip[Iterator].linkNext = intracellularSelf1Ewald;
+                f1->tulip[Ha].linkNext = jellium1Electron;
+                f1->tulip[Iterator].linkNext = jellium1Electron;
                 
             }
             else if (bootBodies == one && ( c1->rt.calcType == clampProtonElectronCalculation  )){

@@ -37,6 +37,9 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
         else
             EV = 0;
         
+        outputFormat(f1.f, stdout, f1.f.user, 0);
+        outputFormat(f1.f, stdout, f1.f.user+1, 0);
+
         
 //        struct field f2 = f1;
 //        f2.f.bootedMemory = 0;
@@ -51,14 +54,15 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
 //
 //        tGreatDivideIteration(0, 0, f1.f, Ha, 1, 0, f1.f.user, 1, 2, 0);
 //        tFilter(f1.f, EV,1, f1.f.user);//classify
-        if ( OVERFLAG  || SPACE == 1 )
-            tEigenCycle(0,f1.f,Ha,CDT, f1.i.nStates, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
+        if ( OVERFLAG )
+            tEigenCycle(1,f1.f,overlap1,CDT, f1.i.nStates, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
 
     }else {
         exit(1);
     }
     
     INT_TYPE ii,flag = 1;;
+    if ( !OVERFLAG )
         print(c1,f1,1,0,EV , f1.f.user);
     
     fModel(&f1.f);
@@ -91,11 +95,11 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
     if(1){
         printf ("Step \t%d\n", iterator);
         INT_TYPE cmpl,g ;
-//        for ( iii = 0; iii < EV ; iii++){
-//            printf ( "\n Vector \t%d \n", iii+1);
-//            for ( sp = 0 ; sp < spins(f1.f, f1.f.user); sp++)
-//                tCycleDecompostionGridOneMP(-1, f1.f, f1.f.user+iii, sp, NULL, eigenVectors+iii, sp, c1->rt.vCANON, part(f1.f,eigenVectors+iii), -1);
-
+        //        for ( iii = 0; iii < EV ; iii++){
+        //            printf ( "\n Vector \t%d \n", iii+1);
+        //            for ( sp = 0 ; sp < spins(f1.f, f1.f.user); sp++)
+        //                tCycleDecompostionGridOneMP(-1, f1.f, f1.f.user+iii, sp, NULL, eigenVectors+iii, sp, c1->rt.vCANON, part(f1.f,eigenVectors+iii), -1);
+        
         for ( cmpl = 0; cmpl < spins(f1.f, f1.f.user) ; cmpl++){
             tClear(f1.f,totalVector);
             if ( f1.f.cat && f1.i.filter  && f1.i.irrep )
@@ -106,26 +110,25 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
                 for( g = 0; g < EV ; g++)
                     tAddTw(f1.f, totalVector, 0, f1.f.user+g, cmpl);
             }
-            double norm = magnitude(f1.f, totalVector );
-            if ( norm > c1->rt.TARGET )
-                printf("Normed from %f\n", norm );
-            else
-            {
-                print(c1,f1,1,0,0,eigenVectors);
-                return 1;
-            }
-            tScaleOne(f1.f, totalVector, 0, 1/norm);
             tCycleDecompostionGridOneMP(-2, f1.f, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1.f,eigenVectors), c1->rt.powDecompose);
-            //     tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1,eigenVectors), 1.);
         }
-        
+        double norm = magnitude(f1.f, eigenVectors );
+        if ( norm > c1->rt.TARGET ){
+            printf("Normed from %f\n", norm );
+            tScaleOne(f1.f, eigenVectors, 0, 1/norm);
+        }
+        else
+        {
+            print(c1,f1,1,0,0,eigenVectors);
+            return 1;
+        }
         EV = 1;
         RdsSize = 1;
-            tFilter(f1.f, EV, 0, eigenVectors);//classify
-            printExpectationValues(f1.f, Ha, eigenVectors);
-            fflush(stdout);
-            print(c1,f1,1,0,1,eigenVectors);
-        }
+        tFilter(f1.f, EV, 0, eigenVectors);//classify
+        printExpectationValues(f1.f, Ha, eigenVectors);
+        fflush(stdout);
+        print(c1,f1,1,0,1,eigenVectors);
+    }
     
     INT_TYPE flag;
     
@@ -182,6 +185,14 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
     
     if ( CanonicalRank(f1.f,interactionExchange,0) ){
         ioStoreMatrix(f1.f,interactionExchange ,0,"interactionExchange.matrix",0);
+    }
+    
+    if ( CanonicalRank(f1.f,jelliumElectron,0) ){
+        ioStoreMatrix(f1.f,jelliumElectron ,0,"jelliumElectron.matrix",0);
+    }
+    
+    if ( CanonicalRank(f1.f,jelliumElectron,1) ){
+        ioStoreMatrix(f1.f,jelliumElectron ,1,"jelliumElectron.1.matrix",0);
     }
     
     if ( CanonicalRank(f1.f,intracellularSelfEwald,0) ){

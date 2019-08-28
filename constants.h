@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 6.6.2
+//VERSION 6.6.3
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -440,6 +440,11 @@ enum division{
     intracellularSelf2Ewald,
     intracellularSelf3Ewald,
     intracellularSelf4Ewald,
+    jelliumElectron,
+    jellium1Electron,
+    jellium2Electron,
+    jellium3Electron,
+    jellium4Electron,
     shortenPlus,
     shorten1Plus,
     shorten2Plus,
@@ -861,7 +866,6 @@ struct input {
     double minClamp;
     double maxClamp;
     double orgClamp;
-    INT_TYPE complexType ;
     double level;
     INT_TYPE magFlag;
     double  mag ;
