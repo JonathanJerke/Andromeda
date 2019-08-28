@@ -6,12 +6,12 @@
 	*Parameters
 		cmpl 2
 		catalog 1 
-		shift -0.03
-		levelScale 5
+		flow 1
+		levelScale 6
 		foundation 1000	
                 basisRank 12
-                states 10
-		iterations 3
+                states 1
+		iterations 6
 	.Parameters
 				
 .Body

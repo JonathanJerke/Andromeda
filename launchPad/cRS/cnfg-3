@@ -1,7 +1,7 @@
 *Body
 	
 	*Parameters
-		range 1
+		range 2
 		body 3
 	.Parameters
 	
@@ -13,7 +13,6 @@
 
 	*Parameters
 		canon 400
-	#	body 3
 		runFlag 7
 		attack 1.
 	.Parameters
