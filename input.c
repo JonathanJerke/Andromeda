@@ -140,11 +140,11 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "breakBody","interval","RAM","monteCarlo","samples",//95
         "hartreeFock","basisStage","iterations","collect","states",//100
         "length","XHA","lookBack","step","theory",//105
-        "configuration","densityRank","densityBody","parallel","phase",//1101
+        "configuration","densityRank","densityBody","parallel","phase",//110
         "around","cmpl","clampStage","OCSB","decompose",
         "shiftNO","matrix","catalog","increment"
     };
-    INT_TYPE NDOUBLE = 78;
+    INT_TYPE NDOUBLE = 79;
     char *list_DOUBLE []= {"#",
         "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST" ,//1-5
         "xB", "yB", "zB", "xyRange" , "zRange",//6-10
@@ -161,7 +161,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "linearDependence","condition","seek","width","latte",
         "magnetismZ","clampMin","clampMax","electronMass","protonMass",
         "pairMass","gamma0","ewald","levelScale","scaleVectorThreshold",
-        "scaleTarget","twist","flow"
+        "scaleTarget","twist","flow","kineticShift"
     };
     
     for ( i = 1 ; i <= NINT_TYPE ; i++){
@@ -1122,6 +1122,16 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     }
                     return d;
                 }
+                case 79:
+                {
+                    INT_TYPE i;
+                    for ( i= 0; i < 100 ; i++){
+                        c->i.shiftVector[i][0] = -value/f1->d/f1->d*pi*pi;
+                        c->i.shiftVector[i][1] = 1;
+                    }
+                    return d;
+                }
+
             }
 
         }
@@ -1750,7 +1760,6 @@ INT_TYPE initCalculation(struct calculation * c ){
     c->i.massClampPair = 1836.15267245;
     c->rt.powDecompose = 2;
     c->i.shiftFlag = 0;
-    c->i.complexType = 1;//real =1 , cmpl = 2
     c->i.RAMmax = 0;//Gb  needs updating
     c->i.springFlag = 0;
     c->i.magFlag = 0;

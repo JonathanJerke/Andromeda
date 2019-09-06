@@ -191,6 +191,35 @@ INT_TYPE balance (struct sinc_label  f1,  enum division alloy, INT_TYPE spin){
     return 0;
 }
 
+INT_TYPE sortTerms (struct sinc_label  f1 , enum division term,INT_TYPE sp,enum division sorted,INT_TYPE sps )
+{
+    INT_TYPE r,space;
+    double c[10000];
+    for ( r = 0 ; r < CanonicalRank(f1, term, sp);r++){
+        c[2*r] = 1.;
+        for ( space = 0; space < SPACE ; space++)
+            if ( f1.rose[space].component > 0 )
+                c[2*r] *= tDOT(0, f1, space, 1, term, r, sp, 1, term, r, sp);
+        c[2*r+1] = r;
+    }
+    qsort(c, CanonicalRank(f1, term, sp), sizeof(double)*2, sortxComp );
+    for ( r = 0 ; r < CanonicalRank(f1, term, sp);r++){
+        for ( space = 0; space < SPACE ; space++)
+            if ( f1.rose[space].component > 0 )
+                xsAdd(1., space, f1, sorted, sps, f1, term, c[2*r+1], sp);
+        f1.tulip[sorted].Current[0]++;
+        printf("%d %f\n", r, c[2*r]);
+        if ( CanonicalRank(f1, sorted, sps) > part( f1, sorted )){
+            printf("oopsn\n");
+            exit(0);
+        }
+    }
+    
+    return 0;
+    
+}
+
+
 
 double canonicalListDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Stream_Type * cofact, enum division origin,INT_TYPE os,   enum division alloy ,  INT_TYPE spin ,double tolerance,double magn, INT_TYPE preferred){
     if ( tolerance < 0 ){
@@ -207,7 +236,7 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
     INT_TYPE g,l,count = 1 ,spaces=0;
     
     INT_TYPE ns = iNS;
-    double ALPHA = f1.rt->ALPHA;
+    double ALPHA = f1.rt->ALPHA,CONDITION = 1.,ALPHA2,FRACTION;
 //    if ( cofact != NULL )
 //    for ( l = 0 ; l < CanonicalRank(f1, origin, os); l++)
 //        printf("%d %f\n", l, cofact[l]);
@@ -473,6 +502,18 @@ double canonicalListDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
             
             subValue2 =  cblas_dnrm2(L1*M2[dim[0]], streams(f1, alloy, spin, dim[0]), 1)/magn/sqrt(L1);
             
+            
+            FRACTION = sqrt(subValue2*subValue3);
+            
+            CONDITION = sqr(subValue2/FRACTION);
+            ALPHA2 = ALPHA * pow(fabs(CONDITION),0.1);
+            
+#if VERBOSE
+            printf("ALPHA %f %f %f %d %d\n", log(ALPHA)/log(10) , log(ALPHA2)/log(10) , CONDITION, L1,G1 );
+#endif
+            ALPHA = ALPHA2;
+
+            
             if ( fabs(subValue2 - subValue3) < tolerance ){
                 yes++;
             }else {
@@ -521,7 +562,7 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
     INT_TYPE g,l,count = 1 ,spaces=0;
     
     INT_TYPE ns = iNS;
-    double ALPHA = f1.rt->ALPHA;
+    double ALPHA = f1.rt->ALPHA,CONDITION = 1.,ALPHA2,FRACTION;
     //    if ( cofact != NULL )
     //    for ( l = 0 ; l < CanonicalRank(f1, origin, os); l++)
     //        printf("%d %f\n", l, cofact[l]);
@@ -548,7 +589,22 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
         tId(f1, alloy, spin);
         L1 = 1;
     }
-    
+    if ( G1 < L1 ){
+        for ( l = 0 ; l < L1 ; l++)
+        {
+            double sum;
+            INT_TYPE ll;
+            
+            sum = 0.;
+            for ( ll = 0 ; ll < L1 ; ll++)
+                if ( (ll%G1) == (l%G1) )
+                    sum += 1.;
+            for ( space = 0 ;space < SPACE ; space++)
+                if ( f1.rose[space].body != nada)
+                    xsEqu(1./sum, space, f1, alloy, l+l3, spin, f1, origin, (l%G1)+l1, os);
+        }
+        return 0;
+    }
     INT_TYPE M2[SPACE];
     length(f1,alloy,M2);
     INT_TYPE info;
@@ -788,6 +844,21 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
 //                        }
             
             subValue2 =  cblas_dnrm2(L1*M2[dim[0]], streams(f1, alloy, spin, dim[0])+l3*M2[dim[0]], 1)/magn/sqrt(L1);
+
+            FRACTION = sqrt(subValue2*subValue3);
+
+            CONDITION = sqr(subValue2/FRACTION);
+            ALPHA2 = ALPHA * pow(fabs(CONDITION),0.1);
+           
+#if VERBOSE
+            printf("ALPHA %f %f %f %d %d\n", log(ALPHA)/log(10) , log(ALPHA2)/log(10) , CONDITION, L1,G1 );
+#endif
+            ALPHA = ALPHA2;
+
+            
+            
+            
+            
             
             if ( fabs(subValue2 - subValue3) < tolerance ){
                 yes++;
@@ -1042,7 +1113,7 @@ double tInnerVectorListMP( INT_TYPE rank, struct sinc_label f1 , enum division o
                 prod = 1;
                 for ( space = 0 ; space < SPACE ; space++)
                     if ( f1.rose[space].body != nada )
-                    prod *= tMultiplyOne(rank, f1, space, nullName, 0, origin, i, 0, vector,vv, spin);
+                    prod *= tMultiplyOne(rank, f1, space, nullName,0, 0, origin, i, 0, vector,vv, spin);
                 
                 sum += coeff[i]*prod;
             }
@@ -1060,7 +1131,7 @@ double tInnerListMP( INT_TYPE rank, struct sinc_label  f1 , enum division origin
             for ( space = 0 ; space < SPACE ; space++)
                 if ( f1.rose[space].body != nada )
 
-                prod *= tMultiplyOne(rank, f1, space, nullName, 0, origin, i, 0, origin, j, 0);
+                prod *= tMultiplyOne(rank, f1, space, nullName,0, 0, origin, i, 0, origin, j, 0);
             
             sum += coeff[i]*coeff[j]*prod ;
     }
@@ -1155,7 +1226,7 @@ void matrixElements ( INT_TYPE rank,struct sinc_label  f1 , enum division bra, e
                     prod = 1.;
                     for ( dim = 0 ; dim < SPACE ; dim++)
                         if ( f1.rose[dim].body != nada){
-                            if (OVERFLAG){
+                            if (0){
                                 f1.tulip[canonicalmeVector].Current[rank] =0;
                                 tGEMV(rank, f1, dim,canonicalmeVector, 0,rank, overlap, 0, 0, ket, r, sp2);
                                 bracket[dim] = tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  canonicalmeVector, 0, rank);
@@ -1229,7 +1300,7 @@ void pOverlap ( struct sinc_label  f1 , enum division bra,INT_TYPE sp, enum divi
             for ( dim = 0 ; dim < SPACE ; dim++)
                 if ( f1.rose[dim].body != nada){
                     
-                    if ( OVERFLAG ){
+                    if ( 0 ){
                         f1.tulip[canonicalmeVector].Current[rank] =0;
                         tGEMV(rank, f1, dim,canonicalmeVector,0, rank, overlap, 0, 0, ket, r, sp2);
                         prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  canonicalmeVector,0 , rank);
@@ -1320,7 +1391,7 @@ void pMatrixElements ( struct sinc_label  f1 , enum division bra, enum division 
                         for ( dim = 0 ; dim < SPACE ; dim++)
                             if ( f1.rose[dim].body != nada){
                                 
-                                if ( OVERFLAG ){
+                                if ( 0 ){
                                     f1.tulip[canonicalmeVector].Current[rank] =0;
                                     tGEMV(rank, f1, dim,canonicalmeVector, 0,rank, overlap, 0, 0, ket, r, sp2);
                                     prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  canonicalmeVector,0 , rank);
@@ -1833,14 +1904,14 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
     return 0;
 }
 
-INT_TYPE tGEMM (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum division equals, INT_TYPE espin,enum division left,INT_TYPE l,INT_TYPE lspin, enum division right, INT_TYPE r,INT_TYPE rspin ){
+INT_TYPE tGEMM (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum division equals,INT_TYPE e, INT_TYPE espin,enum division left,INT_TYPE l,INT_TYPE lspin, enum division right, INT_TYPE r,INT_TYPE rspin ){
     
     if ( header(f1, left ) != header(f1, right ) ){
         printf("Two Head types\n");
         exit(1);
     }
     if ( species(f1,left) == matrix && species(f1, right ) == matrix){
-        tMultiplyOne(rank,  f1, space,equals, espin, left,l,lspin, right,r, rspin);
+        tMultiplyOne(rank,  f1, space,equals,e, espin, left,l,lspin, right,r, rspin);
     }
     return 0;
 }
@@ -1855,7 +1926,7 @@ INT_TYPE tGEVV (INT_TYPE rank,  struct sinc_label  f1,  INT_TYPE space,enum divi
         if( bodies(f1, left ) == bodies (f1, right )){
             if ( bodies(f1, left ) > one )
         
-                tMultiplyOne(rank,  f1, space,equals, espin, left,l,lspin, right,r, rspin);
+                tMultiplyOne(rank,  f1, space,equals,CanonicalRank(f1, equals, espin), espin, left,l,lspin, right,r, rspin);
             else{
                 INT_TYPE n1[SPACE];
                 length1(f1,n1);
@@ -1966,7 +2037,7 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct sinc_label  f1,double
                     exit(0);
                 }
                 else if ( species(f1,left) == matrix && species(f1, right ) == matrix){
-                    tGEMM(rank, f1, dim, equals, espin, left, l,lspin, right,r, rspin);
+                    tGEMM(rank, f1, dim, equals, CanonicalRank(f1,equals,espin),espin, left, l,lspin, right,r, rspin);
                     
                 } else     if ( species(f1,left) == matrix&& species(f1, right ) == vector){
                     tGEMV(rank, f1, dim, equals, espin,CanonicalRank(f1, equals, espin), left,l, lspin, right,r, rspin);
@@ -1983,7 +2054,7 @@ double tMultiplyMP (INT_TYPE rank, INT_TYPE * info, struct sinc_label  f1,double
     return 0.;
 }
 
-double tMultiplyOne (INT_TYPE rank, struct sinc_label  f1,INT_TYPE space,  enum division equals,INT_TYPE espin , enum division left,INT_TYPE l,INT_TYPE lspin, enum division right,INT_TYPE r, INT_TYPE rspin){
+double tMultiplyOne (INT_TYPE rank, struct sinc_label  f1,INT_TYPE space,  enum division equals,INT_TYPE e,INT_TYPE espin , enum division left,INT_TYPE l,INT_TYPE lspin, enum division right,INT_TYPE r, INT_TYPE rspin){
     INT_TYPE LN2,RN2,EN2 ;
     if ( f1.rose[space].body == nada)
         return 0.;
@@ -2011,7 +2082,7 @@ double tMultiplyOne (INT_TYPE rank, struct sinc_label  f1,INT_TYPE space,  enum 
                     cblas_dgemv( CblasColMajor, CblasNoTrans,  EN2, EN2,1.,
                                 streams( f1, left, lspin,space )+l*LN2, EN2,
                                 streams(f1, right, rspin,space)+r*RN2,1, 0.,
-                                streams( f1, equals, espin,space )+cur*EN2, 1  );
+                                streams( f1, equals, espin,space )+e*EN2, 1  );
                     
                 }else if (  (species(f1, equals) == vector && species(f1, left) == matrix && species(f1, right) == vector && bodies(f1,left) < bodies(f1,right)))
                 {
@@ -2020,7 +2091,7 @@ double tMultiplyOne (INT_TYPE rank, struct sinc_label  f1,INT_TYPE space,  enum 
                         printf("watch mods R\n");
                         exit(1);
                     }
-                    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,RN2/N1,N1,1.,streams( f1, left, lspin,space )+l*LN2,N1,streams(f1, right, rspin,space)+r*RN2,N1, 0., streams( f1, equals, espin,space)+cur*EN2,N1);
+                    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,RN2/N1,N1,1.,streams( f1, left, lspin,space )+l*LN2,N1,streams(f1, right, rspin,space)+r*RN2,N1, 0., streams( f1, equals, espin,space)+e*EN2,N1);
 
                     
                 }else if (  (species(f1, equals) == vector && species(f1, left) == matrix && species(f1, right) == vector && bodies(f1,name(f1,left)) > bodies(f1,name(f1,right))))
@@ -2028,8 +2099,6 @@ double tMultiplyOne (INT_TYPE rank, struct sinc_label  f1,INT_TYPE space,  enum 
                     struct name_label l = f1.tulip[left];
                     struct name_label r = f1.tulip[right];
                     struct name_label e = f1.tulip[equals];
-
-                    printf("body count\n");
                     exit(0);
                 }
                 else if ( species(f1, equals) == matrix && ((species(f1, left)  ==outerVector && outerVector == species(f1, right)) || (species(f1, left)  ==vector && vector == species(f1, right)))){
@@ -2039,7 +2108,7 @@ double tMultiplyOne (INT_TYPE rank, struct sinc_label  f1,INT_TYPE space,  enum 
                         printf("parity");
                         exit(0);
                     }
-                    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,N1,N1,LN2/N1,1.,streams( f1, left, lspin,space )+l*LN2,N1,streams(f1, right, rspin,space)+r*RN2,N1, 0., streams( f1, equals, espin,space)+cur*EN2,N1);
+                    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,N1,N1,LN2/N1,1.,streams( f1, left, lspin,space )+l*LN2,N1,streams(f1, right, rspin,space)+r*RN2,N1, 0., streams( f1, equals, espin,space)+e*EN2,N1);
                     
                     
                    // cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans,N1,N1,LN2/N1,1.,streams( f1, left, lspin,space )+l*LN2,LN2/N1,streams(f1, right, rspin,space)+r*RN2,RN2/N1, 0., streams( f1, equals, espin,space)+cur*EN2,N1);
@@ -2048,7 +2117,7 @@ double tMultiplyOne (INT_TYPE rank, struct sinc_label  f1,INT_TYPE space,  enum 
                 else if (  (species(f1, equals) == matrix && species(f1, left)  ==matrix && matrix == species(f1, right)&& bodies(f1,left) == bodies(f1,right) && bodies(f1,equals) == bodies(f1, right))){
                     N1 = sqrt(LN2);
 
-                    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N1,N1,1.,streams( f1, left, lspin,space )+l*LN2,N1,streams(f1, right, rspin,space)+r*RN2,N1, 0., streams( f1, equals, espin,space)+cur*EN2,N1);
+                    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N1,N1,1.,streams( f1, left, lspin,space )+l*LN2,N1,streams(f1, right, rspin,space)+r*RN2,N1, 0., streams( f1, equals, espin,space)+e*EN2,N1);
                 }
     else   {
         struct name_label n = f1.tulip[equals];

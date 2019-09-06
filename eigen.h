@@ -41,6 +41,7 @@ struct sortClass {
 
 int sortComp (const void * elem1, const void * elem2);
 int sort2Comp (const void * elem1, const void * elem2);
+int sortxComp (const void * elem1, const void * elem2);
 
 INT_TYPE tBootManyConstruction (struct calculation * c1);
 INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label, enum division eigen);

@@ -1,5 +1,5 @@
 /*
- *  Model.h
+ *  purity.h
  *
  *
  *  Copyright 2019 Jonathan Jerke and Bill Poirier.
@@ -23,24 +23,15 @@
  *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef Model_h
-#define Model_h
+#ifndef purity_h
+#define purity_h
+#include "Model.h"
+#include "input.h"
+#include "eigen.h"
+#ifndef APPLE
+#include "ioPrint.h"
+#endif
 
-#include "constants.h"
-#include "coreUtil.h"
-#include "coreMath.h"
-#include "interfaceMath.h"
-#include "mAls.h"
-#include "coreForce.h"
-#include "main.h"
 
-INT_TYPE definePurity(struct sinc_label *f1, INT_TYPE R,INT_TYPE can, enum division head);
-struct calculation initCal (void);
-struct calculation gas (void );
-INT_TYPE iModel( struct calculation * c1, struct field *f1);
-INT_TYPE fModel( struct sinc_label *f1);
-void resetExternal(struct calculation * i, INT_TYPE number, double scale );
-struct field initField (void );
-INT_TYPE singleSincModel( struct calculation * c1, struct field *f);
-INT_TYPE multModel( struct calculation * c1,INT_TYPE nv, struct field * v,struct field *f);
-#endif /* Model_h */
+
+#endif /* purity_h */

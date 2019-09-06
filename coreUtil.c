@@ -509,10 +509,12 @@ void  fromBeginning( struct sinc_label  f1 ,enum division new, enum division hea
     } else {
         //nothing
     }
-//    printf("||%d::", new);
-//    for ( space = 0; space <= SPACE ; space++)
-//        printf("%lld:", f1.tulip[new].space[space].Address);
-//    printf("\n\n");
+#if VERBOSE
+    printf("||%d::", new);
+    for ( space = 0; space <= SPACE ; space++)
+       printf("%lld:", f1.tulip[new].space[space].Address);
+    printf("\n\n");
+#endif
     return;
 }
 
@@ -626,35 +628,6 @@ Stream_Type* streams ( struct sinc_label f1, enum division label ,INT_TYPE spin,
     }
     
     return NULL;
-}
-
-void assignView(INT_TYPE lane, struct sinc_label f1,  enum division A,INT_TYPE part ){
-    tClear(f1, lanes+lane);
-    f1.tulip[lanes+ lane].spinor =f1.tulip[A].spinor;
-    f1.tulip[lanes+ lane].name = name(f1,A);
-    f1.tulip[lanes+ lane].header = header(f1 ,A);
-    f1.tulip[lanes+ lane].species = species(f1 ,A);
-    f1.tulip[lanes+ lane].memory = f1.tulip[A].memory;
-//    struct name_label u = f1.tulip[lanes+ lane];
-    f1.tulip[lanes+ lane].Partition = part;
-    struct name_label u = f1.tulip[lanes+lane];
-
-}
-
-void assignViewBlock(INT_TYPE lane, struct sinc_label f1,  enum division A ){
-    INT_TYPE space;
-    for ( space = 0 ; space < SPACE ; space++)
-        f1.tulip[lanes+lane].space[space].block = f1.tulip[A].space[space].block;
-
-}
-
-enum division ocean(INT_TYPE lane, struct sinc_label f1, INT_TYPE l, INT_TYPE spin){
-    enum division A = f1.tulip[lanes+ lane].name;
-    f1.tulip[lanes+ lane].Current[spin] = l;
-    if ( name(f1,A) != A )
-        f1.tulip[lanes+ lane].Current[spin] += f1.tulip[A].Current[spin];
-
-    return lanes+ lane;
 }
 
 void xsAdd ( double scalar , INT_TYPE dim ,struct sinc_label f1 , enum division targ ,INT_TYPE tspin,struct sinc_label  f2 , enum division orig,INT_TYPE o,INT_TYPE ospin ){

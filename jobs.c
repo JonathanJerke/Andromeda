@@ -29,31 +29,15 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
     INT_TYPE EV;
 
     if ( 1 ){
-        c1->i.twoBody.func.fn = nullFunction;
         iModel(c1,&f1);
+        separateKinetic(f1.f, 0,kinetic, 1,electron);
         tBoot1Construction(c1,f1.f ,build);
         if ( ! tSortBoot(c1,f1.f,build) )
             EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
         else
             EV = 0;
         
-        outputFormat(f1.f, stdout, f1.f.user, 0);
-        outputFormat(f1.f, stdout, f1.f.user+1, 0);
-
         
-//        struct field f2 = f1;
-//        f2.f.bootedMemory = 0;
-//        
-//        f2.i.epi++;
-//        f2.i.d = f1.i.d * (2*f1.i.epi+1)*1./( 2* f2.i.epi + 1 );
-//        iModel(c1, &f2);
-//        INT_TYPE x = 0;
-////        xEqua(f2.f, f2.f.user+x, 0, f1.f, f1.f.user+x, 0);
-////        outputFormat(f1.f, stdout, f1.f.user+x, 0);
-////        outputFormat(f2.f, stdout, f2.f.user+x, 0);
-//
-//        tGreatDivideIteration(0, 0, f1.f, Ha, 1, 0, f1.f.user, 1, 2, 0);
-//        tFilter(f1.f, EV,1, f1.f.user);//classify
         if ( OVERFLAG )
             tEigenCycle(1,f1.f,overlap1,CDT, f1.i.nStates, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
 
@@ -183,41 +167,41 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
     iModel(c1,&f1);
     
     
-    if ( CanonicalRank(f1.f,interactionExchange,0) ){
-        ioStoreMatrix(f1.f,interactionExchange ,0,"interactionExchange.matrix",0);
-    }
-    
-    if ( CanonicalRank(f1.f,jelliumElectron,0) ){
-        ioStoreMatrix(f1.f,jelliumElectron ,0,"jelliumElectron.matrix",0);
-    }
-    
-    if ( CanonicalRank(f1.f,jelliumElectron,1) ){
-        ioStoreMatrix(f1.f,jelliumElectron ,1,"jelliumElectron.1.matrix",0);
-    }
-    
-    if ( CanonicalRank(f1.f,intracellularSelfEwald,0) ){
-        ioStoreMatrix(f1.f,intracellularSelfEwald ,0,"intracellularSelfEwald.matrix",0);
-    }
-    
-    if ( CanonicalRank(f1.f,intracellularSelfEwald,1) ){
-        ioStoreMatrix(f1.f,intracellularSelfEwald ,1,"intracellularSelfEwald.1.matrix",0);
-    }
-    
-    if ( CanonicalRank(f1.f,intercellularSelfEwald,0) ){
-        ioStoreMatrix(f1.f,intercellularSelfEwald ,0,"intercellularSelfEwald.matrix",0);
-    }
-    if ( CanonicalRank(f1.f,intercellularSelfEwald,1) ){
-        ioStoreMatrix(f1.f,intercellularSelfEwald ,1,"intercellularSelfEwald.1.matrix",0);
-    }
-
-
-    if ( CanonicalRank(f1.f,interactionEwald,0) ){
-        ioStoreMatrix(f1.f,interactionEwald ,0,"interactionEwald.matrix",0);
-    }
-    if ( CanonicalRank(f1.f,interactionEwald,1) ){
-        ioStoreMatrix(f1.f,interactionEwald ,1,"interactionEwald.1.matrix",0);
-    }
-
+//    if ( CanonicalRank(f1.f,interactionExchange,0) ){
+//        ioStoreMatrix(f1.f,interactionExchange ,0,"interactionExchange.matrix",0);
+//    }
+//
+//    if ( CanonicalRank(f1.f,jelliumElectron,0) ){
+//        ioStoreMatrix(f1.f,jelliumElectron ,0,"jelliumElectron.matrix",0);
+//    }
+//
+//    if ( CanonicalRank(f1.f,jelliumElectron,1) ){
+//        ioStoreMatrix(f1.f,jelliumElectron ,1,"jelliumElectron.1.matrix",0);
+//    }
+//
+//    if ( CanonicalRank(f1.f,intracellularSelfEwald,0) ){
+//        ioStoreMatrix(f1.f,intracellularSelfEwald ,0,"intracellularSelfEwald.matrix",0);
+//    }
+//
+//    if ( CanonicalRank(f1.f,intracellularSelfEwald,1) ){
+//        ioStoreMatrix(f1.f,intracellularSelfEwald ,1,"intracellularSelfEwald.1.matrix",0);
+//    }
+//
+//    if ( CanonicalRank(f1.f,intercellularSelfEwald,0) ){
+//        ioStoreMatrix(f1.f,intercellularSelfEwald ,0,"intercellularSelfEwald.matrix",0);
+//    }
+//    if ( CanonicalRank(f1.f,intercellularSelfEwald,1) ){
+//        ioStoreMatrix(f1.f,intercellularSelfEwald ,1,"intercellularSelfEwald.1.matrix",0);
+//    }
+//
+//
+//    if ( CanonicalRank(f1.f,interactionEwald,0) ){
+//        ioStoreMatrix(f1.f,interactionEwald ,0,"interactionEwald.matrix",0);
+//    }
+//    if ( CanonicalRank(f1.f,interactionEwald,1) ){
+//        ioStoreMatrix(f1.f,interactionEwald ,1,"interactionEwald.1.matrix",0);
+//    }
+//
         if ( CanonicalRank(f1.f,shortenPlus,0) )
             ioStoreMatrix(f1.f,shortenPlus ,0,"shortenExchangePlus.matrix",0);
         
@@ -225,14 +209,14 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
             ioStoreMatrix(f1.f,shortenMinus ,0,"shortenExchangeMinus.matrix",0);
 
     
-    if ( CanonicalRank(f1.f,linear,0) ){
-        ioStoreMatrix(f1.f,linear ,0,"linear.matrix",0);
-
-    }
-    if ( CanonicalRank(f1.f,linear,1) ){
-        ioStoreMatrix(f1.f,linear ,1,"linear.1.matrix",0);
-        
-    }
+//    if ( CanonicalRank(f1.f,linear,0) ){
+//        ioStoreMatrix(f1.f,linear ,0,"linear.matrix",0);
+//
+//    }
+//    if ( CanonicalRank(f1.f,linear,1) ){
+//        ioStoreMatrix(f1.f,linear ,1,"linear.1.matrix",0);
+//        
+//    }
 
     
     for ( fi =0 ; fi < f1.i.files ; fi++)
@@ -295,6 +279,196 @@ INT_TYPE svd ( struct calculation c, struct field f1){//E
     return 0;
 }
 
+INT_TYPE oneTo2(struct sinc_label f1, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin){
+    
+    INT_TYPE I1,I2, I3, I4,body,r,space,N1;
+    double value;
+    for ( r = 0; r < CanonicalRank(f1, mat , ms ); r++)
+        for ( body = 0 ; body < 2 ; body++){
+            for ( space = 0; space < SPACE ; space++){
+                N1 = vector1Len(f1, space);
+                Stream_Type * stream = streams(f1,sum,spin,space)+N1*N1*N1*N1*CanonicalRank(f1, sum, spin);
+                if ( CanonicalRank(f1, sum, spin) > part(f1, sum )){
+                    printf("part sum\n");
+                    exit(0);
+                }
+                for ( I1 = 0 ; I1 < N1 ; I1++)//body 0
+                    for ( I2 = 0 ; I2 < N1 ; I2++)//body 0
+                        for ( I3 = 0 ; I3 < N1 ; I3++)//body 1
+                            for ( I4 = 0 ; I4 < N1 ; I4++)//body 1
+                            {
+                                if ( body == 0 ){
+                                    value  = streams(f1,mat,ms,space)[ I1*N1+I2 + r*N1*N1 ] * delta(I3-I4);
+                                }else {
+                                    value  = streams(f1,mat,ms,space)[ I3*N1+I4 + r*N1*N1 ] * delta(I1-I2);
+                                }
+                                stream[ (I1+I3*N1)+ ( I2+I4*N1)*N1*N1 ] = value;
+                            }
+            }
+            f1.tulip[sum].Current[spin]++;
+            
+            //  tAddTwo(f1, sum , quadCube);
+        }
+    return 0;
+}
+
+
+
+INT_TYPE distill ( struct calculation c, struct field f1){
+    double oneBodyFraction = 1.;
+    enum bodyType body = f1.i.body;
+    switch( body ){
+        two:
+            oneBodyFraction = 1/1.;
+            break;
+        three:
+            oneBodyFraction = 1/2.;
+            break;
+        four:
+            oneBodyFraction = 1/3.;
+            break;
+    }
+    iModel(&c, &f1);
+
+    tClear(f1.f, hamiltonian);
+    
+    if ( body >= two ){
+        
+        
+        if ( c.rt.runFlag == 0 ){
+            enum division twoBody = interactionExchange;
+            //loop over 1 and two body terms..treat differently
+//            tClear(f1.f, copy);
+//            tId(f1.f, copy, 0);
+//            tScaleOne(f1.f, copy, 0,-oneBodyFraction* COMPONENT * pi*pi/f1.i.d/f1.i.d/2.);
+//            oneTo2(f1.f, copy, 0, hamiltonian, 0);
+            tAddTw(f1.f, hamiltonian ,0,twoBody,0);
+            tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
+            oneTo2(f1.f, kinetic, 0, hamiltonian, 0);
+            tScaleOne(f1.f, linear, 0, oneBodyFraction);
+            oneTo2(f1.f, linear, 0, hamiltonian, 0);
+            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
+            tClear(f1.f,hamiltonian);
+            sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
+            tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
+
+        } else {
+//            tClear(f1.f, copy);
+//            tId(f1.f, copy, 0);
+//            tScaleOne(f1.f, copy, 0,-oneBodyFraction* COMPONENT * pi*pi/f1.i.d/f1.i.d/2.);
+//            oneTo2(f1.f, copy, 0, hamiltonian, 0);
+//
+            enum division twoBody = interactionEwald;
+            //loop over 1 and two body terms..treat differently
+            tAddTw(f1.f, hamiltonian ,0,twoBody,0);
+            tScaleOne(f1.f, linear, 0, oneBodyFraction);
+            oneTo2(f1.f, linear, 0, hamiltonian, 0);
+            
+            tScaleOne(f1.f,intercellularSelfEwald, 0, oneBodyFraction);
+            oneTo2(f1.f, intercellularSelfEwald, 0, hamiltonian, 0);
+            
+            tScaleOne(f1.f,intracellularSelfEwald, 0, oneBodyFraction);
+            oneTo2(f1.f, intracellularSelfEwald, 0, hamiltonian, 0);
+            
+            tScaleOne(f1.f,jelliumElectron, 0, oneBodyFraction);
+            oneTo2(f1.f, jelliumElectron, 0, hamiltonian, 0);
+            
+            tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
+            oneTo2(f1.f, kinetic, 0, hamiltonian, 0);
+            
+            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
+            tClear(f1.f,hamiltonian);
+            sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
+            tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
+
+            tClear(f1.f,hamiltonian);
+            tAddTw(f1.f, hamiltonian ,0,twoBody,1);
+            tScaleOne(f1.f, kinetic, 1, oneBodyFraction);
+            oneTo2(f1.f, kinetic, 1, hamiltonian, 0);
+            tScaleOne(f1.f, linear, 1, oneBodyFraction);
+            oneTo2(f1.f, linear, 1, hamiltonian, 0);
+            tScaleOne(f1.f,intercellularSelfEwald, 1, oneBodyFraction);
+            oneTo2(f1.f, intercellularSelfEwald, 1, hamiltonian, 0);
+            tScaleOne(f1.f,intracellularSelfEwald, 1, oneBodyFraction);
+            oneTo2(f1.f, intracellularSelfEwald, 1, hamiltonian, 0);
+            tScaleOne(f1.f,jelliumElectron, 1, oneBodyFraction);
+            oneTo2(f1.f, jelliumElectron, 1, hamiltonian, 0);
+            
+            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
+            tClear(f1.f,hamiltonian);
+            sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
+            tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
+        }
+    }else {
+        if ( c.rt.runFlag == 0 ){
+//            tClear(f1.f, copy);
+//            tId(f1.f, copy, 0);
+//            tScaleOne(f1.f, copy, 0,-oneBodyFraction* COMPONENT * pi*pi/f1.i.d/f1.i.d/2.);
+//            tAddTw(f1.f,hamiltonian,0,copy ,0);
+
+            tAddTw(f1.f,hamiltonian,0,kinetic ,0);
+            tAddTw(f1.f,hamiltonian,0,linear ,0);
+            printf("%f\n", traceOne(f1.f, hamiltonian,0));
+
+            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
+            printf("%f\n", traceOne(f1.f, trainHamiltonian,0));
+
+            printf("%f\n", traceOne(f1.f, trainHamiltonian,0));
+
+            tClear(f1.f,hamiltonian);
+            sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
+            tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
+
+            printf("%f\n", traceOne(f1.f, trainHamiltonian,0));
+        } else {
+////            tClear(f1.f, copy);
+////            tId(f1.f, copy, 0);
+////            tScaleOne(f1.f, copy, 0,-oneBodyFraction* COMPONENT * pi*pi/f1.i.d/f1.i.d/2.);
+//            tAddTw(f1.f,hamiltonian,0,copy ,0);
+            tAddTw(f1.f,hamiltonian,0,kinetic ,0);
+            tAddTw(f1.f,hamiltonian,0,linear ,0);
+            tAddTw(f1.f,hamiltonian,0,kinetic ,0);
+            tAddTw(f1.f,hamiltonian,0,intercellularSelfEwald ,0);
+            tAddTw(f1.f,hamiltonian,0,intracellularSelfEwald ,0);
+            tAddTw(f1.f,hamiltonian,0,jelliumElectron ,0);
+            
+            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
+            tClear(f1.f,hamiltonian);
+            sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
+            tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
+
+            tClear(f1.f,hamiltonian);
+            tAddTw(f1.f,hamiltonian,0,kinetic ,1);
+            tAddTw(f1.f,hamiltonian,0,linear ,1);
+            tAddTw(f1.f,hamiltonian,0,kinetic ,1);
+            tAddTw(f1.f,hamiltonian,0,intercellularSelfEwald ,1);
+            tAddTw(f1.f,hamiltonian,0,intracellularSelfEwald ,1);
+            tAddTw(f1.f,hamiltonian,0,jelliumElectron ,1);
+
+            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
+
+            
+            tClear(f1.f,hamiltonian);
+            sortTerms(f1.f,trainHamiltonian,1,hamiltonian,0);
+            tEqua(f1.f, trainHamiltonian,1, hamiltonian, 0);
+
+            
+            
+        }
+
+        
+        
+    }
+    
+    
+    if ( CanonicalRank(f1.f,trainHamiltonian,0) )
+        ioStoreMatrix(f1.f,trainHamiltonian ,0,"trainHamiltonian.matrix",0);
+    if ( CanonicalRank(f1.f,trainHamiltonian,1) )
+        ioStoreMatrix(f1.f,trainHamiltonian ,1,"trainHamiltonian.1.matrix",0);
+    fModel(&f1.f);
+    return 0;
+}
+
 
 #if 1
 
@@ -341,6 +515,10 @@ int main (INT_TYPE argc , char * argv[]){
     //0//...   //A//B//C//D//E
     if ( c.rt.phaseType == buildFoundation ){//0
         foundation(&c,f);
+        if ( f.i.cat <= 1 ){
+            c.rt.phaseType = distillMatrix;
+            distill(c,f);
+        }
     }
     else if ( c.rt.phaseType == productKrylov ){//C
         krylov(&c,f);
@@ -349,7 +527,9 @@ int main (INT_TYPE argc , char * argv[]){
         ritz(&c,f);
     }
     else if ( c.rt.phaseType == svdOperation ){//E
-        ritz(&c,f);
+        svd(c,f);
+    }else if ( c.rt.phaseType == distillMatrix ){
+        distill(c,f);
     }
 
     printf("\n\nFINIS.\n\n");

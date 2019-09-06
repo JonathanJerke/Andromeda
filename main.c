@@ -874,7 +874,6 @@ INT_TYPE buildElectronFreeInteraction ( struct calculation * c1, enum division m
     c0.i.nTargets = 1;
     c0.rt.printFlag = 0;
     c0.rt.calcType = electronicStuctureCalculation;
-    c0.i.side = 4;
     c0.i.iCharge = 1;
     c0.i.irrep = 0;
     c0.i.filter = 0;

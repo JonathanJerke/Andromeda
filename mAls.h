@@ -50,12 +50,13 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
 double tCycleDecompostionListOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  );
 INT_TYPE tOuterProductSu( struct sinc_label  f1,enum division vector , INT_TYPE a, enum division vector2,INT_TYPE b, enum division proj, INT_TYPE c);
 double tMultiplyMP(INT_TYPE rank,  INT_TYPE * info,struct sinc_label  f1,double scale, INT_TYPE beta,  enum division equals, INT_TYPE espin ,char leftChar, enum division left, INT_TYPE lspin, char rightChar,enum division right, INT_TYPE rspin);
-double tMultiplyOne (INT_TYPE rank, struct sinc_label  f1,INT_TYPE dim,  enum division equals, INT_TYPE espin , enum division left,INT_TYPE l,INT_TYPE lspin, enum division right,INT_TYPE r, INT_TYPE rspin);
+double tMultiplyOne (INT_TYPE rank, struct sinc_label  f1,INT_TYPE dim,  enum division equals,INT_TYPE e, INT_TYPE espin , enum division left,INT_TYPE l,INT_TYPE lspin, enum division right,INT_TYPE r, INT_TYPE rspin);
 double distance1(struct sinc_label  f1 ,enum division alloy ,INT_TYPE sp,  enum division alloyBak,INT_TYPE sp2);
 double distance(struct sinc_label  f1 , enum division alloy , enum division alloyBak);
 double inner(struct sinc_label  f1 , enum division alloy, INT_TYPE os );
 double magnitude ( struct sinc_label  f1 , enum division alloy );
 double pMagnitude ( struct sinc_label * f1 , enum division alloy );
+INT_TYPE sortTerms (struct sinc_label  f1 , enum division term,INT_TYPE sp,enum division sorted,INT_TYPE sps );
 
 void tHXpX (  INT_TYPE rank, struct sinc_label  f1 , enum division left,INT_TYPE shiftFlag, double sum,double product, double productCmpl, enum division equals ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo  );
 void pHXpX (  INT_TYPE rank, struct sinc_label  *f1 , enum division left,INT_TYPE shiftFlag, double sum,double product, double productCmpl, enum division equals ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo  );
@@ -72,7 +73,7 @@ INT_TYPE pPrintExpectationValues (struct sinc_label * f1 , enum division ha  , e
 INT_TYPE tOuterProductSuOne( struct sinc_label  f1,INT_TYPE space,enum division vector , INT_TYPE a, enum division vector2,INT_TYPE b, enum division proj, INT_TYPE c);
 double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Stream_Type * cofact, enum division origin,INT_TYPE l1,INT_TYPE l2,INT_TYPE os,   enum division alloy ,INT_TYPE l3,INT_TYPE l4,  INT_TYPE spin ,double tolerance,double magn, INT_TYPE preferred);
 INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1,INT_TYPE dim,  enum division equals,INT_TYPE e, INT_TYPE espin,enum division left,INT_TYPE l,INT_TYPE lspin, enum division right, INT_TYPE r,INT_TYPE rspin );
-INT_TYPE tGEMM (INT_TYPE rank,  struct sinc_label  f1,INT_TYPE dim,  enum division equals, INT_TYPE espin,enum division left,INT_TYPE l,INT_TYPE lspin, enum division right, INT_TYPE r,INT_TYPE rspin );
+INT_TYPE tGEMM (INT_TYPE rank,  struct sinc_label  f1,INT_TYPE dim,  enum division equals, INT_TYPE e,INT_TYPE espin,enum division left,INT_TYPE l,INT_TYPE lspin, enum division right, INT_TYPE r,INT_TYPE rspin );
 INT_TYPE tGEVV (INT_TYPE rank,  struct sinc_label  f1,INT_TYPE dim,  enum division equals, INT_TYPE espin,INT_TYPE leftChar, enum division left,INT_TYPE l,INT_TYPE lspin, INT_TYPE rightChar, enum division right, INT_TYPE r,INT_TYPE rspin );
 double tDOT (INT_TYPE rank,  struct sinc_label  f1,INT_TYPE dim,char leftChar, enum division left,INT_TYPE l,INT_TYPE lspin, char rightChar, enum division right, INT_TYPE r,INT_TYPE rspin );
 double traceOne( struct sinc_label  f1 , enum division label , INT_TYPE spin );

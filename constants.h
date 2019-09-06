@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 6.6.3
+//VERSION 7.0.0
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -145,6 +145,7 @@ enum phaseType{
     productKrylov,//1
     solveRitz,//2
     svdOperation, //3
+    distillMatrix//4
 };
 
 enum calculationType{
@@ -395,34 +396,65 @@ struct metric_label {
 
 
 
-
 enum division{
     nullName,
-    kineticMass,
+    nullScalar,//7
+    nullVector,//8
+    nullMatrix,//9
+    hamiltonian,
+    trainHamiltonian,
+    h12,
+    h13,
+    h23,
+    h14,
+    h24,
+    h34,
+    //five
+    h15,
+    h25,
+    h35,
+    h45,
+    //six
+    h16,
+    h26,
+    h36,
+    h46,
+    h56,
+	kineticMass,
     kineticMass1,
     kineticMass2,
     kineticMass3,
     kineticMass4,
+    kineticMass5,
+    kineticMass6,
     kinetic,//0
     kinetic1,
     kinetic2,
     kinetic3,
     kinetic4,
+    kinetic5,
+    kinetic6,
     linear,
     external1,
     external2,
     external3,
     external4,//121,122,123,124
+    external5,
+    external6,
     interactionExchangePlus,//oneBody
     interaction1Plus,
     interaction2Plus,
     interaction3Plus,
     interaction4Plus,
+    interaction5Plus,
+    interaction6Plus,
     interactionExchangeMinus,//oneBody
     interaction1Minus,
     interaction2Minus,
     interaction3Minus,
     interaction4Minus,
+    interaction5Minus,
+    interaction6Minus,
     interactionEwald,
     interaction12Ewald,
     interaction13Ewald,
@@ -430,31 +462,50 @@ enum division{
     interaction14Ewald,
     interaction24Ewald,
     interaction34Ewald,
+    interaction15Ewald,
+    interaction25Ewald,
+    interaction35Ewald,
+    interaction45Ewald,
+    interaction16Ewald,
+    interaction26Ewald,
+    interaction36Ewald,
+    interaction46Ewald,
+    interaction56Ewald,
     intercellularSelfEwald,
     intercellularSelf1Ewald,
     intercellularSelf2Ewald,
     intercellularSelf3Ewald,
     intercellularSelf4Ewald,
+    intercellularSelf5Ewald,
+    intercellularSelf6Ewald,
     intracellularSelfEwald,
     intracellularSelf1Ewald,
     intracellularSelf2Ewald,
     intracellularSelf3Ewald,
     intracellularSelf4Ewald,
+    intracellularSelf5Ewald,
+    intracellularSelf6Ewald,
     jelliumElectron,
     jellium1Electron,
     jellium2Electron,
     jellium3Electron,
     jellium4Electron,
+    jellium5Electron,
+    jellium6Electron,
     shortenPlus,
     shorten1Plus,
     shorten2Plus,
     shorten3Plus,
     shorten4Plus,
+    shorten5Plus,
+    shorten6Plus,
     shortenMinus,
     shorten1Minus,
     shorten2Minus,
     shorten3Minus,
     shorten4Minus,
+    shorten5Minus,
+    shorten6Minus,
     interactionTwoAcrossDimensions,
     interactionTAD11,
     interactionTAD12,
@@ -472,6 +523,15 @@ enum division{
     interactionTAD42,
     interactionTAD43,
     interactionTAD44,
+    interactionTAD15,
+    interactionTAD25,
+    interactionTAD35,
+    interactionTAD45,
+    interactionTAD16,
+    interactionTAD26,
+    interactionTAD36,
+    interactionTAD46,
+    interactionTAD56,
     shortTwoAcrossDimensions,
     shortTAD11,
     shortTAD12,
@@ -489,26 +549,43 @@ enum division{
     shortTAD42,
     shortTAD43,
     shortTAD44,
+    shortTAD15,
+    shortTAD25,
+    shortTAD35,
+    shortTAD45,
+    shortTAD16,
+    shortTAD26,
+    shortTAD36,
+    shortTAD46,
+    shortTAD56,
     protonRepulsion,
     proton1,
     proton2,
     proton3,
     proton4,
+    proton5,
+    proton6,
     X,//
     X1,
     X2,
     X3,
     X4,
+    X5,
+    X6,
     harmonium,
     harmonium1,
     harmonium2,
     harmonium3,
     harmonium4,//98,99,100,101
+    harmonium5,
+    harmonium6,
     vectorMomentum,
     vectorMomentum1,
     vectorMomentum2,
     vectorMomentum3,
     vectorMomentum4,
+    vectorMomentum5,
+    vectorMomentum6,
     interactionExchange,//22
     interaction12,
     interaction13,
@@ -516,6 +593,15 @@ enum division{
     interaction14,
     interaction24,
     interaction34,
+    interaction15,
+    interaction25,
+    interaction35,
+    interaction45,
+    interaction16,
+    interaction26,
+    interaction36,
+    interaction46,
+    interaction56,
     interactionExchangeB,//22
     interaction12B,
     interaction13B,
@@ -523,20 +609,30 @@ enum division{
     interaction14B,
     interaction24B,
     interaction34B,
+    interaction15B,
+    interaction25B,
+    interaction35B,
+    interaction45B,
+    interaction16B,
+    interaction26B,
+    interaction36B,
+    interaction46B,
+    interaction56B,
     edgeElectronMatrix,//63
     edgeEMatrix1,//63
     edgeEMatrix2,//63
     edgeEMatrix3,//63
     edgeEMatrix4,//63
+    edgeEMatrix5,//63
+    edgeEMatrix6,//63
     edgeProtonMatrix,//63
     edgePMatrix1,//63
     edgePMatrix2,//63
     edgePMatrix3,//63
     edgePMatrix4,//63
+    edgePMatrix5,//63
+    edgePMatrix6,//63
     hartree,
-    nullScalar,//7
-    nullVector,//8
-    nullMatrix,//9
     forces,//10
     inversion,
     overlap,
@@ -544,6 +640,8 @@ enum division{
     overlap2,
     overlap3,
     overlap4,
+    overlap5,
+    overlap6,
     tempOneMatrix,
     tempTwoMatrix,
     resolveBufferMatrix,//11
@@ -684,26 +782,6 @@ enum division{
     matrixHbuild,
     vectorHbuild,
     twoBodyProjector,
-    lanes,
-    lanes2,
-    lanes3,
-    lanes4,
-    lanes5,
-    lanes6,
-    lanes7,
-    lanes8,
-    lanes9,
-    lanes10,
-    lanes11,
-    lanes12,
-    lanes13,
-    lanes14,
-    lanes15,
-    lanes16,
-    lanes17,
-    lanes18,
-    lanes19,
-    lanes20,
     eigenVectors
 };
 
@@ -749,12 +827,18 @@ struct sinc_label {
     INT_TYPE irrep;
     INT_TYPE cat;
     INT_TYPE bootedMemory;
-    double offset;
     struct canon rose[SPACE+1];
     struct name_label *tulip;//vectors
     enum division user;
     enum division vectorOperator;
     enum division end;
+    enum division purity;
+
+#ifdef PURITY
+    enum division purityOverlap;
+    enum division temp;
+    INT_TYPE purityCanon;
+#endif
     enum spinType cmpl;
     struct runTime * rt;
 };

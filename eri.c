@@ -132,6 +132,15 @@ int main (int argc , char * argv[]){
 #else
 
 int main (int argc , char * argv[]){
+    
+    INT_TYPE fi,cmpl,lines = 0,num;
+    size_t ms = MAXSTRING;
+    char line0[MAXSTRING];
+    char* line = line0;
+    double pos;
+    
+    
+    
     INT_TYPE n,i,j,N1;
     struct calculation c;
     struct field f;
@@ -140,39 +149,48 @@ int main (int argc , char * argv[]){
 
     struct runTime * rt = & c.rt;
     f.f.rt = rt;
-    FILE * out = fopen(argv[1],"a");
+    FILE * outME = fopen(argv[2],"w");
+    FILE * outSINC = fopen(argv[3],"w");
 
-    {
+    FILE * in = fopen(argv[1],"r");
+    getline(&line, &ms, in);
+
+    while ( ! feof(in) ) {
+        sscanf(line, "%lf", &pos);
         c.i.Na = 1;
         c.i.atoms[1].label.Z = 1;
-        c.i.atoms[1].position[1] = atof(argv[2]);
+        c.i.atoms[1].position[1] = pos;
+        printf("%f\n", pos);
         iModel(&c, &f);
         N1 = vectorLen(f.f, 0);
         double ar[N1*N1];
 
         for ( n = 0; n< N1*N1 ; n++)
             ar[n] = 0.;
-        for ( n = 0; n < 22 ; n++)
+        for ( n = 0; n < CanonicalRank(f.f, linear, 0) ; n++)
             cblas_daxpy(N1*N1, 1., streams(f.f,linear,0,0)+N1*N1*n, 1, ar, 1);
         
         
-        for ( i = 0; i < 32 ; i++)
-            for ( j = 0; j < 32 ; j++)
+        for ( i = 0; i < N1 ; i++){
+            for ( j = 0; j < N1 ; j++)
             {
                 if ( i || j )
-                    fprintf(out,",");
-                if ( i < N1 && j < N1 )
-                    fprintf(out,"%f", ar[i*N1+j]);
-                else
-                    fprintf(out,"0.");
-
+                    fprintf(outME,",");
+                fprintf(outME,"%f", ar[i*N1+j]);
             }
+            if ( i )
+                fprintf(outSINC,",");
+            fprintf(outSINC,"%f", Sinc(1, pos/f.i.d-(i-(N1-1)/2)));
+        }
         fModel( &f.f);
-        fprintf(out, "\n");
-    }
-    fclose(out);
+        fprintf(outME, "\n");
+        fprintf(outSINC, "\n");
+        getline(&line, &ms, in);
 
-    
+    }
+    fclose(outME);
+    fclose(outSINC);
+    fclose(in);
     
     return 0;
 }

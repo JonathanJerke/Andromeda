@@ -42,6 +42,18 @@ double yale ( struct sortClass * f ){
 }
 
 
+int sortxComp (const void * elem1, const void * elem2)
+{
+    double* f = ((double*)elem1);
+    double* s = ((double*)elem2);
+    double valueF,valueS;
+    valueF = f[0];
+    valueS = s[0];
+    if (valueF > valueS) return  -1;
+    if (valueF < valueS) return 1;
+    return 0;
+}
+
 int sortComp (const void * elem1, const void * elem2)
 {
     struct sortClass* f = ((struct sortClass*)elem1);
@@ -98,7 +110,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
 //                
 //            }
             if ( c1->rt.calcType == electronicStuctureCalculation ){
-                if ( OVERFLAG ){
+                if ( 0 ){
                     INT_TYPE j;
                     for ( i = 0; i < N1 ; i++)
                         for ( j =0 ; j < N1 ; j++)
@@ -158,24 +170,24 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
             }
             
             
-            if ( 1|| space == 0 || space == COMPONENT ){
+            if (  space == 0 || space == COMPONENT ){
                 if ( cmplFlag ){
                     for ( i = 0 ; i < N1 ; i++){
                         printf("\n\n%f \n\n", w[i]);
-                        
+
                         for ( ii = 0; ii < N1 ; ii++)
                             printf("\n%d--%f+I%f,",ii+1, creal(arc[i*N1+ii]),cimag(arc[i*N1+ii]));
                     }
-                    
-                    
+
+
                 }else {
                     for ( i = 0 ; i < N1 ; i++){
                         printf("\n\n%d %f \n\n",i+1, w[i]);
-                        
+
                         for ( ii = 0; ii < N1 ; ii++)
                             printf("%f,", ar[i*N1+ii]);
                     }
-                    
+
                 }
             }
 
@@ -429,8 +441,8 @@ INT_TYPE tSortBoot(struct calculation * c1, struct sinc_label f1, enum division 
                         cblas_dcopy(N1, myStreams(f1,bill1+space,0)+i*N1, 1, myStreams(f1,bill1+space,0)+(tally)*N1,1);
                         streams(f1, foundationStructure,1,space)[tally] = streams(f1, foundationStructure,1,space)[i];
                         streams(f1, foundationStructure,1,space)[i] = 0.;
+                        streams(f1, foundationStructure,0,space)[tally] = streams(f1, foundationStructure,0,space)[i];
                      }
-                    streams(f1, foundationStructure,0,space)[tally] = streams(f1, foundationStructure,0,space)[i];
                     tally++;
                 }
             double tt[N1];
@@ -529,13 +541,23 @@ INT_TYPE tSlam (struct sinc_label f1,INT_TYPE allc, enum division vl, double fma
     INT_TYPE * mmm = malloc(sizeof(INT_TYPE ) * tot * SPACE *2),*mm;
     tot =  tFoundationLevel(f1, nullName, 0, fmax2, 0, nullName, 0, 0, 0, 0,mmm, 0, 0);
 
+    {
+        INT_TYPE ii;
+        space = 0;
+        for ( ii = 0 ;ii < n1[space]*n1[space];ii++)
+            printf("%f\n",myStreams(f1, bill1+space, 0)[ii]);
+    }
+    
+    
     for ( t = 0; t < tot ; t++){
         mm = mmm + 2*SPACE * t ;
+        printf("%d %d %d -- %d %d %d\n", mm[0],mm[2],mm[4], mm[1],mm[3],mm[5]);
         for ( space = 0; space < SPACE ; space++)
             if ( f1.rose[space].body != nada){
                 cblas_dcopy(n1[space], myStreams(f1, bill1+space, 0)+(mm[2*space])*n1[space]+(mm[2*space+1])*n1[space]*n1[space],1,streams(f1,vl+t,0,space),1);
             }
         f1.tulip[vl+t].Current[0] = 1;
+        f1.tulip[vl+t].value.stage = t;
     }
     free(mmm);
     printf("loaded %d alloc %d\n", tot, allc);
@@ -1550,14 +1572,13 @@ INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,ch
             fflush(stdout);
         }
         time(&lapse_t);
-        printf("\noffset\t%f\n", f1.offset);
         //f1->mem1->rt->eigenTime += difftime(lapse_t, start_t);
         time(&start_t);
         
         {       //printf("\nHeader,Number,CEG,Linear,BODY,CLASS,WEIGHT\n");
             for ( iii = 0; iii < imin(qs,Ne) ; iii++)
             {
-                f1.tulip[eigenVectors+iii].value.value = ritz[iii] + f1.offset;
+                f1.tulip[eigenVectors+iii].value.value = ritz[iii];
                 printf("%d-Press%d:,%1.15f, %f\n",stage, iii+1, f1.tulip[eigenVectors+iii].value.value,cblas_dznrm2(qs,t+iii*stride, 1));
             }
             //    fflush(stdout);
