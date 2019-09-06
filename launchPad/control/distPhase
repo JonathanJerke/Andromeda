@@ -1,10 +1,9 @@
 *Body print
 	*Parameters
-		phase 2
+		phase 4
 		iterations 1
 		filter 0
 		collect 0
-		kineticShift 1.
 	.Parameters
 
 

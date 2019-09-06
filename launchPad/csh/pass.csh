@@ -3,7 +3,7 @@
 if ( $#argv == 1 ) then
 set RS = $1
 rm $LAUNCH/references
-foreach n  ( 2 3 )
+foreach n  (3 4 )
 
 foreach sa ( `cat $RS/sa-$n`)
 
@@ -20,10 +20,10 @@ foreach rs ( `cat $RS/rs`)
 		echo "	electronGasDensity $rs" 		>> wignerSeitz
 		echo ".Parameters" 				>> wignerSeitz
 		echo ".Body" 					>> wignerSeitz
-		start.csh go $sa $n 6
+		start.csh go $sa  
 		cd go
 			pwd >> $LAUNCH/references
-			pathFinder.csh found 1 2 3 
+			pathFinder.csh found  
 		cd ..
 	cd ..
 end

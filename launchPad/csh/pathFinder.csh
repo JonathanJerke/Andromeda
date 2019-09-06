@@ -16,8 +16,8 @@ foreach curr ( $argv )
 			else
 				$LAUNCH/csh/gos.csh found/found
 			endif
-			$LAUNCH/csh/go.csh found/Afound   
-                        if ( `splitFlag.csh`) then
+			$LAUNCH/csh/go.csh found/Afound
+			if ( `splitFlag.csh`) then
                         $LAUNCH/csh/catKrylov.csh $curr $curr states
                         $LAUNCH/csh/mergeRitzB.csh $curr $curr states
 			else
@@ -29,12 +29,12 @@ foreach curr ( $argv )
 		endif 
 	else
 			$LAUNCH/csh/addStage.csh $prev $curr
-			$LAUNCH/csh/prevRitz.csh $prev $curr states
+			$LAUNCH/csh/distill.csh $curr
                         if ( `splitFlag.csh`) then
-                        $LAUNCH/csh/splitKrylov.csh $curr $curr states
+                        $LAUNCH/csh/splitKrylov.csh $prev $curr states
                         $LAUNCH/csh/mergeRitzB.csh $curr $curr states
                         else
-                        $LAUNCH/csh/prevKrylov.csh $curr $curr states
+                        $LAUNCH/csh/krylov.csh $prev $curr states
                         $LAUNCH/csh/prevRitzB.csh $curr $curr states
                         endif
                         $LAUNCH/csh/prevKrylovB.csh  $curr $curr states

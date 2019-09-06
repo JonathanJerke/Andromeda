@@ -37,7 +37,8 @@ else
 	              endif
 		endif
 		if ( $com =~ "*B.kry*" ) then
-			sleep 1
+# && (`grep shift boot ` =~ "flow *" ||   `grep shift boot ` =~ "twist *"|| `grep shift boot ` =~ "shift *")) then
+		sleep 1
 			post.csh $com.vector > $com.tm
 			mv $com.tm $com.vector
 			sleep 1	

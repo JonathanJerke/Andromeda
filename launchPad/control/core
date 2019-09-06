@@ -3,15 +3,15 @@
 		#may work for 3 or higher but need big systems
 		decompose 2
 		#system dependent
-		maxRAM 12
+		maxRAM 4
 	#OPEN GAME,  trade speed for accuracy!
 	#
 		cmpl 1	
 		condition 8
 		tolerance 5
-		threshold 3
+		threshold 4
 		vectorThreshold 4
-		target 3
+		target 4
 		entropy 0
 	#
 	#

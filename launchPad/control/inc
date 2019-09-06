@@ -1,7 +1,7 @@
 *Body 
 	*Parameters
-		attack 1.0
+		attack 0.5
 		bandStage 3
-		basisStage 6
+		basisStage 12
 	.Parameters
 .Body

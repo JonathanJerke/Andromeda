@@ -5,16 +5,18 @@ set src = $1
 set dir = $2
 set prev = $src/D.kry
 foreach i (`cat $3`)
-set file = $dir/B.kry.${i}
+echo "$i"
+set file = $dir/B.kry.$i
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
 echo "read ../../control/found" >> $file
 echo "read $dir/stage " >> $file
-echo "vector $prev.${i}" >> $file
+echo "vector $prev.$i" >> $file
 echo "read ../../control/kryPhase ">> $file
 echo ".InputOutput" >> $file
 echo ".Body" >> $file
-$LAUNCH/csh/cats.csh $file 
+$LAUNCH/csh/go.csh $file &
+
 end
 else 
 echo "originDir targetDir goSet"
