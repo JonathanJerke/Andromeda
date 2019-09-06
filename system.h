@@ -37,9 +37,9 @@
 #define MAXATOM 4
 
 #define MAXSTRING 1024
-#define MAXFILE 1
+#define MAXFILE 1000
 
-#define APPLE
+//#define APPLE
 
 #ifdef APPLE
 #define MaxCore 2
@@ -50,7 +50,7 @@
 //#define MKL
 #define GSL_LIB
 
-#define MaxCore 24
+#define MaxCore 2
 
 #ifndef GSL_LIB
     THIS PROGRAM NEEDS INTEGRATION ROUTINES
