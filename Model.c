@@ -2038,7 +2038,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                         f1->tulip[h12].linkNext = nullName;
                         break;
                     case three:
-                        f1->tulip[h13].linkNext = nullName;
+                        f1->tulip[h23].linkNext = nullName;
                         break;
                     case four:
                         f1->tulip[h34].linkNext = nullName;
