@@ -9,7 +9,7 @@
 		foundation 1000	
                 basisRank 24
                 states 10
-		iterations 9
+		iterations 4
 	.Parameters
 				
 .Body

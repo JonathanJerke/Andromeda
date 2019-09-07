@@ -1,14 +1,10 @@
 *Body print
 	*Parameters
-		phase 2
+		phase 5
 		iterations 1
-		filter 0
-		collect 0
-		kineticShift 1.
-	        blockMemory 1
+		blockMemory 2
                 blockMemory 3
                 blockMemory 4
-                blockMemory 5
                 blockMemory 6
 	.Parameters
 

@@ -11,7 +11,7 @@
 		tolerance 5
 		threshold 4
 		vectorThreshold 4
-		target 4
+		target 3
 		entropy 0
 	#
 	#

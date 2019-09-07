@@ -16,6 +16,7 @@ foreach curr ( $argv )
 			else
 				$LAUNCH/csh/gos.csh found/found
 			endif
+			$LAUNCH/csh/distill.csh $curr
 			$LAUNCH/csh/go.csh found/Afound
 			if ( `splitFlag.csh`) then
                         $LAUNCH/csh/catKrylov.csh $curr $curr states

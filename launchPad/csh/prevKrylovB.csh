@@ -15,7 +15,7 @@ echo "read $dir/stage " >> $file
 #else
    echo "vector $prev-${i}" >> $file
 #endif
-echo "read ../../control/kryPhase ">> $file
+echo "read ../../control/buildPhase ">> $file
 echo ".InputOutput" >> $file
 echo "*Parameters ">> $file
 echo "	iterations 1">> $file
