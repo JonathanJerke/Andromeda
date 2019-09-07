@@ -39,7 +39,7 @@
 #define MAXSTRING 1024
 #define MAXFILE 100
 
-#define APPLE
+//#define APPLE
 
 #ifdef APPLE
 #define MaxCore 2
