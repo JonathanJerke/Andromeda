@@ -25,6 +25,59 @@
 
 #include "saUtil.h"
 
+
+INT_TYPE testSA ( struct sinc_label f1 , enum division vector ){
+    tClear(f1, linear);
+    tId(f1, linear, 0);
+    tClear(f1, interactionExchange);
+    tId(f1, interactionExchange ,0);
+    f1.tulip[external1].linkNext = nullName;
+    f1.tulip[external2].linkNext = nullName;
+    f1.tulip[external3].linkNext = nullName;
+    f1.tulip[interaction12].linkNext = nullName;
+    f1.tulip[interaction13].linkNext = nullName;
+    f1.tulip[interaction23].linkNext = nullName;
+
+    tEqua(f1, copyVector, 0, vector, 0);
+    tHXpX(0, f1, external1, 0, 0, 1., 0, copyVector, 0.00001, part(f1,vector), 1);
+    printf("%f %f\n",distance1(f1, copyVector, 0, vector, 0),magnitude(f1,copyVector));
+    
+    tEqua(f1, copyVector, 0, vector, 0);
+    tHXpX(0, f1, external2, 0, 0, 1., 0, copyVector, 0.00001, part(f1,vector), 1);
+    printf("%f %f\n",distance1(f1, copyVector, 0, vector, 0),magnitude(f1,copyVector));
+
+    tEqua(f1, copyVector, 0, vector, 0);
+    tHXpX(0, f1, external3, 0, 0, 1., 0, copyVector, 0.00001, part(f1,vector), 1);
+    printf("%f %f\n",distance1(f1, copyVector, 0, vector, 0),magnitude(f1,copyVector));
+
+    
+    tEqua(f1, copyVector, 0, vector, 0);
+    tHXpX(0, f1, interaction12, 0, 0, 1., 0, copyVector, 0.00001,  part(f1,vector), 1);
+    printf("%f %f\n",distance1(f1, copyVector, 0, vector, 0),magnitude(f1,copyVector));
+    
+    tEqua(f1, copyVector, 0, vector, 0);
+    tHXpX(0, f1, interaction13, 0, 0, 1., 0, copyVector, 0.00001,  part(f1,vector), 1);
+    printf("%f %f\n",distance1(f1, copyVector, 0, vector, 0),magnitude(f1,copyVector));
+
+    
+    tEqua(f1, copyVector, 0, vector, 0);
+    tHXpX(0, f1, interaction23, 0, 0,1., 0, copyVector, 0.00001,  part(f1,vector), 1);
+    printf("%f %f\n",distance1(f1, copyVector, 0, vector, 0),magnitude(f1,copyVector));
+
+    
+    
+    return 0;
+    
+}
+
+
+
+
+
+
+
+
+
 INT_TYPE tFil ( struct sinc_label  f1, enum division A, enum division v , INT_TYPE * i ){
     INT_TYPE n1[3],space;
     length1(f1,n1);
@@ -941,6 +994,14 @@ INT_TYPE matrixAction ( enum bodyType bd, enum block bk, INT_TYPE direction){
         }
         
     } else if ( bd == three ){
+//        {
+//            1, 2, 3,//1/
+//            1, 3, 2,//2
+//            2, 1, 3,//3
+//            3, 1, 2,//4
+//            2, 3, 1,//5
+//            3, 2, 1//6
+//        }
         switch ( bk){
             case tv1:
                 return 1;
@@ -955,7 +1016,8 @@ INT_TYPE matrixAction ( enum bodyType bd, enum block bk, INT_TYPE direction){
             case e23 :
                 if ( direction == 1)
                     return 5;
-                else
+                else//2,3,1
+                    //3,1,2
                     return 4;
         }
     }
@@ -1672,7 +1734,14 @@ INT_TYPE tCat3(enum bodyType bd ,  INT_TYPE irrep,INT_TYPE cat, INT_TYPE space){
 INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, INT_TYPE leftChar , enum division left, INT_TYPE l, INT_TYPE lspin, enum division equals, INT_TYPE e, INT_TYPE espin){
     INT_TYPE at1[] = {1};
     INT_TYPE at2[] = {1, 2, 2, 1};
-    INT_TYPE at3[] = {1, 2, 3, 1, 3, 2, 2, 1, 3, 3, 1, 2, 2, 3, 1, 3, 2, 1};
+    INT_TYPE at3[] = {
+        1, 2, 3,//1/
+        1, 3, 2,//2
+        2, 1, 3,//3
+        3, 1, 2,//4
+        2, 3, 1,//5
+        3, 2, 1//6
+    };
     INT_TYPE at4[] = {1, 2, 3, 4, 1, 2, 4, 3, 1, 3, 2, 4, 1, 4, 2, 3, 1, 3, 4, 2, 1, 4, 3,
         2, 2, 1, 3, 4, 2, 1, 4, 3, 3, 1, 2, 4, 4, 1, 2, 3, 3, 1, 4, 2, 4, 1,
         3, 2, 2, 3, 1, 4, 2, 4, 1, 3, 3, 2, 1, 4, 4, 2, 1, 3, 3, 4, 1, 2, 4,
@@ -1925,7 +1994,7 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, INT_TYP
             at = at6+nd*(leftChar);
             break;
         }
-    INT_TYPE v[12],cb,cb2,cb1,ll = vector1Len(f1, dim),prev,d,cur = CanonicalRank(f1, equals, espin);
+    INT_TYPE v[12],u[12],cb,cb2,cb1,ll = vector1Len(f1, dim),prev,d,cur = CanonicalRank(f1, equals, espin);
     Stream_Type * str = streams(f1, left, lspin, dim)+ l * alloc(f1, left, dim);
     Stream_Type * out = streams(f1, equals, espin, dim)+e*alloc(f1, equals, dim);
 //    printf("HERE %d %d\n",left,equals);
@@ -1942,18 +2011,26 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, INT_TYP
             v[d] = (cb/prev)%ll;
             prev *= ll;
         }
+        
+        for ( d = 0 ; d < nd ; d++){
+            u[d] = v[at[d]-1];
+            //u[at[d]-1] = v[d];
+
+        }
+        if (0)
+        if (  nd == 3 && leftChar > 3)
+        {
+            printf("%d %d %d\n", at[0],at[1],at[2]);
+            printf("%d %d %d | %d %d %d\n", v[0],v[1],v[2],u[0],u[1],u[2]);
+        }
+        
         cb2 = 0;
         prev = 1;
         for ( d = 0 ; d < nd ; d++){
-            cb2 += prev * v[at[d]-1];
+            cb2 += prev * u[d];
             prev *= ll;
         }
-//        printf("\n\n%d %d %d\n", v[0],v[1],v[2]);
-//
-//        printf("%d %d\n", cb,cb2);
-//        fflush(stdout);
         out[cb2] = str[cb];
-
 
     }
     

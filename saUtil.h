@@ -63,4 +63,5 @@ INT_TYPE tTabulateInnerProjection( INT_TYPE rank, struct sinc_label  f1 , enum d
 double tTestInner ( enum bodyType bd, INT_TYPE i , INT_TYPE j );
 INT_TYPE tTest ( enum bodyType bd );
 INT_TYPE tSizeUp(INT_TYPE rank, struct sinc_label  f1 , INT_TYPE type, enum division label);
+INT_TYPE testSA ( struct sinc_label f1 , enum division vector );
 #endif /* saUtil_h */

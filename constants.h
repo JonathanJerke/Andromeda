@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 7.0.0
+//VERSION 7.1.0
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -145,7 +145,8 @@ enum phaseType{
     productKrylov,//1
     solveRitz,//2
     svdOperation, //3
-    distillMatrix//4
+    distillMatrix,//4
+    reportMatrix//5
 };
 
 enum calculationType{
@@ -322,17 +323,16 @@ struct metric_label {
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
+//blockMemory:
+enum blockMemoryType{
+    passBlock,//
+    blockHamiltonianBlock,//1
+    blockTrainHamiltonianBlock,//2
+    blockTrainingHamiltonianBlock,//3
+    blockFoundationBlock,//4
+    blockBuildHamiltonianBlock,//5
+    blockEigenDecomposeBlock//6
+};
 
 
 
@@ -408,13 +408,11 @@ enum division{
     h23,
     h14,
     h24,
-    h34,
-    //five
+    h34,//five
     h15,
     h25,
     h35,
-    h45,
-    //six
+    h45,//six
     h16,
     h26,
     h36,
@@ -914,10 +912,11 @@ struct general_2index{//one dimension
 struct runTime {
     INT_TYPE powDecompose;
     INT_TYPE runFlag;
+    enum blockMemoryType memBlock[BlockCount];
+
 #ifdef OMP
     INT_TYPE NLanes;
     INT_TYPE NSlot;
-
     double position[MaxCore][6];
 #endif
     

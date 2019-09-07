@@ -26,7 +26,6 @@
 
 //HERE LIES THE external CODE level changes!
 #define OVERFLAG 0
-//#define PURITY
 
 #ifndef system_h
 #define system_h
@@ -36,10 +35,11 @@
 #define SPACE (COMPONENT * PARTICLE)
 #define MAXATOM 4
 
+#define BlockCount 16
 #define MAXSTRING 1024
-#define MAXFILE 1000
+#define MAXFILE 100
 
-//#define APPLE
+#define APPLE
 
 #ifdef APPLE
 #define MaxCore 2
@@ -50,7 +50,7 @@
 //#define MKL
 #define GSL_LIB
 
-#define MaxCore 2
+#define MaxCore 4
 
 #ifndef GSL_LIB
     THIS PROGRAM NEEDS INTEGRATION ROUTINES

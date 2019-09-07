@@ -169,7 +169,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                 exit(0);
             }
             
-            
+            if(0)
             if (  space == 0 || space == COMPONENT ){
                 if ( cmplFlag ){
                     for ( i = 0 ; i < N1 ; i++){
@@ -541,7 +541,7 @@ INT_TYPE tSlam (struct sinc_label f1,INT_TYPE allc, enum division vl, double fma
     INT_TYPE * mmm = malloc(sizeof(INT_TYPE ) * tot * SPACE *2),*mm;
     tot =  tFoundationLevel(f1, nullName, 0, fmax2, 0, nullName, 0, 0, 0, 0,mmm, 0, 0);
 
-    {
+    if(0){
         INT_TYPE ii;
         space = 0;
         for ( ii = 0 ;ii < n1[space]*n1[space];ii++)
@@ -558,6 +558,7 @@ INT_TYPE tSlam (struct sinc_label f1,INT_TYPE allc, enum division vl, double fma
             }
         f1.tulip[vl+t].Current[0] = 1;
         f1.tulip[vl+t].value.stage = t;
+        //testSA(f1, vl+t);
     }
     free(mmm);
     printf("loaded %d alloc %d\n", tot, allc);

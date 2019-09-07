@@ -100,6 +100,7 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
         if ( norm > c1->rt.TARGET ){
             printf("Normed from %f\n", norm );
             tScaleOne(f1.f, eigenVectors, 0, 1/norm);
+            //testSA(f1.f,eigenVectors);
         }
         else
         {
@@ -166,59 +167,7 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
    // c1->i.iRank = c1->i.bRank;
     iModel(c1,&f1);
     
-    
-//    if ( CanonicalRank(f1.f,interactionExchange,0) ){
-//        ioStoreMatrix(f1.f,interactionExchange ,0,"interactionExchange.matrix",0);
-//    }
-//
-//    if ( CanonicalRank(f1.f,jelliumElectron,0) ){
-//        ioStoreMatrix(f1.f,jelliumElectron ,0,"jelliumElectron.matrix",0);
-//    }
-//
-//    if ( CanonicalRank(f1.f,jelliumElectron,1) ){
-//        ioStoreMatrix(f1.f,jelliumElectron ,1,"jelliumElectron.1.matrix",0);
-//    }
-//
-//    if ( CanonicalRank(f1.f,intracellularSelfEwald,0) ){
-//        ioStoreMatrix(f1.f,intracellularSelfEwald ,0,"intracellularSelfEwald.matrix",0);
-//    }
-//
-//    if ( CanonicalRank(f1.f,intracellularSelfEwald,1) ){
-//        ioStoreMatrix(f1.f,intracellularSelfEwald ,1,"intracellularSelfEwald.1.matrix",0);
-//    }
-//
-//    if ( CanonicalRank(f1.f,intercellularSelfEwald,0) ){
-//        ioStoreMatrix(f1.f,intercellularSelfEwald ,0,"intercellularSelfEwald.matrix",0);
-//    }
-//    if ( CanonicalRank(f1.f,intercellularSelfEwald,1) ){
-//        ioStoreMatrix(f1.f,intercellularSelfEwald ,1,"intercellularSelfEwald.1.matrix",0);
-//    }
-//
-//
-//    if ( CanonicalRank(f1.f,interactionEwald,0) ){
-//        ioStoreMatrix(f1.f,interactionEwald ,0,"interactionEwald.matrix",0);
-//    }
-//    if ( CanonicalRank(f1.f,interactionEwald,1) ){
-//        ioStoreMatrix(f1.f,interactionEwald ,1,"interactionEwald.1.matrix",0);
-//    }
-//
-        if ( CanonicalRank(f1.f,shortenPlus,0) )
-            ioStoreMatrix(f1.f,shortenPlus ,0,"shortenExchangePlus.matrix",0);
-        
-        if ( CanonicalRank(f1.f,shortenMinus,0) )
-            ioStoreMatrix(f1.f,shortenMinus ,0,"shortenExchangeMinus.matrix",0);
 
-    
-//    if ( CanonicalRank(f1.f,linear,0) ){
-//        ioStoreMatrix(f1.f,linear ,0,"linear.matrix",0);
-//
-//    }
-//    if ( CanonicalRank(f1.f,linear,1) ){
-//        ioStoreMatrix(f1.f,linear ,1,"linear.1.matrix",0);
-//        
-//    }
-
-    
     for ( fi =0 ; fi < f1.i.files ; fi++)
         tLoadEigenWeights (c1,f1, f1.i.fileList[fi],&EV, f1.f.user,f1.i.collect);//UNUSUAL!!!
     if (EV == 0 ){
@@ -312,27 +261,90 @@ INT_TYPE oneTo2(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
     return 0;
 }
 
+INT_TYPE report ( struct calculation c, struct field f1){
+
+    if ( CanonicalRank(f1.f,interactionExchange,0) ){
+        ioStoreMatrix(f1.f,interactionExchange ,0,"interactionExchange.matrix",0);
+    }
+    if ( CanonicalRank(f1.f,interactionExchange,1) ){
+        ioStoreMatrix(f1.f,interactionExchange ,0,"interactionExchange.1.matrix",0);
+    }
+
+
+    if ( CanonicalRank(f1.f,jelliumElectron,0) ){
+        ioStoreMatrix(f1.f,jelliumElectron ,0,"jelliumElectron.matrix",0);
+    }
+
+    if ( CanonicalRank(f1.f,jelliumElectron,1) ){
+        ioStoreMatrix(f1.f,jelliumElectron ,1,"jelliumElectron.1.matrix",0);
+    }
+
+    if ( CanonicalRank(f1.f,intracellularSelfEwald,0) ){
+        ioStoreMatrix(f1.f,intracellularSelfEwald ,0,"intracellularSelfEwald.matrix",0);
+    }
+
+    if ( CanonicalRank(f1.f,intracellularSelfEwald,1) ){
+        ioStoreMatrix(f1.f,intracellularSelfEwald ,1,"intracellularSelfEwald.1.matrix",0);
+    }
+
+    if ( CanonicalRank(f1.f,intercellularSelfEwald,0) ){
+        ioStoreMatrix(f1.f,intercellularSelfEwald ,0,"intercellularSelfEwald.matrix",0);
+    }
+    if ( CanonicalRank(f1.f,intercellularSelfEwald,1) ){
+        ioStoreMatrix(f1.f,intercellularSelfEwald ,1,"intercellularSelfEwald.1.matrix",0);
+    }
+
+
+    if ( CanonicalRank(f1.f,interactionEwald,0) ){
+        ioStoreMatrix(f1.f,interactionEwald ,0,"interactionEwald.matrix",0);
+    }
+    if ( CanonicalRank(f1.f,interactionEwald,1) ){
+        ioStoreMatrix(f1.f,interactionEwald ,1,"interactionEwald.1.matrix",0);
+    }
+
+    if ( CanonicalRank(f1.f,shortenPlus,0) )
+        ioStoreMatrix(f1.f,shortenPlus ,0,"shortenExchangePlus.matrix",0);
+
+    if ( CanonicalRank(f1.f,shortenMinus,0) )
+        ioStoreMatrix(f1.f,shortenMinus ,0,"shortenExchangeMinus.matrix",0);
+
+
+    if ( CanonicalRank(f1.f,linear,0) ){
+        ioStoreMatrix(f1.f,linear ,0,"linear.matrix",0);
+
+    }
+    if ( CanonicalRank(f1.f,linear,1) ){
+        ioStoreMatrix(f1.f,linear ,1,"linear.1.matrix",0);
+
+    }
+    
+    if ( CanonicalRank(f1.f,trainHamiltonian,0) )
+        ioStoreMatrix(f1.f,trainHamiltonian ,0,"trainHamiltonian.matrix",0);
+    if ( CanonicalRank(f1.f,trainHamiltonian,1) )
+        ioStoreMatrix(f1.f,trainHamiltonian ,1,"trainHamiltonian.1.matrix",0);
+
+    return 0;
+}
+
 
 
 INT_TYPE distill ( struct calculation c, struct field f1){
     double oneBodyFraction = 1.;
-    enum bodyType body = f1.i.body;
-    switch( body ){
-        two:
+    switch( f1.i.body  ){
+        case two:
             oneBodyFraction = 1/1.;
             break;
-        three:
+        case three:
             oneBodyFraction = 1/2.;
             break;
-        four:
+        case four:
             oneBodyFraction = 1/3.;
             break;
     }
     iModel(&c, &f1);
-
     tClear(f1.f, hamiltonian);
     
-    if ( body >= two ){
+    if ( f1.i.body >= two ){
         
         
         if ( c.rt.runFlag == 0 ){
@@ -345,8 +357,12 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             tAddTw(f1.f, hamiltonian ,0,twoBody,0);
             tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
             oneTo2(f1.f, kinetic, 0, hamiltonian, 0);
+            tScaleOne(f1.f, kinetic, 0, 1./oneBodyFraction);
+
             tScaleOne(f1.f, linear, 0, oneBodyFraction);
             oneTo2(f1.f, linear, 0, hamiltonian, 0);
+            tScaleOne(f1.f, linear, 0, 1./oneBodyFraction);
+
             tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
             tClear(f1.f,hamiltonian);
             sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
@@ -361,21 +377,36 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             enum division twoBody = interactionEwald;
             //loop over 1 and two body terms..treat differently
             tAddTw(f1.f, hamiltonian ,0,twoBody,0);
+            
             tScaleOne(f1.f, linear, 0, oneBodyFraction);
             oneTo2(f1.f, linear, 0, hamiltonian, 0);
+            tScaleOne(f1.f, linear, 0, 1./oneBodyFraction);
+
+            printf("%f\n", traceOne(f1.f, hamiltonian, 0));
             
             tScaleOne(f1.f,intercellularSelfEwald, 0, oneBodyFraction);
             oneTo2(f1.f, intercellularSelfEwald, 0, hamiltonian, 0);
-            
+            tScaleOne(f1.f,intercellularSelfEwald, 0, 1./oneBodyFraction);
+
+            printf("%f\n", traceOne(f1.f, hamiltonian, 0));
+
             tScaleOne(f1.f,intracellularSelfEwald, 0, oneBodyFraction);
             oneTo2(f1.f, intracellularSelfEwald, 0, hamiltonian, 0);
-            
+            printf("%f\n", traceOne(f1.f, hamiltonian, 0));
+            tScaleOne(f1.f,intracellularSelfEwald, 0, 1./oneBodyFraction);
+
             tScaleOne(f1.f,jelliumElectron, 0, oneBodyFraction);
             oneTo2(f1.f, jelliumElectron, 0, hamiltonian, 0);
-            
+            tScaleOne(f1.f,jelliumElectron, 0, 1./oneBodyFraction);
+
+            printf("%f\n", traceOne(f1.f, hamiltonian, 0));
+
             tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
             oneTo2(f1.f, kinetic, 0, hamiltonian, 0);
-            
+            tScaleOne(f1.f, kinetic, 0, 1./oneBodyFraction);
+
+            printf("%f\n", traceOne(f1.f, hamiltonian, 0));
+
             tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
             tClear(f1.f,hamiltonian);
             sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
@@ -385,15 +416,24 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             tAddTw(f1.f, hamiltonian ,0,twoBody,1);
             tScaleOne(f1.f, kinetic, 1, oneBodyFraction);
             oneTo2(f1.f, kinetic, 1, hamiltonian, 0);
+            tScaleOne(f1.f, kinetic, 1, 1./oneBodyFraction);
+
             tScaleOne(f1.f, linear, 1, oneBodyFraction);
             oneTo2(f1.f, linear, 1, hamiltonian, 0);
+            tScaleOne(f1.f, linear, 1, 1./oneBodyFraction);
+
             tScaleOne(f1.f,intercellularSelfEwald, 1, oneBodyFraction);
             oneTo2(f1.f, intercellularSelfEwald, 1, hamiltonian, 0);
+            tScaleOne(f1.f,intercellularSelfEwald, 1, 1./oneBodyFraction);
+
             tScaleOne(f1.f,intracellularSelfEwald, 1, oneBodyFraction);
             oneTo2(f1.f, intracellularSelfEwald, 1, hamiltonian, 0);
+            tScaleOne(f1.f,intracellularSelfEwald, 1, 1./oneBodyFraction);
+
             tScaleOne(f1.f,jelliumElectron, 1, oneBodyFraction);
             oneTo2(f1.f, jelliumElectron, 1, hamiltonian, 0);
-            
+            tScaleOne(f1.f,jelliumElectron, 1, 1./oneBodyFraction);
+
             tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
             tClear(f1.f,hamiltonian);
             sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
@@ -408,18 +448,14 @@ INT_TYPE distill ( struct calculation c, struct field f1){
 
             tAddTw(f1.f,hamiltonian,0,kinetic ,0);
             tAddTw(f1.f,hamiltonian,0,linear ,0);
-            printf("%f\n", traceOne(f1.f, hamiltonian,0));
 
             tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
-            printf("%f\n", traceOne(f1.f, trainHamiltonian,0));
 
-            printf("%f\n", traceOne(f1.f, trainHamiltonian,0));
 
             tClear(f1.f,hamiltonian);
             sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
             tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
 
-            printf("%f\n", traceOne(f1.f, trainHamiltonian,0));
         } else {
 ////            tClear(f1.f, copy);
 ////            tId(f1.f, copy, 0);
@@ -461,10 +497,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
     }
     
     
-    if ( CanonicalRank(f1.f,trainHamiltonian,0) )
-        ioStoreMatrix(f1.f,trainHamiltonian ,0,"trainHamiltonian.matrix",0);
-    if ( CanonicalRank(f1.f,trainHamiltonian,1) )
-        ioStoreMatrix(f1.f,trainHamiltonian ,1,"trainHamiltonian.1.matrix",0);
+    report(c,f1);
     fModel(&f1.f);
     return 0;
 }
@@ -515,10 +548,6 @@ int main (INT_TYPE argc , char * argv[]){
     //0//...   //A//B//C//D//E
     if ( c.rt.phaseType == buildFoundation ){//0
         foundation(&c,f);
-        if ( f.i.cat <= 1 ){
-            c.rt.phaseType = distillMatrix;
-            distill(c,f);
-        }
     }
     else if ( c.rt.phaseType == productKrylov ){//C
         krylov(&c,f);
@@ -530,8 +559,11 @@ int main (INT_TYPE argc , char * argv[]){
         svd(c,f);
     }else if ( c.rt.phaseType == distillMatrix ){
         distill(c,f);
+    } else if ( c.rt.phaseType == reportMatrix ){
+        iModel(&c, &f);
+        report(c,f);
+        fModel(&f.f);
     }
-
     printf("\n\nFINIS.\n\n");
 }
 

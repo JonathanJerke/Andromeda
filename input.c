@@ -25,6 +25,26 @@
 
 #include "input.h"
 
+INT_TYPE allowQ( struct runTime *rt, enum blockMemoryType a ){
+    INT_TYPE i,flag = 0;
+    for ( i = 0; i < BlockCount ; i++)
+        flag += (rt->memBlock[i]==a);
+    return (flag == 0) ;
+}
+
+INT_TYPE blockA( struct runTime *rt, enum blockMemoryType a ){
+    INT_TYPE iii=0;
+    while ( rt->memBlock[iii] != passBlock ){
+        iii++;
+        if ( iii == BlockCount ){
+            printf("add BlockCount\n");
+            exit(0);
+        }
+    }
+    rt->memBlock[iii] = a;
+    return 1;
+}
+
 INT_TYPE add_atom( struct input *f1, INT_TYPE l, double x1,double y1,double z1 ){
     INT_TYPE n = f1->Na;
     INT_TYPE Z1,label ;
@@ -116,8 +136,9 @@ INT_TYPE control ( const char * line ){
 INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * input_line ){
     INT_TYPE i,d,ivalue;
     char test_line [MAXSTRING];
-    double value;
-    INT_TYPE NINT_TYPE = 119;
+    double value;                    INT_TYPE iii ;
+
+    INT_TYPE NINT_TYPE = 120;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -142,7 +163,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "length","XHA","lookBack","step","theory",//105
         "configuration","densityRank","densityBody","parallel","phase",//110
         "around","cmpl","clampStage","OCSB","decompose",
-        "shiftNO","matrix","catalog","increment"
+        "shiftNO","matrix","catalog","increment","blockMemory"
     };
     INT_TYPE NDOUBLE = 79;
     char *list_DOUBLE []= {"#",
@@ -760,6 +781,9 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     return i;
                 case 119:
                     c->i.decomposeRankMatrix += ivalue;
+                    return i;
+                case 120:
+                    blockA(&c->rt,ivalue);
                     return i;
 
             }
@@ -1753,7 +1777,7 @@ INT_TYPE readInput(struct calculation *c , struct input_label * f1, FILE * in){
 }
 
 INT_TYPE initCalculation(struct calculation * c ){
-    INT_TYPE g,space;
+    INT_TYPE g,space,i;
     c->i.level = 1e9;
     c->i.massElectron = 1.;
     c->i.massProton = 1836.15267245;
@@ -1765,6 +1789,9 @@ INT_TYPE initCalculation(struct calculation * c ){
     c->i.magFlag = 0;
     c->i.M1 = 0;
     c->i.Na = 0;
+    for ( i = 0 ; i < BlockCount ; i++)
+        c->rt.memBlock[i] = passBlock;
+
  //   c->i.OCSBflag = 0;
 //    for ( g = 0; g < nSAG*nSAG*nSAG ; g++)
 //        c->i.cSA[g] = 0;
