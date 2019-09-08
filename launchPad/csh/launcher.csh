@@ -36,7 +36,7 @@ end
 
 
                 if ( `wc -l launcher ` == 1 ) then
-                        foreach $COM ( `cat launcher` )
+                        foreach COM ( `cat launcher` )
                                 go.csh $COM
                                 echo "go $COM"
                         end
