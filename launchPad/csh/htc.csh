@@ -16,7 +16,7 @@ endif
 
 echo "touch jobDone" >> launcher
 
-foreach i in ( `seq 1 100`)
+foreach i ( `seq 1 100`)
 
 	$LAUNCHER_DIR/paramrun
 	if ( -e jobDone ) then
