@@ -4940,7 +4940,7 @@ INT_TYPE separateInteraction( struct sinc_label f1, double * position, enum divi
             x += metric.beta[0];
         } else {
             x = metric.beta[0];// value;
-            constant = 1;
+            constant = metric.fn.param[0];
         }
         
         //x is double beta.

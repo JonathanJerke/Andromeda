@@ -89,6 +89,36 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
     DCOMPLEX * arc ;
     INT_TYPE cmplFlag = spins(f1,kinetic)-1;
 
+    
+    
+    f1.tulip[Iterator].linkNext = kinetic1;
+    f1.tulip[kinetic1].linkNext = kinetic2;
+    f1.tulip[kinetic2].linkNext = kinetic3;
+    f1.tulip[kinetic3].linkNext = kinetic4;
+    f1.tulip[kinetic4].linkNext = kinetic5;
+    f1.tulip[kinetic5].linkNext = kinetic6;
+
+    if (bootBodies==two){
+        f1.tulip[kinetic2].linkNext = nullName;
+    }
+    else if ( bootBodies == three ){
+        f1.tulip[kinetic3].linkNext = nullName;
+    }    else if ( bootBodies == four ){
+        f1.tulip[kinetic4].linkNext = nullName;
+    }    else if ( bootBodies == five ){
+        f1.tulip[kinetic5].linkNext = nullName;
+    }    else if ( bootBodies == six ){
+        f1.tulip[kinetic6].linkNext = nullName;
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
     for ( space = 0 ;space < SPACE ; space++)
         if( f1.rose[space].body != nada){
             
@@ -252,7 +282,8 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                             tBuild3Irr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
                             if ( cblas_dnrm2(N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
                                 cblas_dcopy(N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
-                                streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0];
+                                tGEMV(rank, f1, space, diagonalVectorA, 0, rank, Iterator, space, 0, diagonalVectorB, 0, rank);
+                                streams(f1,foundationStructure,0,space)[v] = tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
                                 streams(f1,foundationStructure,1,space)[v] = 1;
                             }
                         } else {
@@ -324,7 +355,11 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                                 cblas_dcopy(N1*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
                                 
                                 
-                                streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0];
+                                tGEMV(rank, f1, space, diagonalVectorA, 0, rank, Iterator, space, 0, diagonalVectorB, 0, rank);
+                                streams(f1,foundationStructure,0,space)[v] = tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
+                                printf("%f -- %f\n", streams(f1,foundationStructure,0,space)[v], w[i] + w[ii] +w[iii]);
+                                streams(f1,foundationStructure,1,space)[v] = 1;
+
                                 streams(f1,foundationStructure,1,space)[v] = 1;
                             }
                             //SA++
@@ -395,7 +430,10 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                                 cblas_dcopy(N1*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
                                 
                                 
-                                streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0];
+                                tGEMV(rank, f1, space, diagonalVectorA, 0, rank, Iterator, space, 0, diagonalVectorB, 0, rank);
+                                streams(f1,foundationStructure,0,space)[v] = tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
+                                streams(f1,foundationStructure,1,space)[v] = 1;
+
                                 streams(f1,foundationStructure,1,space)[v] = 1;
                             }
                             
