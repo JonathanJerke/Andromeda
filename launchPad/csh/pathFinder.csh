@@ -11,20 +11,20 @@ foreach curr ( $argv )
 		set flag = 0
 		if ( $curr == found ) then
 	
-			if ( `splitFlag.csh`) then
+			#if ( `splitFlag.csh`) then
 				$LAUNCH/csh/cats.csh found/found
-			else
-				$LAUNCH/csh/gos.csh found/found
-			endif
+			#else
+			#	$LAUNCH/csh/gos.csh found/found
+			#endif
 			$LAUNCH/csh/distill.csh $curr
 			$LAUNCH/csh/go.csh found/Afound
-			if ( `splitFlag.csh`) then
+			#if ( `splitFlag.csh`) then
                         $LAUNCH/csh/catKrylov.csh $curr $curr states
                         $LAUNCH/csh/mergeRitzB.csh $curr $curr states
-			else
-                        $LAUNCH/csh/prevKrylov.csh $curr $curr states
-                        $LAUNCH/csh/prevRitzB.csh $curr $curr states
-			endif
+			#else
+                       # $LAUNCH/csh/prevKrylov.csh $curr $curr states
+                       # $LAUNCH/csh/prevRitzB.csh $curr $curr states
+			#endif
 	                $LAUNCH/csh/prevKrylovB.csh  $curr $curr states
       	
 		endif 
