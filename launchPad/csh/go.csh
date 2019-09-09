@@ -30,11 +30,11 @@ else
 			endif
 		endif
 		if ( $com =~ "*Afound") then
-	              if ( `splitFlag.csh`) then
+	          #    if ( `splitFlag.csh`) then
 				parse.csh found/A.riz
-		      else
+		  #    else
 		#	copy.csh found/A.riz
-	              endif
+	          #    endif
 		endif
 		if ( $com =~ "*B.kry*" ) then
 # && (`grep shift boot ` =~ "flow *" ||   `grep shift boot ` =~ "twist *"|| `grep shift boot ` =~ "shift *")) then
