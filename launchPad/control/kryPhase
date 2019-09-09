@@ -2,7 +2,6 @@
 	*Parameters
 		phase 1
 	 	filter 1
-		kineticShift 1
 		blockMemory 1
 		blockMemory 3
 		blockMemory 4
