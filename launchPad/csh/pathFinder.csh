@@ -31,13 +31,14 @@ foreach curr ( $argv )
 	else
 			$LAUNCH/csh/addStage.csh $prev $curr
 			$LAUNCH/csh/distill.csh $curr
-                        if ( `splitFlag.csh`) then
-                        $LAUNCH/csh/splitKrylov.csh $prev $curr states
-                        $LAUNCH/csh/mergeRitzB.csh $curr $curr states
-                        else
+			# offline here
+                       # if ( `splitFlag.csh`) then
+                       # $LAUNCH/csh/splitKrylov.csh $prev $curr states
+                       # $LAUNCH/csh/mergeRitzB.csh $curr $curr states
+                      #  else
                         $LAUNCH/csh/krylov.csh $prev $curr states
                         $LAUNCH/csh/prevRitzB.csh $curr $curr states
-                        endif
+                       # endif
                         $LAUNCH/csh/prevKrylovB.csh  $curr $curr states
 	endif
 	set prev = $curr
