@@ -4,6 +4,7 @@
 		read ../cnfg
 		read boot
 		read symmetry
+		read ../../control/buildPhase
 		read ../../control/moreLanes
 		print 1
 	.InputOutput
