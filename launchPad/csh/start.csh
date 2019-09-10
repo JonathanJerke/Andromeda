@@ -16,7 +16,7 @@ cp $LAUNCH/control/boot .
 endif
 
 if ( -e ../inc ) then
-cp ../inc
+cp ../inc .
 else
 cp $LAUNCH/control/inc .
 endif
