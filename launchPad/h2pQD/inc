@@ -1,9 +1,0 @@
-*Body 
-	*Parameters
-		attack 1.0
-		bandStage 3
-		clampStage 1
-		increment 10
-		basisStage 6
-	.Parameters
-.Body
