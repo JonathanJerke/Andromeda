@@ -1,6 +1,7 @@
 *Body print
 	*Parameters
 		phase 0
+		blockReset
 	        blockMemory 1
 		blockMemory 2
                 blockMemory 3
@@ -9,6 +10,6 @@
 
 
 	*InputOutput
-		read ../../control/moreLanes
+		control moreLanes
 	.InputOutput
 .Body

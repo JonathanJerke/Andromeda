@@ -3,13 +3,13 @@
 		#may work for 3 or higher but need big systems
 		decompose 2
 		#system dependent
-		maxRAM 4
+		maxRAM 30
 	#OPEN GAME,  trade speed for accuracy!
 	#
 		cmpl 1	
 		condition 8
 		tolerance 5
-		threshold 4
+		threshold 3
 		vectorThreshold 4
 		target 3
 		entropy 0
@@ -19,7 +19,6 @@
 		initRank 1
 		configuration 0
 		phase 0
-		matrix 30
 		range 2
 		lattice 1.8	
 		lanes 1

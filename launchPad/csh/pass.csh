@@ -3,7 +3,7 @@
 if ( $#argv == 1 ) then
 set RS = $1
 rm $LAUNCH/references
-foreach n  (3 4 )
+foreach n  ( 3 4 )
 
 foreach sa ( `cat $RS/sa-$n`)
 
@@ -13,7 +13,7 @@ foreach rs ( `cat $RS/rs`)
 	cp $RS/cnfg-$n $RS-$n-$sa-$rs/cnfg
  	cp $RS/boot-$n $RS-$n-$sa-$rs/boot
         cp $RS/inc-$n $RS-$n-$sa-$rs/inc
-
+	cp $RS/cat-$n-$sa $RS-$n-$sa-$rs/cat
 		cd $RS-$n-$sa-$rs
 		echo "*Body" 					>  wignerSeitz
 		echo "*Parameters" 				>> wignerSeitz
@@ -23,7 +23,7 @@ foreach rs ( `cat $RS/rs`)
 		start.csh go $sa  
 		cd go
 			pwd >> $LAUNCH/references
-			pathFinder.csh found  
+			pathFinder.csh found 1   
 		cd ..
 	cd ..
 end

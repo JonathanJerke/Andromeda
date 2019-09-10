@@ -2,16 +2,17 @@
 	*Parameters
 		phase 1
 	 	filter 1
+		blockReset 
 		blockMemory 2
 		blockMemory 3
 		blockMemory 4
 		blockMemory 5
 		blockMemory 6
 		catalog 0
-	.Parameters
+		.Parameters
 
 
 	*InputOutput
-		read ../../control/two
+		control two
 	.InputOutput
 .Body

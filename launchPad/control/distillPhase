@@ -2,12 +2,13 @@
 	*Parameters
 		phase 4
 		iterations 1
-                blockMemory 4
+ 		blockReset
+	        blockMemory 4
                 blockMemory 6
 	.Parameters
 
 
 	*InputOutput
-		read ../../control/moreLanes
+		control moreLanes
 	.InputOutput
 .Body

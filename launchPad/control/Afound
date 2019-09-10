@@ -2,6 +2,6 @@
 *InputOutput
 read found/found
 read found/found-vector
-read ../../control/ritzPhase
+control ritzPhase
 .InputOutput
 .Body
