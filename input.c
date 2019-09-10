@@ -25,6 +25,13 @@
 
 #include "input.h"
 
+INT_TYPE resetA( struct runTime *rt){
+    INT_TYPE i ;
+    for ( i = 0; i < BlockCount ; i++)
+        rt->memBlock[i] = passBlock;
+    return 1;
+}
+
 INT_TYPE allowQ( struct runTime *rt, enum blockMemoryType a ){
     INT_TYPE i,flag = 0;
     for ( i = 0; i < BlockCount ; i++)
@@ -138,7 +145,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
     char test_line [MAXSTRING];
     double value;                    INT_TYPE iii ;
 
-    INT_TYPE NINT_TYPE = 120;
+    INT_TYPE NINT_TYPE = 121;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -163,9 +170,10 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "length","XHA","lookBack","step","theory",//105
         "configuration","densityRank","densityBody","parallel","phase",//110
         "around","cmpl","clampStage","OCSB","decompose",
-        "shiftNO","matrix","catalog","increment","blockMemory"
+        "shiftNO","matrix","catalog","increment","blockMemory",//120
+        "blockReset"
     };
-    INT_TYPE NDOUBLE = 79;
+    INT_TYPE NDOUBLE = 80;
     char *list_DOUBLE []= {"#",
         "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST" ,//1-5
         "xB", "yB", "zB", "xyRange" , "zRange",//6-10
@@ -182,7 +190,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "linearDependence","condition","seek","width","latte",
         "magnetismZ","clampMin","clampMax","electronMass","protonMass",
         "pairMass","gamma0","ewald","levelScale","scaleVectorThreshold",
-        "scaleTarget","twist","flow","kineticShift"
+        "scaleTarget","twist","flow","kineticShift","power"
     };
     
     for ( i = 1 ; i <= NINT_TYPE ; i++){
@@ -785,6 +793,9 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                 case 120:
                     blockA(&c->rt,ivalue);
                     return i;
+                case 121:
+                    resetA(&c->rt);
+                    return i;
 
             }
         
@@ -1155,6 +1166,15 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     }
                     return d;
                 }
+                case 80:
+                {
+                    INT_TYPE i;
+                    for ( i= 0; i < 100 ; i++){
+                        c->i.shiftVector[i][0] = 0;
+                        c->i.shiftVector[i][1] = value;
+                    }
+                    return d;
+                }
 
             }
 
@@ -1381,7 +1401,7 @@ INT_TYPE intervalGeometry(struct calculation * c, const char * input_line ){
 
 INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const char * input_line ){
     INT_TYPE io;
-    INT_TYPE Nio = 32;
+    INT_TYPE Nio = 34;
     char test_line [MAXSTRING];
     char *list_IO[] = {"#",
         "densityIn","hartreeIn", "densityOut" ,//3
@@ -1394,7 +1414,8 @@ INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const ch
         "nameHartreeOut","Eigen" ,"set",//24
         "component","byHand","Spec",//27
         "vector","operator","print",//30
-        "body","shift"
+        "body","shift","control",//33
+        "interaction"
     };
     char filename[MAXSTRING];
     FILE * mid;
@@ -1644,6 +1665,39 @@ INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const ch
 //                return io;
                 return io;
             }
+            case 33:
+                mid = NULL;
+            {
+                char file2[MAXSTRING];
+                sprintf(file2,"%s/control/%s",getenv("LAUNCH"),filename);
+                mid = fopen ( file2, "r");
+            }
+                if( mid == NULL )
+                    return 0;
+                strcpy(test_line,c->name);
+                if ( readInput( c, f1,mid ) )
+                    return 0;
+                strcpy(c->name, test_line);//does not inheret name of run
+                fclose( mid);
+                return io;
+            case 34:
+                mid = NULL;
+            {
+                char file2[MAXSTRING];
+                sprintf(file2,"%s/interaction/%s",getenv("LAUNCH"),filename);
+                mid = fopen ( file2, "r");
+            }
+                if( mid == NULL )
+                    return 0;
+                strcpy(test_line,c->name);
+                if ( readInput( c, f1,mid ) )
+                    return 0;
+                strcpy(c->name, test_line);//does not inheret name of run
+                fclose( mid);
+                return io;
+                
+
+    
         }
         }
     }
@@ -1791,6 +1845,11 @@ INT_TYPE initCalculation(struct calculation * c ){
     c->i.Na = 0;
     for ( i = 0 ; i < BlockCount ; i++)
         c->rt.memBlock[i] = passBlock;
+
+    for ( i= 0; i < 100 ; i++){
+        c->i.shiftVector[i][0] = 0;
+        c->i.shiftVector[i][1] = 1;
+    }
 
  //   c->i.OCSBflag = 0;
 //    for ( g = 0; g < nSAG*nSAG*nSAG ; g++)

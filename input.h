@@ -30,6 +30,7 @@
 #include"constants.h"
 #include"coreMath.h"
 #include <dirent.h>
+INT_TYPE resetA( struct runTime *rt);
 INT_TYPE allowQ( struct runTime *  f1, enum blockMemoryType a );
 INT_TYPE blockA( struct runTime *  f1, enum blockMemoryType a );
 INT_TYPE rotateGeometry (struct calculation * c, double * u  );

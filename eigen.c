@@ -284,6 +284,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                                 cblas_dcopy(N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
                                 tGEMV(rank, f1, space, diagonalVectorA, 0, rank, Iterator, space, 0, diagonalVectorB, 0, rank);
                                 streams(f1,foundationStructure,0,space)[v] = tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
+                                if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
                                 streams(f1,foundationStructure,1,space)[v] = 1;
                             }
                         } else {
@@ -357,9 +358,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                                 
                                 tGEMV(rank, f1, space, diagonalVectorA, 0, rank, Iterator, space, 0, diagonalVectorB, 0, rank);
                                 streams(f1,foundationStructure,0,space)[v] = tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
-                                printf("%f -- %f\n", streams(f1,foundationStructure,0,space)[v], w[i] + w[ii] +w[iii]);
-                                streams(f1,foundationStructure,1,space)[v] = 1;
-
+                                if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
                                 streams(f1,foundationStructure,1,space)[v] = 1;
                             }
                             //SA++
@@ -432,9 +431,9 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                                 
                                 tGEMV(rank, f1, space, diagonalVectorA, 0, rank, Iterator, space, 0, diagonalVectorB, 0, rank);
                                 streams(f1,foundationStructure,0,space)[v] = tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
-                                streams(f1,foundationStructure,1,space)[v] = 1;
+                                if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
 
-                                streams(f1,foundationStructure,1,space)[v] = 1;
+                                    streams(f1,foundationStructure,1,space)[v] = 1;
                             }
                             
                             //SA++
