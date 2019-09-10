@@ -23,11 +23,11 @@ else
 		endif
 # allow D to be NORMAL!!
 		if ( $com =~ "*.riz") then
-	                if ( `splitFlag.csh`) then
-				echo "parse"
-				parse.csh $com
-			else 
-			endif
+	  #              if ( `splitFlag.csh`) then
+		#		echo "parse"
+		#		parse.csh $com
+	#		else 
+#			endif
 		endif
 		if ( $com =~ "*Afound") then
 	#              if ( `splitFlag.csh`) then
