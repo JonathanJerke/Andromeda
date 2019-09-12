@@ -4687,8 +4687,8 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
 
         }
     }
-    tCycleDecompostionGridOneMP(-1, f1, tempOneMatrix, 0, NULL, shorten, 0, f1.rt->CANON, part1, 1);
-    printf("Split 2-body ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),scalar*traceOne(f1, shorten, 0), fabs(scalar)*distance1(f1, shorten,0, tempOneMatrix,f1.rt->powDecompose));
+    tCycleDecompostionGridOneMP(-1, f1, tempOneMatrix, 0, NULL, shorten, 0, f1.rt->CANON, part1, f1.rt->powDecompose);
+    printf("Split 2-body ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),scalar*traceOne(f1, shorten, 0), fabs(scalar)*distance1(f1, shorten,0, tempOneMatrix,0));
     tScaleOne(f1, shorten,0, scalar);
     return ;
 }
@@ -5459,7 +5459,7 @@ INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label f1, en
         }
     if ( bootedQ(f1) ){
         tCycleDecompostionGridOneMP(-2, f1, tempOneMatrix, 0, NULL, single, cmpl-1, f1.rt->CANON, part(f1, single), f1.rt->powDecompose);
-        printf("Split 1-body ++%d  \t%f %f\n", CanonicalRank(f1, single, cmpl-1),traceOne(f1, single, cmpl-1), distance1(f1, single,cmpl-1, tempOneMatrix,f1.rt->powDecompose));
+        printf("Split 1-body ++%d  \t%f %f\n", CanonicalRank(f1, single, cmpl-1),traceOne(f1, single, cmpl-1), distance1(f1, single,cmpl-1, tempOneMatrix,0));
     }
 
     return ra;
