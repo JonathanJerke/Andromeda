@@ -6,8 +6,8 @@
 	*Parameters
 		power 1	
 		matrix 16	
-		levelScale 2
-		foundation 2000	
+		levelScale 6
+		foundation 100	
                 basisRank 12
                 states 10
 		iterations 9

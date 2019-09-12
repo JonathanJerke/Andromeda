@@ -30,7 +30,9 @@ else
 endif
 echo "PostProcessing `cat post`"
 
-set found = 10
+
+##  
+set found = 100
 
 if ( -e ../cnfg ) then
 set body = `getParam.csh body ../cnfg`
