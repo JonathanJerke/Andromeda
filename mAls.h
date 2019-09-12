@@ -31,8 +31,9 @@
 #include "interfaceMath.h"
 #include "saUtil.h"
 
+INT_TYPE analyze (struct sinc_label  f1 , enum division term,INT_TYPE sp );
 void pContract ( INT_TYPE rank,struct sinc_label  *f1, enum division mat,INT_TYPE ms, enum division vector ,INT_TYPE vs1, enum division vector2,INT_TYPE vs2);
-
+INT_TYPE spectralTerms (struct sinc_label  f1 , enum division term ,INT_TYPE sp);
 void tContract ( INT_TYPE rank,struct sinc_label  f1, enum division mat,INT_TYPE ms, enum division vector ,INT_TYPE vs1, enum division vector2,INT_TYPE vs2);
 double tCycleMultiplyMP ( INT_TYPE rank,struct sinc_label  f1 ,INT_TYPE begin, INT_TYPE end, char mc,enum division mat,INT_TYPE ms, enum division vec, INT_TYPE vs,   enum division alloy ,  INT_TYPE spin ,double tolerance, INT_TYPE maxRun, double power);
 double tInnerVectorListMP( INT_TYPE rank, struct sinc_label  f1 , enum division origin, double * coeff, enum division vector,INT_TYPE spin );
@@ -46,6 +47,7 @@ INT_TYPE spread (struct sinc_label  f1, enum division origin, INT_TYPE l1,INT_TY
 INT_TYPE pSpread (struct sinc_label f1, enum division origin, INT_TYPE l1, INT_TYPE l2, INT_TYPE os, enum division alloy, INT_TYPE l3, INT_TYPE l4, INT_TYPE spin, INT_TYPE space, Stream_Type * output,Stream_Type * output2);
 INT_TYPE balance (struct sinc_label f1,  enum division alloy, INT_TYPE spin);
 double canonicalListDecompositionMP( INT_TYPE rank,struct sinc_label f1 , Stream_Type * cofact, enum division origin,INT_TYPE os,   enum division alloy ,  INT_TYPE spin ,double tolerance,double magn,INT_TYPE preferred);
+double tCycleDecompostionFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  );
 double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  );
 double tCycleDecompostionListOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  );
 INT_TYPE tOuterProductSu( struct sinc_label  f1,enum division vector , INT_TYPE a, enum division vector2,INT_TYPE b, enum division proj, INT_TYPE c);

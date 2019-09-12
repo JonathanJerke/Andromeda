@@ -326,16 +326,15 @@ INT_TYPE tdpotrf ( INT_TYPE L1, double * array ) {
 #ifdef APPLE
         dpotrf_( &charU , &L1, array, &L1, &info ) ;
 
+#else
+info =  LAPACKE_dpotrf(LAPACK_COL_MAJOR,'U',L1,  array, L1 );
+#endif
     if ( info != 0 ){
         INT_TYPE i ;
         for ( i = 0 ; i < L1 *L1 ; i++)
             printf("%f\n", array[i]);
         exit(1);
     }
-#else
-info =  LAPACKE_dpotrf(LAPACK_COL_MAJOR,'U',L1,  array, L1 );
-#endif
-    
     return info;
 }
 

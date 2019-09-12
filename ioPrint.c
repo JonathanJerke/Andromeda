@@ -68,7 +68,6 @@ INT_TYPE print(struct calculation *c , struct field f1,INT_TYPE reset,INT_TYPE m
         for ( iii = mv; iii < lv  ; iii++)
           //  if( (! c->i.irrep || f1->sinc.tulip[eigenVectors+iii].value.symmetry  == irrep)&& irrep == c->i.irrep)
         {
-               tEdges(f1.f , eigenVectors+iii);
             irrep = f1.f.tulip[eigenVectors+iii].value.symmetry;
                 printf("State%d:%d:,%d ,%1.15f, %d, %d , %1.1f,%1.15f\n", iii+1, f1.i.epi*2+1,iii+1,f1.f.tulip[eigenVectors+iii].value.value,bodies(f1.f,eigenVectors+iii),irrep, deg(f1.f, irrep),f1.f.tulip[eigenVectors+iii].value.value2);
                 
@@ -113,17 +112,19 @@ INT_TYPE ioStoreMatrix(struct sinc_label f1, enum division op, INT_TYPE spin, ch
                     tempFlag = 0;
                 }
                 if ( f1.rose[space].count1Basis != inputFormat(f1, filename, nullName, 200+space/COMPONENT)){
-                 //   printf("count");
-                 //   printf("%d--%d != %d \n",space,f1->sinc.rose[space].count1Basis ,inputFormat(f1, filename, nullName, 200+space/COMPONENT) );
+                //   printf("count");
+                   // printf("%d--%d != %d \n",space,f1.rose[space].count1Basis ,inputFormat(f1, filename, nullName, 200+space/COMPONENT) );
                     tempFlag = 0;
                 }
 
             }
-            if ( tempFlag && part(f1, op ) >= inputFormat(f1, filename, nullName, 2)){
-                        matchFlag = 1;
-                
-            }else {
-             //   printf("ranks");
+            if ( tempFlag){
+                if ( part(f1, op ) >= inputFormat(f1, filename, nullName, 2)){
+                    matchFlag = 1;
+                    
+                }else {
+                  //  printf("ranks");
+                }
             }
         }
         else
@@ -1049,13 +1050,22 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                             f1.tulip[inputVectors+*ct].Current[cmpl] = 0;
 
                             struct field f2 = initField();
-                            
+                            struct calculation c2;
+                            c2 = *c1;
+                            f2.f.rt = &c2.rt;
+                            f2.f.rt->phaseType = productKrylov;
                             f2.i = f.i;
                             f2.i.Iterations = 1;
                             f2.i.files = 0;
                             f2.i.filesVectorOperator = 0;
                             f2.i.qFloor = 0;
-                            
+
+                            blockA(f2.f.rt, blockHamiltonianBlock);
+                            blockA(f2.f.rt, blockTrainHamiltonianBlock);
+                            blockA(f2.f.rt, blockTrainingHamiltonianBlock);
+                            blockA(f2.f.rt, blockFoundationBlock);
+                            blockA(f2.f.rt, blockBuildHamiltonianBlock);
+                            blockA(f2.f.rt, blockEigenDecomposeBlock);
                             f2.i.body = inputFormat(f1,name, nullName, 100);
                         
                             f2.f.boot = noMatrices;
@@ -1076,7 +1086,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
 
                             f2.i.d = f.i.d * pow( (2.* f.i.epi + 1.) /(2.*f2.i.epi + 1),f.i.attack);
                             
-                            iModel(c1,&f2);
+                            iModel(&c2,&f2);
                             inputFormat(f2.f, name, eigenVectors,1);
                             if ( collect ){
                                 xEqua(f1,copyVector, 0, f2.f, eigenVectors,0);

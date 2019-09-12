@@ -173,7 +173,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "shiftNO","matrix","catalog","increment","blockMemory",//120
         "blockReset"
     };
-    INT_TYPE NDOUBLE = 80;
+    INT_TYPE NDOUBLE = 81;
     char *list_DOUBLE []= {"#",
         "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST" ,//1-5
         "xB", "yB", "zB", "xyRange" , "zRange",//6-10
@@ -190,7 +190,8 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "linearDependence","condition","seek","width","latte",
         "magnetismZ","clampMin","clampMax","electronMass","protonMass",
         "pairMass","gamma0","ewald","levelScale","scaleVectorThreshold",
-        "scaleTarget","twist","flow","kineticShift","power"
+        "scaleTarget","twist","flow","kineticShift","power",//80
+        "encapsulate"
     };
     
     for ( i = 1 ; i <= NINT_TYPE ; i++){
@@ -1175,7 +1176,11 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     }
                     return d;
                 }
-
+                case 81:
+                {
+                    c->rt.CAP = pow(0.1, value);
+                    return d;
+                }
             }
 
         }

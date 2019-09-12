@@ -56,7 +56,7 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
 
 
 INT_TYPE krylov ( struct calculation *c1, struct field f1){
-    INT_TYPE EV = 0,i,fi;
+    INT_TYPE EV = 0,i,fi,next;
 
 
     f1.i.qFloor = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
@@ -113,6 +113,7 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
         printExpectationValues(f1.f, Ha, eigenVectors);
         fflush(stdout);
         print(c1,f1,1,0,1,eigenVectors);
+        tEdges(f1.f, eigenVectors);
     }
     
     INT_TYPE flag;
@@ -133,11 +134,18 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
                 printf ("Step \t%d\n", iterator);
                 fflush(stdout);
                 INT_TYPE iii ;
-                for ( iii = 0; iii < EV ; iii++){
+                next = 0;
+                for ( iii = 0; iii < 1 ; iii++){
                     printf ( "\n Vector \t%d \t %d\n", iii+1, +RdsSize-EV+iii);
                     printExpectationValues(f1.f, Ha, eigenVectors+RdsSize-EV+iii);
                     fflush(stdout);
+                    next = tEdges(f1.f , eigenVectors+RdsSize-EV+iii);
+                    //assume EV = 1;
                     print(c1,f1,0,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
+                }
+                if ( next ){
+                    printf("advice:\t %d\n",next);
+                    break;
                 }
             }
         }else {
@@ -363,7 +371,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             oneTo2(f1.f, linear, 0, hamiltonian, 0);
             tScaleOne(f1.f, linear, 0, 1./oneBodyFraction);
 
-            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
+            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
             tClear(f1.f,hamiltonian);
             sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
             tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
@@ -407,7 +415,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
 
             printf("%f\n", traceOne(f1.f, hamiltonian, 0));
 
-            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
+            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
             tClear(f1.f,hamiltonian);
             sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
             tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
@@ -434,7 +442,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             oneTo2(f1.f, jelliumElectron, 1, hamiltonian, 0);
             tScaleOne(f1.f,jelliumElectron, 1, 1./oneBodyFraction);
 
-            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
+            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
             tClear(f1.f,hamiltonian);
             sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
             tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
@@ -449,7 +457,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             tAddTw(f1.f,hamiltonian,0,kinetic ,0);
             tAddTw(f1.f,hamiltonian,0,linear ,0);
 
-            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
+            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
 
 
             tClear(f1.f,hamiltonian);
@@ -468,7 +476,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             tAddTw(f1.f,hamiltonian,0,intracellularSelfEwald ,0);
             tAddTw(f1.f,hamiltonian,0,jelliumElectron ,0);
             
-            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
+            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
             tClear(f1.f,hamiltonian);
             sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
             tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
@@ -481,7 +489,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             tAddTw(f1.f,hamiltonian,0,intracellularSelfEwald ,1);
             tAddTw(f1.f,hamiltonian,0,jelliumElectron ,1);
 
-            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), 2);
+            tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
 
             
             tClear(f1.f,hamiltonian);

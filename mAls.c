@@ -218,333 +218,390 @@ INT_TYPE sortTerms (struct sinc_label  f1 , enum division term,INT_TYPE sp,enum 
     return 0;
     
 }
-
-
-
-double canonicalListDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Stream_Type * cofact, enum division origin,INT_TYPE os,   enum division alloy ,  INT_TYPE spin ,double tolerance,double magn, INT_TYPE preferred){
-    if ( tolerance < 0 ){
-        tolerance = -(tolerance);
+INT_TYPE analyze (struct sinc_label  f1 , enum division term,INT_TYPE sp )
+{
+    INT_TYPE r,space;
+    double c[10000];
+    for ( r = 0 ; r < CanonicalRank(f1, term, sp);r++){
+        c[2*r] = 1.;
+        for ( space = 0; space < SPACE ; space++)
+            if ( f1.rose[space].component > 0 )
+                c[2*r] *= tDOT(0, f1, space, 1, term, r, sp, 1, term, r, sp);
+        c[2*r+1] = 1.;
+        if ( r )
+        for ( space = 0; space < SPACE ; space++)
+            if ( f1.rose[space].component > 0 )
+                c[2*r+1] *= tDOT(0, f1, space, 1, term, r-1, sp, 1, term, r, sp);
     }
-    INT_TYPE yes = 0,singleFlag = 0;
-    if ( rank < 0){
-        singleFlag = 1;
-        rank = 0;
-    }
-    double value,value2 =1,cross,other2,value3;
-    //printf("%d (%d)\n", alloy,CanonicalRank(f1, alloy, 0));
-    //fflush(stdout);
-    INT_TYPE g,l,count = 1 ,spaces=0;
-    
-    INT_TYPE ns = iNS;
-    double ALPHA = f1.rt->ALPHA,CONDITION = 1.,ALPHA2,FRACTION;
-//    if ( cofact != NULL )
-//    for ( l = 0 ; l < CanonicalRank(f1, origin, os); l++)
-//        printf("%d %f\n", l, cofact[l]);
-//    printf("\n");
-    Stream_Type * array[SPACE];
-    Stream_Type * array2[SPACE];
-    Stream_Type * guide, *track;
-    INT_TYPE space,space0;
-    INT_TYPE L1 = CanonicalRank(f1,alloy,spin);;
-    INT_TYPE G1 = CanonicalRank(f1,origin,os);
-    if ( G1 == 0 ){
-        f1.tulip[alloy].Current[spin] = 0;
-        printf("CD: empty origin %d _%lld -> %d _%lld\n", origin, os , alloy, spin);
-        return 0;
-    }
-    for ( space = 0; space < SPACE ; space++)
-        if ( f1.rose[space].body != nada )
-            spaces++;
-
-    if ( L1 == 0 ){
-        // printf("CD: zero length %lld %lld %lld\n", origin,alloy,spin);
-        tId(f1, alloy, spin);
-        L1 = 1;
+    for ( r = 0 ; r < CanonicalRank(f1, term, sp);r++){
+        printf("%d %f %f\n", r, c[2*r],c[2*r+1]);
     }
     
-    INT_TYPE M2[SPACE];
-    length(f1,alloy,M2);
-    INT_TYPE info;
-    double subValue2 = 1,subValue3;
-    double rcond;
-    enum division canonicalStore;
-    INT_TYPE T1 = G1*L1;
-    if (! singleFlag ){//REF CORE NUMBER
-        //GET CORE... ALLOCATE TO CORE-LANE.
-        printf("not allocated\n");
-        exit(0);//currently not allocated
-        
-        for ( space = 0; space < SPACE ; space++){
-            array[space] =  streams(f1, canonicalBuffers, rank , space);
-            array2[space] =  streams(f1, canonicalBuffers, rank , space) + L1*L1;
-            
-        }
-        guide =  myStreams(f1, guideBuffer, rank );
-        track =  myStreams(f1, trackBuffer, rank );
-        
-        
-        if (  T1 + L1*L1 >  part(f1,canonicalBuffers)){
-#if 1
-            printf("mem prob\n %d %d \n", L1, G1);
-#endif
-            exit(0);
-        }
-        
-        if ( species(f1, origin ) == matrix )
-            canonicalStore = canonicalBuffersBM;
-        else
-            canonicalStore = canonicalBuffersB;
-        
-        if ( part(f1, canonicalStore) < L1  )
-        {
-            printf("list alloc\n");
-            exit(0);
-        }
-        
-        
-    }else
-    {//REF CORE NUMBER
-        //GET CORE... ALLOCATE TO CORE-LANE.
-        
-        
-        for ( space = 0; space < SPACE ; space++){
-            array[space] =  streams(f1, canonicalBuffers0, 0 , space);
-            array2[space] =  streams(f1, canonicalBuffers0, 0 , space) + L1*L1;
-            
-        }
-        guide =  myStreams(f1, guideBuffer0, 0 );
-        track =  myStreams(f1, trackBuffer0, 0 );
-        
-        
-        if (  T1 + L1*L1 >  part(f1,canonicalBuffers0)){
-#if 1
-            printf("mem prob\n %d %d  = %d\n", L1, G1,part(f1,canonicalBuffers0));
-#endif
-            exit(0);
-        }
-        
-        if ( species(f1, origin ) == matrix )
-            canonicalStore = canonicalBuffersBM;
-        else
-            canonicalStore = canonicalBuffersB;
-        
-        if ( part(f1, canonicalStore) < L1  )
-        {
-            printf("list alloc\n");
-            exit(0);
-        }
-        
-        
-    }
-    INT_TYPE dim0 = 0;
-
-    INT_TYPE dim[SPACE],ll;
-   
-    {
-
-        space0 = 0;
-        
-        dim0=0;
-        if ( preferred == -1 ){
-            for ( space = 0; space < SPACE ; space++)
-                if ( f1.rose[space].body != nada)
-                    dim[(space0+space)%(spaces)] = dim0++;
-            
-        } else {
-            for ( space = 0; space < SPACE ; space++)
-                if ( f1.rose[space].body != nada)
-                    
-                    dim[dim0++] = (preferred+space)%(spaces);
-            
-
-        }
-        for ( space = 0; space < dim0 ; space++)
-            if ( f1.rose[dim[space]].body != nada){
-                
-                
-                if ( !singleFlag){
-                 if ( spread(f1,origin,0,G1,os,alloy,0,L1,spin,dim[space],array[dim[space]],array2[dim[space]]) )
-                    return -1;
-                }else
-                    if ( pSpread(f1,origin,0,G1,os,alloy,0,L1,spin,dim[space],array[dim[space]],array2[dim[space]]) )
-                        return -1;
-
-        }
-//        {
-//            INT_TYPE spa;
-//            for ( spa = 0 ; spa < SPACE ; spa++)
-//                if ( f1.rose[spa].body != nada )
-//                    printf("*%1.3f*", cblas_dnrm2(L1*M2[spa], streams(f1, alloy, spin, spa), 1)/sqrt(L1));
-//            printf("\n");
-//        }
-        
-        space0 = 0;
-        while (1 ){
-            //all computed inner products
-//            printf("dim[0]=%d\n", dim[0]);
-            dim0 = 0;
-            if ( preferred == -1 ){
-                for ( space = 0; space < SPACE ; space++)
-                    if ( f1.rose[space].body != nada)
-
-                        dim[(space0+space)%(spaces)] = dim0++;
-                
-            }
-            cblas_dcopy(L1*L1, array[dim[1]],1,track,1);
-            for ( space = 2; space < dim0 ; space++)
-                if ( f1.rose[dim[space]].body != nada)
-                cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1*L1, 0,array[dim[space]],1, track,1 );
-            if ( L1 >1 )
-                for ( l = 0 ; l < L1; l++)
-                    track[ l*L1 + l ] += ALPHA;
-
-            if(0)
-            if (space0 == 10 && L1 > 1){
-                cblas_dcopy(L1*L1, track, 1, track+L1*L1, 1);
-                tdsyev(rank, f1, 'V', L1, track+L1*L1, L1, track+2*L1*L1);
-                
-                rcond = (track+2*L1*L1)[L1-1]/(track+2*L1*L1)[0];
-                if (  isnan(rcond) || isinf(rcond) || rcond > 1e12){
-#if VERBOSE
-                    printf("Warning: condition of Beylkin\n");
-                    fflush(stdout);
-#endif
-                     return -1;
-                }
-                //maybe one at a time???
-
-            }
-            cblas_dcopy(T1, array2[dim[1]],1,guide,1);
-            for ( space = 2; space < dim0 ; space++)
-                if ( f1.rose[dim[space]].body != nada)
-                cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,T1, 0,array2[dim[space]],1, guide,1 );
-            if ( cofact != NULL )
-                for ( g = 0; g < G1 ; g++)
-                    for ( l = 0; l < L1 ; l++)
-                        guide[g*L1+l] *= cofact[g];
-
-            // Vectors  L1 x G1
-            // list...  L1 x M2 ==   ( cross * gstream**T )
-            
-            
-            
-            double *pt = myStreams(f1,canonicalStore , rank);
-            
-            if ( 0 ) {
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,L1,M2[dim[0]],G1,1,guide,L1,streams(f1,origin,os,dim[0]),M2[dim[0]], 0, pt, L1 );
-                
-               // guide //  L1 * G1
-                // origin // M2 * G1
-                info = tdpotrf(L1, track);
-                if ( info != 0 ){
-#if VERBOSE
-                    printf("info failure \n");
-#endif
-                    return -1;
-                }
-
-                info = tdpotrs(L1,  M2[dim[0]], track,  pt,L1 );
-                if ( info != 0 ){
-#if VERBOSE
-                    printf("info failture\n");
-#endif
-                    return -1;
-                }
-                transpose ( L1, M2[dim[0]] , pt , streams(f1,alloy,spin,dim[0]));
-            } else {
-                info = tdpotrf(L1, track);
-                if ( info != 0 ){
-#if VERBOSE
-                    printf("info failure \n");
-#endif
-                    return -1;
-                }
-
-                for ( ll = 0; ll < M2[dim[0]] ; ll++){
-                    cblas_dgemv(CblasColMajor, CblasNoTrans,L1,G1,1.,guide,L1,streams(f1,origin,os,dim[0])+ll,M2[dim[0]], 0., pt,1);
-                    if ( 0 ){
-                        cblas_dcopy(L1*L1, track, 1, track+L1*L1, 1);
-                        info = tdgels(rank, f1, L1, 1, track+L1*L1,  pt, L1);
-                        if ( info != 0 ){
-#if VERBOSE
-                            printf("info failure \n");
-#endif
-                            return -1;
-                        }
-
-                    } else {
-                        
-                        info = tdpotrs(L1,  1, track,  pt,L1 );
-                        if ( info != 0 ){
-#if VERBOSE
-                            printf("info failture\n");
-#endif
-                            return -1;
-                        }
-
-                    }
-                    cblas_dcopy(L1, pt, 1, streams(f1,alloy,spin,dim[0])+ll, M2[dim[0]]);
-
-                }
-
-            }
-            
-            
-            subValue3 = subValue2;
-            
-//            {
-//                INT_TYPE spa;
-//                for ( spa = 0 ; spa < SPACE ; spa++)
-//                    if ( f1.rose[spa].body != nada )
-//                        printf("%1.3f ", cblas_dnrm2(L1*M2[spa], streams(f1, alloy, spin, spa), 1)/sqrt(L1));
-//                printf("\n");
-//            }
-            
-            subValue2 =  cblas_dnrm2(L1*M2[dim[0]], streams(f1, alloy, spin, dim[0]), 1)/magn/sqrt(L1);
-            
-            
-            FRACTION = sqrt(subValue2*subValue3);
-            
-            CONDITION = sqr(subValue2/FRACTION);
-            ALPHA2 = ALPHA * pow(fabs(CONDITION),0.1);
-            
-#if VERBOSE
-            printf("ALPHA %f %f %f %d %d\n", log(ALPHA)/log(10) , log(ALPHA2)/log(10) , CONDITION, L1,G1 );
-#endif
-            ALPHA = ALPHA2;
-
-            
-            if ( fabs(subValue2 - subValue3) < tolerance ){
-                yes++;
-            }else {
-                yes = max(yes-2,0);
-            }
-
-            if ( yes > 100 ){
-              //  printf("ct %d\n", count);
-                return 0;
-            }
-            
-            ///printf("(%3.3f %3.3f)\n", subValue2, subValue3);
-            count++;
-            if ( space0 > 10000 )
-            {
-               // printf("ct(fail) %d\n", count);
-                return 0;
-            }
-            if ( !singleFlag){
-                if ( spread(f1,origin,0,G1,os,alloy,0,L1,spin,dim[0],array[dim[0]],array2[dim[0]]) )
-                    return -1;
-            }else
-                if ( pSpread(f1,origin,0,G1,os,alloy,0,L1,spin,dim[0],array[dim[0]],array2[dim[0]]) )
-                    return -1;
-
-            space0++;
-
-        }
-    }
-    return -1;
+    return 0;
+    
 }
+
+
+INT_TYPE spectralTerms (struct sinc_label  f1 , enum division term ,INT_TYPE sp){
+    
+    INT_TYPE L, N,l,n,s,X;
+    double *cc[SPACE];
+    for ( s = 0 ; s < SPACE ; s++)
+        if ( f1.rose[s].body != nada)
+            cc[s] = streams(f1, term, sp, s);
+
+    L = CanonicalRank(f1, term, sp);
+    N = alloc(f1,term,0);
+    X = N*SPACE + SPACE;
+    double *ccc = malloc(sizeof(double)*X * L);
+    for ( l = 0; l < L ; l++){
+        for ( s = 0 ;s < SPACE ; s++)
+            if ( f1.rose[s].body != nada)
+                (ccc+l*X)[s] = N;
+            else
+                (ccc+l*X)[s] = 0;
+        for ( n = 0; n < N ; n++)
+            for ( s = 0; s < SPACE ; s++)
+                if ( f1.rose[s].body != nada)
+
+                (ccc+l*X+SPACE)[SPACE*n+s]=(cc)[s][n+N*l];
+    }
+    qsort(ccc, L, sizeof(double)*X, sortx2Comp );
+    for ( l = 0; l < L ; l++){
+        for ( n = 0; n < N ; n++)
+            for ( s = 0; s < SPACE ; s++)
+                if ( f1.rose[s].body != nada)
+
+                    (cc)[s][n+N*l] =(ccc+l*X+SPACE)[SPACE*n+s];
+    }
+    free(ccc);
+    return 0;
+}
+
+//double canonicalListDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Stream_Type * cofact, enum division origin,INT_TYPE os,   enum division alloy ,  INT_TYPE spin ,double tolerance,double magn, INT_TYPE preferred){
+//    if ( tolerance < 0 ){
+//        tolerance = -(tolerance);
+//    }
+//    INT_TYPE yes = 0,singleFlag = 0;
+//    if ( rank < 0){
+//        singleFlag = 1;
+//        rank = 0;
+//    }
+//    double value,value2 =1,cross,other2,value3;
+//    //printf("%d (%d)\n", alloy,CanonicalRank(f1, alloy, 0));
+//    //fflush(stdout);
+//    INT_TYPE g,l,count = 1 ,spaces=0;
+//    
+//    INT_TYPE ns = iNS;
+//    double ALPHA = f1.rt->ALPHA,CONDITION = 1.,ALPHA2,FRACTION;
+////    if ( cofact != NULL )
+////    for ( l = 0 ; l < CanonicalRank(f1, origin, os); l++)
+////        printf("%d %f\n", l, cofact[l]);
+////    printf("\n");
+//    Stream_Type * array[SPACE];
+//    Stream_Type * array2[SPACE];
+//    Stream_Type * guide, *track;
+//    INT_TYPE space,space0;
+//    INT_TYPE L1 = CanonicalRank(f1,alloy,spin);;
+//    INT_TYPE G1 = CanonicalRank(f1,origin,os);
+//    if ( G1 == 0 ){
+//        f1.tulip[alloy].Current[spin] = 0;
+//        printf("CD: empty origin %d _%lld -> %d _%lld\n", origin, os , alloy, spin);
+//        return 0;
+//    }
+//    for ( space = 0; space < SPACE ; space++)
+//        if ( f1.rose[space].body != nada )
+//            spaces++;
+//
+//    if ( L1 == 0 ){
+//        // printf("CD: zero length %lld %lld %lld\n", origin,alloy,spin);
+//        tId(f1, alloy, spin);
+//        L1 = 1;
+//    }
+//    
+//    INT_TYPE M2[SPACE];
+//    length(f1,alloy,M2);
+//    INT_TYPE info;
+//    double subValue2 = 1,subValue3;
+//    double rcond;
+//    enum division canonicalStore;
+//    INT_TYPE T1 = G1*L1;
+//    if (! singleFlag ){//REF CORE NUMBER
+//        //GET CORE... ALLOCATE TO CORE-LANE.
+//        printf("not allocated\n");
+//        exit(0);//currently not allocated
+//        
+//        for ( space = 0; space < SPACE ; space++){
+//            array[space] =  streams(f1, canonicalBuffers, rank , space);
+//            array2[space] =  streams(f1, canonicalBuffers, rank , space) + L1*L1;
+//            
+//        }
+//        guide =  myStreams(f1, guideBuffer, rank );
+//        track =  myStreams(f1, trackBuffer, rank );
+//        
+//        
+//        if (  T1 + L1*L1 >  part(f1,canonicalBuffers)){
+//#if 1
+//            printf("mem prob\n %d %d \n", L1, G1);
+//#endif
+//            exit(0);
+//        }
+//        
+//        if ( species(f1, origin ) == matrix )
+//            canonicalStore = canonicalBuffersBM;
+//        else
+//            canonicalStore = canonicalBuffersB;
+//        
+//        if ( part(f1, canonicalStore) < L1  )
+//        {
+//            printf("list alloc\n");
+//            exit(0);
+//        }
+//        
+//        
+//    }else
+//    {//REF CORE NUMBER
+//        //GET CORE... ALLOCATE TO CORE-LANE.
+//        
+//        
+//        for ( space = 0; space < SPACE ; space++){
+//            array[space] =  streams(f1, canonicalBuffers0, 0 , space);
+//            array2[space] =  streams(f1, canonicalBuffers0, 0 , space) + L1*L1;
+//            
+//        }
+//        guide =  myStreams(f1, guideBuffer0, 0 );
+//        track =  myStreams(f1, trackBuffer0, 0 );
+//        
+//        
+//        if (  T1 + L1*L1 >  part(f1,canonicalBuffers0)){
+//#if 1
+//            printf("mem prob\n %d %d  = %d\n", L1, G1,part(f1,canonicalBuffers0));
+//#endif
+//            exit(0);
+//        }
+//        
+//        if ( species(f1, origin ) == matrix )
+//            canonicalStore = canonicalBuffersBM;
+//        else
+//            canonicalStore = canonicalBuffersB;
+//        
+//        if ( part(f1, canonicalStore) < L1  )
+//        {
+//            printf("list alloc\n");
+//            exit(0);
+//        }
+//        
+//        
+//    }
+//    INT_TYPE dim0 = 0;
+//
+//    INT_TYPE dim[SPACE],ll;
+//   
+//    {
+//
+//        space0 = 0;
+//        
+//        dim0=0;
+//        if ( preferred == -1 ){
+//            for ( space = 0; space < SPACE ; space++)
+//                if ( f1.rose[space].body != nada)
+//                    dim[(space0+space)%(spaces)] = dim0++;
+//            
+//        } else {
+//            for ( space = 0; space < SPACE ; space++)
+//                if ( f1.rose[space].body != nada)
+//                    
+//                    dim[dim0++] = (preferred+space)%(spaces);
+//            
+//
+//        }
+//        for ( space = 0; space < dim0 ; space++)
+//            if ( f1.rose[dim[space]].body != nada){
+//                
+//                
+//                if ( !singleFlag){
+//                 if ( spread(f1,origin,0,G1,os,alloy,0,L1,spin,dim[space],array[dim[space]],array2[dim[space]]) )
+//                    return -1;
+//                }else
+//                    if ( pSpread(f1,origin,0,G1,os,alloy,0,L1,spin,dim[space],array[dim[space]],array2[dim[space]]) )
+//                        return -1;
+//
+//        }
+////        {
+////            INT_TYPE spa;
+////            for ( spa = 0 ; spa < SPACE ; spa++)
+////                if ( f1.rose[spa].body != nada )
+////                    printf("*%1.3f*", cblas_dnrm2(L1*M2[spa], streams(f1, alloy, spin, spa), 1)/sqrt(L1));
+////            printf("\n");
+////        }
+//        
+//        space0 = 0;
+//        while (1 ){
+//            //all computed inner products
+////            printf("dim[0]=%d\n", dim[0]);
+//            dim0 = 0;
+//            if ( preferred == -1 ){
+//                for ( space = 0; space < SPACE ; space++)
+//                    if ( f1.rose[space].body != nada)
+//
+//                        dim[(space0+space)%(spaces)] = dim0++;
+//                
+//            }
+//            cblas_dcopy(L1*L1, array[dim[1]],1,track,1);
+//            for ( space = 2; space < dim0 ; space++)
+//                if ( f1.rose[dim[space]].body != nada)
+//                cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1*L1, 0,array[dim[space]],1, track,1 );
+//            if ( L1 >1 )
+//                for ( l = 0 ; l < L1; l++)
+//                    track[ l*L1 + l ] += ALPHA;
+//
+//            if(0)
+//            if (space0 == 10 && L1 > 1){
+//                cblas_dcopy(L1*L1, track, 1, track+L1*L1, 1);
+//                tdsyev(rank, f1, 'V', L1, track+L1*L1, L1, track+2*L1*L1);
+//                
+//                rcond = (track+2*L1*L1)[L1-1]/(track+2*L1*L1)[0];
+//                if (  isnan(rcond) || isinf(rcond) || rcond > 1e12){
+//#if VERBOSE
+//                    printf("Warning: condition of Beylkin\n");
+//                    fflush(stdout);
+//#endif
+//                     return -1;
+//                }
+//                //maybe one at a time???
+//
+//            }
+//            cblas_dcopy(T1, array2[dim[1]],1,guide,1);
+//            for ( space = 2; space < dim0 ; space++)
+//                if ( f1.rose[dim[space]].body != nada)
+//                cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,T1, 0,array2[dim[space]],1, guide,1 );
+//            if ( cofact != NULL )
+//                for ( g = 0; g < G1 ; g++)
+//                    for ( l = 0; l < L1 ; l++)
+//                        guide[g*L1+l] *= cofact[g];
+//
+//            // Vectors  L1 x G1
+//            // list...  L1 x M2 ==   ( cross * gstream**T )
+//            
+//            
+//            
+//            double *pt = myStreams(f1,canonicalStore , rank);
+//            
+//            if ( 0 ) {
+//                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,L1,M2[dim[0]],G1,1,guide,L1,streams(f1,origin,os,dim[0]),M2[dim[0]], 0, pt, L1 );
+//                
+//               // guide //  L1 * G1
+//                // origin // M2 * G1
+//                info = tdpotrf(L1, track);
+//                if ( info != 0 ){
+//#if VERBOSE
+//                    printf("info failure \n");
+//#endif
+//                    return -1;
+//                }
+//
+//                info = tdpotrs(L1,  M2[dim[0]], track,  pt,L1 );
+//                if ( info != 0 ){
+//#if VERBOSE
+//                    printf("info failture\n");
+//#endif
+//                    return -1;
+//                }
+//                transpose ( L1, M2[dim[0]] , pt , streams(f1,alloy,spin,dim[0]));
+//            } else {
+//                info = tdpotrf(L1, track);
+//                if ( info != 0 ){
+//#if VERBOSE
+//                    printf("info failure \n");
+//#endif
+//                    return -1;
+//                }
+//
+//                for ( ll = 0; ll < M2[dim[0]] ; ll++){
+//                    cblas_dgemv(CblasColMajor, CblasNoTrans,L1,G1,1.,guide,L1,streams(f1,origin,os,dim[0])+ll,M2[dim[0]], 0., pt,1);
+//                    if ( 0 ){
+//                        cblas_dcopy(L1*L1, track, 1, track+L1*L1, 1);
+//                        info = tdgels(rank, f1, L1, 1, track+L1*L1,  pt, L1);
+//                        if ( info != 0 ){
+//#if VERBOSE
+//                            printf("info failure \n");
+//#endif
+//                            return -1;
+//                        }
+//
+//                    } else {
+//                        
+//                        info = tdpotrs(L1,  1, track,  pt,L1 );
+//                        if ( info != 0 ){
+//#if VERBOSE
+//                            printf("info failture\n");
+//#endif
+//                            return -1;
+//                        }
+//
+//                    }
+//                    cblas_dcopy(L1, pt, 1, streams(f1,alloy,spin,dim[0])+ll, M2[dim[0]]);
+//
+//                }
+//
+//            }
+//            
+//            
+//            subValue3 = subValue2;
+//            
+////            {
+////                INT_TYPE spa;
+////                for ( spa = 0 ; spa < SPACE ; spa++)
+////                    if ( f1.rose[spa].body != nada )
+////                        printf("%1.3f ", cblas_dnrm2(L1*M2[spa], streams(f1, alloy, spin, spa), 1)/sqrt(L1));
+////                printf("\n");
+////            }
+//            
+//            subValue2 =  cblas_dnrm2(L1*M2[dim[0]], streams(f1, alloy, spin, dim[0]), 1)/magn/sqrt(L1);
+//            
+//            
+//            FRACTION = sqrt(subValue2*subValue3);
+//            
+//            CONDITION = sqr(subValue2/FRACTION);
+//            ALPHA2 = ALPHA * pow(fabs(CONDITION),0.1);
+//            
+//#if VERBOSE
+//            printf("ALPHA %f %f %f %d %d\n", log(ALPHA)/log(10) , log(ALPHA2)/log(10) , CONDITION, L1,G1 );
+//#endif
+//            ALPHA = ALPHA2;
+//
+//            
+//            if ( fabs(subValue2 - subValue3) < tolerance ){
+//                yes++;
+//            }else {
+//                yes = max(yes-2,0);
+//            }
+//
+//            if ( yes > 100 ){
+//              //  printf("ct %d\n", count);
+//                return 0;
+//            }
+//            
+//            ///printf("(%3.3f %3.3f)\n", subValue2, subValue3);
+//            count++;
+//            if ( space0 > 10000 )
+//            {
+//               // printf("ct(fail) %d\n", count);
+//                return 0;
+//            }
+//            if ( !singleFlag){
+//                if ( spread(f1,origin,0,G1,os,alloy,0,L1,spin,dim[0],array[dim[0]],array2[dim[0]]) )
+//                    return -1;
+//            }else
+//                if ( pSpread(f1,origin,0,G1,os,alloy,0,L1,spin,dim[0],array[dim[0]],array2[dim[0]]) )
+//                    return -1;
+//
+//            space0++;
+//
+//        }
+//    }
+//    return -1;
+//}
 
 
 double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Stream_Type * cofact, enum division origin,INT_TYPE l1,INT_TYPE l2,INT_TYPE os,   enum division alloy ,INT_TYPE l3,INT_TYPE l4,  INT_TYPE spin ,double tolerance,double magn, INT_TYPE preferred){
@@ -588,6 +645,8 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
         exit(0);
         tId(f1, alloy, spin);
         L1 = 1;
+        l4 = 1;
+        l3 = 0;
     }
     if ( G1 < L1 ){
         for ( l = 0 ; l < L1 ; l++)
@@ -745,7 +804,7 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
                 tdsyev(rank, f1, 'V', L1, track+L1*L1, L1, track+2*L1*L1);
                 
                 rcond = (track+2*L1*L1)[L1-1]/(track+2*L1*L1)[0];
-                if (  isnan(rcond) || isinf(rcond) || rcond > 1e12){
+                if (  isnan(rcond) || isinf(rcond) || rcond > 0){
 #if 1
                     printf("%d \t %d \t%d\t%f\n",rank,L1,count,rcond);
                     fflush(stdout);
@@ -796,8 +855,8 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
             {
                 info = tdpotrf(L1, track);
                 if ( info != 0 ){
-#if VERBOSE
-                    printf("info failure \n");
+#if 1
+                    printf("info failure %d\n",L1);
 #endif
                     return -1;
                 }
@@ -819,7 +878,7 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
                     
                         info = tdpotrs(L1,  1, track,  pt,L1 );
                         if ( info != 0 ){
-#if VERBOSE
+#if 1
                             printf("info failture\n");
 #endif
                             return -1;
@@ -911,7 +970,9 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
 //        return 0;
 //    }
     do{
-        ct = canonicalListDecompositionMP(rank, f1, coeff, origin, os,alloy, spin, toleranceAdjust*tolerance,value2,-1);
+        if ( !CanonicalRank(f1,alloy,spin))
+            tId(f1,alloy,spin);
+        ct = canonicalGridDecompositionMP(rank, f1, coeff, origin, 0,CanonicalRank(f1,origin,os),os,alloy, 0,CanonicalRank(f1,alloy,spin),spin, toleranceAdjust*tolerance,value2,-1);
     
         if ( coeff == NULL ){
             value = (distance1(f1, origin,os, alloy,spin));
@@ -935,8 +996,7 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
             printf("List bailed \n");
 #endif
             f1.tulip[alloy].Current[spin]--;
-            canonicalListDecompositionMP(rank, f1, coeff, origin, os,alloy, spin, toleranceAdjust*tolerance,value2,-1);
-            return 0;
+            canonicalGridDecompositionMP(rank, f1, coeff, origin, 0,CanonicalRank(f1,origin,os),os,alloy, 0,CanonicalRank(f1,alloy,spin),spin, toleranceAdjust*tolerance,value2,-1);        return 0;
         }
         else if ( ct == 1 || ! ft ){
             toleranceAdjust /= 1.1;
@@ -964,6 +1024,15 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
     return 0.;
 }
 double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
+    if ( power < 0.5 ){
+        printf("LIST\n");
+        return tCycleDecompostionListOneMP(0, f1, origin, os, coeff, alloy, spin, tolerance, maxRun, power);
+    }
+    if ( power < 1.5 ){
+        printf("FIBONACCI\n");
+
+        return tCycleDecompostionFibonacciOneMP(rank, f1, origin, os, coeff, alloy, spin, tolerance, maxRun, power);
+    }
     double last = 1e9;
     printf("((%d %d))\n", CanonicalRank(f1, origin, os), maxRun);
     INT_TYPE ran1,step,ct,run;
@@ -1083,7 +1152,7 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
     }
     if ( f1.rt->powDecompose == 2 || bailFlag){
         do{
-            ct = canonicalListDecompositionMP(-1, f1, coeff, origin, os,alloy, spin, toleranceAdjust*tolerance,value2,-1);
+            ct = canonicalGridDecompositionMP(-1, f1, coeff, origin,0,CanonicalRank(f1, origin,os), os,alloy,0,CanonicalRank(f1, alloy,spin), spin, toleranceAdjust*tolerance,value2,-1);
             toleranceAdjust *= 1.2;
             if ( ct == -1 ){
                 printf("List bailed \n");
@@ -1103,6 +1172,217 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
     return 0.;
 
 }
+
+double tCycleDecompostionFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
+    double last = 1e9;
+    INT_TYPE iii[2][2][1000];
+    INT_TYPE iiii[2][2][1000];
+   // analyze(f1, origin, os);
+    spectralTerms(f1, origin, os);
+   // analyze(f1, origin, os);
+
+    printf("((%d %d))\n", CanonicalRank(f1, origin, os), maxRun);
+    INT_TYPE ran1,step,ct,run,nRun,r2;
+    if ( CanonicalRank(f1, origin, os) <= maxRun){
+        tEqua(f1, alloy, spin, origin, os);
+        return 0.;
+    }
+    if (! CanonicalRank(f1, origin, os ) )
+        return 0;
+
+
+    double bailFlag = 0,*co,toleranceAdjust = 1.,past = 1e9,prev=1e9,value,value2,cross,other2 ;//= cblas_dnrm2 ( part(f1, origin), coeff, 1);
+
+    if ( 0&&rank == -2 ){
+        value2 = 1.00;
+    }else {
+        if ( coeff == NULL )
+            value2 = sqrt(inner(f1, origin,os));
+        else
+            value2 = sqrt(tInnerListMP(imax(0,rank), f1, origin, coeff));
+    }
+    printf("/%f/\n", value2);
+
+    if ( value2 < f1.rt->TARGET ){
+        f1.tulip[alloy].Current[spin]=0;
+        return 0;
+    }
+    assignCores(f1, 1);
+    f1.tulip[alloy].Current[spin] = 0;
+    for ( run = 0; run < maxRun ; run++){
+        tId(f1, alloy,spin);
+    }
+    f1.tulip[alloy].Current[spin] = maxRun;
+    nRun = maxRun;
+    step = CanonicalRank(f1, origin, os)/(maxRun)+(!(!(CanonicalRank(f1, origin, os)%maxRun)));
+    for ( run = 0; run < nRun ; run++){
+        iii[1][0][run] = imin(CanonicalRank(f1, origin, os)-1,run*step);
+        iii[1][1][run] = imin(CanonicalRank(f1, origin, os),(run+1)*step);
+        iii[0][0][run] = run;
+        iii[0][1][run] = imin(maxRun,run+1);
+    }
+    
+    
+    while ( nRun >= f1.rt->NLanes ){
+#ifdef OMP
+#pragma omp parallel for private (ran1,r2,ct,toleranceAdjust) schedule(dynamic,1)
+#endif
+
+        for ( r2 = 0; r2 < nRun; r2++ ){
+#ifdef OMP
+            ran1 = omp_get_thread_num();
+#else
+            ran1 = 0;
+#endif
+            toleranceAdjust = 1.;
+            do{
+                ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,iii[1][0][r2],iii[1][1][r2], os,alloy, iii[0][0][r2],iii[0][1][r2],spin, toleranceAdjust*tolerance,value2,-1);
+                toleranceAdjust *= 1.2;
+                if ( ct == -1 ){
+                    bailFlag = 1;
+                    printf("List bailed \n");
+                    break;
+                    
+                }
+            }while ( ct == 1 );
+        }
+        if ( coeff == NULL ){
+            value = distance1( f1, origin,os,  alloy,spin);
+        }else {
+            cross = tInnerVectorListMP(imax(0,rank), f1, origin, coeff, alloy, spin) ;
+            other2 = inner( f1, alloy, spin);
+            value = sqrt(fabs(sqr(value2) - 2. * cross + other2 ));
+        }
+        printf("%d-grid\t %f \n",nRun,value/value2);
+        if ( isnan(value/value2)){
+            
+        }
+        fflush(stdout);
+        
+        if ( fabs( last - value ) < f1.rt->TARGET)
+            return 0;//stall clause.
+        last = value;
+        
+        
+        
+        if (( fabs(value ) < f1.rt->TARGET*fabs(value2)  ) && nRun <= f1.rt->powDecompose){
+            return 0;
+        }
+        //merge
+        r2 = 0;
+        if ( nRun % 2 == 0 ){
+            for ( run = 0; run < nRun ; run+=2){
+                iiii[1][0][r2] = iii[1][0][run];
+                iiii[1][1][r2] = iii[1][1][run+1];
+                iiii[0][0][r2] = iii[0][0][run];
+                iiii[0][1][r2] = iii[0][1][run+1];
+                r2++;
+            }
+        }
+        else
+        {
+            for ( run = 0; run < nRun-1 ; run+=2){
+                iiii[1][0][r2] = iii[1][0][run];
+                iiii[1][1][r2] = iii[1][1][run+1];
+                iiii[0][0][r2] = iii[0][0][run];
+                iiii[0][1][r2] = iii[0][1][run+1];
+                r2++;
+            }
+            iiii[1][1][r2-1] = iii[1][1][nRun-1];
+            iiii[0][1][r2-1] = iii[0][1][nRun-1];
+            
+        }
+        if ( nRun == 1 && r2 == 1 )
+            nRun= 0;
+        else
+            nRun = r2;
+        
+
+        for ( run = 0; run < nRun ; run++){
+            iii[1][0][run] = iiii[1][0][run];
+            iii[1][1][run] = iiii[1][1][run];
+            iii[0][0][run] = iiii[0][0][run];
+            iii[0][1][run] = iiii[0][1][run];
+        }
+
+    }
+    while ( nRun > 0  ){
+        
+        for ( r2 = 0; r2 < nRun; r2++ )
+        {
+            ran1 = -1;
+            toleranceAdjust = 1.;
+            do{
+                ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,iii[1][0][r2],iii[1][1][r2], os,alloy, iii[0][0][r2],iii[0][1][r2],spin, toleranceAdjust*tolerance,value2,-1);
+                toleranceAdjust *= 1.2;
+                if ( ct == -1 ){
+                    bailFlag = 1;
+                    printf("List bailed \n");
+                    break;
+                    
+                }
+            }while ( ct == 1 );
+        }
+        if ( coeff == NULL ){
+            value = distance1( f1, origin,os,  alloy,spin);
+        }else {
+            cross = tInnerVectorListMP(imax(0,rank), f1, origin, coeff, alloy, spin) ;
+            other2 = inner( f1, alloy, spin);
+            value = sqrt(fabs(sqr(value2) - 2. * cross + other2 ));
+        }
+        printf("%d-grid\t %f \n",nRun,value/value2);
+        if ( fabs( last - value ) < f1.rt->TARGET)
+            return 0;//stall clause.
+        last = value;
+        
+        
+        
+        if (( fabs(value ) < f1.rt->TARGET*fabs(value2)  ) && nRun <= f1.rt->powDecompose){
+            return 0;
+        }
+        //merge
+        r2 = 0;
+        if ( nRun % 2 == 0 ){
+            for ( run = 0; run < nRun ; run+=2){
+                iiii[1][0][r2] = iii[1][0][run];
+                iiii[1][1][r2] = iii[1][1][run+1];
+                iiii[0][0][r2] = iii[0][0][run];
+                iiii[0][1][r2] = iii[0][1][run+1];
+                r2++;
+            }
+        }
+        else
+        {
+            for ( run = 0; run < nRun-1 ; run+=2){
+                iiii[1][0][r2] = iii[1][0][run];
+                iiii[1][1][r2] = iii[1][1][run+1];
+                iiii[0][0][r2] = iii[0][0][run];
+                iiii[0][1][r2] = iii[0][1][run+1];
+                r2++;
+            }
+            iiii[1][1][r2-1] = iii[1][1][nRun-1];
+            iiii[0][1][r2-1] = iii[0][1][nRun-1];
+            
+        }
+        if ( nRun == 1 && r2 == 1 )
+            nRun= 0;
+        else
+            nRun = r2;
+        
+        for ( run = 0; run < nRun ; run++){
+            iii[1][0][run] = iiii[1][0][run];
+            iii[1][1][run] = iiii[1][1][run];
+            iii[0][0][run] = iiii[0][0][run];
+            iii[0][1][run] = iiii[0][1][run];
+        }
+        
+    }
+    
+    
+    return 0.;
+}
+
+
 double tInnerVectorListMP( INT_TYPE rank, struct sinc_label f1 , enum division origin, double * coeff, enum division vector,INT_TYPE spin ){
     
     double sum = 0.,prod;
@@ -2263,9 +2543,9 @@ void tHXpX (  INT_TYPE rank, struct sinc_label f1 , enum division left,INT_TYPE 
 
         }while ( pt != nullName );
         
-        if (  f1.rt->powDecompose == 1)
-            tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,right, targSpin, tolerance, maxRun, f1.rt->powDecompose);
-        else
+//        if (  f1.rt->powDecompose == 1)
+//            tCycleDecompostionListOneMP(-1, f1, totalVector, 0, NULL,right, targSpin, tolerance, maxRun, f1.rt->powDecompose);
+//        else
             tCycleDecompostionGridOneMP(-1, f1, totalVector, 0, NULL,right, targSpin, tolerance, maxRun, f1.rt->powDecompose);
 
     }

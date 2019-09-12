@@ -123,7 +123,7 @@ struct field initField (void ) {
     i.i.xRank = 0;
     i.i.filter = 0;
     i.i.irrep = 0;
-    i.i.cat = 0;
+    i.i.cat = 1;
     i.i.collect = 0;
     
     i.i.Iterations = 0;
@@ -146,7 +146,7 @@ struct field initField (void ) {
         i.i.qFloor = 9*9*9;
         i.i.filter = 0;
         i.f.boot = fullMatrices;
-        i.i.body = two;
+        i.i.body = three;
         i.i.irrep = 0;
         i.i.cat  = 0;
         i.i.epi = 4;
@@ -215,9 +215,9 @@ struct calculation initCal (void ) {
         i.i.mag = 0.1;
         //THESE
     
-    i.rt.calcType = clampProtonElectronCalculation;
+    i.rt.calcType = electronicStuctureCalculation;
     i.rt.runFlag = 0;
-    i.rt.phaseType = distillMatrix;
+    i.rt.phaseType = buildFoundation;
     i.i.Na =1;
     
         if ( SPACE == 3 ){
@@ -1157,28 +1157,27 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             maxOriginRank = imax( maxOriginRank, c1->i.twoBody.num * N1*N1);
         }
         INT_TYPE maxTrainRank = imax(c1->i.decomposeRankMatrix, maxVector);
-        if ( f1->rt->powDecompose < 1 ){
-            printf("adjusted power Decompose to one\n");
-            f1->rt->powDecompose = 1;
+        if ( f1->rt->powDecompose < 0 ){
+            f1->rt->powDecompose = 0;
         }
         
-        INT_TYPE flag = 1;
-        if ( f1->rt->powDecompose == 1 )
-            flag = 0;
+        INT_TYPE flag = 1,powDecompose = 1;
+//        if ( f1->rt->powDecompose == 1 )
+//            flag = 0;
 
         
         
         fromBeginning(*f1,canonicalBuffers,inversion);
-        f1->tulip[canonicalBuffers].Partition = flag*ceil((maxTrainRank*maxTrainRank+ maxOriginRank*maxTrainRank)/sqr(f1->rt->powDecompose)) ;
+        f1->tulip[canonicalBuffers].Partition = flag*ceil((maxTrainRank*maxTrainRank+ maxOriginRank*maxTrainRank)/sqr(powDecompose)) ;
         f1->tulip[canonicalBuffers].spinor = parallel;
         
         fromBeginning(*f1,trackBuffer,canonicalBuffers);
-        f1->tulip[trackBuffer].Partition = flag* ceil((2*maxTrainRank/(f1->rt->powDecompose))*(maxTrainRank/(f1->rt->powDecompose)));
+        f1->tulip[trackBuffer].Partition = flag* ceil((2*maxTrainRank/(powDecompose))*(maxTrainRank/(powDecompose)));
         f1->tulip[trackBuffer].spinor = parallel;
         f1->tulip[trackBuffer].memory = bufferAllocation;
         
         fromBeginning(*f1,guideBuffer,trackBuffer);
-        f1->tulip[guideBuffer].Partition = flag*ceil(maxOriginRank*maxTrainRank/sqr(f1->rt->powDecompose));
+        f1->tulip[guideBuffer].Partition = flag*ceil(maxOriginRank*maxTrainRank/sqr(powDecompose));
         f1->tulip[guideBuffer].spinor = parallel;
         f1->tulip[guideBuffer].memory = bufferAllocation;
         
@@ -1278,7 +1277,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         assignOneWithPointers(*f1, jelliumElectron, electron);
 
         fromBeginning(*f1,shortenPlus,jelliumElectron);
-        f1->tulip[shortenPlus].Partition = c1->i.decomposeRankMatrix*( c1->rt.calcType == clampProtonElectronCalculation );
+        f1->tulip[shortenPlus].Partition = allowQ(f1->rt,blockHamiltonianBlock)*c1->i.decomposeRankMatrix*( c1->rt.calcType == clampProtonElectronCalculation );
         f1->tulip[shortenPlus].species = matrix;
         assignOneWithPointers(*f1, shortenPlus, all);
         
@@ -1396,7 +1395,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[tensorBuffers6].memory = bufferAllocation;
         
         fromBeginning(*f1,oneByOneBuffer,tensorBuffers6);
-        f1->tulip[oneByOneBuffer].Partition = mx1len*mx1len*mx1len*mx1len* (c1->rt.calcType >= clampProtonElectronCalculation)*(c1->rt.phaseType == solveRitz);
+        f1->tulip[oneByOneBuffer].Partition = mx1len*mx1len*mx1len*mx1len* (c1->rt.calcType >= clampProtonElectronCalculation)*allowQ(f1->rt,blockBuildHamiltonianBlock);
         f1->tulip[oneByOneBuffer].memory = bufferAllocation;
         
         fromBeginning(*f1,canonicalBuffersB,oneByOneBuffer);
@@ -1444,11 +1443,9 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
     
     
         fromBeginning(*f1,dsyBuffers,square);
-#if 0
         f1->tulip[dsyBuffers].Partition = 2*8*(8*(imax(mxlen,maxEV))+72*f->i.nStates*f->i.nStates+ 8 * mxlen)+3*maxEV;
-#else
+    if ( PARTICLE == 1 )
         f1->tulip[dsyBuffers].Partition = maxVector*maxVector;
-#endif
         f1->tulip[dsyBuffers].spinor = parallel;
         f1->tulip[dsyBuffers].memory = bufferAllocation;
 
@@ -1896,10 +1893,12 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                             exit(0);
                         }
                 if ( c1->i.twoBody.func.fn != nullFunction && !ioStoreMatrix(*f1,shortenPlus ,0,"shortenExchangePlus.matrix",1) ){
+                    printf("failed to load PLUS\n");
                     exit(0);
                 }
                 
                 if ( c1->i.twoBody.func.fn != nullFunction&& ! ioStoreMatrix(*f1,shortenMinus ,0,"shortenExchangeMinus.matrix",1) ){
+                    printf("failed to load MINUS\n");
                     exit(0);
                 }
                 
@@ -2064,7 +2063,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         else if(allowQ(f1->rt,blockTrainHamiltonianBlock)) {
             f1->tulip[Ha].linkNext = h12;
             f1->tulip[Iterator].linkNext = h12;
-            
+            printf("TRAIN\n");
+            fflush(stdout);
             ioStoreMatrix(*f1, trainHamiltonian, 0, "trainHamiltonian.matrix",1);
             if ( f->i.cmpl == cmpl )
                 ioStoreMatrix(*f1, trainHamiltonian, 1, "trainHamiltonian.1.matrix",1);

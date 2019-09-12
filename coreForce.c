@@ -4195,6 +4195,9 @@ double quadCal(struct general_2index * aAf ){
 }
 void mySeparateExactTwo (struct sinc_label  f1, struct interaction_label twoBody,enum division interactionExchange, double scalar,  enum division basis,INT_TYPE overline, INT_TYPE particle1,INT_TYPE diagonal){//overline = ##particle number ...  = intercellular interaction
     //https://keisan.casio.com/exec/system/1329114617
+    if ( ! part(f1,interactionExchange))
+        return ;
+
     zero(f1,interactionExchange,0);
     
     if ( twoBody.func.fn == nullFunction)
@@ -4370,6 +4373,9 @@ void mySeparateExactTwo (struct sinc_label  f1, struct interaction_label twoBody
 void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occupy,enum division vectors, INT_TYPE part1, enum division interaction,enum division shorten, double scalar,INT_TYPE plus,double rescale, enum particleType particle){
     INT_TYPE jj,flagPow,info,dim,rank=0,l,vol,vos=0,x,r,rr = 0,n1[SPACE],space,j1,j2,i1,i2,vor,vor2, vox,lll;
     length1(f1,n1);
+    if ( ! part(f1,interaction) || ! part(f1, shorten))
+        return ;
+
     double sumDis =0 ;
     Stream_Type * streamIn, *streamOut;
     enum division vo = vectors ,current = interaction;
@@ -4436,7 +4442,7 @@ void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occup
  //           printf("= %d\n", CanonicalRank(f1, copyTwo, 0));
         }
     }
-    tCycleDecompostionGridOneMP(-1, f1, copyTwo, 0, NULL, shorten, 0, f1.rt->CANON, part1, 1);
+    tCycleDecompostionGridOneMP(-1, f1, copyTwo, 0, NULL, shorten, 0, f1.rt->CANON, part1, f1.rt->powDecompose);
     //tScale(f1, shorten, scalar);
     printf("Ewald ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),scalar*traceOne(f1, shorten, 0), distance(f1, shorten, copyTwo));    
 	tScaleOne(f1, shorten,0, scalar);
@@ -4682,7 +4688,7 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
         }
     }
     tCycleDecompostionGridOneMP(-1, f1, tempOneMatrix, 0, NULL, shorten, 0, f1.rt->CANON, part1, 1);
-    printf("Split 2-body ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),scalar*traceOne(f1, shorten, 0), fabs(scalar)*distance1(f1, shorten,0, tempOneMatrix,0));
+    printf("Split 2-body ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),scalar*traceOne(f1, shorten, 0), fabs(scalar)*distance1(f1, shorten,0, tempOneMatrix,f1.rt->powDecompose));
     tScaleOne(f1, shorten,0, scalar);
     return ;
 }
@@ -5452,8 +5458,8 @@ INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label f1, en
                 }
         }
     if ( bootedQ(f1) ){
-        tCycleDecompostionGridOneMP(-2, f1, tempOneMatrix, 0, NULL, single, cmpl-1, f1.rt->CANON, part(f1, single), 1);
-        printf("Split 1-body ++%d  \t%f %f\n", CanonicalRank(f1, single, cmpl-1),traceOne(f1, single, cmpl-1), distance1(f1, single,cmpl-1, tempOneMatrix,0));
+        tCycleDecompostionGridOneMP(-2, f1, tempOneMatrix, 0, NULL, single, cmpl-1, f1.rt->CANON, part(f1, single), f1.rt->powDecompose);
+        printf("Split 1-body ++%d  \t%f %f\n", CanonicalRank(f1, single, cmpl-1),traceOne(f1, single, cmpl-1), distance1(f1, single,cmpl-1, tempOneMatrix,f1.rt->powDecompose));
     }
 
     return ra;
@@ -5474,7 +5480,7 @@ INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label f1, en
     if ( bootedQ(f1) && part ( f1,tempTwoMatrix) <= ra ){
             for ( m = 0; m < mus ; m++)
                 separateInteraction(f1, NULL,tempTwoMatrix , mu[m], cmpl, overline, 0, particle1);
-        tCycleDecompostionGridOneMP(-2, f1, tempTwoMatrix, 0, NULL, pair, cmpl-1, f1.rt->CANON, part(f1, pair), 1);
+        tCycleDecompostionGridOneMP(-2, f1, tempTwoMatrix, 0, NULL, pair, cmpl-1, f1.rt->CANON, part(f1, pair),f1.rt->powDecompose);
         printf("Split 2-body ++%d  \t%f %f\n", CanonicalRank(f1, pair, cmpl-1),traceOne(f1, pair, cmpl-1), distance1(f1, pair,cmpl-1, tempTwoMatrix,0));
         }
     return ra;
@@ -6016,6 +6022,8 @@ INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum div
 
 INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division akinetic,  double amass, INT_TYPE particle1 ){
     INT_TYPE space,dim,I1,I2;
+    if ( ! part(f1,akinetic))
+        return 0;
     INT_TYPE dims1[SPACE],cmpl;
     struct general_index o1;
     length1(f1,dims1);
@@ -6060,6 +6068,9 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
 }
 
 INT_TYPE separateOverlap( struct sinc_label f1, INT_TYPE periodic,enum division akinetic,  double amass, INT_TYPE particle1 ){
+    if ( ! part(f1,akinetic))
+        return 0;
+
     INT_TYPE space,dim,I1,I2;
     INT_TYPE dims1[SPACE],cmpl;
     struct general_index o1;
@@ -6111,6 +6122,9 @@ INT_TYPE separateOverlap( struct sinc_label f1, INT_TYPE periodic,enum division 
 //replaced separateOneBody.
 void separateDerivatives( struct sinc_label f1, INT_TYPE periodic,enum division mat, INT_TYPE *x, INT_TYPE *grad,double mag,INT_TYPE particle1 ){
     DCOMPLEX bca;
+    if ( ! part(f1,mat))
+        return ;
+
     double b0 = 1,powSpace,spaces=0;
     INT_TYPE space,I1,I2,flagCMPL=f1.cmpl;
     INT_TYPE dims[SPACE],signFlag= 1;

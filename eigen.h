@@ -35,13 +35,14 @@ struct sortClass {
     double * str[SPACE];
     INT_TYPE *mmm;
     INT_TYPE i;
-    INT_TYPE nG;
-    INT_TYPE n1[SPACE];
+   // INT_TYPE nG;
+    INT_TYPE *n1;
 };
 
 int sortComp (const void * elem1, const void * elem2);
 int sort2Comp (const void * elem1, const void * elem2);
 int sortxComp (const void * elem1, const void * elem2);
+int sortx2Comp (const void * elem1, const void * elem2);
 
 INT_TYPE tBootManyConstruction (struct calculation * c1);
 INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label, enum division eigen);

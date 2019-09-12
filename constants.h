@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 7.1.0
+//VERSION 7.3
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -918,6 +918,8 @@ struct runTime {
     INT_TYPE NLanes;
     INT_TYPE NSlot;
     double position[MaxCore][6];
+#else
+    INT_TYPE NLanes;
 #endif
     
 #ifdef MKL
@@ -933,7 +935,7 @@ struct runTime {
     double vCANON;
     double EWALD;
     double targetCondition;
-    
+    double CAP;
     enum calculationType calcType;
     enum phaseType phaseType;
 };

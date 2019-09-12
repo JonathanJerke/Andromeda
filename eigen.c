@@ -36,10 +36,10 @@ double vale ( struct sortClass * f ){
     return value;
 }
 
-double yale ( struct sortClass * f ){
-    INT_TYPE * mm = f->mmm+f->i*6 ;
-    return mm[3]+mm[4]*f->nG + mm[5]*f->nG*f->nG;
-}
+//double yale ( struct sortClass * f ){
+//    INT_TYPE * mm = f->mmm+f->i*6 ;
+//    return mm[3]+mm[4]*f->nG + mm[5]*f->nG*f->nG;
+//}
 
 
 int sortxComp (const void * elem1, const void * elem2)
@@ -54,6 +54,26 @@ int sortxComp (const void * elem1, const void * elem2)
     return 0;
 }
 
+int sortx2Comp (const void * elem1, const void * elem2)
+{
+    double* f = ((double*)elem1);
+    double* s = ((double*)elem2);
+    double valueFF=1.,valueSS=1.,valueFS=1.;
+   // (f+s)**2
+    INT_TYPE dim;
+    for ( dim = 0 ; dim < SPACE ; dim++)
+        if ( f[dim] ){
+            valueFF *= cblas_ddot(f[dim], f+SPACE+dim, SPACE, f+SPACE+dim, SPACE);
+            valueFS *= cblas_ddot(f[dim], f+SPACE+dim, SPACE, s+SPACE+dim, SPACE);
+            valueSS *= cblas_ddot(f[dim], s+SPACE+dim, SPACE, s+SPACE+dim, SPACE);
+        }
+    if (valueFF +2*valueFS > valueSS) return  -1;
+    if (valueFF +2*valueFS < valueSS) return 1;
+    return 0;
+}
+
+
+
 int sortComp (const void * elem1, const void * elem2)
 {
     struct sortClass* f = ((struct sortClass*)elem1);
@@ -66,17 +86,17 @@ int sortComp (const void * elem1, const void * elem2)
     return 0;
 }
 
-int sort2Comp (const void * elem1, const void * elem2)
-{
-    struct sortClass* f = ((struct sortClass*)elem1);
-    struct sortClass* s = ((struct sortClass*)elem2);
-    INT_TYPE valueF,valueS;
-    valueF = yale(f);
-    valueS = yale(s);
-    if (valueF > valueS) return  1;
-    if (valueF < valueS) return -1;
-    return 0;
-}
+//int sort2Comp (const void * elem1, const void * elem2)
+//{
+//    struct sortClass* f = ((struct sortClass*)elem1);
+//    struct sortClass* s = ((struct sortClass*)elem2);
+//    INT_TYPE valueF,valueS;
+//    valueF = yale(f);
+//    valueS = yale(s);
+//    if (valueF > valueS) return  1;
+//    if (valueF < valueS) return -1;
+//    return 0;
+//}
 
 INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum division eigen){
     assignCores(f1,1);
@@ -125,7 +145,7 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
             N1 = n1[space];
             INT_TYPE Nx = N1;//imin(N1,c1->i.bootRestriction);
             struct name_label u = f1.tulip[canonicalBuffersBM];
-            
+            enum division em;
             N2 = N1*N1;
             myZero(f1,canonicalBuffersBM,0);
             ar = myStreams(f1, canonicalBuffersBM, 0);
@@ -282,8 +302,11 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                             tBuild3Irr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
                             if ( cblas_dnrm2(N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
                                 cblas_dcopy(N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
-                                tGEMV(rank, f1, space, diagonalVectorA, 0, rank, Iterator, space, 0, diagonalVectorB, 0, rank);
-                                streams(f1,foundationStructure,0,space)[v] = tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
+                                streams(f1,foundationStructure,0,space)[v] = 0.;
+                                for ( em = kinetic1 ; em < kinetic1 + bootBodies ; em++){
+                                    tGEMV(rank, f1, space, diagonalVectorA, 0, rank, kinetic1, space, 0, diagonalVectorB, 0, rank);
+                                    streams(f1,foundationStructure,0,space)[v] += tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
+                                }
                                 if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
                                 streams(f1,foundationStructure,1,space)[v] = 1;
                             }
@@ -356,8 +379,11 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                                 cblas_dcopy(N1*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
                                 
                                 
-                                tGEMV(rank, f1, space, diagonalVectorA, 0, rank, Iterator, space, 0, diagonalVectorB, 0, rank);
-                                streams(f1,foundationStructure,0,space)[v] = tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
+                                streams(f1,foundationStructure,0,space)[v] = 0.;
+                                for ( em = kinetic1 ; em < kinetic1 + bootBodies ; em++){
+                                    tGEMV(rank, f1, space, diagonalVectorA, 0, rank, kinetic1, space, 0, diagonalVectorB, 0, rank);
+                                    streams(f1,foundationStructure,0,space)[v] += tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
+                                }
                                 if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
                                 streams(f1,foundationStructure,1,space)[v] = 1;
                             }
@@ -429,9 +455,11 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                                 cblas_dcopy(N1*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
                                 
                                 
-                                tGEMV(rank, f1, space, diagonalVectorA, 0, rank, Iterator, space, 0, diagonalVectorB, 0, rank);
-                                streams(f1,foundationStructure,0,space)[v] = tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
-                                if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
+                                streams(f1,foundationStructure,0,space)[v] = 0.;
+                                for ( em = kinetic1 ; em < kinetic1 + bootBodies ; em++){
+                                    tGEMV(rank, f1, space, diagonalVectorA, 0, rank, kinetic1, space, 0, diagonalVectorB, 0, rank);
+                                    streams(f1,foundationStructure,0,space)[v] += tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
+                                }                                if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
 
                                     streams(f1,foundationStructure,1,space)[v] = 1;
                             }
@@ -570,36 +598,50 @@ INT_TYPE tSlam (struct sinc_label f1,INT_TYPE allc, enum division vl, double fma
     tot =  tFoundationLevel(f1, nullName, 0, fmax2, 1, nullName, 0, 0, 0, 0, NULL, 0, 0);
     for ( space = 0 ; space < SPACE ; space++)
         n1[space] = vectorLen(f1, space);
-    if ( allc < tot ){
-        printf("increase foundation %d or decrease levelLevel %f", tot, fmax2);
-        exit(0);
-    }
+//    if ( allc < tot ){
+//        printf("increase foundation %d or decrease levelLevel %f", tot, fmax2);
+//        exit(0);
+//    }
 
     INT_TYPE * mmm = malloc(sizeof(INT_TYPE ) * tot * SPACE *2),*mm;
     tot =  tFoundationLevel(f1, nullName, 0, fmax2, 0, nullName, 0, 0, 0, 0,mmm, 0, 0);
 
-    if(0){
-        INT_TYPE ii;
-        space = 0;
-        for ( ii = 0 ;ii < n1[space]*n1[space];ii++)
-            printf("%f\n",myStreams(f1, bill1+space, 0)[ii]);
-    }
-    
-    
-    for ( t = 0; t < tot ; t++){
-        mm = mmm + 2*SPACE * t ;
-        printf("%d %d %d -- %d %d %d\n", mm[0],mm[2],mm[4], mm[1],mm[3],mm[5]);
-        for ( space = 0; space < SPACE ; space++)
-            if ( f1.rose[space].body != nada){
-                cblas_dcopy(n1[space], myStreams(f1, bill1+space, 0)+(mm[2*space])*n1[space]+(mm[2*space+1])*n1[space]*n1[space],1,streams(f1,vl+t,0,space),1);
+    {
+        INT_TYPE n1[SPACE],i;
+        {
+            INT_TYPE space ;
+            for ( space = 0 ; space < SPACE ; space++)
+                n1[space]= vectorLen(f1, space);
+        }
+        struct sortClass * sc = malloc ( sizeof( struct sortClass )*tot); ;
+        for ( i = 0; i < tot ; i++){
+            for ( space = 0; space < SPACE ; space++){
+                sc[i].n1 = n1;
+                sc[i].str[space] = streams(f1,foundationStructure,0,space);
             }
-        f1.tulip[vl+t].Current[0] = 1;
-        f1.tulip[vl+t].value.stage = t;
-        //testSA(f1, vl+t);
+            sc[i].i = i;
+            sc[i].mmm = mmm;
+        }
+        qsort(sc, tot, sizeof(struct sortClass), &sortComp);
+        
+        
+        
+        for ( t = 0; t < imin(tot,allc) ; t++){
+            mm = mmm + 2*SPACE * sc[t].i ;
+            printf("%d %d %d -- %d %d %d :: %f\n", mm[0],mm[2],mm[4], mm[1],mm[3],mm[5],vale(sc+t));
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1.rose[space].body != nada){
+                    cblas_dcopy(n1[space], myStreams(f1, bill1+space, 0)+(mm[2*space])*n1[space]+(mm[2*space+1])*n1[space]*n1[space],1,streams(f1,vl+t,0,space),1);
+                }
+            f1.tulip[vl+t].Current[0] = 1;
+            f1.tulip[vl+t].value.value = vale(sc+t);
+            f1.tulip[vl+t].value.stage = t;
+            //testSA(f1, vl+t);
+        }
+        free(sc);
     }
     free(mmm);
-    printf("loaded %d alloc %d\n", tot, allc);
-    return tot;
+    return imin(tot,allc);
 }
 
 
@@ -841,7 +883,7 @@ INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum divisio
                     else
                         tBuildIrr(rank, f1, irrep, copyVector, rank, copyTwoVector, rank);
                 }
-                tCycleDecompostionGridOneMP(-2, f1, copyTwoVector, rank, NULL,usr+ii , cmpl, f1.rt->TARGET, part(f1,usr+ii), 1.);
+                tCycleDecompostionGridOneMP(-2, f1, copyTwoVector, rank, NULL,usr+ii , cmpl, f1.rt->TARGET, part(f1,usr+ii), f1.rt->powDecompose);
             }
             pMatrixElements( f1, usr+ii, nullName, usr+ii, NULL, &norm);
             tScale(f1, usr+ii, 1./sqrt(cabs(norm)));
@@ -1226,11 +1268,16 @@ INT_TYPE tEdges(struct sinc_label f1, enum division vector){
     INT_TYPE info,spatial;
     DCOMPLEX ov,me;
     enum bodyType bootBodies = f1.rose[0].body;
+    double sum[4],totalSum = 0.;
+
     if ( 1 ){
         //EDGES ALT
         enum block b,bx;
         INT_TYPE iii,jjj=1,dim,irrep;
-        double sum = 0;
+        sum[0] = 0.;
+        sum[1] = 0.;
+        sum[2] = 0.;
+        sum[3] = 0.;
         //for ( irrep = 0 ;irrep <= 5 ; irrep++)
         {
               //  if ((! c1->i.irrep || f1.tulip[vector].value.symmetry  == irrep) && irrep == c1->i.irrep)
@@ -1247,7 +1294,7 @@ INT_TYPE tEdges(struct sinc_label f1, enum division vector){
                         for ( spatial = 0 ; spatial < 2 ; spatial++){
                             printf("electron %d:%d\t",b,spatial);
 
-                            sum = 0;
+                            
                             for ( dim = 0; dim < COMPONENT ; dim++){
                                 tClear(f1,edgeElectronMatrix );
                                 if ( spatial == 0 )
@@ -1255,40 +1302,48 @@ INT_TYPE tEdges(struct sinc_label f1, enum division vector){
                                 if ( spatial == 1 )
                                     tAlt(f1, edgeElectronMatrix, 0, dim);
                                 me = 0.;
-                                enum division u = edgeElectronMatrix+b;
-                                struct name_label uu = f1.tulip[u];
+                             //   enum division u = edgeElectronMatrix+b;
+                              //  struct name_label uu = f1.tulip[u];
                                 pMatrixElements( f1, vector, edgeElectronMatrix+b, vector, &me, &ov);
                                 printf("%1.8f ", (creal(me/ov)));
-                                sum += (creal(me/ov));
+                                sum[spatial] += (creal(me/ov));
+                                totalSum += sum[spatial];
                             }
-                            printf(": %1.8f\n", sum);
+                            printf(": %1.8f\n", sum[spatial]);
                         }
 //
-//                        if ( c1->rt.calcType == clampProtonElectronCalculation)
-//                            for ( spatial = 0 ; spatial < 2 ; spatial++){
-//                                printf("proton %d:%d\t",b,spatial);
-//
-//                                sum = 0;
-//                                for ( dim = COMPONENT; dim < 2*COMPONENT ; dim++)
-//                                    if ( f1.rose[dim].body != nada ){
-//
-//                                    tClear(f1,edgeProtonMatrix );
-//                                    if ( spatial == 0 )
-//                                        tEnd(f1, edgeProtonMatrix, 0, dim);
-//                                    if ( spatial == 1 )
-//                                        tAlt(f1, edgeProtonMatrix, 0, dim);
-//                                    me = 0.;
-//                                    pMatrixElements( f1, vector, edgeProtonMatrix+b, vector, &me, &ov);
-//                                    printf("%1.8f ", creal(me/ov));
-//                                    sum += (creal(me/ov));
-//                                }
-//                                printf(": %1.8f\n", sum);
-//                            }
+                        if ( f1.rt->calcType == clampProtonElectronCalculation)
+                            for ( spatial = 0 ; spatial < 2 ; spatial++){
+                                printf("proton %d:%d\t",b,spatial);
+
+                                for ( dim = COMPONENT; dim < 2*COMPONENT ; dim++)
+                                    if ( f1.rose[dim].body != nada ){
+
+                                    tClear(f1,edgeProtonMatrix );
+                                    if ( spatial == 0 )
+                                        tEnd(f1, edgeProtonMatrix, 0, dim);
+                                    if ( spatial == 1 )
+                                        tAlt(f1, edgeProtonMatrix, 0, dim);
+                                    me = 0.;
+                                    pMatrixElements( f1, vector, edgeProtonMatrix+b, vector, &me, &ov);
+                                    printf("%1.8f ", creal(me/ov));
+                                    sum[2+spatial] += (creal(me/ov));
+                                    totalSum += sum[spatial];
+
+                                }
+                                printf(": %1.8f\n", sum[2+spatial]);
+                            }
                         
                     }
                     printf("\n\n");
                 }
         }
+    }
+    
+    if ( totalSum < f1.rt->CAP ){
+        return 0;
+    }else {
+        return cblas_idamax(4, sum, 1)+1;
     }
     return 0;
 }
