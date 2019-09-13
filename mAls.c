@@ -1253,7 +1253,7 @@ double tCycleDecompostionFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 ,
             other2 = inner( f1, alloy, spin);
             value = sqrt(fabs(sqr(value2) - 2. * cross + other2 ));
         }
-        printf("%d-grid\t %f \n",nRun,value/value2);
+        printf("%d-grid\t %f %f\n",nRun,value/value2, traceOne(f1, alloy, spin));
         if ( isnan(value/value2)){
             
         }
@@ -1288,11 +1288,13 @@ double tCycleDecompostionFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 ,
                 iiii[0][1][r2] = iii[0][1][run+1];
                 r2++;
             }
-            iiii[1][1][r2-1] = iii[1][1][nRun-1];
-            iiii[0][1][r2-1] = iii[0][1][nRun-1];
-            
+            if ( r2 ) {
+                iiii[1][1][r2-1] = iii[1][1][nRun-1];
+                iiii[0][1][r2-1] = iii[0][1][nRun-1];
+            }
+
         }
-        if ( nRun == 1 && r2 == 1 )
+        if ( nRun == 1 )
             nRun= 0;
         else
             nRun = r2;
@@ -1313,6 +1315,7 @@ double tCycleDecompostionFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 ,
             ran1 = -1;
             toleranceAdjust = 1.;
             do{
+                printf("%d %d --. %d %d\n", iii[1][0][r2],iii[1][1][r2], iii[0][0][r2],iii[0][1][r2]);
                 ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,iii[1][0][r2],iii[1][1][r2], os,alloy, iii[0][0][r2],iii[0][1][r2],spin, toleranceAdjust*tolerance,value2,-1);
                 toleranceAdjust *= 1.2;
                 if ( ct == -1 ){
@@ -1330,7 +1333,7 @@ double tCycleDecompostionFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 ,
             other2 = inner( f1, alloy, spin);
             value = sqrt(fabs(sqr(value2) - 2. * cross + other2 ));
         }
-        printf("%d-grid\t %f \n",nRun,value/value2);
+        printf("%d-grid\t %f %f\n",nRun,value/value2, traceOne(f1, alloy, spin));
         if ( fabs( last - value ) < f1.rt->TARGET)
             return 0;//stall clause.
         last = value;
@@ -1360,11 +1363,12 @@ double tCycleDecompostionFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 ,
                 iiii[0][1][r2] = iii[0][1][run+1];
                 r2++;
             }
+            if ( r2 ) {
             iiii[1][1][r2-1] = iii[1][1][nRun-1];
             iiii[0][1][r2-1] = iii[0][1][nRun-1];
-            
+            }
         }
-        if ( nRun == 1 && r2 == 1 )
+        if ( nRun == 1  )
             nRun= 0;
         else
             nRun = r2;
