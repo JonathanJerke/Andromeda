@@ -54,21 +54,32 @@ int sortxComp (const void * elem1, const void * elem2)
     return 0;
 }
 
-int sortx2Comp (const void * elem1, const void * elem2)
-{
+
+double uw (const void * elem1,const void * elem2){
     double* f = ((double*)elem1);
     double* s = ((double*)elem2);
-    double valueFF=1.,valueSS=1.,valueFS=1.;
-   // (f+s)**2
-    INT_TYPE dim;
+    double value=1.;
+    INT_TYPE dim,nn=0;
     for ( dim = 0 ; dim < SPACE ; dim++)
         if ( f[dim] ){
-            valueFF *= cblas_ddot(f[dim], f+SPACE+dim, SPACE, f+SPACE+dim, SPACE);
-            valueFS *= cblas_ddot(f[dim], f+SPACE+dim, SPACE, s+SPACE+dim, SPACE);
-            valueSS *= cblas_ddot(f[dim], s+SPACE+dim, SPACE, s+SPACE+dim, SPACE);
+            value *= cblas_ddot(f[dim], f+SPACE+nn, 1, s+SPACE+nn, 1);
+            nn += f[dim];
         }
-    if (valueFF +2*valueFS > valueSS) return  -1;
-    if (valueFF +2*valueFS < valueSS) return 1;
+    return value;
+}
+
+
+int sortx2Comp (const void * elem1, const void * elem2)
+{
+    double ff=1.,ss=1.,fs=1.,sf;
+   // (f+s)**2
+    ff = uw( elem1,elem1);
+    sf = uw(elem2,elem1);
+    fs = uw(elem1,elem2);
+    ss = uw(elem2,elem2);
+
+    if (ff +sf+fs > ss) return  -1;
+    if (ff +sf+fs < ss) return 1;
     return 0;
 }
 

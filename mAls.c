@@ -221,20 +221,18 @@ INT_TYPE sortTerms (struct sinc_label  f1 , enum division term,INT_TYPE sp,enum 
 INT_TYPE analyze (struct sinc_label  f1 , enum division term,INT_TYPE sp )
 {
     INT_TYPE r,space;
-    double c[10000];
+    double c[2];
     for ( r = 0 ; r < CanonicalRank(f1, term, sp);r++){
-        c[2*r] = 1.;
+        c[0] = 1.;
         for ( space = 0; space < SPACE ; space++)
-            if ( f1.rose[space].component > 0 )
-                c[2*r] *= tDOT(0, f1, space, 1, term, r, sp, 1, term, r, sp);
-        c[2*r+1] = 1.;
+            if ( f1.rose[space].body != nada )
+                c[0] *= tDOT(0, f1, space, 1, term, r, sp, 1, term, r, sp);
+        c[1] = 1.;
         if ( r )
-        for ( space = 0; space < SPACE ; space++)
-            if ( f1.rose[space].component > 0 )
-                c[2*r+1] *= tDOT(0, f1, space, 1, term, r-1, sp, 1, term, r, sp);
-    }
-    for ( r = 0 ; r < CanonicalRank(f1, term, sp);r++){
-        printf("%d %f %f\n", r, c[2*r],c[2*r+1]);
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1.rose[space].body != nada )
+                    c[1] *= tDOT(0, f1, space, 1, term, r-1, sp, 1, term, r, sp);
+        printf("%d %f %f\n", r, c[0],c[1]);
     }
     
     return 0;
@@ -244,36 +242,48 @@ INT_TYPE analyze (struct sinc_label  f1 , enum division term,INT_TYPE sp )
 
 INT_TYPE spectralTerms (struct sinc_label  f1 , enum division term ,INT_TYPE sp){
     
-    INT_TYPE L, N,l,n,s,X;
+    INT_TYPE L, N,l,ll,n,s,X,T=0,nn;
     double *cc[SPACE];
     for ( s = 0 ; s < SPACE ; s++)
         if ( f1.rose[s].body != nada)
             cc[s] = streams(f1, term, sp, s);
 
     L = CanonicalRank(f1, term, sp);
-    N = alloc(f1,term,0);
-    X = N*SPACE + SPACE;
+    for ( s = 0 ;s < SPACE ; s++){
+        if ( f1.rose[s].body != nada)
+            T += alloc(f1,term,s);
+    }
+    X = T + SPACE;
     double *ccc = malloc(sizeof(double)*X * L);
     for ( l = 0; l < L ; l++){
         for ( s = 0 ;s < SPACE ; s++)
             if ( f1.rose[s].body != nada)
-                (ccc+l*X)[s] = N;
+                (ccc+l*X)[s] = alloc(f1,term,s);
             else
                 (ccc+l*X)[s] = 0;
-        for ( n = 0; n < N ; n++)
-            for ( s = 0; s < SPACE ; s++)
+        nn = 0;
+        for ( s = 0; s < SPACE ; s++){
+            N = (ccc+l*X)[s];
+            for ( n = 0; n < N ; n++)
                 if ( f1.rose[s].body != nada)
-
-                (ccc+l*X+SPACE)[SPACE*n+s]=(cc)[s][n+N*l];
+                    (ccc+l*X+SPACE)[nn++]=(cc)[s][n+N*l];
+        }
     }
     qsort(ccc, L, sizeof(double)*X, sortx2Comp );
+    ll = 0;
     for ( l = 0; l < L ; l++){
-        for ( n = 0; n < N ; n++)
-            for ( s = 0; s < SPACE ; s++)
-                if ( f1.rose[s].body != nada)
-
-                    (cc)[s][n+N*l] =(ccc+l*X+SPACE)[SPACE*n+s];
+        if ( f1.rt->TARGET < uw(ccc+l*X,ccc+l*X)  ){
+            nn= 0;
+            for ( s = 0; s < SPACE ; s++){
+                N = (ccc+l*X)[s];
+                for ( n = 0; n < N ; n++)
+                    if ( f1.rose[s].body != nada)
+                        (cc)[s][n+N*ll] =(ccc+l*X+SPACE)[nn++];
+            }
+            ll++;
+        }
     }
+    f1.tulip[term].Current[sp] = ll;
     free(ccc);
     return 0;
 }
@@ -1177,9 +1187,9 @@ double tCycleDecompostionFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 ,
     double last = 1e9;
     INT_TYPE iii[2][2][1000];
     INT_TYPE iiii[2][2][1000];
-   // analyze(f1, origin, os);
-    //spectralTerms(f1, origin, os);
-   // analyze(f1, origin, os);
+    //analyze(f1, origin, os);
+    spectralTerms(f1, origin, os);
+    //analyze(f1, origin, os);
 
     printf("((%d %d))\n", CanonicalRank(f1, origin, os), maxRun);
     INT_TYPE ran1,step,ct,run,nRun,r2;
@@ -1223,7 +1233,7 @@ double tCycleDecompostionFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 ,
     }
     
     
-    while ( nRun >= f1.rt->NLanes ){
+    while ( nRun >= 3 ){
 #ifdef OMP
 #pragma omp parallel for private (ran1,r2,ct,toleranceAdjust) schedule(dynamic,1)
 #endif
@@ -1236,6 +1246,8 @@ double tCycleDecompostionFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 ,
 #endif
             toleranceAdjust = 1.;
             do{
+              //  printf("%d %d --. %d %d\n", iii[1][0][r2],iii[1][1][r2], iii[0][0][r2],iii[0][1][r2]);
+
                 ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,iii[1][0][r2],iii[1][1][r2], os,alloy, iii[0][0][r2],iii[0][1][r2],spin, toleranceAdjust*tolerance,value2,-1);
                 toleranceAdjust *= 1.2;
                 if ( ct == -1 ){
@@ -1253,7 +1265,7 @@ double tCycleDecompostionFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 ,
             other2 = inner( f1, alloy, spin);
             value = sqrt(fabs(sqr(value2) - 2. * cross + other2 ));
         }
-        printf("%d-grid\t %f %f\n",nRun,value/value2, traceOne(f1, alloy, spin));
+        printf("%d-grid\t %f \n",nRun,value/value2);
         if ( isnan(value/value2)){
             
         }
@@ -1315,7 +1327,7 @@ double tCycleDecompostionFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 ,
             ran1 = -1;
             toleranceAdjust = 1.;
             do{
-                printf("%d %d --. %d %d\n", iii[1][0][r2],iii[1][1][r2], iii[0][0][r2],iii[0][1][r2]);
+              //  printf("%d %d --. %d %d\n", iii[1][0][r2],iii[1][1][r2], iii[0][0][r2],iii[0][1][r2]);
                 ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,iii[1][0][r2],iii[1][1][r2], os,alloy, iii[0][0][r2],iii[0][1][r2],spin, toleranceAdjust*tolerance,value2,-1);
                 toleranceAdjust *= 1.2;
                 if ( ct == -1 ){
@@ -1333,7 +1345,7 @@ double tCycleDecompostionFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 ,
             other2 = inner( f1, alloy, spin);
             value = sqrt(fabs(sqr(value2) - 2. * cross + other2 ));
         }
-        printf("%d-grid\t %f %f\n",nRun,value/value2, traceOne(f1, alloy, spin));
+        printf("%d-grid\t %f\n",nRun,value/value2);
         if ( fabs( last - value ) < f1.rt->TARGET)
             return 0;//stall clause.
         last = value;
