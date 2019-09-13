@@ -1178,7 +1178,7 @@ double tCycleDecompostionFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 ,
     INT_TYPE iii[2][2][1000];
     INT_TYPE iiii[2][2][1000];
    // analyze(f1, origin, os);
-    spectralTerms(f1, origin, os);
+    //spectralTerms(f1, origin, os);
    // analyze(f1, origin, os);
 
     printf("((%d %d))\n", CanonicalRank(f1, origin, os), maxRun);
