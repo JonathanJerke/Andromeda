@@ -123,7 +123,7 @@ struct field initField (void ) {
     i.i.xRank = 0;
     i.i.filter = 0;
     i.i.irrep = 0;
-    i.i.cat = 1;
+    i.i.cat = 0;
     i.i.collect = 0;
     
     i.i.Iterations = 0;
@@ -146,13 +146,11 @@ struct field initField (void ) {
         i.i.qFloor = 9*9*9;
         i.i.filter = 0;
         i.f.boot = fullMatrices;
-        i.i.body = three;
-        i.i.irrep = 0;
-        i.i.cat  = 0;
-        i.i.epi = 4;
+        i.i.body = four;
+        i.i.irrep = 1;
+        i.i.cat  = 1;
+        i.i.epi = 2;
         i.i.d = 1;
-
-        
     }else {
         i.i.d = 1.;
         i.i.D = 0.1*2;
@@ -177,6 +175,11 @@ struct calculation initCal (void ) {
     
 
 #ifdef APPLE
+    resetA(&i.rt);
+    blockA(&i.rt, blockHamiltonianBlock);
+    blockA(&i.rt, blockTrainingHamiltonianBlock);
+    blockA(&i.rt, blockTrainHamiltonianBlock);
+
     i.i.barrier = 0;
    // i.i.OCSBflag = 0;
     i.i.springConstant = 0.;
@@ -194,7 +197,7 @@ struct calculation initCal (void ) {
     i.rt.vCANON = 1e-3;
     i.rt.TOL = 1e5;
     i.rt.maxEntropy = 1;
-    i.i.level = 100;
+    i.i.level = 3;
     if ( SPACE == 1 ){
         i.i.M1 = 0;
         i.i.Na = 0;
@@ -656,7 +659,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
 
         fromBeginning(*f1, kineticMass, kinetic);
-        f1->tulip[kineticMass].Partition = COMPONENT*allowQ(f1->rt,blockHamiltonianBlock);//
+        f1->tulip[kineticMass].Partition = (allowQ(f1->rt,blockHamiltonianBlock)||allowQ(f1->rt,blockFoundationBlock));//
         assignOneWithPointers(*f1, kineticMass,all);
         struct name_label u = f1->tulip[kineticMass];
 
@@ -1001,14 +1004,14 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
         fromBeginning(*f1,copyVector,canonicalme3Vector);
         f1->tulip[copyVector].Partition = maxVector;
-        if ( ! f1->cat )
+     //   if ( ! f1->cat )
             f1->tulip[copyVector].Partition *= ra;
         f1->tulip[copyVector].species = vector;
         //f1->tulip[copyVector].spinor = parallel;
 
         fromBeginning(*f1,copyTwoVector,copyVector);
         f1->tulip[copyTwoVector].Partition =   maxVector;//f->i.bRank*f->i.bRank;
-        if ( ! f1->cat )
+       // if ( ! f1->cat )
             f1->tulip[copyTwoVector].Partition *= ra;
         f1->tulip[copyTwoVector].species = vector;
         //f1->tulip[copyTwoVector].spinor = parallel;
@@ -1120,7 +1123,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         assignParticle(*f1, copyTwo, all, one);
         
         fromBeginning(*f1,copyThree,copyTwo);
-        f1->tulip[copyThree].Partition = 0*c1->i.decomposeRankMatrix+ imax(c1->i.oneBody.num,   imax(c1->i.decomposeRankMatrix*c1->i.Na,outVector) );
+        f1->tulip[copyThree].Partition = 0*c1->i.decomposeRankMatrix+ 0* imax(c1->i.oneBody.num,   imax(c1->i.decomposeRankMatrix*c1->i.Na,outVector) );
         f1->tulip[copyThree].spinor = parallel;
         f1->tulip[copyThree].species = matrix;
         assignParticle(*f1, copyThree, all, one);
@@ -1444,8 +1447,9 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
     
         fromBeginning(*f1,dsyBuffers,square);
         f1->tulip[dsyBuffers].Partition = 2*8*(8*(imax(mxlen,maxEV))+72*f->i.nStates*f->i.nStates+ 8 * mxlen)+3*maxEV;
-    if ( PARTICLE == 1 )
-        f1->tulip[dsyBuffers].Partition = maxVector*maxVector;
+    //unsure.
+//    if ( PARTICLE == 1 )
+//        f1->tulip[dsyBuffers].Partition = maxVector*maxVector;
         f1->tulip[dsyBuffers].spinor = parallel;
         f1->tulip[dsyBuffers].memory = bufferAllocation;
 
@@ -1846,7 +1850,6 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 
                 
                 
-                
                 if ( c1->i.oneBody.func.fn != nullFunction&&c1->rt.phaseType != buildFoundation )
                     separateExternal(c1,*f1,protonRepulsion, 0,0,1.0,-1,0,proton);
                 separateKinetic(*f1, 0,kineticMass,c1->i.massClampPair*c1->i.massProton/(c1->i.massProton + c1->i.massClampPair),proton);
@@ -1872,7 +1875,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     
                     flag = ioStoreMatrix(*f1, interactionEwald, 0, "interactionEwald.matrix",1) &&  ioStoreMatrix(*f1, intercellularSelfEwald, 0, "intercellularSelfEwald.matrix",1)&&  ioStoreMatrix(*f1, jelliumElectron, 0, "jelliumElectron.matrix",1);
                     if ( f1->cmpl == cmpl )
-                        flag = flag && (  ioStoreMatrix(*f1, intercellularSelfEwald, 1, "intercellularSelfEwald.1.matrix",1) && ioStoreMatrix(*f1, interactionEwald, 1, "interactionEwald.1.matrix",1))&&  ioStoreMatrix(*f1, jelliumElectron, 1, "jelliumElectron.1.matrix",1);
+                         (  ioStoreMatrix(*f1, intercellularSelfEwald, 1, "intercellularSelfEwald.1.matrix",1) && ioStoreMatrix(*f1, interactionEwald, 1, "interactionEwald.1.matrix",1))&&  ioStoreMatrix(*f1, jelliumElectron, 1, "jelliumElectron.1.matrix",1);
                     
                     if (!flag ){
                         exit(0);

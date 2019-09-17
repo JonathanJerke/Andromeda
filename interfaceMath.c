@@ -332,7 +332,7 @@ info =  LAPACKE_dpotrf(LAPACK_COL_MAJOR,'U',L1,  array, L1 );
     if ( info != 0 ){
         INT_TYPE i ;
         for ( i = 0 ; i < L1 *L1 ; i++)
-            printf("%f\n", array[i]);
+            printf("potrf %f\n", array[i]);
         exit(1);
     }
     return info;

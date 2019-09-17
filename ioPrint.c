@@ -68,8 +68,8 @@ INT_TYPE print(struct calculation *c , struct field f1,INT_TYPE reset,INT_TYPE m
         for ( iii = mv; iii < lv  ; iii++)
           //  if( (! c->i.irrep || f1->sinc.tulip[eigenVectors+iii].value.symmetry  == irrep)&& irrep == c->i.irrep)
         {
-            irrep = f1.f.tulip[eigenVectors+iii].value.symmetry;
-                printf("State%d:%d:,%d ,%1.15f, %d, %d , %1.1f,%1.15f\n", iii+1, f1.i.epi*2+1,iii+1,f1.f.tulip[eigenVectors+iii].value.value,bodies(f1.f,eigenVectors+iii),irrep, deg(f1.f, irrep),f1.f.tulip[eigenVectors+iii].value.value2);
+            irrep = tClassify(0, f1.f, eigenVectors+iii);
+                printf("State%d:%d:,%d ,%1.15f, %d, %d(%d) , %1.1f,%1.15f\n", iii+1, f1.i.epi*2+1,iii+1,f1.f.tulip[eigenVectors+iii].value.value,bodies(f1.f,eigenVectors+iii),irrep,irreps(f1.i.body,irrep), deg(f1.f, irreps(f1.i.body,irrep)),f1.f.tulip[eigenVectors+iii].value.value2);
                 
                     printVector(c,f1.f, c->name,c->name, iii,irrep, &one);
                     for ( cmpl = 0 ; cmpl < spins(f1.f, eigenVectors+iii) ; cmpl++)

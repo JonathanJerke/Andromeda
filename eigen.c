@@ -309,19 +309,19 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                         if ( f1.cat ){
                             f1.tulip[diagonalVectorB].Current[rank] = 0;
                             f1.tulip[diagonalVectorA].Current[rank] = 1;
-
-                            tBuild3Irr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
+                            tBuild3IrrOne(rank, f1,space, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
                             if ( cblas_dnrm2(N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
                                 cblas_dcopy(N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
                                 streams(f1,foundationStructure,0,space)[v] = 0.;
                                 for ( em = kinetic1 ; em < kinetic1 + bootBodies ; em++){
-                                    tGEMV(rank, f1, space, diagonalVectorA, 0, rank, kinetic1, space, 0, diagonalVectorB, 0, rank);
+                                    tGEMV(rank, f1, space, diagonalVectorA, 0, rank, em, space, 0, diagonalVectorB, 0, rank);
                                     streams(f1,foundationStructure,0,space)[v] += tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
                                 }
                                 if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
                                 streams(f1,foundationStructure,1,space)[v] = 1;
                             }
-                        } else {
+                        } else
+                        {
                             cblas_dcopy(N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
                             streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0];
                             streams(f1,foundationStructure,1,space)[v] = 1;
@@ -383,26 +383,27 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                             f1.tulip[diagonalVectorB].Current[rank] = 0;
                             f1.tulip[diagonalVectorA].Current[rank] = 1;
 
-                            tBuild3Irr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
-                            // printf("\n%d %d %f\n",space, v,cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1));
+                            tBuild3IrrOne(rank, f1,space, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
+                        //     printf("\n%d %d %f\n",space, v,cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1));
                             if ( cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
-                                
+
                                 cblas_dcopy(N1*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
-                                
-                                
+
+
                                 streams(f1,foundationStructure,0,space)[v] = 0.;
                                 for ( em = kinetic1 ; em < kinetic1 + bootBodies ; em++){
-                                    tGEMV(rank, f1, space, diagonalVectorA, 0, rank, kinetic1, space, 0, diagonalVectorB, 0, rank);
+                                    tGEMV(rank, f1, space, diagonalVectorA, 0, rank, em, space, 0, diagonalVectorB, 0, rank);
                                     streams(f1,foundationStructure,0,space)[v] += tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
                                 }
                                 if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
                                 streams(f1,foundationStructure,1,space)[v] = 1;
                             }
                             //SA++
-                            
-                        } else {
-                            cblas_dcopy(N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
-                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0];
+
+                        }else
+                        {
+                            cblas_dcopy(N2*N1, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2*N1, 1);
+                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0];
                             streams(f1,foundationStructure,1,space)[v] = 1;
                             
                         }
@@ -459,16 +460,16 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                             f1.tulip[diagonalVectorB].Current[rank] = 0;
                             f1.tulip[diagonalVectorA].Current[rank] = 1;
                             
-                            tBuild3Irr(rank, f1, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
+                            tBuild3IrrOne(rank, f1,space, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
                             // printf("\n%d %d %f\n",space, v,cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1));
-                            if ( cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
+                            if ( cblas_dnrm2(N2*N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
                                 
-                                cblas_dcopy(N1*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
+                                cblas_dcopy(N2*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2*N2, 1);
                                 
                                 
                                 streams(f1,foundationStructure,0,space)[v] = 0.;
                                 for ( em = kinetic1 ; em < kinetic1 + bootBodies ; em++){
-                                    tGEMV(rank, f1, space, diagonalVectorA, 0, rank, kinetic1, space, 0, diagonalVectorB, 0, rank);
+                                    tGEMV(rank, f1, space, diagonalVectorA, 0, rank, em, space, 0, diagonalVectorB, 0, rank);
                                     streams(f1,foundationStructure,0,space)[v] += tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
                                 }                                if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
 
@@ -476,9 +477,10 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                             }
                             
                             //SA++
-                        } else {
-                            cblas_dcopy(N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
-                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0];
+                        } else
+                        {
+                            cblas_dcopy(N2*N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2*N2, 1);
+                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0]+w[iv]-w[0];
                             streams(f1,foundationStructure,1,space)[v] = 1;
                             
                         }
@@ -521,10 +523,10 @@ INT_TYPE tSortBoot(struct calculation * c1, struct sinc_label f1, enum division 
                      }
                     tally++;
                 }
-            double tt[N1];
+          //  double tt[N1];
             if ( ! tally )
                 return 1;
-            tdgeqr(0, f1, tally, N1, myStreams(f1,bill1+space,0), N1, tt);
+           // tdgeqr(0, f1, tally, N1, myStreams(f1,bill1+space,0), N1, tt);
             
             for ( i = 0 ; i < tally ; i++)
                 cblas_dscal(N1, 1./cblas_dnrm2(N1, myStreams(f1,bill1+space,0)+(i)*N1, 1), myStreams(f1,bill1+space,0)+(i)*N1, 1);
@@ -647,6 +649,8 @@ INT_TYPE tSlam (struct sinc_label f1,INT_TYPE allc, enum division vl, double fma
             f1.tulip[vl+t].Current[0] = 1;
             f1.tulip[vl+t].value.value = vale(sc+t);
             f1.tulip[vl+t].value.stage = t;
+//            tBuild3Irr(0, f1, f1.irrep, vl+t, 0, copyVector, 0);
+//            tEqua(f1, vl+t, 0, copyVector, 0);
             //testSA(f1, vl+t);
         }
         free(sc);
@@ -845,7 +849,7 @@ INT_TYPE tFoundationLevel( struct sinc_label  f1, enum division A , double lvlm,
                         //    continue;
                        // }
                         if ( ops  == 0 ){
-#if 1
+#if VERBOSE
                             printf("**%d-->%d : %d %d %d :: %d %d %d :: %f\n",irrep,classicalBasisSize,r[0],r[1],r[2],g[0],g[1],g[2],value);
 
 #endif
@@ -875,30 +879,49 @@ INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum divisio
     INT_TYPE i,ii,space,cmpl=0,rank;
     assignCores(f1, 1);
     DCOMPLEX norm;
+    rank = 0;
+
     if ( irrep && bodies(f1, usr ) > one ){
+        
         printf("Symmetry Adaption -> %d-irrep\n", irrep );
-        for ( ii = 0; ii < Ve ; ii++)
-        {
-            rank = 0;
-            
+        for( ii= 0 ; ii < Ve ; ii++){
             for ( cmpl = 0 ; cmpl < spins(f1, usr+ii) ; cmpl++){
+                
                 f1.tulip[copyTwoVector].Current[rank] = 0;
-                for ( i = 0 ; i < CanonicalRank(f1, usr+ii, cmpl);i++)
                 {
-                    f1.tulip[copyVector].Current[rank] = 0;
-                    for ( space = 0; space < SPACE ; space++)
-                        xsAdd(1., space, f1, copyVector, rank, f1, usr+ii, i, cmpl);
-                    f1.tulip[copyVector].Current[rank] = 1;
                     if ( f1.cat )
-                        tBuild3Irr(rank, f1, irrep, copyVector, rank, copyTwoVector, rank);
+                        tBuild3Irr(rank, f1, irrep, usr+ii, cmpl, copyTwoVector, rank);
                     else
-                        tBuildIrr(rank, f1, irrep, copyVector, rank, copyTwoVector, rank);
+                        tBuildIrr(rank, f1, irrep, usr+ii, cmpl, copyTwoVector, rank);
                 }
+                
                 tCycleDecompostionGridOneMP(-2, f1, copyTwoVector, rank, NULL,usr+ii , cmpl, f1.rt->TARGET, part(f1,usr+ii), f1.rt->powDecompose);
             }
             pMatrixElements( f1, usr+ii, nullName, usr+ii, NULL, &norm);
             tScale(f1, usr+ii, 1./sqrt(cabs(norm)));
         }
+//        {
+//            rank = 0;
+//
+//            for ( cmpl = 0 ; cmpl < spins(f1, usr+ii) ; cmpl++){
+//                f1.tulip[copyTwoVector].Current[rank] = 0;
+//                for ( i = 0 ; i < CanonicalRank(f1, usr+ii, cmpl);i++)
+//                {
+//                    f1.tulip[copyVector].Current[rank] = 0;
+//                    for ( space = 0; space < SPACE ; space++)
+//                        xsAdd(1., space, f1, copyVector, rank, f1, usr+ii, i, cmpl);
+//                    f1.tulip[copyVector].Current[rank] = 1;
+//                    //SA++
+//                    if ( f1.cat )
+//                        tBuild3Irr(rank, f1, irrep, copyVector, rank, copyTwoVector, rank);
+//                    else
+//                        tBuildIrr(rank, f1, irrep, copyVector, rank, copyTwoVector, rank);
+//                }
+//                tCycleDecompostionGridOneMP(-2, f1, copyTwoVector, rank, NULL,usr+ii , cmpl, f1.rt->TARGET, part(f1,usr+ii), f1.rt->powDecompose);
+//            }
+//            pMatrixElements( f1, usr+ii, nullName, usr+ii, NULL, &norm);
+//            tScale(f1, usr+ii, 1./sqrt(cabs(norm)));
+//        }
     }
     
 #ifdef OMP
@@ -1209,14 +1232,14 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag ,double sumPart, double r
     INT_TYPE expon,info;
     INT_TYPE rank ;
     //time_t start_t, lapse_t;
-    DCOMPLEX temp,temp2, sum = 0,vhhv,vhv;
+    DCOMPLEX temp,temp2, sum = 0,vhhv,vhv,vhhhv;
     //time(&start_t);
     INT_TYPE iii = 0;
     
     if ( translateFlag ){
-        printf ("( %1.6f + (%1.6f) H )PSI",sumPart,realPart);
+        printf (" %1.6f | PSI > + %1.6f H | PSI > \n",sumPart,realPart);
     }else {
-        printf ("( H )PSI");
+        printf (" %1.6f H | PSI >\n", realPart);
     }
     
     for( expon = 1 ; foundation*expon < nMult  ; expon++){
@@ -1241,10 +1264,13 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag ,double sumPart, double r
 
                 tHXpX(rank, f1, A, translateFlag,sumPart, translateFlag*realPart+ (!translateFlag)*1., 0.0, usz+iii+expon*foundation, f1.rt->TARGET , part(f1,usz+(expon)*foundation+iii),1 == 1);
                 
-                pMatrixElements( f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
+                pMatrixElements( f1, usz+iii+expon*foundation, A, usz+iii+expon*foundation, &vhhhv, &vhhv);
                 pMatrixElements( f1, usz+iii+expon*foundation, nullName, usz+iii+(expon-1)*foundation, NULL, &vhv);
 
-                printf("%d\t<\t%f\t | \t %f \t>\n", iii+1, creal(vhv), creal(vhhv) - sqr(creal(vhv)));
+                f1.tulip[usz+iii+expon*foundation].value.value =creal(vhhhv)/creal(vhhv);
+                
+                
+                printf("%d\t uncertainity:  \t %f\n", iii+1,  creal(vhhv) - sqr(creal(vhv)));
                 if ( cabs(vhhv) > 0. )
                     tScale(f1, usz+iii+expon*foundation, 1./sqrt(cabs(vhhv)));
                 else {
@@ -1320,7 +1346,7 @@ INT_TYPE tEdges(struct sinc_label f1, enum division vector){
                                 sum[spatial] += (creal(me/ov));
                                 totalSum += sum[spatial];
                             }
-                            printf(": %1.8f\n", sum[spatial]);
+                            printf("\n");
                         }
 //
                         if ( f1.rt->calcType == clampProtonElectronCalculation)
@@ -1342,7 +1368,7 @@ INT_TYPE tEdges(struct sinc_label f1, enum division vector){
                                     totalSum += sum[spatial];
 
                                 }
-                                printf(": %1.8f\n", sum[2+spatial]);
+                               printf("\n");
                             }
                         
                     }
@@ -1667,7 +1693,7 @@ INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,ch
             complete = tzhegv (0,f1,Job,qs,t,s,stride,ritz);
             if ( complete ){
                 printf("eigensovle failed\n");
-                exit(1);
+                return 0;
             }
             
 #if VERBOSE

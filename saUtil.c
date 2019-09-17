@@ -71,12 +71,69 @@ INT_TYPE testSA ( struct sinc_label f1 , enum division vector ){
 }
 
 
-
-
-
-
-
-
+//void testSAAgain ( struct sinc_label f1 , enum division vector ){
+//    INT_TYPE info;
+//    enum division t1=copyVector,t2=copyTwoVector;
+//    tClear(f1,t1);
+//    printf("%f\n", sqr(magnitude(f1, vector)));
+//
+//    tBuildIrr(0, f1, f1.irrep, vector, 0, t1, 0);
+//    
+//    if ( magnitude(f1, t1) > 0.001 )
+//    {
+//        tScaleOne(f1, t1, 0, 1./magnitude(f1, t1));
+//        tClassify(0, f1, t1);
+//    }
+//    printf("%f\n\n\n", sqr(magnitude(f1, t1)));
+//    
+//    
+//    
+//    if ( f1.irrep != tClassify(0, f1, t1) && magnitude(f1, t1) > 0.001  ){
+//        printf(" mag %f %d\n",magnitude(f1, vector),tClassify(0, f1, vector));
+//
+//        printf("proj mag %f %d\n",magnitude(f1, t1),tClassify(0, f1, t1));
+//        printf("proj | vect %f %d\n", tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, 1, t1, 0, 1, vector, 0),tClassify(0, f1, t1));
+//    }
+//    if ( f1.rose[0].body == three ){
+//    for ( f1.cat = 1 ; f1.cat <= 19 ; f1.cat++ ){
+//        tClear(f1,t2);
+//        tBuild3Irr(0, f1, f1.irrep, vector, 0, t2, 0);
+//        printf("%d proj mag %f\n",f1.cat,magnitude(f1, t2));
+//        printf("%d proj | vect %f | %d\n",f1.cat, tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, 1, t2, 0, 1, vector, 0),tClassify(0, f1, t2));
+//
+//    }
+//    
+//    for ( f1.cat = 1 ; f1.cat <= 19 ; f1.cat++ ){
+//        tClear(f1,t2);
+//
+//        tBuild3Irr(0, f1, f1.irrep, t1, 0, t2, 0);
+//        printf("%d || proj mag %f\n",f1.cat,magnitude(f1, t2));
+//        printf("%d proj | vect %f | %d\n",f1.cat, tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, 1, t2, 0, 1, vector, 0),tClassify(0, f1, t2));
+//
+//    }
+//    } else if ( f1.rose[0].body == two ){
+//        for ( f1.cat = 1 ; f1.cat <= 4 ; f1.cat++ ){
+//            tClear(f1,t2);
+//
+//            tBuild3Irr(0, f1, f1.irrep, vector, 0, t2, 0);
+//            printf("%d proj mag %f\n",f1.cat,magnitude(f1, t2));
+//            printf("%d proj | vect %f | %d\n",f1.cat, tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, 1, t2, 0, 1, vector, 0),tClassify(0, f1, t2));
+//
+//        }
+//        
+//        for ( f1.cat = 1 ; f1.cat <= 4 ; f1.cat++ ){
+//            tClear(f1,t2);
+//
+//            tBuild3Irr(0, f1, f1.irrep, t1, 0, t2, 0);
+//            printf("%d || proj mag %f\n",f1.cat,magnitude(f1, t2));
+//            printf("%d proj | vect %f | %d\n",f1.cat, tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, 1, t2, 0, 1, vector, 0),tClassify(0, f1, t2));
+//
+//        }
+//
+//        
+//    }
+//    return ;
+//}
 
 INT_TYPE tFil ( struct sinc_label  f1, enum division A, enum division v , INT_TYPE * i ){
     INT_TYPE n1[3],space;
@@ -524,327 +581,271 @@ double deg(struct sinc_label f1, INT_TYPE cl ){
     return deg;
 }
 
-double tGetProjection (enum bodyType bd , INT_TYPE irrep , INT_TYPE op ){
-    //THESE ARE PROJECTIONS based on enumerated operations.
-    //i.e. for 3-electrons
-    //Sum[(Op[x],{x,1,6}].v = v_A1
-    //
-    op--;
-    INT_TYPE nsyp=0 ,msyp=0;
-        const static double syp2 [] = {
-            1.,1.,
-            1.,-1.
-    
-        };
-        const static double syp3 [] = {
-            1.,1.,1., 1., 1., 1.,//A1-36 of them
-            1.,-1.,-1.,1.,1.,-1.,//A2-36 of them
-            2.,0.,0.,-1.,-1.,0.//EE-144 of them
-        };
-    const static double syp4 [] = {1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
-        1., 1., 1., 1., 1., 1., 1., 1., -1., -1., 1., 1., -1., -1., 1., 1.,
-        -1., -1., 1., 1., -1., -1., 1., 1., -1., -1., 1., 1., -1., -1., 1.,
-        2., 0, 0, -1., -1., 0, 0, 2., -1., 0, 0, -1., -1., 0, 0, -1., 2., 0,
-        0, -1., -1., 0, 0, 2., 3., -1., -1., 0, 0, -1., -1., -1., 0, 1., 1.,
-        0, 0, 1., -1., 0, -1., 1., 1., 0, 0, -1., 1., -1., 3., 1., 1., 0, 0,
-        1., 1., -1., 0, -1., -1., 0, 0, -1., 1., 0, -1., -1., -1., 0, 0, 1.,
-        -1., -1.};
-
-        if ( bd == one ){
-            return 1;
-        }
-        else    if ( bd == two ){
-            nsyp = 2;
-            msyp = 2;
-        }
-        else if ( bd == three ){
-            nsyp = 6;
-            msyp = 3;
-        }else if ( bd == four ){
-            nsyp = 24;
-            msyp = 5;
-        }
-        else {
-            printf("bod\n");
-            exit(0);
-        }
-    
-    
-        if ( irrep <= 0 || irrep > msyp )
-        {
-            printf("he\n %lld", irrep);
-            exit(0);
-        }
-        if ( op < 0 || op >= nsyp ){
-            printf("hm\n");
-            exit(0);
-        }
-    
-    
-        if ( bd == two ){
-            return syp2[(irrep-1)*nsyp+op]/nsyp;
-        }
-        else if ( bd == three ){
-            return syp3[(irrep-1)*nsyp+op]/nsyp;
-        }
-        else if ( bd == four ){
-            return syp4[(irrep-1)*nsyp+op]/nsyp;
-        }
-        return 0.;
-}
-
-
-
 
 
 //Bill's work,  3component breakdown
-//double tGetType(enum bodyType bd , INT_TYPE type , INT_TYPE perm ){
-//
-//    INT_TYPE nsyp=0 ,msyp=0;
-//    const static double syp2 [] = {
-//        sr2,sr2,
-//        sr2,-sr2
-//
-//    };
-//    const static double syp3 [] = {
-//        /********/
-//        sr6,sr6,sr6, sr6, sr6, sr6,//A1
-//        sr6,sr6,sr6,-sr6,-sr6,-sr6,//A2
-//
-//
-//
-//
-////        hf*sr3,hf*sr3   , -sr3   ,hf*sr3    ,hf*sr3     ,-sr3,
-////        hf    , -hf     ,0.      ,-hf       , hf        , 0.,
-////        hf*sr3,hf*sr3   , -sr3   ,-hf*sr3   ,-hf*sr3    ,sr3,
-////        hf    , -hf     ,0.      ,hf        , -hf       , 0.,
-//        //////////////////////////////////
-//        /////////////////////////////////
-//        ////////////////////////////////
-//        ///////////////////////////////
-//        //////////////////////////////
-//    };
-//
-//    const static double syp4[] = {
-//        /*1: A1*/
-//        sr6*hf,sr6*hf,sr6*hf,sr6*hf,    sr6*hf,sr6*hf,sr6*hf,sr6*hf,    sr6*hf,sr6*hf,sr6*hf,sr6*hf,
-//        sr6*hf,sr6*hf,sr6*hf,sr6*hf,    sr6*hf,sr6*hf,sr6*hf,sr6*hf,    sr6*hf,sr6*hf,sr6*hf,sr6*hf,
-//
-//        /*2: A2*/
-//        sr6*hf,-sr6*hf,-sr6*hf,sr6*hf,    sr6*hf,-sr6*hf,-sr6*hf,sr6*hf,    sr6*hf,-sr6*hf,-sr6*hf,sr6*hf,
-//        sr6*hf,-sr6*hf,-sr6*hf,sr6*hf,    sr6*hf,-sr6*hf,-sr6*hf,sr6*hf,    sr6*hf,-sr6*hf,-sr6*hf,sr6*hf,
-//
-//        /*3: E-1*/
-//        sr6,    0.,0.,-sr6*hf,      -sr6*hf,0.,0., sr6,       -sr6*hf,0.,0.,-sr6*hf,
-//        -sr6*hf,0.,0.,-sr6*hf,       sr6,   0.,0.,-sr6*hf,    -sr6*hf,0.,0.,sr6,
-//
-//        /*4: E-2*/
-//        0.,sr6,-sr6*hf,0.,          0.,-sr6*hf, sr6,0.,    0.,-sr6*hf,-sr6*hf,0.,
-//        0.,-sr6*hf,-sr6*hf,0.,      0.,sr6, -sr6*hf,0.,    0.,-sr6*hf,sr6,0.,
-//
-//        /*5: E-3*/
-//        0.,0.,sr2*hf,0.,             0.,-sr2*hf,0.,0.,       0.,-sr2*hf ,sr2*hf,0.,
-//        0.,sr2*hf ,-sr2*hf,0.,        0.,0.,-sr2*hf,0,        0.,sr2*hf,0.,0.,
-//
-//        /*6: E-4*/
-//        0.,0.,0.,sr2*hf,             -sr2*hf,0.,0.,0.,         -sr2*hf,0.,0.,sr2*hf,
-//        sr2*hf,0.,0.,-sr2*hf,       0.,0.,0.,-sr2*hf,           sr2*hf,0.,0.,0.,
-//
-//        /*7: T1-1*/
-//        hf*sr2/sr3,-hf*sr6,-hf*sr6,0.,      0.,-hf*sr6,-hf*sr6,-hf*sr6,     0.,hf*sr6,hf*sr6,0.,
-//        0., hf*sr6,-hf*sr6,0.,              -hf*sr6, hf*sr6, hf*sr6,0.,     0.,-hf*sr6,hf*sr6,-hf*sr6,
-//
-//        /*8: T1-2*/
-//        0. , sr3,-hf*hf*hf*sr3,-hf*hf*hf/sr3,                               -hf*hf*hf/sr3,-hf*hf*hf*sr3, -hf*sr3, -hf*sr3,
-//        hf*hf*hf/sr3,hf*hf*hf*sr3,hf*hf*hf*sr3,hf*hf*hf/sr3,                  hf*hf*hf/sr3,hf*hf*hf*sr3,-hf*hf*hf*sr3,-hf*hf*hf/sr3,
-//        hf*hf*sr3,-hf*hf*sr3,hf*hf*hf*sr3,hf*hf*hf/sr3,                       -hf*hf*hf/sr3,-hf*hf*hf*sr3,-hf*hf*sr3,  hf*hf*sr3,
-//
-//        /*9: T1-3*/
-//        0.,0.,hf*hf*hf/sr3/sr7,-hf*hf*hf*sr7/sr3/sr3/sr3,
-//        -hf*hf*hf*sr7/sr3/sr3/sr3,-hf*hf*hf*sr7/sr3,-hf*sr3*sr7, hf*sr3*sr7,
-//        -sr3*hf*hf*hf/sr7,1./sr3*hf*hf*hf*sr7,-hf*hf*hf*sr3*sr7/sr5/sr5, hf*hf*hf*sr7/sr3/sr3/sr3,
-//        -sr3*hf*hf*hf/sr7,-hf*hf*hf*sr3*sr7/sr5/sr5,-hf*hf*hf/sr3*sr7,sr3*hf*hf*hf/sr7,
-//        hf*hf*sr7/sr3, hf*hf*sr3*sr7, hf*hf*hf*sr7/sr3,  hf*hf*hf*sr7/sr3/sr3/sr3,
-//        hf*hf*hf*sr3/sr7,-11.*hf*hf*hf*sr3*sr7, hf*hf*sr3*sr7,  -hf*hf*sr3*sr7/sr5/sr5,
-//
-//
-//        /*10: T1-4*/
-//        0.,0.,0.,hf*sr2*sr7/sr5/sr3,
-//        -sr5*sr2*sr7/sr3, -hf*sr5*sr2*sr7/sr3/sr3/sr3, sr5*sr2*sr3*sr7,-sr5*sr2*sr3*sr7,
-//        0.,-hf*sr6*sr7/sr5, sr5*sr2*sr7/sr3, -hf * sr7*sr3*sr5*sr2,
-//        -hf*sr5*sr6/sr7,-sr3*sr7*sr5/hf/sr2,hf*sr6*sr7/sr5,0.,
-//        sr3*sr7*sr5/sr2, sr7*sr5*sr2/sr3,   hf*sr7*sr5*sr2/sr3/sr3/sr3, sr7*sr5*sr2/sr3,
-//        -hf*sr5*sr6/sr7,sr5*sr2*sr3*sr7,-sr3*sr7*sr5/hf/sr2,-sr5*sr2*sr3*sr7,
-//
-//        /*11: T1-5*/
-//        0.,0.,0.,0.,
-//        hf/sr3/sr3*sr2*sr5,-hf/sr3/sr3*sr2*sr5,sr3*sr3*sr2*sr5,-sr3*sr3*sr2*sr5,
-//        -sr6*sr6*sr2/sr5,sr6*sr6*sr2/sr5,-sr5*sr3*sr3/sr2,sr5*sr3*sr3/sr2,
-//        -sr2*sr5*sr3*sr3,sr2*sr5*sr3*sr3,sr6*sr6*sr2/sr5,-sr6*sr6*sr2/sr5,
-//        sr5*sr3*sr3/sr2,-sr5*sr3*sr3/sr2,-sr2*sr5*sr6*sr6,sr6*sr6*sr2*sr5,
-//        -sr2*sr5*sr3*sr3,sr2*sr5*sr3*sr3,sr2*sr5*sr3*sr3,-sr2*sr5*sr3*sr3,
-//
-//        /*12: T1-6*/
-//        0.,0.,0.,0.,
-//        0.,0.,sr3*sr3/sr2,-sr3*sr3/sr2,
-//        -sr6*sr6*sr2, sr6*sr6*sr2,sr6*sr6*sr2,-sr6*sr6*sr2,
-//        -sr6*sr6*sr2,sr6*sr6*sr2,-sr3*sr3*sr2,sr3*sr3*sr2,
-//        sr3*sr3*sr2,-sr3*sr3*sr2,sr6*sr6*sr2,-sr6*sr6*sr2,
-//        sr3*sr3*sr2,-sr3*sr3*sr2,-sr3*sr3*sr2,sr3*sr3*sr2,
-//
-//        /*13: T1-7*/
-//        0.,0.,0.,0.,
-//        0.,0.,0.,0.,
-//        hf*sr6/sr5,-hf*sr5*sr6,-hf*sr6/sr5,hf*sr6*sr5,
-//        -hf*sr2*sr5/sr3,hf*sr2*sr5/sr3,-sr6*sr5,-sr6*sr5,
-//        sr6*sr5,sr6*sr5,hf*sr2*sr5/sr3,-hf*sr2*sr5/sr3,
-//        sr5*sr6,sr5*sr6,-sr5*sr6,-sr5*sr6,
-//
-//        /*14: T1-8*/
-//        0.,0.,0.,0.,
-//        0.,0.,0.,0.,
-//        0.,sr5,0,-sr5,
-//        hf*sr5,-hf*sr5,-hf*sr5,-hf*sr5,
-//        hf*sr5,hf*sr5,-hf*sr5,hf*sr5,
-//        hf*sr5,hf*sr5,-hf*sr5,-hf*sr5,
-//
-//        /*15: T1-9*/
-//        0.,0.,0.,0.,
-//        0.,0.,0.,0.,
-//        0.,0.,0.,0.,
-//        hf*sr3,-hf*sr3,-hf*sr3,hf*sr3,
-//        hf*sr3,-hf*sr3,hf*sr3,-hf*sr3,
-//        -hf*sr3,hf*sr3,hf*sr3,-hf*sr3,
-//
-//        /*16: T2-1*/
-//        hf*sr2/sr3,hf*sr2*sr3,hf*sr2*sr3,0.,
-//        0.,hf*sr2*sr3,hf*sr2*sr3,-hf*sr2*sr3,
-//        0.,-hf*sr2*sr3,-hf*sr2*sr3,0.,
-//        0.,-hf*sr2*sr3,hf*sr2*sr3,0.,
-//        -hf*sr2*sr3,-hf*sr2*sr3,-hf*sr2*sr3,0.,
-//        0.,hf*sr2*sr3,-hf*sr2*sr3,-hf*sr2*sr3,
-//
-//        /*17: T2-2*/
-//        0.,sr3,-hf*hf*hf*sr3,hf*hf*hf/sr3,
-//        hf*hf*hf/sr3,-hf*hf*hf*sr3,-hf*sr3,hf*sr3,
-//        -hf*hf*hf/sr3,hf*hf*hf*sr3,hf*hf*hf*sr3,-hf*hf*hf/sr3,
-//        -hf*hf*hf/sr3,hf*hf*hf*sr3,-hf*hf*hf*sr3,hf*hf*hf/sr3,
-//        -hf*hf*sr3,-hf*hf*sr3,hf*hf*hf*sr3,-hf*hf*hf/sr3,
-//        hf*hf*hf/sr3,-hf*hf*hf*sr3,-hf*hf*sr3,-hf*hf*sr3,
-//
-//        /*18: T2-3*/
-//        0.,0.,hf*hf*hf/sr3/sr7,hf*hf*hf*sr7/sr3/sr3/sr3,
-//        hf*hf*hf*sr7/sr3/sr3/sr3,-hf*hf*hf*sr7/sr3,-hf*sr3*sr7,-hf*sr3*sr7,
-//        sr3/sr7*hf*hf*hf, sr7/sr3*hf*hf*hf, -hf*hf*hf*sr3*sr7/sr5/sr5, -hf*hf*hf*sr7/sr3/sr3/sr3,
-//        hf*hf*hf*sr3/sr7,-hf*hf*hf*sr3*sr7/sr5/sr5,-hf*hf*hf*sr7/sr3,-hf*hf*hf*sr3/sr7,
-//        -hf*hf*sr7/sr3, hf*hf*sr3*sr7,  hf*hf*hf*sr7/sr3, - hf*hf*hf*sr7/sr3/sr3/sr3,
-//        -sr3/sr7*hf*hf*hf, -11.*hf*hf*hf*sr3*sr7, hf*hf*sr3*sr7, hf*hf*sr3*sr7/sr5/sr5,
-//
-//
-//        /*19: T2-4*/
-//        0.,0.,0.,hf*sr2*sr7/sr3/sr5,
-//        -sr7*sr5*sr2/sr3,hf*sr7*sr5*sr2/sr3/sr3/sr3,    - sr7*sr3*sr5*sr2,- sr7*sr3*sr5*sr2,
-//        0.,hf/sr5*sr6*sr7,  -sr7*sr5*sr2/sr3, -hf*sr7*sr3*sr5*sr2,
-//        -hf*sr5*sr6/sr7,sr7*sr3*sr5/sr2/hf,-hf*sr6*sr7/sr5,0.,
-//        sr7*sr3*sr5/sr2,-sr7*sr5*sr2/sr3,-hf*sr7*sr5*sr2/sr3/sr3/sr3,sr7*sr5*sr2/sr3,
-//        -hf*sr5*sr6/sr7,-sr7*sr3*sr5*sr2,sr7*sr3*sr5/sr2/hf,-sr7*sr3*sr5*sr2,
-//
-//        /*20: T2-5*/
-//        0.,0.,0.,0.,
-//        sr5*sr2*hf/sr3/sr3,sr5*sr2*hf/sr3/sr3,-sr2*sr5*sr3*sr3,-sr2*sr5*sr3*sr3,
-//        -sr6*sr6*sr2/sr5,-sr6*sr6*sr2/sr5,sr3*sr3*sr5/sr2,sr3*sr3*sr5/sr2,
-//        -sr3*sr3*sr2*sr5, -sr3*sr3*sr2*sr5,-sr6*sr6*sr2/sr5,-sr6*sr6*sr2/sr5,
-//        sr3*sr3*sr5/sr2,sr3*sr3*sr5/sr2,sr6*sr6*sr2*sr5,sr6*sr6*sr2*sr5,
-//        -sr3*sr3*sr2*sr5, -sr3*sr3*sr2*sr5,-sr3*sr3*sr2*sr5, -sr3*sr3*sr2*sr5,
-//
-//
-//        /*21: T2-6*/
-//        0.,0.,0.,0.,
-//        0.,0.,sr3*sr3/sr2,sr3*sr3/sr2,
-//        sr6*sr6*sr2,sr6*sr6*sr2,sr6*sr6*sr2,sr6*sr6*sr2,
-//        sr6*sr6*sr2,sr6*sr6*sr2,-sr3*sr3*sr2,-sr3*sr3*sr2,
-//        -sr3*sr3*sr2,-sr3*sr3*sr2,sr6*sr6*sr2,sr6*sr6*sr2,
-//        -sr3*sr3*sr2,-sr3*sr3*sr2,-sr3*sr3*sr2,-sr3*sr3*sr2,
-//
-//        /*22: T2-7*/
-//        0.,0.,0.,0.,
-//        0.,0.,0.,0.,
-//        hf*sr6/sr5,hf*sr6*sr5,hf*sr6/sr5,hf*sr5*sr6,
-//        -sr2*sr5/sr3*hf, -sr2*sr5/sr3*hf,sr5*sr6,-sr5*sr6,
-//        sr5*sr6,-sr5*sr6, -sr2*sr5/sr3*hf, -sr2*sr5/sr3*hf,
-//        sr5*sr6,-sr5*sr6,sr5*sr6,-sr5*sr6,
-//
-//        /*23: T2-8*/
-//        0.,0.,0.,0.,
-//        0.,0.,0.,0.,
-//        0.,sr5,0.,sr5,
-//        -hf*sr5,-hf*sr5,-hf*sr5,hf*sr5,
-//        -hf*sr5,hf*sr5,-hf*sr5,-hf*sr5,
-//        -hf*sr5,hf*sr5,-hf*sr5,hf*sr5,
-//
-//        /*24: T2-9*/
-//        0.,0.,0.,0.,
-//        0.,0.,0.,0.,
-//        0.,0.,0.,0.,
-//        hf*sr3,hf*sr3,hf*sr3,hf*sr3,
-//        hf*sr3,hf*sr3,-hf*sr3,-hf*sr3,
-//        -hf*sr3,-hf*sr3,-hf*sr3,-hf*sr3
-//
-//        //////////////////////////////////
-//        /////////////////////////////////
-//        ////////////////////////////////
-//        ///////////////////////////////
-//        //////////////////////////////
-//
-//
-//    };
-//
-//    if ( bd == one ){
-//        nsyp = 1;
-//        msyp = 1;
+double tGetVector(enum bodyType bd , INT_TYPE type , INT_TYPE perm ){
+    perm--;
+    type--;
+    INT_TYPE nsyp=0 ,msyp=0;
+    const static double syp2 [] = {
+        sr2,sr2,
+        sr2,-sr2
+        
+    };
+    const static double syp3 [] = {
+        /********/
+        sr6,sr6,sr6, sr6, sr6, sr6,//A1
+        sr6,sr6,sr6,-sr6,-sr6,-sr6,//A2
+        hf    , -hf     ,0.      ,hf        , -hf       , 0.,
+        hf*sr3,hf*sr3   , -sr3   ,hf*sr3    ,hf*sr3     ,-sr3,
+        hf    , -hf     ,0.      ,-hf       , hf        , 0.,
+        hf*sr3,hf*sr3   , -sr3   ,-hf*sr3   ,-hf*sr3    ,sr3,
+        
+        //////////////////////////////////
+        /////////////////////////////////
+        ////////////////////////////////
+        ///////////////////////////////
+        //////////////////////////////
+    };
+    
+    const static double syp4[] = {
+        /*1: A1*/
+        sr6*hf,sr6*hf,sr6*hf,sr6*hf,    sr6*hf,sr6*hf,sr6*hf,sr6*hf,    sr6*hf,sr6*hf,sr6*hf,sr6*hf,
+        sr6*hf,sr6*hf,sr6*hf,sr6*hf,    sr6*hf,sr6*hf,sr6*hf,sr6*hf,    sr6*hf,sr6*hf,sr6*hf,sr6*hf,
+        
+        /*2: A2*/
+        sr6*hf,-sr6*hf,-sr6*hf,sr6*hf,    sr6*hf,-sr6*hf,-sr6*hf,sr6*hf,    sr6*hf,-sr6*hf,-sr6*hf,sr6*hf,
+        sr6*hf,-sr6*hf,-sr6*hf,sr6*hf,    sr6*hf,-sr6*hf,-sr6*hf,sr6*hf,    sr6*hf,-sr6*hf,-sr6*hf,sr6*hf,
+        
+        /*3: E-1*/
+        sr6,    0.,0.,-sr6*hf,      -sr6*hf,0.,0., sr6,       -sr6*hf,0.,0.,-sr6*hf,
+        -sr6*hf,0.,0.,-sr6*hf,       sr6,   0.,0.,-sr6*hf,    -sr6*hf,0.,0.,sr6,
+        
+        /*4: E-2*/
+        0.,sr6,-sr6*hf,0.,          0.,-sr6*hf, sr6,0.,    0.,-sr6*hf,-sr6*hf,0.,
+        0.,-sr6*hf,-sr6*hf,0.,      0.,sr6, -sr6*hf,0.,    0.,-sr6*hf,sr6,0.,
+        
+        /*5: E-3*/
+        0.,0.,sr2*hf,0.,             0.,-sr2*hf,0.,0.,       0.,-sr2*hf ,sr2*hf,0.,
+        0.,sr2*hf ,-sr2*hf,0.,        0.,0.,-sr2*hf,0,        0.,sr2*hf,0.,0.,
+        
+        /*6: E-4*/
+        0.,0.,0.,sr2*hf,             -sr2*hf,0.,0.,0.,         -sr2*hf,0.,0.,sr2*hf,
+        sr2*hf,0.,0.,-sr2*hf,       0.,0.,0.,-sr2*hf,           sr2*hf,0.,0.,0.,
+        
+        /*7: T1-1*/
+        hf*sr2/sr3,-hf*sr6,-hf*sr6,0.,      0.,-hf*sr6,-hf*sr6,-hf*sr6,     0.,hf*sr6,hf*sr6,0.,
+        0., hf*sr6,-hf*sr6,0.,              -hf*sr6, hf*sr6, hf*sr6,0.,     0.,-hf*sr6,hf*sr6,-hf*sr6,
+        
+        /*8: T1-2*/
+        0. , sr3,-hf*hf*hf*sr3,-hf*hf*hf/sr3,                               -hf*hf*hf/sr3,-hf*hf*hf*sr3, -hf*sr3, -hf*sr3,
+        hf*hf*hf/sr3,hf*hf*hf*sr3,hf*hf*hf*sr3,hf*hf*hf/sr3,                  hf*hf*hf/sr3,hf*hf*hf*sr3,-hf*hf*hf*sr3,-hf*hf*hf/sr3,
+        hf*hf*sr3,-hf*hf*sr3,hf*hf*hf*sr3,hf*hf*hf/sr3,                       -hf*hf*hf/sr3,-hf*hf*hf*sr3,-hf*hf*sr3,  hf*hf*sr3,
+        
+        /*9: T1-3*/
+        0.,0.,hf*hf*hf/sr3/sr7,-hf*hf*hf*sr7/sr3/sr3/sr3,
+        -hf*hf*hf*sr7/sr3/sr3/sr3,-hf*hf*hf*sr7/sr3,-hf*sr3*sr7, hf*sr3*sr7,
+        -sr3*hf*hf*hf/sr7,1./sr3*hf*hf*hf*sr7,-hf*hf*hf*sr3*sr7/sr5/sr5, hf*hf*hf*sr7/sr3/sr3/sr3,
+        -sr3*hf*hf*hf/sr7,-hf*hf*hf*sr3*sr7/sr5/sr5,-hf*hf*hf/sr3*sr7,sr3*hf*hf*hf/sr7,
+        hf*hf*sr7/sr3, hf*hf*sr3*sr7, hf*hf*hf*sr7/sr3,  hf*hf*hf*sr7/sr3/sr3/sr3,
+        hf*hf*hf*sr3/sr7,-11.*hf*hf*hf*sr3*sr7, hf*hf*sr3*sr7,  -hf*hf*sr3*sr7/sr5/sr5,
+        
+        
+        /*10: T1-4*/
+        0.,0.,0.,hf*sr2*sr7/sr5/sr3,
+        -sr5*sr2*sr7/sr3, -hf*sr5*sr2*sr7/sr3/sr3/sr3, sr5*sr2*sr3*sr7,-sr5*sr2*sr3*sr7,
+        0.,-hf*sr6*sr7/sr5, sr5*sr2*sr7/sr3, -hf * sr7*sr3*sr5*sr2,
+        -hf*sr5*sr6/sr7,-sr3*sr7*sr5/hf/sr2,hf*sr6*sr7/sr5,0.,
+        sr3*sr7*sr5/sr2, sr7*sr5*sr2/sr3,   hf*sr7*sr5*sr2/sr3/sr3/sr3, sr7*sr5*sr2/sr3,
+        -hf*sr5*sr6/sr7,sr5*sr2*sr3*sr7,-sr3*sr7*sr5/hf/sr2,-sr5*sr2*sr3*sr7,
+        
+        /*11: T1-5*/
+        0.,0.,0.,0.,
+        hf/sr3/sr3*sr2*sr5,-hf/sr3/sr3*sr2*sr5,sr3*sr3*sr2*sr5,-sr3*sr3*sr2*sr5,
+        -sr6*sr6*sr2/sr5,sr6*sr6*sr2/sr5,-sr5*sr3*sr3/sr2,sr5*sr3*sr3/sr2,
+        -sr2*sr5*sr3*sr3,sr2*sr5*sr3*sr3,sr6*sr6*sr2/sr5,-sr6*sr6*sr2/sr5,
+        sr5*sr3*sr3/sr2,-sr5*sr3*sr3/sr2,-sr2*sr5*sr6*sr6,sr6*sr6*sr2*sr5,
+        -sr2*sr5*sr3*sr3,sr2*sr5*sr3*sr3,sr2*sr5*sr3*sr3,-sr2*sr5*sr3*sr3,
+        
+        /*12: T1-6*/
+        0.,0.,0.,0.,
+        0.,0.,sr3*sr3/sr2,-sr3*sr3/sr2,
+        -sr6*sr6*sr2, sr6*sr6*sr2,sr6*sr6*sr2,-sr6*sr6*sr2,
+        -sr6*sr6*sr2,sr6*sr6*sr2,-sr3*sr3*sr2,sr3*sr3*sr2,
+        sr3*sr3*sr2,-sr3*sr3*sr2,sr6*sr6*sr2,-sr6*sr6*sr2,
+        sr3*sr3*sr2,-sr3*sr3*sr2,-sr3*sr3*sr2,sr3*sr3*sr2,
+        
+        /*13: T1-7*/
+        0.,0.,0.,0.,
+        0.,0.,0.,0.,
+        hf*sr6/sr5,-hf*sr5*sr6,-hf*sr6/sr5,hf*sr6*sr5,
+        -hf*sr2*sr5/sr3,hf*sr2*sr5/sr3,-sr6*sr5,-sr6*sr5,
+        sr6*sr5,sr6*sr5,hf*sr2*sr5/sr3,-hf*sr2*sr5/sr3,
+        sr5*sr6,sr5*sr6,-sr5*sr6,-sr5*sr6,
+        
+        /*14: T1-8*/
+        0.,0.,0.,0.,
+        0.,0.,0.,0.,
+        0.,sr5,0,-sr5,
+        hf*sr5,-hf*sr5,-hf*sr5,-hf*sr5,
+        hf*sr5,hf*sr5,-hf*sr5,hf*sr5,
+        hf*sr5,hf*sr5,-hf*sr5,-hf*sr5,
+        
+        /*15: T1-9*/
+        0.,0.,0.,0.,
+        0.,0.,0.,0.,
+        0.,0.,0.,0.,
+        hf*sr3,-hf*sr3,-hf*sr3,hf*sr3,
+        hf*sr3,-hf*sr3,hf*sr3,-hf*sr3,
+        -hf*sr3,hf*sr3,hf*sr3,-hf*sr3,
+        
+        /*16: T2-1*/
+        hf*sr2/sr3,hf*sr2*sr3,hf*sr2*sr3,0.,
+        0.,hf*sr2*sr3,hf*sr2*sr3,-hf*sr2*sr3,
+        0.,-hf*sr2*sr3,-hf*sr2*sr3,0.,
+        0.,-hf*sr2*sr3,hf*sr2*sr3,0.,
+        -hf*sr2*sr3,-hf*sr2*sr3,-hf*sr2*sr3,0.,
+        0.,hf*sr2*sr3,-hf*sr2*sr3,-hf*sr2*sr3,
+        
+        /*17: T2-2*/
+        0.,sr3,-hf*hf*hf*sr3,hf*hf*hf/sr3,
+        hf*hf*hf/sr3,-hf*hf*hf*sr3,-hf*sr3,hf*sr3,
+        -hf*hf*hf/sr3,hf*hf*hf*sr3,hf*hf*hf*sr3,-hf*hf*hf/sr3,
+        -hf*hf*hf/sr3,hf*hf*hf*sr3,-hf*hf*hf*sr3,hf*hf*hf/sr3,
+        -hf*hf*sr3,-hf*hf*sr3,hf*hf*hf*sr3,-hf*hf*hf/sr3,
+        hf*hf*hf/sr3,-hf*hf*hf*sr3,-hf*hf*sr3,-hf*hf*sr3,
+        
+        /*18: T2-3*/
+        0.,0.,hf*hf*hf/sr3/sr7,hf*hf*hf*sr7/sr3/sr3/sr3,
+        hf*hf*hf*sr7/sr3/sr3/sr3,-hf*hf*hf*sr7/sr3,-hf*sr3*sr7,-hf*sr3*sr7,
+        sr3/sr7*hf*hf*hf, sr7/sr3*hf*hf*hf, -hf*hf*hf*sr3*sr7/sr5/sr5, -hf*hf*hf*sr7/sr3/sr3/sr3,
+        hf*hf*hf*sr3/sr7,-hf*hf*hf*sr3*sr7/sr5/sr5,-hf*hf*hf*sr7/sr3,-hf*hf*hf*sr3/sr7,
+        -hf*hf*sr7/sr3, hf*hf*sr3*sr7,  hf*hf*hf*sr7/sr3, - hf*hf*hf*sr7/sr3/sr3/sr3,
+        -sr3/sr7*hf*hf*hf, -11.*hf*hf*hf*sr3*sr7, hf*hf*sr3*sr7, hf*hf*sr3*sr7/sr5/sr5,
+        
+        
+        /*19: T2-4*/
+        0.,0.,0.,hf*sr2*sr7/sr3/sr5,
+        -sr7*sr5*sr2/sr3,hf*sr7*sr5*sr2/sr3/sr3/sr3,    - sr7*sr3*sr5*sr2,- sr7*sr3*sr5*sr2,
+        0.,hf/sr5*sr6*sr7,  -sr7*sr5*sr2/sr3, -hf*sr7*sr3*sr5*sr2,
+        -hf*sr5*sr6/sr7,sr7*sr3*sr5/sr2/hf,-hf*sr6*sr7/sr5,0.,
+        sr7*sr3*sr5/sr2,-sr7*sr5*sr2/sr3,-hf*sr7*sr5*sr2/sr3/sr3/sr3,sr7*sr5*sr2/sr3,
+        -hf*sr5*sr6/sr7,-sr7*sr3*sr5*sr2,sr7*sr3*sr5/sr2/hf,-sr7*sr3*sr5*sr2,
+        
+        /*20: T2-5*/
+        0.,0.,0.,0.,
+        sr5*sr2*hf/sr3/sr3,sr5*sr2*hf/sr3/sr3,-sr2*sr5*sr3*sr3,-sr2*sr5*sr3*sr3,
+        -sr6*sr6*sr2/sr5,-sr6*sr6*sr2/sr5,sr3*sr3*sr5/sr2,sr3*sr3*sr5/sr2,
+        -sr3*sr3*sr2*sr5, -sr3*sr3*sr2*sr5,-sr6*sr6*sr2/sr5,-sr6*sr6*sr2/sr5,
+        sr3*sr3*sr5/sr2,sr3*sr3*sr5/sr2,sr6*sr6*sr2*sr5,sr6*sr6*sr2*sr5,
+        -sr3*sr3*sr2*sr5, -sr3*sr3*sr2*sr5,-sr3*sr3*sr2*sr5, -sr3*sr3*sr2*sr5,
+        
+        
+        /*21: T2-6*/
+        0.,0.,0.,0.,
+        0.,0.,sr3*sr3/sr2,sr3*sr3/sr2,
+        sr6*sr6*sr2,sr6*sr6*sr2,sr6*sr6*sr2,sr6*sr6*sr2,
+        sr6*sr6*sr2,sr6*sr6*sr2,-sr3*sr3*sr2,-sr3*sr3*sr2,
+        -sr3*sr3*sr2,-sr3*sr3*sr2,sr6*sr6*sr2,sr6*sr6*sr2,
+        -sr3*sr3*sr2,-sr3*sr3*sr2,-sr3*sr3*sr2,-sr3*sr3*sr2,
+        
+        /*22: T2-7*/
+        0.,0.,0.,0.,
+        0.,0.,0.,0.,
+        hf*sr6/sr5,hf*sr6*sr5,hf*sr6/sr5,hf*sr5*sr6,
+        -sr2*sr5/sr3*hf, -sr2*sr5/sr3*hf,sr5*sr6,-sr5*sr6,
+        sr5*sr6,-sr5*sr6, -sr2*sr5/sr3*hf, -sr2*sr5/sr3*hf,
+        sr5*sr6,-sr5*sr6,sr5*sr6,-sr5*sr6,
+        
+        /*23: T2-8*/
+        0.,0.,0.,0.,
+        0.,0.,0.,0.,
+        0.,sr5,0.,sr5,
+        -hf*sr5,-hf*sr5,-hf*sr5,hf*sr5,
+        -hf*sr5,hf*sr5,-hf*sr5,-hf*sr5,
+        -hf*sr5,hf*sr5,-hf*sr5,hf*sr5,
+        
+        /*24: T2-9*/
+        0.,0.,0.,0.,
+        0.,0.,0.,0.,
+        0.,0.,0.,0.,
+        hf*sr3,hf*sr3,hf*sr3,hf*sr3,
+        hf*sr3,hf*sr3,-hf*sr3,-hf*sr3,
+        -hf*sr3,-hf*sr3,-hf*sr3,-hf*sr3
+        
+        //////////////////////////////////
+        /////////////////////////////////
+        ////////////////////////////////
+        ///////////////////////////////
+        //////////////////////////////
+        
+        
+    };
+    
+    
+    if ( bd == one )
+    {
+        nsyp = 1;
+        msyp = 1;
+    }
+    else  if ( bd == two ){
+        nsyp = 2;
+        msyp = 2;
+    }
+    else if ( bd == three ){
+        nsyp = 6;
+        msyp = 6;
+    }else if ( bd == four ){
+        nsyp = 24;
+        msyp = 24;
+    }
+    else {
+        printf("bod\n");
+        exit(0);
+    }
+    
+    
+    if ( type < 0 || type >= msyp )
+    {
+        printf("he\n %lld", type);
+        exit(0);
+    }
+    if ( perm < 0 || perm >= nsyp ){
+        printf("hm\n");
+        exit(0);
+    }
+    
+    
+    if ( bd == two ){
+        return syp2[type*nsyp+perm]*sr2;
+    }
+    else if ( bd == three ){
+        return syp3[type*nsyp+perm]*sr6;
+    }
+    else if ( bd == four ){
+        return syp4[type*nsyp+perm]*sr6*hf;
+    }
+//    else if ( bd == five ){
+//        return syp5[type*nsyp+perm];
 //    }
-//    else    if ( bd == two ){
-//        nsyp = 2;
-//        msyp = 2;
-//    }
-//    else if ( bd == three ){
-//        nsyp = 6;
-//        msyp = 6;
-//    }else if ( bd == four ){
-//        nsyp = 24;
-//        msyp = 24;
-//    }
-//    else {
-//        printf("bod\n");
-//        exit(0);
-//    }
-//
-//
-//    if ( type <= 0 || type > msyp )
-//    {
-//        printf("he\n %lld", type);
-//        exit(0);
-//    }
-//    if ( perm < 0 || perm >= nsyp ){
-//        printf("hm\n");
-//        exit(0);
-//    }
-//
-//
-//    if ( bd == two ){
-//        return syp2[(type-1)*nsyp+perm];
-//    }
-//    else if ( bd == three ){
-//        return syp3[(type-1)*nsyp+perm];
-//    }
-//    else if ( bd == four ){
-//        return syp4[(type-1)*nsyp+perm];
-//    }
-//    return 0.;
-//};
+
+    return 0.;
+};
+
+double tGetProjection( enum bodyType bd, INT_TYPE type , INT_TYPE perm ){
+    INT_TYPE class = irreps(bd, type),t,nG = tPerms(bd);
+    double sum=0.;
+    for ( t = 1 ; t < nG ; t++)
+        if ( class == irreps(bd,t))
+            sum += tGetVector(bd, t, perm);
+    return sum;
+}
+
 
 INT_TYPE tClassifyComponents( struct sinc_label  f1 , double * up, double * entropy){
-    
+    INT_TYPE xup[12];
+    xup[0] = 0;
     if ( bodies(f1,eigenVectors ) == one ){
         return 1;
     }
@@ -853,21 +854,54 @@ INT_TYPE tClassifyComponents( struct sinc_label  f1 , double * up, double * entr
     
     if ( bodies(f1, eigenVectors ) == two ){
         nGroup = 2;
+        xup[1]= 1;
+        xup[2] = 2;
     }
     else if ( bodies ( f1, eigenVectors ) == three ){
         nGroup = 3;
+        xup[1] = 1;
+        xup[2] = 2;
+        xup[3] = cblas_idamax(4, up, 1);
+        up[3] = up[3] + up[4] + up[5] + up[6];
+        up[4] = 0.;
+        up[5] = 0.;
+        up[6] = 0.;
     }
     else if ( bodies (f1, eigenVectors ) == four  ){
         nGroup = 5;
+        double A1,A2,EE,T1,T2;
+        A1 = up[1];
+        A2 = up[2];
+        xup[1] = 1;
+        xup[2] = 2;
+        xup[3] = cblas_idamax(4, up, 1);
+        xup[4] = cblas_idamax(9, up, 1);
+        xup[5] = cblas_idamax(16, up, 1);
+        EE = up[3] + up[4] + up[5] + up[6];
+        T1 = up[7]+up[8]+up[9]+up[10]+up[11]+up[12]+up[13]+up[14]+up[15];
+        T2 = up[16]+up[17]+up[18]+up[19]+up[20]+up[21]+up[22]+up[23]+up[24];
+        
+        up[1] = A1;
+        up[2] = A2;
+        up[3] = EE;
+        up[4] = T1;
+        up[5] = T2;
+        //here!
     }
     xt=0;
     entr = 0.;
     sum = 0.;
     for ( irrep = 0 ; irrep <= nGroup ; irrep++ ){
         sum += fabs(up[irrep]);
+      // printf("%1.3f,", up[irrep]);
         if ( fabs(up[irrep])> fabs(up[xt]))
             xt = irrep;
     }
+    
+    
+    
+    
+   // printf("\n");
     for ( irrep = 0 ; irrep <= nGroup ; irrep++ ){
         if ( fabs(up[irrep]) > 1e-6 ){
             entr += -(fabs(up[irrep])/sum)*log(fabs(up[irrep])/sum);
@@ -876,9 +910,7 @@ INT_TYPE tClassifyComponents( struct sinc_label  f1 , double * up, double * entr
     *entropy = entr;
     if ( entr < f1.rt->maxEntropy ){
 //        printf("**\n");
-
-        return xt;
-
+        return  xup[xt] ;
     }
 //    printf("\n");
 
@@ -894,13 +926,12 @@ INT_TYPE tClassify(INT_TYPE rank, struct sinc_label  f1 , enum division label){
         return 0;
         
     }
-    INT_TYPE i,irrep;
+    INT_TYPE i,irrep,xDim;
     for ( i = 0; i < 48 ; i++)
         up[i] = 0.;
     tTabulateInnerProjection(rank, f1, label, up);
     irrep =  tClassifyComponents(f1, up,&entropy);
     f1.tulip[label].value.value2 =entropy;
-
     return irrep;
 }
 
@@ -929,7 +960,7 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum 
             irrep = meta;
             f1.tulip[permutation2Vector].Current[rank] = 0;
             tPermute(rank,f1, i, origin, ospin, permutation2Vector, rank);
-            tScaleOne(f1, permutation2Vector, rank, tGetProjection(bodies(f1, origin), irrep, i));
+            tScaleOne(f1, permutation2Vector, rank, tGetVector(bodies(f1, origin), irrep, i));
             tAddTw(f1, targ, tspin, permutation2Vector, rank);
         }
     
@@ -937,8 +968,19 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum 
 }
 //SA++
 INT_TYPE tBuild3Irr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin){
-    INT_TYPE p,space,oo;
-    
+    INT_TYPE space;
+
+    for ( space =0 ; space < SPACE ; space++){
+        tBuild3IrrOne(rank,f1,space,meta,origin,ospin,targ,tspin);
+    }
+    f1.tulip[targ].Current[tspin]= CanonicalRank(f1, origin, ospin);
+    return 0;
+}
+////SA++
+//
+INT_TYPE tBuild3IrrOne ( INT_TYPE rank, struct sinc_label  f1,INT_TYPE space, INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin){
+    INT_TYPE p,oo;
+
     if ( meta == 0 || bodies(f1,origin ) == one ){
         tEqua(f1, targ, tspin, origin, ospin);
         return 0;
@@ -947,39 +989,40 @@ INT_TYPE tBuild3Irr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum
         return 0;
     enum bodyType bd =bodies(f1,origin);
     INT_TYPE nPerm=tPerms(bd);
-    
+
     if ( CanonicalRank(f1, origin, ospin) > part(f1,targ)){
         printf("Irr\n");
         printf("%d %d %d\n", CanonicalRank(f1, origin, ospin), part(f1, origin), part(f1, targ));
         exit(0);
     }
     //SA++
+    INT_TYPE sp = tCat3(bd, meta, f1.cat, space);
+
     for ( oo= 0 ; oo < CanonicalRank(f1, origin, ospin); oo++){
         zero(f1, permutationVector,rank);
         f1.tulip[permutationVector].Current[rank] = 0;
-        for ( space =0 ; space < SPACE ; space++){
-            INT_TYPE sp = tCat3(bd, meta, f1.cat, space);
             for ( p = 1 ; p <= nPerm ; p++)
             {
                 f1.tulip[permutation2Vector].Current[rank] = 0;
                 tPermuteOne(rank, f1, space, p, origin, oo, ospin, permutation2Vector,0, rank);
-                //printf("%d %d %d %d %f\n", oo, space, p, sp,tGetProjection(bd, sp, p));
+                //printf("%d %d %d %d %f\n", oo, space, p, sp,tGetVector(bd, sp, p));
                 cblas_daxpy(vectorLen(f1, space),  tGetProjection(bd, sp, p), streams(f1,permutation2Vector,rank,space), 1, streams(f1,permutationVector,rank,space), 1);
             }
-        }
         f1.tulip[permutationVector].Current[rank] = 1;
-        tAddTw(f1, targ, tspin, permutationVector, rank);
+        cblas_dcopy(alloc(f1, permutationVector, space), streams(f1,permutationVector,rank,space), 1, streams(f1,targ,tspin,space)+oo*alloc(f1, permutationVector, space), 1);
     }
     return 0;
 }
-//SA++
-
-
+////SA++
+//
+//
+//
+//
 INT_TYPE matrixAction ( enum bodyType bd, enum block bk, INT_TYPE direction){
-    
+
     //action on right vector...direction = 1
     //action on product vector ... direction = -1
-    
+
     if ( bd == two ){
         switch (bk){
             case tv1 :
@@ -987,161 +1030,164 @@ INT_TYPE matrixAction ( enum bodyType bd, enum block bk, INT_TYPE direction){
 
             case tv2 :
                 return 2;
-                
+
             case e12:
                 return 1;
-                
+
         }
-        
+
     } else if ( bd == three ){
 //        {
-//            1, 2, 3,//1/
-//            1, 3, 2,//2
-//            2, 1, 3,//3
-//            3, 1, 2,//4
-//            2, 3, 1,//5
-//            3, 2, 1//6
+//        1, 2, 3,//1///1
+//        2, 3, 1,//2//4
+//        3, 1, 2,//3//5
+//        2, 1, 3,//4//3
+//        3, 2, 1,//5//6
+//        1, 3, 2,//6//2
 //        }
         switch ( bk){
             case tv1:
                 return 1;
             case tv2:
-                return 3;
+                return 4;//3;
             case tv3 :
-                return 6;
+                return 5;//6;
             case e12 :
-                return 1;
+                return 1;//1;
             case e13 :
-                return 2;
+                return 6;//2;
             case e23 :
                 if ( direction == 1)
-                    return 5;
+                    return 2;
                 else//2,3,1
                     //3,1,2
-                    return 4;
+                    return 3;
         }
     }
     else if ( bd == four ){
+////        INT_TYPE at4[] = {
+//            1, 2, 3, 4,//1
+//            1, 2, 4, 3,//2
+//            1, 3, 2, 4,//3
+//            1, 4, 2, 3,//4
+//            1, 3, 4, 2,//5
+//            1, 4, 3, 2,//6
+//            2, 1, 3, 4,//7
+//            2, 1, 4, 3,//8
+//            3, 1, 2, 4,//9
+//            4, 1, 2, 3,//10
+//            3, 1, 4, 2,//11
+//            4, 1, 3, 2,//12
+//            2, 3, 1, 4,//13
+//            2, 4, 1, 3,//14
+//            3, 2, 1, 4,//15
+//            4, 2, 1, 3,//16
+//            3, 4, 1, 2,//17
+//            4, 3, 1, 2,//18
+//            2, 3, 4, 1,//19
+//            2, 4, 3, 1,//20
+//            3, 2, 4, 1,//21
+//            4, 2, 3, 1,//22
+//            3, 4, 2, 1,//23
+//            4, 3, 2, 1};
+//
         switch ( bk ){
             case tv1:
                 return 1;
             case tv2:
                 return 7;
             case tv3:
-                if ( direction == 1)
-                    return 9;
-                else
-                    return 13;
-                
+                return 15;
             case tv4:
-                if ( direction == 1)
-                    return 12;
-                else
-                    return 20;
+                return 22;
             case e12:
-                if ( direction == 1)
-                    return 1;
-                else
-                    return 1;
+                return 1;
             case e13:
-                if ( direction == 1)
-                    return 3;
-                else
-                    return 3;
+                return 3;
             case e14:
-                if ( direction == 1)
-                    return 6;
-                else
-                    return 6;
+                return 6;
             case e23:
                 if ( direction == 1)
-                    return 9;
+                    return 19;
+                //2,3,4,1
+                //4,1,2,3
                 else
-                    return 13;
+                    return 10;
             case e24:
+                if ( direction == 1)
+                    return 14;
+                //2,4,1,3
+                //3,1,4,2
+                else
+                    return 11;
+            case e34:
+                return 17;
+
+        }
+    }
+else if ( bd == five)
+    {
+        switch ( bk ){
+            case tv1:
+                return 1;
+            case tv2:
+                return 25;
+            case tv3:
+                return 55;
+            case tv4:
+                return 81;
+            case tv5:
+                return 106;
+            case e12:
+                return 1;
+            case e13:
+                if ( direction == 1)
+                    return 7;
+                else
+                    return 7;
+            case e14:
+                if ( direction == 1)
+                    return 15;
+                else
+                    return 15;
+            case e23:
+                if ( direction == 1)
+                    return 97;
+                else
+                    return 34;
+            case e24:
+                if ( direction == 1)
+                    return 53;
+                else
+                    return 38;
+            case e34:
+                if ( direction == 1)
+                    return 62;
+                else
+                    return 62;
+            case e15:
                 if ( direction == 1)
                     return 14;
                 else
                     return 11;
-            case e34:
+            case e25:
                 if ( direction == 1)
-                    return 17;
+                    return 22;
                 else
-                    return 17;
+                    return 22;
+            case e35:
+                if ( direction == 1)
+                    return 68;
+                else
+                    return 68;
+            case e45:
+                if ( direction == 1)
+                    return 71;
+                else
+                    return 92;
 
         }
     }
-//else if ( bd == five)
-//    {
-//        switch ( bk ){
-//            case tv1:
-//                return 0;
-//            case tv2:
-//                return 7;
-//            case tv3:
-//                if ( direction == 1)
-//                    return 9;
-//                else
-//                    return 13;
-//
-//            case tv4:
-//                if ( direction == 1)
-//                    return 12;
-//                else
-//                    return 20;
-//            case e12:
-//                if ( direction == 1)
-//                    return 0;
-//                else
-//                    return 0;
-//            case e13:
-//                if ( direction == 1)
-//                    return 3;
-//                else
-//                    return 3;
-//            case e14:
-//                if ( direction == 1)
-//                    return 6;
-//                else
-//                    return 6;
-//            case e23:
-//                if ( direction == 1)
-//                    return 9;
-//                else
-//                    return 13;
-//            case e24:
-//                if ( direction == 1)
-//                    return 14;
-//                else
-//                    return 11;
-//            case e34:
-//                if ( direction == 1)
-//                    return 17;
-//                else
-//                    return 17;
-//            case e15:
-//                if ( direction == 1)
-//                    return 14;
-//                else
-//                    return 11;
-//            case e25:
-//                if ( direction == 1)
-//                    return 17;
-//                else
-//                    return 17;
-//            case e35:
-//                if ( direction == 1)
-//                    return 17;
-//                else
-//                    return 17;
-//            case e45:
-//                if ( direction == 1)
-//                    return 17;
-//                else
-//                    return 17;
-//
-//        }
-//    }
     return 1;
 }
 #if 0
@@ -1621,7 +1667,7 @@ INT_TYPE tCat3(enum bodyType bd ,  INT_TYPE irrep,INT_TYPE cat, INT_TYPE space){
     INT_TYPE lat3_a2 = 11;
 
     INT_TYPE cat3_ee[] = {
-        1, 1, 3,
+        1, 1, 3,//2
         1, 2, 3,
         1, 3, 1,
         1, 3, 2,
@@ -1698,11 +1744,11 @@ INT_TYPE tCat3(enum bodyType bd ,  INT_TYPE irrep,INT_TYPE cat, INT_TYPE space){
             switch ( irrep ) {
                 case 1:
                     if ( cat < lat2_a1 ){
-                        return cat2_a1[cat*3+space];
+                        return mapir(bd,cat2_a1[cat*3+space]);
                     }
                 case 2:
                     if ( cat < lat2_a2 ){
-                        return cat2_a2[cat*3+space];
+                        return mapir(bd,cat2_a2[cat*3+space]);
                     }
             }
 
@@ -1712,32 +1758,32 @@ INT_TYPE tCat3(enum bodyType bd ,  INT_TYPE irrep,INT_TYPE cat, INT_TYPE space){
             switch ( irrep ) {
                 case 1:
                     if ( cat < lat3_a1 )
-                        return cat3_a1[cat*3+space];
+                        return mapir(bd,cat3_a1[cat*3+space]);
                 case 2:
                     if ( cat < lat3_a2 )
-                        return cat3_a2[cat*3+space];
+                        return mapir(bd,cat3_a2[cat*3+space]);
                 case 3:
                     if ( cat < lat3_ee )
-                        return cat3_ee[cat*3+space];
+                        return mapir(bd,cat3_ee[cat*3+space]);
             }
             
         case four:
             switch ( irrep ) {
                 case 1:
                     if ( cat < lat4_a1 )
-                        return cat4_a1[cat*3+space];
+                        return mapir(bd,cat4_a1[cat*3+space]);
                 case 2:
                     if ( cat < lat4_a2 )
-                        return cat4_a2[cat*3+space];
+                        return mapir(bd,cat4_a2[cat*3+space]);
                 case 3:
                     if ( cat < lat4_ee )
-                        return cat4_ee[cat*3+space];
+                        return mapir(bd,cat4_ee[cat*3+space]);
                 case 4:
                     if ( cat < lat4_t1 )
-                        return cat4_t1[cat*3+space];
+                        return mapir(bd,cat4_t1[cat*3+space]);
                 case 5:
                     if ( cat < lat4_t2 )
-                        return cat4_t2[cat*3+space];
+                        return mapir(bd,cat4_t2[cat*3+space]);
 
             }
 
@@ -1755,12 +1801,12 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, INT_TYP
         2, 1
     };
     INT_TYPE at3[] = {
-        1, 2, 3,//1/
-        1, 3, 2,//2
-        2, 1, 3,//3
-        3, 1, 2,//4
-        2, 3, 1,//5
-        3, 2, 1//6
+        1, 2, 3,//1///1
+        2, 3, 1,//2//4
+        3, 1, 2,//3//5
+        2, 1, 3,//4//3
+        3, 2, 1,//5//6
+        1, 3, 2,//6//2
     };
     INT_TYPE at4[] = {
         1, 2, 3, 4,
@@ -1787,33 +1833,128 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, INT_TYP
         4, 2, 3, 1,
         3, 4, 2, 1,
         4, 3, 2, 1};
-    INT_TYPE at5[] = {1, 2, 3, 4, 5, 1, 2, 3, 5, 4, 1, 2, 4, 3, 5, 1, 2, 5, 3, 4, 1, 2, 4,
-        5, 3, 1, 2, 5, 4, 3, 1, 3, 2, 4, 5, 1, 3, 2, 5, 4, 1, 4, 2, 3, 5, 1,
-        5, 2, 3, 4, 1, 4, 2, 5, 3, 1, 5, 2, 4, 3, 1, 3, 4, 2, 5, 1, 3, 5, 2,
-        4, 1, 4, 3, 2, 5, 1, 5, 3, 2, 4, 1, 4, 5, 2, 3, 1, 5, 4, 2, 3, 1, 3,
-        4, 5, 2, 1, 3, 5, 4, 2, 1, 4, 3, 5, 2, 1, 5, 3, 4, 2, 1, 4, 5, 3, 2,
-        1, 5, 4, 3, 2, 2, 1, 3, 4, 5, 2, 1, 3, 5, 4, 2, 1, 4, 3, 5, 2, 1, 5,
-        3, 4, 2, 1, 4, 5, 3, 2, 1, 5, 4, 3, 3, 1, 2, 4, 5, 3, 1, 2, 5, 4, 4,
-        1, 2, 3, 5, 5, 1, 2, 3, 4, 4, 1, 2, 5, 3, 5, 1, 2, 4, 3, 3, 1, 4, 2,
-        5, 3, 1, 5, 2, 4, 4, 1, 3, 2, 5, 5, 1, 3, 2, 4, 4, 1, 5, 2, 3, 5, 1,
-        4, 2, 3, 3, 1, 4, 5, 2, 3, 1, 5, 4, 2, 4, 1, 3, 5, 2, 5, 1, 3, 4, 2,
-        4, 1, 5, 3, 2, 5, 1, 4, 3, 2, 2, 3, 1, 4, 5, 2, 3, 1, 5, 4, 2, 4, 1,
-        3, 5, 2, 5, 1, 3, 4, 2, 4, 1, 5, 3, 2, 5, 1, 4, 3, 3, 2, 1, 4, 5, 3,
-        2, 1, 5, 4, 4, 2, 1, 3, 5, 5, 2, 1, 3, 4, 4, 2, 1, 5, 3, 5, 2, 1, 4,
-        3, 3, 4, 1, 2, 5, 3, 5, 1, 2, 4, 4, 3, 1, 2, 5, 5, 3, 1, 2, 4, 4, 5,
-        1, 2, 3, 5, 4, 1, 2, 3, 3, 4, 1, 5, 2, 3, 5, 1, 4, 2, 4, 3, 1, 5, 2,
-        5, 3, 1, 4, 2, 4, 5, 1, 3, 2, 5, 4, 1, 3, 2, 2, 3, 4, 1, 5, 2, 3, 5,
-        1, 4, 2, 4, 3, 1, 5, 2, 5, 3, 1, 4, 2, 4, 5, 1, 3, 2, 5, 4, 1, 3, 3,
-        2, 4, 1, 5, 3, 2, 5, 1, 4, 4, 2, 3, 1, 5, 5, 2, 3, 1, 4, 4, 2, 5, 1,
-        3, 5, 2, 4, 1, 3, 3, 4, 2, 1, 5, 3, 5, 2, 1, 4, 4, 3, 2, 1, 5, 5, 3,
-        2, 1, 4, 4, 5, 2, 1, 3, 5, 4, 2, 1, 3, 3, 4, 5, 1, 2, 3, 5, 4, 1, 2,
-        4, 3, 5, 1, 2, 5, 3, 4, 1, 2, 4, 5, 3, 1, 2, 5, 4, 3, 1, 2, 2, 3, 4,
-        5, 1, 2, 3, 5, 4, 1, 2, 4, 3, 5, 1, 2, 5, 3, 4, 1, 2, 4, 5, 3, 1, 2,
-        5, 4, 3, 1, 3, 2, 4, 5, 1, 3, 2, 5, 4, 1, 4, 2, 3, 5, 1, 5, 2, 3, 4,
-        1, 4, 2, 5, 3, 1, 5, 2, 4, 3, 1, 3, 4, 2, 5, 1, 3, 5, 2, 4, 1, 4, 3,
-        2, 5, 1, 5, 3, 2, 4, 1, 4, 5, 2, 3, 1, 5, 4, 2, 3, 1, 3, 4, 5, 2, 1,
-        3, 5, 4, 2, 1, 4, 3, 5, 2, 1, 5, 3, 4, 2, 1, 4, 5, 3, 2, 1, 5, 4, 3,
-        2, 1};
+    INT_TYPE at5[] = {
+        1, 2, 3, 4, 5,//tv1//e12
+        1, 2, 3, 5, 4,
+        1, 2, 4, 3, 5,
+        1, 2, 5, 3, 4,
+        1, 2, 4, 5, 3,
+        1, 2, 5, 4, 3,
+        1, 3, 2, 4, 5,//e13
+        1, 3, 2, 5, 4,
+        1, 4, 2, 3, 5,
+        1, 5, 2, 3, 4,
+        1, 4, 2, 5, 3,
+        1, 5, 2, 4, 3,
+        1, 3, 4, 2, 5,
+        1, 3, 5, 2, 4,
+        1, 4, 3, 2, 5,//e14
+        1, 5, 3, 2, 4,
+        1, 4, 5, 2, 3,
+        1, 5, 4, 2, 3,
+        1, 3, 4, 5, 2,
+        1, 3, 5, 4, 2,
+        1, 4, 3, 5, 2,
+        1, 5, 3, 4, 2,//e15
+        1, 4, 5, 3, 2,
+        1, 5, 4, 3, 2,
+        2, 1, 3, 4, 5,//tv2
+        2, 1, 3, 5, 4,
+        2, 1, 4, 3, 5,
+        2, 1, 5, 3, 4,
+        2, 1, 4, 5, 3,
+        2, 1, 5, 4, 3,
+        3, 1, 2, 4, 5,
+        3, 1, 2, 5, 4,
+        4, 1, 2, 3, 5,
+        5, 1, 2, 3, 4,//e23 : -1
+        4, 1, 2, 5, 3,
+        5, 1, 2, 4, 3,
+        3, 1, 4, 2, 5,
+        3, 1, 5, 2, 4,//e24 : -1
+        4, 1, 3, 2, 5,
+        5, 1, 3, 2, 4,
+        4, 1, 5, 2, 3,
+        5, 1, 4, 2, 3,
+        3, 1, 4, 5, 2,
+        3, 1, 5, 4, 2,
+        4, 1, 3, 5, 2,
+        5, 1, 3, 4, 2,//e25 : -1
+        4, 1, 5, 3, 2,
+        5, 1, 4, 3, 2,
+        2, 3, 1, 4, 5,
+        2, 3, 1, 5, 4,
+        2, 4, 1, 3, 5,
+        2, 5, 1, 3, 4,
+        2, 4, 1, 5, 3,//e24 : 1 //3, 1, 5, 2, 4
+        2, 5, 1, 4, 3,
+        3, 2, 1, 4, 5,//tv3
+        3, 2, 1, 5, 4,
+        4, 2, 1, 3, 5,
+        5, 2, 1, 3, 4,
+        4, 2, 1, 5, 3,
+        5, 2, 1, 4, 3,
+        3, 4, 1, 2, 5,
+        3, 5, 1, 2, 4,//e34
+        4, 3, 1, 2, 5,
+        5, 3, 1, 2, 4,
+        4, 5, 1, 2, 3,
+        5, 4, 1, 2, 3,
+        3, 4, 1, 5, 2, //e34 : 1 // 3, 5, 1, 2, 4
+        3, 5, 1, 4, 2, //e35 : 1 // 3, 5, 1, 4, 2
+        4, 3, 1, 5, 2,
+        5, 3, 1, 4, 2,
+        4, 5, 1, 3, 2, //e45 : 1 // 3, 5, 4, 1, 2
+        5, 4, 1, 3, 2,
+        2, 3, 4, 1, 5,
+        2, 3, 5, 1, 4,
+        2, 4, 3, 1, 5,
+        2, 5, 3, 1, 4,
+        2, 4, 5, 1, 3,
+        2, 5, 4, 1, 3,
+        3, 2, 4, 1, 5,
+        3, 2, 5, 1, 4,
+        4, 2, 3, 1, 5,//tv4
+        5, 2, 3, 1, 4,
+        4, 2, 5, 1, 3,
+        5, 2, 4, 1, 3,
+        3, 4, 2, 1, 5,
+        3, 5, 2, 1, 4,
+        4, 3, 2, 1, 5,
+        5, 3, 2, 1, 4,
+        4, 5, 2, 1, 3,
+        5, 4, 2, 1, 3,
+        3, 4, 5, 1, 2,
+        3, 5, 4, 1, 2,//e45 : -1
+        4, 3, 5, 1, 2,
+        5, 3, 4, 1, 2,
+        4, 5, 3, 1, 2,
+        5, 4, 3, 1, 2,
+        2, 3, 4, 5, 1,//e23:1
+        2, 3, 5, 4, 1,
+        2, 4, 3, 5, 1,
+        2, 5, 3, 4, 1,//e25 : 5, 1, 3, 4, 2
+        2, 4, 5, 3, 1,
+        2, 5, 4, 3, 1,
+        3, 2, 4, 5, 1,
+        3, 2, 5, 4, 1,
+        4, 2, 3, 5, 1,
+        5, 2, 3, 4, 1,//tv5
+        4, 2, 5, 3, 1,
+        5, 2, 4, 3, 1,
+        3, 4, 2, 5, 1,
+        3, 5, 2, 4, 1,
+        4, 3, 2, 5, 1,
+        5, 3, 2, 4, 1,
+        4, 5, 2, 3, 1,
+        5, 4, 2, 3, 1,
+        3, 4, 5, 2, 1,
+        3, 5, 4, 2, 1,
+        4, 3, 5, 2, 1,
+        5, 3, 4, 2, 1,
+        4, 5, 3, 2, 1,
+        5, 4, 3, 2, 1
+    };
     INT_TYPE at6[] = {1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 6, 5, 1, 2, 3, 5, 4, 6, 1, 2, 3, 6, 4,
         5, 1, 2, 3, 5, 6, 4, 1, 2, 3, 6, 5, 4, 1, 2, 4, 3, 5, 6, 1, 2, 4, 3,
         6, 5, 1, 2, 5, 3, 4, 6, 1, 2, 6, 3, 4, 5, 1, 2, 5, 3, 6, 4, 1, 2, 6,
@@ -2094,8 +2235,6 @@ INT_TYPE tPermute(INT_TYPE rank, struct sinc_label f1, INT_TYPE leftChar , enum 
 
 INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct sinc_label  f1 , enum division left ,INT_TYPE lspin, enum division right ,INT_TYPE rspin, double * sequ){
     
-    if ( CanonicalRank(f1, left, lspin ) * CanonicalRank(f1, right, rspin ) == 0)
-        return 0;
     
     if ( bodies(f1, left ) != bodies(f1,right)){
         printf("tGetType real!\n");
@@ -2103,10 +2242,18 @@ INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct sinc_label  f1 , enum div
     }
     INT_TYPE i,nPerm=tPerms(bodies(f1,left)),info;
     
-    for ( i = 1; i <= nPerm ; i++){
-        sequ[i] = tMultiplyMP(rank, &info,f1,1. , -1, nullVector, CDT, i, left, lspin, CDT, right, rspin);
+    if ( CanonicalRank(f1, left, lspin ) * CanonicalRank(f1, right, rspin ) == 0){
+        for ( i = 1; i <= nPerm ; i++){
+            sequ[i] = 0.;
+        }
+        return 0;
     }
-    
+
+    for ( i = 1; i <= nPerm ; i++){
+        sequ[i] = tMultiplyMP(rank, &info,f1,1. , -1, nullVector, 0, i, left, lspin, CDT, right, rspin);
+   //     printf("%1.3f:", sequ[i]);
+    }
+   // printf("\n");
     return nPerm;
 }
 
@@ -2126,12 +2273,12 @@ INT_TYPE tTabulateInnerProjection( INT_TYPE rank, struct sinc_label  f1 , enum d
     }
     else if ( bodies ( f1, vec ) == three ){
         nPerm = 6;
-        nGroup = 3;
+        nGroup = 6;
         
     }
     else if ( bodies (f1, vec ) == four  ){
         nPerm = 24;
-        nGroup = 5;
+        nGroup = 24;
     }else {
         printf("opps\n");
         fflush(stdout);
@@ -2141,15 +2288,16 @@ INT_TYPE tTabulateInnerProjection( INT_TYPE rank, struct sinc_label  f1 , enum d
 
     tAllCompPermMultiplyMP(rank, f1, vec, 0, vec,0, buff);
     for ( g = 1; g <= nGroup ; g++)
-        for ( p = 1; p <= nPerm ; p++)
-            up[g]  += tGetProjection(bodies(f1,vec), g, p)*buff[p];
-
-    
-    tAllCompPermMultiplyMP(rank, f1, vec, 1, vec,1, buff);
-    for ( g = 1; g <= nGroup ; g++)
-        for ( p = 1; p <= nPerm ; p++)
-            up[g]  += tGetProjection(bodies(f1,vec), g, p)*buff[p];
-
+        for ( p = 1; p <= nPerm ; p++){
+       //     printf("%f %f\n",tGetVector(bodies(f1,vec), g, p),buff[p]);//
+            up[g]  += tGetVector(bodies(f1,vec), g, p)*buff[p];
+        }
+    if ( CanonicalRank(f1, vec ,1)){
+        tAllCompPermMultiplyMP(rank, f1, vec, 1, vec,1, buff);
+        for ( g = 1; g <= nGroup ; g++)
+            for ( p = 1; p <= nPerm ; p++)
+                up[g]  += tGetVector(bodies(f1,vec), g, p)*buff[p];
+    }
     return nGroup;
 }
 
@@ -2203,7 +2351,7 @@ INT_TYPE tSize(enum bodyType bd){
         case two:
             return 2;
         case three:
-            return 3;
+            return 4;
         case four:
             return 5;
         case five:
@@ -2230,4 +2378,58 @@ INT_TYPE tPerms(enum bodyType bd){
         case six:
             return 720;
     }
+}
+
+
+INT_TYPE irreps ( enum bodyType bd, INT_TYPE type ){
+    switch( bd ){
+        case one:
+            return 1;
+        case two :
+            return type;
+        case three:
+            if ( type < 3 )
+                return type;
+            else
+                return 3;
+        case four:
+            if ( type < 3 )
+                return type;
+            else if ( type <= 6 )
+                return 3;
+            else if ( type <= 15 )
+                return 4;
+            else
+                return 5;
+    }
+    
+    
+    return 0;
+}
+
+
+INT_TYPE mapir(enum bodyType bd , INT_TYPE class ){
+    return class;
+    
+//    switch(bd){
+//        case one:
+//        case two:
+//            return class;
+//        case three:
+//            if ( class < 3 )
+//                return class;
+//            else
+//                return 3;
+//        case four:
+//            if ( class < 3 )
+//                return class;
+//            else if ( class < 7 )
+//                return 3;
+//            else if ( class < 16 )
+//                return 7;
+//            else
+//                return 16;
+//    }
+    exit(0);
+    return 0;
 }
