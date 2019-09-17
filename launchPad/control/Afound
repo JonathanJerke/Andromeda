@@ -4,4 +4,7 @@ read found/found
 read found/found-vector
 control ritzPhase
 .InputOutput
+*Parameters
+	collect 0
+.Parameters
 .Body
