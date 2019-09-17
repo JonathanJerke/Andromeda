@@ -32,7 +32,7 @@ echo "PostProcessing `cat post`"
 
 
 ##  
-set found = 100
+set found = `getParam.csh foundation boot`
 
 if ( -e ../cnfg ) then
 set body = `getParam.csh body ../cnfg`
