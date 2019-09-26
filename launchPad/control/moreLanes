@@ -1,6 +1,9 @@
 *Body
 	*Parameters
-		lanes 72
+		lanes -1 
+		#means all you got!
+		#
+		#
 		parallel 1
 	.Parameters
 .Body

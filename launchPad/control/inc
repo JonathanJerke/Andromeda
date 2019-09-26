@@ -5,5 +5,6 @@
 		#clampStage 3
 		increment 2
 		basisStage 12
+		#kineticShift 1.
 	.Parameters
 .Body
