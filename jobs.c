@@ -556,8 +556,23 @@ INT_TYPE distill ( struct calculation c, struct field f1){
 int main (INT_TYPE argc , char * argv[]){
     struct calculation c;
     struct field f;
-    bootShell(argc, argv,&c,&f);
+    if ( argc == 2 ){
+        switch ( atoi( argv[1])){
+            case 1 :
+                c.i.RAMmax = 0;
+                bootShell(argc, argv,&c,&f);
+                break;
+            case 0 :
+                printf("v7.5  %s ",getenv("LAUNCH"));
+                exit(0);
+        }
+
+    }else {
+        bootShell(argc, argv,&c,&f);
+
    // test2();
+
+    }
     
     INT_TYPE space,i,a,plusSize,nStatesTrans=0,nStatesFound=0 ,RdsSize = 0,totalIter = 0;
     FILE * out = stdout;

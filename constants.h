@@ -332,7 +332,8 @@ enum blockMemoryType{
     blockTrainingHamiltonianBlock,//3
     blockFoundationBlock,//4
     blockBuildHamiltonianBlock,//5
-    blockEigenDecomposeBlock//6
+    blockEigenDecomposeBlock,//6
+    blockTotalVectorBlock//7
 };
 
 

@@ -1044,7 +1044,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
   
     
     if ( c1->rt.phaseType == productKrylov){
-        if ( !(allowQ(f1->rt, blockTrainHamiltonianBlock)) ){
+        if ( !(allowQ(f1->rt, blockTrainHamiltonianBlock)) && allowQ(f1->rt,blockTotalVectorBlock)){
             INT_TYPE num2Body = 1;
             switch ( bootBodies ){
                 case two:
