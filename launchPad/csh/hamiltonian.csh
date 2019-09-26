@@ -1,18 +1,18 @@
 #!/bin/csh
 
+#source launch.csh
+
 if $#argv == 1 then
-set src = $1
 set dir = $1
-set file = $dir/B.gaS
+set file = $dir/A.ham
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
 echo "control found" >> $file
-#echo "read character ">> $file
 echo "read $dir/stage " >> $file
-echo "control ritzPhase" >> $file
+echo "control hamiltonianPhase" >> $file
 echo ".InputOutput" >> $file
+
 echo ".Body" >> $file
 ${LAUNCH}/csh/go.csh $file &
 
 endif
-

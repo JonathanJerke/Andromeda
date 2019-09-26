@@ -9,10 +9,10 @@ echo "$i"
 set file = $dir/B.kry.$i
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
-echo "read ../../control/found" >> $file
+echo "control found" >> $file
 echo "read $dir/stage " >> $file
 echo "vector $prev.$i" >> $file
-echo "read ../../control/kryPhase ">> $file
+echo "control kryPhase ">> $file
 echo ".InputOutput" >> $file
 echo ".Body" >> $file
 $LAUNCH/csh/go.csh $file &

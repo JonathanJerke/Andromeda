@@ -2,16 +2,16 @@
 	*Parameters
 		#may work for 3 or higher but need big systems
 		decompose 1
-		encapsulate -1
+		encapsulate -10
 		#system dependent
-		maxRAM 8
+		maxRAM 160
 	#OPEN GAME,  trade speed for accuracy!
 	#
 		cmpl 1	
 		condition 8
 		tolerance 5
 		threshold 5
-		vectorThreshold 4
+		vectorThreshold 3.5
 		target 3.5
 		entropy 0
 	#

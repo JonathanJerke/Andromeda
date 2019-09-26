@@ -1,8 +1,9 @@
 *Body print
 	*Parameters
 		phase 1
-	 	filter 1
+	 	filter 0
 		blockReset 
+		decompose 3
 		blockMemory 2
 		blockMemory 3
 		blockMemory 4

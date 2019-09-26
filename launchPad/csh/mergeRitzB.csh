@@ -9,7 +9,7 @@ set prev = $src/B.kry
 set file = $dir/C.riz
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
-echo "read ../../control/found" >> $file
+echo "control found" >> $file
 echo "read $dir/stage " >> $file
 foreach f (`cat $3`)
 #if ( `splitFlag.csh` ) then
@@ -19,7 +19,7 @@ echo "read $prev.$f-vector" >> $file
 #endif
 
 end
-echo "read ../../control/ritzPhase" >> $file
+echo "control ritzPhase" >> $file
 echo ".InputOutput" >> $file
 echo "*Parameters" >>$file
 echo "	collect 1 " >> $file

@@ -8,14 +8,14 @@ foreach i (`cat $3`)
 set file = $dir/D.kry.${i}
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
-echo "read ../../control/found" >> $file
+echo "control found" >> $file
 echo "read $dir/stage " >> $file
 #if ( `splitFlag.csh` ) then
 
 #else
    echo "vector $prev-${i}" >> $file
 #endif
-echo "read ../../control/buildPhase ">> $file
+echo "control buildPhase ">> $file
 echo ".InputOutput" >> $file
 echo "*Parameters ">> $file
 echo "	iterations 1">> $file

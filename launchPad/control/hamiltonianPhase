@@ -5,13 +5,14 @@
 		blockReset
 		states 0
 		basisRank 1
+		blockMemory 2
+		blockMemory 3
 		blockMemory 4
-        	blockMemory 5        
-		blockMemory 6
+                blockMemory 6
 	.Parameters
 
 
 	*InputOutput
-		control parallel
+		control moreLanes
 	.InputOutput
 .Body

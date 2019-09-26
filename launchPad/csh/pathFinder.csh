@@ -16,6 +16,7 @@ foreach curr ( $argv )
 	#		else
 				$LAUNCH/csh/gos.csh found/found
 	#		endif
+			$LAUNCH/csh/hamiltonian.csh $curr
 			$LAUNCH/csh/distill.csh $curr
 			sleep 3
 			$LAUNCH/csh/go.csh found/Afound
@@ -31,6 +32,7 @@ foreach curr ( $argv )
 		endif 
 	else
 			$LAUNCH/csh/addStage.csh $prev $curr
+                        $LAUNCH/csh/hamiltonian.csh $curr
 			$LAUNCH/csh/distill.csh $curr
          #               if ( `splitFlag.csh`) then
           #              $LAUNCH/csh/splitKrylov.csh $prev $curr states
