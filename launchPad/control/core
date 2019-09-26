@@ -1,6 +1,5 @@
 *Body def
 	*Parameters
-		#may work for 3 or higher but need big systems
 		encapsulate -10
 		chrome 100
 		chromaticThreshold 0.8
