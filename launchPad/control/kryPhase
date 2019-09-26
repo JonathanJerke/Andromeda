@@ -3,13 +3,7 @@
 		phase 1
 	 	filter 1
 		blockReset
-		#
-		#
-		#edit here for h2p
 	        blockMemory 1
-		#change to blockMemory 2 for h2p
-		#
-		#
 		blockMemory 3
 		blockMemory 4
 		blockMemory 5
@@ -19,7 +13,6 @@
 
 
 	*InputOutput
-	#	read krylov
 		control two
 	.InputOutput
 .Body
