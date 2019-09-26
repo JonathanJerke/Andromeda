@@ -564,8 +564,6 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     return 0;
                     
                 case 80:
-                    if ( ivalue < 0 )
-                        return 0;
 #ifdef OMP
                     c->i.omp = ivalue;
 #endif
