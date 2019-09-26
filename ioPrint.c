@@ -134,7 +134,8 @@ INT_TYPE ioStoreMatrix(struct sinc_label f1, enum division op, INT_TYPE spin, ch
     
     {
         if ( ioIn == 0 ){
-            if ( ! matchFlag){
+            if (1|| ! matchFlag){//i used to output files in parallel runs, so i needed this.
+                    //NOW its causing grief by not overwritting .  remove matching requirement.
                 //print out.
                 FILE* out = fopen(filename,"w");
                 outputFormat(f1, out, op, spin);

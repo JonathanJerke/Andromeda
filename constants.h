@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 7.3
+//VERSION 7.5
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -146,7 +146,8 @@ enum phaseType{
     solveRitz,//2
     svdOperation, //3
     distillMatrix,//4
-    reportMatrix//5
+    reportMatrix,//5
+    decomposeMatrix //6
 };
 
 enum calculationType{
@@ -333,7 +334,6 @@ enum blockMemoryType{
     blockBuildHamiltonianBlock,//5
     blockEigenDecomposeBlock//6
 };
-
 
 
 
@@ -641,7 +641,6 @@ enum division{
     overlap5,
     overlap6,
     tempOneMatrix,
-    tempTwoMatrix,
     resolveBufferMatrix,//11
     distanceBufferVector,//12
     distanceBufferMatrix,//13
@@ -697,8 +696,6 @@ enum division{
     quadCube,
     quad2Cube,
     diagonalCube,//106,107,108
-    canonicalBuffers,
-    canonicalBuffers0,
     copyVector,
     copyTwoVector,
     copyThreeVector,//113
@@ -719,8 +716,10 @@ enum division{
     tensorBuffers4,
     tensorBuffers5,
     tensorBuffers6,
+    canonicalBuffers,
     guideBuffer,
     trackBuffer,
+    canonicalBuffers0,
     guideBuffer0,
     trackBuffer0,
     vectorCubeBuffers,//125,126,127
@@ -780,6 +779,7 @@ enum division{
     matrixHbuild,
     vectorHbuild,
     twoBodyProjector,
+    bufferChromatic,
     eigenVectors
 };
 
@@ -962,6 +962,9 @@ struct input {
     INT_TYPE mkl;
 #endif
     INT_TYPE canonRank;
+    INT_TYPE chromaticRank;
+    INT_TYPE chromaticUnity;
+    double chromaticThreshold;
     double scalar;
     double turn;
     double param1;

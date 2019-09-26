@@ -39,10 +39,14 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
         
         
         if ( OVERFLAG ){
+            tInnerTest(f1.f, kinetic, copy);
+
             INT_TYPE i;
             for ( i = 0; i < EV ; i++){
-                testSAAgain(f1.f, f1.f.user+i);
-            }
+                printf("%f\n", magnitude(f1.f, f1.f.user+i));
+            }   //
+////testSAAgain(f1.f, f1.f.user+i);
+//            }
         }
 //            tEigenCycle(1,f1.f,overlap1,CDT, f1.i.nStates, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
 
@@ -94,6 +98,7 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
             if ( f1.f.cat && f1.i.filter  && f1.i.irrep )
             {
                 printf("cat filter\n");
+                fflush(stdout);
                 for( g = 0; g < EV ; g++)
                     tBuild3Irr(0, f1.f, f1.i.irrep, f1.f.user+g, cmpl, totalVector, 0);
             }
@@ -106,11 +111,14 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
                 for( g = 0; g < EV ; g++)
                     tAddTw(f1.f, totalVector, 0, f1.f.user+g, cmpl);
             }
+                    
             tCycleDecompostionGridOneMP(-2, f1.f, totalVector, 0, NULL,eigenVectors , cmpl, c1->rt.vCANON, part(f1.f,eigenVectors), c1->rt.powDecompose);
         }
         double norm = magnitude(f1.f, eigenVectors );
         if ( norm > c1->rt.TARGET ){
             printf("Normed from %f\n", norm );
+            fflush(stdout);
+            
             tScaleOne(f1.f, eigenVectors, 0, 1/norm);
             //testSA(f1.f,eigenVectors);
         }
@@ -121,11 +129,15 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
         }
         EV = 1;
         RdsSize = 1;
+        print(c1,f1,1,0,1,eigenVectors);
+        printf("print\n");
+        fflush(stdout);
         tFilter(f1.f, EV, 0, eigenVectors);//classify
         printExpectationValues(f1.f, Ha, eigenVectors);
         fflush(stdout);
-        print(c1,f1,1,0,1,eigenVectors);
         tEdges(f1.f, eigenVectors);
+        fflush(stdout);
+
     }
     
     INT_TYPE flag;
@@ -150,7 +162,7 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
                 for ( iii = 0; iii < 1 ; iii++){
                     printf ( "\n Vector \t%d \t %d\n", iii+1, +RdsSize-EV+iii);
                 //    tEigenCycle(1, f1.f, Ha, 1, RdsSize, eigenVectors, RdsSize, RdsSize, 1, 0, 0, nullName, twoBodyRitz);
-                    //printExpectationValues(f1.f, Ha, eigenVectors+RdsSize-EV+iii);
+                    printExpectationValues(f1.f, Ha, eigenVectors+RdsSize-EV+iii);
                     //assume EV = 1;
                     print(c1,f1,0,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
                     next = tEdges(f1.f , eigenVectors+RdsSize-EV+iii);
@@ -169,6 +181,22 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
     }
     fModel(&f1.f);
 
+    return 0;
+}
+
+INT_TYPE decompose ( struct calculation *c1, struct field f1){
+    //count canonical-rank...
+    
+    iModel(c1,&f1);
+    inputFormat(f1.f, c1->name, hamiltonian, 1);
+    
+    tClear(f1.f,trainHamiltonian);
+    
+    tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian , 0, c1->rt.CANON, part(f1.f,trainHamiltonian), c1->rt.powDecompose);
+
+    FILE * fo = fopen("output.matrix", "w");
+    outputFormat(f1.f, fo, trainHamiltonian, 0);
+    fModel(&f1.f);
     return 0;
 }
 
@@ -458,14 +486,20 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             }
         }else {
             if ( c.rt.runFlag == 0 ){
-                //            tClear(f1.f, copy);
-                //            tId(f1.f, copy, 0);
-                //            tScaleOne(f1.f, copy, 0,-oneBodyFraction* COMPONENT * pi*pi/f1.i.d/f1.i.d/2.);
-                //            tAddTw(f1.f,hamiltonian,0,copy ,0);
                 
-                tAddTw(f1.f,hamiltonian,0,kinetic ,0);
-                tAddTw(f1.f,hamiltonian,0,linear ,0);
-                
+                if ( c.rt.calcType == electronicStuctureCalculation){
+                    tAddTw(f1.f,hamiltonian,0,kinetic ,0);
+                    tAddTw(f1.f,hamiltonian,0,linear ,0);
+                } else {
+                    tAddTw(f1.f,hamiltonian,0,shortenPlus ,0);
+                    tAddTw(f1.f,hamiltonian,0,shortenMinus ,0);
+                    tAddTw(f1.f,hamiltonian,0,kinetic ,0);
+                    tAddTw(f1.f,hamiltonian,0,kineticMass ,0);
+                    tAddTw(f1.f,hamiltonian,0,protonRepulsion ,0);
+
+                    
+                    
+                }
                 tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
                 
                 
@@ -530,12 +564,28 @@ int main (INT_TYPE argc , char * argv[]){
     struct runTime * rt = & c.rt;
     f.f.rt = rt;
     
-    
+    INT_TYPE flag = 0;
 #ifdef OMP
     if ( c.i.omp > MaxCore ){
         printf("lanes > MaxCore\n");
-        exit(0);
+        c.i.omp = MaxCore;
+        flag = 1;
     }
+    if ( c.i.omp == -1 ){
+#ifdef MKL
+        if ( c.i.mkl < 1 )
+        {
+            printf("set parallel");
+            exit(0);
+        }
+        
+        c.i.omp = MaxCore/c.i.mkl;
+#else
+        c.i.omp = MaxCore;
+        flag = 1;
+#endif
+    }
+
     rt->NLanes = c.i.omp;
 #pragma omp parallel for private (i)
     for ( i = 0; i < MaxCore ; i++){
@@ -543,19 +593,21 @@ int main (INT_TYPE argc , char * argv[]){
     }
     if ( rt->NLanes > rt->NSlot ){
         printf("decrease lanes or increase your number of OMP cores\n");
-        exit(0);
+        rt->NLanes = rt->NSlot;
+        flag =1 ;
     }
     
 #ifdef MKL
+    if ( flag )
+        c.i.mkl = 1;
+    
     if ( rt->NSlot < c.i.mkl * c.i.omp )
     {
         printf("not enough slots for mkl*omp\n" );
-        exit(0);
+        c.i.mkl = rt->NSlot/c.i.omp;
     }
-    else
-    {
-        rt->NParallel = c.i.mkl;
-    }
+    rt->NParallel = c.i.mkl;
+    
 #endif
 #endif
     
@@ -577,6 +629,8 @@ int main (INT_TYPE argc , char * argv[]){
         iModel(&c, &f);
         report(c,f);
         fModel(&f.f);
+    }else if ( c.rt.phaseType == decomposeMatrix ){
+        decompose ( &c, f);
     }
     printf("\n\nFINIS.\n\n");
 }

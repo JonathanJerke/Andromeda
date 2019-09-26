@@ -4136,9 +4136,9 @@ double gaussQuad(INT_TYPE pt , INT_TYPE nm, INT_TYPE which ){
     }
     
     if ( which )
-        return 0.5*(1+gkX[nm]);
+        return 0.5*(1+gkX[ngk-1-nm]);
     else
-        return 0.5*gkW[nm];//shift to interval [0,1]
+        return 0.5*gkW[ngk-1-nm];//shift to interval [0,1]
 }
 
 
@@ -5150,9 +5150,15 @@ INT_TYPE buildMetric( struct sinc_label f1,double latticePause,INT_TYPE Z, struc
             nMet++;
             break;
         case LDA:
-            def = lda;
         case BLYP:
-            def = blyp;
+           if ( LDA == inter.func.fn )
+                def = lda;
+            else if  ( BLYP == inter.func.fn )
+                def = blyp;
+            else {
+                printf("not known \n");
+                exit(0);
+            }
             PSU = NULL;
             for ( ai = 0; ai < psu_length ; ai++){
                 if ( def[psu_stride*ai] ==  abs(Z))
@@ -5436,30 +5442,35 @@ INT_TYPE buildMetric( struct sinc_label f1,double latticePause,INT_TYPE Z, struc
     
     return nMet;
 }
-#define MAXb 30
+#define MAXb 30*MAXATOM
 
 INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label f1, enum division single,enum particleType particle1, INT_TYPE overline, enum spinType cmpl){
     INT_TYPE mus=0,m,a,ra=0;
     struct metric_label mu[MAXb];
     struct interaction_label inter  = c1->i.oneBody;
-    tClear(f1, tempOneMatrix);
-
+    tClear(f1, single);
     for ( a = 1 ; a <= c1->i.Na ; a++){
         mus =  buildMetric(f1, 2./grabBasis(f1, 0, particle1, 0).length, c1->i.atoms[a].label.Z, inter, MAXb, mu);
+
         for ( m = 0; m < mus ; m++){
             if ( mu[m].metric == interval || mu[m].metric == semiIndefinite)
                 ra += estSize(mu[m].fn.interval);
             else if ( mu[m].metric == dirac )
                 ra++;
+
+
         }
         if ( bootedQ(f1) ){
-                for ( m = 0; m < mus ; m++)
-                    separateInteraction(f1, c1->i.atoms[a].position+1, tempOneMatrix, mu[m], cmpl, overline, 0, particle1);
+            for ( m = 0; m < mus ; m++){
+                getDescription(&mu[m].fn, 1., stdout);
+
+                    separateInteraction(f1, c1->i.atoms[a].position+1, single, mu[m], cmpl, overline, 0, particle1);
                 }
         }
+        }
     if ( bootedQ(f1) ){
-        tCycleDecompostionGridOneMP(-2, f1, tempOneMatrix, 0, NULL, single, cmpl-1, f1.rt->CANON, part(f1, single), f1.rt->powDecompose);
-        printf("Split 1-body ++%d  \t%f %f\n", CanonicalRank(f1, single, cmpl-1),traceOne(f1, single, cmpl-1), distance1(f1, single,cmpl-1, tempOneMatrix,0));
+//        tCycleDecompostionGridOneMP(-2, f1, tempOneMatrix, 0, NULL, single, cmpl-1, f1.rt->CANON, part(f1, single), f1.rt->powDecompose);
+//        printf("Split 1-body ++%d  \t%f %f\n", CanonicalRank(f1, single, cmpl-1),traceOne(f1, single, cmpl-1), distance1(f1, single,cmpl-1, tempOneMatrix,0));
     }
 
     return ra;
@@ -5469,19 +5480,23 @@ INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label f1, en
     INT_TYPE mus=0,m,ra=0;
     struct metric_label mu[MAXb];
     struct interaction_label inter = c1->i.twoBody ;
-    tClear(f1, tempTwoMatrix);
+    tClear(f1, pair);
+
     mus =  buildMetric(f1, 2./grabBasis(f1, 0, electron, 0).length, -1, inter, MAXb, mu);
     for ( m = 0; m < mus ; m++){
         if ( mu[m].metric == interval || mu[m].metric == semiIndefinite)
             ra += estSize(mu[m].fn.interval);
         else
             ra++;
+
     }
-    if ( bootedQ(f1) && part ( f1,tempTwoMatrix) <= ra ){
-            for ( m = 0; m < mus ; m++)
-                separateInteraction(f1, NULL,tempTwoMatrix , mu[m], cmpl, overline, 0, particle1);
-        tCycleDecompostionGridOneMP(-2, f1, tempTwoMatrix, 0, NULL, pair, cmpl-1, f1.rt->CANON, part(f1, pair),f1.rt->powDecompose);
-        printf("Split 2-body ++%d  \t%f %f\n", CanonicalRank(f1, pair, cmpl-1),traceOne(f1, pair, cmpl-1), distance1(f1, pair,cmpl-1, tempTwoMatrix,0));
+    if ( bootedQ(f1) && part ( f1,pair) <= ra ){
+        for ( m = 0; m < mus ; m++){
+            getDescription(&mu[m].fn, 1., stdout);
+            separateInteraction(f1, NULL,pair , mu[m], cmpl, overline, 0, particle1);
+        }
+//        tCycleDecompostionGridOneMP(-2, f1, tempTwoMatrix, 0, NULL, pair, cmpl-1, f1.rt->CANON, part(f1, pair),f1.rt->powDecompose);
+//        printf("Split 2-body ++%d  \t%f %f\n", CanonicalRank(f1, pair, cmpl-1),traceOne(f1, pair, cmpl-1), distance1(f1, pair,cmpl-1, tempTwoMatrix,0));
         }
     return ra;
 }

@@ -365,7 +365,7 @@ INT_TYPE spins ( struct sinc_label f1 , enum division label ){
 #ifndef APPLE
 #ifdef OMP
     if (sp == parallel)
-            return  MaxCore;
+            return  f1.rt->NLanes;
 #endif
 #endif
     
@@ -617,6 +617,7 @@ Stream_Type* streams ( struct sinc_label f1, enum division label ,INT_TYPE spin,
         INT_TYPE partit = part(f1, name(f1,label));
         
         if ( name(f1,label) != label ){
+         //   printf("*->",label);
             return f1.rose[space].stream+f1.tulip[name(f1,label)].space[space].Address + leng * partit * spin + leng*f1.tulip[label].Current[spin] ;
         }
         else{
@@ -1891,64 +1892,122 @@ struct basisElement transformBasis( INT_TYPE flip, double scale, struct basisEle
 
 #if 0
 
-double xOneBand (INT_TYPE rank,struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic){
-    double D = f1.d;
-    INT_TYPE space,i,l,i2,l2,r,aPeriodic;
-    INT_TYPE N1 = f2.N1;
-    INT_TYPE N12 = (N1-1)/2;
-    INT_TYPE L1 =  f1.N1;
-    INT_TYPE L12 = (L1-1)/2;
+double xOneBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struct sinc_label f2, enum division out,INT_TYPE s2,INT_TYPE oldPeriodic){
+    INT_TYPE sl,space,i,l,r,rank=0;
+    INT_TYPE n1[SPACE],N1;
+    length1(f1,n1);
+    INT_TYPE n2[SPACE];
+    length1(f2,n2);
+    
+    INT_TYPE L1;
     f2.tulip[out].Current[s2] = 0;
-    zero(f1,out,s2);
+    zero(f2,out,s2);
     
-    //    for ( r= 0 ; r < 3 ;r++){
-    //    for ( l= 0 ; l < 9 ; l++)
-    //        printf("%f:", streams(f1, vector1,s1,0)[l]);
-    //        printf("\n");
-    //    }
-    //        printf("%d %f : %d %f\n", L1, D, N1, f2.d);
-    //
-    
-    for ( i = 0; i < N1 ; i++)
-    {
+    for ( space = 0;space < SPACE; space++)
+        if ( f1.rose[space].body != nada){
+            N1 = n2[space];
+            L1 = n1[space];
             
-            //build
-            for ( space = 0;space < SPACE; space++){
-                if ( space == 0 )
-                    aPeriodic = periodic%2;
-                else if ( space == 1 )
-                    aPeriodic = (periodic/2)%2;
-                else
-                    aPeriodic = (periodic/4)%2;
+            for ( i = 0 ; i < N1 ; i++)
+            {
                 
-                
-                for ( l = 0 ; l < L1 ; l++)
-                {
-                    if ( aPeriodic ){
-                        printf("ask me\n");
-                        exit(0);
-                            
-                        }else {
-                            streams(f1, foundationStructure,rank, space )[l] =
-                            SS ( D,D*(l-L12), f2.d, f2.d*( i-N12 ) );
-                            
-                        }
+#ifdef OMP
+#pragma omp parallel for private (l)
+#endif
+
+                for ( sl = 0; sl < L1 ; sl++){
+                    l = sl;
+                    
+                    //build
+                    
+                    {
+                        myStreams(f2, bandBasis,rank )[l] =
+                        BoB (grabBasis(f1, space, f1.rose[space].particle,l),grabBasis(f2, space, f2.rose[space].particle, i) );
                     }
+                    
+                }
+            
+            
+#ifdef OMP
+#pragma omp parallel for private (r)
+#endif
+
+            for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
+                streams(f2, out, s2,space)[r*N1 + (i)] = cblas_ddot(L1, myStreams(f2, bandBasis,rank ),1,streams(f1, vector1,s1,space)+r*L1,1);
+                //      printf("%1.3f:", streams(f2, out, s2,space)[r*N1*N1 + (i+i2*N1)]);
             }
-            for ( space = 0;space < SPACE; space++){
+            //   printf("\n");
+            //
+        }
+            //  printf("\n");
+            
+        }
+            
+    
+    f2.tulip[out].Current[s2] = CanonicalRank(f1, vector1, s1);
+    
+    
+    
+    
+    return 0.;
+}
+
+double xTwoBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struct sinc_label  f2, enum division out,INT_TYPE s2,INT_TYPE oldPeriodic){
+    INT_TYPE space,i,l,i2,l2,r,rank=0,sl;
+    INT_TYPE N1,si ;
+    INT_TYPE L1 ;
+    f2.tulip[out].Current[s2] = 0;
+    zero(f2,out,s2);
+    INT_TYPE n1[SPACE];
+    length1(f1,n1);
+    INT_TYPE n2[SPACE];
+    length1(f2,n2);
+    
+    for ( space = 0;space < SPACE; space++)
+        if ( f1.rose[space].body != nada)
+        {
+            N1 = n2[space];
+            L1 = n1[space];
+            
+            
+            for ( si = 0 ; si < N1*N1 ; si++)
+            {
+                i = si% N1;
+                i2 = (si/N1)%N1;
+                
+                
+                //build
+#ifdef OMP
+#pragma omp parallel for private (sl,l,l2)
+#endif
+                for ( sl = 0; sl < L1*L1 ; sl++){
+                    rank = 0;
+                    l = sl% L1;
+                    l2 = (sl/L1)%L1;
+                    
+                    myStreams(f2, bandBasis,rank )[sl] =
+                    BoB (grabBasis(f1, space, f1.rose[space].particle,l),grabBasis(f2, space, f2.rose[space].particle, i) )*
+                    BoB (grabBasis(f1, space, f1.rose[space].particle,l2),grabBasis(f2, space, f2.rose[space].particle, i2) );
+                }
+                
+                
+#ifdef OMP
+#pragma omp parallel for private (r)
+#endif
+
                 
                 for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
-                    streams(f2, out, s2,space)[r*N1 + (i)] = cblas_ddot(L1, streams(f1, foundationStructure,rank, space ),1,streams(f1, vector1,s1,space)+r*L1,1);
+                    streams(f2, out, s2,space)[r*N1*N1 + si] = cblas_ddot(L1*L1, myStreams(f2, bandBasis,rank ),1,streams(f1, vector1,s1,space)+r*L1*L1,1);
                     //      printf("%1.3f:", streams(f2, out, s2,space)[r*N1*N1 + (i+i2*N1)]);
                 }
                 //   printf("\n");
                 //
             }
             //  printf("\n");
-            
-            
-            
         }
+    
+    
+    
     f2.tulip[out].Current[s2] = CanonicalRank(f1, vector1, s1);
     
     
@@ -1957,195 +2016,126 @@ double xOneBand (INT_TYPE rank,struct sinc_label f1, enum division vector1 ,INT_
     return 0.;
 }
 
-double xTwoBand (INT_TYPE rank,struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic){
-    double D = f1.d;
-    INT_TYPE space,i,l,i2,l2,r,aPeriodic;
-    INT_TYPE N1 = f2.N1;
-    INT_TYPE N12 = (N1-1)/2;
-    INT_TYPE L1 =  f1.N1;
-    INT_TYPE L12 = (L1-1)/2;
+
+double xThreeBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struct sinc_label  f2, enum division out,INT_TYPE s2,INT_TYPE oldPeriodic){
+    INT_TYPE si,space,i,l,i2,i3,l2,l3,r,rank=0,sl;
+    INT_TYPE N1 ;
+    INT_TYPE L1 ;
     f2.tulip[out].Current[s2] = 0;
-    zero(f1,out,s2);
+    zero(f2,out,s2);
+    INT_TYPE n1[SPACE];
+    length1(f1,n1);
+    INT_TYPE n2[SPACE];
+    length1(f2,n2);
     
-//    for ( r= 0 ; r < 3 ;r++){
-//    for ( l= 0 ; l < 9 ; l++)
-//        printf("%f:", streams(f1, vector1,s1,0)[l]);
-//        printf("\n");
-//    }
-//        printf("%d %f : %d %f\n", L1, D, N1, f2.d);
-//
-    
-    for ( i = 0; i < N1 ; i++)
-        for ( i2 = 0; i2 < N1 ; i2++){
+    for ( space = 0;space < SPACE; space++)
+        if ( f1.rose[space].body != nada){
+            N1 = n2[space];
+            L1 = n1[space];
             
-            
-            //build
-            for ( space = 0;space < SPACE; space++){
-                if ( space == 0 )
-                    aPeriodic = periodic%2;
-                else if ( space == 1 )
-                    aPeriodic = (periodic/2)%2;
-                else
-                    aPeriodic = (periodic/4)%2;
+            for ( si = 0 ; si < N1*N1*N1 ; si++)
+            {
+                i = si% N1;
+                i2 = (si/N1)%N1;
+                i3 = (si/(N1*N1))%N1;
                 
                 
-                for ( l = 0 ; l < L1 ; l++)
-                    for ( l2 = 0 ; l2 < L1 ; l2++){
-                        if ( aPeriodic ){
-                            printf("ask me\n");
-                            exit(0);
-
-//                            streams(f1, foundationStructure,rank, space )[l2*L1+l] =
-//                            periodicSS ( D,D*(l-L12),f1.N1, f2.d, f2.d*( i-N12 ) ,f2.N1)*
-//                            periodicSS ( D,D*(l2-L12),f1.N1, f2.d, f2.d*( i2-N12 ),f2.N1 );
-//                            periodicSS ( D,D*(l),f1.N1, f2.d, f2.d*( i ) ,f2.N1)*
-//                            periodicSS ( D,D*(l2),f1.N1, f2.d, f2.d*( i2 ),f2.N1 );
-
-                        }else {
-                            streams(f1, foundationStructure,rank, space )[l2*L1+l] =
-                            SS ( D,D*(l-L12), f2.d, f2.d*( i-N12 ) )*
-                            SS ( D,D*(l2-L12), f2.d, f2.d*( i2-N12 ) );
-                        }
-                    }
-            }
-            for ( space = 0;space < SPACE; space++){
                 
-                for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
-                    streams(f2, out, s2,space)[r*N1*N1 + (i+i2*N1)] = cblas_ddot(L1*L1, streams(f1, foundationStructure,rank, space ),1,streams(f1, vector1,s1,space)+r*L1*L1,1);
-              //      printf("%1.3f:", streams(f2, out, s2,space)[r*N1*N1 + (i+i2*N1)]);
+                //build
+#ifdef OMP
+#pragma omp parallel for private (sl,l,l2,l3)
+#endif
+                
+                for ( sl = 0; sl < L1*L1*L1 ; sl++){
+                    l = sl% L1;
+                    l2 = (sl/L1)%L1;
+                    l3 = (sl/(L1*L1))%L1;
+                    
+                    myStreams(f2, bandBasis,rank )[sl] =
+                    BoB (grabBasis(f1, space, f1.rose[space].particle,l),grabBasis(f2, space, f2.rose[space].particle, i) )*
+                    BoB (grabBasis(f1, space, f1.rose[space].particle,l2),grabBasis(f2, space, f2.rose[space].particle, i2) )*
+                    BoB (grabBasis(f1, space, f1.rose[space].particle,l3),grabBasis(f2, space, f2.rose[space].particle, i3) );
+                    
                 }
-             //   printf("\n");
+                
+                
+                
+                
+#ifdef OMP
+#pragma omp parallel for private (r)
+#endif
+                
+                for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++)
+                    streams(f2, out, s2,space)[r*N1*N1*N1 + si] = cblas_ddot(L1*L1*L1, myStreams(f2, bandBasis,rank ),1,streams(f1, vector1,s1,space)+r*L1*L1*L1,1);
                 //
             }
-          //  printf("\n");
+        }
+    
+                
+            
+    f2.tulip[out].Current[s2] = CanonicalRank(f1, vector1, s1);
+    
+    return 0.;
+}
+double xFourBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struct sinc_label f2, enum division out,INT_TYPE s2,INT_TYPE oldPeriodic){
+    INT_TYPE si,space,i,l,i2,i3,i4,l2,l3,l4,r,rank=0,sl;
+    INT_TYPE N1 ;
+    INT_TYPE L1 ;
+    f2.tulip[out].Current[s2] = 0;
+    zero(f2,out,s2);
+    INT_TYPE n1[SPACE];
+    length1(f1,n1);
+    INT_TYPE n2[SPACE];
+    length1(f2,n2);
+    
+    
+    for ( space = 0;space < SPACE; space++)
+        if ( f1.rose[space].body != nada){
+            N1 = n2[space];
+            L1 = n1[space];
+            
+            for ( si = 0 ; si < N1*N1*N1*N1 ; si++)
+            {
+                i = si% N1;
+                i2 = (si/N1)%N1;
+                i3 = (si/(N1*N1))%N1;
+                i4 = (si/(N1*N1*N1))%N1;
 
+                //build
+#ifdef OMP
+#pragma omp parallel for private (sl,l,l2,l3,l4)
+#endif
+            for ( sl = 0; sl < L1*L1*L1*L1 ; sl++){
+                l = sl% L1;
+                l2 = (sl/L1)%L1;
+                l3 = (sl/(L1*L1))%L1;
+                l4 = (sl/(L1*L1*L1))%L1;
+
+                
+                    myStreams(f2, bandBasis,rank )[sl] =
+                    BoB (grabBasis(f1, space, f1.rose[space].particle,l),grabBasis(f2, space, f2.rose[space].particle, i) )*
+                    BoB (grabBasis(f1, space, f1.rose[space].particle,l2),grabBasis(f2, space, f2.rose[space].particle, i2) )*
+                    BoB (grabBasis(f1, space, f1.rose[space].particle,l3),grabBasis(f2, space, f2.rose[space].particle, i3) )*
+                    BoB (grabBasis(f1, space, f1.rose[space].particle,l4),grabBasis(f2, space, f2.rose[space].particle, i4) );
+                    
+                    
+                
+            
+
+        }
+#ifdef OMP
+#pragma omp parallel for private (r)
+#endif
+
+                for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++)
+                    streams(f2, out, s2,space)[r*N1*N1*N1*N1 + si] = cblas_ddot(L1*L1*L1*L1, myStreams(f2, bandBasis,rank ),1,streams(f1, vector1,s1,space)+r*L1*L1*L1*L1,1);
+                //
+            }
+            
             
             
         }
-    f2.tulip[out].Current[s2] = CanonicalRank(f1, vector1, s1);
     
-    
-    
-    
-    return 0.;
-}
-
-
-double xThreeBand (INT_TYPE rank,struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic){
-    double D = f1.d;
-    INT_TYPE space,i,l,i2,i3,l2,l3,r,aPeriodic;
-    INT_TYPE N1 = f2.N1;
-    INT_TYPE N12 = (N1-1)/2;
-    INT_TYPE L1 =  f1.N1;
-    INT_TYPE L12 = (L1-1)/2;
-    f2.tulip[out].Current[s2] = 0;
-    zero(f1,out,s2);
-    for ( i = 0; i < N1 ; i++)
-        for ( i2 = 0; i2 < N1 ; i2++)
-            for ( i3 = 0; i3 < N1 ; i3++)
-            {
-                
-                
-                //build
-                for ( space = 0;space < SPACE; space++){
-                    if ( space == 0 )
-                        aPeriodic = periodic%2;
-                    else if ( space == 1 )
-                        aPeriodic = (periodic/2)%2;
-                    else
-                        aPeriodic = (periodic/4)%2;
-
-                    for ( l = 0 ; l < L1 ; l++)
-                        for ( l2 = 0 ; l2 < L1 ; l2++)
-                            for ( l3 = 0 ; l3 < L1 ; l3++)
-                                if ( aPeriodic ){
-                                    printf("ask me\n");
-                                    exit(0);
-
-//                                    streams(f1, foundationStructure,rank, space )[(l3*L1*L1+l2*L1+l)] =
-//                                    periodicSS ( D,D*(l-L12),f1.N1,f2.d, f2.d*( i-N12 ) ,f2.N1)*
-//                                    periodicSS ( D,D*(l2-L12),f1.N1,f2.d, f2.d*( i2-N12 ),f2.N1 )*
-//                                    periodicSS ( D,D*(l3-L12),f1.N1, f2.d, f2.d*( i3-N12 ) ,f2.N1);
-                                }else {
-                                    streams(f1, foundationStructure,rank, space )[(l3*L1*L1+l2*L1+l)] =
-                                    SS ( D,D*(l-L12), f2.d, f2.d*( i-N12 ) )*
-                                    SS ( D,D*(l2-L12), f2.d, f2.d*( i2-N12 ) )*
-                                    SS ( D,D*(l3-L12), f2.d, f2.d*( i3-N12 ) );
-                                }
-                }
-                
-                for ( space = 0;space < SPACE; space++){
-                    
-                    for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++)
-                        streams(f2, out, s2,space)[r*N1*N1*N1 + (i3*N1*N1+i2*N1+i)] = cblas_ddot(L1*L1*L1, streams(f1, foundationStructure,rank, space ),1,streams(f1, vector1,s1,space)+r*L1*L1*L1,1);
-                    //
-                }
-                
-                
-                
-            }
-    f2.tulip[out].Current[s2] = CanonicalRank(f1, vector1, s1);
-    
-    return 0.;
-}
-
-double xFourBand (INT_TYPE rank,struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struct field * f2, enum division out,INT_TYPE s2, INT_TYPE periodic){
-    double D = f1.d;
-    INT_TYPE space,i,l,i2,i3,i4,l2,l3,l4,r,aPeriodic;
-    INT_TYPE N1 = f2.N1;
-    INT_TYPE N12 = (N1-1)/2;
-    INT_TYPE L1 =  f1.N1;
-    INT_TYPE L12 = (L1-1)/2;
-    f2.tulip[out].Current[s2] = 0;
-    zero(f1,out,s2);
-    for ( i = 0; i < N1 ; i++)
-        for ( i2 = 0; i2 < N1 ; i2++)
-            for ( i3 = 0; i3 < N1 ; i3++)
-                for ( i4 = 0 ; i4 < N1; i4++)
-            {
-                
-                
-                //build
-                for ( space = 0;space < SPACE; space++){
-                    if ( space == 0 )
-                        aPeriodic = periodic%2;
-                    else if ( space == 1 )
-                        aPeriodic = (periodic/2)%2;
-                    else
-                        aPeriodic = (periodic/4)%2;
-
-                    for ( l = 0 ; l < L1 ; l++)
-                        for ( l2 = 0 ; l2 < L1 ; l2++)
-                            for ( l3 = 0 ; l3 < L1 ; l3++)
-                                for ( l4 = 0; l4 < L1 ; l4++)
-                                if ( aPeriodic ){
-                                    printf("ask me\n");
-                                    exit(0);
-
-//                                    streams(f1, foundationStructure,rank, space )[(l4*L1*L1*L1+l3*L1*L1+l2*L1+l)] =
-//                                    periodicSS ( D,D*(l-L12),f1.N1,f2.d, f2.d*( i-N12 ) ,f2.N1)*
-//                                    periodicSS ( D,D*(l2-L12),f1.N1,f2.d, f2.d*( i2-N12 ),f2.N1 )*
-//                                    periodicSS ( D,D*(l3-L12),f1.N1, f2.d, f2.d*( i3-N12 ) ,f2.N1)*
-//                                    periodicSS ( D,D*(l4-L12),f1.N1, f2.d, f2.d*( i4-N12 ) ,f2.N1);
-                                }else {
-                                    streams(f1, foundationStructure,rank, space )[(l4*L1*L1*L1+l3*L1*L1+l2*L1+l)] =
-                                    SS ( D,D*(l-L12), f2.d, f2.d*( i-N12 ) )*
-                                    SS ( D,D*(l2-L12), f2.d, f2.d*( i2-N12 ) )*
-                                    SS ( D,D*(l3-L12), f2.d, f2.d*( i3-N12 ) )*
-                                    SS ( D,D*(l4-L12), f2.d, f2.d*( i4-N12 ) );
-                                }
-                }
-                
-                for ( space = 0;space < SPACE; space++){
-                    
-                    for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++)
-                        streams(f2, out, s2,space)[r*N1*N1*N1*N1 + (i4*N1*N1*N1+i3*N1*N1+i2*N1+i)] = cblas_ddot(L1*L1*L1*L1, streams(f1, foundationStructure,rank, space ),1,streams(f1, vector1,s1,space)+r*L1*L1*L1*L1,1);
-                    //
-                }
-                
-                
-                
-            }
         f2.tulip[out].Current[s2] = CanonicalRank(f1, vector1, s1);
     
     return 0.;

@@ -136,9 +136,24 @@ INT_TYPE testSA ( struct sinc_label f1 , enum division vector ){
 //}
 
 INT_TYPE tFil ( struct sinc_label  f1, enum division A, enum division v , INT_TYPE * i ){
-    INT_TYPE n1[3],space;
+    INT_TYPE n1[SPACE],space;
     length1(f1,n1);
+    
+    if ( bodies(f1,v) == one ){
+        for ( space = 0; space < SPACE ; space++){
+            cblas_dcopy(n1[space], streams(f1,A,0,space)+i[space]*n1[space],1, streams(f1,v,0,space),1);
+        }
+        f1.tulip[v].Current[0] = 1;
+
+    }
+    
+    
     if ( bodies (f1, v ) == two ){
+        tClear(f1, diagonal1VectorA);
+        tClear(f1, diagonal1VectorB);
+        tId(f1,diagonal1VectorA,0);
+        tId(f1,diagonal1VectorB,0);
+        tClear(f1,v);
         for ( space = 0; space < SPACE ; space++){
             cblas_dcopy(n1[space], streams(f1,A,0,space)+i[space]*n1[space],1, streams(f1,diagonal1VectorA,0,space),1);
         }
@@ -197,9 +212,382 @@ INT_TYPE tFil ( struct sinc_label  f1, enum division A, enum division v , INT_TY
             tOuterProductSu(f1, diagonal1VectorA, 0, diagonal1VectorB, 0, diagonal2VectorA, 0);
             tOuterProductSu(f1, diagonal1VectorC, 0, diagonal1VectorD, 0, diagonal2VectorB, 0);
             tOuterProductSu(f1, diagonal2VectorA, 0, diagonal2VectorB, 0, v, 0);
-
+            
         }
+    
+    return 0;
+}
 
+
+
+
+INT_TYPE tInnerTest( struct sinc_label f1, enum division A ,enum division B){
+    char c;
+    INT_TYPE n1[3],space,i[100],j[100],nPerm,ii;
+    double seq[100];
+    n1[0] = vector1Len(f1,0);
+    n1[1] = vector1Len(f1,1);
+    n1[2] = vector1Len(f1,2);
+    if ( bodies ( f1, A ) != one || bodies (f1, B ) != one ){
+        printf ("ment for onebody\n");
+        exit(0);
+    }
+    
+    for ( space = 0; space < SPACE ; space++)
+        tdsyev (0,f1,'V',n1[space],streams(f1,A,0,space),n1[space],streams(f1,B,0,space));
+    for ( ii = 0; ii < 100 ;ii++)
+        i[ii] = ii/3 % n1[0];
+    INT_TYPE info;
+    tFil(f1, A, copyThreeVector, i);
+    printf("%f %f\n", tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, 1, copyThreeVector, 0, 1, copyThreeVector, 0),sqr(magnitude(f1, copyThreeVector)));
+    
+        for ( c = 1; c <= tPerms(bodies(f1,eigenVectors)) ; c++){
+            printf("\n\nCHAR %d\n", c);
+            tClear(f1, copyFourVector);
+            tPermute(0, f1, c, copyThreeVector, 0, copyFourVector, 0);
+            
+            nPerm = tAllCompPermMultiplyMP(0, f1, copyThreeVector, 0, copyFourVector, 0, seq);
+            
+            
+            
+            
+            
+            
+            for ( ii = 1 ; ii <= nPerm; ii++)
+                printf("%lld\t%f\n",ii,seq[ii]);
+        }
+    
+    
+    if ( bodies ( f1, eigenVectors )== three ){
+        for ( c = 1; c <= 6 ; c++){
+            if ( c == 1 ){
+//                1, 2, 3,//1///tv1//e12
+//                1, 3, 2,//2///e13
+//                2, 1, 3,//3///tv2
+//                3, 1, 2,//4// e23-1
+//                2, 3, 1,//5// e23
+//                3, 2, 1//6////tv3
+
+                //            train[0] = 'T';//(1)            123
+                //            train[1] = 'A';//(123)          231
+                //            train[2] = 'B';//(123).(123)    312
+                //            train[3] = 'C';//(12)           213
+                //            train[4] = 'D';//(13)           321
+                //            train[5] = 'E';//(23)           132
+                for ( space = 0 ; space < SPACE ; space++){
+                    j[space] = i[space];
+                    j[space+3] = i[space+3];
+                    j[space+6] = i[space+6];
+                    
+                }
+            }
+            if ( c == 5 ){
+                //            train[0] = 'T';//(1)            123
+                //            train[1] = 'A';//(123)          231
+                //            train[2] = 'B';//(123).(123)    312
+                //            train[3] = 'C';//(12)           213
+                //            train[4] = 'D';//(13)           321
+                //            train[5] = 'E';//(23)           132
+                for ( space = 0 ; space < SPACE ; space++){
+                    j[space] = i[space+3];
+                    j[space+3] = i[space+6];
+                    j[space+6] = i[space];
+
+                }
+            }else
+                if ( c == 4 ){
+                    //            train[0] = 'T';//(1)            123
+                    //            train[1] = 'A';//(123)          231
+                    //            train[2] = 'B';//(123).(123)    312
+                    //            train[3] = 'C';//(12)           213
+                    //            train[4] = 'D';//(13)           321
+                    //            train[5] = 'E';//(23)           132
+                    for ( space = 0 ; space < SPACE ; space++){
+                        j[space] = i[space+6];
+                        j[space+3] = i[space];
+                        j[space+6] = i[space+3];
+
+                    }
+                }
+                else            if ( c == 3 ){
+                    //            train[0] = 'T';//(1)            123
+                    //            train[1] = 'A';//(123)          231
+                    //            train[2] = 'B';//(123).(123)    312
+                    //            train[3] = 'C';//(12)           213
+                    //            train[4] = 'D';//(13)           321
+                    //            train[5] = 'E';//(23)           132
+                    for ( space = 0 ; space < SPACE ; space++){
+                        j[space] = i[space+3];
+                        j[space+3] = i[space];
+                        j[space+6] = i[space+6];
+
+                    }
+                }else             if ( c == 6 ){
+                    //            train[0] = 'T';//(1)            123
+                    //            train[1] = 'A';//(123)          231
+                    //            train[2] = 'B';//(123).(123)    312
+                    //            train[3] = 'C';//(12)           213
+                    //            train[4] = 'D';//(13)           321
+                    //            train[5] = 'E';//(23)           132
+                    for ( space = 0 ; space < SPACE ; space++){
+                        j[space] = i[space+6];
+                        j[space+3] = i[space+3];
+                        j[space+6] = i[space];
+
+                    }
+                }else             if ( c == 2 ){
+                    //            train[0] = 'T';//(1)            123
+                    //            train[1] = 'A';//(123)          231
+                    //            train[2] = 'B';//(123).(123)    312
+                    //            train[3] = 'C';//(12)           213
+                    //            train[4] = 'D';//(13)           321
+                    //            train[5] = 'E';//(23)           132
+                    for ( space = 0 ; space < SPACE ; space++){
+                        j[space] = i[space];
+                        j[space+3] = i[space+6];
+                        j[space+6] = i[space+3];
+
+                    }
+                }
+            tClear(f1,copyFourVector);
+            tFil(f1, A, copyFourVector, j);
+            printf("\n\n%d\n",c);
+            nPerm = tAllCompPermMultiplyMP(0, f1, copyThreeVector, 0, copyFourVector, 0, seq);
+            for ( ii = 1 ; ii <= nPerm; ii++)
+                printf("%d\t%f\n",ii,seq[ii]);
+            printf("\n\n");
+        }
+    }
+    exit(0);
+//
+//
+//
+//
+//
+//            tFil(f1, A, copyFourVector, j);
+//            nPerm = tAllCompPermMultiplyMP(0, f1, copyThreeVector, 0, copyFourVector, 0, seq);
+//            for ( ii = 0 ; ii < nPerm; ii++)
+//                printf("%lld\t%f\n",ii+1,seq[ii]);
+//
+//        }
+//    }
+//    if ( bodies ( f1, eigenVectors )== four ){
+//        for ( c = 'a'; c <= 'w' ; c++){
+//
+//            // 0,0,0,0 : i,j,k,l   :: T 0
+//            // 0,2,1,2 : i,j,l,k   :: 'a'24
+//            // 1,3,1,2 : i,k,j,l   :: 'b'20
+//            // 1,1,0,0 : i,k,l,j   :: 'c'4
+//            // 0,3,1,0 : i,l,j,k   :: 'd'12
+//            // 1,2,1,3 : i,l,k,j   :: 'e'22
+//            // 1,0,0,0 : j,i,k,l   :: 'f'2
+//            // 1,2,1,2 : j,i,l,k   :: 'g' 23
+//            // 0,3,1,2 : j,k,i,l   :: 'h'19
+//            // 0,1,0,0 : j,k,l,i   :: 'i'3
+//            // 1,3,1,0 : j,l,i,k   :: 'j'13
+//            // 0,2,1,3 : j,l,k,i   :: 'k'21
+//            // 0,2,1,1 : k,i,j,l   :: 'l'15
+//            // 1,1,1,0 : k,i,l,j   :: 'm'10
+//            // 1,2,1,1 : k,j,i,l   :: 'n'16
+//            // 0,1,1,0 : k,j,l,i   :: 'o'9
+//            // 0,2,0,0 : k,l,i,j   :: 'p'5
+//            // 1,1,0,1 : k,l,j,i   :: 'q'14
+//            // 0,3,0,0 : l,i,j,k   :: 'r'7
+//            // 1,3,1,1 : l,i,k,j   :: 's'18
+//            // 1,3,0,0 : l,j,i,k   :: 't'8
+//            // 0,3,1,1 : l,j,k,i   :: 'u'17
+//            // 1,2,0,0 : l,k,i,j   :: 'v'6
+//            // 1,2,1,0 : l,k,j,i   :: 'w'11
+//            if ( c == 'a' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space];
+//                    j[space+3] = i[space+3];
+//                    j[space+6] = i[space+9];
+//                    j[space+9] = i[space+6];
+//                }
+//            }else            if ( c == 'b' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space];
+//                    j[space+3] = i[space+6];
+//                    j[space+6] = i[space+3];
+//                    j[space+9] = i[space+9];
+//                }
+//            }else            if ( c == 'c' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space];
+//                    j[space+3] = i[space+6];
+//                    j[space+6] = i[space+9];
+//                    j[space+9] = i[space+3];
+//                }
+//            }else            if ( c == 'd' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space];
+//                    j[space+3] = i[space+9];
+//                    j[space+6] = i[space+3];
+//                    j[space+9] = i[space+6];
+//                }
+//            }else            if ( c == 'e' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space];
+//                    j[space+3] = i[space+9];
+//                    j[space+6] = i[space+6];
+//                    j[space+9] = i[space+3];
+//                }
+//            }else            if ( c == 'f' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+3];
+//                    j[space+3] = i[space];
+//                    j[space+6] = i[space+6];
+//                    j[space+9] = i[space+9];
+//                }
+//            }else            if ( c == 'g' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+3];
+//                    j[space+3] = i[space];
+//                    j[space+6] = i[space+9];
+//                    j[space+9] = i[space+6];
+//                }
+//            }else            if ( c == 'h' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+3];
+//                    j[space+3] = i[space+6];
+//                    j[space+6] = i[space];
+//                    j[space+9] = i[space+9];
+//                }
+//            }else            if ( c == 'i' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+3];
+//                    j[space+3] = i[space+6];
+//                    j[space+6] = i[space+9];
+//                    j[space+9] = i[space];
+//                }
+//            }else            if ( c == 'j' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+3];
+//                    j[space+3] = i[space+9];
+//                    j[space+6] = i[space];
+//                    j[space+9] = i[space+6];
+//                }
+//            }else            if ( c == 'k' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+3];
+//                    j[space+3] = i[space+9];
+//                    j[space+6] = i[space+6];
+//                    j[space+9] = i[space];
+//                }
+//            }else            if ( c == 'l' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+6];
+//                    j[space+3] = i[space];
+//                    j[space+6] = i[space+3];
+//                    j[space+9] = i[space+9];
+//                }
+//            }else            if ( c == 'm' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+6];
+//                    j[space+3] = i[space];
+//                    j[space+6] = i[space+9];
+//                    j[space+9] = i[space+3];
+//                }
+//            }else            if ( c == 'n' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+6];
+//                    j[space+3] = i[space+3];
+//                    j[space+6] = i[space];
+//                    j[space+9] = i[space+9];
+//                }
+//            }else            if ( c == 'o' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+6];
+//                    j[space+3] = i[space+3];
+//                    j[space+6] = i[space+9];
+//                    j[space+9] = i[space];
+//                }
+//            }else            if ( c == 'p' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+6];
+//                    j[space+3] = i[space+9];
+//                    j[space+6] = i[space];
+//                    j[space+9] = i[space+3];
+//                }
+//            }else            if ( c == 'q' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+6];
+//                    j[space+3] = i[space+9];
+//                    j[space+6] = i[space+3];
+//                    j[space+9] = i[space];
+//                }
+//            }else            if ( c == 'r' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+9];
+//                    j[space+3] = i[space];
+//                    j[space+6] = i[space+3];
+//                    j[space+9] = i[space+6];
+//                }
+//            }else            if ( c == 's' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+9];
+//                    j[space+3] = i[space];
+//                    j[space+6] = i[space+6];
+//                    j[space+9] = i[space+3];
+//                }
+//            }else            if ( c == 't' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+9];
+//                    j[space+3] = i[space+3];
+//                    j[space+6] = i[space];
+//                    j[space+9] = i[space+6];
+//                }
+//            }else            if ( c == 'u' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+9];
+//                    j[space+3] = i[space+3];
+//                    j[space+6] = i[space+6];
+//                    j[space+9] = i[space];
+//                }
+//            }else            if ( c == 'v' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+9];
+//                    j[space+3] = i[space+6];
+//                    j[space+6] = i[space];
+//                    j[space+9] = i[space+3];
+//                }
+//            }else            if ( c == 'w' ){
+//                for ( space = 0 ; space < SPACE ; space++){
+//                    j[space] = i[space+9];
+//                    j[space+3] = i[space+6];
+//                    j[space+6] = i[space+3];
+//                    j[space+9] = i[space];
+//                }
+//            }
+//
+//
+//
+//
+//
+//            tFil(f1, A, copyFourVector, j);
+//            nPerm = tAllCompPermMultiplyMP(0, f1, copyThreeVector, 0, copyFourVector, 0, seq);
+//            for ( ii = 0 ; ii < nPerm; ii++)
+//                printf("%lld\t%f\n",ii+1,seq[ii]);
+//
+//
+//
+//
+//        }
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+   // }
+    
     return 0;
 }
 
@@ -581,6 +969,77 @@ double deg(struct sinc_label f1, INT_TYPE cl ){
     return deg;
 }
 
+double tGetProjection (enum bodyType bd , INT_TYPE irrep , INT_TYPE op ){
+    //THESE ARE PROJECTIONS based on enumerated operations.
+    //i.e. for 3-electrons
+    //Sum[(Op[x],{x,1,6}].v = v_A1
+    //
+    op--;
+    INT_TYPE nsyp=0 ,msyp=0;
+        const static double syp2 [] = {
+            1.,1.,
+            1.,-1.
+    
+        };
+        const static double syp3 [] = {
+            1.,1.,1., 1., 1., 1.,//A1-36 of them
+            1.,-1.,-1.,1.,1.,-1.,//A2-36 of them
+            2.,0.,0.,-1.,-1.,0.//EE-144 of them
+        };
+    const static double syp4 [] = {1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
+        1., 1., 1., 1., 1., 1., 1., 1., -1., -1., 1., 1., -1., -1., 1., 1.,
+        -1., -1., 1., 1., -1., -1., 1., 1., -1., -1., 1., 1., -1., -1., 1.,
+        2., 0, 0, -1., -1., 0, 0, 2., -1., 0, 0, -1., -1., 0, 0, -1., 2., 0,
+        0, -1., -1., 0, 0, 2., 3., -1., -1., 0, 0, -1., -1., -1., 0, 1., 1.,
+        0, 0, 1., -1., 0, -1., 1., 1., 0, 0, -1., 1., -1., 3., 1., 1., 0, 0,
+        1., 1., -1., 0, -1., -1., 0, 0, -1., 1., 0, -1., -1., -1., 0, 0, 1.,
+        -1., -1.};
+
+        if ( bd == one ){
+            return 1;
+        }
+        else    if ( bd == two ){
+            nsyp = 2;
+            msyp = 2;
+        }
+        else if ( bd == three ){
+            nsyp = 6;
+            msyp = 3;
+        }else if ( bd == four ){
+            nsyp = 24;
+            msyp = 5;
+        }
+        else {
+            printf("bod\n");
+            exit(0);
+        }
+    
+    
+        if ( irrep <= 0 || irrep > msyp )
+        {
+            printf("he\n %lld", irrep);
+            exit(0);
+        }
+        if ( op < 0 || op >= nsyp ){
+            printf("hm\n");
+            exit(0);
+        }
+    
+    
+        if ( bd == two ){
+            return syp2[(irrep-1)*nsyp+op]/nsyp;
+        }
+        else if ( bd == three ){
+            return syp3[(irrep-1)*nsyp+op]/nsyp;
+        }
+        else if ( bd == four ){
+            return syp4[(irrep-1)*nsyp+op]/nsyp;
+        }
+        return 0.;
+}
+
+
+
 
 
 //Bill's work,  3component breakdown
@@ -833,19 +1292,9 @@ double tGetVector(enum bodyType bd , INT_TYPE type , INT_TYPE perm ){
     return 0.;
 };
 
-double tGetProjection( enum bodyType bd, INT_TYPE type , INT_TYPE perm ){
-    INT_TYPE class = irreps(bd, type),t,nG = tPerms(bd);
-    double sum=0.;
-    for ( t = 1 ; t < nG ; t++)
-        if ( class == irreps(bd,t))
-            sum += tGetVector(bd, t, perm);
-    return sum;
-}
-
 
 INT_TYPE tClassifyComponents( struct sinc_label  f1 , double * up, double * entropy){
-    INT_TYPE xup[12];
-    xup[0] = 0;
+    
     if ( bodies(f1,eigenVectors ) == one ){
         return 1;
     }
@@ -854,54 +1303,21 @@ INT_TYPE tClassifyComponents( struct sinc_label  f1 , double * up, double * entr
     
     if ( bodies(f1, eigenVectors ) == two ){
         nGroup = 2;
-        xup[1]= 1;
-        xup[2] = 2;
     }
     else if ( bodies ( f1, eigenVectors ) == three ){
         nGroup = 3;
-        xup[1] = 1;
-        xup[2] = 2;
-        xup[3] = cblas_idamax(4, up, 1);
-        up[3] = up[3] + up[4] + up[5] + up[6];
-        up[4] = 0.;
-        up[5] = 0.;
-        up[6] = 0.;
     }
     else if ( bodies (f1, eigenVectors ) == four  ){
         nGroup = 5;
-        double A1,A2,EE,T1,T2;
-        A1 = up[1];
-        A2 = up[2];
-        xup[1] = 1;
-        xup[2] = 2;
-        xup[3] = cblas_idamax(4, up, 1);
-        xup[4] = cblas_idamax(9, up, 1);
-        xup[5] = cblas_idamax(16, up, 1);
-        EE = up[3] + up[4] + up[5] + up[6];
-        T1 = up[7]+up[8]+up[9]+up[10]+up[11]+up[12]+up[13]+up[14]+up[15];
-        T2 = up[16]+up[17]+up[18]+up[19]+up[20]+up[21]+up[22]+up[23]+up[24];
-        
-        up[1] = A1;
-        up[2] = A2;
-        up[3] = EE;
-        up[4] = T1;
-        up[5] = T2;
-        //here!
     }
     xt=0;
     entr = 0.;
     sum = 0.;
     for ( irrep = 0 ; irrep <= nGroup ; irrep++ ){
         sum += fabs(up[irrep]);
-      // printf("%1.3f,", up[irrep]);
         if ( fabs(up[irrep])> fabs(up[xt]))
             xt = irrep;
     }
-    
-    
-    
-    
-   // printf("\n");
     for ( irrep = 0 ; irrep <= nGroup ; irrep++ ){
         if ( fabs(up[irrep]) > 1e-6 ){
             entr += -(fabs(up[irrep])/sum)*log(fabs(up[irrep])/sum);
@@ -910,7 +1326,9 @@ INT_TYPE tClassifyComponents( struct sinc_label  f1 , double * up, double * entr
     *entropy = entr;
     if ( entr < f1.rt->maxEntropy ){
 //        printf("**\n");
-        return  xup[xt] ;
+
+        return xt;
+
     }
 //    printf("\n");
 
@@ -926,12 +1344,13 @@ INT_TYPE tClassify(INT_TYPE rank, struct sinc_label  f1 , enum division label){
         return 0;
         
     }
-    INT_TYPE i,irrep,xDim;
+    INT_TYPE i,irrep;
     for ( i = 0; i < 48 ; i++)
         up[i] = 0.;
     tTabulateInnerProjection(rank, f1, label, up);
     irrep =  tClassifyComponents(f1, up,&entropy);
     f1.tulip[label].value.value2 =entropy;
+
     return irrep;
 }
 
@@ -960,7 +1379,7 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum 
             irrep = meta;
             f1.tulip[permutation2Vector].Current[rank] = 0;
             tPermute(rank,f1, i, origin, ospin, permutation2Vector, rank);
-            tScaleOne(f1, permutation2Vector, rank, tGetVector(bodies(f1, origin), irrep, i));
+            tScaleOne(f1, permutation2Vector, rank, tGetProjection(bodies(f1, origin), irrep, i));
             tAddTw(f1, targ, tspin, permutation2Vector, rank);
         }
     
@@ -989,7 +1408,7 @@ INT_TYPE tBuild3IrrOne ( INT_TYPE rank, struct sinc_label  f1,INT_TYPE space, IN
         return 0;
     enum bodyType bd =bodies(f1,origin);
     INT_TYPE nPerm=tPerms(bd);
-
+    
     if ( CanonicalRank(f1, origin, ospin) > part(f1,targ)){
         printf("Irr\n");
         printf("%d %d %d\n", CanonicalRank(f1, origin, ospin), part(f1, origin), part(f1, targ));
@@ -1038,30 +1457,30 @@ INT_TYPE matrixAction ( enum bodyType bd, enum block bk, INT_TYPE direction){
 
     } else if ( bd == three ){
 //        {
-//        1, 2, 3,//1///1
-//        2, 3, 1,//2//4
-//        3, 1, 2,//3//5
-//        2, 1, 3,//4//3
-//        3, 2, 1,//5//6
-//        1, 3, 2,//6//2
+//        1, 2, 3,//1///tv1//e12
+//        1, 3, 2,//2///e13
+//        2, 1, 3,//3///tv2
+//        3, 1, 2,//4// e23-1
+//        2, 3, 1,//5// e23
+//        3, 2, 1//6////tv3
 //        }
         switch ( bk){
             case tv1:
                 return 1;
             case tv2:
-                return 4;//3;
+                return 3;
             case tv3 :
-                return 5;//6;
+                return 6;
             case e12 :
-                return 1;//1;
+                return 1;
             case e13 :
-                return 6;//2;
+                return 2;
             case e23 :
                 if ( direction == 1)
-                    return 2;
+                    return 5;
                 else//2,3,1
                     //3,1,2
-                    return 3;
+                    return 4;
         }
     }
     else if ( bd == four ){
@@ -1744,11 +2163,11 @@ INT_TYPE tCat3(enum bodyType bd ,  INT_TYPE irrep,INT_TYPE cat, INT_TYPE space){
             switch ( irrep ) {
                 case 1:
                     if ( cat < lat2_a1 ){
-                        return mapir(bd,cat2_a1[cat*3+space]);
+                        return cat2_a1[cat*3+space];
                     }
                 case 2:
                     if ( cat < lat2_a2 ){
-                        return mapir(bd,cat2_a2[cat*3+space]);
+                        return cat2_a2[cat*3+space];
                     }
             }
 
@@ -1758,32 +2177,32 @@ INT_TYPE tCat3(enum bodyType bd ,  INT_TYPE irrep,INT_TYPE cat, INT_TYPE space){
             switch ( irrep ) {
                 case 1:
                     if ( cat < lat3_a1 )
-                        return mapir(bd,cat3_a1[cat*3+space]);
+                        return cat3_a1[cat*3+space];
                 case 2:
                     if ( cat < lat3_a2 )
-                        return mapir(bd,cat3_a2[cat*3+space]);
+                        return cat3_a2[cat*3+space];
                 case 3:
                     if ( cat < lat3_ee )
-                        return mapir(bd,cat3_ee[cat*3+space]);
+                        return cat3_ee[cat*3+space];
             }
             
         case four:
             switch ( irrep ) {
                 case 1:
                     if ( cat < lat4_a1 )
-                        return mapir(bd,cat4_a1[cat*3+space]);
+                        return cat4_a1[cat*3+space];
                 case 2:
                     if ( cat < lat4_a2 )
-                        return mapir(bd,cat4_a2[cat*3+space]);
+                        return cat4_a2[cat*3+space];
                 case 3:
                     if ( cat < lat4_ee )
-                        return mapir(bd,cat4_ee[cat*3+space]);
+                        return cat4_ee[cat*3+space];
                 case 4:
                     if ( cat < lat4_t1 )
-                        return mapir(bd,cat4_t1[cat*3+space]);
+                        return cat4_t1[cat*3+space];
                 case 5:
                     if ( cat < lat4_t2 )
-                        return mapir(bd,cat4_t2[cat*3+space]);
+                        return cat4_t2[cat*3+space];
 
             }
 
@@ -1801,12 +2220,12 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, INT_TYP
         2, 1
     };
     INT_TYPE at3[] = {
-        1, 2, 3,//1///1
-        2, 3, 1,//2//4
-        3, 1, 2,//3//5
-        2, 1, 3,//4//3
-        3, 2, 1,//5//6
-        1, 3, 2,//6//2
+        1, 2, 3,//1///tv1//e12
+        1, 3, 2,//2///e13
+        2, 1, 3,//3///tv2
+        3, 1, 2,//4// e23-1
+        2, 3, 1,//5// e23
+        3, 2, 1//6////tv3
     };
     INT_TYPE at4[] = {
         1, 2, 3, 4,
@@ -2194,15 +2613,26 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, INT_TYP
         }
         
         for ( d = 0 ; d < nd ; d++){
-            u[d] = v[at[d]-1];
-            //u[at[d]-1] = v[d];
+            u[d] = v[at[d]-1];//OTHER
+            //u[at[d]-1] = v[d];//ORIGINAL
 
-        }
-        if (0)
-        if (  nd == 3 && leftChar > 3)
-        {
-            printf("%d %d %d\n", at[0],at[1],at[2]);
-            printf("%d %d %d | %d %d %d\n", v[0],v[1],v[2],u[0],u[1],u[2]);
+           //WHAT DOES THIS MEAN?
+            //3 1 2
+            
+            //CHOOSE:
+            //OTHER
+            //u[1] = v[3]
+            //u[2] = v[1]
+            //u[3] = v[2]
+//
+//OR
+//          ORIGINAL
+            // u[3] = v[1]
+            // u[1] = v[2]
+            // u[2] = v[3]
+            
+            //THE OTHER IS CORRECT!!
+            
         }
         
         cb2 = 0;
@@ -2235,6 +2665,8 @@ INT_TYPE tPermute(INT_TYPE rank, struct sinc_label f1, INT_TYPE leftChar , enum 
 
 INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct sinc_label  f1 , enum division left ,INT_TYPE lspin, enum division right ,INT_TYPE rspin, double * sequ){
     
+    if ( CanonicalRank(f1, left, lspin ) * CanonicalRank(f1, right, rspin ) == 0)
+        return 0;
     
     if ( bodies(f1, left ) != bodies(f1,right)){
         printf("tGetType real!\n");
@@ -2242,16 +2674,18 @@ INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct sinc_label  f1 , enum div
     }
     INT_TYPE i,nPerm=tPerms(bodies(f1,left)),info;
     
+    for ( i = 1; i <= nPerm ; i++){
+        sequ[i] = 0.;
+    }
+
+    
+    
     if ( CanonicalRank(f1, left, lspin ) * CanonicalRank(f1, right, rspin ) == 0){
-        for ( i = 1; i <= nPerm ; i++){
-            sequ[i] = 0.;
-        }
         return 0;
     }
 
     for ( i = 1; i <= nPerm ; i++){
         sequ[i] = tMultiplyMP(rank, &info,f1,1. , -1, nullVector, 0, i, left, lspin, CDT, right, rspin);
-   //     printf("%1.3f:", sequ[i]);
     }
    // printf("\n");
     return nPerm;
@@ -2273,12 +2707,12 @@ INT_TYPE tTabulateInnerProjection( INT_TYPE rank, struct sinc_label  f1 , enum d
     }
     else if ( bodies ( f1, vec ) == three ){
         nPerm = 6;
-        nGroup = 6;
+        nGroup = 3;
         
     }
     else if ( bodies (f1, vec ) == four  ){
         nPerm = 24;
-        nGroup = 24;
+        nGroup = 5;
     }else {
         printf("opps\n");
         fflush(stdout);
@@ -2290,13 +2724,13 @@ INT_TYPE tTabulateInnerProjection( INT_TYPE rank, struct sinc_label  f1 , enum d
     for ( g = 1; g <= nGroup ; g++)
         for ( p = 1; p <= nPerm ; p++){
        //     printf("%f %f\n",tGetVector(bodies(f1,vec), g, p),buff[p]);//
-            up[g]  += tGetVector(bodies(f1,vec), g, p)*buff[p];
+            up[g]  += tGetProjection(bodies(f1,vec), g, p)*buff[p];
         }
     if ( CanonicalRank(f1, vec ,1)){
         tAllCompPermMultiplyMP(rank, f1, vec, 1, vec,1, buff);
         for ( g = 1; g <= nGroup ; g++)
             for ( p = 1; p <= nPerm ; p++)
-                up[g]  += tGetVector(bodies(f1,vec), g, p)*buff[p];
+                up[g]  += tGetProjection(bodies(f1,vec), g, p)*buff[p];
     }
     return nGroup;
 }
@@ -2351,7 +2785,7 @@ INT_TYPE tSize(enum bodyType bd){
         case two:
             return 2;
         case three:
-            return 4;
+            return 3;
         case four:
             return 5;
         case five:

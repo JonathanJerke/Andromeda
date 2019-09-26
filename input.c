@@ -145,7 +145,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
     char test_line [MAXSTRING];
     double value;                    INT_TYPE iii ;
 
-    INT_TYPE NINT_TYPE = 121;
+    INT_TYPE NINT_TYPE = 123;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -171,9 +171,9 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "configuration","densityRank","densityBody","parallel","phase",//110
         "around","cmpl","clampStage","OCSB","decompose",
         "shiftNO","matrix","catalog","increment","blockMemory",//120
-        "blockReset"
+        "blockReset","chrome","reverseStage"
     };
-    INT_TYPE NDOUBLE = 81;
+    INT_TYPE NDOUBLE = 82;
     char *list_DOUBLE []= {"#",
         "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST" ,//1-5
         "xB", "yB", "zB", "xyRange" , "zRange",//6-10
@@ -191,7 +191,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "magnetismZ","clampMin","clampMax","electronMass","protonMass",
         "pairMass","gamma0","ewald","levelScale","scaleVectorThreshold",
         "scaleTarget","twist","flow","kineticShift","power",//80
-        "encapsulate"
+        "encapsulate","chromaticThreshold"
     };
     
     for ( i = 1 ; i <= NINT_TYPE ; i++){
@@ -797,7 +797,12 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                 case 121:
                     resetA(&c->rt);
                     return i;
-
+                case 122:
+                    c->i.chromaticRank = ivalue;
+                    return i;
+                case 123:
+                    c->i.shiftFlag = ivalue;
+                    return i;
             }
         
         }
@@ -984,7 +989,6 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                         c->i.shiftVector[i][1] = value;
                     }
                 }
-                    c->i.shiftFlag = 1;
                     c->i.realPart = value;
                     return d;
                 case 47 :
@@ -1181,6 +1185,12 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     c->rt.CAP = pow(0.1, value);
                     return d;
                 }
+                case 82:
+                {
+                    c->i.chromaticThreshold = value;
+                    return d;
+                }
+
             }
 
         }
