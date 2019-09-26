@@ -559,11 +559,12 @@ int main (INT_TYPE argc , char * argv[]){
     if ( argc == 2 ){
         switch ( atoi( argv[1])){
             case 1 :
-                c.i.RAMmax = 0;
                 bootShell(argc, argv,&c,&f);
+                c.i.RAMmax = 0;
+
                 break;
             case 0 :
-                printf("v7.5  %s ",getenv("LAUNCH"));
+                printf("----\nv7.5\n\n%s\n\n",getenv("LAUNCH"));
                 exit(0);
         }
 

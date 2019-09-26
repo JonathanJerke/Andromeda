@@ -1060,10 +1060,10 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     num2Body = 1;
                     break;
             }
-            f1->tulip[totalVector].Partition = f->i.bRank * ( 1+ num2Body * c1->i.decomposeRankMatrix);
+            f1->tulip[totalVector].Partition = imax( f->i.xRank,f->i.bRank * ( 1+ num2Body * c1->i.decomposeRankMatrix));
 
         }else{
-            f1->tulip[totalVector].Partition =  c1->i.canonRank * f->i.bRank ;
+            f1->tulip[totalVector].Partition =  imax( f->i.xRank, c1->i.canonRank * f->i.bRank) ;
         }
     }
         f1->tulip[totalVector].species = vector;
@@ -1190,7 +1190,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             f1->tulip[bufferChromatic].spinor = parallel;
         f1->tulip[bufferChromatic].Partition = c1->i.chromaticRank;
         f1->tulip[bufferChromatic].value.value = c1->i.chromaticThreshold;
-        if ( f1->rt->phaseType == distillMatrix  || f1->rt->phaseType == decomposeMatrix){
+        if (f1->rt->phaseType == reportMatrix|| f1->rt->phaseType == distillMatrix  || f1->rt->phaseType == decomposeMatrix){
             f1->tulip[bufferChromatic].species = matrix;
             if ( bootBodies >= two ){
                 assignParticle(*f1, bufferChromatic, all, two);
@@ -1208,7 +1208,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
     {
         INT_TYPE maxOriginRank = imax( NV*allowQ(f1->rt, blockEigenDecomposeBlock) , c1->i.chromaticRank );
         INT_TYPE maxTrainRank;
-        if (c1->rt.phaseType == distillMatrix || c1->rt.phaseType == decomposeMatrix)//could decrease!!!
+        if (c1->rt.phaseType == distillMatrix || c1->rt.phaseType == reportMatrix || c1->rt.phaseType == decomposeMatrix)//could decrease!!!
             maxTrainRank = c1->i.decomposeRankMatrix;
         else
             maxTrainRank = maxVector;
@@ -1232,7 +1232,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         flag = 0;
         if ( f1->rt->powDecompose > 2 )
             flag = 1;
-        if ( c1->rt.calcType == clampProtonElectronCalculation && c1->rt.phaseType == distillMatrix ){
+        if ( c1->rt.calcType == clampProtonElectronCalculation && c1->rt.phaseType == reportMatrix ){
             maxOriginRank = imax( maxOriginRank, c1->i.twoBody.num * N1*N1);
         }
         else{
