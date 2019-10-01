@@ -5,10 +5,10 @@
 
 	*Parameters
 		power 1	
-		matrix 16	
-		levelScale 6
+		matrix 24	
+		levelScale 100
 		foundation 100	
-                basisRank 12
+                basisRank 24
                 states 10
 		iterations 9
 	.Parameters
