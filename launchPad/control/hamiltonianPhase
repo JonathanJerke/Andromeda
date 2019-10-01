@@ -5,6 +5,7 @@
 		blockReset
 		states 0
 		basisRank 1
+		chrome 0
 		blockMemory 2
 		blockMemory 3
 		blockMemory 4
