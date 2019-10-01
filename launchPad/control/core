@@ -1,11 +1,28 @@
 *Body def
 	*Parameters
-		encapsulate -10
+		#
+		#buffer length
 		chrome 100
-		chromaticThreshold 0.8
+		#
+		#correlation of a single unit
+		chromos 0.9
+		#	
+		#minimum magnitude of a single unit unless you just fill buffer instead
+		chromous 0.1
+		#
+		# Canonical rank of train per single unit
+		chroma 1
+		#
+		#2 = only train buffers, 3 = final train , 4 = report final error
 		decompose 3
-		#system dependent
+		#
+		#
+		#system resources
 		maxRAM 4
+		#
+		#	
+		#higher numbers for more restrictive edge effects
+		encapsulate -10
 	#OPEN GAME,  trade speed for accuracy!
 	#
 		cmpl 1	
