@@ -27,7 +27,7 @@
 
 INT_TYPE foundation(struct calculation *c1, struct field f1){
     INT_TYPE EV;
-
+    f1.i.Iterations = 1;
     if ( 1 ){
         iModel(c1,&f1);
         separateKinetic(f1.f, 0,kinetic, 1,electron);
@@ -135,13 +135,13 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
         tFilter(f1.f, EV, 0, eigenVectors);//classify
         printExpectationValues(f1.f, Ha, eigenVectors);
         fflush(stdout);
+        if ( c1->rt.runFlag == 0 )
+
         tEdges(f1.f, eigenVectors);
-        fflush(stdout);
 
     }
     
     INT_TYPE flag;
-    
     for ( iterator = 1 ; iterator < f1.i.Iterations ; iterator++){
         
         
@@ -165,7 +165,11 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
                     printExpectationValues(f1.f, Ha, eigenVectors+RdsSize-EV+iii);
                     //assume EV = 1;
                     print(c1,f1,0,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
-                    next = tEdges(f1.f , eigenVectors+RdsSize-EV+iii);
+                   
+                    if ( c1->rt.runFlag == 0 )
+                        next = tEdges(f1.f , eigenVectors+RdsSize-EV+iii);
+                    else
+                        next = 0;
                     fflush(stdout);
 
                 }
@@ -368,10 +372,6 @@ INT_TYPE report ( struct calculation c, struct field f1){
 
     }
     
-    if ( CanonicalRank(f1.f,trainHamiltonian,0) )
-        ioStoreMatrix(f1.f,trainHamiltonian ,0,"trainHamiltonian.matrix",0);
-    if ( CanonicalRank(f1.f,trainHamiltonian,1) )
-        ioStoreMatrix(f1.f,trainHamiltonian ,1,"trainHamiltonian.1.matrix",0);
 
     return 0;
 }
@@ -417,7 +417,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 oneTo2(f1.f, linear, 0, hamiltonian, 0);
                 tScaleOne(f1.f, linear, 0, 1./oneBodyFraction);
                 
-                tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
+                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
                 tClear(f1.f,hamiltonian);
                 sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
                 tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
@@ -479,10 +479,10 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 oneTo2(f1.f, jelliumElectron, 1, hamiltonian, 0);
                 tScaleOne(f1.f,jelliumElectron, 1, 1./oneBodyFraction);
                 
-                tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
+                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
                 tClear(f1.f,hamiltonian);
-                sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
-                tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
+                sortTerms(f1.f,trainHamiltonian,1,hamiltonian,0);
+                tEqua(f1.f, trainHamiltonian,1, hamiltonian, 0);
             }
         }else {
             if ( c.rt.runFlag == 0 ){
@@ -500,7 +500,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                     
                     
                 }
-                tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
+                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
                 
                 
                 tClear(f1.f,hamiltonian);
@@ -508,45 +508,42 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
                 
             } else {
-                ////            tClear(f1.f, copy);
-                ////            tId(f1.f, copy, 0);
-                ////            tScaleOne(f1.f, copy, 0,-oneBodyFraction* COMPONENT * pi*pi/f1.i.d/f1.i.d/2.);
-                //            tAddTw(f1.f,hamiltonian,0,copy ,0);
+
                 tAddTw(f1.f,hamiltonian,0,kinetic ,0);
                 tAddTw(f1.f,hamiltonian,0,linear ,0);
-                tAddTw(f1.f,hamiltonian,0,kinetic ,0);
                 tAddTw(f1.f,hamiltonian,0,intercellularSelfEwald ,0);
                 tAddTw(f1.f,hamiltonian,0,intracellularSelfEwald ,0);
                 tAddTw(f1.f,hamiltonian,0,jelliumElectron ,0);
                 
-                tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-                tClear(f1.f,hamiltonian);
-                sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
-                tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
-                
+                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
+              //  printf("train : %d %d\n",CanonicalRank(f1.f,trainHamiltonian,0),CanonicalRank(f1.f,trainHamiltonian,1) );
+
                 tClear(f1.f,hamiltonian);
                 tAddTw(f1.f,hamiltonian,0,kinetic ,1);
                 tAddTw(f1.f,hamiltonian,0,linear ,1);
-                tAddTw(f1.f,hamiltonian,0,kinetic ,1);
                 tAddTw(f1.f,hamiltonian,0,intercellularSelfEwald ,1);
                 tAddTw(f1.f,hamiltonian,0,intracellularSelfEwald ,1);
                 tAddTw(f1.f,hamiltonian,0,jelliumElectron ,1);
                 
-                tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-                
-                
-                tClear(f1.f,hamiltonian);
-                sortTerms(f1.f,trainHamiltonian,1,hamiltonian,0);
-                tEqua(f1.f, trainHamiltonian,1, hamiltonian, 0);
-                
-                
+                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
+               // printf("train : %d %d\n",CanonicalRank(f1.f,trainHamiltonian,0),CanonicalRank(f1.f,trainHamiltonian,1) );
+
+
                 
             }
         }
     }
     if ( allowQ(f1.f.rt, blockHamiltonianBlock))
-    report(c,f1);
-    fModel(&f1.f);
+    {
+      //  printf("train : %d %d\n",CanonicalRank(f1.f,trainHamiltonian,0),CanonicalRank(f1.f,trainHamiltonian,1) );
+        if ( CanonicalRank(f1.f,trainHamiltonian,0) )
+            ioStoreMatrix(f1.f,trainHamiltonian ,0,"trainHamiltonian.matrix",0);
+        if ( CanonicalRank(f1.f,trainHamiltonian,1) )
+            ioStoreMatrix(f1.f,trainHamiltonian ,1,"trainHamiltonian.1.matrix",0);
+
+        
+    }
+        fModel(&f1.f);
     return 0;
 }
 

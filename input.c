@@ -145,7 +145,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
     char test_line [MAXSTRING];
     double value;                    INT_TYPE iii ;
 
-    INT_TYPE NINT_TYPE = 123;
+    INT_TYPE NINT_TYPE = 124;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -171,9 +171,9 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "configuration","densityRank","densityBody","parallel","phase",//110
         "around","cmpl","clampStage","OCSB","decompose",
         "shiftNO","matrix","catalog","increment","blockMemory",//120
-        "blockReset","chrome","reverseStage"
+        "blockReset","chrome","reverseStage","chroma"
     };
-    INT_TYPE NDOUBLE = 82;
+    INT_TYPE NDOUBLE = 83;
     char *list_DOUBLE []= {"#",
         "lattice","mix", "aoDirectDensity","aoExchangeDensity", "LOST" ,//1-5
         "xB", "yB", "zB", "xyRange" , "zRange",//6-10
@@ -191,7 +191,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "magnetismZ","clampMin","clampMax","electronMass","protonMass",
         "pairMass","gamma0","ewald","levelScale","scaleVectorThreshold",
         "scaleTarget","twist","flow","kineticShift","power",//80
-        "encapsulate","chromaticThreshold"
+        "encapsulate","chromos","chromous"
     };
     
     for ( i = 1 ; i <= NINT_TYPE ; i++){
@@ -801,6 +801,10 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                 case 123:
                     c->i.shiftFlag = ivalue;
                     return i;
+                case 124:
+                    c->i.chroma = ivalue;
+                    return i;
+
             }
         
         }
@@ -1185,7 +1189,12 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                 }
                 case 82:
                 {
-                    c->i.chromaticThreshold = value;
+                    c->i.chromos = value;
+                    return d;
+                }
+                case 83:
+                {
+                    c->i.chromous = value;
                     return d;
                 }
 

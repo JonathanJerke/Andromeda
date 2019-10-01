@@ -314,9 +314,9 @@ enum metricType {
 };
 
 struct metric_label {
-    double pow[SPACE];
-    double powB[SPACE];
-    double deriv[SPACE];
+    INT_TYPE pow[SPACE];
+    INT_TYPE powB[SPACE];
+    INT_TYPE deriv[SPACE];
     struct function_label fn;
     enum metricType metric;
     double beta[2];//lower and upper bound
@@ -831,7 +831,11 @@ struct sinc_label {
     enum division vectorOperator;
     enum division end;
     enum division purity;
-
+    INT_TYPE chrome;
+    INT_TYPE chroma;
+    double chromos;
+    double chromous;
+    double chromaticStep;
 #ifdef PURITY
     enum division purityOverlap;
     enum division temp;
@@ -963,8 +967,10 @@ struct input {
 #endif
     INT_TYPE canonRank;
     INT_TYPE chromaticRank;
-    INT_TYPE chromaticUnity;
-    double chromaticThreshold;
+    INT_TYPE chroma;
+    double chromos;
+    double chromous;
+
     double scalar;
     double turn;
     double param1;

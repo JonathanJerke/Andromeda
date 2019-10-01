@@ -49,6 +49,49 @@ void getDescription ( struct function_label *fn ,double scalar,FILE * outString)
     fflush(outString);
 }
 
+void getMetric ( struct metric_label mu ){
+//    enum metricType {
+//        dirac,
+//        separateDirac,
+//        interval,
+//        semiIndefinite,
+//    };
+//
+//    struct metric_label {
+//        double pow[SPACE];
+//        double powB[SPACE];
+//        double deriv[SPACE];
+//        struct function_label fn;
+//        enum metricType metric;
+//        double beta[2];//lower and upper bound
+//        //beta here...  -beta^2 is the exponent
+//    };
+    switch ( mu.metric ){
+        case dirac:
+            printf("Dirac @ %f with amp %f\n", mu.beta[0], mu.fn.param[0]);
+            break;
+        case separateDirac:
+            printf("separated Dirac @ %f with amp %f\n", mu.beta[0], mu.fn.param[0]);
+            printf("powA %d %d %d\n" , mu.pow[0],mu.pow[1],mu.pow[2]);
+            printf("powB %d %d %d\n" , mu.powB[0],mu.powB[1],mu.powB[2]);
+            break;
+        case interval:
+            printf("Interval [%f,%f] with amp %f\n", mu.beta[0],mu.beta[1], mu.fn.param[0]);
+            printf("deriv %d %d %d\n" , mu.deriv[0],mu.deriv[1],mu.deriv[2]);
+            printf("pow %d %d %d\n" , mu.pow[0],mu.pow[1],mu.pow[2]);
+            break;
+        case semiIndefinite:
+            printf("Semi-Interval [%f,inf) with amp %f\n", mu.beta[0], mu.fn.param[0]);
+            printf("deriv %d %d %d\n" , mu.deriv[0],mu.deriv[1],mu.deriv[2]);
+            printf("pow %d %d %d\n" , mu.pow[0],mu.pow[1],mu.pow[2]);
+            break;
+            
+    }
+    
+    return;
+    
+}
+
 DCOMPLEX Complex ( double r, double i ){
     return r + i*I;
     
@@ -4863,7 +4906,7 @@ INT_TYPE separateInteraction( struct sinc_label f1, double * position, enum divi
     INT_TYPE spaces, n1[SPACE];
     length1(f1,n1);
     
-    INT_TYPE minusFlag, i,beta,I1,space,I2,I3,I4,spin,N1;
+    INT_TYPE minusFlag, i,beta,I1,space,I2,I3,I4,N1;
     spaces = 0;
     for ( space = 0 ;space < SPACE  ; space++)
         if ( f1.rose[space].body != nada )
@@ -4889,7 +4932,6 @@ INT_TYPE separateInteraction( struct sinc_label f1, double * position, enum divi
         f1.tulip[temp].header = Cube;
         f1.tulip[load].header = Cube;
     }
-    spin = 0;
     
     INT_TYPE section=2,si,ngk, intv = metric.fn.interval;
     
@@ -4917,7 +4959,7 @@ INT_TYPE separateInteraction( struct sinc_label f1, double * position, enum divi
     else {
         ngk = 1;
     }
-    if ( part(f1, load) < CanonicalRank(f1,load,0)+ngk ){
+    if ( part(f1, load) < CanonicalRank(f1,load,cmpl-1)+ngk ){
         printf("consider increasing allocation %d\n",part(f1, load));
         exit(1);
     }
@@ -5033,8 +5075,8 @@ INT_TYPE separateInteraction( struct sinc_label f1, double * position, enum divi
                             minusFlag = 0;
 
                         }
-        tAddTw(f1, load,0, temp,0);
-        printf("%f\n", traceOne(f1, temp,0));
+        tAddTw(f1, load,cmpl-1, temp,0);
+      //  printf("%f\n", traceOne(f1, temp,0));
     }
     
     return 0;
@@ -5463,7 +5505,7 @@ INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label f1, en
         if ( bootedQ(f1) ){
             for ( m = 0; m < mus ; m++){
                 getDescription(&mu[m].fn, 1., stdout);
-
+                getMetric ( mu[m] );
                     separateInteraction(f1, c1->i.atoms[a].position+1, single, mu[m], cmpl, overline, 0, particle1);
                 }
         }
@@ -5480,7 +5522,6 @@ INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label f1, en
     INT_TYPE mus=0,m,ra=0;
     struct metric_label mu[MAXb];
     struct interaction_label inter = c1->i.twoBody ;
-    tClear(f1, pair);
 
     mus =  buildMetric(f1, 2./grabBasis(f1, 0, electron, 0).length, -1, inter, MAXb, mu);
     for ( m = 0; m < mus ; m++){
@@ -5493,6 +5534,8 @@ INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label f1, en
     if ( bootedQ(f1) && part ( f1,pair) <= ra ){
         for ( m = 0; m < mus ; m++){
             getDescription(&mu[m].fn, 1., stdout);
+            getMetric ( mu[m] );
+
             separateInteraction(f1, NULL,pair , mu[m], cmpl, overline, 0, particle1);
         }
 //        tCycleDecompostionGridOneMP(-2, f1, tempTwoMatrix, 0, NULL, pair, cmpl-1, f1.rt->CANON, part(f1, pair),f1.rt->powDecompose);

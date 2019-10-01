@@ -645,6 +645,10 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
     if ( tolerance < 0 ){
         tolerance = -(tolerance);
     }
+    if ( l2 < l1 || l4 < l3 ){
+        printf("indices out of order!\n");
+        exit(0);
+    }
     INT_TYPE yes = 0,singleFlag = 0;
     if ( rank < 0){
         singleFlag = 1;
@@ -954,12 +958,12 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
 //
 //
 //            if ( FRACTION > tolerance ){
-//                CONDITION = sqr(subValue2/FRACTION);
+//                CONDITION = sqr(subValue2);
 //                ALPHA2 = ALPHA * pow(fabs(CONDITION),0.1);
 //#if VERBOSE
 //                printf("ALPHA %f %f %f %d %d %f\n", log(ALPHA)/log(10) , log(ALPHA2)/log(10) , CONDITION, L1,G1, FRACTION );
 //#endif
-//               // ALPHA = ALPHA2;
+//                ALPHA = ALPHA2;
 //
 //            }
 
@@ -981,7 +985,7 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
             
           // printf("(%3.3f %3.3f)\n", subValue2, subValue3);
             count++;
-            if ( space0 > 100 )
+            if ( space0 > 1000 )
             {
                 // printf("ct(fail) %d\n", count);
                 return 0;
@@ -1077,7 +1081,7 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
         printf("LIST\n");
         return tCycleDecompostionListOneMP(0, f1, origin, os, coeff, alloy, spin, tolerance, maxRun, power);
     }
-    if ( power < 3.5 ){//1//2//3
+    if ( power < 4.5 ){//1//2//3//4
         printf("Chromatic\n");
 
         return tCycleDecompostionChromaticOneMP( f1, origin, os, coeff, alloy, spin, tolerance, maxRun, power);
@@ -1431,12 +1435,13 @@ double tCycleDecompostionSingleFibonacciOneMP ( INT_TYPE rank, struct sinc_label
 }
 double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
     INT_TYPE rank= 0;
+    assignCores(f1, 1);
+
+    double CCC,XXX, CCR;
+    INT_TYPE CCI;
     
-    double CCC,XXX;
-    INT_TYPE CCI ;
     
-    
-    double inc,Inc,va,var;
+    double inc,Inc=0.,va;
     if ( CanonicalRank(f1, origin, os )<= maxRun){
         tEqua(f1, alloy, spin, origin, os);
         return 0;
@@ -1455,17 +1460,24 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
     buffer = bufferChromatic;
     
     {
-        CCC = f1.tulip[buffer].value.value;
-        XXX = f1.rt->TARGET;
-        CCI = 1;
+        CCC = f1.chromos;//initial threshold
+        CCR = f1.chromaticStep;//ladder size
+        XXX = f1.chromous;//minimum chromatic threshold
+        CCI = f1.chroma;//min Chrome
+//        minRun = f1.tulip[buffer].Current[1];//min vector
+        if ( CCC > 1. || CCC < 0.)
+            CCC = 0.5;
+
+      //  printf("%f %f %f %d\n", CCC,CCR,XXX,CCI);
     }
-    double aveR,dist,Dist=0.;
-    INT_TYPE B = part(f1, buffer),r,r2,X0,xl,L,X, l,ll,s,n1[SPACE];
+
+    double aveR =0.,dist,Dist=0.;
+    INT_TYPE Col,B = part(f1, buffer),r,r2,X0,xl,L,X, l,ll,s,n1[SPACE];
     length(f1, origin, n1);
     printf("\n[[%d %d -- %d (%f)]]\n", CanonicalRank(f1, origin, os), maxRun, B,CCC);
     fflush(stdout);
 
-    tClear(f1, alloy);
+    f1.tulip[alloy].Current[spin] = 0;
     for ( r= 0 ; r < maxRun ; r++)
         tId(f1,alloy,spin);
     
@@ -1477,13 +1489,12 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
         }
     L = CanonicalRank(f1, origin, os);
     ll = 0;
-    var = 0.;
     struct sortx3Type *ccc = malloc(sizeof(struct sortx3Type)*L);
     
     //limit so that .. i can get failures otherwise
     
-    if ( 0.8 * B * maxRun < L ) {
-        L = imin ( L , 0.8 * B * maxRun );
+    if ( B * maxRun < L ) {
+        L = imin ( L , B * maxRun );
         printf ("excluding terms...increase chrome\n");
     }
     
@@ -1496,7 +1507,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
         va = washington(ccc+ll);
         (ccc+ll)->value = va;
         if ( va > 0. ){
-            var += va;
+            Inc += va;
             ll++;
         }
     }
@@ -1514,24 +1525,35 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
         f1.tulip[alloy].Current[spin] = L;
         return 0;
     }
-    qsort(ccc, L,sizeof(struct sortx3Type), sortx4Comp );
-    //SORT ENTIRE LIST BY MAGNITUDE
+
     INT_TYPE xFlag = 0;
     r2 = 0;
+    //SORT ENTIRE LIST BY MAGNITUDE  zero element never moves afterwards
     do{
-        if ( xFlag ==1){
-            CCC /= 2;
+        if ( xFlag ){
+            if ( xFlag == 1 ){
+                
+                printf("(>)[[%d %d -- %d (%f)]] -- aveCanon%f\n", L, r2, B,CCC,aveR);
+                CCC = pow(CCC,CCR);
 
-           // printf("* %d > %d:  chromaticThreshold (%f)\n", r2,maxRun, CCC);
-           // fflush(stdout);
+                fflush(stdout);
+            }
+//            else {
+//                printf("(<)[[%d %d -- %d (%f)]] -- aveCanon%f\n", L, r2, B,CCC,aveR);
+//                CCC = pow(CCC,1/sqrt(2.));
+//
+//                fflush(stdout);
+//
+//            }
         }
-        if ( xFlag ==-1){
-            CCC *= 1.2;
-            
-            // printf("* %d > %d:  chromaticThreshold (%f)\n", r2,maxRun, CCC);
-            // fflush(stdout);
-        }
-
+        //set CCC = 0.;
+        //then its space limited...
+        
+        //
+        
+        
+        
+        
         xFlag = 0;
         X0 = 0;
         X = 0;
@@ -1540,6 +1562,10 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
         iiii = 0;
         aveR = 0.;
         while (X < L  ) {
+            
+            qsort(ccc+X, L-X,sizeof(struct sortx3Type), sortx4Comp );
+
+            
 #ifdef OMP
 #pragma omp parallel for private (l,s) schedule(dynamic,1)
 #endif
@@ -1552,39 +1578,41 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
             }
             qsort(ccc+X+1, L-X-1,sizeof(struct sortx3Type), sortx5Comp );
             xl = -1;
-            Inc = 0.;
+            inc = 0.;
             for ( l = X ; l < imin(L,X+B) ; l++){
-                if ( (ccc+l)->corr <= CCC && Inc/var > XXX ) {
+                if ( (ccc+l)->corr < CCC && inc/Inc > XXX ) {
                     if ( xl < 0 )
                         xl = l;
+                }else {
+                    inc += (ccc+l)->value;
                 }
-                Inc += (ccc+l)->value;
             }
             if (xl == -1){
                 xl = imin( X+B, L );
+                printf("slack: \t%d\t %d\t %f \t / \t %f\n",iiii,xl-X, inc ,Inc);
+
+            }else {
+                printf("chrom: \t%d\t %d\t %f \t / \t %f\n",iiii,xl-X, inc ,Inc);
             }
-             {
+            {
                 
-                 {
-                     r = r2;
-                     r2 = CCI+r;
-                 }
+                {
+                    r = r2;
+                    r2 = imin(CCI,xl-X)+r;
+                }
                 if ( r2 > maxRun ){
-                    //r2 = maxRun;
                     xFlag  = 1;
-                    break;
                 }
-            
-                if(1){
-                    iii[1][0][iiii] = X;
-                    iii[1][1][iiii] = xl;
-                    iii[0][0][iiii] = r;
-                    iii[0][1][iiii] = r2;
-                    aveR += xl-X;
-                    
-                    iiii++;
-             //       printf("%d -- %d %d (%d) : %d %d\n",iiii, X,xl,L,r,r2);
+                
+                if( iiii < maxRun ){
+                iii[1][0][iiii] = X;
+                iii[1][1][iiii] = xl;
+                iii[0][0][iiii] = r;
+                iii[0][1][iiii] = r2;
                 }
+                aveR += xl-X;
+                iiii++;
+           // printf("%d -- %d %d (%d) : %d %d\n",iiii, X,xl,L,r,r2);
             }
 //            printf ("%f\n", CCC);
 
@@ -1593,20 +1621,20 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
 
         }
 
-        if ( r2 < maxRun/2 )
-        {
-            xFlag = -1;
-        }
-        
+//        if ( r2 < minRun )
+//        {
+//            xFlag = -1;
+//        }
+        xi = iiii;
+        aveR /= xi;
+
         
     }while ( xFlag );
-    xi = iiii;
-    aveR /= xi;
-    printf("\n[[%d %d -- %d (%f)]] -- aveCanon%f\n", L, maxRun, B,CCC,aveR);
+    printf("\n[[%d %d -- %d (%f)]] -- aveCanon%f\n", L, r2, B,CCC,aveR);
     fflush(stdout);
 
-#if 1
-    INT_TYPE *xx[2],col=0,Col,c;
+#if 0
+    INT_TYPE *xx[2],col=0,c;
     {
         INT_TYPE h;
         xx[0]= malloc((xi+1)*sizeof(INT_TYPE));
@@ -1617,7 +1645,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
     xx[0][col] = 0;
     xx[1][col] = 0;
     for ( iiii = 0; iiii <= xi ; iiii++){
-        if( iiii < xi && (iii[1][1][iiii] - iii[1][0][iiii] + iii[1][1][xx[1][col]]-iii[1][0][xx[0][col]] < B)  ){
+        if( iiii < xi && (iii[1][1][iiii] - iii[1][0][iiii] + iii[1][1][xx[1][col]]-iii[1][0][xx[0][col]] <= B)  ){
             xx[1][col] = iiii;
         } else {
            // printf("%d || %d %d || (%d -- %d)\n",col, xx[0][col],xx[1][col],iii[1][1][xx[1][col]], iii[1][0][xx[0][col]]);
@@ -1631,7 +1659,10 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
 
 
     Col = col;
-
+//    if ( Col > f1.rt->NLanes){
+//        printf("not enough buffers: cores(%d) < %d \n",f1.rt->NLanes , Col);
+//        exit(0);
+//    }
 
     Inc = 0.;
 
@@ -1644,8 +1675,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
 #else
         rank = 0;
 #endif
-
-
+        
         {
             for ( iiii = xx[0][c]; iiii <= xx[1][c] ; iiii++){
                 inc = 0.;
@@ -1655,7 +1685,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
                         if ( f1.rose[s].body != nada){
                             cblas_dcopy(n1[s], (ccc+l)->val[s], 1, streams(f1,buffer,rank,s)+(l-iii[1][0][xx[0][c]] )*n1[s], 1);
                         }
-                    inc+=washington(ccc+l);
+                    inc+=(ccc+l)->value;
                 }
 
                 for ( l = iii[0][0][iiii] ; l < iii[0][1][iiii] ; l++){
@@ -1699,13 +1729,14 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
     
     
 #else
-    
-    
-    
+    ///
+    /// SIMPLIER PROCEDURE
+
+    Col = xi;
 
 
 #ifdef OMP
-#pragma omp parallel for private (iiii,l,s,rank,inc)
+#pragma omp parallel for private (iiii,l,s,rank,inc,dist) reduction(+:Dist) schedule(dynamic,1)
 #endif
     for ( iiii = 0; iiii < xi ; iiii++){
 #ifdef OMP
@@ -1714,14 +1745,14 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
         rank = 0;
 #endif
 
-        if( iii[1][1][iiii] - iii[1][0][iiii] <= B ){
+        {
             inc = 0.;
             for ( l = iii[1][0][iiii] ; l < iii[1][1][iiii] ; l++){
                 for ( s = 0; s < SPACE ; s++)
                     if ( f1.rose[s].body != nada){
                         cblas_dcopy(n1[s], (ccc+l)->val[s], 1, streams(f1,buffer,rank,s)+(l-iii[1][0][iiii])*n1[s], 1);
                     }
-                inc += washington(ccc+l);
+                inc += (ccc+l)->value;
             }
 
             for ( l = iii[0][0][iiii] ; l < iii[0][1][iiii] ; l++){
@@ -1736,33 +1767,41 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
             canonicalGridDecompositionMP(rank, f1, coeff, buffer, 0, iii[1][1][iiii]-iii[1][0][iiii], rank,  alloy, iii[0][0][iiii], iii[0][1][iiii], spin, tolerance, sqrt(inc), -1);
             }
 
-            printf("%d -- %f\n",iiii,distanceFrac1(f1, buffer, 0, iii[1][1][iiii]-iii[1][0][iiii],rank, alloy, iii[0][0][iiii], iii[0][1][iiii], spin));
+            dist = distanceFrac1(f1, buffer, 0, iii[1][1][iiii]-iii[1][0][iiii],rank, alloy, iii[0][0][iiii], iii[0][1][iiii], spin);
+            
+            printf("%d \t %f \t /\t %f\n", iiii, dist, Inc);
+            
+            Dist += dist;
         }
     }
 #endif
-    //there could be a long tail, so i allow for the entire parallel buffer block to be allocated tothis process...
     
     f1.tulip[alloy].Current[spin] = iii[0][1][xi-1];
 
     if ( power < 2 )
-        printf("\n>bufferFraction>\t%1.15f \n", sqrt(Dist/inner(f1, alloy,os)));
+        printf("\n>bufferFraction>\t%d\t%1.15f / %1.15f", Col,(Dist), (inner(f1, alloy,os)));
     else
-        printf("\n>preFraction>\t%1.15f \n", sqrt(Dist/inner(f1, alloy,os)));
+        printf("\n>preFraction>\t%d\t%1.15f / %1.15f\n", Col,(Dist),(inner(f1, alloy,os)));
 
     
     fflush(stdout);
     
     if ( power > 2 ){
         canonicalGridDecompositionMP(-1, f1, coeff, origin,0,CanonicalRank(f1, origin, os), os,  alloy, 0, CanonicalRank(f1, alloy, spin), spin, tolerance, sqrt(Inc), -1);
-        printf("\n>completeFraction>\t%1.15f \n",distanceFrac1(f1, origin, 0,CanonicalRank(f1, origin, os),os, alloy, 0,CanonicalRank(f1, alloy, spin), spin)/sqrt(magnitude(f1, alloy)));
+        if ( power > 3 ) {
+            
+            printf("\n>completeFraction>\t1\t%1.15f / %1.15f \n",(distanceFrac1(f1, origin, 0,CanonicalRank(f1, origin, os),os, alloy, 0,CanonicalRank(f1, alloy, spin), spin)),sqr(magnitude(f1, alloy)));
+
+        }
     }
-    free(ccc);
     free(iii[0][0]);
     free(iii[0][1]);
     free(iii[1][0]);
     free(iii[1][1]);
-    free(xx[0]);
-    free(xx[1]);
+//    free(xx[0]);
+//    free(xx[1]);
+    free(ccc);
+
     return 0;
 
     
@@ -2991,12 +3030,7 @@ double distanceFrac1 (struct sinc_label  f1 ,enum division alloy, INT_TYPE a1,IN
     pOverlap(0,f1, alloyBak,b1,b2, os2, alloyBak,b1,b2, os2, &OV22);
     pOverlap(0,f1, alloy,a1,a2, os, alloyBak,b1,b2, os2, &OV12);
     
-    if (isnan( sqrt(creal( OV11 + OV22 - 2*OV12 ))))
-    {
-        
-    }else
-        return (creal( OV11 + OV22 - 2*OV12 ));
-    return 0;
+    return (creal( OV11 + OV22 - 2*OV12 ));
 }
 
 

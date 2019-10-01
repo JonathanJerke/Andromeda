@@ -1758,7 +1758,7 @@ INT_TYPE assignCores(struct sinc_label f1, INT_TYPE parallel ){
     omp_set_num_threads(omp);
 #endif
 #ifdef MKL
-    if ( omp == 0 )
+    if ( parallel == 0 )
         mkl_set_num_threads(nParallel*nLanes);
     else
         mkl_set_num_threads(nParallel);

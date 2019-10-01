@@ -139,14 +139,14 @@ struct field initField (void ) {
     
 #ifdef APPLE
     if ( OVERFLAG ){
-        i.i.cmpl = real;
+        i.i.cmpl = cmpl;
         i.i.bRank = 4;
         i.i.iRank = 1;
         i.i.nStates = 1;
         i.i.qFloor = 9*9*9;
         i.i.filter = 0;
         i.f.boot = fullMatrices;
-        i.i.body = three;
+        i.i.body = one;
         i.i.irrep = 1;
         i.i.cat  = 1;
         i.i.epi = 2;
@@ -154,7 +154,7 @@ struct field initField (void ) {
     }else {
         i.i.d = 1.;
         i.i.D = 0.1*2;
-    i.i.cmpl = real;
+    i.i.cmpl = cmpl;
     i.i.bRank = 2;
     i.i.iRank = 1;
     i.i.nStates = 1;
@@ -176,7 +176,7 @@ struct calculation initCal (void ) {
 
 #ifdef APPLE
     resetA(&i.rt);
-    blockA(&i.rt, blockHamiltonianBlock);
+//    blockA(&i.rt, blockHamiltonianBlock);
     blockA(&i.rt, blockTrainingHamiltonianBlock);
     blockA(&i.rt, blockTrainHamiltonianBlock);
 
@@ -206,7 +206,7 @@ struct calculation initCal (void ) {
     i.i.M1 = 0;
     }
     
-    i.rt.powDecompose = 2;
+    i.rt.powDecompose = 3;
     
         i.i.turn = 1.;
         i.i.param1 = 1.;
@@ -220,12 +220,12 @@ struct calculation initCal (void ) {
     
     i.rt.calcType = electronicStuctureCalculation;
     i.rt.runFlag = 0;
-    i.rt.phaseType = buildFoundation;
-    i.i.Na =1;
-    
+    i.rt.phaseType = reportMatrix;
+    i.i.Na = 0;
+
         if ( SPACE == 3 ){
             i.rt.calcType = electronicStuctureCalculation;
-            i.rt.runFlag = 0;
+            i.rt.runFlag = 7;
         } else if ( SPACE == 6 ){
 
             i.rt.calcType = clampProtonElectronCalculation;
@@ -239,10 +239,10 @@ struct calculation initCal (void ) {
     i.i.massElectron = 1.;
     i.i.massProton = 1836.15267245;
     i.i.massClampPair = 1836.15267245;
-    resetExternal(&i, 1, 1);
+   // resetExternal(&i, 1, 1);
     
     i.i.twoBody.func.fn = Coulomb;
-    i.i.oneBody.func.fn = Pseudo;
+    i.i.oneBody.func.fn = Coulomb;
     //i.i.springFlag = 1;
     i.i.springConstant = 0.25;
     i.i.canonRank = 45 ;
@@ -253,7 +253,7 @@ struct calculation initCal (void ) {
     i.i.twoBody.func.param[2]  = 1;
 
     i.i.oneBody.num = 15;
-    i.i.oneBody.func.interval  = 1;
+    i.i.oneBody.func.interval  = 0;
     i.i.oneBody.func.param[0]  = 1.;
     i.i.oneBody.func.param[1]  = 1;
     i.i.oneBody.func.param[2]  = 1;
@@ -652,7 +652,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             printf("%d %d\n",i, allowQ(f1->rt,i));
         }
     }
-    
+    struct name_label *u = &f->f.tulip[intracellularSelfEwald];
+
         fromBeginning(*f1, kinetic, 0);
         f1->tulip[kinetic].Partition = COMPONENT*(allowQ(f1->rt,blockHamiltonianBlock)||allowQ(f1->rt,blockFoundationBlock));//
         assignOneWithPointers(*f1, kinetic,all);
@@ -661,11 +662,12 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         fromBeginning(*f1, kineticMass, kinetic);
         f1->tulip[kineticMass].Partition = (allowQ(f1->rt,blockHamiltonianBlock)||allowQ(f1->rt,blockFoundationBlock));//
         assignOneWithPointers(*f1, kineticMass,all);
-        struct name_label u = f1->tulip[kineticMass];
 
         fromBeginning(*f1, hamiltonian, kineticMass);
         f1->tulip[hamiltonian].Partition = allowQ(f1->rt,blockTrainingHamiltonianBlock)*c1->i.canonRank;//
         f1->tulip[hamiltonian].species = matrix;
+        f1->tulip[hamiltonian].spinor = real;
+
     if ( bootBodies == one ){
         assignParticle(*f1, hamiltonian, all, one);
 
@@ -1186,10 +1188,17 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
     
     {
         fromBeginning(*f1,bufferChromatic,inversion);
+        
+        //canonical rank of each training piece.
+        f1->chroma = c1->i.chroma;
+        //threshold initial
+        f1->chromos = c1->i.chromos;
+        f1->chromous = c1->i.chromous;
+        f1->chromaticStep  = 1.03;
+        
         if ( ! (f1->rt->phaseType == distillMatrix) )
             f1->tulip[bufferChromatic].spinor = parallel;
         f1->tulip[bufferChromatic].Partition = c1->i.chromaticRank;
-        f1->tulip[bufferChromatic].value.value = c1->i.chromaticThreshold;
         if (f1->rt->phaseType == reportMatrix|| f1->rt->phaseType == distillMatrix  || f1->rt->phaseType == decomposeMatrix){
             f1->tulip[bufferChromatic].species = matrix;
             if ( bootBodies >= two ){
@@ -1300,6 +1309,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         fromBeginning(*f1,interactionEwald,interactionExchangeB);
         f1->tulip[interactionEwald].Partition =  allowQ(f1->rt,blockHamiltonianBlock)*buildPairWisePotential(c1, *f1,nullName, electron, 0,real) * (c1->rt.runFlag > 0 );
         f1->tulip[interactionEwald].species = matrix;
+        f1->tulip[interactionEwald].spinor = cmpl;
         assignParticle(*f1, interactionEwald, electron, two);
 
     {
@@ -1534,7 +1544,11 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                         printf("\t| my \t\t: \t%1.9f\n",currMem);
                     fflush(stdout);
                 }
-                maxMem += currMem;
+                if ( currMem >= 0 )
+                    maxMem += currMem;
+                else {
+                    exit(0);
+                }
             }
             if ( maxMem > c1->i.RAMmax ){
                 printf("oops too much RAM required\n");
@@ -1597,7 +1611,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         {
             if ( c1->rt.calcType == electronicStuctureCalculation  ){
                 separateKinetic(*f1, 0,kinetic, c1->i.massElectron,electron);
-                if ( c1->i.Na )
+                if ( c1->i.Na ){
                     for ( c = real ; c <= spins (*f1, linear) ; c++){
                             if ( ioStoreMatrix(*f1,interactionExchange ,c-1,"linear.matrix",1) ) {
                           
@@ -1606,6 +1620,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                             buildExternalPotential(c1, *f1,linear,electron,!(!c1->rt.runFlag),c);
                             }
                     }
+                }
                 if ( f1->rose[0].component == periodicComponent1 ){
                     
                     
@@ -1631,7 +1646,6 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                                 tId(*f1, copy,0);
                                 for ( cmpl = 0 ; cmpl < f1->cmpl; cmpl++){
                                     for ( r = 0 ; r < CanonicalRank(*f1, in, cmpl); r++){
-                                        zero(*f1, copy, 0);
                                         for ( space = 0; space < SPACE ; space++)
                                         {
                                             nl = vector1Len(*f1, space);
@@ -1660,7 +1674,6 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                                 tId(*f1, copy,0);
                                 for ( cmpl = 0 ; cmpl < f1->cmpl; cmpl++){
                                     for ( r = 0 ; r < CanonicalRank(*f1, in, cmpl); r++){
-                                        zero(*f1, copy, 0);
 
                                         for ( space = 0; space < SPACE ; space++)
                                         {
@@ -1690,7 +1703,6 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                             for ( cmpl = 0 ; cmpl < 1; cmpl++){
                                 for ( r = 0 ; r < CanonicalRank(*f1, in, cmpl); r++){
                                     prod = 1.;
-                                    zero(*f1, copy, 0);
                                     for ( space = 0; space < SPACE ; space++)
                                     {
                                         sum = 0.;
@@ -1777,7 +1789,6 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                                 tId(*f1, copy,0);
                                 for ( cmpl = 0 ; cmpl < f1->cmpl; cmpl++){
                                     for ( r = 0 ; r < CanonicalRank(*f1, in, cmpl); r++){
-                                        zero(*f1, copy, 0);
 
                                         for ( space = 0; space < SPACE ; space++)
                                         {
@@ -1796,7 +1807,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                                 tScaleOne(*f1, out, 0, -0.500);
                                 tScaleOne(*f1, out, 1, -0.500);
                             }
-                            tClear(*f1, interactionExchange);
+                         //   tClear(*f1, interactionExchange);
 
                         }
                     }
@@ -1941,9 +1952,16 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     
                     INT_TYPE flag;
                     
-                    flag = ioStoreMatrix(*f1, interactionEwald, 0, "interactionEwald.matrix",1) &&  ioStoreMatrix(*f1, intercellularSelfEwald, 0, "intercellularSelfEwald.matrix",1)&&  ioStoreMatrix(*f1, jelliumElectron, 0, "jelliumElectron.matrix",1);
+                    flag = ioStoreMatrix(*f1, intracellularSelfEwald, 0, "intracellularSelfEwald.matrix",1)
+                    &&  ioStoreMatrix(*f1, interactionEwald, 0, "interactionEwald.matrix",1)
+                    &&  ioStoreMatrix(*f1, intercellularSelfEwald, 0,"intercellularSelfEwald.matrix",1)
+                    &&  ioStoreMatrix(*f1, jelliumElectron, 0, "jelliumElectron.matrix",1);
                     if ( f1->cmpl == cmpl )
-                         (  ioStoreMatrix(*f1, intercellularSelfEwald, 1, "intercellularSelfEwald.1.matrix",1) && ioStoreMatrix(*f1, interactionEwald, 1, "interactionEwald.1.matrix",1))&&  ioStoreMatrix(*f1, jelliumElectron, 1, "jelliumElectron.1.matrix",1);
+                        (
+                         ioStoreMatrix(*f1, intracellularSelfEwald, 1, "intracellularSelfEwald.1.matrix",1)
+                                        &&ioStoreMatrix(*f1, intercellularSelfEwald, 1, "intercellularSelfEwald.1.matrix",1)
+                                        && ioStoreMatrix(*f1, interactionEwald, 1, "interactionEwald.1.matrix",1)
+                                        &&  ioStoreMatrix(*f1, jelliumElectron, 1, "jelliumElectron.1.matrix",1));
                     
                     if (!flag ){
                         printf("ewald terms absent");

@@ -95,6 +95,8 @@ INT_TYPE print(struct calculation *c , struct field f1,INT_TYPE reset,INT_TYPE m
 
 INT_TYPE ioStoreMatrix(struct sinc_label f1, enum division op, INT_TYPE spin, char * filename, INT_TYPE ioIn ){
     INT_TYPE matchFlag = 0,tempFlag=1,space;
+    if ( OVERFLAG )
+        return 0;
     //check if previous is acceptable...
     //0 genus
     //2 ranks
