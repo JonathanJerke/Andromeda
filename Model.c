@@ -1468,7 +1468,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[canonicalBuffersB].memory = bufferAllocation;
 
         fromBeginning(*f1,canonicalBuffersBM,canonicalBuffersB);//twobody
-        f1->tulip[canonicalBuffersBM].Partition = mx1len*mx1len*mx1len*mx1len ;
+        f1->tulip[canonicalBuffersBM].Partition = (c1->rt.phaseType==distillMatrix)* mx1len*mx1len*mx1len*mx1len ;
         f1->tulip[canonicalBuffersBM].memory = bufferAllocation;
 //        if ( c1->rt.phaseType == svdOperation )
             f1->tulip[canonicalBuffersBM].spinor = parallel;
