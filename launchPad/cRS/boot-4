@@ -5,12 +5,10 @@
 
 	*Parameters
 		cmpl 2
-		catalog 1 
-		flow 1
-		levelScale 1.585
-		foundation 1600	
+		levelScale 100
+		foundation 100	
                 basisRank 30
-                states 1
+                states 10
 		iterations 6
 	.Parameters
 				
