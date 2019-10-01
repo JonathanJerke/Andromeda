@@ -4,6 +4,8 @@
 		iterations 1
 		blockReset
 		states 0
+		chromos 0.99
+		decompose 3
 		basisRank 1
 		blockMemory 4
         	blockMemory 5        
