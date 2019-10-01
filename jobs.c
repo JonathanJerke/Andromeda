@@ -402,13 +402,14 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             
             
             if ( c.rt.runFlag == 0 ){
-                enum division twoBody = interactionExchange;
+            //    enum division twoBody = interactionExchange;
                 //loop over 1 and two body terms..treat differently
                 //            tClear(f1.f, copy);
                 //            tId(f1.f, copy, 0);
                 //            tScaleOne(f1.f, copy, 0,-oneBodyFraction* COMPONENT * pi*pi/f1.i.d/f1.i.d/2.);
                 //            oneTo2(f1.f, copy, 0, hamiltonian, 0);
-                tAddTw(f1.f, hamiltonian ,0,twoBody,0);
+                ioStoreMatrix(f1.f, hamiltonian, 0, "interactionExchange.matrix", 1);
+                
                 tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
                 oneTo2(f1.f, kinetic, 0, hamiltonian, 0);
                 tScaleOne(f1.f, kinetic, 0, 1./oneBodyFraction);
@@ -428,10 +429,10 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 //            tScaleOne(f1.f, copy, 0,-oneBodyFraction* COMPONENT * pi*pi/f1.i.d/f1.i.d/2.);
                 //            oneTo2(f1.f, copy, 0, hamiltonian, 0);
                 //
-                enum division twoBody = interactionEwald;
+            //    enum division twoBody = interactionEwald;
                 //loop over 1 and two body terms..treat differently
-                tAddTw(f1.f, hamiltonian ,0,twoBody,0);
-                
+                ioStoreMatrix(f1.f, hamiltonian, 0, "interactionEwald.matrix", 1);
+
                 tScaleOne(f1.f, linear, 0, oneBodyFraction);
                 oneTo2(f1.f, linear, 0, hamiltonian, 0);
                 tScaleOne(f1.f, linear, 0, 1./oneBodyFraction);
@@ -458,7 +459,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
                 
                 tClear(f1.f,hamiltonian);
-                tAddTw(f1.f, hamiltonian ,0,twoBody,1);
+                ioStoreMatrix(f1.f, hamiltonian, 0, "interactionEwald.1.matrix", 1);
                 tScaleOne(f1.f, kinetic, 1, oneBodyFraction);
                 oneTo2(f1.f, kinetic, 1, hamiltonian, 0);
                 tScaleOne(f1.f, kinetic, 1, 1./oneBodyFraction);

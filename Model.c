@@ -1196,8 +1196,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->chromous = c1->i.chromous;
         f1->chromaticStep  = 1.03;
         
-        if ( ! (f1->rt->phaseType == distillMatrix) )
-            f1->tulip[bufferChromatic].spinor = parallel;
+
+        f1->tulip[bufferChromatic].spinor = parallel;
         f1->tulip[bufferChromatic].Partition = c1->i.chromaticRank;
         if (f1->rt->phaseType == reportMatrix|| f1->rt->phaseType == distillMatrix  || f1->rt->phaseType == decomposeMatrix){
             f1->tulip[bufferChromatic].species = matrix;
@@ -1267,7 +1267,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[foundationStructure].spinor = cmpl;//need two channels
         
         fromBeginning(*f1,interactionExchange,foundationStructure);
-            f1->tulip[interactionExchange].Partition = allowQ(f1->rt,blockHamiltonianBlock)*buildPairWisePotential(c1, *f1,nullName, electron, 0,real)*(( bootBodies > one )|| c1->rt.runFlag > 0);
+            f1->tulip[interactionExchange].Partition = (c1->rt.phaseType != distillMatrix )* allowQ(f1->rt,blockHamiltonianBlock)*buildPairWisePotential(c1, *f1,nullName, electron, 0,real)*(( bootBodies > one )|| c1->rt.runFlag > 0);
             f1->tulip[interactionExchange].species = matrix;
             if ( c1->rt.runFlag > 0 )
                 f1->tulip[interactionExchange].spinor = cmpl;
@@ -1307,7 +1307,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         }
         
         fromBeginning(*f1,interactionEwald,interactionExchangeB);
-        f1->tulip[interactionEwald].Partition =  allowQ(f1->rt,blockHamiltonianBlock)*buildPairWisePotential(c1, *f1,nullName, electron, 0,real) * (c1->rt.runFlag > 0 );
+        f1->tulip[interactionEwald].Partition =  (c1->rt.phaseType != distillMatrix )* allowQ(f1->rt,blockHamiltonianBlock)*buildPairWisePotential(c1, *f1,nullName, electron, 0,real) * (c1->rt.runFlag > 0 );
         f1->tulip[interactionEwald].species = matrix;
         f1->tulip[interactionEwald].spinor = cmpl;
         assignParticle(*f1, interactionEwald, electron, two);
@@ -1969,24 +1969,24 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                         exit(0);
                     }
                 }else{
-                    if ( bootBodies > one ){
-                        if ( c1->i.twoBody.func.fn != nullFunction )
-                            if(   ! ioStoreMatrix(*f1, interactionExchange, 0, "interactionExchange.matrix",1)){
-                                printf("exchange absent");
-
-                                exit(0);
-                            }
-                    }
+//                    if ( bootBodies > one ){
+//                        if ( c1->i.twoBody.func.fn != nullFunction )
+//                            if(   ! ioStoreMatrix(*f1, interactionExchange, 0, "interactionExchange.matrix",1)){
+//                                printf("exchange absent");
+//
+//                                exit(0);
+//                            }
+//                    }
                 }
                 
             } else if ( c1->rt.calcType == clampProtonElectronCalculation  ){
-                if ( bootBodies > one )
-                    if ( c1->i.twoBody.func.fn != nullFunction )
-                        if(  ! ioStoreMatrix(*f1, interactionExchange, 0, "interactionExchange.matrix",1)){
-                            printf("exchange absent");
-
-                            exit(0);
-                        }
+//                if ( bootBodies > one )
+//                    if ( c1->i.twoBody.func.fn != nullFunction )
+//                        if(  ! ioStoreMatrix(*f1, interactionExchange, 0, "interactionExchange.matrix",1)){
+//                            printf("exchange absent");
+//
+//                            exit(0);
+//                        }
                 if ( c1->i.twoBody.func.fn != nullFunction && !ioStoreMatrix(*f1,shortenPlus ,0,"shortenExchangePlus.matrix",1) ){
                     printf("failed to load PLUS\n");
                     exit(0);
