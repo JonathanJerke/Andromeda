@@ -550,7 +550,7 @@ int main (INT_TYPE argc , char * argv[]){
 
                 break;
             case 0 :
-                printf("----\nv7.5\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\nv7.5.1\n\n%s\n\n",getenv("LAUNCH"));
                 exit(0);
         }
 
