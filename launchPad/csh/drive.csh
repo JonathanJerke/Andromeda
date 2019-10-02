@@ -20,6 +20,7 @@ set flagBegin = 0
 set flagEnd = 0
 set begin = null
 set end = null
+set exclude = null
 
 if $#argv == 1 then
 set flagBegin = 1
