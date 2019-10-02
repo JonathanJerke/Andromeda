@@ -25,6 +25,8 @@ foreach curr ( $argv )
      #                   $LAUNCH/csh/mergeRitzB.csh $curr $curr states
 	#		else
                        $LAUNCH/csh/prevKrylov.csh $curr $curr states
+		       			sleep 3
+
                         $LAUNCH/csh/prevRitzB.csh $curr $curr states
 	#		endif
 	                $LAUNCH/csh/prevKrylovB.csh  $curr $curr states
@@ -39,6 +41,8 @@ foreach curr ( $argv )
            #             $LAUNCH/csh/mergeRitzB.csh $curr $curr states
             #            else
                         $LAUNCH/csh/krylov.csh $prev $curr states
+						sleep 3
+
                         $LAUNCH/csh/prevRitzB.csh $curr $curr states
              #           endif
                         $LAUNCH/csh/prevKrylovB.csh  $curr $curr states
