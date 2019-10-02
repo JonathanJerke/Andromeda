@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 7.5
+//VERSION 7.5.1
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
