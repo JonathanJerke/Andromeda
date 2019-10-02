@@ -42,7 +42,9 @@
 //#define APPLE
 
 #ifdef APPLE
+//APPLE
 #define MaxCore 2
+//APPLE
 #endif
 
 #ifndef APPLE
@@ -50,8 +52,10 @@
 //#define MKL
 #define GSL_LIB
 
-#define MaxCore 4
 
+//UNIX
+#define MaxCore 4
+//UNIX
 #ifndef GSL_LIB
     THIS PROGRAM NEEDS INTEGRATION ROUTINES
 #endif
