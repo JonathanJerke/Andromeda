@@ -333,7 +333,10 @@ enum blockMemoryType{
     blockFoundationBlock,//4
     blockBuildHamiltonianBlock,//5
     blockEigenDecomposeBlock,//6
-    blockTotalVectorBlock//7
+    blockTotalVectorBlock,//7
+    blockSeparateTwoBodyBlock,//8
+    blockTrainVectorsblock,//9
+    blockTrainMatricesblock//10
 };
 
 

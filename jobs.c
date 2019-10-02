@@ -402,12 +402,6 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             
             
             if ( c.rt.runFlag == 0 ){
-            //    enum division twoBody = interactionExchange;
-                //loop over 1 and two body terms..treat differently
-                //            tClear(f1.f, copy);
-                //            tId(f1.f, copy, 0);
-                //            tScaleOne(f1.f, copy, 0,-oneBodyFraction* COMPONENT * pi*pi/f1.i.d/f1.i.d/2.);
-                //            oneTo2(f1.f, copy, 0, hamiltonian, 0);
                 ioStoreMatrix(f1.f, hamiltonian, 0, "interactionExchange.matrix", 1);
                 
                 tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
@@ -424,13 +418,6 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
                 
             } else {
-                //            tClear(f1.f, copy);
-                //            tId(f1.f, copy, 0);
-                //            tScaleOne(f1.f, copy, 0,-oneBodyFraction* COMPONENT * pi*pi/f1.i.d/f1.i.d/2.);
-                //            oneTo2(f1.f, copy, 0, hamiltonian, 0);
-                //
-            //    enum division twoBody = interactionEwald;
-                //loop over 1 and two body terms..treat differently
                 ioStoreMatrix(f1.f, hamiltonian, 0, "interactionEwald.matrix", 1);
 
                 tScaleOne(f1.f, linear, 0, oneBodyFraction);
@@ -459,6 +446,10 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
                 
                 tClear(f1.f,hamiltonian);
+                
+                //
+                //**
+                //
                 ioStoreMatrix(f1.f, hamiltonian, 0, "interactionEwald.1.matrix", 1);
                 tScaleOne(f1.f, kinetic, 1, oneBodyFraction);
                 oneTo2(f1.f, kinetic, 1, hamiltonian, 0);
@@ -536,13 +527,10 @@ INT_TYPE distill ( struct calculation c, struct field f1){
     }
     if ( allowQ(f1.f.rt, blockHamiltonianBlock))
     {
-      //  printf("train : %d %d\n",CanonicalRank(f1.f,trainHamiltonian,0),CanonicalRank(f1.f,trainHamiltonian,1) );
         if ( CanonicalRank(f1.f,trainHamiltonian,0) )
             ioStoreMatrix(f1.f,trainHamiltonian ,0,"trainHamiltonian.matrix",0);
         if ( CanonicalRank(f1.f,trainHamiltonian,1) )
-            ioStoreMatrix(f1.f,trainHamiltonian ,1,"trainHamiltonian.1.matrix",0);
-
-        
+            ioStoreMatrix(f1.f,trainHamiltonian ,1,"trainHamiltonian.1.matrix",0);        
     }
         fModel(&f1.f);
     return 0;
@@ -621,9 +609,15 @@ int main (INT_TYPE argc , char * argv[]){
         c.i.mkl = rt->NSlot/c.i.omp;
     }
     rt->NParallel = c.i.mkl;
+    printf("parallel \t %d\n", rt->NParallel);
+
+#endif
+    printf("lanes \t %d\n",  rt->NLanes);
+
+#endif
+
     
-#endif
-#endif
+    
     
     //0//...   //A//B//C//D//E
     if ( c.rt.phaseType == buildFoundation ){//0
