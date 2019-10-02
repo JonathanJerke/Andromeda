@@ -38,9 +38,9 @@
 		initRank 1
 		configuration 0
 		phase 0
-		range 2
-		lattice 1.8	
-		lanes 1
+		range 4
+		lattice 0.666	
+		lanes 1 ##CHANGE moreLanes,two, and such to edit actual allocations or resources
 		parallel 1
 		Angstroms 0
 		filter 1
