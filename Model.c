@@ -1627,7 +1627,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     
                     if (c1->i.twoBody.func.fn != nullFunction ){
                         
-                        if ( 1 ){
+                        if ( allowQ(f1->rt, blockSeparateTwoBodyBlock ) ){
                             for ( c = real ; c <= spins (*f1, interactionEwald) ; c++){
                                 if ( ioStoreMatrix(*f1,interactionEwald ,c-1,"interactionEwald.matrix",1) ){
                                     
@@ -1814,6 +1814,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     }
                 }else {//non-periodic
                     if ( bootBodies > one )
+                        if ( allowQ(f1->rt, blockSeparateTwoBodyBlock))
                         for ( c = real ; c <= spins (*f1, interactionExchange) ; c++){
                             if ( ioStoreMatrix(*f1,interactionExchange ,c-1,"interactionExchange.matrix",1) ){
                             }
@@ -1912,6 +1913,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             } else if ( c1->rt.calcType == clampProtonElectronCalculation  ){
                 
                 if ( bootBodies > one ){
+                    if ( allowQ(f1->rt, blockSeparateTwoBodyBlock ))
                     if ( c1->i.twoBody.func.fn != nullFunction )
                         for ( c = real ; c <= spins (*f1, interactionExchange) ; c++){
                             if ( ioStoreMatrix(*f1,interactionExchange ,c-1,"interactionExchange.matrix",1) ){
@@ -1953,16 +1955,23 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     INT_TYPE flag;
                     
                     flag = ioStoreMatrix(*f1, intracellularSelfEwald, 0, "intracellularSelfEwald.matrix",1)
-                    &&  ioStoreMatrix(*f1, interactionEwald, 0, "interactionEwald.matrix",1)
                     &&  ioStoreMatrix(*f1, intercellularSelfEwald, 0,"intercellularSelfEwald.matrix",1)
                     &&  ioStoreMatrix(*f1, jelliumElectron, 0, "jelliumElectron.matrix",1);
-                    if ( f1->cmpl == cmpl )
+                    
+                    if ( allowQ(f1->rt, blockSeparateTwoBodyBlock))
+                        flag = flag && ioStoreMatrix(*f1, interactionEwald, 0, "interactionEwald.matrix",1);
+                    
+                    
+                        if ( f1->cmpl == cmpl ){
                         (
                          ioStoreMatrix(*f1, intracellularSelfEwald, 1, "intracellularSelfEwald.1.matrix",1)
                                         &&ioStoreMatrix(*f1, intercellularSelfEwald, 1, "intercellularSelfEwald.1.matrix",1)
-                                        && ioStoreMatrix(*f1, interactionEwald, 1, "interactionEwald.1.matrix",1)
                                         &&  ioStoreMatrix(*f1, jelliumElectron, 1, "jelliumElectron.1.matrix",1));
                     
+                            if ( allowQ(f1->rt, blockSeparateTwoBodyBlock))
+                                ioStoreMatrix(*f1, interactionEwald, 1, "interactionEwald.1.matrix",1);
+
+                        }
                     if (!flag ){
                         printf("ewald terms absent");
 
