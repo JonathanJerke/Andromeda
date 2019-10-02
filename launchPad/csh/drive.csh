@@ -29,6 +29,14 @@ set begin = $1
 set end = $2
 endif
 
+if $#argv == 3 then
+set flagBegin = 1
+set flagEnd = 0
+set begin = $1
+set end = $2
+set exclude = $3
+endif
+
 
 foreach com (`cat commands`)
         if ( $flagBegin && $com =~ "$begin*" ) then
@@ -40,7 +48,7 @@ foreach com (`cat commands`)
         endif
 
 
-        if ( (! $flagBegin )&& (! $flagEnd )) then              
+        if ( (! $flagBegin )&& (! $flagEnd )&&(! ($com =~ "$exclude*"))) then              
 	
                 $LAUNCH/csh/go.csh $com
                 echo "$com" >> driver
