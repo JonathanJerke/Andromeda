@@ -12,9 +12,41 @@ if ( -e driver ) then
 	rm driver
 endif
 
-foreach com (`cat commands` )
-	$LAUNCH/csh/go.csh $com
-	echo "$com" >> driver
-	sleep 3
-	echo "$com"
+set flagBegin = 0
+set flagEnd = 0
+set begin = null
+set end = null
+
+if $#argv == 1 then
+set flagBegin = 1
+set begin = $1
+endif
+
+if $#argv == 2 then
+set flagBegin = 1
+set flagEnd = 0
+set begin = $1
+set end = $2
+endif
+
+
+foreach com (`cat commands`)
+        if ( $flagBegin && $com =~ "$begin*" ) then
+                set flagBegin = 0
+        endif
+
+        if ( (! $flagEnd) && $com =~ "$end*" ) then
+                set flagEnd = 1
+        endif
+
+
+        if ( (! $flagBegin )&& (! $flagEnd )) then              
+	
+                $LAUNCH/csh/go.csh $com
+                echo "$com" >> driver
+                sleep 3
+                echo "$com"
+
+        endif
+
 end
