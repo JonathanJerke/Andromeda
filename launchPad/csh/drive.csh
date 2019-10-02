@@ -1,5 +1,9 @@
 #!/bin/csh
 
+## drive.csh 1 2 A
+##will run from cycle-1 up to but not including any cycle-2..  excluding all commands with A in it (i.e., A.ham or A.dis)
+
+
 if ( -e stop ) then
 	echo "rm'd stop"
 	rm stop
@@ -48,7 +52,7 @@ foreach com (`cat commands`)
         endif
 
 
-        if ( (! $flagBegin )&& (! $flagEnd )&&(! ($com =~ "$exclude*"))) then              
+        if ( (! $flagBegin )&& (! $flagEnd )&&(! ($com =~ "*$exclude*"))) then              
 	
                 $LAUNCH/csh/go.csh $com
                 echo "$com" >> driver
