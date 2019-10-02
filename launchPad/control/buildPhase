@@ -2,14 +2,14 @@
 	*Parameters
 		phase 1
 	 	filter 0
-		blockReset 
 		decompose 3
+		blockReset 
 		blockMemory 2
 		blockMemory 3
 		blockMemory 4
 		blockMemory 5
 		blockMemory 6
-		catalog 0
+		blockMemory 10
 		.Parameters
 
 
