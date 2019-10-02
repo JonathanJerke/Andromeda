@@ -13,7 +13,9 @@
 		blockMemory 7
 		blockMemory 8
 		blockMemory 9
-		blockMemory 10
+		#
+		#for 3Component computations that do not SVD, you can do 10 too
+		#blockMemory 10
 	.Parameters
 
 
