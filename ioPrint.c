@@ -368,8 +368,7 @@ INT_TYPE inputFormat(struct sinc_label f1,char * name,  enum division buffer, IN
 
 #endif
   
-    if ( sp >= spins(f1, buffer ) )
-        sp = 0;
+    
         
     if ( input == 0 ){
         fclose(in);
@@ -401,7 +400,8 @@ INT_TYPE inputFormat(struct sinc_label f1,char * name,  enum division buffer, IN
         printf("io error\n");
         exit(0);
     }
-
+if ( sp >= spins(f1, buffer ) )
+        sp = 0;
     for ( r = 0; r < r1 ; r++){
 //        if ( ! flag2 ){
 //            flag2 =1 ;
