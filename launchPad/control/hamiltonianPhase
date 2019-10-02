@@ -11,7 +11,6 @@
 		blockMemory 4
                 blockMemory 6
 		blockMemory 7
-		blockMemory 8
 		blockMemory 9
 		#
 		#for 3Component computations that do not SVD, you can do 10 too
