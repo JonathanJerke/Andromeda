@@ -2,15 +2,18 @@
 	*Parameters
 		phase 5
 		iterations 1
-		blockReset
-		states 0
 		basisRank 1
+		states 0
 		chrome 0
+		blockReset
 		blockMemory 2
 		blockMemory 3
 		blockMemory 4
                 blockMemory 6
 		blockMemory 7
+		blockMemory 8
+		blockMemory 9
+		blockMemory 10
 	.Parameters
 
 
