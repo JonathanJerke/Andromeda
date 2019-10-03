@@ -255,7 +255,7 @@ double washington (const struct sortx3Type * elem1){
         if ( elem1->n1[dim] ){
             value *= cblas_dnrm2(elem1->n1[dim], elem1->val[dim], 1);
         }
-    return value;
+    return sqr(value);
 }
 
 double charles (const struct sortx3Type * elem1){
@@ -1441,7 +1441,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
     INT_TYPE CCI;
     
     
-    double inc,Inc=0.,va;
+    double inc,Inc=0.,va,iinc;
     if ( CanonicalRank(f1, origin, os )<= maxRun){
         tEqua(f1, alloy, spin, origin, os);
         return 0;
@@ -1561,6 +1561,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
         r2 = 0;
         iiii = 0;
         aveR = 0.;
+        iinc = Inc;
         while (X < L  ) {
             
             qsort(ccc+X, L-X,sizeof(struct sortx3Type), sortx4Comp );
@@ -1580,7 +1581,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
             xl = -1;
             inc = 0.;
             for ( l = X ; l < imin(L,X+B) ; l++){
-                if ( (ccc+l)->corr < CCC && inc/Inc > XXX ) {
+                if ( (ccc+l)->corr < CCC && inc/iinc  > XXX ) {
                     if ( xl < 0 )
                         xl = l;
                 }else {
@@ -1589,10 +1590,12 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
             }
             if (xl == -1){
                 xl = imin( X+B, L );
-                printf("slack: \t%d\t %d\t %f \t / \t %f\n",iiii,xl-X, inc ,Inc);
+          //      printf("slack: \t%d\t %d\t %f \t / \t %f\n",iiii,xl-X, inc ,iinc);
 
             }else {
-                printf("chrom: \t%d\t %d\t %f \t / \t %f\n",iiii,xl-X, inc ,Inc);
+                iinc -= inc;
+
+            //    printf("chrom: \t%d\t %d\t %f \t / \t %f\n",iiii,xl-X, inc ,iinc);
             }
             {
                 
@@ -1664,7 +1667,6 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
 //        exit(0);
 //    }
 
-    Inc = 0.;
 
 #ifdef OMP
 #pragma omp parallel for private (c,l,s,rank,inc,Inc,iiii,dist) reduction(+:Dist) schedule(dynamic,1)
@@ -1711,7 +1713,6 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
                                      iii[0][0][iiii], iii[0][1][iiii]
                                      , spin));
 #endif
-                Inc += inc;
             }
             
             if (xx[1][c] != xx[0][c] && power > 1 )
@@ -1769,7 +1770,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
 
             dist = distanceFrac1(f1, buffer, 0, iii[1][1][iiii]-iii[1][0][iiii],rank, alloy, iii[0][0][iiii], iii[0][1][iiii], spin);
             
-            printf("%d \t %f \t /\t %f\n", iiii, dist, Inc);
+          //  printf("%d \t %f \t /\t %f\n", iiii, dist, Inc);
             
             Dist += dist;
         }
