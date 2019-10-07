@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 7.5.1
+//VERSION 7.5
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -338,9 +338,6 @@ enum blockMemoryType{
     blockTrainVectorsblock,//9
     blockTrainMatricesblock//10
 };
-
-
-
 
 
 

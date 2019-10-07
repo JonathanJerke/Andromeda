@@ -1526,15 +1526,19 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
         return 0;
     }
 
-    INT_TYPE xFlag = 0;
+    INT_TYPE xFlag = 0,chrom,slack;
     r2 = 0;
     //SORT ENTIRE LIST BY MAGNITUDE  zero element never moves afterwards
     do{
         if ( xFlag ){
             if ( xFlag == 1 ){
                 
-                printf("(>)[[%d %d -- %d (%f)]] -- aveCanon%f\n", L, r2, B,CCC,aveR);
-                CCC = pow(CCC,CCR);
+                printf("chromosScan [%d %d -- %d <%f>] \t%f\n", L, r2, B,CCC,aveR);
+               
+                if (0 )
+                    XXX = pow(XXX,1./CCR);
+                else
+                    CCC = pow(CCC,CCR);
 
                 fflush(stdout);
             }
@@ -1561,6 +1565,8 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
         r2 = 0;
         iiii = 0;
         aveR = 0.;
+        chrom = 0;
+        slack = 0;
         iinc = Inc;
         while (X < L  ) {
             
@@ -1590,10 +1596,13 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
             }
             if (xl == -1){
                 xl = imin( X+B, L );
+                slack = xl-X;
           //      printf("slack: \t%d\t %d\t %f \t / \t %f\n",iiii,xl-X, inc ,iinc);
 
             }else {
                 iinc -= inc;
+                chrom++;
+                aveR += xl-X;
 
             //    printf("chrom: \t%d\t %d\t %f \t / \t %f\n",iiii,xl-X, inc ,iinc);
             }
@@ -1613,7 +1622,6 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
                 iii[0][0][iiii] = r;
                 iii[0][1][iiii] = r2;
                 }
-                aveR += xl-X;
                 iiii++;
            // printf("%d -- %d %d (%d) : %d %d\n",iiii, X,xl,L,r,r2);
             }
@@ -1629,11 +1637,11 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
 //            xFlag = -1;
 //        }
         xi = iiii;
-        aveR /= xi;
+        aveR /= chrom;
 
         
     }while ( xFlag );
-    printf("\n[[%d %d -- %d (%f)]] -- aveCanon%f\n", L, r2, B,CCC,aveR);
+    printf("\nfinal [%d %d -- %d <%f>] \t%d\t%1.0f\t %d\n", L, r2, B,CCC,chrom,aveR, slack);
     fflush(stdout);
 
 #if 0

@@ -218,11 +218,11 @@ INT_TYPE tzheev( INT_TYPE rank, struct sinc_label f1, char job , INT_TYPE n, DCO
   zheev_ (&job, &charU, &n , (__CLPK_doublecomplex *)ar , &ns , w ,(__CLPK_doublecomplex *) (myStreams(f1, dsyBuffers,rank )+3*n), &lbuffer,  myStreams(f1, dsyBuffers,rank ),&info );
     return info;
 #else
-    for ( i = 0 ; i < n*ns ;i++)
-        if ( isinf ( ar[i]) || isnan(ar[i]) ){
-            printf ("error with inptu to heev\n");
-            exit(0);
-        }
+//    for ( i = 0 ; i < n*ns ;i++)
+//        if ( isinf ( ar[i]) || isnan(ar[i]) ){
+//            printf ("error with inptu to heev\n");
+//            exit(0);
+//        }
     
     if ( n == 0 ||ns == 0 )
     {

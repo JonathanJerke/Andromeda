@@ -129,12 +129,11 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
         }
         EV = 1;
         RdsSize = 1;
-        print(c1,f1,1,0,1,eigenVectors);
-        printf("print\n");
         fflush(stdout);
         tFilter(f1.f, EV, 0, eigenVectors);//classify
         printExpectationValues(f1.f, Ha, eigenVectors);
         fflush(stdout);
+        print(c1,f1,1,0,1,eigenVectors);
         if ( c1->rt.runFlag == 0 )
 
         tEdges(f1.f, eigenVectors);
@@ -407,11 +406,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
                 oneTo2(f1.f, kinetic, 0, hamiltonian, 0);
                 tScaleOne(f1.f, kinetic, 0, 1./oneBodyFraction);
-                
-                tScaleOne(f1.f, linear, 0, oneBodyFraction);
-                oneTo2(f1.f, linear, 0, hamiltonian, 0);
-                tScaleOne(f1.f, linear, 0, 1./oneBodyFraction);
-                
+                                
                 tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
                 tClear(f1.f,hamiltonian);
                 sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
@@ -550,7 +545,7 @@ int main (INT_TYPE argc , char * argv[]){
 
                 break;
             case 0 :
-                printf("----\nv7.5.1\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\nv7.5.3\n\n%s\n\n",getenv("LAUNCH"));
                 exit(0);
         }
 

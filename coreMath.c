@@ -128,10 +128,6 @@ DCOMPLEX periodicBoost0 (INT_TYPE N, double P, INT_TYPE bb, double kk ,double dd
         for ( ll = -LL; ll <= LL ; ll++){
         sum += ovx (bb,kk,dd,LL,b,k+P,d,L,ll)*dx(N,bb,kk,dd,LL,ll);
     }
-    if ( isnan( sum ) ){
-        
-        
-    }
     return sum;
 }
 

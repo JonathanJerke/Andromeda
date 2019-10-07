@@ -663,8 +663,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[kineticMass].Partition = (allowQ(f1->rt,blockHamiltonianBlock)||allowQ(f1->rt,blockFoundationBlock));//
         assignOneWithPointers(*f1, kineticMass,all);
 
-        fromBeginning(*f1, hamiltonian, kineticMass);
-        f1->tulip[hamiltonian].Partition = allowQ(f1->rt,blockTrainingHamiltonianBlock)*c1->i.canonRank;//
+    fromBeginning(*f1, hamiltonian, kineticMass);
+        f1->tulip[hamiltonian].Partition = allowQ(f1->rt,blockTrainingHamiltonianBlock)*(2*COMPONENT+c1->i.twoBody.num);//
         f1->tulip[hamiltonian].species = matrix;
         f1->tulip[hamiltonian].spinor = real;
 
@@ -718,7 +718,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         
         fromBeginning(*f1, linear, X);
         assignOneWithPointers (*f1, linear,electron);
-        f1->tulip[linear].Partition = allowQ(f1->rt,blockHamiltonianBlock)*buildExternalPotential(c1, *f1,nullName,electron ,0,real)  ;//
+        f1->tulip[linear].Partition = buildExternalPotential(c1, *f1,nullName,electron ,0,real)  ;//
 
         fromBeginning(*f1, overlap, linear);
         assignOneWithPointers (*f1, overlap,all);
@@ -1046,7 +1046,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
   
     
     if ( c1->rt.phaseType == productKrylov){
-        if ( !(allowQ(f1->rt, blockTrainHamiltonianBlock)) && allowQ(f1->rt,blockTotalVectorBlock)){
+        if ( (allowQ(f1->rt, blockTrainHamiltonianBlock)) && allowQ(f1->rt,blockTotalVectorBlock)){
             INT_TYPE num2Body = 1;
             switch ( bootBodies ){
                 case two:
@@ -1062,7 +1062,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     num2Body = 1;
                     break;
             }
-            f1->tulip[totalVector].Partition = imax( f->i.xRank,f->i.bRank * ( 1+ num2Body * c1->i.decomposeRankMatrix));
+            f1->tulip[totalVector].Partition = imax( f->i.xRank,f->i.bRank * ( 1+part(*f1,linear)*bootBodies + num2Body * c1->i.decomposeRankMatrix));
 
         }else{
             f1->tulip[totalVector].Partition =  imax( f->i.xRank, c1->i.canonRank * f->i.bRank) ;
@@ -1245,7 +1245,10 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             maxOriginRank = imax( maxOriginRank, c1->i.twoBody.num * N1*N1);
         }
         else{
-            maxOriginRank = c1->i.canonRank * maxVector;
+            if ( c1->rt.phaseType == distillMatrix)
+                maxOriginRank = part(*f1,hamiltonian);
+            else
+                maxOriginRank = part(*f1,totalVector);
         }
         
         fromBeginning(*f1,canonicalBuffers0,guideBuffer);
@@ -2170,23 +2173,39 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         else if(allowQ(f1->rt,blockTrainHamiltonianBlock)) {
             f1->tulip[Ha].linkNext = h12;
             f1->tulip[Iterator].linkNext = h12;
-            printf("TRAIN\n");
+            printf("Train: Correlated Electron Gas\n");
             fflush(stdout);
             ioStoreMatrix(*f1, trainHamiltonian, 0, "trainHamiltonian.matrix",1);
             if ( f->i.cmpl == cmpl )
                 ioStoreMatrix(*f1, trainHamiltonian, 1, "trainHamiltonian.1.matrix",1);
             
+            
+            
+            //really want to keep linear separate and uncarved...
+            if ( c1->i.Na )
+                if ( c1->i.oneBody.func.fn != nullFunction )
+                    if(   ! ioStoreMatrix(*f1, linear, 0, "linear.matrix",1)){
+                        printf("linear absent");
+                        exit(0);//if not already present, go back and build it
+                    }
+            
+            
                 switch ( bootBodies ){
                     case one:
-                        
+                        f1->tulip[h12].linkNext = external1;
+                        f1->tulip[external1].linkNext = nullName;
+                        break;
                     case two:
-                        f1->tulip[h12].linkNext = nullName;
+                        f1->tulip[h12].linkNext = external1;
+                        f1->tulip[external2].linkNext = nullName;
                         break;
                     case three:
-                        f1->tulip[h23].linkNext = nullName;
+                        f1->tulip[h23].linkNext = external1;
+                        f1->tulip[external3].linkNext = nullName;
                         break;
                     case four:
-                        f1->tulip[h34].linkNext = nullName;
+                        f1->tulip[h34].linkNext = external1;
+                        f1->tulip[external4].linkNext = nullName;
                         break;
                         
                 }
