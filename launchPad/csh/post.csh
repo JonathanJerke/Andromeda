@@ -13,7 +13,15 @@ if ( -e post ) then
 	if ( `cat post` =~ "lastFew" ) then
                 tail -n 3 $1
         endif
+	
+	if ( `cat post` =~ "copyLast" ) then
+
+                tail -n 1 $1 > $1:s/B/D/     
+		tail -n 1 $1                                                            
+	endif      	
+
 else
 	echo "oops set post"
 	echo "post" > stop
 endif
+
