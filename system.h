@@ -57,6 +57,7 @@
 #ifndef APPLE
 //NOT APPLE!!
 #define MAXSTRING 1024
+#define SUPERMAXSTRING 2048
 #define MAXFILE 100
 #define OMP
 //SELECT BIT-length
