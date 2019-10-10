@@ -2,7 +2,7 @@
 
 set flag = 1
 
-foreach i (`grep "catalog" boot`)
+foreach i (`grep catalog boot`)
 	if ( $i =~ "*catalog*") then
 	else	
 		set flag = 0
