@@ -22,28 +22,28 @@ else
 		echo "stopped...on $com now zombie"
 		endif
 # allow D to be NORMAL!!
-		if ( $com =~ "*.riz") then
+		if ( $com =~ *.riz) then
 	  #              if ( `splitFlag.csh`) then
 		#		echo "parse"
 		#		parse.csh $com
 	#		else 
 #			endif
 		endif
-		if ( $com =~ "*Afound") then
+		if ( $com =~ *Afound) then
 	#              if ( `splitFlag.csh`) then
 				parse.csh found/A.riz
 	#	      else
 		#	copy.csh found/A.riz
 	 #             endif
 		endif
-		if ( $com =~ "*B.kry*" ) then
+		if ( $com =~ *B.kry* ) then
 # && (`grep shift boot ` =~ "flow *" ||   `grep shift boot ` =~ "twist *"|| `grep shift boot ` =~ "shift *")) then
 		sleep 1
 			post.csh $com.vector > $com.tm
 			mv $com.tm $com.vector
 			sleep 1	
 		endif
-		if ( $com =~ "found*foundC*C" ) then
+		if ( $com =~ found*foundC*C ) then
 			set CC = `foundCat.csh $com`
 	#		echo $CC
 			set lines = `getElement.csh ../cat $CC`
