@@ -476,7 +476,6 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 
                 if ( c.rt.calcType == electronicStuctureCalculation){
                     tAddTw(f1.f,hamiltonian,0,kinetic ,0);
-                    tAddTw(f1.f,hamiltonian,0,linear ,0);
                 } else {
                     tAddTw(f1.f,hamiltonian,0,shortenPlus ,0);
                     tAddTw(f1.f,hamiltonian,0,shortenMinus ,0);
@@ -497,7 +496,6 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             } else {
 
                 tAddTw(f1.f,hamiltonian,0,kinetic ,0);
-                tAddTw(f1.f,hamiltonian,0,linear ,0);
                 tAddTw(f1.f,hamiltonian,0,intercellularSelfEwald ,0);
                 tAddTw(f1.f,hamiltonian,0,intracellularSelfEwald ,0);
                 tAddTw(f1.f,hamiltonian,0,jelliumElectron ,0);
@@ -507,7 +505,6 @@ INT_TYPE distill ( struct calculation c, struct field f1){
 
                 tClear(f1.f,hamiltonian);
                 tAddTw(f1.f,hamiltonian,0,kinetic ,1);
-                tAddTw(f1.f,hamiltonian,0,linear ,1);
                 tAddTw(f1.f,hamiltonian,0,intercellularSelfEwald ,1);
                 tAddTw(f1.f,hamiltonian,0,intracellularSelfEwald ,1);
                 tAddTw(f1.f,hamiltonian,0,jelliumElectron ,1);
@@ -545,7 +542,7 @@ int main (INT_TYPE argc , char * argv[]){
 
                 break;
             case 0 :
-                printf("----\nv7.5.4\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\nv7.5.3\n\n%s\n\n",getenv("LAUNCH"));
                 exit(0);
         }
 
