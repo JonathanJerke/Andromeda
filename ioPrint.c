@@ -57,7 +57,7 @@ INT_TYPE printVector (struct calculation *c,struct sinc_label f1, char * name,ch
 INT_TYPE print(struct calculation *c , struct field f1,INT_TYPE reset,INT_TYPE mv, INT_TYPE lv,enum division eigenVectors){
     INT_TYPE irrep;
     INT_TYPE iii,jjj=1,cmpl;
-    char str [MAXSTRING];
+    char str [SUPERMAXSTRING];
     DCOMPLEX one = 1.;
     if ( reset ) {
         FILE * outf ;
