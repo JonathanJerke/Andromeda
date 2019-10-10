@@ -14,7 +14,7 @@
 		chroma 1
 		#
 		#2 = only train buffers, 3 = final train , 4 = report final error
-		decompose 2
+		decompose 3
 		#
 		#
 		#system resources
