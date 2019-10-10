@@ -70,7 +70,6 @@ typedef double Stream_Type;
 #endif
 
 #ifdef MKL
-
 #include "mkl.h"
 #include "mkl_lapacke.h"
 #include "mkl_types.h"
@@ -78,18 +77,39 @@ typedef MKL_INT INT_TYPE;
 typedef MKL_INT ADDRESS_TYPE;
 typedef double __complex__ DCOMPLEX;
 typedef MKL_Complex16 DCOMPLEX_PRIME;
-#else
+#endif
+
+
+#ifdef BIT_LONG
+typedef long long int ADDRESS_TYPE;
+#include "omp.h"
+#include "lapacke.h"
+#include "lapacke_utils.h"
+#ifdef GSL_CBLAS
+    #include "gsl/gsl_blas.h"
+#endif
+#define lapack_int long int
+typedef lapack_int INT_TYPE;
+typedef double __complex__ DCOMPLEX;
+typedef double __complex__ DCOMPLEX_PRIME;
+#endif
+
+
+#ifdef BIT_INT
 typedef long ADDRESS_TYPE;
 #include "omp.h"
 #include "lapacke.h"
 #include "lapacke_utils.h"
-#include "gsl/gsl_blas.h"
+#ifdef GSL_CBLAS
+    #include "gsl/gsl_blas.h"
+#endif
 typedef lapack_int INT_TYPE;
 typedef double __complex__ DCOMPLEX;
 typedef double __complex__ DCOMPLEX_PRIME;
-
-
 #endif
+
+
+
 
 
 #endif

@@ -38,7 +38,7 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
             EV = 0;
         
         
-        if ( OVERFLAG ){
+#ifdef OVERFLAG
             tInnerTest(f1.f, kinetic, copy);
 
             INT_TYPE i;
@@ -47,7 +47,7 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
             }   //
 ////testSAAgain(f1.f, f1.f.user+i);
 //            }
-        }
+#endif
 //            tEigenCycle(1,f1.f,overlap1,CDT, f1.i.nStates, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
 
     }else {
@@ -55,9 +55,9 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
     }
     
     INT_TYPE ii,flag = 1;;
-    if ( !OVERFLAG )
+#ifndef OVERFLAG
         print(c1,f1,1,0,EV , f1.f.user);
-    
+#endif
     fModel(&f1.f);
 
     return EV;
@@ -206,7 +206,7 @@ INT_TYPE decompose ( struct calculation *c1, struct field f1){
 INT_TYPE ritz( struct calculation * c1, struct field f1){
     size_t ms = MAXSTRING;
     char line0[MAXSTRING];
-    char filename[MAXSTRING];    char str[MAXSTRING];
+    char filename[MAXSTRING];    char str[SUPERMAXSTRING];
 
 
     char * line = line0;

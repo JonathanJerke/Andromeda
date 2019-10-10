@@ -9,7 +9,7 @@ GSLlib          = ${GSL}/lib
 GSLinc          = ${GSL}/include
 
 flags           = -I${GSLinc} -I${LAPACKinc} -L${GSLlib}  -L${LAPACKlib}
-lib             = -lm -lgfortran -llapacke -llapack -lgslcblas  -lgsl -lgfortran
+lib             = -lm -llapacke -llapack -lgslcblas  -lgsl -lgfortran
 
 
 andromeda: system.h ioPrint.c ioPrint.h eigen.c eigen.h jobs.c input.c input.h constants.h  coreMath.c  coreUtil.h  mAls.c   Model.h coreForce.c  coreMath.h  interfaceMath.c  mAls.h  saUtil.c coreForce.h  input.c  coreUtil.c  interfaceMath.h  Model.c  saUtil.h

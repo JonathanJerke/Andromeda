@@ -336,7 +336,6 @@ INT_TYPE CanonicalRank( struct sinc_label f1 , enum division label , INT_TYPE sp
         fflush(stdout);
         exit(0);
     }
-    struct name_label u = f1.tulip[label];
     
     if ( f1.tulip[label].name == label){
         if ( spin < spins(f1, label) ){
@@ -710,7 +709,6 @@ double xEqua ( struct sinc_label f1 , enum division targ ,INT_TYPE tspin,struct 
                     cblas_dcopy(eb*M2[space], streams(f2,orig,ospin,space),1,streams(f1,targ,tspin,space),1);
                 }
             }
-            struct name_label o = f1.tulip[orig];
             f1.tulip[targ].Current[tspin] = f2.tulip[orig].Current[ospin];
             f1.tulip[name(f1,targ)].header = header(f2, name(f2,orig));
         } else{

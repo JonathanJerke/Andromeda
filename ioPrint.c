@@ -29,7 +29,7 @@ INT_TYPE printVector (struct calculation *c,struct sinc_label f1, char * name,ch
     if ( vector == NULL )
         return 1;
     INT_TYPE iii;
-    char str [MAXSTRING];
+    char str [SUPERMAXSTRING];
     FILE * outf ;
     if ( iv == -1 ){
         sprintf(str, "%s.vector",vectorName);
@@ -95,8 +95,9 @@ INT_TYPE print(struct calculation *c , struct field f1,INT_TYPE reset,INT_TYPE m
 
 INT_TYPE ioStoreMatrix(struct sinc_label f1, enum division op, INT_TYPE spin, char * filename, INT_TYPE ioIn ){
     INT_TYPE matchFlag = 0,tempFlag=1,space;
-    if ( OVERFLAG )
+    #ifdef OVERFLAG
         return 0;
+#endif
     //check if previous is acceptable...
     //0 genus
     //2 ranks

@@ -137,8 +137,7 @@ struct field initField (void ) {
     i.i.files = 0;
     i.i.filesVectorOperator = 0;
     
-#ifdef APPLE
-    if ( OVERFLAG ){
+#ifdef OVERFLAG
         i.i.cmpl = cmpl;
         i.i.bRank = 4;
         i.i.iRank = 1;
@@ -151,9 +150,9 @@ struct field initField (void ) {
         i.i.cat  = 1;
         i.i.epi = 2;
         i.i.d = 1;
-    }else {
-        i.i.d = 1.;
-        i.i.D = 0.1*2;
+#else
+    i.i.d = 1.;
+    i.i.D = 0.1*2;
     i.i.cmpl = cmpl;
     i.i.bRank = 2;
     i.i.iRank = 1;
@@ -166,7 +165,7 @@ struct field initField (void ) {
     i.i.cat  = 0;
     i.i.epi = 0;
         i.i.around=5;
-    }
+    
 #endif
     return i;
 }

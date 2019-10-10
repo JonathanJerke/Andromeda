@@ -197,9 +197,15 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
     for ( i = 1 ; i <= NINT_TYPE ; i++){
         
         if ( strstr( input_line, list_INT_TYPE[i])!= NULL){
-#ifdef APPLE
+#ifdef BIT_INT
             sscanf(input_line,"%s %d", test_line,&ivalue);
-#else
+#endif
+            
+#ifdef BIT_LONG
+            sscanf(input_line,"%s %ld", test_line,&ivalue);
+#endif
+
+#ifdef MKL
             sscanf(input_line,"%s %lld", test_line,&ivalue);
 #endif
             
@@ -1211,9 +1217,15 @@ INT_TYPE getGeometry(struct calculation * c, const char * input_line ){
     double x,y,z;
     INT_TYPE l,Z,label;
     
-#ifdef APPLE
+#ifdef BIT_INT
         if ( 4 == sscanf ( input_line, "%d %lf %lf %lf ", &l, &x,&y,&z ))
-#else
+#endif
+            
+#ifdef BIT_LONG
+        if ( 4 == sscanf ( input_line, "%ld %lf %lf %lf ", &l, &x,&y,&z ))
+#endif
+
+#ifdef MKL
         if ( 4 == sscanf ( input_line, "%lld %lf %lf %lf ", &l, &x,&y,&z ))
 #endif
     {
@@ -1223,13 +1235,20 @@ INT_TYPE getGeometry(struct calculation * c, const char * input_line ){
         if ( l != 0 ){
             
             Z = ((l)%MAX_PROTOTYPE_ATOMS);
-#ifdef APPLE
+#ifdef BIT_INT
             label = abs(l)/MAX_PROTOTYPE_ATOMS;
+#endif
+#ifdef BIT_LONG
+            label = labs(l)/MAX_PROTOTYPE_ATOMS;
 
-#else
+#endif
+#ifdef MKL
             label = llabs(l)/MAX_PROTOTYPE_ATOMS;
 
 #endif
+            
+            
+        
             
             if ( llabs(Z) >= MAX_PROTOTYPE_ATOMS || label >= MAX_LABEL )
             {
@@ -1338,12 +1357,17 @@ INT_TYPE modGeometry(struct calculation * c, const char * input_line ){
     double x,y,z;
     INT_TYPE l;
     INT_TYPE input ;
-#ifdef APPLE
-    input =  sscanf ( input_line, "%d %lf %lf %lf ", &l, &x,&y,&z );
+   #ifdef BIT_INT
+       input =  sscanf ( input_line, "%d %lf %lf %lf ", &l, &x,&y,&z );
+   #endif
+    
+       #ifdef BIT_LONG
+           input =  sscanf ( input_line, "%ld %lf %lf %lf ", &l, &x,&y,&z );
+       #endif
+       #ifdef MKL
+           input =  sscanf ( input_line, "%lld %lf %lf %lf ", &l, &x,&y,&z );
+       #endif
 
-#else
-   input =  sscanf ( input_line, "%lld %lf %lf %lf ", &l, &x,&y,&z );
-#endif
     if ( input == 4 ){
         if ( l > 0 && l <= c->i.Na ){
             if ( c->i.Angstroms )
@@ -1376,24 +1400,47 @@ INT_TYPE intervalGeometry(struct calculation * c, const char * input_line ){
     double lambda;
     INT_TYPE l,Z ,label;
     INT_TYPE input ;
-#ifdef APPLE
+#ifdef BIT_INT
     
     input =  sscanf ( input_line, "%lf %d %lf %lf %lf %lf %lf %lf ", &lambda, &l, &x,&y,&z, &x2,&y2,&z2 );
 
-#else
-    input =  sscanf ( input_line, "%lf %lld %lf %lf %lf %lf %lf %lf ", &lambda, &l, &x,&y,&z, &x2,&y2,&z2 );
-
 #endif
+    
+    #ifdef BIT_LONG
+        
+        input =  sscanf ( input_line, "%lf %ld %lf %lf %lf %lf %lf %lf ", &lambda, &l, &x,&y,&z, &x2,&y2,&z2 );
+
+    #endif
+        
+
+    #ifdef MKL
+        
+        input =  sscanf ( input_line, "%lf %lld %lf %lf %lf %lf %lf %lf ", &lambda, &l, &x,&y,&z, &x2,&y2,&z2 );
+
+    #endif
+        
     if ( input == 8 ){
         
         Z = ((l)%MAX_PROTOTYPE_ATOMS);
         
-#ifdef APPLE
+#ifdef BIT_INT
         label = abs(l)/MAX_PROTOTYPE_ATOMS;
 
-#else
-        label = llabs(l)/MAX_PROTOTYPE_ATOMS;
 #endif
+        
+        #ifdef BIT_LONG
+            
+            input =  sscanf ( input_line, "%lf %ld %lf %lf %lf %lf %lf %lf ", &lambda, &l, &x,&y,&z, &x2,&y2,&z2 );
+
+        #endif
+            
+
+        #ifdef MKL
+            
+            input =  sscanf ( input_line, "%lf %lld %lf %lf %lf %lf %lf %lf ", &lambda, &l, &x,&y,&z, &x2,&y2,&z2 );
+
+        #endif
+            
         
         if ( llabs(Z) >= MAX_PROTOTYPE_ATOMS || label >= MAX_LABEL )
         {
@@ -1690,7 +1737,7 @@ INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const ch
             case 33:
                 mid = NULL;
             {
-                char file2[MAXSTRING];
+                char file2[SUPERMAXSTRING];
                 sprintf(file2,"%s/control/%s",getenv("LAUNCH"),filename);
                 mid = fopen ( file2, "r");
             }
@@ -1705,7 +1752,7 @@ INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const ch
             case 34:
                 mid = NULL;
             {
-                char file2[MAXSTRING];
+                char file2[SUPERMAXSTRING];
                 sprintf(file2,"%s/interaction/%s",getenv("LAUNCH"),filename);
                 mid = fopen ( file2, "r");
             }
