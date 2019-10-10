@@ -5,7 +5,7 @@
 	.Parameters
 		
 	*InputOutput
-		read ../../interaction/coulomb
+		interaction coulomb
 	.InputOutput
 		
 	*Geometry
