@@ -14,7 +14,7 @@ else
 		cat $com | andromeda >> $com.hout
 		date >> $com.hout
 		sleep 1
-		if ( `grep FINIS $com.hout` =~ "FINIS*" ) then
+		if ( `grep FINIS $com.hout` =~ FINIS. ) then
 		#	echo "finis"
 			else
 			echo "$com" > stop
