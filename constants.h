@@ -96,7 +96,7 @@ typedef double __complex__ DCOMPLEX_PRIME;
 
 
 #ifdef BIT_INT
-typedef long ADDRESS_TYPE;
+typedef long long int ADDRESS_TYPE;
 #include "omp.h"
 #include "lapacke.h"
 #include "lapacke_utils.h"

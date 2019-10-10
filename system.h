@@ -63,7 +63,7 @@
 //SELECT BIT-length
 //int:
 #define BIT_INT
-//long int:         #define BIT_LONG
+//long int: BROKEN        #define BIT_LONG
 //long long int:    #define MKL
 
 //USE libgslcblas else use libblas
