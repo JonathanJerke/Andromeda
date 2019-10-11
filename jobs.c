@@ -77,12 +77,12 @@ INT_TYPE foundationM(struct calculation *c1, struct field f1){
                 tEqua(f1.f, eigen, 0, quadCube, 0);
                 break;
             case three:
-                sumTo3(f1.f, build, 0, quadCube,0);
+                sumTo3(f1.f, quadCube, 0,eigen, 0);
                 tId(f1.f , eigen,0);
                 tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.vCANON, 1, 0);
                 break;
             case four:
-                sumTo4(f1.f, build, 0, quadCube,0);
+                sumTo4(f1.f, quadCube, 0,eigen, 0);
                 tId(f1.f , eigen,0);
                 tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.vCANON, 1, 0);
                 break;
