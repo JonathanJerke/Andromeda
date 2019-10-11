@@ -14,11 +14,11 @@ foreach curr ( $argv )
 	#		if ( `splitFlag.csh`) then
 	#			$LAUNCH/csh/cats.csh found/found
 	#		else
-				$LAUNCH/csh/gos.csh found/found
 	#		endif
 			$LAUNCH/csh/hamiltonian.csh $curr
 			$LAUNCH/csh/distill.csh $curr
 			sleep 3
+			$LAUNCH/csh/gos.csh found/found
 			$LAUNCH/csh/go.csh found/Afound
 	#		if ( `splitFlag.csh`) then
      #                   $LAUNCH/csh/catKrylov.csh $curr $curr states
