@@ -3,7 +3,6 @@
 		phase 0
 		blockReset
 	        blockMemory 1
-		blockMemory 2
                 blockMemory 3
                 blockMemory 5
 		blockMemory 6
