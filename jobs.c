@@ -772,15 +772,15 @@ INT_TYPE distill ( struct calculation c, struct field f1){
         if ( CanonicalRank(f1.f,trainHamiltonian,0) ){
             ioStoreMatrix(f1.f,trainHamiltonian ,0,"trainHamiltonian.matrix",0);
             tClear(f1.f, hamiltonian);
-            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 0, NULL,hamiltonian  , 0, c.rt.CANON, 1, c.rt.powDecompose);
-            ioStoreMatrix(f1.f,hamiltonian ,0,"single.matrix",0);
+            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 0, NULL,eigen  , 0, c.rt.CANON, 1, c.rt.powDecompose);
+            ioStoreMatrix(f1.f,eigen ,0,"single.matrix",0);
 
         }
         if ( CanonicalRank(f1.f,trainHamiltonian,1) ){
             ioStoreMatrix(f1.f,trainHamiltonian ,1,"trainHamiltonian.1.matrix",0);
             tClear(f1.f, hamiltonian);
-            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 1, NULL,hamiltonian  , 0, c.rt.CANON, 1, c.rt.powDecompose);
-            ioStoreMatrix(f1.f,hamiltonian ,0,"single.1.matrix",0);
+            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 1, NULL,eigen  , 0, c.rt.CANON, 1, c.rt.powDecompose);
+            ioStoreMatrix(f1.f,eigen ,0,"single.1.matrix",0);
         }
         
     }
