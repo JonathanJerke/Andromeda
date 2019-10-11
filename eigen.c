@@ -1909,7 +1909,7 @@ INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,ch
 //                            printf("\n\n");
                             if ( rr > part(f1, canonicalBuffersC))
                             {
-                                printf("crap!\n %lld %lld",rr , part(f1, canonicalBuffersC));
+                                printf("crap!\n %d %d",rr , part(f1, canonicalBuffersC));
                                 fflush(stdout);
 
                                 exit(0);

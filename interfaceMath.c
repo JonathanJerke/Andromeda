@@ -396,7 +396,7 @@ double tdpocon (INT_TYPE rank,struct sinc_label  f1,  INT_TYPE L1 , double * Mat
 //    printf("--%f\n", rcond);
 
     if ( info != 0 ){
-        printf ("pop corn ! %lld\n",info);
+        printf ("pop corn ! %d\n",info);
         exit(0);
     }
 #if VERBOSE

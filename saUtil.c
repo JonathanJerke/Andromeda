@@ -254,7 +254,7 @@ INT_TYPE tInnerTest( struct sinc_label f1, enum division A ,enum division B){
             
             
             for ( ii = 1 ; ii <= nPerm; ii++)
-                printf("%lld\t%f\n",ii,seq[ii]);
+                printf("%d\t%f\n",ii,seq[ii]);
         }
     
     
@@ -1017,7 +1017,7 @@ double tGetProjection (enum bodyType bd , INT_TYPE irrep , INT_TYPE op ){
     
         if ( irrep <= 0 || irrep > msyp )
         {
-            printf("he\n %lld", irrep);
+            printf("he\n %d", irrep);
             exit(0);
         }
         if ( op < 0 || op >= nsyp ){
@@ -1267,7 +1267,7 @@ double tGetVector(enum bodyType bd , INT_TYPE type , INT_TYPE perm ){
     
     if ( type < 0 || type >= msyp )
     {
-        printf("he\n %lld", type);
+        printf("he\n %d", type);
         exit(0);
     }
     if ( perm < 0 || perm >= nsyp ){

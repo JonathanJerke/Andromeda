@@ -42,7 +42,7 @@ INT_TYPE normalize (struct sinc_label  f1,  enum division alloy,INT_TYPE l3,INT_
                 cblas_dscal(M2[space], norm, streams(f1, alloy,spin,space)+l*M2[space],iOne);
             }else {
 #if VERBOSE
-                printf("ACK! %d %lld %lld\n", alloy,spin,l);
+                printf("ACK! %d %d %d\n", alloy,spin,l);
 #endif
                 
                 if (1 ){
@@ -673,7 +673,7 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
     INT_TYPE G1 = l2-l1;
     if ( G1 == 0 ){
         f1.tulip[alloy].Current[spin] = 0;
-        printf("CD: empty origin %d _%lld -> %d _%lld\n", origin, os , alloy, spin);
+        printf("CD: empty origin %d _%d -> %d _%d\n", origin, os , alloy, spin);
         exit(0);
         return 0;
     }
@@ -682,7 +682,7 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
             spaces++;
     
     if ( L1 == 0 ){
-        printf("CD: zero length %lld %lld %lld\n", origin,alloy,spin);
+        printf("CD: zero length %d %d %d\n", origin,alloy,spin);
         exit(0);
         tId(f1, alloy, spin);
         L1 = 1;
