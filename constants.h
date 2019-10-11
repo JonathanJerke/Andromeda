@@ -396,27 +396,6 @@ enum blockMemoryType{
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 enum division{
     nullName,
     nullScalar,//7
