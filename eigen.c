@@ -648,122 +648,50 @@ INT_TYPE tSlam (struct sinc_label f1,INT_TYPE allc, enum division vl, double fma
 }
 
 
-//INT_TYPE tBootManyConstruction (struct calculation * c1){
-//    struct sinc_label  f1 = (c1->i.c.sinc);
-//    enum bodyType bootBodies = c1->rt.body;
-//    INT_TYPE sp,cmpl,space,matrixNumber = c1->i.decomposeRankMatrix;
-//    //THRESING FLOOR
-//    tClear(f1, eigen);
-//    INT_TYPE r,i,im;
-//    INT_TYPE n2[SPACE];
-//    length(f1, eigen,n2);
-//    double mx= 1e99;
-//    INT_TYPE n1[SPACE];
-//    length(f1,eigenVectors,n1);
-//    DCOMPLEX * hmat = (DCOMPLEX*)myStreams(f1, matrixHbuild,0), sum ,minus = -1.;
-//    cmpl = 0;
-//        //for ( cmpl = 0; cmpl < spins(f1,eigen);cmpl++){
-//            tClear(f1, build);
-//            tClear(f1,eigen);
-//            zero(f1,eigen,cmpl);
-//
-//            if (cmpl == 0 ){
-//                tClear(f1, copy);
-//                zero(f1,copy,0);
-//                tClear(f1,copy);
-//                tCycleDecompostionListOneMP(-1, f1, linear, 0,NULL, copy, 0, f1->mem1->rt->CANON, c1->i.decomposeRankMatrix, -1);
-//                tAddTw(f1, copy ,0, kinetic,0);
-//                tAddTw(f1,copy,0, vectorMomentum ,0);
-//                tSumMatrices(f1, build,0, copy);// B x (1+S) * 3
-//                if ( c1->rt.calcType == clampProtonElectronCalculation ){
-//                    zero(f1,copy,0);
-//                    tClear(f1,copy);
-//                    tId(f1,copy,0);
-//                    INT_TYPE N2 = vectorLen(f1->sinc, 3)*vectorLen(f1->sinc,3);
-//                        for ( i = 0; i < CanonicalRank(f1, protonRepulsion, 0);i++)
-//                            cblas_daxpy(N2, 1., streams(f1,protonRepulsion,0,3)+i*N2, 1,streams(f1,copy,0,3),1 );
-//                    tSumMatrices(f1, build,0, copy);// B x (1+S) * 3
-//
-//                    tClear(f1, copy);
-//                    tCycleDecompostionListOneMP(-1, f1, interactionExchangePlus, 0,NULL,copy, 0, f1->mem1->rt->CANON, 1 , -1);
-//                    tSumMatrices(f1, build,0, copy);//B2:1 || B3 : 3
-//                }
-//
-//
-//                if ( bootBodies > one ){
-//                    if ( c1->rt.runFlag == 0 ){
-//                        if ( CanonicalRank(f1, interactionExchange, 0)){
-//                            tClear(f1,squareTwo);
-//                            tCycleDecompostionListOneMP(-1, f1, interactionExchange, 0,NULL,squareTwo, 0, f1->mem1->rt->CANON, 1 , -1);
-//                            tSumMatrices(f1, build,0, squareTwo);//B2:1 || B3 : 3
-//                        }
-//                    }else {
-//                        if ( CanonicalRank(f1, interactionEwald, 0)){
-//                            tClear(f1,squareTwo);
-//                            tCycleDecompostionListOneMP(-1, f1, interactionEwald, 0,NULL,squareTwo, 0, f1->mem1->rt->CANON, 1 , -1);
-//                            tSumMatrices(f1, build,0, squareTwo);//B2:1 || B3 : 3
-//                        }
-//                    }
-//                }
-//
-//            }
-////            else {
-////                if ( CanonicalRank(f1, vectorMomentum,1 ) ){
-////                    tEqua(f1, copy ,0, vectorMomentum,1);
-////                    tSumMatrices(f1, build,0, copy);// B x (1+S) * 3
-////                }
-////            }
-//            //balance(f1,build,0);
-//
-//            for ( space =  0; space < SPACE ; space++ )
-//                if ( f1.rose[space].body != nada){
-//                    tClear(f1,eigen);
-//                    zero(f1,eigen,0);
-//                    while ( CanonicalRank(f1, eigen, cmpl) < part(f1,eigen)){
-//                        tId(f1 ,eigen,cmpl);
-//                        canonicalListDecompositionMP(0, f1, NULL, build, 0, eigen, cmpl, f1->mem1->rt->CANON, magnitude(f1, build), space);
-//                     //   printf("%f-- \n", traceOne(f1,build,0));
-//                    }
-//                    for ( r = 0; r <part(f1,eigen) ; r++){
-//                        for ( i = 0; i < n2[space]; i++){
-//                            hmat[i] =0.;
-//                            for ( sp = 0 ; sp < 1;sp++)
-//                                if ( sp == 0 )
-//                                    hmat[i] += streams(f1, eigen,sp,space)[i+r*n2[space]] ;
-//                                else
-//                                    hmat[i] += I*streams(f1, eigen,sp,space)[i+r*n2[space]] ;
-//
-//                        }
-////                        sum = 0.;
-////                        for (i = 0; i < n1[space];i++){
-////                            sum += hmat[i*n1[space]+i] ;
-////                          //  printf("%d %d %f \n", r,i,creal(hmat[i*n1[space]+i]));
-////                        }
-//                        //   if ( creal(sum ) < 0 )
-//                        //     cblas_zscal(n2[space], &minus, hmat, 1);
-//
-//                        tzheev (0,f1,'V',n1[space],hmat,n1[space],streams(f1,foundationStructure,0,space)+r*n1[space]);
-//
-//                        for ( i = 0; i < n2[space]; i++){
-//                            myStreams(f1, bill1+space,0)[i+r*n2[space]] = creal(hmat[i]);
-//                            if ( spins (f1, eigen) > 1 )
-//                                myStreams(f1, bill1+space,1)[i+r*n2[space]] = cimag(hmat[i]);
-//                        }
-//                        for (i = 0; i < n1[space];i++)
-//                            if (((streams(f1,foundationStructure,0,space)+r*n1[space])[i])-((streams(f1,foundationStructure,0,space)+r*n1[space])[0]) < c1->i.level  ){
-//                                (streams(f1,foundationStructure,1,space)+r*n1[space])[i] = 1;
-//                                if ( mx >(streams(f1,foundationStructure,0,space)+r*n1[space])[i]  )
-//                                    mx = (streams(f1,foundationStructure,0,space)+r*n1[space])[i]  ;
-//                            }
-//
-//                    }
-//                    for ( r = 0; r <part(f1,eigen) ; r++){
-//                        for (i = 0; i < n1[space];i++)
-//                            (streams(f1,foundationStructure,0,space)+r*n1[space])[i] -= mx;
-//                    }
-//                }
-//    return 0;
-//}
+INT_TYPE tBootManyConstruction (struct calculation * c1, struct sinc_label f1, enum division eigen){
+    INT_TYPE sp,cmpl,space;
+    //THRESING FLOOR
+    INT_TYPE r,i,im;
+    INT_TYPE n2[SPACE];
+    length(f1, eigen,n2);
+    INT_TYPE n1[SPACE];
+    for ( space = 0; space< SPACE ; space++)
+        n1[space] = sqrt(1.*n2[space]);
+
+    DCOMPLEX * hmat = (DCOMPLEX*)myStreams(f1, matrixHbuild,0), sum ,minus = -1.;
+    double * w = (double*)(hmat + n2[0]);
+    cmpl = f1.cmpl;
+
+            for ( space =  0; space < SPACE ; space++ )
+                if ( f1.rose[space].body != nada){
+                    r = 0;
+               //     for ( r = 0; r <part(f1,eigen)/*ASSUME FILLED*/ ; r++)
+                    {
+                        for ( i = 0; i < n2[space]; i++){
+                            hmat[i] =0.;
+                            for ( sp = 0 ; sp < cmpl;sp++)
+                                if ( sp == 0 )
+                                    hmat[i] += streams(f1, eigen,sp,space)[i+r*n2[space]] ;
+                                else
+                                    hmat[i] += I*streams(f1, eigen,sp,space)[i+r*n2[space]] ;
+
+                        }
+                        tzheev (0,f1,'V',n1[space],hmat,n1[space],streams(f1,foundationStructure,0,space)+r*n1[space]);
+
+                        for ( i = 0; i < n2[space]; i++){
+                            myStreams(f1, bill1+space,0)[i+r*n2[space]] = creal(hmat[i]);
+                            if ( spins (f1, eigen) > 1 )
+                                myStreams(f1, bill1+space,1)[i+r*n2[space]] = cimag(hmat[i]);
+                        }
+                        for (i = 0; i < n1[space];i++)
+                            if (((streams(f1,foundationStructure,0,space)+r*n1[space])[i]) < c1->i.level  ){
+                                (streams(f1,foundationStructure,1,space)+r*n1[space])[i] = 1;
+                            }
+
+                    }
+                }
+    return 0;
+}
 
 
 

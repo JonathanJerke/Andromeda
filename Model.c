@@ -726,22 +726,25 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
         {
             fromBeginning(*f1, build, overlap);
-//            f1->tulip[build].Partition = f->i.OCSBflag*!(!f->i.sectors)*bootBodies*(6+(/*HERE 3*/part(*f1, kinetic)+part(*f1, vectorMomentum)) + matrixNumber);//easily reduce in cheaper ways!
-//            if ( bootBodies == two )
-//                f1->tulip[build].Partition += f->i.OCSBflag*f->i.sectors;
-//            else if ( bootBodies == three )
-//                f1->tulip[build].Partition += f->i.OCSBflag*3*f->i.sectors;
-//            else if ( bootBodies == four )
-//                f1->tulip[build].Partition += f->i.OCSBflag*6*f->i.sectors;
             
-//            f1->tulip[build].Partition = f->i.OCSBflag*f->i.sectors*imax(nG*f->i.sectors,part(*f1, build));//BUILD
-            
-            //f1->tulip[build].Partition = 0;
-            // B2 :  2*(1+S)*3 + 1*sector +  Na*matrixNumber*2
-            // B3 :  3*(1+S)*3 + 3*sector  + Na*matrixNumber*3
+            {
+                        
+                INT_TYPE ra = 0;
+                       
+                       switch ( bootBodies ){
+                           case three:
+                               ra = 3;
+                               break;
+                           case four :
+                               ra = 6;
+                               break;
+                       }
+                f1->tulip[build].Partition = allowQ(f1->rt, blockfoundationMblock)*ra;
+                
+            }
             f1->tulip[build].species = matrix;
             assignParticle(*f1, build, all, bootBodies);
-       //     printf("sectors %d\n", f->i.sectors);
+
             for ( space = 0; space < SPACE ; space++)
             {
                 if ( space == 0 )
@@ -755,13 +758,9 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 
             }
             fromBeginning(*f1, eigen, bill1+SPACE-1);
-           // f1->tulip[eigen].Partition = f->i.OCSBflag * !(!f->i.sectors)*c1->i.decomposeRankMatrix;
+            f1->tulip[eigen].Partition = allowQ(f1->rt, blockfoundationMblock);
             f1->tulip[eigen].species = matrix;
-            assignParticle(*f1, eigen, all, bootBodies);
-            for ( space = 0; space < SPACE ; space++)
-                if ( f1->rose[space].body != nada)
-                    f1->tulip[eigen].space[space].block = tv1;
-            
+            assignParticle(*f1, eigen, all, bootBodies);            
             
             {
                 INT_TYPE di,cmpl;

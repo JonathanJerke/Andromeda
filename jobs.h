@@ -33,8 +33,12 @@
 #include "ioPrint.h"
 #endif
 
+INT_TYPE sumTo2(struct sinc_label f1, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin);
+INT_TYPE sumTo3(struct sinc_label f1, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin);
+INT_TYPE sumTo4(struct sinc_label f1, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin);
 
-INT_TYPE foundation (struct calculation *c1 , struct field f1);
+INT_TYPE foundation1 (struct calculation *c1 , struct field f1);
+INT_TYPE foundationM (struct calculation *c1 , struct field f1);
 INT_TYPE decompose ( struct calculation *c1, struct field f1);
 INT_TYPE krylov (struct calculation *c1  , struct field f1);
 INT_TYPE ritz (struct calculation *c1  , struct field f1);

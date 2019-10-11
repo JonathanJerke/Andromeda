@@ -25,7 +25,7 @@
 
 #include "jobs.h"
 
-INT_TYPE foundation(struct calculation *c1, struct field f1){
+INT_TYPE foundation1(struct calculation *c1, struct field f1){
     INT_TYPE EV;
     f1.i.Iterations = 1;
     if ( 1 ){
@@ -62,6 +62,41 @@ INT_TYPE foundation(struct calculation *c1, struct field f1){
 
     return EV;
 }
+
+INT_TYPE foundationM(struct calculation *c1, struct field f1){
+    INT_TYPE EV;
+    f1.i.Iterations = 1;
+    if ( 1 ){
+        iModel(c1,&f1);
+        ioStoreMatrix(f1.f, trainHamiltonian, 0, "single.matrix", 1);
+        switch(bodies(f1.f,eigen)){
+            case one:
+                tEqua(f1.f, eigen, 0, trainHamiltonian, 0);
+                break;
+            case two:
+                tEqua(f1.f, eigen, 0, trainHamiltonian, 0);
+                break;
+            case three:
+                sumTo3(f1.f, build, 0, trainHamiltonian,0);
+                tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.vCANON, 1, c1->rt.powDecompose);
+                break;
+            case four:
+                sumTo4(f1.f, build, 0, trainHamiltonian,0);
+                tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.vCANON, 1, c1->rt.powDecompose);
+                break;
+            }
+        tBootManyConstruction(c1,f1.f ,eigen);
+        if ( ! tSortBoot(c1,f1.f,build) )
+            EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
+        else
+            EV = 0;
+        
+    }
+    fModel(&f1.f);
+
+    return EV;
+}
+
 
 
 INT_TYPE krylov ( struct calculation *c1, struct field f1){
@@ -255,33 +290,33 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
     return 0;
 }
 
-INT_TYPE svd ( struct calculation c, struct field f1){//E
-    if ( ! f1.i.filesVectorOperator){
-        printf("vectorOperator flag\n");
-        exit(1);
-    }
-    
-    INT_TYPE EV = foundation(&c,f1);
-    printf("finished foundation\n");
-    fflush(stdout);
-    tEigenCycle(0,f1.f,Ha,'T', f1.i.nStates, f1.f.user,EV,0, EV,0,0,eigenVectors,twoBodyRitz);
-    
-    INT_TYPE i,j=0;
-    for ( i = 0 ; i < f1.i.nStates ; i++ ){
-        if ( -myStreams(f1.f, twoBodyRitz, 0)[i] > c.rt.TARGET ){
-            printf("load %f\n", -myStreams(f1.f, twoBodyRitz, 0)[i]);
-            j++;
-        }
-    }
-//    tEigenCycle(0,f1.f,Ha,'T', j, f1.f.user,EV,0, EV,0,4,eigenVectors,twoBodyRitz);
-//    
-//    {
-//           cblas_dscal(j, -1., myStreams(f1.f, twoBodyRitz, 0), 1);
+//INT_TYPE svd ( struct calculation c, struct field f1){//E
+//    if ( ! f1.i.filesVectorOperator){
+//        printf("vectorOperator flag\n");
+//        exit(1);
 //    }
-    return 0;
-}
+//
+//    INT_TYPE EV = foundation(&c,f1);
+//    printf("finished foundation\n");
+//    fflush(stdout);
+//    tEigenCycle(0,f1.f,Ha,'T', f1.i.nStates, f1.f.user,EV,0, EV,0,0,eigenVectors,twoBodyRitz);
+//
+//    INT_TYPE i,j=0;
+//    for ( i = 0 ; i < f1.i.nStates ; i++ ){
+//        if ( -myStreams(f1.f, twoBodyRitz, 0)[i] > c.rt.TARGET ){
+//            printf("load %f\n", -myStreams(f1.f, twoBodyRitz, 0)[i]);
+//            j++;
+//        }
+//    }
+////    tEigenCycle(0,f1.f,Ha,'T', j, f1.f.user,EV,0, EV,0,4,eigenVectors,twoBodyRitz);
+////
+////    {
+////           cblas_dscal(j, -1., myStreams(f1.f, twoBodyRitz, 0), 1);
+////    }
+//    return 0;
+//}
 
-INT_TYPE oneTo2(struct sinc_label f1, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin){
+INT_TYPE sumTo2(struct sinc_label f1, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin){
     
     INT_TYPE I1,I2, I3, I4,body,r,space,N1;
     double value;
@@ -311,6 +346,221 @@ INT_TYPE oneTo2(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
             
             //  tAddTwo(f1, sum , quadCube);
         }
+    return 0;
+}
+
+INT_TYPE sumTo3(struct sinc_label f1, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin){
+
+    INT_TYPE n2[SPACE];
+    length(f1, sum,n2);
+
+    if ( bodies ( f1, sum ) == three && f1.rt->calcType == electronicStuctureCalculation){
+
+        if (bodies(f1, mat ) == three ){
+            tAddTw(f1, sum ,spin, mat,ms );
+        }else if ( bodies ( f1, mat ) == one ){
+            INT_TYPE I1,I2, I3, I4,I5,I6,body,r,space;
+            INT_TYPE n1[SPACE];
+            length1(f1,n1);
+            double value;
+
+            for ( r = 0; r < CanonicalRank(f1, mat , ms ); r++)
+                for ( body = 0 ; body < 3 ; body++){
+                    for ( space = 0; space < SPACE ; space++){
+                        Stream_Type * stream = streams(f1,sum,spin,space)+n2[space]*CanonicalRank(f1, sum, spin);
+                        if ( CanonicalRank(f1, sum, spin) > part(f1, sum )){
+                            printf("part sum\n");
+                            exit(0);
+                        }
+
+                        for ( I1 = 0 ; I1 < n1[space] ; I1++)
+                            for ( I2 = 0 ; I2 < n1[space] ; I2++)
+                                for ( I3 = 0 ; I3 < n1[space] ; I3++)
+                                    for ( I4 = 0 ; I4 < n1[space] ; I4++)
+                                        for ( I5 = 0 ; I5 < n1[space] ; I5++)
+                                            for ( I6 = 0 ; I6 < n1[space] ; I6++)
+
+                                            {
+                                                value = 0;
+                                                if ( body == 0 ){
+                                                    value  = streams(f1,mat,ms,space)[ I1*n1[space]+I2 + r*n1[space]*n1[space] ] * delta(I3-I4)*delta(I5-I6);
+                                                }else if ( body == 1 ) {
+                                                    value  = streams(f1,mat,ms,space)[ I3*n1[space]+I4 + r*n1[space]*n1[space] ] * delta(I1-I2)*delta(I5-I6);
+                                                }else if ( body == 2 ) {
+                                                    value  = streams(f1,mat,ms,space)[ I5*n1[space]+I6 + r*n1[space]*n1[space] ] * delta(I1-I2)*delta(I3-I4);
+                                                }
+                                                stream[ (I1+I3*n1[space]+I5*n1[space]*n1[space])+ (I2+I4*n1[space]+I6*n1[space]*n1[space])*n1[space]*n1[space]*n1[space]] = value;
+                                            }
+                    }
+                    f1.tulip[sum].Current[spin]++;
+
+                }
+        }else if ( bodies ( f1, mat ) == two ){
+            INT_TYPE I1,I2, I3, I4,I5,I6,pair,r,space,ve;
+            INT_TYPE n1[SPACE];
+
+            length1(f1, n1);
+
+            double value;
+
+            for ( r = 0; r < CanonicalRank(f1, mat , ms ); r++)
+                for ( pair = 0 ; pair < 3 ; pair++){
+                    for ( space = 0; space < SPACE ; space++){
+                        Stream_Type * stream = streams(f1,sum,spin,space)+n2[space]*CanonicalRank(f1, sum, spin);
+                        if ( CanonicalRank(f1, sum, spin) > part(f1, sum )){
+                            printf("part sum\n");
+                            exit(0);
+                        }
+                        for ( I1 = 0 ; I1 < n1[space] ; I1++)
+                            for ( I2 = 0 ; I2 < n1[space] ; I2++)
+                                for ( I3 = 0 ; I3 < n1[space] ; I3++)
+                                    for ( I4 = 0 ; I4 < n1[space] ; I4++)
+                                        for ( I5 = 0 ; I5 < n1[space] ; I5++)
+                                            for ( I6 = 0 ; I6 < n1[space] ; I6++)
+
+                                            {
+                                                value = 0;
+                                                if ( pair == 0 ){
+                                                    value  = streams(f1,mat,ms,space)[ (I1*n1[space]+I3) + (I2*n1[space]+I4)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I5-I6);
+                                                }else if ( pair == 1 ) {
+                                                    value  = streams(f1,mat,ms,space)[ (I1*n1[space]+I5) + (I2*n1[space]+I6)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I3-I4);
+                                                }else if ( pair == 2 ) {
+                                                    value  = streams(f1,mat,ms,space)[ (I3*n1[space]+I5) + (I4*n1[space]+I6)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I1-I2);
+                                                }
+                                                ve = (I1+I3*n1[space]+I5*n1[space]*n1[space])+ (I2+I4*n1[space]+I6*n1[space]*n1[space])*n1[space]*n1[space]*n1[space];
+                                                //                                                printf("%f %lld %lld\n", value,ve,n2[space]);
+                                                //                                                fflush(stdout);
+                                                stream[ ve ] = value;
+                                                //                                                printf("x");
+                                                //                                                fflush(stdout);
+
+                                            }
+                    }
+                    f1.tulip[sum].Current[spin]++;
+                }
+        }
+        else {
+            printf("Yo!");
+            exit(0);
+        }
+
+    }
+    return 0;
+}
+
+
+
+
+
+
+
+
+INT_TYPE sumTo4(struct sinc_label f1, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin){
+
+    INT_TYPE n2[SPACE];
+    length(f1, sum,n2);
+    if (bodies(f1,sum) == four && f1.rt->calcType == electronicStuctureCalculation){
+
+    if ( bodies ( f1, mat ) == one ){
+        INT_TYPE I1,I2, I3, I4,I5,I6,I7,I8,body,r,space;
+        INT_TYPE n1[SPACE];
+        length1(f1,n1);
+        double value;
+
+        for ( r = 0; r < CanonicalRank(f1, mat , ms ); r++)
+            for ( body = 0 ; body < 4 ; body++){
+                for ( space = 0; space < SPACE ; space++){
+                    Stream_Type * stream = streams(f1,sum,spin,space)+n2[space]*CanonicalRank(f1, sum, spin);
+                    if ( CanonicalRank(f1, sum, spin) > part(f1, sum )){
+                        printf("part sum\n");
+                        exit(0);
+                    }
+                    for ( I1 = 0 ; I1 < n1[space] ; I1++)
+                        for ( I2 = 0 ; I2 < n1[space] ; I2++)
+                            for ( I3 = 0 ; I3 < n1[space] ; I3++)
+                                for ( I4 = 0 ; I4 < n1[space] ; I4++)
+                                    for ( I5 = 0 ; I5 < n1[space] ; I5++)
+                                        for ( I6 = 0 ; I6 < n1[space] ; I6++)
+                                            for ( I7 = 0 ; I7 < n1[space] ; I7++)
+                                                for ( I8 = 0 ; I8 < n1[space] ; I8++)
+
+                                                {
+                                                    value = 0;
+                                                    if ( body == 0 ){
+                                                        value  = streams(f1,mat,ms,space)[ I1*n1[space]+I2 + r*n1[space]*n1[space] ] * delta(I3-I4)*delta(I5-I6)*delta(I7-I8);
+                                                    }else if ( body == 1 ) {
+                                                        value  = streams(f1,mat,ms,space)[ I3*n1[space]+I4 + r*n1[space]*n1[space] ] * delta(I1-I2)*delta(I5-I6)*delta(I7-I8);
+                                                    }else if ( body == 2 ) {
+                                                        value  = streams(f1,mat,ms,space)[ I5*n1[space]+I6 + r*n1[space]*n1[space] ] * delta(I1-I2)*delta(I3-I4)*delta(I7-I8);
+                                                    }else if ( body == 3 ) {
+                                                        value  = streams(f1,mat,ms,space)[ I7*n1[space]+I8 + r*n1[space]*n1[space] ] * delta(I1-I2)*delta(I3-I4)*delta(I5-I6);
+                                                    }
+                                                    stream[ (I1+I3*n1[space]+I5*n1[space]*n1[space]+I7*n1[space]*n1[space]*n1[space])+ (I2+I4*n1[space]+I6*n1[space]*n1[space]+I8*n1[space]*n1[space]*n1[space])*n1[space]*n1[space]*n1[space]*n1[space]] = value;
+                                                }
+                }
+                f1.tulip[sum].Current[spin]++;
+
+            }
+    }else if ( bodies ( f1, mat ) == two ){
+        INT_TYPE I1,I2, I3, I4,I5,I6,I7,I8,pair,r,space;
+        INT_TYPE n1[SPACE];
+        length1(f1, n1);
+
+        double value;
+
+        for ( r = 0; r < CanonicalRank(f1, mat , ms ); r++)
+            for ( pair = 0 ; pair < 6 ; pair++){
+                for ( space = 0; space < SPACE ; space++){
+                    Stream_Type * stream = streams(f1,sum,spin,space)+n2[space]*CanonicalRank(f1, sum, spin);
+                    if ( CanonicalRank(f1, sum, spin) > part(f1, sum )){
+                        printf("part sum\n");
+                        exit(0);
+                    }
+                    for ( I1 = 0 ; I1 < n1[space] ; I1++)
+                        for ( I2 = 0 ; I2 < n1[space] ; I2++)
+                            for ( I3 = 0 ; I3 < n1[space] ; I3++)
+                                for ( I4 = 0 ; I4 < n1[space] ; I4++)
+                                    for ( I5 = 0 ; I5 < n1[space] ; I5++)
+                                        for ( I6 = 0 ; I6 < n1[space] ; I6++)
+                                            for ( I7 = 0 ; I7 < n1[space] ; I7++)
+                                                for ( I8 = 0 ; I8 < n1[space] ; I8++)
+
+                                                {
+                                                    //                                            0    e12,     1,3     2,4
+                                                    //                                            1    e13,     1,5     2,6
+                                                    //                                            2    e23,     3,5     4,6
+                                                    //                                            3    e14,     1,7     2,8
+                                                    //                                            4    e24,     3,7     4,8
+                                                    //                                            5    e34      5,7     6,8
+
+
+                                                    if ( pair == 0 ){
+                                                        value  = streams(f1,mat,ms,space)[ (I1*n1[space]+I3) + (I2*n1[space]+I4)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I5-I6)*delta(I7-I8);
+                                                    }else if ( pair == 1 ) {
+                                                        value  = streams(f1,mat,ms,space)[ (I1*n1[space]+I5) + (I2*n1[space]+I6)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I3-I4)*delta(I7-I8);
+                                                    }else if ( pair == 2 ) {
+                                                        value  = streams(f1,mat,ms,space)[ (I3*n1[space]+I5) + (I4*n1[space]+I6)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I1-I2)*delta(I7-I8);
+                                                    }else if ( pair == 3 ) {
+                                                        value  = streams(f1,mat,ms,space)[ (I1*n1[space]+I7) + (I2*n1[space]+I8)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I3-I4)*delta(I5-I6);
+                                                    }else if ( pair == 4 ) {
+                                                        value  = streams(f1,mat,ms,space)[ (I3*n1[space]+I7) + (I4*n1[space]+I8)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I1-I2)*delta(I5-I6);
+                                                    }else if ( pair == 5 ) {
+                                                        value  = streams(f1,mat,ms,space)[ (I5*n1[space]+I7) + (I6*n1[space]+I8)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I1-I2)*delta(I3-I4);
+                                                    }else {
+                                                        printf ("rails!\n");
+                                                        exit(0);
+                                                    }
+                                                    stream[ (I1+I3*n1[space]+I5*n1[space]*n1[space]+I7*n1[space]*n1[space]*n1[space])+ (I2+I4*n1[space]+I6*n1[space]*n1[space]+I8*n1[space]*n1[space]*n1[space])*n1[space]*n1[space]*n1[space]*n1[space]] = value;
+                                                }
+                }
+                f1.tulip[sum].Current[spin]++;
+            }
+    }
+    else {
+        printf("Yo!");
+        exit(0);
+    }
+    }
     return 0;
 }
 
@@ -404,7 +654,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 ioStoreMatrix(f1.f, hamiltonian, 0, "interactionExchange.matrix", 1);
                 
                 tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
-                oneTo2(f1.f, kinetic, 0, hamiltonian, 0);
+                sumTo2(f1.f, kinetic, 0, hamiltonian, 0);
                 tScaleOne(f1.f, kinetic, 0, 1./oneBodyFraction);
                                 
                 tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
@@ -416,23 +666,23 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 ioStoreMatrix(f1.f, hamiltonian, 0, "interactionEwald.matrix", 1);
 
                 tScaleOne(f1.f, linear, 0, oneBodyFraction);
-                oneTo2(f1.f, linear, 0, hamiltonian, 0);
+                sumTo2(f1.f, linear, 0, hamiltonian, 0);
                 tScaleOne(f1.f, linear, 0, 1./oneBodyFraction);
                 
                 tScaleOne(f1.f,intercellularSelfEwald, 0, oneBodyFraction);
-                oneTo2(f1.f, intercellularSelfEwald, 0, hamiltonian, 0);
+                sumTo2(f1.f, intercellularSelfEwald, 0, hamiltonian, 0);
                 tScaleOne(f1.f,intercellularSelfEwald, 0, 1./oneBodyFraction);
                 
                 tScaleOne(f1.f,intracellularSelfEwald, 0, oneBodyFraction);
-                oneTo2(f1.f, intracellularSelfEwald, 0, hamiltonian, 0);
+                sumTo2(f1.f, intracellularSelfEwald, 0, hamiltonian, 0);
                 tScaleOne(f1.f,intracellularSelfEwald, 0, 1./oneBodyFraction);
                 
                 tScaleOne(f1.f,jelliumElectron, 0, oneBodyFraction);
-                oneTo2(f1.f, jelliumElectron, 0, hamiltonian, 0);
+                sumTo2(f1.f, jelliumElectron, 0, hamiltonian, 0);
                 tScaleOne(f1.f,jelliumElectron, 0, 1./oneBodyFraction);
                 
                 tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
-                oneTo2(f1.f, kinetic, 0, hamiltonian, 0);
+                sumTo2(f1.f, kinetic, 0, hamiltonian, 0);
                 tScaleOne(f1.f, kinetic, 0, 1./oneBodyFraction);
                 
                 tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
@@ -447,23 +697,23 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 //
                 ioStoreMatrix(f1.f, hamiltonian, 0, "interactionEwald.1.matrix", 1);
                 tScaleOne(f1.f, kinetic, 1, oneBodyFraction);
-                oneTo2(f1.f, kinetic, 1, hamiltonian, 0);
+                sumTo2(f1.f, kinetic, 1, hamiltonian, 0);
                 tScaleOne(f1.f, kinetic, 1, 1./oneBodyFraction);
                 
                 tScaleOne(f1.f, linear, 1, oneBodyFraction);
-                oneTo2(f1.f, linear, 1, hamiltonian, 0);
+                sumTo2(f1.f, linear, 1, hamiltonian, 0);
                 tScaleOne(f1.f, linear, 1, 1./oneBodyFraction);
                 
                 tScaleOne(f1.f,intercellularSelfEwald, 1, oneBodyFraction);
-                oneTo2(f1.f, intercellularSelfEwald, 1, hamiltonian, 0);
+                sumTo2(f1.f, intercellularSelfEwald, 1, hamiltonian, 0);
                 tScaleOne(f1.f,intercellularSelfEwald, 1, 1./oneBodyFraction);
                 
                 tScaleOne(f1.f,intracellularSelfEwald, 1, oneBodyFraction);
-                oneTo2(f1.f, intracellularSelfEwald, 1, hamiltonian, 0);
+                sumTo2(f1.f, intracellularSelfEwald, 1, hamiltonian, 0);
                 tScaleOne(f1.f,intracellularSelfEwald, 1, 1./oneBodyFraction);
                 
                 tScaleOne(f1.f,jelliumElectron, 1, oneBodyFraction);
-                oneTo2(f1.f, jelliumElectron, 1, hamiltonian, 0);
+                sumTo2(f1.f, jelliumElectron, 1, hamiltonian, 0);
                 tScaleOne(f1.f,jelliumElectron, 1, 1./oneBodyFraction);
                 
                 tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
@@ -519,10 +769,20 @@ INT_TYPE distill ( struct calculation c, struct field f1){
     }
     if ( allowQ(f1.f.rt, blockHamiltonianBlock))
     {
-        if ( CanonicalRank(f1.f,trainHamiltonian,0) )
+        if ( CanonicalRank(f1.f,trainHamiltonian,0) ){
             ioStoreMatrix(f1.f,trainHamiltonian ,0,"trainHamiltonian.matrix",0);
-        if ( CanonicalRank(f1.f,trainHamiltonian,1) )
-            ioStoreMatrix(f1.f,trainHamiltonian ,1,"trainHamiltonian.1.matrix",0);        
+            tClear(f1.f, hamiltonian);
+            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 0, NULL,hamiltonian  , 0, c.rt.CANON, 1, c.rt.powDecompose);
+            ioStoreMatrix(f1.f,hamiltonian ,0,"single.matrix",0);
+
+        }
+        if ( CanonicalRank(f1.f,trainHamiltonian,1) ){
+            ioStoreMatrix(f1.f,trainHamiltonian ,1,"trainHamiltonian.1.matrix",0);
+            tClear(f1.f, hamiltonian);
+            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 1, NULL,hamiltonian  , 0, c.rt.CANON, 1, c.rt.powDecompose);
+            ioStoreMatrix(f1.f,hamiltonian ,0,"single.1.matrix",0);
+        }
+        
     }
         fModel(&f1.f);
     return 0;
@@ -632,7 +892,11 @@ int main (INT_TYPE argc , char * argv[]){
     
     //0//...   //A//B//C//D//E
     if ( c.rt.phaseType == buildFoundation ){//0
-        foundation(&c,f);
+#ifdef NBODY
+        foundationM(&c,f);
+#else
+        foundation1(&c,f);
+#endif
     }
     else if ( c.rt.phaseType == productKrylov ){//C
         krylov(&c,f);
@@ -641,7 +905,7 @@ int main (INT_TYPE argc , char * argv[]){
         ritz(&c,f);
     }
     else if ( c.rt.phaseType == svdOperation ){//E
-        svd(c,f);
+       // svd(c,f);
     }else if ( c.rt.phaseType == distillMatrix ){
         distill(c,f);
     } else if ( c.rt.phaseType == reportMatrix ){

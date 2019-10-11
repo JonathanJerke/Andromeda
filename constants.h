@@ -356,7 +356,8 @@ enum blockMemoryType{
     blockTotalVectorBlock,//7
     blockSeparateTwoBodyBlock,//8
     blockTrainVectorsblock,//9
-    blockTrainMatricesblock//10
+    blockTrainMatricesblock,//10
+    blockfoundationMblock//11
 };
 
 
