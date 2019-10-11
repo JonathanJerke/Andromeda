@@ -550,7 +550,7 @@ int main (INT_TYPE argc , char * argv[]){
 
             case 0 :
                 //andromeda 0 0
-                printf("----\nv7.5.3\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\nv7.5.4\n\n%s\n\n",getenv("LAUNCH"));
                 exit(0);
         }
 
