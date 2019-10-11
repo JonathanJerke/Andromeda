@@ -429,7 +429,7 @@ INT_TYPE inputFormat(struct sinc_label f1,char * name,  enum division buffer, IN
 
                 getline(&inputPt,&maxRead, in   );
                 if ( ! sscanf (inputPt,"%lf\n",&( value)) ){
-                    printf("--%lld :%s:\n",ct,inputPt);
+                    printf("--%d :%s:\n",ct,inputPt);
                     exit(0);
                 };
 
