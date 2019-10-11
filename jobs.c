@@ -532,21 +532,30 @@ INT_TYPE distill ( struct calculation c, struct field f1){
 #if 1
 
 int main (INT_TYPE argc , char * argv[]){
+    argc--;//erase ./andromeda...
+    argv++;
     struct calculation c;
     struct field f;
+    
+    
+    
     if ( argc == 2 ){
         switch ( atoi( argv[1])){
             case 1 :
+                //andromeda inputFile 1
                 bootShell(argc, argv,&c,&f);
                 c.i.RAMmax = 0;
 
                 break;
+
             case 0 :
+                //andromeda 0 0
                 printf("----\nv7.5.3\n\n%s\n\n",getenv("LAUNCH"));
                 exit(0);
         }
 
     }else {
+        //andromeda inputFile
         bootShell(argc, argv,&c,&f);
 
    // test2();

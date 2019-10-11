@@ -1963,8 +1963,13 @@ INT_TYPE finalizeInit(struct calculation * c ){
 
 INT_TYPE bootShell (INT_TYPE argc , char * argv[],struct calculation * c1, struct field *f){
 #ifndef APPLE
-    argc--;
-    
+    FILE * in ;
+
+    if ( argc >= 1 ){
+        in = fopen(argv[0],"r");
+    } else {
+        in = stdin;
+    }
     
     INT_TYPE broke;
     
@@ -1973,7 +1978,6 @@ INT_TYPE bootShell (INT_TYPE argc , char * argv[],struct calculation * c1, struc
     srand((unsigned) time(&t));
     
     INT_TYPE i,c,EV,EV2,ER;
-    FILE * in = stdin;
     char str[MAXSTRING];
     *f = initField();
     *c1 = initCal();
@@ -1999,7 +2003,9 @@ INT_TYPE bootShell (INT_TYPE argc , char * argv[],struct calculation * c1, struc
     }
     finalizeInit(c1);
     f->f.boot = fullMatrices;
-
+    if ( argc >= 1 ){
+        fclose(in);
+    }
 #else
     *c1 =initCal();
     *f = initField();
