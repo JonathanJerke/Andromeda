@@ -1407,7 +1407,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
         
         fromBeginning(*f1,quadCube,shortTwoAcrossDimensions);
-        f1->tulip[quadCube].Partition = allowQ(f1->rt,blockBuildHamiltonianBlock);
+        f1->tulip[quadCube].Partition = allowQ(f1->rt,blockBuildHamiltonianBlock) || allowQ(f1->rt,blockHamiltonianBlock);
         f1->tulip[quadCube].species = matrix;
         assignParticle(*f1, quadCube, all, two);
     

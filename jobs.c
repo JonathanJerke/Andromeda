@@ -78,11 +78,13 @@ INT_TYPE foundationM(struct calculation *c1, struct field f1){
                 break;
             case three:
                 sumTo3(f1.f, build, 0, trainHamiltonian,0);
-                tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.vCANON, 1, c1->rt.powDecompose);
+                tId(f1.f , eigen,0);
+                tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.vCANON, 1, 0);
                 break;
             case four:
                 sumTo4(f1.f, build, 0, trainHamiltonian,0);
-                tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.vCANON, 1, c1->rt.powDecompose);
+                tId(f1.f , eigen,0);
+                tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.vCANON, 1, 0);
                 break;
             }
         tBootManyConstruction(c1,f1.f ,eigen);
@@ -771,16 +773,16 @@ INT_TYPE distill ( struct calculation c, struct field f1){
     {
         if ( CanonicalRank(f1.f,trainHamiltonian,0) ){
             ioStoreMatrix(f1.f,trainHamiltonian ,0,"trainHamiltonian.matrix",0);
-            tClear(f1.f, hamiltonian);
-            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 0, NULL,eigen  , 0, c.rt.CANON, 1, c.rt.powDecompose);
-            ioStoreMatrix(f1.f,eigen ,0,"single.matrix",0);
+            tId(f1.f , quadCube,0);
+            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 0, NULL,quadCube  , 0, c.rt.CANON, 1, 0);
+            ioStoreMatrix(f1.f,quadCube ,0,"single.matrix",0);
 
         }
         if ( CanonicalRank(f1.f,trainHamiltonian,1) ){
             ioStoreMatrix(f1.f,trainHamiltonian ,1,"trainHamiltonian.1.matrix",0);
-            tClear(f1.f, hamiltonian);
-            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 1, NULL,eigen  , 0, c.rt.CANON, 1, c.rt.powDecompose);
-            ioStoreMatrix(f1.f,eigen ,0,"single.1.matrix",0);
+            tId(f1.f , quadCube,0);
+            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 1, NULL,quadCube  , 0, c.rt.CANON, 1,0);
+            ioStoreMatrix(f1.f,quadCube ,0,"single.1.matrix",0);
         }
         
     }
