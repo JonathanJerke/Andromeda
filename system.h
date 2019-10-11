@@ -34,6 +34,8 @@
 #define SPACE (COMPONENT * PARTICLE)
 #define MAXATOM 4
 
+//SET #define NBODY to allow for builds of foundations in correlated N-body format
+#define NBODY
 
 //Currently under a dozen actual blocks possible, there is extra.
 #define BlockCount 16
