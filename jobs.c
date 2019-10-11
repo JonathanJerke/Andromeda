@@ -77,23 +77,22 @@ INT_TYPE foundationM(struct calculation *c1, struct field f1){
                 tEqua(f1.f, eigen, 0, quadCube, 0);
                 break;
             case three:
-                sumTo3(f1.f, quadCube, 0,eigen, 0);
+                sumTo3(f1.f, quadCube, 0,build, 0);
                 tId(f1.f , eigen,0);
-                tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.vCANON, 1, 0);
+                tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.CANON, 1, 0);
                 break;
             case four:
-                sumTo4(f1.f, quadCube, 0,eigen, 0);
+                sumTo4(f1.f, quadCube, 0,build, 0);
                 tId(f1.f , eigen,0);
-                tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.vCANON, 1, 0);
+                tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.CANON, 1, 0);
                 break;
             }
         tBootManyConstruction(c1,f1.f ,eigen);
-        if ( ! tSortBoot(c1,f1.f,build) )
-            EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
-        else
-            EV = 0;
-        
+        EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
+        print(c1,f1,1,0,EV , f1.f.user);
+
     }
+    
     fModel(&f1.f);
 
     return EV;
