@@ -539,17 +539,27 @@ int main (INT_TYPE argc , char * argv[]){
     
     
     
-    if ( argc == 2 ){
-        switch ( atoi( argv[1])){
+    if ( argc > 0 ){
+        switch ( atoi( argv[0])){
+            case -1 :
+                argc--;
+                argv++;
+                //andromeda -1 inputFile
+                //runs normally from file
+                bootShell(argc, argv,&c,&f);
+                break;
+
             case 1 :
-                //andromeda inputFile 1
+                argc--;
+                argv++;
+                //andromeda 1 inputFile
+                //spits out memory requirements only
                 bootShell(argc, argv,&c,&f);
                 c.i.RAMmax = 0;
-
                 break;
 
             case 0 :
-                //andromeda 0 0
+                //andromeda 0
                 printf("----\nv7.5.4\n\n%s\n\n",getenv("LAUNCH"));
                 exit(0);
         }
