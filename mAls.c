@@ -1596,7 +1596,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
             }
             if (xl == -1){
                 xl = imin( X+B, L );
-                slack = xl-X;
+                slack += xl-X;
           //      printf("slack: \t%d\t %d\t %f \t / \t %f\n",iiii,xl-X, inc ,iinc);
 
             }else {

@@ -617,6 +617,11 @@ INT_TYPE report ( struct calculation c, struct field f1){
         ioStoreMatrix(f1.f,linear ,0,"linear.matrix",0);
 
     }
+
+	if ( CanonicalRank(f1.f, vectorMomentum , 0 ) ) {
+	ioStoreMatrix(f1.f,vectorMomentum, 0,"vector.matrix",0);
+}
+
     if ( CanonicalRank(f1.f,linear,1) ){
         ioStoreMatrix(f1.f,linear ,1,"linear.1.matrix",0);
 
@@ -658,6 +663,10 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 sumTo2(f1.f, kinetic, 0, hamiltonian, 0);
                 tScaleOne(f1.f, kinetic, 0, 1./oneBodyFraction);
                                 
+                tScaleOne(f1.f, vectorMomentum, 0, oneBodyFraction);
+                sumTo2(f1.f, vectorMomentum, 0, hamiltonian, 0);
+                tScaleOne(f1.f, vectorMomentum, 0, 1./oneBodyFraction);
+                
                 tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
                 tClear(f1.f,hamiltonian);
                 sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
@@ -665,10 +674,6 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 
             } else {
                 ioStoreMatrix(f1.f, hamiltonian, 0, "interactionEwald.matrix", 1);
-
-                tScaleOne(f1.f, linear, 0, oneBodyFraction);
-                sumTo2(f1.f, linear, 0, hamiltonian, 0);
-                tScaleOne(f1.f, linear, 0, 1./oneBodyFraction);
                 
                 tScaleOne(f1.f,intercellularSelfEwald, 0, oneBodyFraction);
                 sumTo2(f1.f, intercellularSelfEwald, 0, hamiltonian, 0);
@@ -700,11 +705,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 tScaleOne(f1.f, kinetic, 1, oneBodyFraction);
                 sumTo2(f1.f, kinetic, 1, hamiltonian, 0);
                 tScaleOne(f1.f, kinetic, 1, 1./oneBodyFraction);
-                
-                tScaleOne(f1.f, linear, 1, oneBodyFraction);
-                sumTo2(f1.f, linear, 1, hamiltonian, 0);
-                tScaleOne(f1.f, linear, 1, 1./oneBodyFraction);
-                
+                                
                 tScaleOne(f1.f,intercellularSelfEwald, 1, oneBodyFraction);
                 sumTo2(f1.f, intercellularSelfEwald, 1, hamiltonian, 0);
                 tScaleOne(f1.f,intercellularSelfEwald, 1, 1./oneBodyFraction);
@@ -727,6 +728,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 
                 if ( c.rt.calcType == electronicStuctureCalculation){
                     tAddTw(f1.f,hamiltonian,0,kinetic ,0);
+                    tAddTw(f1.f,hamiltonian,0,vectorMomentum ,0);
                 } else {
                     tAddTw(f1.f,hamiltonian,0,shortenPlus ,0);
                     tAddTw(f1.f,hamiltonian,0,shortenMinus ,0);
@@ -770,18 +772,28 @@ INT_TYPE distill ( struct calculation c, struct field f1){
     }
     if ( allowQ(f1.f.rt, blockHamiltonianBlock))
     {
+        enum division onem ;
+        if ( bodies(f1.f,trainHamiltonian ) == one)
+            onem = diagonalCube;
+        else
+            onem = quadCube;
+
+        tClear(f1.f, onem);
+
         if ( CanonicalRank(f1.f,trainHamiltonian,0) ){
             ioStoreMatrix(f1.f,trainHamiltonian ,0,"trainHamiltonian.matrix",0);
-            tId(f1.f , quadCube,0);
-            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 0, NULL,quadCube  , 0, c.rt.CANON, 1, 0);
-            ioStoreMatrix(f1.f,quadCube ,0,"single.matrix",0);
+
+            tId(f1.f , onem,0);
+            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 0, NULL,onem  , 0, c.rt.CANON, 1, 0);
+            ioStoreMatrix(f1.f,onem ,0,"single.matrix",0);
 
         }
         if ( CanonicalRank(f1.f,trainHamiltonian,1) ){
             ioStoreMatrix(f1.f,trainHamiltonian ,1,"trainHamiltonian.1.matrix",0);
-            tId(f1.f , quadCube,0);
-            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 1, NULL,quadCube  , 0, c.rt.CANON, 1,0);
-            ioStoreMatrix(f1.f,quadCube ,0,"single.1.matrix",0);
+            tClear(f1.f, onem);
+            tId(f1.f , onem,0);
+            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 1, NULL,onem  , 0, c.rt.CANON, 1,0);
+            ioStoreMatrix(f1.f,onem ,0,"single.1.matrix",0);
         }
         
     }
@@ -821,7 +833,7 @@ int main (INT_TYPE argc , char * argv[]){
 
             case 0 :
                 //andromeda 0
-                printf("----\nv7.5.4\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\nv7.5.5\n\n%s\n\n",getenv("LAUNCH"));
                 exit(0);
         }
 

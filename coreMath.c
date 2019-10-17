@@ -89,27 +89,27 @@ double Power ( double b, INT_TYPE n ){
 }
 
 DCOMPLEX ovx (  INT_TYPE bb, double kk , double dd, INT_TYPE LL, INT_TYPE b, double k,double d,INT_TYPE L ,INT_TYPE ll){
-    DCOMPLEX A,D,sum=0.;
-    A =  I*(b*d*k - bb*dd*kk - ((dd*kk*LL + 2*ll*pi)*(b*d - bb*dd))/(dd*LL));
-    
-    D = 1./LL;
-    if ( (2*ll + LL)/(dd*LL) >= 0 ){
+    INT_TYPE sum = 0;
+    if ( (2*ll + LL) >= 0 ){
         if (   -k + kk + (1./d + (2*ll)/(dd*LL))*pi >= 0 )
-            sum +=   D * cexp( A );
+            sum +=  1;
 
         if ( -k + kk + (-1./d + (2*ll)/(dd*LL))*pi >= 0 )
-            sum -=   D * cexp( A );
+            sum -=  1;
 
     }
-    if ( (2*ll - LL)/(dd*LL) >= 0 ){
+    if ( (2*ll - LL) >= 0 ){
         if (   -k + kk + (-1./d + (2*ll)/(dd*LL))*pi >= 0 )
-            sum +=    D * cexp( A );
+            sum +=  1;
 
         if ( -k + kk + (1./d + (2*ll)/(dd*LL))*pi >= 0 )
-            sum -=    D * cexp( A );
+            sum -=   1;
 
     }
-    return sum;
+    if ( sum ){
+       return  cexp(I*(b*d*k - bb*dd*kk - ((dd*kk*LL + 2*ll*pi)*(b*d - bb*dd))/(dd*LL)))/LL;
+    } else
+        return 0.;
 }
 
 DCOMPLEX dx ( INT_TYPE N,  INT_TYPE bb, double kk ,double dd,INT_TYPE LL,INT_TYPE ll){

@@ -663,7 +663,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         assignOneWithPointers(*f1, kineticMass,all);
 
     fromBeginning(*f1, hamiltonian, kineticMass);
-        f1->tulip[hamiltonian].Partition = allowQ(f1->rt,blockTrainingHamiltonianBlock)*(2*COMPONENT+c1->i.twoBody.num);//
+        f1->tulip[hamiltonian].Partition = allowQ(f1->rt,blockTrainingHamiltonianBlock)*(4*COMPONENT+(6*(c1->rt.runFlag == 7 )+ 1)* c1->i.twoBody.num);//
         f1->tulip[hamiltonian].species = matrix;
         f1->tulip[hamiltonian].spinor = real;
 
@@ -1060,7 +1060,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     num2Body = 1;
                     break;
             }
-            f1->tulip[totalVector].Partition = imax( f->i.xRank,f->i.bRank * ( 1+part(*f1,linear)*bootBodies + num2Body * c1->i.decomposeRankMatrix));
+            f1->tulip[totalVector].Partition = imax( f->i.xRank,f1->cmpl* f1->cmpl* f->i.bRank * ( 1+part(*f1,linear)*bootBodies +  num2Body * c1->i.decomposeRankMatrix));
 
         }else{
             f1->tulip[totalVector].Partition =  imax( f->i.xRank, c1->i.canonRank * f->i.bRank) ;
@@ -1614,7 +1614,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 separateKinetic(*f1, 0,kinetic, c1->i.massElectron,electron);
                 if ( c1->i.Na ){
                     for ( c = real ; c <= spins (*f1, linear) ; c++){
-                            if ( ioStoreMatrix(*f1,interactionExchange ,c-1,"linear.matrix",1) ) {
+                            if ( ioStoreMatrix(*f1,linear,c-1,"linear.matrix",1) ) {
                           
                             }
                             else{
@@ -1884,7 +1884,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     power[0] = 2 ;
                     power[1] = 0;
                     power[2] = 0;
-                    
+                    printf("k %f\n", c1->i.springConstant);
                     separateDerivatives(*f1, 0, vectorMomentum, power, deriv, 0.5*c1->i.springConstant, electron);
                     
                     deriv[0] = 0;
@@ -1950,6 +1950,11 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                             printf("linear absent");
                             exit(0);//if not already present, go back and build it
                         }
+	
+		if ( c1->i.springFlag )
+			ioStoreMatrix( *f1, vectorMomentum, 0 , "vector.matrix", 1 ) ;
+
+
                 if ( f1->rose[0].component == periodicComponent1 ){
                     
                     

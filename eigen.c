@@ -742,11 +742,11 @@ INT_TYPE tFoundationLevel( struct sinc_label  f1, enum division A , double lvlm,
 
             
             flag = 1;
-            value = 0;
+            value = 1;
             for ( space = 0; space < SPACE ; space++)
                 if ( n1[space] != 0 ) {
                 if (  streams(f1,foundationStructure,1,space)[r[space]+g[space]*n1[space]] > 0.5    ){
-                    value += (streams(f1,foundationStructure,0,space)[r[space]+g[space]*n1[space]]);
+                    value *= (streams(f1,foundationStructure,0,space)[r[space]+g[space]*n1[space]]);
 
                 } else {
                     flag = 0;

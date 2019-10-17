@@ -6183,7 +6183,7 @@ void separateDerivatives( struct sinc_label f1, INT_TYPE periodic,enum division 
     if ( ! part(f1,mat))
         return ;
 
-    double b0 = 1,powSpace,spaces=0;
+    double b0 = 0.001,powSpace,spaces=0;
     INT_TYPE space,I1,I2,flagCMPL=f1.cmpl;
     INT_TYPE dims[SPACE],signFlag= 1;
     length1(f1, dims);
