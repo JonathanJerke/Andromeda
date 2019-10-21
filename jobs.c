@@ -568,42 +568,17 @@ INT_TYPE sumTo4(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
 INT_TYPE report ( struct calculation c, struct field f1){
 
     if ( CanonicalRank(f1.f,interactionExchange,0) ){
-        ioStoreMatrix(f1.f,interactionExchange ,0,"interactionExchange.matrix",0);
+        ioStoreMatrixScale(&f1,interactionExchange ,0,"interactionExchange.matrix",0);
     }
     if ( CanonicalRank(f1.f,interactionExchange,1) ){
-        ioStoreMatrix(f1.f,interactionExchange ,0,"interactionExchange.1.matrix",0);
+        ioStoreMatrixScale(&f1,interactionExchange ,1,"interactionExchange.1.matrix",0);
     }
-
-
-    if ( CanonicalRank(f1.f,jelliumElectron,0) ){
-        ioStoreMatrix(f1.f,jelliumElectron ,0,"jelliumElectron.matrix",0);
-    }
-
-    if ( CanonicalRank(f1.f,jelliumElectron,1) ){
-        ioStoreMatrix(f1.f,jelliumElectron ,1,"jelliumElectron.1.matrix",0);
-    }
-
-    if ( CanonicalRank(f1.f,intracellularSelfEwald,0) ){
-        ioStoreMatrix(f1.f,intracellularSelfEwald ,0,"intracellularSelfEwald.matrix",0);
-    }
-
-    if ( CanonicalRank(f1.f,intracellularSelfEwald,1) ){
-        ioStoreMatrix(f1.f,intracellularSelfEwald ,1,"intracellularSelfEwald.1.matrix",0);
-    }
-
-    if ( CanonicalRank(f1.f,intercellularSelfEwald,0) ){
-        ioStoreMatrix(f1.f,intercellularSelfEwald ,0,"intercellularSelfEwald.matrix",0);
-    }
-    if ( CanonicalRank(f1.f,intercellularSelfEwald,1) ){
-        ioStoreMatrix(f1.f,intercellularSelfEwald ,1,"intercellularSelfEwald.1.matrix",0);
-    }
-
 
     if ( CanonicalRank(f1.f,interactionEwald,0) ){
-        ioStoreMatrix(f1.f,interactionEwald ,0,"interactionEwald.matrix",0);
+        ioStoreMatrixScale(&f1,interactionEwald ,0,"interactionEwald.matrix",0);
     }
     if ( CanonicalRank(f1.f,interactionEwald,1) ){
-        ioStoreMatrix(f1.f,interactionEwald ,1,"interactionEwald.1.matrix",0);
+        ioStoreMatrixScale(&f1,interactionEwald ,1,"interactionEwald.1.matrix",0);
     }
 
     if ( CanonicalRank(f1.f,shortenPlus,0) )
@@ -618,15 +593,17 @@ INT_TYPE report ( struct calculation c, struct field f1){
 
     }
 
-	if ( CanonicalRank(f1.f, vectorMomentum , 0 ) ) {
-	ioStoreMatrix(f1.f,vectorMomentum, 0,"vector.matrix",0);
-}
-
     if ( CanonicalRank(f1.f,linear,1) ){
         ioStoreMatrix(f1.f,linear ,1,"linear.1.matrix",0);
 
     }
     
+    if ( CanonicalRank(f1.f, vectorMomentum , 0 ) ) {
+        ioStoreMatrix(f1.f,vectorMomentum, 0,"vector.matrix",0);
+    }
+    if ( CanonicalRank(f1.f, vectorMomentum , 1 ) ) {
+        ioStoreMatrix(f1.f,vectorMomentum, 1,"vector.1.matrix",0);
+    }
 
     return 0;
 }
@@ -652,12 +629,206 @@ INT_TYPE distill ( struct calculation c, struct field f1){
     
     if ( allowQ(f1.f.rt, blockTrainHamiltonianBlock) && allowQ(f1.f.rt, blockHamiltonianBlock)&& allowQ(f1.f.rt, blockTrainingHamiltonianBlock)){
         
-        
+        if ( c.rt.runFlag > 0 )
+        {
+            enum bodyType bootBodies = f1.f.rose[0].body;
+            INT_TYPE N1;
+            {
+
+                    enum division in = interactionEwald;
+                    enum division out = jelliumElectron;
+                    INT_TYPE r, space,m,n,nl,Nl,n2,m2,cmpl;
+                    tClear(f1.f, out);
+                    tClear(f1.f, copy);
+                    tId(f1.f, copy,0);
+                    for ( cmpl = 0 ; cmpl < f1.f.cmpl; cmpl++){
+                        for ( r = 0 ; r < CanonicalRank(f1.f, in, cmpl); r++){
+
+                            for ( space = 0; space < SPACE ; space++)
+                            {
+                                nl = vector1Len(f1.f, space);
+                                Nl = nl/2;
+                                for ( n = 0; n < nl ; n++ )
+                                    for ( m = 0 ; m < nl ; m++)
+                                    {
+                                        (streams(f1.f, copy, 0, space))[nl*m+n] = 0.;
+                                        for ( n2 = 0; n2 < Nl ; n2++ )
+                                            for ( m2 = 0 ; m2 < Nl ; m2++)
+                                                (streams(f1.f, copy, 0, space))[nl*m+n] +=  (streams(f1.f, in, cmpl, space)+r*nl*nl*nl*nl)[nl*nl*(nl*m2+m)+(nl*n2+n)]/Nl;
+                                    }
+                            }
+                            tAddTw(f1.f, out, cmpl, copy, 0);
+                        }
+                        tScaleOne(f1.f, out, cmpl, -(INT_TYPE)(bootBodies));
+                        printf("jellium-%d %f\n", cmpl,traceOne(f1.f, out, cmpl));
+                    }
+                }
+            
+
+            {
+                double offset=0.,sum=0.,sumt=0.,prod;
+                enum division in = interactionEwald;
+                INT_TYPE r, space,m,n,nl,Nl,n2,m2,cmpl;
+                for ( cmpl = 0 ; cmpl < 1; cmpl++){
+                    for ( r = 0 ; r < CanonicalRank(f1.f, in, cmpl); r++){
+                        prod = 1.;
+                        for ( space = 0; space < SPACE ; space++)
+                        {
+                            sum = 0.;
+                            nl = vector1Len(f1.f, space);
+                            Nl = nl/2;
+                            for ( n = 0; n < Nl ; n++ )
+                                for ( m = 0 ; m < Nl ; m++)
+                                    for ( n2 = 0; n2 < Nl ; n2++ )
+                                        for ( m2 = 0 ; m2 < Nl ; m2++)
+                                        {
+                                            sum +=  (streams(f1.f, in, cmpl, space)+r*nl*nl*nl*nl)[nl*nl*(nl*n+n2)+(nl*m+m2)]/(Nl*Nl);
+                                        }
+                            prod *= sum;
+                        }
+                        sumt += prod;
+                    }
+                }
+                printf("jellium background\t%15.15f\n", sumt);
+                switch ( bootBodies ) {
+                    case one:
+                        offset = (0.5)*sumt;
+                        break;
+                        //0
+                        //0.5*2
+                        // -1
+                    case two:
+                        offset = (2*0.5+1)*sumt;
+                        // 0
+                        //=
+                        //0.5 * 4 (FORM PLANES)--> 2 ewald + 2 constants
+                        //1 (pair of +)
+                        //1 (pair of - )
+                        //-4 (together)
+                        break;
+                    case three:
+                        offset = (3*0.5+3.)*sumt;
+                        break;
+                        // 0
+                        //=
+                        //0.5 * 6 (FORM PLANES)--> 3 ewald + 3 constants
+                        //3 (trio of +)
+                        //3 (trio of - )
+                        //-9 (together)
+
+                        
+                        
+                        //1 ewald + 1 constant
+                        //1 of +
+                        //1 of -
+                        //-3 JELLIUM
+                        
+                    case four:
+                        offset = (4*0.5+6.)*sumt;
+                        break;
+                    case five:
+                        offset = (5*0.5+10.)*sumt;
+                        break;
+                    case six:
+                        offset = (6*0.5+16.)*sumt;
+                        break;
+
+                }
+                tClear(f1.f, copy);
+                tId(f1.f, copy, 0);
+                tScaleOne(f1.f, copy, 0, offset/(INT_TYPE)(bootBodies));
+                tAddTw(f1.f, jelliumElectron, 0, copy, 0);
+                printf("jelliumT-%d %f\n", 0,traceOne(f1.f, jelliumElectron, 0));
+
+            }
+            
+            {
+                enum division in = interactionEwald;
+                enum division out = intercellularSelfEwald;
+                INT_TYPE r, space,m,n,nl,Nl,cmpl;
+                tClear(f1.f, out);
+                tClear(f1.f, copy);
+                tId(f1.f, copy,0);
+                for ( cmpl = 0 ; cmpl < f1.f.cmpl; cmpl++){
+                    for ( r = 0 ; r < CanonicalRank(f1.f, in, cmpl); r++){
+                        for ( space = 0; space < SPACE ; space++)
+                        {
+                            nl = vector1Len(f1.f, space);
+                            Nl = nl/2;
+                            for ( n = 0; n < nl ; n++ )
+                                for ( m = 0 ; m < nl ; m++)
+                                {
+                                    (streams(f1.f, copy, 0, space))[nl*m+n] =  (streams(f1.f, in, cmpl, space)+r*nl*nl*nl*nl)[nl*nl*(nl*m+m)+(nl*n+n)];
+                                }
+                        }
+                        tAddTw(f1.f, out, cmpl, copy, 0);
+                    }
+                    printf("interaction-%d %f\n", cmpl,traceOne(f1.f, out, cmpl));
+                }
+                tScaleOne(f1.f, out, 0, 0.5);
+                tScaleOne(f1.f, out, 1, 0.5);
+
+            }
+
+            {
+                enum division in = interactionExchange;
+                enum division out = intracellularSelfEwald;
+                INT_TYPE r, space,m,n,Nl,nl,cmpl;
+                tClear(f1.f, out);
+                tClear(f1.f, copy);
+                tId(f1.f, copy,0);
+                for ( cmpl = 0 ; cmpl < f1.f.cmpl; cmpl++){
+                    for ( r = 0 ; r < CanonicalRank(f1.f, in, cmpl); r++){
+
+                        for ( space = 0; space < SPACE ; space++)
+                        {
+                            nl = vector1Len(f1.f, space);
+                            Nl = nl/2;
+                            for ( n = 0; n < nl ; n++ )
+                                for ( m = 0 ; m < nl ; m++)
+                                {
+                                    (streams(f1.f, copy, 0, space))[nl*m+n] =  (streams(f1.f, in, cmpl, space)+r*nl*nl*nl*nl)[nl*nl*(nl*m+m)+(nl*n+n)];
+                                }
+                        }
+                        tAddTw(f1.f, out, cmpl, copy, 0);
+                    }
+                    printf("intraction-%d %f\n", cmpl,traceOne(f1.f, out, cmpl));
+                }
+                tScaleOne(f1.f, out, 0, -0.500);
+                tScaleOne(f1.f, out, 1, -0.500);
+            }
+            
+            if ( CanonicalRank(f1.f,jelliumElectron,0) ){
+                ioStoreMatrix(f1.f,jelliumElectron ,0,"jelliumElectron.matrix",0);
+            }
+
+            if ( CanonicalRank(f1.f,jelliumElectron,1) ){
+                ioStoreMatrix(f1.f,jelliumElectron ,1,"jelliumElectron.1.matrix",0);
+            }
+
+            if ( CanonicalRank(f1.f,intracellularSelfEwald,0) ){
+                ioStoreMatrix(f1.f,intracellularSelfEwald ,0,"intracellularSelfEwald.matrix",0);
+            }
+
+            if ( CanonicalRank(f1.f,intracellularSelfEwald,1) ){
+                ioStoreMatrix(f1.f,intracellularSelfEwald ,1,"intracellularSelfEwald.1.matrix",0);
+            }
+
+            if ( CanonicalRank(f1.f,intercellularSelfEwald,0) ){
+                ioStoreMatrix(f1.f,intercellularSelfEwald ,0,"intercellularSelfEwald.matrix",0);
+            }
+            if ( CanonicalRank(f1.f,intercellularSelfEwald,1) ){
+                ioStoreMatrix(f1.f,intercellularSelfEwald ,1,"intercellularSelfEwald.1.matrix",0);
+            }
+            tClear(f1.f, interactionExchange);
+            tClear(f1.f, interactionEwald);
+
+        }
         if ( f1.i.body >= two ){
             
             
             if ( c.rt.runFlag == 0 ){
-                ioStoreMatrix(f1.f, hamiltonian, 0, "interactionExchange.matrix", 1);
+                ioStoreMatrixScale(&f1,hamiltonian, 0, "interactionExchange.matrix", 1);
                 
                 tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
                 sumTo2(f1.f, kinetic, 0, hamiltonian, 0);
@@ -673,7 +844,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
                 
             } else {
-                ioStoreMatrix(f1.f, hamiltonian, 0, "interactionEwald.matrix", 1);
+                ioStoreMatrixScale(&f1, hamiltonian, 0, "interactionEwald.matrix", 1);
                 
                 tScaleOne(f1.f,intercellularSelfEwald, 0, oneBodyFraction);
                 sumTo2(f1.f, intercellularSelfEwald, 0, hamiltonian, 0);
@@ -701,7 +872,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 //
                 //**
                 //
-                ioStoreMatrix(f1.f, hamiltonian, 0, "interactionEwald.1.matrix", 1);
+                ioStoreMatrixScale(&f1, hamiltonian, 0, "interactionEwald.1.matrix", 1);
                 tScaleOne(f1.f, kinetic, 1, oneBodyFraction);
                 sumTo2(f1.f, kinetic, 1, hamiltonian, 0);
                 tScaleOne(f1.f, kinetic, 1, 1./oneBodyFraction);

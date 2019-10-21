@@ -93,7 +93,31 @@ INT_TYPE print(struct calculation *c , struct field f1,INT_TYPE reset,INT_TYPE m
 }
 
 
-INT_TYPE ioStoreMatrix(struct sinc_label f1, enum division op, INT_TYPE spin, char * filename, INT_TYPE ioIn ){
+
+INT_TYPE ioStoreMatrixScale(struct field *f, enum division op, INT_TYPE spin, char * filename, INT_TYPE ioIn ){
+    INT_TYPE out=0;
+    if ( ioIn == 0){//WRITE OUT...remove biased scale
+        tScaleOne(f->f, op, spin, f->i.d);
+        
+        
+        
+        // read out @ d = 1,
+        out = ioStoreMatrix(f->f, op, spin, filename, ioIn);
+        
+        //put it back
+        tScaleOne(f->f, op, spin, 1./f->i.d);
+
+    }else    if ( ioIn == 1){//WRITE IN... biased scale = 1
+        out = ioStoreMatrix(f->f, op, spin, filename, ioIn);
+        //assumed read in @ d = 1,
+        
+        tScaleOne(f->f, op, spin, 1./f->i.d);
+    }
+    return out;
+}
+
+
+INT_TYPE ioStoreMatrix(struct sinc_label f1, enum division op, INT_TYPE spin, char * file, INT_TYPE ioIn ){
     INT_TYPE matchFlag = 0,tempFlag=1,space;
     #ifdef OVERFLAG
         return 0;
@@ -105,6 +129,30 @@ INT_TYPE ioStoreMatrix(struct sinc_label f1, enum division op, INT_TYPE spin, ch
     //7 second length
     // 5 d
     // 6 D
+    char dir [ MAXSTRING];
+    char filename[SUPERMAXSTRING];
+    if ( PARTICLE == 1 )
+        sprintf(dir, "%d-%d-%d", f1.rose[0].count1Basis,f1.rose[1].count1Basis,f1.rose[2].count1Basis);
+    else if ( PARTICLE ==2 )
+        sprintf(dir, "%d-%d-%d-%d", f1.rose[0].count1Basis,f1.rose[1].count1Basis,f1.rose[2].count1Basis, f1.rose[3].count1Basis);
+    else {
+        printf("not sure\n");
+        exit(0);
+    }
+    {
+        DIR* Dir = NULL;
+        Dir = opendir( dir );
+        
+        if (   Dir == NULL ){
+#ifndef APPLE
+            mkdir(dir,0777);
+#endif
+        }
+        else
+            closedir(Dir);
+    }
+    sprintf(filename, "%s/%s", dir,file);
+
     if (   access( filename, F_OK ) != -1 ){
 
         if (  inputFormat(f1, filename, nullName, 0) == 2 ){

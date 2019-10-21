@@ -2818,7 +2818,7 @@ INT_TYPE tPerms(enum bodyType bd){
 INT_TYPE irreps ( enum bodyType bd, INT_TYPE type ){
     switch( bd ){
         case one:
-            return 1;
+            return 0;
         case two :
             return type;
         case three:

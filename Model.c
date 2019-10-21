@@ -1629,150 +1629,11 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     if (c1->i.twoBody.func.fn != nullFunction ){
                         
                         if ( allowQ(f1->rt, blockSeparateTwoBodyBlock ) ){
-                            for ( c = real ; c <= spins (*f1, interactionEwald) ; c++){
-                                if ( ioStoreMatrix(*f1,interactionEwald ,c-1,"interactionEwald.matrix",1) ){
-                                    
-                                }
-                                else{
-
+                            for ( c = real ; c <= spins (*f1, interactionExchange) ; c++)
                                     buildPairWisePotential(c1, *f1,interactionEwald,electron, 1,c);
-                                }
                             }
-                            {
-                                enum division in = interactionEwald;
-                                enum division out = intercellularSelfEwald;
-                                INT_TYPE r, space,m,n,nl,Nl,cmpl;
-                                tClear(*f1, out);
-                                tClear(*f1, copy);
-                                tId(*f1, copy,0);
-                                for ( cmpl = 0 ; cmpl < f1->cmpl; cmpl++){
-                                    for ( r = 0 ; r < CanonicalRank(*f1, in, cmpl); r++){
-                                        for ( space = 0; space < SPACE ; space++)
-                                        {
-                                            nl = vector1Len(*f1, space);
-                                            Nl = nl/2;
-                                            for ( n = 0; n < nl ; n++ )
-                                                for ( m = 0 ; m < nl ; m++)
-                                                {
-                                                    (streams(*f1, copy, 0, space))[nl*m+n] =  (streams(*f1, in, cmpl, space)+r*nl*nl*nl*nl)[nl*nl*(nl*m+m)+(nl*n+n)];
-                                                }
-                                        }
-                                        tAddTw(*f1, out, cmpl, copy, 0);
-                                    }
-                                    printf("interaction-%d %f\n", cmpl,traceOne(*f1, out, cmpl));
-                                }
-                                tScaleOne(*f1, out, 0, 0.5);
-                                tScaleOne(*f1, out, 1, 0.5);
+                            
 
-                            }
-
-                            {
-                                enum division in = interactionEwald;
-                                enum division out = jelliumElectron;
-                                INT_TYPE r, space,m,n,nl,Nl,n2,m2,cmpl;
-                                tClear(*f1, out);
-                                tClear(*f1, copy);
-                                tId(*f1, copy,0);
-                                for ( cmpl = 0 ; cmpl < f1->cmpl; cmpl++){
-                                    for ( r = 0 ; r < CanonicalRank(*f1, in, cmpl); r++){
-
-                                        for ( space = 0; space < SPACE ; space++)
-                                        {
-                                            nl = vector1Len(*f1, space);
-                                            Nl = nl/2;
-                                            for ( n = 0; n < nl ; n++ )
-                                                for ( m = 0 ; m < nl ; m++)
-                                                {
-                                                    (streams(*f1, copy, 0, space))[nl*m+n] = 0.;
-                                                    for ( n2 = 0; n2 < Nl ; n2++ )
-                                                        for ( m2 = 0 ; m2 < Nl ; m2++)
-                                                            (streams(*f1, copy, 0, space))[nl*m+n] +=  (streams(*f1, in, cmpl, space)+r*nl*nl*nl*nl)[nl*nl*(nl*m2+m)+(nl*n2+n)]/Nl;
-                                                }
-                                        }
-                                        tAddTw(*f1, out, cmpl, copy, 0);
-                                    }
-                                    tScaleOne(*f1, out, cmpl, -(INT_TYPE)(bootBodies));
-                                    printf("jellium-%d %f\n", cmpl,traceOne(*f1, out, cmpl));
-                                }
-                            }
-                        
-
-                        {
-                            double offset=0.,sum=0.,sumt=0.,prod;
-                            enum division in = interactionEwald;
-                            INT_TYPE r, space,m,n,nl,Nl,n2,m2,cmpl;
-                            for ( cmpl = 0 ; cmpl < 1; cmpl++){
-                                for ( r = 0 ; r < CanonicalRank(*f1, in, cmpl); r++){
-                                    prod = 1.;
-                                    for ( space = 0; space < SPACE ; space++)
-                                    {
-                                        sum = 0.;
-                                        nl = vector1Len(*f1, space);
-                                        Nl = nl/2;
-                                        for ( n = 0; n < Nl ; n++ )
-                                            for ( m = 0 ; m < Nl ; m++)
-                                                for ( n2 = 0; n2 < Nl ; n2++ )
-                                                    for ( m2 = 0 ; m2 < Nl ; m2++)
-                                                    {
-                                                        sum +=  (streams(*f1, in, cmpl, space)+r*nl*nl*nl*nl)[nl*nl*(nl*n+n2)+(nl*m+m2)]/(Nl*Nl);
-                                                    }
-                                        prod *= sum;
-                                    }
-                                    sumt += prod;
-                                }
-                            }
-                            printf("jellium background\t %d\t%15.15f\n", N1,sumt);
-                            switch ( bootBodies ) {
-                                case one:
-                                    offset = (0.5)*sumt;
-                                    break;
-                                    //0
-                                    //0.5*2
-                                    // -1
-                                case two:
-                                    offset = (2*0.5+1)*sumt;
-                                    // 0
-                                    //=
-                                    //0.5 * 4 (FORM PLANES)--> 2 ewald + 2 constants
-                                    //1 (pair of +)
-                                    //1 (pair of - )
-                                    //-4 (together)
-                                    break;
-                                case three:
-                                    offset = (3*0.5+3.)*sumt;
-                                    break;
-                                    // 0
-                                    //=
-                                    //0.5 * 6 (FORM PLANES)--> 3 ewald + 3 constants
-                                    //3 (trio of +)
-                                    //3 (trio of - )
-                                    //-9 (together)
-
-                                    
-                                    
-                                    //1 ewald + 1 constant
-                                    //1 of +
-                                    //1 of -
-                                    //-3 JELLIUM
-                                    
-                                case four:
-                                    offset = (4*0.5+6.)*sumt;
-                                    break;
-                                case five:
-                                    offset = (5*0.5+10.)*sumt;
-                                    break;
-                                case six:
-                                    offset = (6*0.5+16.)*sumt;
-                                    break;
-
-                            }
-                            tClear(*f1, copy);
-                            tId(*f1, copy, 0);
-                            tScaleOne(*f1, copy, 0, offset/(INT_TYPE)(bootBodies));
-                            tAddTw(*f1, jelliumElectron, 0, copy, 0);
-                            printf("jelliumT-%d %f\n", 0,traceOne(*f1, jelliumElectron, 0));
-
-                        }
 
                     
                     if ( c1->i.twoBody.func.fn != nullFunction){
@@ -1780,50 +1641,25 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                         //only diagonal!
                             for ( c = real ; c <= spins (*f1, interactionExchange) ; c++)
                                     buildPairWisePotential(c1, *f1,interactionExchange,electron, 2/*diagonal*/,c);
-
-                            {
-                                enum division in = interactionExchange;
-                                enum division out = intracellularSelfEwald;
-                                INT_TYPE r, space,m,n,Nl,nl,cmpl;
-                                tClear(*f1, out);
-                                tClear(*f1, copy);
-                                tId(*f1, copy,0);
-                                for ( cmpl = 0 ; cmpl < f1->cmpl; cmpl++){
-                                    for ( r = 0 ; r < CanonicalRank(*f1, in, cmpl); r++){
-
-                                        for ( space = 0; space < SPACE ; space++)
-                                        {
-                                            nl = vector1Len(*f1, space);
-                                            Nl = nl/2;
-                                            for ( n = 0; n < nl ; n++ )
-                                                for ( m = 0 ; m < nl ; m++)
-                                                {
-                                                    (streams(*f1, copy, 0, space))[nl*m+n] =  (streams(*f1, in, cmpl, space)+r*nl*nl*nl*nl)[nl*nl*(nl*m+m)+(nl*n+n)];
-                                                }
-                                        }
-                                        tAddTw(*f1, out, cmpl, copy, 0);
-                                    }
-                                    printf("intraction-%d %f\n", cmpl,traceOne(*f1, out, cmpl));
-                                }
-                                tScaleOne(*f1, out, 0, -0.500);
-                                tScaleOne(*f1, out, 1, -0.500);
-                            }
-                         //   tClear(*f1, interactionExchange);
-
                         }
                     }
-                    }
+                    
                 }else {//non-periodic
-                    if ( bootBodies > one )
+                    if ( bootBodies > one ){
                         if ( allowQ(f1->rt, blockSeparateTwoBodyBlock))
-                        for ( c = real ; c <= spins (*f1, interactionExchange) ; c++){
-                            if ( ioStoreMatrix(*f1,interactionExchange ,c-1,"interactionExchange.matrix",1) ){
+                        {
+                            ioStoreMatrixScale(f,interactionExchange ,0,"interactionExchange.matrix",1);
+                            if ( f1->cmpl == cmpl)
+
+                            ioStoreMatrixScale(f,interactionExchange ,1,"interactionExchange.1.matrix",1);
+
                             }
-                            else{
+                        else
+                            for ( c = real ; c <= spins (*f1, interactionExchange) ; c++){
                                 buildPairWisePotential(c1, *f1,interactionExchange,electron,0,c);
                             }
-                        }
-            
+                        
+                }
                 if ( c1->i.magFlag ){
                     INT_TYPE deriv[SPACE];
                     INT_TYPE power[SPACE];
@@ -1908,20 +1744,26 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     separateDerivatives(*f1, 0, vectorMomentum, power, deriv,  0.5*c1->i.springConstant, electron);
                     
                 
-                }
                 
+                
+                }
                 }
             } else if ( c1->rt.calcType == clampProtonElectronCalculation  ){
                 
                 if ( bootBodies > one ){
-                    if ( allowQ(f1->rt, blockSeparateTwoBodyBlock ))
-                    if ( c1->i.twoBody.func.fn != nullFunction )
-                        for ( c = real ; c <= spins (*f1, interactionExchange) ; c++){
-                            if ( ioStoreMatrix(*f1,interactionExchange ,c-1,"interactionExchange.matrix",1) ){
+                    if ( allowQ(f1->rt, blockSeparateTwoBodyBlock )){
+                        if ( c1->i.twoBody.func.fn != nullFunction ){
+                            ioStoreMatrixScale(f,interactionExchange ,0,"interactionExchange.matrix",1);
+                           if ( f1->cmpl == cmpl)
+
+                            ioStoreMatrixScale(f,interactionExchange ,1,"interactionExchange.1.matrix",1);
+
                             }
                             else
-                            buildPairWisePotential(c1, *f1,interactionExchange,electron,0,c);
-                        }
+                                for ( c = real ; c <= spins (*f1, interactionExchange) ; c++){
+                                    buildPairWisePotential(c1, *f1,interactionExchange,electron,0,c);
+                                    }
+                    }
                 }
                 
                 
@@ -1953,42 +1795,45 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 	
 		if ( c1->i.springFlag )
 			ioStoreMatrix( *f1, vectorMomentum, 0 , "vector.matrix", 1 ) ;
+            if ( f1->cmpl == cmpl)
+                ioStoreMatrix( *f1, vectorMomentum, 1 , "vector.1.matrix", 1 ) ;
 
 
                 if ( f1->rose[0].component == periodicComponent1 ){
                     
                     
-                    INT_TYPE flag;
                     
-                    flag = ioStoreMatrix(*f1, intracellularSelfEwald, 0, "intracellularSelfEwald.matrix",1)
-                    &&  ioStoreMatrix(*f1, intercellularSelfEwald, 0,"intercellularSelfEwald.matrix",1)
-                    &&  ioStoreMatrix(*f1, jelliumElectron, 0, "jelliumElectron.matrix",1);
+                    ioStoreMatrix(*f1, intracellularSelfEwald, 0, "intracellularSelfEwald.matrix",1);
+                    ioStoreMatrix(*f1, intercellularSelfEwald, 0,"intercellularSelfEwald.matrix",1);
+                    ioStoreMatrix(*f1, jelliumElectron, 0, "jelliumElectron.matrix",1);
                     
-                    if ( allowQ(f1->rt, blockSeparateTwoBodyBlock))
-                        flag = flag && ioStoreMatrix(*f1, interactionEwald, 0, "interactionEwald.matrix",1);
-                    
+                    if ( allowQ(f1->rt, blockSeparateTwoBodyBlock)){
+                        ioStoreMatrixScale(f, interactionEwald, 0, "interactionEwald.matrix",1);
+                        ioStoreMatrixScale(f, interactionExchange, 0, "interactionExchange.matrix",1);
+
+                    }
                     
                         if ( f1->cmpl == cmpl ){
-                        (
-                         ioStoreMatrix(*f1, intracellularSelfEwald, 1, "intracellularSelfEwald.1.matrix",1)
-                                        &&ioStoreMatrix(*f1, intercellularSelfEwald, 1, "intercellularSelfEwald.1.matrix",1)
-                                        &&  ioStoreMatrix(*f1, jelliumElectron, 1, "jelliumElectron.1.matrix",1));
+                            ioStoreMatrix(*f1, intracellularSelfEwald, 1, "intracellularSelfEwald.1.matrix",1);
+                            ioStoreMatrix(*f1, intercellularSelfEwald, 1, "intercellularSelfEwald.1.matrix",1);
+                            ioStoreMatrix(*f1, jelliumElectron, 1, "jelliumElectron.1.matrix",1);
                     
-                            if ( allowQ(f1->rt, blockSeparateTwoBodyBlock))
-                                ioStoreMatrix(*f1, interactionEwald, 1, "interactionEwald.1.matrix",1);
-
+                            if ( allowQ(f1->rt, blockSeparateTwoBodyBlock)){
+                                ioStoreMatrixScale(f, interactionEwald, 1, "interactionEwald.1.matrix",1);
+                                ioStoreMatrixScale(f, interactionExchange, 1, "interactionExchange.1.matrix",1);
+                            }
                         }
-                    if (!flag ){
-                        printf("ewald terms absent");
-
-                        exit(0);
-                    }
+//                    if (!flag ){
+//                        printf("ewald terms absent");
+//
+//                        exit(0);
+//                    }
                 }else{
                     if ( bootBodies > one )
                         if ( allowQ(f1->rt, blockSeparateTwoBodyBlock))
                         {
                             if ( c1->i.twoBody.func.fn != nullFunction )
-                                if(   ! ioStoreMatrix(*f1, interactionExchange, 0, "interactionExchange.matrix",1)){
+                                if(   ! ioStoreMatrixScale(f, interactionExchange, 0, "interactionExchange.matrix",1)){
                                     printf("exchange absent");
                                     
                                     exit(0);
@@ -2000,7 +1845,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 if ( bootBodies > one )
                     if ( c1->i.twoBody.func.fn != nullFunction )
                         if ( allowQ(f1->rt, blockSeparateTwoBodyBlock))
-                        if(  ! ioStoreMatrix(*f1, interactionExchange, 0, "interactionExchange.matrix",1)){
+                        if(  ! ioStoreMatrixScale(f, interactionExchange, 0, "interactionExchange.matrix",1)){
                             printf("exchange absent");
 
                             exit(0);
