@@ -4,7 +4,6 @@
 		iterations 1
 		basisRank 1
 		states 0
-		chrome 0
 		blockReset
 		blockMemory 2
 		blockMemory 3
