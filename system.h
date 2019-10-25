@@ -37,6 +37,9 @@
 //SET #define NBODY to allow for builds of foundations in correlated N-body format
 #define NBODY
 
+//SET #define CHROME to get your modern ALS routine
+#define CHROME
+
 //Currently under a dozen actual blocks possible, there is extra.
 #define BlockCount 16
 
