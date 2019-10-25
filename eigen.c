@@ -660,7 +660,7 @@ INT_TYPE tBootManyConstruction (struct calculation * c1, struct sinc_label f1, e
 
     DCOMPLEX * hmat = (DCOMPLEX*)myStreams(f1, matrixHbuild,0), sum ,minus = -1.;
     double * w = (double*)(hmat + n2[0]);
-    cmpl = f1.cmpl;
+    cmpl = real;
     for ( i = 0 ;i < cmpl ; i++)
         balance(f1, eigen,i);
     

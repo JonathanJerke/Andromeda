@@ -1077,15 +1077,26 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
     return 0.;
 }
 double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
-    if ( power < 0.5 ){//0
-        printf("LIST\n");
+
+#ifdef CHROME
+    if ( power < 0.5 ){
+        printf("List\n");
+
         return tCycleDecompostionListOneMP(0, f1, origin, os, coeff, alloy, spin, tolerance, maxRun, power);
     }
-    if ( power < 4.5 ){//1//2//3//4
+    else{
         printf("Chromatic\n");
 
+    
         return tCycleDecompostionChromaticOneMP( f1, origin, os, coeff, alloy, spin, tolerance, maxRun, power);
     }
+#endif
+    //if ( power < 0.5 ){//0
+        printf("LIST\n");
+        return tCycleDecompostionListOneMP(0, f1, origin, os, coeff, alloy, spin, tolerance, maxRun, power);
+    //}
+
+    
     double last = 1e9;
     printf("((%d %d))\n", CanonicalRank(f1, origin, os), maxRun);
     INT_TYPE ran1,step,ct,run;
@@ -1226,36 +1237,50 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
 
 }
 
-double tCycleDecompostionSingleFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE o1, INT_TYPE o2,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE a1, INT_TYPE a2,INT_TYPE spin,  double tolerance   ){
-    INT_TYPE l,ll,iii[2][2][1000];
-    INT_TYPE iiii[2][2][1000];
+double tCycleDecompostionSingleFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance ,INT_TYPE oRun, INT_TYPE pRun, INT_TYPE nRun, INT_TYPE * xi , INT_TYPE * mi,INT_TYPE *xr,INT_TYPE * mr ){
+    INT_TYPE l,ll;
+    
+    INT_TYPE *iiii[2][2];
+    INT_TYPE *iii[2][2];
 
-    
-    if ( a2-a1 > o2-o1 ){
-        {
-            for ( l = 0 ; l < a2-a1 ; l++)
-            {
-                double sum;
-                INT_TYPE space;
-                
-                sum = 0.;
-                for ( ll = 0 ; ll < a2-a1 ; ll++)
-                    if ( (ll%(o2-o1)) == (l%(o2-o1)) )
-                        sum += 1.;
-                for ( space = 0 ;space < SPACE ; space++)
-                    if ( f1.rose[space].body != nada)
-                        xsEqu(1./sum, space, f1, alloy, l+a1, spin, f1, origin, (l%(o2-o1))+a1, os);
-            }
-            return 0;
-        }
-        
-    }
+    iiii[0][0] = malloc(nRun * sizeof( INT_TYPE ));
+    iiii[0][1] = malloc(nRun * sizeof( INT_TYPE ));
+    iiii[1][0] = malloc(nRun * sizeof( INT_TYPE ));
+    iiii[1][1] = malloc(nRun * sizeof( INT_TYPE ));
+    iii[0][0] = mr;
+    iii[0][1] = xr;
+    iii[1][0] = mi;
+    iii[1][1] = xi;
     
     
+//    if(0)
+//    if ( a2-a1 > o2-o1 ){
+//        {
+//            for ( l = 0 ; l < a2-a1 ; l++)
+//            {
+//                double sum;
+//                INT_TYPE space;
+//
+//                sum = 0.;
+//                for ( ll = 0 ; ll < a2-a1 ; ll++)
+//                    if ( (ll%(o2-o1)) == (l%(o2-o1)) )
+//                        sum += 1.;
+//                for ( space = 0 ;space < SPACE ; space++)
+//                    if ( f1.rose[space].body != nada)
+//                        xsEqu(1./sum, space, f1, alloy, l+a1, spin, f1, origin, (l%(o2-o1))+a1, os);
+//            }
+//            return 0;
+//        }
+//
+//    }
     
-    INT_TYPE r,ran1,step,ct,run,nRun,r2;
-    if ( o2 == o1 || a2 <= a1 )
+    
+    
+    INT_TYPE r,ran1,step,ct,run,r2;
+    if ( nRun <= 0 )
         return 0;
+//    if ( o2 == o1 || a2 <= a1 )
+//        return 0;
 
     double bailFlag = 0,toleranceAdjust = 1. ;//= cblas_dnrm2 ( part(f1, origin), coeff, 1);
 
@@ -1279,118 +1304,93 @@ double tCycleDecompostionSingleFibonacciOneMP ( INT_TYPE rank, struct sinc_label
 //        tId(f1, alloy,spin);
 //    }
     //f1.tulip[alloy].Current[spin] = o2-o1;
-    nRun = a2-a1 ;
-    step = imax(1,(o2-o1)/(a2-a1));
-    for ( r = 0; r < a2-a1 ; r++){
-        iii[1][0][r] = r*step+o1;
-        iii[1][1][r] = (r+1)*step+o1;
-        iii[0][0][r] = r+a1;
-        iii[0][1][r] = (r+1)+a1;
-    }
-    iii[1][1][a2-a1-1] = o2;
-    if (iii[1][1][a2-a1-1] == iii[1][0][a2-a1-1] ){
-        nRun--;
-        iii[1][1][a2-a1-1-1] = iii[1][1][a2-a1-1];
-        iii[0][1][a2-a1-1-1] = iii[0][1][a2-a1-1];
-
-    }
     
-
-//    while ( nRun >= 3 ){
-//        DCOMPLEX CD;
-//
-//#ifdef OMP
-//#pragma omp parallel for private (ran1,CD,r2,ct,toleranceAdjust) schedule(dynamic,1)
-//#endif
-//
-//        for ( r2 = 0; r2 < nRun; r2++ ){
-//#ifdef OMP
-//            ran1 = omp_get_thread_num();
-//#else
-//            ran1 = 0;
-//#endif
-//            pOverlap(f1, origin, iii[1][0][r2], iii[1][1][2], os,  origin, iii[1][0][r2], iii[1][1][2], os, &CD);
-//
-//            toleranceAdjust = 1.;
-//            do{
-//              //  printf("%d %d --. %d %d\n", iii[1][0][r2],iii[1][1][r2], iii[0][0][r2],iii[0][1][r2]);
-//
-//                ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,iii[1][0][r2],iii[1][1][r2], os,alloy, iii[0][0][r2],iii[0][1][r2],spin, toleranceAdjust*tolerance,sqrt(creal(CD)),-1);
-//                toleranceAdjust *= 1.2;
-//                if ( ct == -1 ){
-//                    bailFlag = 1;
-//                    printf("List bailed \n");
-//                    break;
-//
-//                }
-//            }while ( ct == 1 );
-//        }
-//       // printf(",%d ",nRun);
-//        //merge
-//        r2 = 0;
-//        if ( nRun % 2 == 0 ){
-//            for ( run = 0; run < nRun ; run+=2){
-//                iiii[1][0][r2] = iii[1][0][run];
-//                iiii[1][1][r2] = iii[1][1][run+1];
-//                iiii[0][0][r2] = iii[0][0][run];
-//                iiii[0][1][r2] = iii[0][1][run+1];
-//                r2++;
-//            }
-//        }
-//        else
-//        {
-//            for ( run = 0; run < nRun-1 ; run+=2){
-//                iiii[1][0][r2] = iii[1][0][run];
-//                iiii[1][1][r2] = iii[1][1][run+1];
-//                iiii[0][0][r2] = iii[0][0][run];
-//                iiii[0][1][r2] = iii[0][1][run+1];
-//                r2++;
-//            }
-//            if ( r2 ) {
-//                iiii[1][1][r2-1] = iii[1][1][nRun-1];
-//                iiii[0][1][r2-1] = iii[0][1][nRun-1];
-//            }
-//
-//        }
-//        if ( nRun == 1 )
-//            nRun= 0;
-//        else
-//            nRun = r2;
-//
-//
-//        for ( run = 0; run < nRun ; run++){
-//            iii[1][0][run] = iiii[1][0][run];
-//            iii[1][1][run] = iiii[1][1][run];
-//            iii[0][0][run] = iiii[0][0][run];
-//            iii[0][1][run] = iiii[0][1][run];
-//        }
+//    if (0){
+//    nRun = a2-a1 ;
+//    step = imax(1,(o2-o1)/(a2-a1));
+//    for ( r = 0; r < a2-a1 ; r++){
+//        iii[1][0][r] = r*step+o1;
+//        iii[1][1][r] = (r+1)*step+o1;
+//        iii[0][0][r] = r+a1;
+//        iii[0][1][r] = (r+1)+a1;
+//    }
+//    iii[1][1][a2-a1-1] = o2;
+//    if (iii[1][1][a2-a1-1] == iii[1][0][a2-a1-1] ){
+//        nRun--;
+//        iii[1][1][a2-a1-1-1] = iii[1][1][a2-a1-1];
+//        iii[0][1][a2-a1-1-1] = iii[0][1][a2-a1-1];
 //
 //    }
-    while ( nRun > 0  ){
-        
-        for ( r2 = 0; r2 < nRun; r2++ )
-        {
-            DCOMPLEX CD;
-            pOverlap(rank,f1, origin, iii[1][0][r2], iii[1][1][2], os,  origin, iii[1][0][r2], iii[1][1][2], os, &CD);
+//    }
 
-            ran1 = rank;
-            toleranceAdjust = 1.;
-            do{
-                
-//                if ( nRun ==1 )
-//                printf("%d %d -*-. %d %d\n", iii[1][0][r2],iii[1][1][r2], iii[0][0][r2],iii[0][1][r2]);
-                
-                ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,iii[1][0][r2],iii[1][1][r2], os,alloy, iii[0][0][r2],iii[0][1][r2],spin, toleranceAdjust*tolerance,sqrt(creal(CD)),-1);
-                toleranceAdjust *= 1.2;
-                if ( ct == -1 ){
-                    bailFlag = 1;
-                    printf("List bailed \n");
-                    break;
+    while ( nRun >oRun ){
+        DCOMPLEX CD;
+        if ( nRun > pRun ){
+        #ifdef OMP
+        #pragma omp parallel for private (ran1,CD,r2,ct,toleranceAdjust) schedule(dynamic,1)
+        #endif
+
+                for ( r2 = 0; r2 < nRun; r2++ ){
+        #ifdef OMP
+                    ran1 = omp_get_thread_num();
+        #else
+                    ran1 = 0;
+        #endif
+                    pOverlap(rank,f1, origin, iii[1][0][r2], iii[1][1][r2], os,  origin, iii[1][0][r2], iii[1][1][r2], os, &CD);
                     
+                    toleranceAdjust = 1.;
+                    do{
+//                        double dist;
+                   //     printf("%d %d --. %d %d\n", iii[1][0][r2],iii[1][1][r2], iii[0][0][r2],iii[0][1][r2]);
+//                        dist = distanceFrac1(f1, buffer, 0, iii[1][1][r2]-iii[1][0][r2],rank, alloy, iii[0][0][r2], iii[0][1][r2], spin);
+//                                                                     
+//                        printf("%f\n", dist);
+
+                        ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,iii[1][0][r2],iii[1][1][r2], os,alloy, iii[0][0][r2],iii[0][1][r2],spin, toleranceAdjust*tolerance,sqrt(creal(CD)),-1);
+                        toleranceAdjust *= 1.2;
+                        if ( ct == -1 ){
+                            bailFlag = 1;
+                            printf("List bailed \n");
+                            break;
+
+                        }
+                    }while ( ct == 1 );
                 }
-            }while ( ct == 1 );
+            }
+        else {
+            
+                    
+                    for ( r2 = 0; r2 < nRun; r2++ )
+                    {
+                        DCOMPLEX CD;
+                        pOverlap(rank,f1, origin, iii[1][0][r2], iii[1][1][r2], os,  origin, iii[1][0][r2], iii[1][1][r2], os, &CD);
+                        ran1 = rank;
+                        toleranceAdjust = 1.;
+                        do{
+                            
+            //                if ( nRun ==1 )
+                            printf("%d %d -*-. %d %d\n", iii[1][0][r2],iii[1][1][r2], iii[0][0][r2],iii[0][1][r2]);
+                            
+                            ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,iii[1][0][r2],iii[1][1][r2], os,alloy, iii[0][0][r2],iii[0][1][r2],spin, toleranceAdjust*tolerance,sqrt(creal(CD)),-1);
+                            toleranceAdjust *= 1.2;
+                            if ( ct == -1 ){
+                                bailFlag = 1;
+                                printf("List bailed \n");
+                                break;
+                                
+                            }
+                        }while ( ct == 1 );
+                    }
+
+            
+            
+            
         }
-       // printf(",%d ",nRun);
+        
+        
+        
+        printf(",%d ",nRun);
+        fflush(stdout);
         //merge
         r2 = 0;
         if ( nRun % 2 == 0 ){
@@ -1412,25 +1412,29 @@ double tCycleDecompostionSingleFibonacciOneMP ( INT_TYPE rank, struct sinc_label
                 r2++;
             }
             if ( r2 ) {
-            iiii[1][1][r2-1] = iii[1][1][nRun-1];
-            iiii[0][1][r2-1] = iii[0][1][nRun-1];
+                iiii[1][1][r2-1] = iii[1][1][nRun-1];
+                iiii[0][1][r2-1] = iii[0][1][nRun-1];
             }
+
         }
-        if ( nRun == 1  )
+        if ( nRun == 1 )
             nRun= 0;
         else
             nRun = r2;
-        
+
+
         for ( run = 0; run < nRun ; run++){
             iii[1][0][run] = iiii[1][0][run];
             iii[1][1][run] = iiii[1][1][run];
             iii[0][0][run] = iiii[0][0][run];
             iii[0][1][run] = iiii[0][1][run];
         }
-        
+
     }
-    
-    
+    free(iiii[0][0]);
+    free(iiii[0][1]);
+    free(iiii[1][0]);
+    free(iiii[1][1]);
     return 0.;
 }
 double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
@@ -1776,33 +1780,37 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
             canonicalGridDecompositionMP(rank, f1, coeff, buffer, 0, iii[1][1][iiii]-iii[1][0][iiii], rank,  alloy, iii[0][0][iiii], iii[0][1][iiii], spin, tolerance, sqrt(inc), -1);
             }
 
-            dist = distanceFrac1(f1, buffer, 0, iii[1][1][iiii]-iii[1][0][iiii],rank, alloy, iii[0][0][iiii], iii[0][1][iiii], spin);
-            
+            if (1){
+                dist = distanceFrac1(f1, buffer, 0, iii[1][1][iiii]-iii[1][0][iiii],rank, alloy, iii[0][0][iiii], iii[0][1][iiii], spin);
+                Dist += dist;
+            }
           //  printf("%d \t %f \t /\t %f\n", iiii, dist, Inc);
             
-            Dist += dist;
         }
     }
 #endif
     
     f1.tulip[alloy].Current[spin] = iii[0][1][xi-1];
 
-    if ( power < 2 )
-        printf("\n>bufferFraction>\t%d\t%1.15f / %1.15f", Col,(Dist), (inner(f1, alloy,os)));
-    else
-        printf("\n>preFraction>\t%d\t%1.15f / %1.15f\n", Col,(Dist),(inner(f1, alloy,os)));
-
+    
+    if (1){
+        printf("\n>preFraction>\t%d\t%1.15f / %1.15f\n", Col,(Dist),(inner(f1, alloy,spin)));
+    } else{
+        printf("\n>testFraction>\t%d\t%1.15f / %1.15f \n",CanonicalRank(f1, alloy, spin),(distanceFrac1(f1, origin, 0,CanonicalRank(f1, origin, os),os, alloy, 0,CanonicalRank(f1, alloy, spin), spin)),(inner(f1, alloy,spin)));
+    }
     
     fflush(stdout);
     
-    if ( power > 2 ){
-        canonicalGridDecompositionMP(-1, f1, coeff, origin,0,CanonicalRank(f1, origin, os), os,  alloy, 0, CanonicalRank(f1, alloy, spin), spin, tolerance, sqrt(Inc), -1);
-        if ( power > 3 ) {
-            
-            printf("\n>completeFraction>\t1\t%1.15f / %1.15f \n",(distanceFrac1(f1, origin, 0,CanonicalRank(f1, origin, os),os, alloy, 0,CanonicalRank(f1, alloy, spin), spin)),sqr(magnitude(f1, alloy)));
-
-        }
+    if ( 0 ){
+        tCycleDecompostionSingleFibonacciOneMP(-1, f1, origin, os, coeff, alloy, spin, tolerance, power-1,0,xi, iii[1][1],iii[1][0],iii[0][1],iii[0][0]);
+        printf("\n>FibonacciFraction>\t%d\t%1.15f / %1.15f \n",CanonicalRank(f1, alloy, spin),(distanceFrac1(f1, origin, 0,CanonicalRank(f1, origin, os),os, alloy, 0,CanonicalRank(f1, alloy, spin), spin)),(inner(f1, alloy,spin)));
     }
+    else {
+        canonicalGridDecompositionMP(-1, f1, coeff, origin,0,CanonicalRank(f1, origin, os), os,  alloy, 0, CanonicalRank(f1, alloy, spin), spin, tolerance, sqrt(Inc), -1);
+        if (0)
+        printf("\n>completeFraction>\t1\t%1.15f / %1.15f \n",(distanceFrac1(f1, origin, 0,CanonicalRank(f1, origin, os),os, alloy, 0,CanonicalRank(f1, alloy, spin), spin)),(inner(f1, alloy,spin)));
+    }
+    
     free(iii[0][0]);
     free(iii[0][1]);
     free(iii[1][0]);

@@ -663,7 +663,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         assignOneWithPointers(*f1, kineticMass,all);
 
     fromBeginning(*f1, hamiltonian, kineticMass);
-        f1->tulip[hamiltonian].Partition = allowQ(f1->rt,blockTrainingHamiltonianBlock)*(4*COMPONENT+(6*(c1->rt.runFlag == 7 )+ 1)* c1->i.twoBody.num);//
+        f1->tulip[hamiltonian].Partition = allowQ(f1->rt,blockTrainingHamiltonianBlock)*c1->i.canonRank;//
         f1->tulip[hamiltonian].species = matrix;
         f1->tulip[hamiltonian].spinor = real;
 
@@ -742,6 +742,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 f1->tulip[build].Partition = allowQ(f1->rt, blockfoundationMblock)*ra;
                 
             }
+            f1->tulip[build].spinor = real;;
             f1->tulip[build].species = matrix;
             assignParticle(*f1, build, all, bootBodies);
 
@@ -754,13 +755,15 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 
                 f1->tulip[bill1+space].Partition = allowQ(f1->rt,blockFoundationBlock)*vectorLen(*f1, space)*vectorLen(*f1, space) ;
                 INT_TYPE p = f1->tulip[bill1+space].Partition;
+              //  f1->tulip[bill1+space].spinor = real;
                 f1->tulip[bill1+space].memory = bufferAllocation;
                 
             }
             fromBeginning(*f1, eigen, bill1+SPACE-1);
             f1->tulip[eigen].Partition = allowQ(f1->rt, blockfoundationMblock);
             f1->tulip[eigen].species = matrix;
-            assignParticle(*f1, eigen, all, bootBodies);            
+            f1->tulip[eigen].spinor = f1->cmpl;
+            assignParticle(*f1, eigen, all, bootBodies);
             
             {
                 INT_TYPE di,cmpl;
@@ -1236,9 +1239,9 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[guideBuffer].spinor = parallel;
         f1->tulip[guideBuffer].memory = bufferAllocation;
         
-        flag = 0;
-        if ( f1->rt->powDecompose > 2 )
-            flag = 1;
+        //flag = 0;
+        //if ( f1->rt->powDecompose > 2 )
+        flag = 1;
         if ( c1->rt.calcType == clampProtonElectronCalculation && c1->rt.phaseType == reportMatrix ){
             maxOriginRank = imax( maxOriginRank, c1->i.twoBody.num * N1*N1);
         }
@@ -1254,10 +1257,12 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         
         fromBeginning(*f1,trackBuffer0,canonicalBuffers0);
         f1->tulip[trackBuffer0].Partition =  flag * (2*maxTrainRank+1)*maxTrainRank;
+        f1->tulip[trackBuffer0].spinor = real;
         f1->tulip[trackBuffer0].memory = bufferAllocation;
         
         fromBeginning(*f1,guideBuffer0,trackBuffer0);
         f1->tulip[guideBuffer0].Partition = flag * maxOriginRank*maxTrainRank;
+        f1->tulip[guideBuffer0].spinor = real;
         f1->tulip[guideBuffer0].memory = bufferAllocation;
 
     }
@@ -1270,8 +1275,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         fromBeginning(*f1,interactionExchange,foundationStructure);
             f1->tulip[interactionExchange].Partition = allowQ(f1->rt, blockSeparateTwoBodyBlock)* allowQ(f1->rt,blockHamiltonianBlock)*buildPairWisePotential(c1, *f1,nullName, electron, 0,real)*(( bootBodies > one )|| c1->rt.runFlag > 0);
             f1->tulip[interactionExchange].species = matrix;
-            if ( c1->rt.runFlag > 0 )
-                f1->tulip[interactionExchange].spinor = cmpl;
+            f1->tulip[interactionExchange].spinor = f1->cmpl;
 
             assignParticle(*f1, interactionExchange, electron, two);
     {
@@ -1310,7 +1314,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         fromBeginning(*f1,interactionEwald,interactionExchangeB);
         f1->tulip[interactionEwald].Partition =  allowQ(f1->rt, blockSeparateTwoBodyBlock)* allowQ(f1->rt,blockHamiltonianBlock)*buildPairWisePotential(c1, *f1,nullName, electron, 0,real) * (c1->rt.runFlag > 0 );
         f1->tulip[interactionEwald].species = matrix;
-        f1->tulip[interactionEwald].spinor = cmpl;
+        f1->tulip[interactionEwald].spinor = f1->cmpl;
         assignParticle(*f1, interactionEwald, electron, two);
 
     {
@@ -1342,12 +1346,12 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         assignOneWithPointers(*f1, jelliumElectron, electron);
 
         fromBeginning(*f1,shortenPlus,jelliumElectron);
-        f1->tulip[shortenPlus].Partition = allowQ(f1->rt,blockHamiltonianBlock)*c1->i.decomposeRankMatrix*( c1->rt.calcType == clampProtonElectronCalculation );
+        f1->tulip[shortenPlus].Partition = allowQ(f1->rt,blockHamiltonianBlock)*c1->i.decomposeRankMatrix*( c1->rt.calcType == clampProtonElectronCalculation )/2;
         f1->tulip[shortenPlus].species = matrix;
         assignOneWithPointers(*f1, shortenPlus, all);
         
         fromBeginning(*f1,shortenMinus,shortenPlus);
-        f1->tulip[shortenMinus].Partition = allowQ(f1->rt,blockHamiltonianBlock)*c1->i.decomposeRankMatrix*( c1->rt.calcType == clampProtonElectronCalculation );
+        f1->tulip[shortenMinus].Partition = allowQ(f1->rt,blockHamiltonianBlock)*c1->i.decomposeRankMatrix*( c1->rt.calcType == clampProtonElectronCalculation )/2;
         f1->tulip[shortenMinus].species = matrix;
         assignOneWithPointers(*f1, shortenMinus, all);
         
@@ -1409,6 +1413,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         fromBeginning(*f1,quadCube,shortTwoAcrossDimensions);
         f1->tulip[quadCube].Partition = allowQ(f1->rt,blockBuildHamiltonianBlock) || allowQ(f1->rt,blockHamiltonianBlock) || allowQ(f1->rt,blockfoundationMblock);
         f1->tulip[quadCube].species = matrix;
+        f1->tulip[quadCube].spinor = real;
+
         assignParticle(*f1, quadCube, all, two);
     
         fromBeginning(*f1,oneArray,quadCube);
@@ -1461,6 +1467,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         
         fromBeginning(*f1,oneByOneBuffer,tensorBuffers6);
         f1->tulip[oneByOneBuffer].Partition = mx1len*mx1len*mx1len*mx1len* (c1->rt.calcType >= clampProtonElectronCalculation)*allowQ(f1->rt,blockBuildHamiltonianBlock);
+        f1->tulip[oneByOneBuffer].spinor = real;
         f1->tulip[oneByOneBuffer].memory = bufferAllocation;
         
         fromBeginning(*f1,canonicalBuffersB,oneByOneBuffer);
@@ -1471,8 +1478,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         fromBeginning(*f1,canonicalBuffersBM,canonicalBuffersB);//twobody
         f1->tulip[canonicalBuffersBM].Partition = allowQ(f1->rt, blockTrainMatricesblock)* mx1len*mx1len*mx1len*mx1len ;
         f1->tulip[canonicalBuffersBM].memory = bufferAllocation;
-//        if ( c1->rt.phaseType == svdOperation )
-            f1->tulip[canonicalBuffersBM].spinor = parallel;
+        f1->tulip[canonicalBuffersBM].spinor = parallel;
 
     
         fromBeginning(*f1,canonicalBuffersC,canonicalBuffersBM);
@@ -1482,6 +1488,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
         fromBeginning(*f1,twoBodyRitz,canonicalBuffersC);
         f1->tulip[twoBodyRitz].Partition = maxArray;
+        f1->tulip[twoBodyRitz].spinor = real;
         f1->tulip[twoBodyRitz].memory = bufferAllocation;
 
         fromBeginning(*f1,conditionOverlapNumbers,twoBodyRitz);
@@ -1489,7 +1496,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[conditionOverlapNumbers].memory = bufferAllocation;
         
         fromBeginning(*f1,matrixHbuild,conditionOverlapNumbers);
-    f1->tulip[matrixHbuild].Partition = ( c1->rt.phaseType == buildFoundation ||  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == svdOperation ) *  2*(2*maxArray*maxArray);
+    f1->tulip[matrixHbuild].Partition = (  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == svdOperation ) *  2*(2*maxArray*maxArray)+4*( c1->rt.phaseType == buildFoundation)* mxlen*mxlen;
+        f1->tulip[matrixHbuild].spinor = real;
         f1->tulip[matrixHbuild].memory = bufferAllocation;
 
         fromBeginning(*f1,vectorHbuild,matrixHbuild);
@@ -1498,6 +1506,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
         fromBeginning(*f1,matrixSbuild,vectorHbuild);
         f1->tulip[matrixSbuild].Partition = ( c1->rt.phaseType == buildFoundation ||  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == svdOperation )*2*(2*maxArray*maxArray);
+        f1->tulip[matrixSbuild].spinor = real;
         f1->tulip[matrixSbuild].memory = bufferAllocation;
 
     fromBeginning(*f1,square,matrixSbuild);
@@ -1650,9 +1659,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                         {
                             ioStoreMatrixScale(f,interactionExchange ,0,"interactionExchange.matrix",1);
                             if ( f1->cmpl == cmpl)
-
-                            ioStoreMatrixScale(f,interactionExchange ,1,"interactionExchange.1.matrix",1);
-
+                                ioStoreMatrixScale(f,interactionExchange ,1,"interactionExchange.1.matrix",1);
                             }
                         else
                             for ( c = real ; c <= spins (*f1, interactionExchange) ; c++){
@@ -1767,9 +1774,9 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 }
                 
                 
-                mySeparateExactOneByOne(*f1,c1->i.twoBody, c1->i.decomposeRankMatrix,interactionExchangePlus, shortenPlus,-1., 1,c1->i.massClampPair/(c1->i.massClampPair+c1->i.massProton),electron, proton);
+                mySeparateExactOneByOne(*f1,c1->i.twoBody, part(*f1,shortenPlus),interactionExchangePlus, shortenPlus,-1., 1,c1->i.massClampPair/(c1->i.massClampPair+c1->i.massProton),electron, proton);
                 
-                mySeparateExactOneByOne(*f1,c1->i.twoBody, c1->i.decomposeRankMatrix,interactionExchangeMinus, shortenMinus,-1., -1,c1->i.massProton/(c1->i.massClampPair+c1->i.massProton),electron, pair);
+                mySeparateExactOneByOne(*f1,c1->i.twoBody, part(*f1,shortenMinus),interactionExchangeMinus, shortenMinus,-1., -1,c1->i.massProton/(c1->i.massClampPair+c1->i.massProton),electron, pair);
                 
                 
                 
@@ -2030,7 +2037,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             
             
             //really want to keep linear separate and uncarved...
-            if ( c1->i.Na )
+            if ( c1->i.Na && c1->rt.calcType != clampProtonElectronCalculation )
                 if ( c1->i.oneBody.func.fn != nullFunction )
                     if(   ! ioStoreMatrix(*f1, linear, 0, "linear.matrix",1)){
                         printf("linear absent");
