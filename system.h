@@ -40,6 +40,11 @@
 //SET #define CHROME to get your modern ALS routine
 #define CHROME
 
+//SET #define BUFFERSOLVE and  #define CHROME to get your post-modern ALS routin
+#define BUFFERSOLVE
+
+//SET //#define GAUSSIANSINC for future work
+
 //Currently under a dozen actual blocks possible, there is extra.
 #define BlockCount 16
 
