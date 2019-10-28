@@ -30,7 +30,7 @@
 #include "coreMath.h"
 #include "interfaceMath.h"
 #include "saUtil.h"
-
+INT_TYPE completeOverlap (INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim,enum division vector,INT_TYPE v,INT_TYPE spin, enum division ov , INT_TYPE v2,INT_TYPE sp2);
 INT_TYPE analyze (struct sinc_label  f1 , enum division term,INT_TYPE sp );
 void pContract ( INT_TYPE rank,struct sinc_label  *f1, enum division mat,INT_TYPE ms, enum division vector ,INT_TYPE vs1, enum division vector2,INT_TYPE vs2);
 void tContract ( INT_TYPE rank,struct sinc_label  f1, enum division mat,INT_TYPE ms, enum division vector ,INT_TYPE vs1, enum division vector2,INT_TYPE vs2);

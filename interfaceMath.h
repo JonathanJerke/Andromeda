@@ -50,4 +50,5 @@ INT_TYPE tdpotrs ( INT_TYPE L1, INT_TYPE M2, double * array, double * arrayo,INT
 double tdpocon (INT_TYPE rank,struct sinc_label f1,  INT_TYPE L1 , double * Matrix );
 INT_TYPE tdgels ( INT_TYPE rank,struct sinc_label f1 , INT_TYPE L1, INT_TYPE M2, double * array, double * arrayo ,INT_TYPE inc);
 INT_TYPE tdgesvd ( INT_TYPE rank, struct sinc_label f1 ,  INT_TYPE M1, INT_TYPE M2, Stream_Type * ge, Stream_Type * m1, Stream_Type* m2 );
+INT_TYPE tInverse( struct sinc_label f1, INT_TYPE n, double * ar);
 #endif /* interfaceMath_h */

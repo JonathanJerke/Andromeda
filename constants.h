@@ -633,13 +633,13 @@ enum division{
     hartree,
     forces,//10
     inversion,
+    inversionTwo,
     overlap,
     overlap1,
     overlap2,
     overlap3,
     overlap4,
-    overlap5,
-    overlap6,
+    overlapTwo,
     tempOneMatrix,
     resolveBufferMatrix,//11
     distanceBufferVector,//12

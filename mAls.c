@@ -641,6 +641,37 @@ int sortx5Comp (const void * elem1, const void * elem2)
 //}
 
 
+INT_TYPE completeOverlap (INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim,enum division vector,INT_TYPE v,INT_TYPE spin, enum division ov , INT_TYPE v2,INT_TYPE sp2){
+        f1.tulip[canonicalmeVector].Current[rank] =0;
+        f1.tulip[canonicalme2Vector].Current[rank] =0;
+                switch ( bodies(f1,vector)){
+                    case one:
+                        tGEMV(rank, f1, dim,ov,v2, sp2, overlap1, 0, 0, vector, v, spin);
+                        break;
+                    case two:
+                        tGEMV(rank, f1, dim,canonicalmeVector,0, rank, overlap1, 0, 0,  vector, v, spin);
+                        tGEMV(rank, f1, dim,ov,v2, sp2, overlap2, 0, 0, canonicalmeVector,0, rank);
+                        break;
+                    case three:
+                        tGEMV(rank, f1, dim,canonicalmeVector,0, rank, overlap1, 0, 0,  vector, v, spin);
+                        tGEMV(rank, f1, dim,canonicalme2Vector,0, rank, overlap2, 0, 0, canonicalmeVector,0, rank);
+                        tGEMV(rank, f1, dim,ov,v2, sp2, overlap3, 0, 0, canonicalme2Vector,0, rank);
+                        break;
+                    case four:
+                        tGEMV(rank, f1, dim,canonicalmeVector,0, rank, overlap1, 0, 0,  vector, v, spin);
+                        tGEMV(rank, f1, dim,canonicalme2Vector,0, rank, overlap2, 0, 0, canonicalmeVector,0, rank);
+                        tGEMV(rank, f1, dim,canonicalmeVector,0, rank, overlap3, 0, 0, canonicalme2Vector,0, rank);
+                        tGEMV(rank, f1, dim,ov,v2, sp2, overlap4, 0, 0, canonicalmeVector,0, rank);
+                        break;
+                }
+    
+    return 0;
+}
+
+
+
+
+
 double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Stream_Type * cofact, enum division origin,INT_TYPE l1,INT_TYPE l2,INT_TYPE os,   enum division alloy ,INT_TYPE l3,INT_TYPE l4,  INT_TYPE spin ,double tolerance,double magn, INT_TYPE preferred){
     if ( tolerance < 0 ){
         tolerance = -(tolerance);
@@ -1641,14 +1672,15 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
 //            xFlag = -1;
 //        }
         xi = iiii;
-        aveR /= chrom;
+        if ( chrom)
+            aveR /= chrom;
 
         
     }while ( xFlag );
     printf("\nfinal [%d %d -- %d <%f>] \t%d\t%1.0f\t %d\n", L, r2, B,CCC,chrom,aveR, slack);
     fflush(stdout);
 
-#if 0
+#ifdef BUFFERSOLVE
     INT_TYPE *xx[2],col=0,c;
     {
         INT_TYPE h;
@@ -1659,21 +1691,26 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
     
     xx[0][col] = 0;
     xx[1][col] = 0;
-    for ( iiii = 0; iiii <= xi ; iiii++){
-        if( iiii < xi && (iii[1][1][iiii] - iii[1][0][iiii] + iii[1][1][xx[1][col]]-iii[1][0][xx[0][col]] <= B)  ){
+    {
+        INT_TYPE flag = 1;
+    for ( iiii = 0; iiii < xi ; iiii++){
+        if( (iii[1][1][iiii] - iii[1][0][iiii] + iii[1][1][xx[1][col]]-iii[1][0][xx[0][col]] <= B)  ){
             xx[1][col] = iiii;
+            flag = 1;
         } else {
            // printf("%d || %d %d || (%d -- %d)\n",col, xx[0][col],xx[1][col],iii[1][1][xx[1][col]], iii[1][0][xx[0][col]]);
-
+            flag = 0;
             col++;
             xx[0][col] = xx[1][col-1]+1;
 
             xx[1][col] = xx[0][col] ;//possibly extend > B
         }
     }
+        if ( flag )
+            col++;
+        Col = col;
 
-
-    Col = col;
+    }
 //    if ( Col > f1.rt->NLanes){
 //        printf("not enough buffers: cores(%d) < %d \n",f1.rt->NLanes , Col);
 //        exit(0);
@@ -1727,7 +1764,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
 #endif
             }
             
-            if (xx[1][c] != xx[0][c] && power > 1 )
+            if (xx[1][c] != xx[0][c] )
                 canonicalGridDecompositionMP(rank, f1, coeff, buffer, 0, iii[1][1][xx[1][c]]-iii[1][0][xx[0][c]], rank,  alloy, iii[0][0][xx[0][c]], iii[0][1][xx[1][c]], spin, tolerance, sqrt(Inc), -1);
 
 #if 1
@@ -1801,6 +1838,8 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
     
     fflush(stdout);
     
+    
+#ifndef BUFFERSOLVE
     if ( 0 ){
         tCycleDecompostionSingleFibonacciOneMP(-1, f1, origin, os, coeff, alloy, spin, tolerance, power-1,0,xi, iii[1][1],iii[1][0],iii[0][1],iii[0][0]);
         printf("\n>FibonacciFraction>\t%d\t%1.15f / %1.15f \n",CanonicalRank(f1, alloy, spin),(distanceFrac1(f1, origin, 0,CanonicalRank(f1, origin, os),os, alloy, 0,CanonicalRank(f1, alloy, spin), spin)),(inner(f1, alloy,spin)));
@@ -1810,13 +1849,16 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
         if (0)
         printf("\n>completeFraction>\t1\t%1.15f / %1.15f \n",(distanceFrac1(f1, origin, 0,CanonicalRank(f1, origin, os),os, alloy, 0,CanonicalRank(f1, alloy, spin), spin)),(inner(f1, alloy,spin)));
     }
+#endif
     
     free(iii[0][0]);
     free(iii[0][1]);
     free(iii[1][0]);
     free(iii[1][1]);
-//    free(xx[0]);
-//    free(xx[1]);
+#ifdef BUFFERSOLVE
+    free(xx[0]);
+    free(xx[1]);
+#endif
     free(ccc);
 
     return 0;
@@ -1948,13 +1990,17 @@ void matrixElements ( INT_TYPE rank,struct sinc_label  f1 , enum division bra, e
                     prod = 1.;
                     for ( dim = 0 ; dim < SPACE ; dim++)
                         if ( f1.rose[dim].body != nada){
-                            if (0){
-                                f1.tulip[canonicalmeVector].Current[rank] =0;
-                                tGEMV(rank, f1, dim,canonicalmeVector, 0,rank, overlap, 0, 0, ket, r, sp2);
-                                bracket[dim] = tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  canonicalmeVector, 0, rank);
-                            } else {
+#ifdef GAUSSIANSINC
+                            {
+                                f1.tulip[canonicalme3Vector].Current[rank] = 0;
+                                completeOverlap(rank, f1, ket,r, sp2, canonicalme3Vector,0, rank);
+                                bracket[dim] = tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  canonicalme3Vector, 0, rank);
+                            }
+#else
+                            {
                                 bracket[dim] = tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  ket, r, sp2);
                             }
+#endif
                             prod *= bracket[dim];
                         }
                     *OV += co*co2*prod;
@@ -2012,13 +2058,7 @@ void pOverlap (INT_TYPE rank, struct sinc_label  f1 , enum division bra,INT_TYPE
             prod = 1.;
             for ( dim = 0 ; dim < SPACE ; dim++)
                 if ( f1.rose[dim].body != nada){
-                    
-                    if ( 0 ){
-                        f1.tulip[canonicalmeVector].Current[rank] =0;
-                        tGEMV(rank, f1, dim,canonicalmeVector,0, rank, overlap, 0, 0, ket, r, sp2);
-                        prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  canonicalmeVector,0 , rank);
-                    }else
-                        prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  ket, r, sp2);
+                    prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  ket, r, sp2);
                 }
             *OV += prod;
         }
@@ -2100,13 +2140,24 @@ void pMatrixElements ( struct sinc_label  f1 , enum division bra, enum division 
                         prod = 1.;
                         for ( dim = 0 ; dim < SPACE ; dim++)
                             if ( f1.rose[dim].body != nada){
-                                
-                                if ( 0 ){
-                                    f1.tulip[canonicalmeVector].Current[rank] =0;
-                                    tGEMV(rank, f1, dim,canonicalmeVector, 0,rank, overlap, 0, 0, ket, r, sp2);
-                                    prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  canonicalmeVector,0 , rank);
-                                }else
-                                    prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  ket, r, sp2);
+                                #ifdef GAUSSIANSINC
+                                                            {
+                                                                f1.tulip[canonicalme3Vector].Current[rank] = 0;
+                                                                completeOverlap(rank, f1, ket,r, sp2, canonicalme3Vector,0, rank);
+                                                                prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  canonicalme3Vector, 0, rank);
+                                                            }
+                                #else
+                                                            {
+                                                                prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  ket, r, sp2);
+                                                            }
+                                #endif
+
+//                                if ( 0 ){
+//                                    f1.tulip[canonicalmeVector].Current[rank] =0;
+//                                    tGEMV(rank, f1, dim,canonicalmeVector, 0,rank, overlap, 0, 0, ket, r, sp2);
+//                                    prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  canonicalmeVector,0 , rank);
+//                                }else
+//                                    prod *= tDOT(rank, f1,dim,CDT , bra, e,sp,CDT ,  ket, r, sp2);
                             }
                         OVr[rank] += creal(co*co2*prod);
                         OVi[rank] += cimag(co*co2*prod);
@@ -2613,9 +2664,36 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
             cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams( f1, left, lspin,space )+l*N1*N1,N1,streams(f1, inT, inS,space)+inR*N2,N1, 0., streams( f1, outT, outS,space)+outR*N2,N1);
             
         }
+#ifdef GAUSSIANSINC
+        enum division inverse = inversion;
+        if ( bodies(f1,left)==two){
+            inverse = inversionTwo;
+        }
+        
+        if ( bodies(f1,inverse) == bodies(f1,right))
+        {
+            INT_TYPE N1 = vectorLen(f1, space);
+            cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,
+                        streams( f1, inverse, 0,space ), N1,
+                        streams(f1, outT, outS,space)+outR*N1,1, 0.,
+                        streams( f1, canonicalmv3Vector, rank,space ), 1  );
+            
+        }else if ( bodies(f1,inverse) < bodies(f1,right))
+        {
+            INT_TYPE N1 = outerVectorLen(f1,bodies(f1,inverse),space);
+            INT_TYPE N2 = vectorLen(f1, space);
+
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams( f1, inverse, 0,space ),N1,  streams( f1, outT, outS,space)+outR*N2,N1,0.,streams(f1,canonicalmv3Vector,rank,space),N1);
+            
+        }
+
+        tPermuteOne(rank, f1, space, out, canonicalmv3Vector,0,rank, equals, e,espin);
+
+#else
         if (out != 1 ){
             tPermuteOne(rank, f1, space, out, canonicalmv2Vector,0,rank, equals, e,espin);
         }
+#endif
     }
     return 0;
 }
@@ -2970,7 +3048,8 @@ void tHXpX (  INT_TYPE rank, struct sinc_label f1 , enum division left,INT_TYPE 
                         f1.tulip[totalVector].Current[0] += Ll*Rr;
                         if (f1.tulip[totalVector].Current[0] > part(f1, totalVector ) )
                         {
-                            printf("bailing\n");
+                            printf("bailing\n\n\n\n");
+                            fflush(stdout);
                             exit(1);
                         }
                     }

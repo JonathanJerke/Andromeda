@@ -493,3 +493,15 @@ INT_TYPE tdgesvd ( INT_TYPE rank, struct sinc_label f1 ,  INT_TYPE M1, INT_TYPE 
 }
 
 #endif
+
+
+
+INT_TYPE tInverse( struct sinc_label f1, INT_TYPE n, double * ar){
+    INT_TYPE info=0,info2=0;
+    
+#ifndef APPLE
+    info = LAPACKE_dgetrf(LAPACK_COL_MAJOR,n,n,ar,n,(INT_TYPE*)myStreams(f1,dsyBuffers,0));
+    info2 = LAPACKE_dgetri(LAPACK_COL_MAJOR,n,ar,n,(INT_TYPE*)myStreams(f1,dsyBuffers,0));
+#endif
+    return info+1000*info2;
+}

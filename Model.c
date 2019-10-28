@@ -720,12 +720,25 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[linear].Partition = buildExternalPotential(c1, *f1,nullName,electron ,0,real)  ;//
 
         fromBeginning(*f1, overlap, linear);
-        assignOneWithPointers (*f1, overlap,all);
-    for ( space = 0 ; space < SPACE ; space++)
+        f1->tulip[overlap].species = matrix;
+#ifdef GAUSSIANSINC
         f1->tulip[overlap].Partition = 1;//
+#endif
+        f1->tulip[overlap].header = Cube;
+    assignOneWithPointers(*f1, overlap, all);
 
+            fromBeginning(*f1, overlapTwo,overlap);
+            f1->tulip[overlapTwo].species = matrix;
+    #ifdef GAUSSIANSINC
+            f1->tulip[overlapTwo].Partition = 1;//
+    #endif
+            f1->tulip[overlapTwo].header = Cube;
+            assignParticle(*f1, overlapTwo, all, two);
+
+    
+    
         {
-            fromBeginning(*f1, build, overlap);
+            fromBeginning(*f1, build, overlapTwo);
             
             {
                         
@@ -956,7 +969,9 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[canonicalmv2Vector].spinor = parallel;
 
         fromBeginning(*f1,canonicalmv3Vector,canonicalmv2Vector);
+#ifdef GAUSSIANSINC
         f1->tulip[canonicalmv3Vector].Partition = 1;
+#endif
         f1->tulip[canonicalmv3Vector].species = vector;
         f1->tulip[canonicalmv3Vector].spinor = parallel;
 
@@ -1181,14 +1196,25 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
     
         fromBeginning(*f1,inversion,tempOneMatrix);
-        f1->tulip[inversion].Partition= 0;
+#ifdef GAUSSIANSINC
+        f1->tulip[inversion].Partition= 1;
+#endif
         f1->tulip[inversion].species = matrix;
         f1->tulip[inversion].header = Cube;
         assignParticle(*f1, inversion, all, one);
     
     
+            fromBeginning(*f1,inversionTwo,inversion);
+    #ifdef GAUSSIANSINC
+            f1->tulip[inversionTwo].Partition= 1;
+    #endif
+            f1->tulip[inversionTwo].species = matrix;
+            f1->tulip[inversionTwo].header = Cube;
+            assignParticle(*f1, inversionTwo, all, two);
+
+    
     {
-        fromBeginning(*f1,bufferChromatic,inversion);
+        fromBeginning(*f1,bufferChromatic,inversionTwo);
         
         //canonical rank of each training piece.
         f1->chroma = c1->i.chroma;
@@ -1239,9 +1265,15 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[guideBuffer].spinor = parallel;
         f1->tulip[guideBuffer].memory = bufferAllocation;
         
-        //flag = 0;
-        //if ( f1->rt->powDecompose > 2 )
-        flag = 1;
+        
+#ifdef BUFFERSOLVE
+        //no need for TOTAL ALS SOLVES
+        flag = 0;
+        
+#else
+        //need total ALS SOLVES
+        flag =1 ;
+#endif
         if ( c1->rt.calcType == clampProtonElectronCalculation && c1->rt.phaseType == reportMatrix ){
             maxOriginRank = imax( maxOriginRank, c1->i.twoBody.num * N1*N1);
         }
@@ -1517,7 +1549,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
     
     
         fromBeginning(*f1,dsyBuffers,square);
-        f1->tulip[dsyBuffers].Partition = 1000+2*8*(8*(imax(mxlen,maxEV))+72*f->i.nStates*f->i.nStates+ 8 * mxlen)+3*maxEV;
+        f1->tulip[dsyBuffers].Partition = 1000+2*8*(8*(imax(mxlen*mxlen,maxEV))+72*f->i.nStates*f->i.nStates+ 8 * mxlen)+3*maxEV;
     //unsure.
 //    if ( PARTICLE == 1 )
 //        f1->tulip[dsyBuffers].Partition = maxVector*maxVector;
@@ -1592,23 +1624,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         }
     
     
-    if(0){
-        INT_TYPE nn[SPACE],i,j;
-        length1(*f1,nn);
-        for ( space = 0; space < SPACE ; space++)
-            if ( f1->rose[space].body != nada )
-                for ( i = 0 ; i < nn[space];i++)
-                    for ( j = 0; j < nn[space];j++)
-                    {
-                        if ( i+j+1 == nn[space] )
-                            streams(*f1, inversion,0,space)[i*nn[space]+j] = 1.;
-                        else
-                            streams(*f1, inversion,0,space)[i*nn[space]+j] = 0.;
-                        
-                    }
-        
-    }
-    separateOverlap(*f1, 0,overlap, 0,all);
+    
+    separateOverlap(*f1, 0,overlap, inversion,all);
 
     
     if ( c1->rt.phaseType == buildFoundation ){
@@ -1622,13 +1639,15 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             if ( c1->rt.calcType == electronicStuctureCalculation  ){
                 separateKinetic(*f1, 0,kinetic, c1->i.massElectron,electron);
                 if ( c1->i.Na ){
+                    
+                    INT_TYPE flag ;
+                    flag =   ioStoreMatrix(*f1,linear ,0,"linear.matrix",1);
+                    if ( f1->cmpl == cmpl)
+                        flag = flag && ioStoreMatrix(*f1,linear ,1,"linear.1.matrix",1);
+
+                    
                     for ( c = real ; c <= spins (*f1, linear) ; c++){
-                            if ( ioStoreMatrix(*f1,linear,c-1,"linear.matrix",1) ) {
-                          
-                            }
-                            else{
                             buildExternalPotential(c1, *f1,linear,electron,!(!c1->rt.runFlag),c);
-                            }
                     }
                 }
                 if ( f1->rose[0].component == periodicComponent1 ){
@@ -1657,16 +1676,21 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     if ( bootBodies > one ){
                         if ( allowQ(f1->rt, blockSeparateTwoBodyBlock))
                         {
-                            ioStoreMatrixScale(f,interactionExchange ,0,"interactionExchange.matrix",1);
-                            if ( f1->cmpl == cmpl)
-                                ioStoreMatrixScale(f,interactionExchange ,1,"interactionExchange.1.matrix",1);
-                            }
-                        else
-                            for ( c = real ; c <= spins (*f1, interactionExchange) ; c++){
-                                buildPairWisePotential(c1, *f1,interactionExchange,electron,0,c);
-                            }
-                        
-                }
+                                    {
+                                        INT_TYPE flag ;
+                                        flag =   ioStoreMatrixScale(f,interactionExchange ,0,"interactionExchange.matrix",1);
+                                        if ( f1->cmpl == cmpl)
+                                            flag = flag && ioStoreMatrixScale(f,interactionExchange ,1,"interactionExchange.1.matrix",1);
+                                        
+
+
+                                        if ( ! flag )
+                                            for ( c = real ; c <= spins (*f1, interactionExchange) ; c++){
+                                                buildPairWisePotential(c1, *f1,interactionExchange,electron,0,c);
+                                            }
+                                }
+                        }
+                    }
                 if ( c1->i.magFlag ){
                     INT_TYPE deriv[SPACE];
                     INT_TYPE power[SPACE];
@@ -1760,19 +1784,21 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 if ( bootBodies > one ){
                     if ( allowQ(f1->rt, blockSeparateTwoBodyBlock )){
                         if ( c1->i.twoBody.func.fn != nullFunction ){
-                            ioStoreMatrixScale(f,interactionExchange ,0,"interactionExchange.matrix",1);
+                            INT_TYPE flag = ioStoreMatrixScale(f,interactionExchange ,0,"interactionExchange.matrix",1);
                            if ( f1->cmpl == cmpl)
 
-                            ioStoreMatrixScale(f,interactionExchange ,1,"interactionExchange.1.matrix",1);
+                               flag = flag &&   ioStoreMatrixScale(f,interactionExchange ,1,"interactionExchange.1.matrix",1);
 
-                            }
-                            else
+                        
+                    
+                        
+                            if ( ! flag )
                                 for ( c = real ; c <= spins (*f1, interactionExchange) ; c++){
                                     buildPairWisePotential(c1, *f1,interactionExchange,electron,0,c);
                                     }
                     }
                 }
-                
+                }
                 
                 mySeparateExactOneByOne(*f1,c1->i.twoBody, part(*f1,shortenPlus),interactionExchangePlus, shortenPlus,-1., 1,c1->i.massClampPair/(c1->i.massClampPair+c1->i.massProton),electron, proton);
                 
@@ -2038,12 +2064,19 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             
             //really want to keep linear separate and uncarved...
             if ( c1->i.Na && c1->rt.calcType != clampProtonElectronCalculation )
-                if ( c1->i.oneBody.func.fn != nullFunction )
-                    if(   ! ioStoreMatrix(*f1, linear, 0, "linear.matrix",1)){
+                if ( c1->i.oneBody.func.fn != nullFunction ){
+                    tClear(*f1, linear);
+                    if(   ! ioStoreMatrix(*f1, linear, 0, "trainLinear.matrix",1)){
                         printf("linear absent");
                         exit(0);//if not already present, go back and build it
                     }
-            
+                    if ( f1->cmpl == cmpl )
+                        if(   ! ioStoreMatrix(*f1, linear, 1, "trainLinear.1.matrix",1)){
+                            printf("linear absent");
+                            exit(0);//if not already present, go back and build it
+                        }
+
+                }
             
                 switch ( bootBodies ){
                     case one:

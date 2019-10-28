@@ -6125,49 +6125,79 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
     return 0;
 }
 
-INT_TYPE separateOverlap( struct sinc_label f1, INT_TYPE periodic,enum division akinetic,  double amass, INT_TYPE particle1 ){
-    if ( ! part(f1,akinetic))
+INT_TYPE separateOverlap( struct sinc_label f1, enum division overlap,enum division overlapTwo,enum division inverse,enum division inversionTwo ){
+    if ( ! part(f1,overlap))
         return 0;
-
-    INT_TYPE space,dim,I1,I2;
-    INT_TYPE dims1[SPACE],cmpl;
+#ifndef GAUSSIANSINC
+    return 0;
+#endif
+    INT_TYPE space,I1,I2,I3,I4;
+    INT_TYPE dims1,cmpl;
     struct general_index o1;
-    length1(f1,dims1);
     Stream_Type * stream;
     DCOMPLEX va;
-    f1.tulip[diagonalCube].Current[0] = 1;
     tClear(f1, overlap);
-    for ( cmpl = 0; cmpl < spins(f1, akinetic ) ; cmpl++){
-        for ( dim = 0 ; dim < 1; dim++){
-            if ( f1.rose[dim].body != nada )
-                if (( f1.tulip[akinetic].space[dim].body == one && (f1.rose[dim].particle == particle1 || particle1 == all ) )){
+    for ( cmpl = 0; cmpl < real ; cmpl++){
                     for ( space = 0 ;space < SPACE; space++)
                         if ( f1.rose[space].body != nada )
-                            
+
                         {
-                            stream =  streams( f1, diagonalCube, 0 , space );
-                            for ( I1 = 0 ; I1 < dims1[space] ; I1++)
-                                for( I2 = 0; I2 < dims1[space] ; I2++){
-                                    o1.bra = grabBasis(f1, space, f1.rose[dim].particle, I1);
-                                    o1.ket = grabBasis ( f1, space, f1.rose[dim].particle, I2);
+                            dims1 =   outerVectorLen(f1, one, space);
+                            stream =  streams( f1, overlap, 0 , space );
+                            for ( I1 = 0 ; I1 < dims1 ; I1++)
+                                for( I2 = 0; I2 < dims1 ; I2++){
+                                    o1.bra = grabBasis(f1, space, f1.rose[space].particle, I1);
+                                    o1.ket = grabBasis ( f1, space, f1.rose[space].particle, I2);
                                     
                                     va = BoB(o1.bra,o1.ket);
                                     if ( cmpl == 0 )
-                                        (stream )[dims1[space]*I1+I2] = creal(va);
+                                        (stream )[dims1*I1+I2] = creal(va);
                                     else
-                                        (stream )[dims1[space]*I1+I2] = cimag(va);
+                                        (stream )[dims1*I1+I2] = cimag(va);
                                     
                                 }
+                            
+                            if ( part(f1, overlapTwo))
+                            for ( I1 = 0 ; I1 < dims1 ; I1++)
+                                for( I2 = 0; I2 < dims1 ; I2++)
+                                    for ( I3 = 0 ; I3 < dims1 ; I3++)
+                                        for( I4 = 0; I4 < dims1 ; I4++){
+                                            va  = (stream)[ I1*dims1+I2 ] * (stream)[ I3*dims1+I4 ];
+                                            streams(f1,overlapTwo,0,space)[ (I1+I3*dims1)+ ( I2+I4*dims1)*dims1*dims1 ] = creal(va);
+                                        }
+
+                                
                         }
-
-                    tAddTw(f1, akinetic, cmpl, diagonalCube, 0);
-                }
-        }
     }
-    struct name_label u = f1.tulip[overlap];
+    
+    
+    
+    
+    f1.tulip[overlap].Current[0] = 1;
+    if ( part(f1, overlapTwo))
+        f1.tulip[overlapTwo].Current[0] = 1;
 
+    //struct name_label u = f1.tulip[overlap];
+
+    
+    if ( spins(f1,overlap ) != real ){
+        printf("under construction");
+        exit(0);
+    }
+    tEqua(f1, inverse, 0, overlap, 0);
+    for ( space = 0 ; space < SPACE ; space++)
+        if ( f1.rose[space].body != nada )
+            tInverse(f1, outerVectorLen(f1, one, space), streams(f1,inverse,0,space));
+    
+    
+    if ( part(f1, overlapTwo))
+    {
+        tEqua(f1, inversionTwo, 0, overlapTwo, 0);
+        for ( space = 0 ; space < SPACE ; space++)
+            if ( f1.rose[space].body != nada )
+                tInverse(f1, outerVectorLen(f1, two, space), streams(f1,inversionTwo,0,space));
+    }
     //  outputFormat(f1, stderr,kinetic1, 0);
-    INT_TYPE info;
     //    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic, 0,'N', kinetic, 0);
     //    printf("r%f\n", traceOne(f1, copy, 0));
     //    tMultiplyMP(0, &info, f1, 1., -1, copy, 0, 'T', kinetic,1,'N', kinetic, 1);
