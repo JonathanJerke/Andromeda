@@ -17,7 +17,8 @@ foreach curr ( $argv )
 			if ( $curr == found ) then
 				$LAUNCH/csh/hamiltonian.csh $curr
 				$LAUNCH/csh/distill.csh $curr
-				sleep 3
+				$LAUNCH/csh/distillExternal.csh $curr	
+			sleep 3
 				$LAUNCH/csh/gos.csh found/found
 				$LAUNCH/csh/go.csh found/Afound
 				$LAUNCH/csh/prevKrylov.csh $curr $curr states
@@ -28,11 +29,20 @@ foreach curr ( $argv )
 		else
 			$LAUNCH/csh/addStage.csh $prev $curr
 			#define current iinc
-			cp ../$iinc $curr/inc
+			if ( -e $iinc ) then	
+				cp $iinc $curr/inc
+			else
+				if ( -e ../$iinc ) then
+					cp ../$iinc $curr/inc
+				else
+					exit
+				endif
+			endif
 			#echo "cp $curr $iinc"
-            $LAUNCH/csh/hamiltonian.csh $curr
+            		$LAUNCH/csh/hamiltonian.csh $curr
 			$LAUNCH/csh/distill.csh $curr
-            $LAUNCH/csh/krylov.csh $prev $curr states
+                        $LAUNCH/csh/distillExternal.csh $curr
+            		$LAUNCH/csh/krylov.csh $prev $curr states
 			sleep 3
             $LAUNCH/csh/prevRitzB.csh $curr $curr states
          	$LAUNCH/csh/prevKrylovB.csh  $curr $curr states
