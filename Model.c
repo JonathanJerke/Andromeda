@@ -1549,7 +1549,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
     
     
         fromBeginning(*f1,dsyBuffers,square);
-        f1->tulip[dsyBuffers].Partition = 1000+2*8*(8*(imax(mxlen*mxlen,maxEV))+72*f->i.nStates*f->i.nStates+ 8 * mxlen)+3*maxEV;
+        f1->tulip[dsyBuffers].Partition = 1000+2*8*(8*(imax(mxlen,maxEV))+72*f->i.nStates*f->i.nStates+ 8 * mxlen)+3*maxEV;
     //unsure.
 //    if ( PARTICLE == 1 )
 //        f1->tulip[dsyBuffers].Partition = maxVector*maxVector;
