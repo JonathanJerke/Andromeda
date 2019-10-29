@@ -87,6 +87,29 @@ INT_TYPE foundationM(struct calculation *c1, struct field f1){
                 tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.CANON, 1, 0);
                 break;
             }
+        if ( f1.f.cmpl == 2 ){
+            tClear(f1.f, build);
+            ioStoreMatrix(f1.f, quadCube, 0, "single.1.matrix", 1);
+            switch(bodies(f1.f,eigen)){
+                case one:
+                    tEqua(f1.f, eigen, 1, quadCube, 0);
+                    break;
+                case two:
+                    tEqua(f1.f, eigen, 1, quadCube, 0);
+                    break;
+                case three:
+                    sumTo3(f1.f, quadCube, 0,build, 0);
+                    tId(f1.f , eigen,1);
+                    tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 1, c1->rt.CANON, 1,    0);
+                    break;
+                case four:
+                    sumTo4(f1.f, quadCube, 0,build, 0);
+                    tId(f1.f , eigen,1);
+                    tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 1, c1->rt.CANON, 1, 0);
+                    break;
+            }
+        }
+        
         tBootManyConstruction(c1,f1.f ,eigen);
         EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
         print(c1,f1,1,0,EV , f1.f.user);
@@ -227,14 +250,16 @@ INT_TYPE decompose ( struct calculation *c1, struct field f1){
     //count canonical-rank...
     
     iModel(c1,&f1);
-    inputFormat(f1.f, c1->name, hamiltonian, 1);
     
-    tClear(f1.f,trainHamiltonian);
-    
+    if (0){
+        inputFormat(f1.f, c1->name, hamiltonian, 1);
+        tClear(f1.f,trainHamiltonian);
+    } else {
+        tEqua(f1.f, hamiltonian, 0, linear, 0);
+    }
     tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian , 0, c1->rt.CANON, part(f1.f,trainHamiltonian), c1->rt.powDecompose);
 
-    FILE * fo = fopen("output.matrix", "w");
-    outputFormat(f1.f, fo, trainHamiltonian, 0);
+    ioStoreMatrix(f1.f, trainHamiltonian, 0, "trainLinear.matrix", 0);
     fModel(&f1.f);
     return 0;
 }
@@ -1004,7 +1029,7 @@ int main (INT_TYPE argc , char * argv[]){
 
             case 0 :
                 //andromeda 0
-                printf("----\nv7.5.5\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\nv7.5.6\n\n%s\n\n",getenv("LAUNCH"));
                 exit(0);
         }
 
