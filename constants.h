@@ -167,7 +167,8 @@ enum phaseType{
     svdOperation, //3
     distillMatrix,//4
     reportMatrix,//5
-    decomposeMatrix //6
+    decomposeMatrix, //6
+    gauss //7
 };
 
 enum calculationType{
@@ -222,10 +223,12 @@ enum genus{
 
 enum shape{
     Cube,
-    Rds,
-    RdsBasis,
-    Band,
-    BandBasis,
+    g1,
+    g2,
+    g3,
+    g4,
+    g5,
+    g6
 };
 
 enum functionType{
@@ -359,9 +362,6 @@ enum blockMemoryType{
     blockTrainMatricesblock,//10
     blockfoundationMblock//11
 };
-
-
-
 
 
 
@@ -632,7 +632,12 @@ enum division{
     edgePMatrix6,//63
     hartree,
     forces,//10
+    northoKet,
     inversion,
+    inversion1,
+    inversion2,
+    inversion3,
+    inversion4,
     inversionTwo,
     overlap,
     overlap1,
@@ -945,6 +950,7 @@ struct runTime {
 };
 
 struct input {
+    INT_TYPE gaussCount;//currently only on origin
     double shiftVector[100][2];
     INT_TYPE barrier;
     double massElectron;//electron

@@ -159,14 +159,15 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
 //                
 //            }
             if ( c1->rt.calcType == electronicStuctureCalculation ){
-                if ( 0 ){
-                    INT_TYPE j;
+                INT_TYPE j;
+
+#ifdef BOOTIDENTITY
                     for ( i = 0; i < N1 ; i++)
                         for ( j =0 ; j < N1 ; j++)
                             ar[i*N1+j] = delta(i-j);
                     
-                }else {
-                    for ( v = 0 ; v < N2 ; v++)
+#else
+                for ( v = 0 ; v < N2 ; v++){
                         if ( f1.tulip[kinetic].spinor == cmpl){
                             cmplFlag = 1;
                             arc[v] = (streams(f1, kinetic,0,space)+space*N2)[v] + I * (streams(f1, kinetic,1,space)+space*N2)[v];
@@ -177,7 +178,9 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                             ar[v] = (streams(f1, kinetic,0,space)+space*N2)[v];
                         }
                 }
-            }
+#endif
+                }
+            
             else if ( c1->rt.calcType == clampProtonElectronCalculation ){
                 if ( space < COMPONENT )
                     cblas_dcopy(N2, streams(f1, kinetic,0,space)+space*N2, 1, ar, 1);
@@ -1418,12 +1421,26 @@ INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,ch
     INT_TYPE cmpl,cmpl2,cmpl3,cat,iii = 0,maxEV = f1.maxEV,rank;
     INT_TYPE stage, maxStage=0,minStage,stride = maxEV;
     double * ritz = myStreams(f1, outputValues, 0);
-    double * overlap = myStreams(f1, conditionOverlapNumbers, 0);
     enum division el ;
     DCOMPLEX *T  =  (DCOMPLEX *) myStreams(f1, matrixHbuild,0/*CORE RANK*/);
     DCOMPLEX *S  =  (DCOMPLEX *) myStreams(f1, matrixSbuild,0/*CORE RANK*/);
     DCOMPLEX *t  =  T+stride*stride;
     DCOMPLEX *s  =  S+stride*stride;
+    
+    if ( part(f1, matrixHbuild) * sizeof(double) < 2*stride*stride*sizeof(DCOMPLEX) ){
+        printf("ack|n");
+        exit(0);
+    }
+    if ( part(f1, matrixSbuild) * sizeof(double) < 2*stride*stride*sizeof(DCOMPLEX) ){
+        printf("ack|n");
+        exit(0);
+    }
+
+    if ( part(f1, outputValues) < stride ){
+        printf("ack|n");
+        exit(0);
+    }
+
     INT_TYPE qs,aa[stride];
     INT_TYPE powerMat;
 
@@ -1589,6 +1606,7 @@ INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,ch
 
         
         if (1){
+            DCOMPLEX one=1. , zero = 0.;
             assignCores(f1, 0);
             INT_TYPE complete;
             char Job = 'V';

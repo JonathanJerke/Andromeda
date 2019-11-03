@@ -410,6 +410,15 @@ DCOMPLEX FGS( double p ,INT_TYPE dn, struct general_index * pa ){
     // one gaussian, one sinc, fourier transformed.
     struct general_2index g2;
     double beta,realpart,imagepart;
+    double norm ;
+    INT_TYPE index;
+    g2.i[0].bra = pa->bra;
+    g2.i[0].ket = pa->ket;
+    g2.i[1].bra = pa->bra;
+    g2.i[1].ket = pa->ket;
+
+    
+    
     g2.i[0].bra.basis = SincBasisElement;
     g2.i[0].ket.basis = nullBasisElement;
     g2.i[1].bra.basis = DiracDeltaElement;
@@ -421,23 +430,31 @@ DCOMPLEX FGS( double p ,INT_TYPE dn, struct general_index * pa ){
     g2.i[1].pointer = 1;
     g2.i[0].action = 0;
     g2.i[1].action = dn;
-    g2.momentumShift = 0;
     
     if ( pa->bra.basis == GaussianBasisElement && pa->ket.basis == SincBasisElement ){
         
         beta = pa->bra.length;
-        g2.powSpace = pa->ket.index;
+        g2.powSpace = pa->bra.index;
         g2.i[1].bra.origin = pa->bra.origin;
+        g2.i[1].x0 = pa->bra.origin;
         g2.i[0].bra = pa->ket;
         g2.i[0].d = pa->ket.length;
-
+        g2.i[0].bra.grid = pa->ket.grid;
+        g2.i[0].bra.index2 = 0;
+        norm = GTOnorm(pa->bra);
+        index = pa->ket.index;
     }
     else if ( pa->bra.basis == SincBasisElement && pa->ket.basis == GaussianBasisElement ){
         beta = pa->ket.length;
         g2.powSpace = pa->ket.index;
         g2.i[1].bra.origin = pa->ket.origin;
+        g2.i[1].x0 = pa->ket.origin;
         g2.i[0].bra = pa->bra;
         g2.i[0].d = pa->bra.length;
+        g2.i[0].bra.grid = pa->bra.grid;
+        g2.i[0].bra.index2 = 0;
+        norm = GTOnorm(pa->ket);
+        index = pa->bra.index;
 
     }else {
         
@@ -449,7 +466,8 @@ DCOMPLEX FGS( double p ,INT_TYPE dn, struct general_index * pa ){
     realpart =  collective(sqrt(beta), &g2);
     g2.realFlag = 0;
     imagepart = collective(sqrt(beta), &g2);
-    return /*Nol(beta,g2.i[1].action)*/ sqrt(pi*g2.i[0].d)*(realpart + I * imagepart);
+  //  printf("%f %d %f\n",beta,index, creal(sqrt(g2.i[0].d)*(realpart + I * imagepart)*(cexp(I *p * g2.i[0].d *index ))*norm));
+    return sqrt(g2.i[0].d)*(realpart + I * imagepart)*(cexp(I *p * g2.i[0].d *index ))*norm;
 };
 
 
@@ -463,10 +481,9 @@ DCOMPLEX FS ( double p , struct general_index * pa ){
     INT_TYPE pt = pa->pointer;
     
     
-    
-    if ( fabs( p * d) > imax(1,pt) * pi ){
-        return 0.;
-    }
+//    if ( fabs( p * d) > imax(1,pt) * pi ){
+//        return 0.;
+//    }
     if ( pt < 2){
         if ( pt == 0 )
             return ei( n * p*d );
@@ -610,6 +627,10 @@ DCOMPLEX FB ( double p , struct general_index * pa ){
         pa->d = pa->ket.length;
         pa->pointer = 1;
         return FS(p, pa);
+    }else if ( pa->bra.basis == GaussianBasisElement && pa->ket.basis == SincBasisElement){
+        return FGS(p,0,pa);
+    }else if ( pa->bra.basis == SincBasisElement && pa->ket.basis == GaussianBasisElement){
+        return FGS(p,0,pa);
     }
 
 
@@ -2973,7 +2994,7 @@ DCOMPLEX FGG( double k, struct general_index * pa){
     
     double kp = 1;
     for ( ll = 0; ll <= xl; ll++){
-        hg[ll] =  exp(- sqr(gamma * k) ) * kp * cexp(I * delta * k ) ;
+        hg[ll] =  exp(- gamma *sqr( k) ) * kp * cexp(I * delta * k ) ;
         kp *= k;
     }
     
@@ -2985,7 +3006,7 @@ DCOMPLEX FGG( double k, struct general_index * pa){
         {
             value += p1[l]*hg[l];
         }
-    return value*aaGetConst(b1.length, b1.index, b1.origin, k1.length, k1.index, k1.origin);
+    return value*aaGetConst(b1.length, b1.index, b1.origin, k1.length, k1.index, k1.origin)*/*sqrt[2pi)*/2.5066282746310002*GTOnorm(b1)*GTOnorm(k1);
 }
 
 
@@ -3015,7 +3036,7 @@ DCOMPLEX BoB (struct basisElement b1, struct basisElement b2 ){
             pa.bra = b1;
             pa.ket = b2;
             
-            return aaGdnGdm(0, 0, &pa);
+            return FGG(0, &pa);
             
         }else{
             printf("p-GG?");
@@ -3097,7 +3118,7 @@ DCOMPLEX BdB (struct basisElement b1, struct basisElement b2){
             pa.bra = b1;
             pa.ket = b2;
             
-            return aaGdnGdm(0, 1, &pa);
+            return aaGdnGdm(0, 1, &pa)*GTOnorm(b1)*GTOnorm(b2);
         }else{
             printf("p-GdG?");
             exit(0);
@@ -3124,7 +3145,7 @@ DCOMPLEX BdB (struct basisElement b1, struct basisElement b2){
             pa.bra = b1;
             pa.ket = b2;
             
-            return -(FGS(0,1,&pa));//signs
+            return (FGS(0,1,&pa));//signs
         }else{
             printf("p-GdG?");
             exit(0);
@@ -3162,7 +3183,6 @@ DCOMPLEX BgB (double beta, struct basisElement b1, INT_TYPE action , INT_TYPE po
         g2.i[0].action = 0;
         g2.i[1].action = action;
         g2.powSpace = powSpace;
-        g2.momentumShift = 0;
         g2.realFlag = 1;
     g2.i[0].realFlag = g2.realFlag;
     g2.i[1].realFlag = g2.realFlag;
@@ -3221,7 +3241,7 @@ DCOMPLEX Bd2B (struct basisElement b1, struct basisElement b2){
             struct general_index pa ;
             pa.bra = b1;
             pa.ket = b2;
-            double u = aaGdnGdm(0, 2, &pa);
+            double u = aaGdnGdm(0, 2, &pa)*GTOnorm(b1)*GTOnorm(b2);
             return u;
         }else{
             printf("p-Gd2G?");
@@ -3234,7 +3254,7 @@ DCOMPLEX Bd2B (struct basisElement b1, struct basisElement b2){
             struct general_index pa ;
             pa.bra = b1;
             pa.ket = b2;
-            return FGS(0,2,&pa);
+            return -FGS(0,2,&pa);
         }else{
             printf("p-Gd2S?");
             exit(0);
@@ -3245,7 +3265,7 @@ DCOMPLEX Bd2B (struct basisElement b1, struct basisElement b2){
             struct general_index pa ;
             pa.bra = b1;
             pa.ket = b2;
-            return FGS(0,2,&pa);
+            return -FGS(0,2,&pa);
         }else{
             printf("p-Gd2S?");
             exit(0);
@@ -3469,8 +3489,8 @@ double collective( double beta ,struct general_2index * pa){
 
                     z2 += 2 *  pi*pa->i[1].ket.index2/pa->i[1].ket.length/pa->i[1].ket.grid;
 
-                    b1 = max(z1 - l1 , z2 - l2 );
-                    b2 = min(z1 + l1 , z2 + l2 );
+                    b1 = max(z1 - l1 , z2 - l2 )+pa->momentumShift;
+                    b2 = min(z1 + l1 , z2 + l2 )+pa->momentumShift;
                     if ( b2 <= b1 )
                         return 0.;
 #ifdef APPLE
@@ -4308,7 +4328,6 @@ void mySeparateExactTwo (struct sinc_label  f1, struct interaction_label twoBody
     getDescription(&fl, scalar, stdout);
     
     INT_TYPE ngk;
-    f1.tulip[quadCube].header = Cube;
     
     tClear(f1, quadCube);
     tId(f1,quadCube,0 );
@@ -4926,11 +4945,11 @@ INT_TYPE separateInteraction( struct sinc_label f1, double * position, enum divi
     /////IGNORE TRAIN COMMAND
     if ( basis ){
         f1.tulip[load].header = f1.tulip[basis].header-1;
-        f1.tulip[temp].header = Cube;
+//        f1.tulip[temp].header = Cube;
     }
     else {
-        f1.tulip[temp].header = Cube;
-        f1.tulip[load].header = Cube;
+//        f1.tulip[temp].header = Cube;
+//        f1.tulip[load].header = Cube;
     }
     
     INT_TYPE section=2,si,ngk, intv = metric.fn.interval;
@@ -4999,6 +5018,7 @@ INT_TYPE separateInteraction( struct sinc_label f1, double * position, enum divi
         if ( section < 2 )
             constant *= inverseLaplaceTransform(x,&metric.fn);
         cpow = powl(fabsl(constant),1./spaces);
+        printf("%f \t%f\n", constant, x );
         minusFlag = 1;
         for ( space = 0 ;space < SPACE  ; space++)
             if ( f1.rose[space].body != nada )
@@ -5634,7 +5654,7 @@ INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum div
     struct function_label fl;
     struct general_2index g2;
     struct name_label u = f1.tulip[diagonalCube];
-    f1.tulip[diagonalCube].header = Cube;
+//    f1.tulip[diagonalCube].header = Cube;
     for ( i = 0; i < SPACE ; i++)
         if ( f1.rose[i].body != nada )
         stream[i] =  streams( f1, diagonalCube,0,i  );
@@ -5648,7 +5668,7 @@ INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum div
         f1.tulip[linear].header = f1.tulip[basis].header-1;
         n1 = dims1;
         m1 = n1;
-        f1.tulip[diagonalCube].header = Cube;
+   //     f1.tulip[diagonalCube].header = Cube;
     }
     //    else if ( header (f1, linear ) == SincSub  ){
     //        n1 = f1.n1;
@@ -5659,8 +5679,8 @@ INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum div
     else {
         n1 = dims1;
         m1 = n1 ;
-        f1.tulip[diagonalCube].header = Cube;
-        f1.tulip[linear].header = Cube;
+//        f1.tulip[diagonalCube].header = Cube;
+//        f1.tulip[linear].header = Cube;
         
     }
     spin = 0;
@@ -6188,8 +6208,7 @@ INT_TYPE separateOverlap( struct sinc_label f1, enum division overlap,enum divis
     for ( space = 0 ; space < SPACE ; space++)
         if ( f1.rose[space].body != nada )
             tInverse(f1, outerVectorLen(f1, one, space), streams(f1,inverse,0,space));
-    
-    
+        
     if ( part(f1, overlapTwo))
     {
         tEqua(f1, inversionTwo, 0, overlapTwo, 0);

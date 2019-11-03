@@ -116,4 +116,5 @@ struct basisElement defineSincBasis (enum noteType note, enum componentType spac
 struct basisElement defineGaussBasis (enum noteType note, enum componentType space, enum basisElementType basis, double lattice , double origin, INT_TYPE count1, INT_TYPE elementIndex );
 struct basisElement transformBasis( INT_TYPE flip,double scale, struct basisElement ba );
 INT_TYPE  countLinesFromFile( struct calculation *c1,struct field f1,INT_TYPE location, INT_TYPE * ir,INT_TYPE *ix);
+INT_TYPE completeInverse (INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim,enum division vector,INT_TYPE v,INT_TYPE spin, enum division ov , INT_TYPE v2,INT_TYPE sp2);
 #endif /* coreUtil_h */

@@ -597,7 +597,7 @@ Stream_Type* pStreams ( struct sinc_label *f1, enum division label ,INT_TYPE spi
 Stream_Type* streams ( struct sinc_label f1, enum division label ,INT_TYPE spin, INT_TYPE space ){
     Stream_Type * uu ;
     if ( spin < 0 || spin >= spins(f1, label)){
-        printf("spins %d\n",label);
+        printf("spins %d %d\n",label, spin);
         exit(5);
     }
     if ( space < 0 || space >= SPACE+1 ){
@@ -710,13 +710,13 @@ double xEqua ( struct sinc_label f1 , enum division targ ,INT_TYPE tspin,struct 
                 }
             }
             f1.tulip[targ].Current[tspin] = f2.tulip[orig].Current[ospin];
-            f1.tulip[name(f1,targ)].header = header(f2, name(f2,orig));
+            //f1.tulip[name(f1,targ)].header = header(f2, name(f2,orig));
         } else{
             printf("xeq 1");
             exit(9);
         }
     } else {
-        printf("xeq 2");
+        printf("xeq 2\n %d %d", targ, orig);
 
         exit(9);
     }
@@ -1916,6 +1916,19 @@ double xOneBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struc
     f2.tulip[out].Current[s2] = 0;
     zero(f2,out,s2);
     
+//    for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
+//        for ( space = 0;space < SPACE; space++)
+//            if ( f1.rose[space].body != nada){
+//                completeInverse(0, f1, space, vector1, r, s1, canonicalme3Vector, 0, 0);
+//                xsEqu(1., space, f1, vector1, r, s1, f1, canonicalme3Vector, 0, 0);
+//            }
+//    }
+//
+    
+    
+    
+    
+    
     for ( space = 0;space < SPACE; space++)
         if ( f1.rose[space].body != nada){
             N1 = n2[space];
@@ -1941,6 +1954,16 @@ double xOneBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struc
             }
         }
     f2.tulip[out].Current[s2] = CanonicalRank(f1, vector1, s1);
+//    for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
+//        for ( space = 0;space < SPACE; space++)
+//            if ( f1.rose[space].body != nada){
+//                completeInverse(0, f2, space, out, r, s2, canonicalme3Vector, 0, 0);
+//                xsEqu(1., space, f2, out, r, s2, f2, canonicalme3Vector, 0, 0);
+//            }
+//    }
+    
+    
+    
 //    double ov ;
 //    matrixElements(rank, f2, out, nullName, out, NULL, &ov);
 //
@@ -1996,6 +2019,13 @@ double xTwoBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struc
         }
     }
     f2.tulip[out].Current[s2] = CanonicalRank(f1, vector1, s1);
+//    for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
+//        for ( space = 0;space < SPACE; space++)
+//            if ( f1.rose[space].body != nada){
+//                completeInverse(0, f2, space, out, r, s2, canonicalme3Vector, 0, 0);
+//                xsEqu(1., space, f2, out, r, s2, f2, canonicalme3Vector, 0, 0);
+//            }
+//    }
     return 0.;
 }
 
@@ -2045,7 +2075,13 @@ double xThreeBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, str
             }
         }
     f2.tulip[out].Current[s2] = CanonicalRank(f1, vector1, s1);
-    
+//    for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
+//        for ( space = 0;space < SPACE; space++)
+//            if ( f1.rose[space].body != nada){
+//                completeInverse(0, f2, space, out, r, s2, canonicalme3Vector, 0, 0);
+//                xsEqu(1., space, f2, out, r, s2, f2, canonicalme3Vector, 0, 0);
+//            }
+//    }
     return 0.;
 }
 
@@ -2099,7 +2135,13 @@ double xFourBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, stru
             }
         }
     f2.tulip[out].Current[s2] = CanonicalRank(f1, vector1, s1);
-    
+//    for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
+//        for ( space = 0;space < SPACE; space++)
+//            if ( f1.rose[space].body != nada){
+//                completeInverse(0, f2, space, out, r, s2, canonicalme3Vector, 0, 0);
+//                xsEqu(1., space, f2, out, r, s2, f2, canonicalme3Vector, 0, 0);
+//            }
+//    }
     return 0.;
 }
 

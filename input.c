@@ -145,7 +145,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
     char test_line [MAXSTRING];
     double value;                    INT_TYPE iii ;
 
-    INT_TYPE NINT_TYPE = 124;
+    INT_TYPE NINT_TYPE = 125;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -171,7 +171,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "configuration","densityRank","densityBody","parallel","phase",//110
         "around","cmpl","clampStage","OCSB","decompose",
         "shiftNO","matrix","catalog","increment","blockMemory",//120
-        "blockReset","chrome","reverseStage","chroma"
+        "blockReset","chrome","reverseStage","chroma","gaussCount"
     };
     INT_TYPE NDOUBLE = 83;
     char *list_DOUBLE []= {"#",
@@ -809,6 +809,9 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     return i;
                 case 124:
                     c->i.chroma = ivalue;
+                    return i;
+                case 125:
+                    c->i.gaussCount = ivalue;
                     return i;
 
             }

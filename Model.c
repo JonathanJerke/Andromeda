@@ -153,7 +153,7 @@ struct field initField (void ) {
 #else
     i.i.d = 1.;
     i.i.D = 0.1*2;
-    i.i.cmpl = cmpl;
+    i.i.cmpl = real;
     i.i.bRank = 2;
     i.i.iRank = 1;
     i.i.nStates = 1;
@@ -220,11 +220,12 @@ struct calculation initCal (void ) {
     i.rt.calcType = electronicStuctureCalculation;
     i.rt.runFlag = 0;
     i.rt.phaseType = reportMatrix;
+    i.i.gaussCount = 1;
     i.i.Na = 0;
 
         if ( SPACE == 3 ){
             i.rt.calcType = electronicStuctureCalculation;
-            i.rt.runFlag = 7;
+            i.rt.runFlag = 0;
         } else if ( SPACE == 6 ){
 
             i.rt.calcType = clampProtonElectronCalculation;
@@ -555,11 +556,49 @@ INT_TYPE singleGaussModel( struct calculation * c1, struct field * f){
     return 1;
 }
 
+INT_TYPE singleTestModel( struct calculation * c1, struct field * f){
+    struct sinc_label *f1 = &f->f;
+    INT_TYPE bl,B1 = c1->i.gaussCount,periodic = 1,space, N1 = f->i.epi*2+1;
+    if ( c1->i.gaussCount > 10){
+        printf("gau");
+        exit(0);
+    }
+    printf("GaussianSinc-Target 4");
+    double ble[] = {2.8, 11.2, 44.8, 179.2, 716.8, 2867.2, 11468.8, 45875.2, 183501.,734003.};
+    //
+    //define vectors
+    printf("ACKTUNG!!!!\n\n,  only one set of GTOs and on only the origin!\n\nACKTUNG!!!!\n\n");
+    f1->rose[SPACE].component = nullComponent;
+    f1->rose[SPACE].body = nada;
+    f1->rose[SPACE].particle = nullParticle;
+        for ( space = 0; space < SPACE ; space++){
+            f1->rose[space].particle = electron;
+            f1->rose[space].basis = SincBasisElement;
+            f1->rose[space].body = f->i.body;
+            f1->rose[space].component = spatialComponent1+space%COMPONENT ;
+            f1->rose[space].count1Basis = N1+B1;
+            f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
+            for ( bl = 0; bl < B1  ; bl++){
+                f1->rose[space].basisList[bl] = defineGaussBasis(nullNote, f1->rose[space].component, GaussianBasisElement, ble[bl]/sqr(f->i.d), 0.,             f1->rose[space].count1Basis,0);
+            }
+            for ( bl = 0 ; bl < N1  ; bl++){
+                f1->rose[space].basisList[bl+B1] = defineSincBasis(nullNote, f1->rose[space].component, SincBasisElement, f->i.d, 0.,             f1->rose[space].count1Basis-B1,bl);
+            }
+        }
+    
+return 1;
+}
+
+
 INT_TYPE iModel( struct calculation * c1, struct field *f){
     struct name_label l2;
     enum spinType c;
-        singleSincModel(c1, f);
+#ifdef GAUSSIANSINC
+    singleTestModel(c1, f);
 
+#else
+        singleSincModel(c1, f);
+#endif
     struct sinc_label *f1 = &f->f;
 
     {//SA++
@@ -598,7 +637,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         INT_TYPE maxVector = imax(0*c1->i.decomposeRankMatrix, imax(f->i.bRank,1+f->i.iRank));
         //rds defined in input.c
         
-        bootShape = Cube;
+        bootShape = Cube+c1->i.gaussCount;
         
 
     INT_TYPE FloorV = imax(0, f->i.qFloor), CeilV = imax(0,0);
@@ -626,7 +665,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 for ( label1 = 0 ;label1 <= end; label1++){
                     f1->tulip[label1].name = label1;
                     f1->tulip[label1].Partition = 0;
-                    f1->tulip[label1].header = Cube;
+                    f1->tulip[label1].header = bootShape;
                     f1->tulip[label1].spinor = f1->cmpl;
                     f1->tulip[label1].species = scalar;
                     f1->tulip[label1].linkNext = nullName;
@@ -724,7 +763,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 #ifdef GAUSSIANSINC
         f1->tulip[overlap].Partition = 1;//
 #endif
-        f1->tulip[overlap].header = Cube;
+        f1->tulip[overlap].header = bootShape;
     assignOneWithPointers(*f1, overlap, all);
 
             fromBeginning(*f1, overlapTwo,overlap);
@@ -732,7 +771,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
     #ifdef GAUSSIANSINC
             f1->tulip[overlapTwo].Partition = 1;//
     #endif
-            f1->tulip[overlapTwo].header = Cube;
+            f1->tulip[overlapTwo].header = bootShape;
             assignParticle(*f1, overlapTwo, all, two);
 
     
@@ -892,9 +931,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
                 }
                 fromBeginning(*f1, diagonalVectorA, last);
-                ;
-                 u = f1->tulip[eigenVectors];
-                 u2 = f1->tulip[eigenVectors+di-1];
+                u = f1->tulip[eigenVectors];
+                u2 = f1->tulip[eigenVectors+di-1];
                 f1->user = eigenVectors + d0;
             }
                 
@@ -958,7 +996,16 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[permutation2Vector].species = vector;
         f1->tulip[permutation2Vector].spinor = parallel;
     
-        fromBeginning(*f1,canonicalmvVector,permutation2Vector);
+    fromBeginning(*f1,northoKet,permutation2Vector);
+#ifdef GAUSSIANSINC
+    f1->tulip[northoKet].Partition = 1;
+#endif
+    f1->tulip[northoKet].species = vector;
+    f1->tulip[northoKet].spinor = parallel;
+
+    
+    
+        fromBeginning(*f1,canonicalmvVector,northoKet);
         f1->tulip[canonicalmvVector].Partition = 1;
         f1->tulip[canonicalmvVector].species = vector;
         f1->tulip[canonicalmvVector].spinor = parallel;
@@ -969,9 +1016,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[canonicalmv2Vector].spinor = parallel;
 
         fromBeginning(*f1,canonicalmv3Vector,canonicalmv2Vector);
-#ifdef GAUSSIANSINC
         f1->tulip[canonicalmv3Vector].Partition = 1;
-#endif
         f1->tulip[canonicalmv3Vector].species = vector;
         f1->tulip[canonicalmv3Vector].spinor = parallel;
 
@@ -1011,12 +1056,16 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[canonicalmeVector].spinor = parallel;
         
         fromBeginning(*f1,canonicalme2Vector,canonicalmeVector);
-        f1->tulip[canonicalme2Vector].Partition = 0;
-        f1->tulip[canonicalme2Vector].species = vector;;
+#ifdef GAUSSIANSINC
+        f1->tulip[canonicalme2Vector].Partition = 1;
+#endif
+    f1->tulip[canonicalme2Vector].species = vector;;
         f1->tulip[canonicalme2Vector].spinor = parallel;
         
         fromBeginning(*f1,canonicalme3Vector,canonicalme2Vector);
-        f1->tulip[canonicalme3Vector].Partition = 0;
+#ifdef GAUSSIANSINC
+        f1->tulip[canonicalme3Vector].Partition = 1;
+#endif
         f1->tulip[canonicalme3Vector].species = vector;;
         f1->tulip[canonicalme3Vector].spinor = parallel;
 
@@ -1047,22 +1096,19 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         fromBeginning(*f1,oneVector,copyFourVector);
         f1->tulip[oneVector].Partition = buildExternalPotential(c1, *f1,nullName,electron ,0,real);
         f1->tulip[oneVector].species = outerVector;
-        f1->tulip[oneVector].header = Cube;
        // f1->tulip[oneVector].spinor = parallel;
         assignParticle(*f1, oneVector, all, one);
 
         fromBeginning(*f1,twoVector,oneVector);
         f1->tulip[twoVector].Partition = 0 * f->i.bRank;;
         f1->tulip[twoVector].species = outVector;
-        f1->tulip[twoVector].header = Cube;
         f1->tulip[twoVector].spinor = parallel;
         assignParticle(*f1, oneVector, all, two);
 
         fromBeginning(*f1,totalVector,twoVector);
   
-    
-    if ( c1->rt.phaseType == productKrylov){
-        if ( (allowQ(f1->rt, blockTrainHamiltonianBlock)) && allowQ(f1->rt,blockTotalVectorBlock)){
+    if ( allowQ(f1->rt,blockTotalVectorBlock) ){
+        if ( (allowQ(f1->rt, blockTrainHamiltonianBlock))){
             INT_TYPE num2Body = 1;
             switch ( bootBodies ){
                 case two:
@@ -1175,13 +1221,11 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         fromBeginning(*f1,squareTwo,copyThree);
         f1->tulip[squareTwo].Partition= 0*(c1->rt.phaseType == buildFoundation);//BUILD
         f1->tulip[squareTwo].species = matrix;
-        f1->tulip[squareTwo].header = Cube;
         assignParticle(*f1, squareTwo, all, two);
     
     fromBeginning(*f1,tempOneMatrix,squareTwo);
     f1->tulip[tempOneMatrix].Partition= allowQ(f1->rt,blockBuildHamiltonianBlock)*(c1->rt.calcType == clampProtonElectronCalculation )*c1->i.twoBody.num*vector1Len(*f1, 0)*vector1Len(*f1, 0);//BUILD
     f1->tulip[tempOneMatrix].species = matrix;
-    f1->tulip[tempOneMatrix].header = Cube;
     assignParticle(*f1, tempOneMatrix, all, one);
 //
     
@@ -1200,8 +1244,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[inversion].Partition= 1;
 #endif
         f1->tulip[inversion].species = matrix;
-        f1->tulip[inversion].header = Cube;
-        assignParticle(*f1, inversion, all, one);
+    assignOneWithPointers(*f1, inversion, all);
     
     
             fromBeginning(*f1,inversionTwo,inversion);
@@ -1209,7 +1252,6 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             f1->tulip[inversionTwo].Partition= 1;
     #endif
             f1->tulip[inversionTwo].species = matrix;
-            f1->tulip[inversionTwo].header = Cube;
             assignParticle(*f1, inversionTwo, all, two);
 
     
@@ -1528,7 +1570,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[conditionOverlapNumbers].memory = bufferAllocation;
         
         fromBeginning(*f1,matrixHbuild,conditionOverlapNumbers);
-    f1->tulip[matrixHbuild].Partition = (  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == svdOperation ) *  2*(2*maxArray*maxArray)+4*( c1->rt.phaseType == buildFoundation)* mxlen*mxlen;
+    f1->tulip[matrixHbuild].Partition = (  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == svdOperation ) *  (maxArray*maxArray)+( c1->rt.phaseType == buildFoundation)* mxlen*mxlen;
+    f1->tulip[matrixHbuild].Partition *= 16;
         f1->tulip[matrixHbuild].spinor = real;
         f1->tulip[matrixHbuild].memory = bufferAllocation;
 
@@ -1537,7 +1580,9 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[vectorHbuild].memory = bufferAllocation;
 
         fromBeginning(*f1,matrixSbuild,vectorHbuild);
-        f1->tulip[matrixSbuild].Partition = ( c1->rt.phaseType == buildFoundation ||  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == svdOperation )*2*(2*maxArray*maxArray);
+        f1->tulip[matrixSbuild].Partition = ( c1->rt.phaseType == buildFoundation ||  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == svdOperation )*(maxArray*maxArray)+( c1->rt.phaseType == buildFoundation)* mxlen*mxlen;
+    f1->tulip[matrixSbuild].Partition *= 16;
+
         f1->tulip[matrixSbuild].spinor = real;
         f1->tulip[matrixSbuild].memory = bufferAllocation;
 
@@ -1624,9 +1669,9 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         }
     
     
-    
-    separateOverlap(*f1, 0,overlap, inversion,all);
-
+#ifdef GAUSSIANSINC
+    separateOverlap(*f1, overlap,overlapTwo, inversion,inversionTwo);
+#endif
     
     if ( c1->rt.phaseType == buildFoundation ){
         separateKinetic(*f1, 0,kinetic, c1->i.massElectron,electron);

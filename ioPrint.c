@@ -210,10 +210,6 @@ void pOutputFormat(struct sinc_label* f1, FILE * out, enum division output ,INT_
 void outputFormat(struct sinc_label f1, FILE * out, enum division output ,INT_TYPE spin){
     INT_TYPE  parts,p1,flag2,flag3,flag4,r,l,space, M[SPACE];
     length(f1, output, M);
-    if ( header (f1, output ) != Cube )
-    {
-        printf("outputFormat: WARNING,Non Cubic output\n");
-    }
 
     fprintf(out,"component = %d\n", COMPONENT);
     enum genus g = species(f1, output);
@@ -417,7 +413,11 @@ INT_TYPE inputFormat(struct sinc_label f1,char * name,  enum division buffer, IN
 
 #endif
   
-    
+    if ( input == -1 ){
+        fclose(in);
+        return head;
+    }
+
     if ( input == 0 ){
         fclose(in);
         return genus;
@@ -1107,6 +1107,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                             struct field f2 = initField();
                             struct calculation c2;
                             c2 = *c1;
+                            c2.i.gaussCount = inputFormat(f1,name, nullName, -1);
                             f2.f.rt = &c2.rt;
                             f2.f.rt->phaseType = productKrylov;
                             f2.i = f.i;
@@ -1114,13 +1115,18 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                             f2.i.files = 0;
                             f2.i.filesVectorOperator = 0;
                             f2.i.qFloor = 0;
-
+                            resetA(f2.f.rt);
                             blockA(f2.f.rt, blockHamiltonianBlock);
                             blockA(f2.f.rt, blockTrainHamiltonianBlock);
                             blockA(f2.f.rt, blockTrainingHamiltonianBlock);
                             blockA(f2.f.rt, blockFoundationBlock);
                             blockA(f2.f.rt, blockBuildHamiltonianBlock);
                             blockA(f2.f.rt, blockEigenDecomposeBlock);
+                            blockA(f2.f.rt, blockSeparateTwoBodyBlock);
+                            blockA(f2.f.rt, blockTrainVectorsblock);
+                            blockA(f2.f.rt, blockTrainMatricesblock);
+                            blockA(f2.f.rt, blockfoundationMblock);
+
                             f2.i.body = inputFormat(f1,name, nullName, 100);
                         
                             f2.f.boot = noMatrices;
@@ -1129,15 +1135,15 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                             f2.i.nStates = 1;
                             if ( SPACE > COMPONENT ){
                                 if ( c1->rt.runFlag )
-                                    f2.i.around = (inputFormat(f1, name, nullName, 201)/2-1)/2;
+                                    f2.i.around = ((inputFormat(f1, name, nullName, 201)-c2.i.gaussCount)/2-1)/2;
                                 else
-                                    f2.i.around = (inputFormat(f1, name, nullName, 201)-1)/2;
+                                    f2.i.around = ((inputFormat(f1, name, nullName, 201)-c2.i.gaussCount)-1)/2;
                                 f2.i.D = f.i.D * pow( (2.* f.i.around + 1.) /(2.*f2.i.around + 1),1.);
                             }
                             if ( c1->rt.runFlag )
-                                f2.i.epi =(inputFormat(f1, name, nullName, 200)/2-1)/2;
+                                f2.i.epi =((inputFormat(f1, name, nullName, 200)-c2.i.gaussCount)/2-1)/2;
                             else
-                                f2.i.epi =(inputFormat(f1, name, nullName, 200)-1)/2;
+                                f2.i.epi =((inputFormat(f1, name, nullName, 200)-c2.i.gaussCount)-1)/2;
 
                             f2.i.d = f.i.d * pow( (2.* f.i.epi + 1.) /(2.*f2.i.epi + 1),f.i.attack);
                             
@@ -1183,9 +1189,8 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                 if ( flagLoad ) {
                     
                     tScale(f1, inputVectors+*ct, creal(Occ));//error... need to scale real and complex separately!!!
-                    
                     ov = magnitude(f1, inputVectors+*ct);
-                    
+
                     if ( inputVectors >= f1.vectorOperator){
                         printf("Density %f\n",sqr(creal(ov)));
                         if ( sqr(cabs(ov)) > c1->rt.TARGET)

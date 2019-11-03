@@ -131,7 +131,6 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
     //count canonical-rank...
 
     
-    f1.i.nStates =1  ;
     f1.i.nStates =f1.i.Iterations  ;
    
  iModel(c1,&f1);
@@ -263,6 +262,134 @@ INT_TYPE decompose ( struct calculation *c1, struct field f1){
     fModel(&f1.f);
     return 0;
 }
+
+INT_TYPE spitGauss ( struct calculation *c1, struct field f1){
+    //load vectors...
+    INT_TYPE fi,EV=0;
+       f1.i.qFloor = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
+       //count canonical-rank...
+
+    switch(f1.i.body ){
+        case one :
+            f1.i.nStates =1+c1->i.gaussCount;
+        case two:
+            f1.i.nStates =1+c1->i.gaussCount*c1->i.gaussCount;
+    }
+       f1.i.Iterations = 1  ;
+      
+       iModel(c1,&f1);
+
+       for ( fi =0 ; fi < f1.i.files ; fi++){
+           tLoadEigenWeights (c1,f1, f1.i.fileList[fi], &EV,eigenVectors , 0);
+       }
+           if (EV == 0 ){
+           return 1;
+           }
+
+    //categorize by body!
+
+    
+    INT_TYPE nn,G,g,g2,space,r,n,nnn,i,i2,i3,rank,l ;
+    switch ( f1.i.body ){
+        case one:
+            for ( g = 0 ; g < c1->i.gaussCount ; g++)
+                for ( space = 0; space < SPACE ; space++)
+                    if ( f1.f.rose[space].body != nada){
+                        
+                        n = vectorLen(f1.f, space);
+                        for ( r = 0; r < CanonicalRank(f1.f, eigenVectors, 0); r++)
+                            streams(f1.f,eigenVectors,0,space)[g+n*r] = 0;
+
+            
+            }
+//            for ( g = 0 ; g <= c1->i.gaussCount ; g++){
+//                          if ( g == 0 )
+//                          {
+//                              print(c1,f1,1,0,1,eigenVectors+g);
+//                          }else {
+//                              tClear(f1.f   , eigenVectors+g);
+//                              tId(f1.f, eigenVectors+g, 0);
+//                              zero(f1.f,eigenVectors+g,0);
+//
+//                              for ( space = 0; space < SPACE ; space++)
+//                                  if ( f1.f.rose[space].body != nada)
+//                                      streams(f1.f,eigenVectors+g,0,space)[g-1] = 1;
+//                              print(c1,f1,0,g,1+g,eigenVectors);
+//                          }
+//
+//            }
+            break;
+            case two:
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1.f.rose[space].body != nada){
+                    n = vector1Len(f1.f, space);
+                    nn = vectorLen(f1.f, space);
+
+                    for ( i = 0 ; i < n ; i++)
+                        for ( i2 = 0 ; i2 < n ; i2++)
+                        {
+                            for ( r = 0; r < CanonicalRank(f1.f, eigenVectors, 0); r++)
+                                if ( i < c1->i.gaussCount || i2 < c1->i.gaussCount )
+                                    streams(f1.f,eigenVectors,0,space)[i+n*i2+nn*r] = 0;
+                        }
+                
+                }
+//            G = c1->i.gaussCount;
+//            for ( g = 0 ; g <= G ; g++)
+//                for ( g2 = 0 ; g2 <= G ; g2++){
+//                              if ( g == 0 && g2 == 0 )
+//                              {
+//                                  print(c1,f1,1,g+g2*G,1+g+g2*G,eigenVectors+g+g2*G);
+//                              }else if ( g != 0 && g2 != 0 ) {
+//                                  tClear(f1.f,eigenVectors+g+g2*G);
+//                                  tId(f1.f,eigenVectors+g+g2*G,0);
+//                                  zero(f1.f,eigenVectors+g+g2*G,0);
+//
+//                                  for (space = 0; space < SPACE ; space++)
+//                                      if (f1.f.rose[space].body != nada){
+//                                          n = vector1Len(f1.f, space);
+//                                          nn = vectorLen(f1.f, space);
+//                                          for ( r = 0; r < CanonicalRank(f1.f, eigenVectors, 0); r++)
+//                                          streams(f1.f,eigenVectors+g+g2*G,0,space)[(g-1)+(g2-1)*n+nn*r] = 1;
+//                                      }
+//                                  print(c1,f1,0,g+g2*G,1+g+g2*G,eigenVectors);
+//                              }else if ( g == 0 ) {
+//                                  tClear(f1.f,eigenVectors+g+g2*G);
+//                                  tId(f1.f,eigenVectors+g+g2*G,0);
+//                                  zero(f1.f,eigenVectors+g+g2*G,0);
+//                              }else if ( g2 == 0 ) {
+//                                  tClear(f1.f,eigenVectors+g+g2*G);
+//                                  tId(f1.f,eigenVectors+g+g2*G,0);
+//                                  zero(f1.f,eigenVectors+g+g2*G,0);
+//                              }
+//
+//
+//                }
+                break;
+            case three:
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1.f.rose[space].body != nada){
+                    n = vector1Len(f1.f, space);
+                    nnn = vectorLen(f1.f, space);
+
+                    for ( i = 0 ; i < n ; i++)
+                        for ( i2 = 0 ; i2 < n ; i2++)
+                            for ( i3 = 0 ; i3 < n ; i3++)
+
+                        {
+                            for ( r = 0; r < CanonicalRank(f1.f, eigenVectors, 0); r++)
+                                if ( i < c1->i.gaussCount || i2 < c1->i.gaussCount|| i3 < c1->i.gaussCount)
+                                    streams(f1.f,eigenVectors,0,space)[i+n*i2+n*n*i3+nnn*r] = 0;
+                        }
+                
+                }
+            break;
+    }
+    fModel(&f1.f);
+
+    return 0;
+}
+
 
 INT_TYPE ritz( struct calculation * c1, struct field f1){
     size_t ms = MAXSTRING;
@@ -1029,7 +1156,7 @@ int main (INT_TYPE argc , char * argv[]){
 
             case 0 :
                 //andromeda 0
-                printf("----\nv7.5.6\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\nv7.6\n\n%s\n\n",getenv("LAUNCH"));
                 exit(0);
         }
 
@@ -1123,8 +1250,89 @@ int main (INT_TYPE argc , char * argv[]){
         fModel(&f.f);
     }else if ( c.rt.phaseType == decomposeMatrix ){
         decompose ( &c, f);
+    }else if ( c.rt.phaseType == gauss){
+        spitGauss ( &c, f);
     }
     printf("\n\nFINIS.\n\n");
 }
 
+#else
+
+int main (INT_TYPE argc , char * argv[]){
+    struct general_index g ;
+    g.bra.type = 1;
+    g.bra.basis = GaussianBasisElement;
+    g.bra.length = 2;
+    g.bra.origin = 0;
+    g.bra.index = 0;
+    g.bra.index2 = 0;
+    g.bra.grid = 9;
+
+    
+    g.ket.type = 1;
+    g.ket.basis = SincBasisElement;
+    g.ket.length = 1;
+    g.ket.origin = 0.;
+    g.ket.index = 0;
+    g.ket.index2 = 0;
+    g.ket.grid = 9;
+    printf("%f", creal(BoB(g.bra,g.ket)));
+    
+    g.bra.type = 1;
+    g.bra.basis = GaussianBasisElement;
+    g.bra.length = 1;
+    g.bra.origin = 0;
+    g.bra.index = 0;
+    g.bra.index2 = 0;
+    g.bra.grid = 9;
+
+    
+    g.ket.type = 1;
+    g.ket.basis = SincBasisElement;
+    g.ket.length = 1;
+    g.ket.origin = 0.;
+    g.ket.index = 0;
+    g.ket.index2 = 0;
+    g.ket.grid = 9;
+    printf("%f", cimag(Bd2B(g.bra,g.ket)));
+    g.bra.type = 1;
+    g.bra.basis = GaussianBasisElement;
+    g.bra.length = 1;
+    g.bra.origin = 0;
+    g.bra.index = 0;
+    g.bra.index2 = 0;
+    g.bra.grid = 9;
+
+    
+    g.ket.type = 1;
+    g.ket.basis = SincBasisElement;
+    g.ket.length = 1;
+    g.ket.origin = 0.;
+    g.ket.index = 1;
+    g.ket.index2 = 0;
+    g.ket.grid = 9;
+    printf("%f", cimag(Bd2B(g.ket,g.bra)));
+
+    
+    g.bra.type = 1;
+    g.bra.basis = GaussianBasisElement;
+    g.bra.length = 1;
+    g.bra.origin = 0;
+    g.bra.index = 0;
+    g.bra.index2 = 0;
+    g.bra.grid = 9;
+
+    
+    g.ket.type = 1;
+    g.ket.basis = GaussianBasisElement;
+    g.ket.length = 1;
+    g.ket.origin = 0.;
+    g.ket.index = 0;
+    g.ket.index2 = 0;
+    g.ket.grid = 9;
+    printf("%f", cimag(Bd2B(g.bra,g.ket)));
+
+    //printf("%f %f %f",creal( FGS(-2,2,&g)),cimag( FGS(-2,2,&g)),cabs( FGS(-2,2,&g)));
+
+}
 #endif

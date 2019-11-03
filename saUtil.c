@@ -2714,6 +2714,7 @@ INT_TYPE tTabulateInnerProjection( INT_TYPE rank, struct sinc_label  f1 , enum d
         nPerm = 24;
         nGroup = 5;
     }else {
+        struct name_label u = f1.tulip[vec];
         printf("opps\n");
         fflush(stdout);
         exit(0);
