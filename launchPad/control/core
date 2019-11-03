@@ -1,5 +1,10 @@
 *Body def
 	*Parameters
+		gaussCount 0
+		#Set GAUSSIANSINC, will set number of predetermined S-gaussians.
+		#
+		#
+		#
 		#
 		#buffer length
 		chrome 100
