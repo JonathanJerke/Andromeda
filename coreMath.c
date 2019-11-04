@@ -83,10 +83,59 @@ double min( double x1, double x2 ){
 double Power ( double b, INT_TYPE n ){
     INT_TYPE i;
     double va = 1.;
-    for ( i = 0; i < n ; i++)
-        va *= b;
+    if ( n > 0 ){
+        for ( i = 0; i < n ; i++)
+            va *= b;
+    } else if ( n < 0 ){
+        for ( i = 0; i < -n ; i++)
+            va /= b;
+
+    }
     return va;
 }
+
+#if 1
+DCOMPLEX cPower ( DCOMPLEX b, INT_TYPE n ){
+    INT_TYPE i;
+    double va = 1.;
+    if ( n > 0 ){
+        for ( i = 0; i < n ; i++)
+            va *= b;
+    } else if ( n < 0 ){
+        for ( i = 0; i < -n ; i++)
+            va /= b;
+
+    }
+    return va;
+}
+
+DCOMPLEX ovx (  DCOMPLEX Z, DCOMPLEX A,INT_TYPE bb, double kk , double dd, INT_TYPE LL, INT_TYPE b, double k,double d,INT_TYPE L ,INT_TYPE ll){
+    INT_TYPE sum = 0;
+    if ( (2*ll + LL) >= 0 ){
+        if (   -k + kk + (1./d + (2*ll)/(dd*LL))*pi >= 0 )
+            sum +=  1;
+
+        if ( -k + kk + (-1./d + (2*ll)/(dd*LL))*pi >= 0 )
+            sum -=  1;
+
+    }
+    if ( (2*ll - LL) >= 0 ){
+        if (   -k + kk + (-1./d + (2*ll)/(dd*LL))*pi >= 0 )
+            sum +=  1;
+
+        if ( -k + kk + (1./d + (2*ll)/(dd*LL))*pi >= 0 )
+            sum -=   1;
+
+    }
+    if ( sum ){
+       return  sum*Z * cPower(A, ll);
+    } else
+        return 0.;
+}
+
+
+
+#else
 
 DCOMPLEX ovx (  INT_TYPE bb, double kk , double dd, INT_TYPE LL, INT_TYPE b, double k,double d,INT_TYPE L ,INT_TYPE ll){
     INT_TYPE sum = 0;
@@ -107,10 +156,11 @@ DCOMPLEX ovx (  INT_TYPE bb, double kk , double dd, INT_TYPE LL, INT_TYPE b, dou
 
     }
     if ( sum ){
-       return  cexp(I*(b*d*k - bb*dd*kk - ((dd*kk*LL + 2*ll*pi)*(b*d - bb*dd))/(dd*LL)))/LL;
+       return  sum*cexp(I*(b*d*k - bb*dd*kk - ((dd*kk*LL + 2*ll*pi)*(b*d - bb*dd))/(dd*LL)))/LL;
     } else
         return 0.;
 }
+#endif
 
 DCOMPLEX dx ( INT_TYPE N,  INT_TYPE bb, double kk ,double dd,INT_TYPE LL,INT_TYPE ll){
     INT_TYPE nn;
@@ -121,12 +171,15 @@ DCOMPLEX dx ( INT_TYPE N,  INT_TYPE bb, double kk ,double dd,INT_TYPE LL,INT_TYP
 }
 
 DCOMPLEX periodicBoost0 (INT_TYPE N, double P, INT_TYPE bb, double kk ,double dd, INT_TYPE LL,INT_TYPE b, double k ,double d,INT_TYPE L){
-    DCOMPLEX  sum = 0.;
-    INT_TYPE ll;
-    
+    DCOMPLEX  sum = 0.,Z,A;
+    INT_TYPE ll = 0;
+    Z = cexp(I*(b*d*k - bb*dd*kk - ((dd*kk*LL + 2*ll*pi)*(b*d - bb*dd))/(dd*LL)))/LL;
+    ll = 1;
+    A = (cexp(I*(b*d*k - bb*dd*kk - ((dd*kk*LL + 2*ll*pi)*(b*d - bb*dd))/(dd*LL)))/LL)/Z;
+
    // for ( ll = -(LL-1)/2; ll <= (LL-1)/2 ; ll++){
         for ( ll = -LL; ll <= LL ; ll++){
-        sum += ovx (bb,kk,dd,LL,b,k+P,d,L,ll)*dx(N,bb,kk,dd,LL,ll);
+        sum += ovx (Z,A,bb,kk,dd,LL,b,k+P,d,L,ll)*dx(N,bb,kk,dd,LL,ll);
     }
     return sum;
 }

@@ -563,11 +563,13 @@ INT_TYPE singleTestModel( struct calculation * c1, struct field * f){
         printf("gau");
         exit(0);
     }
-    printf("GaussianSinc-Target 4");
+    if ( B1 ){
+        printf("GaussianSinc-Target 4\n");
+        printf("ACKTUNG!!!!\n\n,  only one set of %d GTOs and on only the origin!\n\nACKTUNG!!!!\n\n",B1);
+    }
     double ble[] = {2.8, 11.2, 44.8, 179.2, 716.8, 2867.2, 11468.8, 45875.2, 183501.,734003.};
     //
     //define vectors
-    printf("ACKTUNG!!!!\n\n,  only one set of GTOs and on only the origin!\n\nACKTUNG!!!!\n\n");
     f1->rose[SPACE].component = nullComponent;
     f1->rose[SPACE].body = nada;
     f1->rose[SPACE].particle = nullParticle;

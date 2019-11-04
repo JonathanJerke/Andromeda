@@ -5019,6 +5019,7 @@ INT_TYPE separateInteraction( struct sinc_label f1, double * position, enum divi
             constant *= inverseLaplaceTransform(x,&metric.fn);
         cpow = powl(fabsl(constant),1./spaces);
         printf("%f \t%f\n", constant, x );
+        fflush(stdout);
         minusFlag = 1;
         for ( space = 0 ;space < SPACE  ; space++)
             if ( f1.rose[space].body != nada )
