@@ -23,7 +23,7 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 7.5
+//VERSION 7.6
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
@@ -174,6 +174,7 @@ enum phaseType{
 enum calculationType{
     nullCalculation,
     electronicStuctureCalculation,
+    particlesInBoxCalculation,
     clampProtonElectronCalculation,
     protonsElectronsCalculation,
     svdCalculation,
@@ -283,7 +284,8 @@ enum basisElementType {
     nullBasisElement,
     SincBasisElement,
     GaussianBasisElement,
-    DiracDeltaElement
+    DiracDeltaElement,
+    SpinorBasisElement
 };
 
 enum componentType {
@@ -362,8 +364,6 @@ enum blockMemoryType{
     blockTrainMatricesblock,//10
     blockfoundationMblock//11
 };
-
-
 
 
 
@@ -563,6 +563,13 @@ enum division{
     proton4,
     proton5,
     proton6,
+    edgeHamiltonian,
+    edgeHamiltonian1,
+    edgeHamiltonian2,
+    edgeHamiltonian3,
+    edgeHamiltonian4,
+    edgeHamiltonian5,
+    edgeHamiltonian6,
     X,//
     X1,
     X2,
@@ -673,6 +680,60 @@ enum division{
     bill4,
     bill5,
     bill6,
+    bill7,
+    bill8,
+    bill9,
+    bill10,
+    bill11,
+    bill12,
+    bill13,
+    bill14,
+    bill15,
+    bill16,
+    bill17,
+    bill18,
+    bill19,
+    bill20,
+    bill21,
+    bill22,
+    bill23,
+    bill24,
+    bill25,
+    bill26,
+    bill27,
+    bill28,
+    bill29,
+    bill30,
+    bill31,
+    bill32,
+    bill33,
+    bill34,
+    bill35,
+    bill36,
+    bill37,
+    bill38,
+    bill39,
+    bill40,
+    bill41,
+    bill42,
+    bill43,
+    bill44,
+    bill45,
+    bill46,
+    bill47,
+    bill48,
+    bill49,
+    bill50,
+    bill51,
+    bill52,
+    bill53,
+    bill54,
+    bill55,
+    bill56,
+    bill57,
+    bill58,
+    bill59,
+    bill60,
     PauliX,
     PauliY,
     PauliZ,//73,74,75
@@ -800,6 +861,7 @@ struct space_label{
     //matrix types
     enum bodyType body;
     enum block block;
+    INT_TYPE mapTo;
     //not vector types
 };
 
@@ -836,6 +898,7 @@ struct sinc_label {
     enum division vectorOperator;
     enum division end;
     enum division purity;
+    enum division vMatrix;
     INT_TYPE chrome;
     INT_TYPE chroma;
     double chromos;

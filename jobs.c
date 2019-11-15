@@ -30,7 +30,7 @@ INT_TYPE foundation1(struct calculation *c1, struct field f1){
     f1.i.Iterations = 1;
     if ( 1 ){
         iModel(c1,&f1);
-        separateKinetic(f1.f, 0,kinetic, 1,electron);
+       // separateKinetic(f1.f, 0,kinetic, 1,electron);
         tBoot1Construction(c1,f1.f ,build);
         if ( ! tSortBoot(c1,f1.f,build) )
             EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
@@ -66,50 +66,56 @@ INT_TYPE foundation1(struct calculation *c1, struct field f1){
 INT_TYPE foundationM(struct calculation *c1, struct field f1){
     INT_TYPE EV;
     f1.i.Iterations = 1;
+    
+    enum division ack ;
+    
+    if (f1.i.body == one )
+        ack = diagonalCube;
+    else
+        ack = quadCube;
     if ( 1 ){
         iModel(c1,&f1);
-        ioStoreMatrix(f1.f, quadCube, 0, "single.matrix", 1);
+        ioStoreMatrix(f1.f, ack, 0, "single.matrix", 1);
         switch(bodies(f1.f,eigen)){
             case one:
-                tEqua(f1.f, eigen, 0, quadCube, 0);
+                tEqua(f1.f, eigen, 0, ack, 0);
                 break;
             case two:
-                tEqua(f1.f, eigen, 0, quadCube, 0);
+                tEqua(f1.f, eigen, 0, ack, 0);
                 break;
             case three:
-                sumTo3(f1.f, quadCube, 0,build, 0);
+                sumTo3(f1.f, ack, 0,build, 0);
                 tId(f1.f , eigen,0);
                 tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.CANON, 1, 0);
                 break;
             case four:
-                sumTo4(f1.f, quadCube, 0,build, 0);
+                sumTo4(f1.f, ack, 0,build, 0);
                 tId(f1.f , eigen,0);
                 tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.CANON, 1, 0);
                 break;
             }
         if ( f1.f.cmpl == 2 ){
             tClear(f1.f, build);
-            ioStoreMatrix(f1.f, quadCube, 0, "single.1.matrix", 1);
+            ioStoreMatrix(f1.f, ack, 0, "single.1.matrix", 1);
             switch(bodies(f1.f,eigen)){
                 case one:
-                    tEqua(f1.f, eigen, 1, quadCube, 0);
+                    tEqua(f1.f, ack, 1, ack, 0);
                     break;
                 case two:
-                    tEqua(f1.f, eigen, 1, quadCube, 0);
+                    tEqua(f1.f, ack, 1, ack, 0);
                     break;
                 case three:
-                    sumTo3(f1.f, quadCube, 0,build, 0);
+                    sumTo3(f1.f, ack, 0,build, 0);
                     tId(f1.f , eigen,1);
                     tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 1, c1->rt.CANON, 1,    0);
                     break;
                 case four:
-                    sumTo4(f1.f, quadCube, 0,build, 0);
+                    sumTo4(f1.f, ack, 0,build, 0);
                     tId(f1.f , eigen,1);
                     tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 1, c1->rt.CANON, 1, 0);
                     break;
             }
         }
-        
         tBootManyConstruction(c1,f1.f ,eigen);
         EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
         print(c1,f1,1,0,EV , f1.f.user);
@@ -207,7 +213,7 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
         
         
         
-        if ( ! tGreatDivideIteration(flag, c1->i.shiftVector[iterator-1][0],c1->i.shiftVector[iterator-1][1],  f1.f,Iterator, 1,0,eigenVectors+RdsSize-EV,EV,2*EV,0)){
+        if ( ! tGreatDivideIteration(c1->i.shiftFlag, c1->i.shiftVector[iterator-1][0],c1->i.shiftVector[iterator-1][1],  f1.f,Iterator, 1,0,eigenVectors+RdsSize-EV,EV,2*EV,0)){
             RdsSize += EV;
             
             if(1){
@@ -300,7 +306,7 @@ INT_TYPE spitGauss ( struct calculation *c1, struct field f1){
                         for ( r = 0; r < CanonicalRank(f1.f, eigenVectors, 0); r++)
                             streams(f1.f,eigenVectors,0,space)[g+n*r] = 0;
 
-            
+
             }
 //            for ( g = 0 ; g <= c1->i.gaussCount ; g++){
 //                          if ( g == 0 )
@@ -385,6 +391,8 @@ INT_TYPE spitGauss ( struct calculation *c1, struct field f1){
                 }
             break;
     }
+    print(c1,f1,0,0,1,eigenVectors);
+
     fModel(&f1.f);
 
     return 0;
@@ -418,9 +426,9 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
     
     {
         INT_TYPE typer;
-        if ( c1->i.shiftFlag )
-            typer = -1;
-        else
+//        if ( c1->i.shiftFlag )
+//            typer = -1;
+//        else
             typer = 1;
     
     tEigenCycle(typer,f1.f,Ha,CDT, f1.i.nStates, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
@@ -780,12 +788,46 @@ INT_TYPE distill ( struct calculation c, struct field f1){
     
     
     if ( allowQ(f1.f.rt, blockTrainHamiltonianBlock) && allowQ(f1.f.rt, blockHamiltonianBlock)&& allowQ(f1.f.rt, blockTrainingHamiltonianBlock)){
+        enum division di;
+            for ( di = Ha ; di!= nullName; di = f1.f.tulip[di].linkNext){
+                if ( CanonicalRank(f1.f, di, 0)){
+                    tAddTw(f1.f, hamiltonian, 0, di, 0);
+                    printf("add %d\n", di);
+                }
+            }
+        tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
+        tClear(f1.f,hamiltonian);
+        sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
+        tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
+
+
+            
+            
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         if ( c.rt.runFlag > 0 )
         {
             enum bodyType bootBodies = f1.f.rose[0].body;
             INT_TYPE N1;
-            {
+            if (GAS == 1){
 
                     enum division in = interactionEwald;
                     enum division out = jelliumElectron;
@@ -894,7 +936,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
 
             }
             
-            {
+            if (GAS==1 ){
                 enum division in = interactionEwald;
                 enum division out = intercellularSelfEwald;
                 INT_TYPE r, space,m,n,nl,Nl,cmpl;
@@ -922,7 +964,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
 
             }
 
-            {
+            if (GAS == 1){
                 enum division in = interactionExchange;
                 enum division out = intracellularSelfEwald;
                 INT_TYPE r, space,m,n,Nl,nl,cmpl;
@@ -976,123 +1018,123 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             tClear(f1.f, interactionEwald);
 
         }
-        if ( f1.i.body >= two ){
-            
-            
-            if ( c.rt.runFlag == 0 ){
-                ioStoreMatrixScale(&f1,hamiltonian, 0, "interactionExchange.matrix", 1);
-                
-                tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
-                sumTo2(f1.f, kinetic, 0, hamiltonian, 0);
-                tScaleOne(f1.f, kinetic, 0, 1./oneBodyFraction);
-                                
-                tScaleOne(f1.f, vectorMomentum, 0, oneBodyFraction);
-                sumTo2(f1.f, vectorMomentum, 0, hamiltonian, 0);
-                tScaleOne(f1.f, vectorMomentum, 0, 1./oneBodyFraction);
-                
-                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-                tClear(f1.f,hamiltonian);
-                sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
-                tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
-                
-            } else {
-                ioStoreMatrixScale(&f1, hamiltonian, 0, "interactionEwald.matrix", 1);
-                
-                tScaleOne(f1.f,intercellularSelfEwald, 0, oneBodyFraction);
-                sumTo2(f1.f, intercellularSelfEwald, 0, hamiltonian, 0);
-                tScaleOne(f1.f,intercellularSelfEwald, 0, 1./oneBodyFraction);
-                
-                tScaleOne(f1.f,intracellularSelfEwald, 0, oneBodyFraction);
-                sumTo2(f1.f, intracellularSelfEwald, 0, hamiltonian, 0);
-                tScaleOne(f1.f,intracellularSelfEwald, 0, 1./oneBodyFraction);
-                
-                tScaleOne(f1.f,jelliumElectron, 0, oneBodyFraction);
-                sumTo2(f1.f, jelliumElectron, 0, hamiltonian, 0);
-                tScaleOne(f1.f,jelliumElectron, 0, 1./oneBodyFraction);
-                
-                tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
-                sumTo2(f1.f, kinetic, 0, hamiltonian, 0);
-                tScaleOne(f1.f, kinetic, 0, 1./oneBodyFraction);
-                
-                tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-                tClear(f1.f,hamiltonian);
-                sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
-                tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
-                
-                tClear(f1.f,hamiltonian);
-                
-                //
-                //**
-                //
-                ioStoreMatrixScale(&f1, hamiltonian, 0, "interactionEwald.1.matrix", 1);
-                tScaleOne(f1.f, kinetic, 1, oneBodyFraction);
-                sumTo2(f1.f, kinetic, 1, hamiltonian, 0);
-                tScaleOne(f1.f, kinetic, 1, 1./oneBodyFraction);
-                                
-                tScaleOne(f1.f,intercellularSelfEwald, 1, oneBodyFraction);
-                sumTo2(f1.f, intercellularSelfEwald, 1, hamiltonian, 0);
-                tScaleOne(f1.f,intercellularSelfEwald, 1, 1./oneBodyFraction);
-                
-                tScaleOne(f1.f,intracellularSelfEwald, 1, oneBodyFraction);
-                sumTo2(f1.f, intracellularSelfEwald, 1, hamiltonian, 0);
-                tScaleOne(f1.f,intracellularSelfEwald, 1, 1./oneBodyFraction);
-                
-                tScaleOne(f1.f,jelliumElectron, 1, oneBodyFraction);
-                sumTo2(f1.f, jelliumElectron, 1, hamiltonian, 0);
-                tScaleOne(f1.f,jelliumElectron, 1, 1./oneBodyFraction);
-                
-                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-                tClear(f1.f,hamiltonian);
-                sortTerms(f1.f,trainHamiltonian,1,hamiltonian,0);
-                tEqua(f1.f, trainHamiltonian,1, hamiltonian, 0);
-            }
-        }else {
-            if ( c.rt.runFlag == 0 ){
-                
-                if ( c.rt.calcType == electronicStuctureCalculation){
-                    tAddTw(f1.f,hamiltonian,0,kinetic ,0);
-                    tAddTw(f1.f,hamiltonian,0,vectorMomentum ,0);
-                } else {
-                    tAddTw(f1.f,hamiltonian,0,shortenPlus ,0);
-                    tAddTw(f1.f,hamiltonian,0,shortenMinus ,0);
-                    tAddTw(f1.f,hamiltonian,0,kinetic ,0);
-                    tAddTw(f1.f,hamiltonian,0,kineticMass ,0);
-                    tAddTw(f1.f,hamiltonian,0,protonRepulsion ,0);
-
-                    
-                    
-                }
-                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-                
-                
-                tClear(f1.f,hamiltonian);
-                sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
-                tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
-                
-            } else {
-
-                tAddTw(f1.f,hamiltonian,0,kinetic ,0);
-                tAddTw(f1.f,hamiltonian,0,intercellularSelfEwald ,0);
-                tAddTw(f1.f,hamiltonian,0,intracellularSelfEwald ,0);
-                tAddTw(f1.f,hamiltonian,0,jelliumElectron ,0);
-                
-                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-              //  printf("train : %d %d\n",CanonicalRank(f1.f,trainHamiltonian,0),CanonicalRank(f1.f,trainHamiltonian,1) );
-
-                tClear(f1.f,hamiltonian);
-                tAddTw(f1.f,hamiltonian,0,kinetic ,1);
-                tAddTw(f1.f,hamiltonian,0,intercellularSelfEwald ,1);
-                tAddTw(f1.f,hamiltonian,0,intracellularSelfEwald ,1);
-                tAddTw(f1.f,hamiltonian,0,jelliumElectron ,1);
-                
-                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-               // printf("train : %d %d\n",CanonicalRank(f1.f,trainHamiltonian,0),CanonicalRank(f1.f,trainHamiltonian,1) );
-
-
-                
-            }
-        }
-    }
+//        if ( f1.i.body >= two ){
+//
+//
+//            if ( c.rt.runFlag == 0 ){
+//                ioStoreMatrixScale(&f1,hamiltonian, 0, "interactionExchange.matrix", 1);
+//
+//                tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
+//                sumTo2(f1.f, kinetic, 0, hamiltonian, 0);
+//                tScaleOne(f1.f, kinetic, 0, 1./oneBodyFraction);
+//
+//                tScaleOne(f1.f, vectorMomentum, 0, oneBodyFraction);
+//                sumTo2(f1.f, vectorMomentum, 0, hamiltonian, 0);
+//                tScaleOne(f1.f, vectorMomentum, 0, 1./oneBodyFraction);
+//
+//                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
+//                tClear(f1.f,hamiltonian);
+//                sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
+//                tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
+//
+//            } else {
+//                ioStoreMatrixScale(&f1, hamiltonian, 0, "interactionEwald.matrix", 1);
+//
+//                tScaleOne(f1.f,intercellularSelfEwald, 0, oneBodyFraction);
+//                sumTo2(f1.f, intercellularSelfEwald, 0, hamiltonian, 0);
+//                tScaleOne(f1.f,intercellularSelfEwald, 0, 1./oneBodyFraction);
+//
+//                tScaleOne(f1.f,intracellularSelfEwald, 0, oneBodyFraction);
+//                sumTo2(f1.f, intracellularSelfEwald, 0, hamiltonian, 0);
+//                tScaleOne(f1.f,intracellularSelfEwald, 0, 1./oneBodyFraction);
+//
+//                tScaleOne(f1.f,jelliumElectron, 0, oneBodyFraction);
+//                sumTo2(f1.f, jelliumElectron, 0, hamiltonian, 0);
+//                tScaleOne(f1.f,jelliumElectron, 0, 1./oneBodyFraction);
+//
+//                tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
+//                sumTo2(f1.f, kinetic, 0, hamiltonian, 0);
+//                tScaleOne(f1.f, kinetic, 0, 1./oneBodyFraction);
+//
+//                tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
+//                tClear(f1.f,hamiltonian);
+//                sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
+//                tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
+//
+//                tClear(f1.f,hamiltonian);
+//
+//                //
+//                //**
+//                //
+//                ioStoreMatrixScale(&f1, hamiltonian, 0, "interactionEwald.1.matrix", 1);
+//                tScaleOne(f1.f, kinetic, 1, oneBodyFraction);
+//                sumTo2(f1.f, kinetic, 1, hamiltonian, 0);
+//                tScaleOne(f1.f, kinetic, 1, 1./oneBodyFraction);
+//
+//                tScaleOne(f1.f,intercellularSelfEwald, 1, oneBodyFraction);
+//                sumTo2(f1.f, intercellularSelfEwald, 1, hamiltonian, 0);
+//                tScaleOne(f1.f,intercellularSelfEwald, 1, 1./oneBodyFraction);
+//
+//                tScaleOne(f1.f,intracellularSelfEwald, 1, oneBodyFraction);
+//                sumTo2(f1.f, intracellularSelfEwald, 1, hamiltonian, 0);
+//                tScaleOne(f1.f,intracellularSelfEwald, 1, 1./oneBodyFraction);
+//
+//                tScaleOne(f1.f,jelliumElectron, 1, oneBodyFraction);
+//                sumTo2(f1.f, jelliumElectron, 1, hamiltonian, 0);
+//                tScaleOne(f1.f,jelliumElectron, 1, 1./oneBodyFraction);
+//
+//                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
+//                tClear(f1.f,hamiltonian);
+//                sortTerms(f1.f,trainHamiltonian,1,hamiltonian,0);
+//                tEqua(f1.f, trainHamiltonian,1, hamiltonian, 0);
+//            }
+//        }else {
+//            if ( c.rt.runFlag == 0 ){
+//
+//                if ( c.rt.calcType == electronicStuctureCalculation){
+//                    tAddTw(f1.f,hamiltonian,0,kinetic ,0);
+//                    tAddTw(f1.f,hamiltonian,0,vectorMomentum ,0);
+//                } else {
+//                    tAddTw(f1.f,hamiltonian,0,shortenPlus ,0);
+//                    tAddTw(f1.f,hamiltonian,0,shortenMinus ,0);
+//                    tAddTw(f1.f,hamiltonian,0,kinetic ,0);
+//                    tAddTw(f1.f,hamiltonian,0,kineticMass ,0);
+//                    tAddTw(f1.f,hamiltonian,0,protonRepulsion ,0);
+//
+//
+//
+//                }
+//                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
+//
+//
+//                tClear(f1.f,hamiltonian);
+//                sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
+//                tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
+//
+//            } else {
+//
+//                tAddTw(f1.f,hamiltonian,0,kinetic ,0);
+//                tAddTw(f1.f,hamiltonian,0,intercellularSelfEwald ,0);
+//                tAddTw(f1.f,hamiltonian,0,intracellularSelfEwald ,0);
+//                tAddTw(f1.f,hamiltonian,0,jelliumElectron ,0);
+//
+//                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
+//              //  printf("train : %d %d\n",CanonicalRank(f1.f,trainHamiltonian,0),CanonicalRank(f1.f,trainHamiltonian,1) );
+//
+//                tClear(f1.f,hamiltonian);
+//                tAddTw(f1.f,hamiltonian,0,kinetic ,1);
+//                tAddTw(f1.f,hamiltonian,0,intercellularSelfEwald ,1);
+//                tAddTw(f1.f,hamiltonian,0,intracellularSelfEwald ,1);
+//                tAddTw(f1.f,hamiltonian,0,jelliumElectron ,1);
+//
+//                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
+//               // printf("train : %d %d\n",CanonicalRank(f1.f,trainHamiltonian,0),CanonicalRank(f1.f,trainHamiltonian,1) );
+//
+//
+//
+//            }
+//        }
+    
     if ( allowQ(f1.f.rt, blockHamiltonianBlock))
     {
         enum division onem ;
@@ -1156,7 +1198,7 @@ int main (INT_TYPE argc , char * argv[]){
 
             case 0 :
                 //andromeda 0
-                printf("----\nv7.6\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\nv7.6.2\n\n%s\n\n",getenv("LAUNCH"));
                 exit(0);
         }
 
@@ -1172,13 +1214,10 @@ int main (INT_TYPE argc , char * argv[]){
     FILE * out = stdout;
     struct runTime * rt = & c.rt;
     f.f.rt = rt;
-    
-    INT_TYPE flag = 0;
 #ifdef OMP
     if ( c.i.omp > MaxCore ){
         printf("lanes > MaxCore\n");
         c.i.omp = MaxCore;
-        flag = 1;
     }
     if ( c.i.omp == -1 ){
 #ifdef MKL
@@ -1191,7 +1230,6 @@ int main (INT_TYPE argc , char * argv[]){
         c.i.omp = MaxCore/c.i.mkl;
 #else
         c.i.omp = MaxCore;
-        flag = 1;
 #endif
     }
 
@@ -1203,17 +1241,13 @@ int main (INT_TYPE argc , char * argv[]){
     if ( rt->NLanes > rt->NSlot ){
         printf("decrease lanes or increase your number of OMP cores\n");
         rt->NLanes = rt->NSlot;
-        flag =1 ;
     }
     
 #ifdef MKL
-    if ( flag )
-        c.i.mkl = 1;
-    
-    if ( rt->NSlot < c.i.mkl * c.i.omp )
+    if ( rt->NSlot < c.i.omp*c.i.mkl )
     {
-        printf("not enough slots for mkl*omp\n" );
-        c.i.mkl = rt->NSlot/c.i.omp;
+        printf("not enough slots for omp\n" );
+        c.i.omp = rt->NSlot/c.i.mkl;
     }
     rt->NParallel = c.i.mkl;
     printf("parallel \t %d\n", rt->NParallel);

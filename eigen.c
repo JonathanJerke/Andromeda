@@ -137,7 +137,6 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
     
     
     
-    
     for ( space = 0 ;space < SPACE ; space++)
         if( f1.rose[space].body != nada){
             
@@ -165,7 +164,6 @@ INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum 
                     for ( i = 0; i < N1 ; i++)
                         for ( j =0 ; j < N1 ; j++)
                             ar[i*N1+j] = delta(i-j);
-                    
 #else
                 for ( v = 0 ; v < N2 ; v++){
                         if ( f1.tulip[kinetic].spinor == cmpl){
@@ -1253,7 +1251,15 @@ INT_TYPE tEdges(struct sinc_label f1, enum division vector){
                             printf("electron %d:%d\t",b,spatial);
 
                             
-                            for ( dim = 0; dim < COMPONENT ; dim++){
+#ifdef SPINOR
+                            for ( dim = ELEC; dim < SPACE ; dim++)
+
+#else
+                            for ( dim = 0; dim < COMPONENT ; dim++)
+
+#endif
+                            
+                            {
                                 tClear(f1,edgeElectronMatrix );
                                 if ( spatial == 0 )
                                     tEnd(f1, edgeElectronMatrix, 0, dim);

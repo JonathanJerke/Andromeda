@@ -330,6 +330,7 @@ INT_TYPE tdpotrf ( INT_TYPE L1, double * array ) {
 info =  LAPACKE_dpotrf(LAPACK_COL_MAJOR,'U',L1,  array, L1 );
 #endif
     if ( info != 0 ){
+        printf("POTRF %d\n", info);
         INT_TYPE i ;
         for ( i = 0 ; i < L1 *L1 ; i++)
             printf("potrf %f\n", array[i]);

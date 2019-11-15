@@ -1146,6 +1146,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                         c->i.shiftVector[i][0] = value*twistedD[i];
                         c->i.shiftVector[i][1] = value*twistedC[i];
                     }
+                    c->i.shiftFlag = 1;
                     return d;
                 }
                 case 78:

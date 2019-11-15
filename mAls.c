@@ -23,7 +23,6 @@
  *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "coreUtil.h"
 #include "mAls.h"
 
 INT_TYPE normalize (struct sinc_label  f1,  enum division alloy,INT_TYPE l3,INT_TYPE l4, INT_TYPE spin, INT_TYPE space){
@@ -817,11 +816,11 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
                 if ( f1.rose[space].body != nada){
                     if ( ! flag ){
                     //    printf("%f\n", sum);
-                        xsEqu(1./sum, space, f1, alloy, l+l3, spin, f1, origin, (l%G1)+l1, os);
+                        xsEqu(1./sum, space, f1, alloy, l+l3, spin, space,f1, origin, (l%G1)+l1, os);
                         flag =1;
                     }
                     else{
-                        xsEqu(1., space, f1, alloy, l+l3, spin, f1, origin, (l%G1)+l1, os);
+                        xsEqu(1., space, f1, alloy, l+l3, spin,space, f1, origin, (l%G1)+l1, os);
                     }
                 }
         }
@@ -1922,7 +1921,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
     
     
 #ifndef BUFFERSOLVE
-    if ( 0 ){
+    if ( 1 ){
         tCycleDecompostionSingleFibonacciOneMP(-1, f1, origin, os, coeff, alloy, spin, tolerance, power-1,0,xi, iii[1][1],iii[1][0],iii[0][1],iii[0][0]);
         printf("\n>FibonacciFraction>\t%d\t%1.15f / %1.15f \n",CanonicalRank(f1, alloy, spin),(distanceFrac1(f1, origin, 0,CanonicalRank(f1, origin, os),os, alloy, 0,CanonicalRank(f1, alloy, spin), spin)),(inner(f1, alloy,spin)));
     }
@@ -2740,6 +2739,7 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
         exit(1);
     }
     enum division inT,outT;
+    INT_TYPE space2 = f1.tulip[left].space[space].mapTo;
     INT_TYPE inR,outR,inS,outS;
     f1.tulip[canonicalmvVector].Current[rank] = 0;
     f1.tulip[canonicalmv2Vector].Current[rank] = 0;
@@ -2789,12 +2789,12 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
                 cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,
                         streams( f1, left, lspin,space )+l*N1*N1, N1,
                         streams( f1, canonicalmv3Vector, rank,space ),1, 0.,
-                        streams( f1, outT, outS,space )+outR*N1, 1  );
+                        streams( f1, outT, outS,space2 )+outR*N1, 1  );
             } else {
                 cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,
                         streams( f1, left, lspin,space )+l*N1*N1, N1,
                         streams(f1, inT, inS,space)+inR*N1,1, 0.,
-                        streams( f1, outT, outS,space )+outR*N1, 1  );
+                        streams( f1, outT, outS,space2 )+outR*N1, 1  );
             }
         }else if ( bodies(f1,left) < bodies(f1,right))
         {
@@ -2803,13 +2803,13 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
             if ( inverse != 0 ){
                 cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams( f1, inverse, 0,space ),N1,  streams(f1, inT, inS,space)+inR*N2,N1,0.,streams(f1,canonicalmv3Vector,rank,space),N1);
 
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams( f1, left, lspin,space )+l*N1*N1,N1,streams(f1,canonicalmv3Vector,rank,space),N1, 0., streams( f1, outT, outS,space)+outR*N2,N1);
+                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams( f1, left, lspin,space )+l*N1*N1,N1,streams(f1,canonicalmv3Vector,rank,space),N1, 0., streams( f1, outT, outS,space2)+outR*N2,N1);
             } else {
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams( f1, left, lspin,space )+l*N1*N1,N1,streams(f1, inT, inS,space)+inR*N2,N1, 0.,     streams( f1, outT, outS,space)+outR*N2,N1);
+                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams( f1, left, lspin,space )+l*N1*N1,N1,streams(f1, inT, inS,space)+inR*N2,N1, 0.,     streams( f1, outT, outS,space2)+outR*N2,N1);
             }
         }
         if (out != 1 ){
-            tPermuteOne(rank, f1, space, out, outT,outR,outS, equals, e,espin);
+            tPermuteOne(rank, f1, space2, out, outT,outR,outS, equals, e,espin);
         }
     }
     return 0;
@@ -3057,7 +3057,7 @@ INT_TYPE tHYpY(  INT_TYPE rank, struct sinc_label f1 ,INT_TYPE targSpin, enum di
             if ( f1.rose[dim].body != nada){
                 N2 = alloc(f1, ket, dim);
                 if ( f1.tulip[left].space[dim].block == id0 ){
-                    xsEqu(1.,dim, f1, oket, o,ospin, f1, ket, k, sp2);
+                    xsEqu(1.,f1.tulip[left].space[dim].mapTo, f1, oket, o,ospin,dim, f1, ket, k, sp2);
                 }
                 else {
                     tGEMV(rank, f1, dim,oket, o,ospin, left, l, im, ket, k, sp2);

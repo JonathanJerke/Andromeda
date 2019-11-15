@@ -131,14 +131,20 @@ INT_TYPE ioStoreMatrix(struct sinc_label f1, enum division op, INT_TYPE spin, ch
     // 6 D
     char dir [ MAXSTRING];
     char filename[SUPERMAXSTRING];
+#ifndef SPINOR
+    
     if ( PARTICLE == 1 )
         sprintf(dir, "%d-%d-%d", f1.rose[0].count1Basis,f1.rose[1].count1Basis,f1.rose[2].count1Basis);
     else if ( PARTICLE ==2 )
         sprintf(dir, "%d-%d-%d-%d", f1.rose[0].count1Basis,f1.rose[1].count1Basis,f1.rose[2].count1Basis, f1.rose[3].count1Basis);
-    else {
-        printf("not sure\n");
-        exit(0);
+#else
+    {
+        sprintf(dir, "%d-%d", f1.rose[0].count1Basis,f1.rose[1].count1Basis);
+
+      //  printf("no saving\n");
+       // return 1;
     }
+#endif
     {
         DIR* Dir = NULL;
         Dir = opendir( dir );
@@ -441,7 +447,11 @@ INT_TYPE inputFormat(struct sinc_label f1,char * name,  enum division buffer, IN
         fflush(stdout);
         exit(0);
     }
-
+//    for ( i = 0 ; i < SPACE ; i++)
+//        printf("%d M %d\n",i, M[i]);
+    
+    
+    
     f1.tulip[buffer].value.symmetry = sy;
     
     if ( r1 > part(f1, buffer ) ){
@@ -483,7 +493,7 @@ INT_TYPE inputFormat(struct sinc_label f1,char * name,  enum division buffer, IN
 
                 ct++;
 //                if ( value == lvalue )
-//                    printf("%lld %1.15f %lld %lld\n", ct,value,r,l);
+           //         printf("%d %1.15f %d %d\n", ct,value,r,l);
                 lvalue = value;
                 streams(f1, buffer, sp, space)[ M[space] * r+ l ] = value;
                 getline(&inputPt,&maxRead, in   );
@@ -1144,7 +1154,17 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                                 f2.i.epi =((inputFormat(f1, name, nullName, 200)-c2.i.gaussCount)/2-1)/2;
                             else
                                 f2.i.epi =((inputFormat(f1, name, nullName, 200)-c2.i.gaussCount)-1)/2;
+#ifdef SPINOR
+                            
+                                f2.i.epi =((inputFormat(f1, name, nullName, 201)-c2.i.gaussCount)-1)/2;
 
+                            
+#endif
+                            
+                            
+                            
+                            
+                            
                             f2.i.d = f.i.d * pow( (2.* f.i.epi + 1.) /(2.*f2.i.epi + 1),f.i.attack);
                             
                             iModel(&c2,&f2);

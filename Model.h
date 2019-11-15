@@ -32,7 +32,6 @@
 #include "interfaceMath.h"
 #include "mAls.h"
 #include "coreForce.h"
-#include "main.h"
 
 INT_TYPE definePurity(struct sinc_label *f1, INT_TYPE R,INT_TYPE can, enum division head);
 struct calculation initCal (void);

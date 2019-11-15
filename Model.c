@@ -543,13 +543,12 @@ INT_TYPE singleGaussModel( struct calculation * c1, struct field * f){
     if ( c1->rt.calcType == electronicStuctureCalculation){
         for ( space = 0; space < SPACE ; space++){
             f1->rose[space].particle = electron;
-            f1->rose[space].basis = GaussianBasisElement;
             f1->rose[space].body = 1;
             f1->rose[space].component = spatialComponent1+space%COMPONENT ;
             f1->rose[space].count1Basis = 3;//change
             f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
             for ( bl = 0 ; bl < f1->rose[space].count1Basis  ; bl++)
-                f1->rose[space].basisList[bl] = defineGaussBasis(nullNote, f1->rose[space].component, f1->rose[space].basis, ble[bl], 0.,             f1->rose[space].count1Basis,0);
+                f1->rose[space].basisList[bl] = defineGaussBasis(nullNote, f1->rose[space].component, GaussianBasisElement, ble[bl], 0.,             f1->rose[space].count1Basis,0);
             
         }
     }
@@ -575,7 +574,6 @@ INT_TYPE singleTestModel( struct calculation * c1, struct field * f){
     f1->rose[SPACE].particle = nullParticle;
         for ( space = 0; space < SPACE ; space++){
             f1->rose[space].particle = electron;
-            f1->rose[space].basis = SincBasisElement;
             f1->rose[space].body = f->i.body;
             f1->rose[space].component = spatialComponent1+space%COMPONENT ;
             f1->rose[space].count1Basis = N1+B1;
@@ -596,7 +594,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
     struct name_label l2;
     enum spinType c;
 #ifdef GAUSSIANSINC
-    singleTestModel(c1, f);
+        singleTestModel(c1, f);
 
 #else
         singleSincModel(c1, f);
@@ -677,6 +675,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     f1->tulip[label1].space[SPACE].block = id0;
                     for ( space = 0; space <= SPACE ; space++){
                         {
+                            f1->tulip[label1].space[space].mapTo = space;
                             f1->tulip[label1].space[space].block = id0;//matrix prototype
                             f1->tulip[label1].space[space].body = nada;//matrix prototype
                         }
@@ -758,7 +757,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         
         fromBeginning(*f1, linear, X);
         assignOneWithPointers (*f1, linear,electron);
-        f1->tulip[linear].Partition = buildExternalPotential(c1, *f1,nullName,electron ,0,real)  ;//
+        f1->tulip[linear].Partition = buildExternalPotential(c1, *f1,nullName,electron ,0,real)+(GAS==0)*COMPONENT  ;//
 
         fromBeginning(*f1, overlap, linear);
         f1->tulip[overlap].species = matrix;
@@ -970,7 +969,13 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         f1->tulip[edgeElectronMatrix].spinor = real;
         assignOneWithPointers(*f1, edgeElectronMatrix, electron);
         
-        fromBeginning(*f1,edgeProtonMatrix,edgeElectronMatrix);
+        fromBeginning(*f1,edgeHamiltonian, edgeElectronMatrix );
+        f1->tulip[edgeHamiltonian].Partition = COMPONENT ;//
+        f1->tulip[edgeHamiltonian].species = matrix;
+        f1->tulip[edgeHamiltonian].spinor = real;
+        assignOneWithPointers(*f1, edgeHamiltonian, electron);
+
+        fromBeginning(*f1,edgeProtonMatrix,edgeHamiltonian);
         f1->tulip[edgeProtonMatrix].Partition = 1 ;//
         f1->tulip[edgeProtonMatrix].species = matrix;
         f1->tulip[edgeProtonMatrix].spinor = real;
@@ -1322,7 +1327,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             maxOriginRank = imax( maxOriginRank, c1->i.twoBody.num * N1*N1);
         }
         else{
-            if ( c1->rt.phaseType == distillMatrix)
+            if ( c1->rt.phaseType == distillMatrix || c1->rt.phaseType == decomposeMatrix)
                 maxOriginRank = part(*f1,hamiltonian);
             else
                 maxOriginRank = part(*f1,totalVector);
@@ -1696,6 +1701,10 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     for ( c = real ; c <= spins (*f1, linear) ; c++){
                             buildExternalPotential(c1, *f1,linear,electron,!(!c1->rt.runFlag),c);
                     }
+                }
+                if ( GAS == 0 ) {
+                    for ( space = 0; space < COMPONENT ; space++)
+                        tEnd(*f1, linear, 0, space);
                 }
                 if ( f1->rose[0].component == periodicComponent1 ){
                     

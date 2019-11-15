@@ -43,7 +43,7 @@ void getDescription ( struct function_label *fn ,double scalar,FILE * outString)
         fprintf(outString,"\tLennardJones = %1.3f  rm = %f\n",scalar* fn->param[0],fn->param[2]);
     }
     else if ( fn->fn == Gaussian ){
-        fprintf(outString,"\t %f Gaussian\n",scalar * fn->param[0]);
+        fprintf(outString,"\t %f Gaussian --width %f\n",scalar * fn->param[0],fn->param[2]);
     }
 
     fflush(outString);
@@ -3014,10 +3014,12 @@ DCOMPLEX BoB (struct basisElement b1, struct basisElement b2 ){
     
     if ( b1.type == nullComponent || b2.type == nullComponent    )
     {
-        printf("null\n");
+        printf("null o\n");
         exit(0);
     }
-    
+    if ( b1.basis == SpinorBasisElement && b2.basis == SpinorBasisElement ){
+        return ( b1.index == b2.index );
+    }else
     if ( b1.basis == SincBasisElement && b2.basis == SincBasisElement ){
         DCOMPLEX va ;
         if ( b2.type <= 3 ){
@@ -3076,7 +3078,7 @@ DCOMPLEX BoB (struct basisElement b1, struct basisElement b2 ){
 DCOMPLEX BdB (struct basisElement b1, struct basisElement b2){
     if ( b1.type == nullComponent || b2.type == nullComponent    )
     {
-        printf("null\n");
+        printf("null d\n");
         exit(0);
     }
     
@@ -3200,10 +3202,13 @@ DCOMPLEX BgB (double beta, struct basisElement b1, INT_TYPE action , INT_TYPE po
 DCOMPLEX Bd2B (struct basisElement b1, struct basisElement b2){
     if ( b1.type == nullComponent || b2.type == nullComponent    )
     {
-        printf("null\n");
+        printf("null d2\n");
         exit(0);
     }
-    
+    if ( b1.basis == SpinorBasisElement && b2.basis == SpinorBasisElement ){
+        return 0.;
+    }else
+
     if ( b1.basis == SincBasisElement && b2.basis == SincBasisElement ){
         if ( b2.type <= 3 ){
             double arg = b1.length*b1.index + b1.origin - (b2.length*b2.index + b2.origin);
@@ -4481,7 +4486,7 @@ void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occup
                             {
                                 for ( i1 = 0 ; i1 < n1[dim]; i1++)
                                     for ( i2 = 0; i2 < n1[dim]; i2++){
-                                        streamOut[i1*n1[dim]+i2] = streamIn[(j2*n1[dim]+i2)*n1[dim]*n1[dim] + j1*n1[dim]+i1];
+                                       streamOut[i1*n1[dim]+i2] = streamIn[(j2*n1[dim]+i2)*n1[dim]*n1[dim] + j1*n1[dim]+i1];
                                     }
                                 for ( vor = 0 ; vor < vox; vor++){
                                     f1.tulip[canonicalmeVector].Current[rank] =0;
@@ -4919,7 +4924,7 @@ INT_TYPE separateInteraction( struct sinc_label f1, double * position, enum divi
     }
     
     if ( metric.fn.fn == nullFunction){
-        printf("null\n");
+        printf("null func\n");
         return 0;
     }
     INT_TYPE spaces, n1[SPACE];
@@ -5500,6 +5505,23 @@ INT_TYPE buildMetric( struct sinc_label f1,double latticePause,INT_TYPE Z, struc
                         exit(1);
                 }
             }
+            break;
+        case Gaussian:
+            
+                //single gaussian
+                metric[nMet].fn.fn = Gaussian;
+                metric[nMet].fn.param[0] = inter.func.param[0];
+                metric[nMet].fn.interval = 0;
+                metric[nMet].metric = dirac;
+                metric[nMet].beta[0] = inter.func.param[2];
+                for ( space = 0; space < SPACE ; space++){
+                    metric[nMet].pow[space] = 0;
+                    metric[nMet].deriv[space] = 0;
+                }
+                nMet++;
+                if ( nMet > am )
+                    exit(1);
+            
             break;
     }
     
@@ -6109,6 +6131,7 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
     Stream_Type * stream;
     DCOMPLEX va;
     printf("mass %f\n", amass);
+    struct name_label d = f1.tulip[diagonalCube];
     f1.tulip[diagonalCube].Current[0] = 1;
     tClear(f1, akinetic);
     for ( cmpl = 0; cmpl < spins(f1, akinetic ) ; cmpl++){
@@ -6138,6 +6161,8 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
 
                                 }
                         }
+                    printf("%d ",dim);
+                    fflush(stdout);
                     tAddTw(f1, akinetic, cmpl, diagonalCube, 0);
                 }
         }
@@ -6588,3 +6613,5 @@ void separateX ( struct sinc_label f1,  double vectorDipole ){
     }
     return;
 }//build X final
+
+

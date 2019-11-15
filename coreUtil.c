@@ -647,15 +647,15 @@ void xsAdd ( double scalar , INT_TYPE dim ,struct sinc_label f1 , enum division 
     }
 }
 
-void xsEqu ( double scalar , INT_TYPE dim ,struct sinc_label f1 , enum division targ ,INT_TYPE t,INT_TYPE tspin,struct sinc_label  f2 , enum division orig,INT_TYPE o,INT_TYPE ospin ){
+void xsEqu ( double scalar , INT_TYPE dim ,struct sinc_label f1 , enum division targ ,INT_TYPE t,INT_TYPE tspin,INT_TYPE dim2,struct sinc_label  f2 , enum division orig,INT_TYPE o,INT_TYPE ospin ){
     INT_TYPE M2 = alloc(f1, orig, dim);
-    INT_TYPE N2 = alloc(f1, targ, dim);
-    INT_TYPE flag = (N2 == M2),space=dim;
+    INT_TYPE N2 = alloc(f1, targ, dim2);
+    INT_TYPE flag = (N2 == M2);
     
     if ( flag && f2.tulip[orig].memory == objectAllocation && f1.tulip[targ].memory == objectAllocation){
-        cblas_dcopy(N2, streams(f2,orig,ospin,space)+N2*o,1,streams(f1,targ,tspin,space)+t*N2,1);
+        cblas_dcopy(N2, streams(f2,orig,ospin,dim)+N2*o,1,streams(f1,targ,tspin,dim2)+t*N2,1);
         if ( scalar != 1. )
-            cblas_dscal(N2, scalar, streams(f1,targ,tspin,space)+t*N2,1);
+            cblas_dscal(N2, scalar, streams(f1,targ,tspin,dim2)+t*N2,1);
     }
     else {
         printf("add\n");
@@ -798,6 +798,7 @@ INT_TYPE tScaleOne( struct sinc_label f1, enum division label,INT_TYPE spin, dou
     prod = 1.;
     
     INT_TYPE dimCount = 0;
+#if 0
     for ( space = 0 ; space < SPACE ; space++)
         if ( f1.rose[space].body != nada ){
             dimCount++;
@@ -812,7 +813,16 @@ INT_TYPE tScaleOne( struct sinc_label f1, enum division label,INT_TYPE spin, dou
     if ( scalar < 0 )
         cblas_dscal(L1*M2[0],-1., streams(f1,label,spin,0),1);
 
+#else
     
+        cblas_dscal(L1*M2[0],scalar, streams(f1,label,spin,0),1);
+
+    
+    
+    
+    
+    
+#endif
     
     
     
@@ -1533,7 +1543,7 @@ struct basisElement defineSincBasis (enum noteType note, enum componentType comp
     
     boa.type = component;
     
-    boa.basis = basis;
+    boa.basis = SincBasisElement;
     
     boa.length = lattice;
     
@@ -1579,7 +1589,7 @@ struct basisElement defineGaussBasis (enum noteType note, enum componentType com
     
     boa.type = component;
     
-    boa.basis = basis;
+    boa.basis = GaussianBasisElement;
     
     boa.length = lattice;
     
@@ -1592,6 +1602,22 @@ struct basisElement defineGaussBasis (enum noteType note, enum componentType com
     
     return boa;
     
+}
+struct basisElement defineSpinorBasis (enum noteType note, enum componentType space,INT_TYPE total, INT_TYPE elementIndex ){
+    
+    struct basisElement boa;
+    
+    
+    boa.note = note;
+    boa.type = space;
+    boa.basis = SpinorBasisElement;
+    
+    boa.grid = total;
+    
+    boa.index = elementIndex;
+    boa.index2 = space;
+    
+    return boa;    
 }
 
 struct basisElement grabBasis (struct sinc_label f1, INT_TYPE space, INT_TYPE particle, INT_TYPE elementIndex){
