@@ -34,14 +34,14 @@
 #define SPACE (COMPONENT * PARTICLE)
 #define MAXATOM 4
 
+#define GAS 1
+
+
 //SET #define NBODY to allow for builds of foundations in correlated N-body format
 #define NBODY
 
 //SET #define CHROME to get your modern ALS routine
 #define CHROME
-
-//SET #define BUFFERSOLVE and  #define CHROME to get your post-modern ALS routin
-#define BUFFERSOLVE
 
 //SET //#define GAUSSIANSINC for future work
 
