@@ -1887,7 +1887,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     if ( allowQ(f1->rt, blockSeparateTwoBodyBlock)){
                         ioStoreMatrixScale(f, interactionEwald, 0, "interactionEwald.matrix",1);
                         ioStoreMatrixScale(f, interactionExchange, 0, "interactionExchange.matrix",1);
-\                    }
+                    }
                     
                         if ( f1->cmpl == cmpl ){
                             ioStoreMatrix(*f1, intracellularSelfEwald, 1, "intracellularSelfEwald.1.matrix",1);
