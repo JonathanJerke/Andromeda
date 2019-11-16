@@ -999,7 +999,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
         }
     
     
-    countHam(c1,f1);
+    countHam(&c,f1);
 
     if ( allowQ(f1.f.rt, blockTrainHamiltonianBlock) && allowQ(f1.f.rt, blockHamiltonianBlock)&& allowQ(f1.f.rt, blockTrainingHamiltonianBlock)){
     enum division di;
