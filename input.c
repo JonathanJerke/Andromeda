@@ -1942,16 +1942,16 @@ INT_TYPE initCalculation(struct calculation * c ){
 INT_TYPE estSize ( INT_TYPE interval ){
     
     if ( interval == 0 ) {
-        return 14;
+        return 7;
     }
     if ( interval == 1 ) {
-        return 22;
+        return 15;
     }
     if ( interval == 2 ){
-        return 50;
+        return 35;
     }
     if ( interval == 3 ){
-        return 134;
+        return 99;
     }
     return 0;
 }
