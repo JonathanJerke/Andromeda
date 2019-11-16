@@ -345,7 +345,7 @@ INT_TYPE CanonicalRank( struct sinc_label f1 , enum division label , INT_TYPE sp
                 return 0;
         }
     else {
-        return f1.tulip[label].Partition;
+        return f1.tulip[f1.tulip[label].name].Partition;
     }
 }
 
