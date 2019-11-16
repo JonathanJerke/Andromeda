@@ -1031,9 +1031,6 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             }
         }
         tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , spin, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-        tClear(f1.f, hamiltonian);
-        sortTerms(f1.f,trainHamiltonian,spin,hamiltonian,0);
-        tEqua(f1.f, trainHamiltonian,spin, hamiltonian, 0);
     }
 
         

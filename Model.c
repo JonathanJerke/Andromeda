@@ -1115,27 +1115,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         fromBeginning(*f1,totalVector,twoVector);
   
     if ( allowQ(f1->rt,blockTotalVectorBlock) ){
-        if ( (allowQ(f1->rt, blockTrainHamiltonianBlock))){
-            INT_TYPE num2Body = 1;
-            switch ( bootBodies ){
-                case two:
-                    num2Body = 1;
-                    break;
-                case three :
-                    num2Body = 3;
-                    break;
-                case four :
-                    num2Body = 6;
-                    break;
-                case one:
-                    num2Body = 1;
-                    break;
-            }
-            f1->tulip[totalVector].Partition = imax( f->i.xRank,f1->cmpl* f1->cmpl* f->i.bRank * ( 1+part(*f1,linear)*bootBodies +  num2Body * c1->i.decomposeRankMatrix));
-
-        }else{
             f1->tulip[totalVector].Partition =  imax( f->i.xRank, c1->i.canonRank * f->i.bRank) ;
-        }
+        
     }
         f1->tulip[totalVector].species = vector;
         f1->tulip[totalVector].spinor = real;
@@ -1874,11 +1855,11 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                             exit(0);//if not already present, go back and build it
                         }
 	
-		if ( c1->i.springFlag )
-			ioStoreMatrix( *f1, vectorMomentum, 0 , "vector.matrix", 1 ) ;
-            if ( f1->cmpl == cmpl)
-                ioStoreMatrix( *f1, vectorMomentum, 1 , "vector.1.matrix", 1 ) ;
-
+                if ( c1->i.springFlag ){
+                    ioStoreMatrix( *f1, vectorMomentum, 0 , "vector.matrix", 1 ) ;
+                    if ( f1->cmpl == cmpl)
+                        ioStoreMatrix( *f1, vectorMomentum, 1 , "vector.1.matrix", 1 ) ;
+                }
 
                 if ( f1->rose[0].component == periodicComponent1 ){
                     ioStoreMatrix(*f1, intracellularSelfEwald, 0, "intracellularSelfEwald.matrix",1);
