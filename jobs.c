@@ -25,6 +25,25 @@
 
 #include "jobs.h"
 
+
+INT_TYPE countHam ( struct calculation *c1 , struct field f1 ){
+    INT_TYPE spin,sum = 0;
+    enum division di;
+    
+    for ( spin = 0 ; spin < f1.f.cmpl ; spin++){
+        tClear(f1.f,hamiltonian);
+
+        for ( di = Ha ; di!= nullName; di = f1.f.tulip[di].linkNext){
+            if ( CanonicalRank(f1.f, di, spin)){
+                printf("%d %d %d %f\n", di, f1.f.tulip[di].name, spin, traceOne(f1.f, di, spin));
+                sum++;
+            }
+        
+        }
+    }
+    return sum;
+}
+
 INT_TYPE foundation1(struct calculation *c1, struct field f1){
     INT_TYPE EV;
     f1.i.Iterations = 1;
@@ -140,6 +159,8 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
     f1.i.nStates =f1.i.Iterations  ;
    
  iModel(c1,&f1);
+    countHam(c1,f1);
+
     for ( fi =0 ; fi < f1.i.files ; fi++){
         tLoadEigenWeights (c1,f1, f1.i.fileList[fi], &EV,f1.f.user , f1.i.collect);
     }
@@ -416,7 +437,8 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
    // c1->i.iRank = c1->i.bRank;
     iModel(c1,&f1);
     
-
+    countHam(c1,f1);
+    
     for ( fi =0 ; fi < f1.i.files ; fi++)
         tLoadEigenWeights (c1,f1, f1.i.fileList[fi],&EV, f1.f.user,f1.i.collect);//UNUSUAL!!!
     if (EV == 0 ){
@@ -976,6 +998,9 @@ INT_TYPE distill ( struct calculation c, struct field f1){
 
         }
     
+    
+    countHam(c1,f1);
+
     if ( allowQ(f1.f.rt, blockTrainHamiltonianBlock) && allowQ(f1.f.rt, blockHamiltonianBlock)&& allowQ(f1.f.rt, blockTrainingHamiltonianBlock)){
     enum division di;
     INT_TYPE spin ;
