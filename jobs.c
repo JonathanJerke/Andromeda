@@ -572,7 +572,7 @@ INT_TYPE sumTo3(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
                                                 }else if ( body == 2 ) {
                                                     value  = streams(f1,mat,ms,space)[ I5*n1[space]+I6 + r*n1[space]*n1[space] ] * delta(I1-I2)*delta(I3-I4);
                                                 }
-                                                stream[ (I1+I3*n1[space]+I5*n1[space]*n1[space])+ (I2+I4*n1[space]+I6*n1[space]*n1[space])*n1[space]*n1[space]*n1[space]] = value;
+                                                stream[ (I1+I3*n1[space]+I5*n1[space]*n1[space])+ (I2+I4*n1[space]+I6*n1[space]*n1[space])*n1[space]*n1[space]*n1[space]] = value/2.;
                                             }
                     }
                     f1.tulip[sum].Current[spin]++;
@@ -613,7 +613,7 @@ INT_TYPE sumTo3(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
                                                 ve = (I1+I3*n1[space]+I5*n1[space]*n1[space])+ (I2+I4*n1[space]+I6*n1[space]*n1[space])*n1[space]*n1[space]*n1[space];
                                                 //                                                printf("%f %lld %lld\n", value,ve,n2[space]);
                                                 //                                                fflush(stdout);
-                                                stream[ ve ] = value;
+                                                stream[ ve ] = value/3.;
                                                 //                                                printf("x");
                                                 //                                                fflush(stdout);
 
@@ -793,18 +793,6 @@ INT_TYPE report ( struct calculation c, struct field f1){
 
 
 INT_TYPE distill ( struct calculation c, struct field f1){
-    double oneBodyFraction = 1.;
-    switch( f1.i.body  ){
-        case two:
-            oneBodyFraction = 1/1.;
-            break;
-        case three:
-            oneBodyFraction = 1/2.;
-            break;
-        case four:
-            oneBodyFraction = 1/3.;
-            break;
-    }
     
     iModel(&c, &f1);
     tClear(f1.f, hamiltonian);
@@ -1025,22 +1013,16 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                                 printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
                                 break;
                             case two:
-                                tScaleOne(f1.f, f1.f.tulip[di].name, spin, oneBodyFraction);
                                 sumTo2(f1.f, f1.f.tulip[di].name, spin, hamiltonian, 0);
                                 printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
-                                tScaleOne(f1.f, f1.f.tulip[di].name, spin, 1./oneBodyFraction);
                                 break;
                             case three:
-                                tScaleOne(f1.f, f1.f.tulip[di].name, spin, oneBodyFraction);
                                 sumTo3(f1.f, f1.f.tulip[di].name, spin, hamiltonian, 0);
                                 printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
-                                tScaleOne(f1.f, f1.f.tulip[di].name, spin, 1./oneBodyFraction);
                                 break;
                             case four:
-                                tScaleOne(f1.f, f1.f.tulip[di].name, spin, oneBodyFraction);
                                 sumTo4(f1.f, f1.f.tulip[di].name, spin, hamiltonian, 0);
                                 printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
-                                tScaleOne(f1.f, f1.f.tulip[di].name, spin, 1./oneBodyFraction);
                                 break;
                         }
                         break;
@@ -1060,6 +1042,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                     break;
                 }
             }
+            printf("<%f>\n", traceOne(f1.f, hamiltonian, 0));
         }
         tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , spin, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
     }
