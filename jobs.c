@@ -750,25 +750,25 @@ INT_TYPE sumTo4(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
 
 INT_TYPE report ( struct calculation c, struct field f1){
 
-    if ( CanonicalRank(f1.f,interactionExchange,0) ){
-        ioStoreMatrixScale(&f1,interactionExchange ,0,"interactionExchange.matrix",0);
-    }
-    if ( CanonicalRank(f1.f,interactionExchange,1) ){
-        ioStoreMatrixScale(&f1,interactionExchange ,1,"interactionExchange.1.matrix",0);
-    }
+//    if ( CanonicalRank(f1.f,interactionExchange,0) ){
+//        ioStoreMatrixScale(&f1,interactionExchange ,0,"interactionExchange.matrix",0);
+//    }
+//    if ( CanonicalRank(f1.f,interactionExchange,1) ){
+//        ioStoreMatrixScale(&f1,interactionExchange ,1,"interactionExchange.1.matrix",0);
+//    }
+//
+//    if ( CanonicalRank(f1.f,interactionEwald,0) ){
+//        ioStoreMatrixScale(&f1,interactionEwald ,0,"interactionEwald.matrix",0);
+//    }
+//    if ( CanonicalRank(f1.f,interactionEwald,1) ){
+//        ioStoreMatrixScale(&f1,interactionEwald ,1,"interactionEwald.1.matrix",0);
+//    }
 
-    if ( CanonicalRank(f1.f,interactionEwald,0) ){
-        ioStoreMatrixScale(&f1,interactionEwald ,0,"interactionEwald.matrix",0);
-    }
-    if ( CanonicalRank(f1.f,interactionEwald,1) ){
-        ioStoreMatrixScale(&f1,interactionEwald ,1,"interactionEwald.1.matrix",0);
-    }
-
-    if ( CanonicalRank(f1.f,shortenPlus,0) )
-        ioStoreMatrix(f1.f,shortenPlus ,0,"shortenExchangePlus.matrix",0);
-
-    if ( CanonicalRank(f1.f,shortenMinus,0) )
-        ioStoreMatrix(f1.f,shortenMinus ,0,"shortenExchangeMinus.matrix",0);
+//    if ( CanonicalRank(f1.f,shortenPlus,0) )
+//        ioStoreMatrix(f1.f,shortenPlus ,0,"shortenExchangePlus.matrix",0);
+//
+//    if ( CanonicalRank(f1.f,shortenMinus,0) )
+//        ioStoreMatrix(f1.f,shortenMinus ,0,"shortenExchangeMinus.matrix",0);
 
 
     if ( CanonicalRank(f1.f,linear,0) ){
@@ -868,7 +868,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                         //0.5*2
                         // -1
                     case two:
-                        offset = (2*0.5+1)*sumt;
+                        offset = (2*0.5+1)*sumt/2.;
                         // 0
                         //=
                         //0.5 * 4 (FORM PLANES)--> 2 ewald + 2 constants
@@ -877,7 +877,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                         //-4 (together)
                         break;
                     case three:
-                        offset = (3*0.5+3.)*sumt;
+                        offset = (3*0.5+3.)*sumt/3.;
                         break;
                         // 0
                         //=
@@ -894,19 +894,19 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                         //-3 JELLIUM
                         
                     case four:
-                        offset = (4*0.5+6.)*sumt;
+                        offset = (4*0.5+6.)*sumt/4.;
                         break;
                     case five:
-                        offset = (5*0.5+10.)*sumt;
+                        offset = (5*0.5+10.)*sumt/5.;
                         break;
                     case six:
-                        offset = (6*0.5+16.)*sumt;
+                        offset = (6*0.5+16.)*sumt/6.;
                         break;
 
                 }
                 tClear(f1.f, copy);
                 tId(f1.f, copy, 0);
-                tScaleOne(f1.f, copy, 0, offset/(INT_TYPE)(bootBodies));
+                tScaleOne(f1.f, copy, 0, offset);
                 tAddTw(f1.f, jelliumElectron, 0, copy, 0);
                 printf("jelliumT-%d %f\n", 0,traceOne(f1.f, jelliumElectron, 0));
 
