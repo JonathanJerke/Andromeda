@@ -519,9 +519,10 @@ INT_TYPE sumTo2(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
                             {
                                 if ( body == 0 ){
                                     value  = streams(f1,mat,ms,space)[ I1*N1+I2 + r*N1*N1 ] * delta(I3-I4);
-                                }else {
+                                }else if ( body == 1 ){
                                     value  = streams(f1,mat,ms,space)[ I3*N1+I4 + r*N1*N1 ] * delta(I1-I2);
-                                }
+                                }else
+                                    value = 0.;
                                 stream[ (I1+I3*N1)+ ( I2+I4*N1)*N1*N1 ] = value;
                             }
             }
