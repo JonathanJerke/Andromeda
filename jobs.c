@@ -99,10 +99,10 @@ INT_TYPE foundationM(struct calculation *c1, struct field f1){
             ioStoreMatrix(f1.f, ack, 0, "single.1.matrix", 1);
             switch(bodies(f1.f,eigen)){
                 case one:
-                    tEqua(f1.f, ack, 1, ack, 0);
+                    tEqua(f1.f, eigen, 1, ack, 0);
                     break;
                 case two:
-                    tEqua(f1.f, ack, 1, ack, 0);
+                    tEqua(f1.f, eigen, 1, ack, 0);
                     break;
                 case three:
                     sumTo3(f1.f, ack, 0,build, 0);
@@ -772,56 +772,13 @@ INT_TYPE report ( struct calculation c, struct field f1){
 
 INT_TYPE distill ( struct calculation c, struct field f1){
     double oneBodyFraction = 1.;
-    switch( f1.i.body  ){
-        case two:
-            oneBodyFraction = 1/1.;
-            break;
-        case three:
-            oneBodyFraction = 1/2.;
-            break;
-        case four:
-            oneBodyFraction = 1/3.;
-            break;
+    if ( f1.i.body > one ){
+        oneBodyFraction = 1./(f1.i.body-1.);
     }
+    
     iModel(&c, &f1);
     tClear(f1.f, hamiltonian);
     
-    
-    if ( allowQ(f1.f.rt, blockTrainHamiltonianBlock) && allowQ(f1.f.rt, blockHamiltonianBlock)&& allowQ(f1.f.rt, blockTrainingHamiltonianBlock)){
-        enum division di;
-            for ( di = Ha ; di!= nullName; di = f1.f.tulip[di].linkNext){
-                if ( CanonicalRank(f1.f, di, 0)){
-                    tAddTw(f1.f, hamiltonian, 0, di, 0);
-                    printf("add %d\n", di);
-                }
-            }
-        tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-        tClear(f1.f,hamiltonian);
-        sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
-        tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
-
-
-            
-            
-        }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
         if ( c.rt.runFlag > 0 )
         {
@@ -1014,10 +971,76 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             if ( CanonicalRank(f1.f,intercellularSelfEwald,1) ){
                 ioStoreMatrix(f1.f,intercellularSelfEwald ,1,"intercellularSelfEwald.1.matrix",0);
             }
-            tClear(f1.f, interactionExchange);
-            tClear(f1.f, interactionEwald);
+//            tClear(f1.f, interactionExchange);
+//            tClear(f1.f, interactionEwald);
 
         }
+    
+    if ( allowQ(f1.f.rt, blockTrainHamiltonianBlock) && allowQ(f1.f.rt, blockHamiltonianBlock)&& allowQ(f1.f.rt, blockTrainingHamiltonianBlock)){
+    enum division di;
+    INT_TYPE spin ;
+    for ( spin = 0 ; spin < f1.f.cmpl ; spin++){
+        tClear(f1.f,hamiltonian);
+
+        for ( di = Ha ; di!= nullName; di = f1.f.tulip[di].linkNext){
+            if ( CanonicalRank(f1.f, di, spin)){
+                switch( bodies(f1.f, di) ){
+                    case one :
+                        switch ( f1.i.body ){
+                            case one:
+                                tAddTw(f1.f, hamiltonian, 0, di, spin);
+                                printf("add1 %d %d\n", di,spin);
+                                break;
+                            case two:
+                                tScaleOne(f1.f, di, spin, oneBodyFraction);
+                                sumTo2(f1.f, di, spin, hamiltonian, 0);
+                                printf("add1 %d %d\n", di,spin);
+
+                                tScaleOne(f1.f, di, spin, 1./oneBodyFraction);
+                                break;
+                            case three:
+                                tScaleOne(f1.f, di, spin, oneBodyFraction);
+                                sumTo3(f1.f, di, spin, hamiltonian, 0);
+                                printf("add1 %d %d\n", di,spin);
+
+                                tScaleOne(f1.f, di, spin, 1./oneBodyFraction);
+                                break;
+                            case four:
+                                tScaleOne(f1.f, di, spin, oneBodyFraction);
+                                sumTo4(f1.f, di, spin, hamiltonian, 0);
+                                printf("add1 %d %d\n", di,spin);
+                                tScaleOne(f1.f, di, spin, 1./oneBodyFraction);
+                                break;
+                        }
+                        break;
+                    case two:
+                        switch ( f1.i.body ){
+                            case two:
+                            case three:
+                            case four:
+                            case five:
+                            case six:
+                                tAddTw(f1.f, hamiltonian, 0, di, spin);
+                                printf("add2 %d %d\n", di,spin);
+
+                            case one:
+                                break;
+                        }
+                    break;
+                }
+            }
+        }
+        tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , spin, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
+        tClear(f1.f, hamiltonian);
+        sortTerms(f1.f,trainHamiltonian,spin,hamiltonian,0);
+        tEqua(f1.f, trainHamiltonian,spin, hamiltonian, 0);
+    }
+
+        
+        
+    }
+    
+    
 //        if ( f1.i.body >= two ){
 //
 //

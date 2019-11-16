@@ -1707,44 +1707,39 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                         tEnd(*f1, linear, 0, space);
                 }
                 if ( f1->rose[0].component == periodicComponent1 ){
-                    
-                    
-                    
                     if (c1->i.twoBody.func.fn != nullFunction ){
-                        
-                        if ( allowQ(f1->rt, blockSeparateTwoBodyBlock ) ){
-                            for ( c = real ; c <= spins (*f1, interactionExchange) ; c++)
-                                    buildPairWisePotential(c1, *f1,interactionEwald,electron, 1,c);
+                            INT_TYPE flag = ioStoreMatrixScale(f,interactionEwald ,0,"interactionEwald.matrix",1);
+                            if ( f1->cmpl == cmpl)
+                                flag = flag &&   ioStoreMatrixScale(f,interactionEwald ,1,"interactionEwald.1.matrix",1);
+                                if ( ! flag )
+                                    if ( allowQ(f1->rt, blockSeparateTwoBodyBlock ) ){
+                                        for ( c = real ; c <= spins (*f1, interactionEwald) ; c++)
+                                            buildPairWisePotential(c1, *f1,interactionEwald,electron, 1,c);
                             }
-                            
-
-
-                    
-                    if ( c1->i.twoBody.func.fn != nullFunction){
-                        
-                        //only diagonal!
-                            for ( c = real ; c <= spins (*f1, interactionExchange) ; c++)
-                                    buildPairWisePotential(c1, *f1,interactionExchange,electron, 2/*diagonal*/,c);
-                        }
                     }
-                    
+                    if ( c1->i.twoBody.func.fn != nullFunction){
+                        //only diagonal!
+                                INT_TYPE flag = ioStoreMatrixScale(f,interactionExchange ,0,"interactionExchange.matrix",1);
+                               if ( f1->cmpl == cmpl)
+                                   flag = flag &&   ioStoreMatrixScale(f,interactionExchange ,1,"interactionExchange.1.matrix",1);
+                                if ( ! flag )
+                                    for ( c = real ; c <= spins (*f1, interactionExchange) ; c++)
+                                        buildPairWisePotential(c1, *f1,interactionExchange,electron, 2/*diagonal*/,c);
+                        }
                 }else {//non-periodic
                     if ( bootBodies > one ){
                         if ( allowQ(f1->rt, blockSeparateTwoBodyBlock))
                         {
-                                    {
-                                        INT_TYPE flag ;
-                                        flag =   ioStoreMatrixScale(f,interactionExchange ,0,"interactionExchange.matrix",1);
-                                        if ( f1->cmpl == cmpl)
-                                            flag = flag && ioStoreMatrixScale(f,interactionExchange ,1,"interactionExchange.1.matrix",1);
-                                        
-
-
-                                        if ( ! flag )
-                                            for ( c = real ; c <= spins (*f1, interactionExchange) ; c++){
-                                                buildPairWisePotential(c1, *f1,interactionExchange,electron,0,c);
-                                            }
-                                }
+                                    
+                                            INT_TYPE flag ;
+                                            flag =   ioStoreMatrixScale(f,interactionExchange ,0,"interactionExchange.matrix",1);
+                                            if ( f1->cmpl == cmpl)
+                                                flag = flag && ioStoreMatrixScale(f,interactionExchange ,1,"interactionExchange.1.matrix",1);
+                                            if ( ! flag )
+                                                for ( c = real ; c <= spins (*f1, interactionExchange) ; c++){
+                                                    buildPairWisePotential(c1, *f1,interactionExchange,electron,0,c);
+                                                }
+                                
                         }
                     }
                 if ( c1->i.magFlag ){
@@ -1829,11 +1824,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     power[2] = 2;
                     
                     separateDerivatives(*f1, 0, vectorMomentum, power, deriv,  0.5*c1->i.springConstant, electron);
-                    
                 
-                
-                
-                }
+                    }
                 }
             } else if ( c1->rt.calcType == clampProtonElectronCalculation  ){
                 
@@ -1889,18 +1881,13 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
 
                 if ( f1->rose[0].component == periodicComponent1 ){
-                    
-                    
-                    
                     ioStoreMatrix(*f1, intracellularSelfEwald, 0, "intracellularSelfEwald.matrix",1);
                     ioStoreMatrix(*f1, intercellularSelfEwald, 0,"intercellularSelfEwald.matrix",1);
                     ioStoreMatrix(*f1, jelliumElectron, 0, "jelliumElectron.matrix",1);
-                    
                     if ( allowQ(f1->rt, blockSeparateTwoBodyBlock)){
                         ioStoreMatrixScale(f, interactionEwald, 0, "interactionEwald.matrix",1);
                         ioStoreMatrixScale(f, interactionExchange, 0, "interactionExchange.matrix",1);
-
-                    }
+\                    }
                     
                         if ( f1->cmpl == cmpl ){
                             ioStoreMatrix(*f1, intracellularSelfEwald, 1, "intracellularSelfEwald.1.matrix",1);
