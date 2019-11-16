@@ -35,7 +35,7 @@ INT_TYPE countHam ( struct calculation *c1 , struct field f1 ){
 
         for ( di = Ha ; di!= nullName; di = f1.f.tulip[di].linkNext){
             if ( CanonicalRank(f1.f, di, spin)){
-                printf("%d %d %d %f\n", di, f1.f.tulip[di].name, spin, traceOne(f1.f, di, spin));
+                printf("%d %d %d %f %d\n", di, f1.f.tulip[di].name, spin, traceOne(f1.f, di, spin),CanonicalRank(f1.f, di, spin));
                 sum++;
             }
         
@@ -794,8 +794,16 @@ INT_TYPE report ( struct calculation c, struct field f1){
 
 INT_TYPE distill ( struct calculation c, struct field f1){
     double oneBodyFraction = 1.;
-    if ( f1.i.body > one ){
-        oneBodyFraction = 1./(f1.i.body-1.);
+    switch( f1.i.body  ){
+        case two:
+            oneBodyFraction = 1/1.;
+            break;
+        case three:
+            oneBodyFraction = 1/2.;
+            break;
+        case four:
+            oneBodyFraction = 1/3.;
+            break;
     }
     
     iModel(&c, &f1);
