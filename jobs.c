@@ -1016,33 +1016,31 @@ INT_TYPE distill ( struct calculation c, struct field f1){
         tClear(f1.f,hamiltonian);
 
         for ( di = Ha ; di!= nullName; di = f1.f.tulip[di].linkNext){
-            if ( CanonicalRank(f1.f, di, spin)){
-                switch( bodies(f1.f, di) ){
+            if ( CanonicalRank(f1.f, f1.f.tulip[di].name, spin)){
+                switch( bodies(f1.f, f1.f.tulip[di].name) ){
                     case one :
                         switch ( f1.i.body ){
                             case one:
-                                tAddTw(f1.f, hamiltonian, 0, di, spin);
-                                printf("add1 %d %d\n", di,spin);
+                                tAddTw(f1.f, hamiltonian, 0, f1.f.tulip[di].name, spin);
+                                printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
                                 break;
                             case two:
-                                tScaleOne(f1.f, di, spin, oneBodyFraction);
-                                sumTo2(f1.f, di, spin, hamiltonian, 0);
-                                printf("add1 %d %d\n", di,spin);
-
-                                tScaleOne(f1.f, di, spin, 1./oneBodyFraction);
+                                tScaleOne(f1.f, f1.f.tulip[di].name, spin, oneBodyFraction);
+                                sumTo2(f1.f, f1.f.tulip[di].name, spin, hamiltonian, 0);
+                                printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
+                                tScaleOne(f1.f, f1.f.tulip[di].name, spin, 1./oneBodyFraction);
                                 break;
                             case three:
-                                tScaleOne(f1.f, di, spin, oneBodyFraction);
-                                sumTo3(f1.f, di, spin, hamiltonian, 0);
-                                printf("add1 %d %d\n", di,spin);
-
-                                tScaleOne(f1.f, di, spin, 1./oneBodyFraction);
+                                tScaleOne(f1.f, f1.f.tulip[di].name, spin, oneBodyFraction);
+                                sumTo3(f1.f, f1.f.tulip[di].name, spin, hamiltonian, 0);
+                                printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
+                                tScaleOne(f1.f, f1.f.tulip[di].name, spin, 1./oneBodyFraction);
                                 break;
                             case four:
-                                tScaleOne(f1.f, di, spin, oneBodyFraction);
-                                sumTo4(f1.f, di, spin, hamiltonian, 0);
-                                printf("add1 %d %d\n", di,spin);
-                                tScaleOne(f1.f, di, spin, 1./oneBodyFraction);
+                                tScaleOne(f1.f, f1.f.tulip[di].name, spin, oneBodyFraction);
+                                sumTo4(f1.f, f1.f.tulip[di].name, spin, hamiltonian, 0);
+                                printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
+                                tScaleOne(f1.f, f1.f.tulip[di].name, spin, 1./oneBodyFraction);
                                 break;
                         }
                         break;
@@ -1053,8 +1051,8 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                             case four:
                             case five:
                             case six:
-                                tAddTw(f1.f, hamiltonian, 0, di, spin);
-                                printf("add2 %d %d\n", di,spin);
+                                tAddTw(f1.f, hamiltonian, 0, f1.f.tulip[di].name, spin);
+                                printf("add2 %d %d\n", f1.f.tulip[di].name,spin);
 
                             case one:
                                 break;
