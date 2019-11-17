@@ -499,10 +499,10 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
 //    return 0;
 //}
 
-INT_TYPE sumTo2(struct sinc_label f1, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin){
+INT_TYPE sumTo2(struct sinc_label f1,INT_TYPE nn, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin){
     
     INT_TYPE I1,I2, I3, I4,body,r,space,N1;
-    double value;
+    double value, cn = pow ( nn, - 1./SPACE);
     for ( r = 0; r < CanonicalRank(f1, mat , ms ); r++)
         for ( body = 0 ; body < 2 ; body++){
             for ( space = 0; space < SPACE ; space++){
@@ -519,11 +519,10 @@ INT_TYPE sumTo2(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
                             {
                                 if ( body == 0 ){
                                     value  = streams(f1,mat,ms,space)[ I1*N1+I2 + r*N1*N1 ] * delta(I3-I4);
-                                }else if ( body == 1 ){
+                                }else {
                                     value  = streams(f1,mat,ms,space)[ I3*N1+I4 + r*N1*N1 ] * delta(I1-I2);
-                                }else
-                                    value = 0.;
-                                stream[ (I1+I3*N1)+ ( I2+I4*N1)*N1*N1 ] = value;
+                                }
+                                stream[ (I1+I3*N1)+ ( I2+I4*N1)*N1*N1 ] = value*cn;
                             }
             }
             f1.tulip[sum].Current[spin]++;
@@ -538,7 +537,7 @@ INT_TYPE sumTo3(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
     INT_TYPE n2[SPACE];
     length(f1, sum,n2);
 
-    if ( bodies ( f1, sum ) == three && f1.rt->calcType == electronicStuctureCalculation){
+    if ( bodies ( f1, sum ) == three){
 
         if (bodies(f1, mat ) == three ){
             tAddTw(f1, sum ,spin, mat,ms );
@@ -573,7 +572,7 @@ INT_TYPE sumTo3(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
                                                 }else if ( body == 2 ) {
                                                     value  = streams(f1,mat,ms,space)[ I5*n1[space]+I6 + r*n1[space]*n1[space] ] * delta(I1-I2)*delta(I3-I4);
                                                 }
-                                                stream[ (I1+I3*n1[space]+I5*n1[space]*n1[space])+ (I2+I4*n1[space]+I6*n1[space]*n1[space])*n1[space]*n1[space]*n1[space]] = value/2.;
+                                                stream[ (I1+I3*n1[space]+I5*n1[space]*n1[space])+ (I2+I4*n1[space]+I6*n1[space]*n1[space])*n1[space]*n1[space]*n1[space]] = value;
                                             }
                     }
                     f1.tulip[sum].Current[spin]++;
@@ -614,7 +613,7 @@ INT_TYPE sumTo3(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
                                                 ve = (I1+I3*n1[space]+I5*n1[space]*n1[space])+ (I2+I4*n1[space]+I6*n1[space]*n1[space])*n1[space]*n1[space]*n1[space];
                                                 //                                                printf("%f %lld %lld\n", value,ve,n2[space]);
                                                 //                                                fflush(stdout);
-                                                stream[ ve ] = value/3.;
+                                                stream[ ve ] = value;
                                                 //                                                printf("x");
                                                 //                                                fflush(stdout);
 
@@ -967,7 +966,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 tScaleOne(f1.f, out, 0, -0.500);
                 tScaleOne(f1.f, out, 1, -0.500);
             }
-            
+#ifndef APPLE
             if ( CanonicalRank(f1.f,jelliumElectron,0) ){
                 ioStoreMatrix(f1.f,jelliumElectron ,0,"jelliumElectron.matrix",0);
             }
@@ -990,6 +989,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             if ( CanonicalRank(f1.f,intercellularSelfEwald,1) ){
                 ioStoreMatrix(f1.f,intercellularSelfEwald ,1,"intercellularSelfEwald.1.matrix",0);
             }
+#endif
 //            tClear(f1.f, interactionExchange);
 //            tClear(f1.f, interactionEwald);
 
@@ -1008,42 +1008,45 @@ INT_TYPE distill ( struct calculation c, struct field f1){
             if ( CanonicalRank(f1.f, f1.f.tulip[di].name, spin)){
                 switch( bodies(f1.f, f1.f.tulip[di].name) ){
                     case one :
+                        if ( di - f1.f.tulip[di].name == 1 ){//symmetric hamiltonian.
                         switch ( f1.i.body ){
-                            case one:
+                            case 1:
                                 tAddTw(f1.f, hamiltonian, 0, f1.f.tulip[di].name, spin);
                                 printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
                                 break;
-                            case two:
-                                sumTo2(f1.f, f1.f.tulip[di].name, spin, hamiltonian, 0);
+                            case 2:
+                                sumTo2(f1.f,1, f1.f.tulip[di].name, spin, hamiltonian, 0);
                                 printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
                                 break;
-                            case three:
-                                sumTo3(f1.f, f1.f.tulip[di].name, spin, hamiltonian, 0);
+                            case 3:
+                                sumTo2(f1.f,2, f1.f.tulip[di].name, spin, hamiltonian, 0);
                                 printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
                                 break;
-                            case four:
-                                sumTo4(f1.f, f1.f.tulip[di].name, spin, hamiltonian, 0);
+                            case 4:
+                                sumTo2(f1.f,3, f1.f.tulip[di].name, spin, hamiltonian, 0);
                                 printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
                                 break;
                         }
+                        }
                         break;
                     case two:
-                        switch ( f1.i.body ){
-                            case two:
-                            case three:
-                            case four:
-                            case five:
-                            case six:
+                        switch ( f1.i.body ){//symmetric hamiltonian.
+                            case 2:
+                            case 3:
+                            case 4:
+                            case 5:
+                            case 6:
+                            if ( di - f1.f.tulip[di].name == 1 ){
                                 tAddTw(f1.f, hamiltonian, 0, f1.f.tulip[di].name, spin);
                                 printf("add2 %d %d\n", f1.f.tulip[di].name,spin);
-
-                            case one:
+                            }
+                            case 1:
                                 break;
                         }
                     break;
                 }
             }
-            printf("<%f>\n", traceOne(f1.f, hamiltonian, 0));
+            printf("<%f>%d\n", traceOne(f1.f, hamiltonian, 0),CanonicalRank(f1.f, hamiltonian, 0));
         }
         tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , spin, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
     }
