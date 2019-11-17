@@ -93,8 +93,15 @@ double Power ( double b, INT_TYPE n ){
     }
     return va;
 }
+DCOMPLEX dx ( INT_TYPE N,  INT_TYPE bb, double kk ,double dd,INT_TYPE LL,INT_TYPE ll){
+    INT_TYPE nn;
+    DCOMPLEX  dx = 1.;
+    for (nn= 0; nn < N ; nn++)
+        dx *= (dd*kk*LL+2*ll*pi)/dd/LL;
+    return dx;
+}
 
-#if 1
+#if 0
 DCOMPLEX cPower ( DCOMPLEX b, INT_TYPE n ){
     INT_TYPE i;
     double va = 1.;
@@ -133,6 +140,19 @@ DCOMPLEX ovx (  DCOMPLEX Z, DCOMPLEX A,INT_TYPE bb, double kk , double dd, INT_T
         return 0.;
 }
 
+DCOMPLEX periodicBoost0 (INT_TYPE N, double P, INT_TYPE bb, double kk ,double dd, INT_TYPE LL,INT_TYPE b, double k ,double d,INT_TYPE L){
+    DCOMPLEX  sum = 0.,Z,A;
+    INT_TYPE ll = 0;
+    Z = cexp(I*(b*d*k - bb*dd*kk - ((dd*kk*LL + 2*ll*pi)*(b*d - bb*dd))/(dd*LL)))/LL;
+    ll = 1;
+    A = (cexp(I*(b*d*k - bb*dd*kk - ((dd*kk*LL + 2*ll*pi)*(b*d - bb*dd))/(dd*LL)))/LL)/Z;
+
+   // for ( ll = -(LL-1)/2; ll <= (LL-1)/2 ; ll++){
+        for ( ll = -LL; ll <= LL ; ll++){
+        sum += ovx (Z,A,bb,kk,dd,LL,b,k+P,d,L,ll)*dx(N,bb,kk,dd,LL,ll);
+    }
+    return sum;
+}
 
 
 #else
@@ -160,15 +180,6 @@ DCOMPLEX ovx (  INT_TYPE bb, double kk , double dd, INT_TYPE LL, INT_TYPE b, dou
     } else
         return 0.;
 }
-#endif
-
-DCOMPLEX dx ( INT_TYPE N,  INT_TYPE bb, double kk ,double dd,INT_TYPE LL,INT_TYPE ll){
-    INT_TYPE nn;
-    DCOMPLEX  dx = 1.;
-    for (nn= 0; nn < N ; nn++)
-        dx *= (dd*kk*LL+2*ll*pi)/dd/LL;
-    return dx;
-}
 
 DCOMPLEX periodicBoost0 (INT_TYPE N, double P, INT_TYPE bb, double kk ,double dd, INT_TYPE LL,INT_TYPE b, double k ,double d,INT_TYPE L){
     DCOMPLEX  sum = 0.,Z,A;
@@ -179,10 +190,14 @@ DCOMPLEX periodicBoost0 (INT_TYPE N, double P, INT_TYPE bb, double kk ,double dd
 
    // for ( ll = -(LL-1)/2; ll <= (LL-1)/2 ; ll++){
         for ( ll = -LL; ll <= LL ; ll++){
-        sum += ovx (Z,A,bb,kk,dd,LL,b,k+P,d,L,ll)*dx(N,bb,kk,dd,LL,ll);
+        sum += ovx (bb,kk,dd,LL,b,k+P,d,L,ll)*dx(N,bb,kk,dd,LL,ll);
     }
     return sum;
 }
+
+#endif
+
+
 
 DCOMPLEX periodicBoostBasisBasis( INT_TYPE N , double P, INT_TYPE bb, INT_TYPE kki ,double dd, INT_TYPE LL,  INT_TYPE b, INT_TYPE ki,double d,INT_TYPE L ){
     DCOMPLEX sum = 0.;
