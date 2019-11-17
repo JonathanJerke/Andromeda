@@ -153,14 +153,14 @@ struct field initField (void ) {
 #else
     i.i.d = 1.;
     i.i.D = 0.1*2;
-    i.i.cmpl = real;
+    i.i.cmpl = cmpl;
     i.i.bRank = 2;
     i.i.iRank = 1;
     i.i.nStates = 1;
     i.i.qFloor = 625;
     i.i.filter = 0;
     i.f.boot = fullMatrices;
-    i.i.body = one;
+    i.i.body = three;
     i.i.irrep = 0;
     i.i.cat  = 0;
     i.i.epi = 0;
@@ -176,8 +176,11 @@ struct calculation initCal (void ) {
 #ifdef APPLE
     resetA(&i.rt);
 //    blockA(&i.rt, blockHamiltonianBlock);
-    blockA(&i.rt, blockTrainingHamiltonianBlock);
-    blockA(&i.rt, blockTrainHamiltonianBlock);
+    blockA(&i.rt, 4);
+    blockA(&i.rt, 6);
+    blockA(&i.rt, 7);
+    blockA(&i.rt, 9);
+    blockA(&i.rt, 11);
 
     i.i.barrier = 0;
    // i.i.OCSBflag = 0;
@@ -219,13 +222,13 @@ struct calculation initCal (void ) {
     
     i.rt.calcType = electronicStuctureCalculation;
     i.rt.runFlag = 0;
-    i.rt.phaseType = reportMatrix;
+    i.rt.phaseType = distillMatrix;
     i.i.gaussCount = 1;
     i.i.Na = 0;
 
         if ( SPACE == 3 ){
             i.rt.calcType = electronicStuctureCalculation;
-            i.rt.runFlag = 0;
+            i.rt.runFlag = 7;
         } else if ( SPACE == 6 ){
 
             i.rt.calcType = clampProtonElectronCalculation;
@@ -245,7 +248,7 @@ struct calculation initCal (void ) {
     i.i.oneBody.func.fn = Coulomb;
     //i.i.springFlag = 1;
     i.i.springConstant = 0.25;
-    i.i.canonRank = 45 ;
+    i.i.canonRank = 1000 ;
     i.i.twoBody.num = 30;
     i.i.twoBody.func.interval  = 0;
     i.i.twoBody.func.param[0]  = 1;
@@ -1689,10 +1692,12 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 }
                 if ( f1->rose[0].component == periodicComponent1 ){
                     if (c1->i.twoBody.func.fn != nullFunction ){
+#ifndef APPLE
                             INT_TYPE flag = ioStoreMatrixScale(f,interactionEwald ,0,"interactionEwald.matrix",1);
                             if ( f1->cmpl == cmpl)
                                 flag = flag &&   ioStoreMatrixScale(f,interactionEwald ,1,"interactionEwald.1.matrix",1);
                                 if ( ! flag )
+#endif
                                     if ( allowQ(f1->rt, blockSeparateTwoBodyBlock ) ){
                                         for ( c = real ; c <= spins (*f1, interactionEwald) ; c++)
                                             buildPairWisePotential(c1, *f1,interactionEwald,electron, 1,c);
@@ -1700,10 +1705,13 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                     }
                     if ( c1->i.twoBody.func.fn != nullFunction){
                         //only diagonal!
+#ifndef APPLE
+
                                 INT_TYPE flag = ioStoreMatrixScale(f,interactionExchange ,0,"interactionExchange.matrix",1);
                                if ( f1->cmpl == cmpl)
                                    flag = flag &&   ioStoreMatrixScale(f,interactionExchange ,1,"interactionExchange.1.matrix",1);
                                 if ( ! flag )
+#endif
                                     for ( c = real ; c <= spins (*f1, interactionExchange) ; c++)
                                         buildPairWisePotential(c1, *f1,interactionExchange,electron, 2/*diagonal*/,c);
                         }
