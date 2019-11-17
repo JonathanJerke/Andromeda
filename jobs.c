@@ -749,19 +749,19 @@ INT_TYPE sumTo4(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
 
 INT_TYPE report ( struct calculation c, struct field f1){
 
-//    if ( CanonicalRank(f1.f,interactionExchange,0) ){
-//        ioStoreMatrixScale(&f1,interactionExchange ,0,"interactionExchange.matrix",0);
-//    }
-//    if ( CanonicalRank(f1.f,interactionExchange,1) ){
-//        ioStoreMatrixScale(&f1,interactionExchange ,1,"interactionExchange.1.matrix",0);
-//    }
-//
-//    if ( CanonicalRank(f1.f,interactionEwald,0) ){
-//        ioStoreMatrixScale(&f1,interactionEwald ,0,"interactionEwald.matrix",0);
-//    }
-//    if ( CanonicalRank(f1.f,interactionEwald,1) ){
-//        ioStoreMatrixScale(&f1,interactionEwald ,1,"interactionEwald.1.matrix",0);
-//    }
+    if ( CanonicalRank(f1.f,interactionExchange,0) ){
+        ioStoreMatrixScale(&f1,interactionExchange ,0,"interactionExchange.matrix",0);
+    }
+    if ( CanonicalRank(f1.f,interactionExchange,1) ){
+        ioStoreMatrixScale(&f1,interactionExchange ,1,"interactionExchange.1.matrix",0);
+    }
+
+    if ( CanonicalRank(f1.f,interactionEwald,0) ){
+        ioStoreMatrixScale(&f1,interactionEwald ,0,"interactionEwald.matrix",0);
+    }
+    if ( CanonicalRank(f1.f,interactionEwald,1) ){
+        ioStoreMatrixScale(&f1,interactionEwald ,1,"interactionEwald.1.matrix",0);
+    }
 
 //    if ( CanonicalRank(f1.f,shortenPlus,0) )
 //        ioStoreMatrix(f1.f,shortenPlus ,0,"shortenExchangePlus.matrix",0);
