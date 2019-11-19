@@ -1005,7 +1005,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
         tClear(f1.f,hamiltonian);
 
         for ( di = Ha ; di!= nullName; di = f1.f.tulip[di].linkNext){
-            if ( CanonicalRank(f1.f, f1.f.tulip[di].name, spin)){
+            if ( CanonicalRank(f1.f, f1.f.tulip[di].name, spin) && f1.f.tulip[di].name != linear ){
                 switch( bodies(f1.f, f1.f.tulip[di].name) ){
                     case one :
                         if ( di - f1.f.tulip[di].name == 1 ){//symmetric hamiltonian.

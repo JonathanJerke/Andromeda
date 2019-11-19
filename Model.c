@@ -748,7 +748,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         fromBeginning(*f1, vectorMomentum, protonRepulsion);
         f1->tulip[vectorMomentum].spinor = cmpl;
         assignOneWithPointers(*f1, vectorMomentum,electron);
-        f1->tulip[vectorMomentum].Partition = allowQ(f1->rt,blockHamiltonianBlock)*(COMPONENT* c1->i.springFlag+4*c1->i.magFlag+1);//
+        f1->tulip[vectorMomentum].Partition = allowQ(f1->rt,blockHamiltonianBlock)*(COMPONENT* c1->i.springFlag+4*c1->i.magFlag);//
 
         fromBeginning(*f1, harmonium, vectorMomentum);
         assignParticle(*f1, harmonium,electron,one);
@@ -1562,7 +1562,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         
         fromBeginning(*f1,matrixHbuild,conditionOverlapNumbers);
     f1->tulip[matrixHbuild].Partition = (  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == svdOperation ) *  (maxArray*maxArray)+( c1->rt.phaseType == buildFoundation)* mxlen*mxlen;
-    f1->tulip[matrixHbuild].Partition *= 16;
+    f1->tulip[matrixHbuild].Partition *= 4;
         f1->tulip[matrixHbuild].spinor = real;
         f1->tulip[matrixHbuild].memory = bufferAllocation;
 
@@ -1572,7 +1572,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 
         fromBeginning(*f1,matrixSbuild,vectorHbuild);
         f1->tulip[matrixSbuild].Partition = ( c1->rt.phaseType == buildFoundation ||  c1->rt.phaseType == solveRitz|| c1->rt.phaseType == svdOperation )*(maxArray*maxArray)+( c1->rt.phaseType == buildFoundation)* mxlen*mxlen;
-    f1->tulip[matrixSbuild].Partition *= 16;
+    f1->tulip[matrixSbuild].Partition *= 4;
 
         f1->tulip[matrixSbuild].spinor = real;
         f1->tulip[matrixSbuild].memory = bufferAllocation;
