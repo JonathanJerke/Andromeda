@@ -160,10 +160,10 @@ struct field initField (void ) {
     i.i.qFloor = 625;
     i.i.filter = 0;
     i.f.boot = fullMatrices;
-    i.i.body = three;
+    i.i.body = two;
     i.i.irrep = 0;
     i.i.cat  = 0;
-    i.i.epi = 0;
+    i.i.epi = 1;
         i.i.around=5;
     
 #endif
@@ -1859,8 +1859,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                 if ( c1->i.Na )
                     if ( c1->i.oneBody.func.fn != nullFunction )
                         if(   ! ioStoreMatrix(*f1, linear, 0, "linear.matrix",1)){
-                            printf("linear absent");
-                            exit(0);//if not already present, go back and build it
+                            for ( c = real ; c <= real ; c++){
+                                    buildExternalPotential(c1, *f1,linear,electron,!(!c1->rt.runFlag),c);
                         }
 	
                 if ( c1->i.springFlag ){
