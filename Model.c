@@ -1861,8 +1861,8 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                         if(   ! ioStoreMatrix(*f1, linear, 0, "linear.matrix",1)){
                             for ( c = real ; c <= real ; c++){
                                     buildExternalPotential(c1, *f1,linear,electron,!(!c1->rt.runFlag),c);
+                            }
                         }
-	
                 if ( c1->i.springFlag ){
                     ioStoreMatrix( *f1, vectorMomentum, 0 , "vector.matrix", 1 ) ;
                     if ( f1->cmpl == cmpl)
