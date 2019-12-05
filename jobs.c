@@ -34,7 +34,7 @@ INT_TYPE countHam ( struct calculation *c1 , struct field f1 ){
         tClear(f1.f,hamiltonian);
 
         for ( di = Ha ; di!= nullName; di = f1.f.tulip[di].linkNext){
-            if ( CanonicalRank(f1.f, di, spin)){
+            if ( CanonicalRank(f1.f,f1.f.tulip[di].name, spin)){
                 printf("%d %d %d %f %d\n", di, f1.f.tulip[di].name, spin, traceOne(f1.f, di, spin),CanonicalRank(f1.f, di, spin));
                 sum++;
             }
@@ -1236,7 +1236,7 @@ int main (INT_TYPE argc , char * argv[]){
 
             case 0 :
                 //andromeda 0
-                printf("----\nv7.6.2\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\nv7.6.3\n\n%s\n\n",getenv("LAUNCH"));
                 exit(0);
         }
 
