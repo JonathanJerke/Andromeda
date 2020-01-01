@@ -36,7 +36,7 @@
 INT_TYPE sumTo2(struct sinc_label f1, INT_TYPE nn,enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin);
 INT_TYPE sumTo3(struct sinc_label f1, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin);
 INT_TYPE sumTo4(struct sinc_label f1, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin);
-
+int run (INT_TYPE argc , char * argv[]);
 INT_TYPE countHam ( struct calculation *c1 , struct field f1 );
 INT_TYPE foundation1 (struct calculation *c1 , struct field f1);
 INT_TYPE foundationM (struct calculation *c1 , struct field f1);

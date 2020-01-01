@@ -1207,7 +1207,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
 
 #if 1
 
-int main (INT_TYPE argc , char * argv[]){
+int run (INT_TYPE argc , char * argv[]){
     argc--;//erase ./andromeda...
     argv++;
     struct calculation c;
@@ -1326,6 +1326,11 @@ int main (INT_TYPE argc , char * argv[]){
         spitGauss ( &c, f);
     }
     printf("\n\nFINIS.\n\n");
+}
+
+int main (int argc, char* argv[]){
+	run(argc,argv);
+	return 0;
 }
 
 #else
