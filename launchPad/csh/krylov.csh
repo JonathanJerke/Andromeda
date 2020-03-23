@@ -9,7 +9,7 @@ echo "$i"
 set file = $dir/B.kry.$i
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
-echo "control found" >> $file
+echo "read found/found" >> $file
 echo "read $dir/stage " >> $file
 echo "vector $prev.$i" >> $file
 echo "control kryPhase ">> $file

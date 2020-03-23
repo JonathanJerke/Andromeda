@@ -8,7 +8,7 @@ foreach i (`cat $3`)
 set file = $dir/D.kry.${i}
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
-echo "control found" >> $file
+echo "read found/found" >> $file
 echo "read $dir/stage " >> $file
 #if ( `splitFlag.csh` ) then
 

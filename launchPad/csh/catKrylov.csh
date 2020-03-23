@@ -8,7 +8,7 @@ foreach i (`cat $3`)
 set file = $dir/B.kry.${i}
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
-echo "control found" >> $file
+echo "read found/found" >> $file
 echo "read $dir/stage " >> $file
 echo "control kryPhase ">> $file
 echo ".InputOutput" >> $file

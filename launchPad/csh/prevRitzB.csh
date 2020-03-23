@@ -9,7 +9,7 @@ set prev = $src/B.kry
 set file = $dir/C.riz
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
-echo "control found" >> $file
+echo "read found/found" >> $file
 echo "read $dir/stage " >> $file
 foreach f (`cat $3`)
 #if ( `splitFlag.csh` ) then

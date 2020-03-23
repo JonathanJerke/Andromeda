@@ -7,7 +7,7 @@ set dir = $1
 set file = $dir/A.dis
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
-echo "control found" >> $file
+echo "read found/found" >> $file
 echo "read $dir/stage " >> $file
 echo "control distillPhase" >> $file
 echo ".InputOutput" >> $file

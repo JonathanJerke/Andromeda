@@ -44,16 +44,16 @@ endif
 
 
 foreach com (`cat commands`)
-        if ( $flagBegin && $com =~ "$begin*" ) then
+        if ( $flagBegin && $com =~ $begin* ) then
                 set flagBegin = 0
         endif
 
-        if ( (! $flagEnd) && $com =~ "$end*" ) then
+        if ( (! $flagEnd) && $com =~ $end* ) then
                 set flagEnd = 1
         endif
 
 
-        if ( (! $flagBegin )&& (! $flagEnd )&&(! ($com =~ "*$exclude*"))) then              
+        if ( (! $flagBegin )&& (! $flagEnd )&&(! ($com =~ *$exclude*))) then              
 	
                 $LAUNCH/csh/go.csh $com
                 echo "$com" >> driver

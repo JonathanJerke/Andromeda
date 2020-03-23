@@ -9,7 +9,7 @@ set prev = $src/D.kry
 set file = $dir/A.riz
 echo "*Body $file" > $file
 echo "*InputOutput" >> $file
-echo "control found" >> $file
+echo "read found/found" >> $file
 echo "read $dir/stage " >> $file
 foreach f (`cat $3`)
 
