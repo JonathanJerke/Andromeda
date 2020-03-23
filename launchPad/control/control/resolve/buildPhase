@@ -1,0 +1,21 @@
+*Body print
+	*Parameters
+		resetGeo 
+		phase 1
+	 	filter 0
+		decompose 3
+		blockReset 
+		blockMemory 1
+		blockMemory 3
+		blockMemory 4
+		blockMemory 5
+		blockMemory 6
+		blockMemory 10
+		blockMemory 11
+		.Parameters
+
+
+	*InputOutput
+		control two
+	.InputOutput
+.Body

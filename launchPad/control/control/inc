@@ -1,0 +1,10 @@
+*Body 
+	*Parameters
+		attack 0.6
+		bandStage 3
+		#clampStage 3
+		increment 2
+		basisStage 12
+		#kineticShift 1.
+	.Parameters
+.Body
