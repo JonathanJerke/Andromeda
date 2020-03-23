@@ -1,0 +1,55 @@
+*Body def
+	*Parameters
+		gaussCount 0
+		#Set GAUSSIANSINC, will set number of predetermined S-gaussians.
+		#
+		#
+		#
+		#
+		#buffer length
+		chrome 100
+		#
+		#correlation of a single unit
+		chromos 0.9
+		#	
+		#minimum magnitude of a single unit unless you just fill buffer instead
+		chromous 0.1
+		#
+		# Canonical rank of train per single unit
+		chroma 1
+		#
+		#2 = only train buffers, 3 = final train , 4 = report final error
+		decompose 3
+		#
+		#
+		#system resources
+		maxRAM 4
+		#
+		#	
+		#higher numbers for more restrictive edge effects
+		encapsulate -10
+	#OPEN GAME,  trade speed for accuracy!
+	#
+		cmpl 1	
+		condition 8
+		tolerance 5
+		threshold 5
+		vectorThreshold 3.5
+		target 3.5
+		entropy 0
+	#
+	#
+		#default	
+		initRank 1
+		configuration 0
+		phase 0
+		range 4
+		lattice 0.666	
+		lanes 1 ##CHANGE moreLanes,two, and such to edit actual allocations or resources
+		parallel 1
+		Angstroms 0
+		filter 1
+.Parameters
+
+.Body
+

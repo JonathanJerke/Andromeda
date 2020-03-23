@@ -1,0 +1,20 @@
+*Body 
+	*Parameters
+		Sign
+		#just load trainHam
+		resetGeo
+		#ignore geometry
+		phase 0
+		blockReset
+		blockMemory 1
+                blockMemory 5
+		blockMemory 6
+		blockMemory 7
+		blockMemory 9
+	.Parameters
+
+
+	*InputOutput
+		control moreLanes
+	.InputOutput
+.Body
