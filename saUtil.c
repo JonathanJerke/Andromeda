@@ -2,7 +2,7 @@
  *  saUtil.c
  *
  *
- *  Copyright 2019 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -239,7 +239,7 @@ INT_TYPE tInnerTest( struct sinc_label f1, enum division A ,enum division B){
         i[ii] = ii/3 % n1[0];
     INT_TYPE info;
     tFil(f1, A, copyThreeVector, i);
-    printf("%f %f\n", tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, 1, copyThreeVector, 0, 1, copyThreeVector, 0),sqr(magnitude(f1, copyThreeVector)));
+    printf("%f %f\n", tMultiplyMP(0, &info, f1, 1., -1, nullName, 0, 1, copyThreeVector, 0, 1, copyThreeVector, 0),pow(magnitude(f1, copyThreeVector),2.));
     
         for ( c = 1; c <= tPerms(bodies(f1,eigenVectors)) ; c++){
             printf("\n\nCHAR %d\n", c);

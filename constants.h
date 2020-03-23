@@ -2,7 +2,7 @@
  *  constants.h
  *  
  *
- *  Copyright 2019 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -23,18 +23,18 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-//VERSION 7.6.3
+//VERSION 8.0
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 #include "system.h"
 #include <time.h>
-#include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
+#include <sys/stat.h>
 #define VERBOSE 0 
 
 #ifdef APPLE
@@ -157,7 +157,7 @@ enum particleType{
     electron,
     proton,
     pair,
-    all,
+    all
 };
 
 enum phaseType{
@@ -177,7 +177,7 @@ enum calculationType{
     particlesInBoxCalculation,
     clampProtonElectronCalculation,
     protonsElectronsCalculation,
-    svdCalculation,
+    svdCalculation
 };
 
 enum bootType{
@@ -220,6 +220,10 @@ enum genus{
     vector,
     matrix,
     outerVector,
+    eikon,
+    eikonDiagonal,
+    eikonOffDiagonal,
+    eikonSemiDiagonal
 };
 
 enum shape{
@@ -301,7 +305,7 @@ enum componentType {
     periodicSumComponent3,//9
     periodicBoostComponent1,//10
     periodicBoostComponent2,//11
-    periodicBoostComponent3,//12
+    periodicBoostComponent3//12
 };
 
 enum noteType {
@@ -335,7 +339,7 @@ enum metricType {
     dirac,
     separateDirac,
     interval,
-    semiIndefinite,
+    semiIndefinite
 };
 
 struct metric_label {
@@ -348,13 +352,20 @@ struct metric_label {
     //beta here...  -beta^2 is the exponent
 };
 
-
+//Ham--build 2body exchange
+//Dis--train 2body Hamiltonian
+//Dix--train 1body external fields
+//Resolve 2body Hamiltonain into a 1body matrices
+//Ria--ritz
+//Ray--kry
+//phi--natural orbitals of 1-body matrices
+//define hamiltonian by VECTOR-OPERATORS.
 //blockMemory:
 enum blockMemoryType{
     passBlock,//
     blockHamiltonianBlock,//1
     blockTrainHamiltonianBlock,//2
-    blockTrainingHamiltonianBlock,//3
+    blockAllocateHamiltonianBlock,//3
     blockFoundationBlock,//4
     blockBuildHamiltonianBlock,//5
     blockEigenDecomposeBlock,//6
@@ -362,21 +373,10 @@ enum blockMemoryType{
     blockSeparateTwoBodyBlock,//8
     blockTrainVectorsblock,//9
     blockTrainMatricesblock,//10
-    blockfoundationMblock//11
+    blockfoundationMblock,//11
+    blockResolveTwoBodyBlock,//12 NEED-To Add this to assign interactionDirect to Hamiltonian (Res)
+    blockKineticEnergyBlock //13
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -398,9 +398,9 @@ enum blockMemoryType{
 
 enum division{
     nullName,
-    nullScalar,//7
-    nullVector,//8
-    nullMatrix,//9
+    nullScalar,
+    nullVector,
+    nullMatrix,
     hamiltonian,
     trainHamiltonian,
     h12,
@@ -408,11 +408,11 @@ enum division{
     h23,
     h14,
     h24,
-    h34,//five
+    h34,
     h15,
     h25,
     h35,
-    h45,//six
+    h45,
     h16,
     h26,
     h36,
@@ -425,7 +425,7 @@ enum division{
     kineticMass4,
     kineticMass5,
     kineticMass6,
-    kinetic,//0
+    kinetic,
     kinetic1,
     kinetic2,
     kinetic3,
@@ -436,17 +436,17 @@ enum division{
     external1,
     external2,
     external3,
-    external4,//121,122,123,124
+    external4,
     external5,
     external6,
-    interactionExchangePlus,//oneBody
+    interactionExchangePlus,
     interaction1Plus,
     interaction2Plus,
     interaction3Plus,
     interaction4Plus,
     interaction5Plus,
     interaction6Plus,
-    interactionExchangeMinus,//oneBody
+    interactionExchangeMinus,
     interaction1Minus,
     interaction2Minus,
     interaction3Minus,
@@ -570,7 +570,7 @@ enum division{
     edgeHamiltonian4,
     edgeHamiltonian5,
     edgeHamiltonian6,
-    X,//
+    X,
     X1,
     X2,
     X3,
@@ -581,7 +581,7 @@ enum division{
     harmonium1,
     harmonium2,
     harmonium3,
-    harmonium4,//98,99,100,101
+    harmonium4,
     harmonium5,
     harmonium6,
     vectorMomentum,
@@ -591,7 +591,7 @@ enum division{
     vectorMomentum4,
     vectorMomentum5,
     vectorMomentum6,
-    interactionExchange,//22
+    interactionExchange,
     interaction12,
     interaction13,
     interaction23,
@@ -607,7 +607,7 @@ enum division{
     interaction36,
     interaction46,
     interaction56,
-    interactionExchangeB,//22
+    interactionExchangeB,
     interaction12B,
     interaction13B,
     interaction23B,
@@ -623,22 +623,22 @@ enum division{
     interaction36B,
     interaction46B,
     interaction56B,
-    edgeElectronMatrix,//63
-    edgeEMatrix1,//63
-    edgeEMatrix2,//63
-    edgeEMatrix3,//63
-    edgeEMatrix4,//63
-    edgeEMatrix5,//63
-    edgeEMatrix6,//63
-    edgeProtonMatrix,//63
-    edgePMatrix1,//63
-    edgePMatrix2,//63
-    edgePMatrix3,//63
-    edgePMatrix4,//63
-    edgePMatrix5,//63
-    edgePMatrix6,//63
+    edgeElectronMatrix,
+    edgeEMatrix1,
+    edgeEMatrix2,
+    edgeEMatrix3,
+    edgeEMatrix4,
+    edgeEMatrix5,
+    edgeEMatrix6,
+    edgeProtonMatrix,
+    edgePMatrix1,
+    edgePMatrix2,
+    edgePMatrix3,
+    edgePMatrix4,
+    edgePMatrix5,
+    edgePMatrix6,
     hartree,
-    forces,//10
+    forces,
     northoKet,
     inversion,
     inversion1,
@@ -653,27 +653,42 @@ enum division{
     overlap4,
     overlapTwo,
     tempOneMatrix,
-    resolveBufferMatrix,//11
-    distanceBufferVector,//12
-    distanceBufferMatrix,//13
-    distanceBufferScalar,//14
-    maxBufferVector,//15
-    squareVector,//16
-    diagonal,//18
-    square,//19
-    project,//20
-    interactionDirect,//21
-    buffer,//24,
+    resolveBufferMatrix,
+    distanceBufferVector,
+    distanceBufferMatrix,
+    distanceBufferScalar,
+    maxBufferVector,
+    squareVector,
+    diagonal,
+    square,
+    project,
+    interactionDirect,
+    interactionD12,
+    interactionD13,
+    interactionD23,
+    interactionD14,
+    interactionD24,
+    interactionD34,
+    interactionD15,
+    interactionD25,
+    interactionD35,
+    interactionD45,
+    interactionD16,
+    interactionD26,
+    interactionD36,
+    interactionD46,
+    interactionD56,
+    buffer,
     oneByOneBuffer,
-    Ha, //25
+    Ha, 
     Iterator,
     printOperator,
-    copy,//17
-    copyTwo , //23
-    copyThree,//51
-    copyFour,//52
+    copy,
+    copyTwo , 
+    copyThree,
+    copyFour,
     copyFive,
-    eigen,//64
+    eigen,
     bill1,
     bill2,
     bill3,
@@ -736,20 +751,20 @@ enum division{
     bill60,
     PauliX,
     PauliY,
-    PauliZ,//73,74,75
-    trainQuartic,//76,77,78
+    PauliZ,
+    trainQuartic,
     cycleVector,
     cycleMatrix,
-    cycleQuartic,//79,80,81
-    copySix,//82
-    directBak, //83
+    cycleQuartic,
+    copySix,
+    directBak, 
     oneBody,
     entropyVector,
-    entropyUnit,//84,85
-    vectors3,//90
-    basis,
-    subBasis,//92,93
-    edges,//94
+    entropyUnit,
+    vectors3,
+	basis,
+    subBasis,
+    edges,
     edges1,
     edges2,
     edges3,
@@ -757,14 +772,14 @@ enum division{
     edgesA2,
     edgesA3,
     quad,
-    quad2,//102,103
-    bandBasis,//105
+    quad2,
+    bandBasis,
     quadCube,
     quad2Cube,
-    diagonalCube,//106,107,108
+    diagonalCube,
     copyVector,
     copyTwoVector,
-    copyThreeVector,//113
+    copyThreeVector,
     copyFourVector,
     scalarTemp,
     productVector,
@@ -773,7 +788,8 @@ enum division{
     permutation3Vector,
     permutation4Vector,
     build,
-    squareTwo,//
+    eikonBuffer,
+    squareTwo,
     foundationBasis,
     basisBuffers,
     tensorBuffers,
@@ -788,7 +804,7 @@ enum division{
     canonicalBuffers0,
     guideBuffer0,
     trackBuffer0,
-    vectorCubeBuffers,//125,126,127
+    vectorCubeBuffers,
     diagonalQuad,
     diDiagonalQuad,
     diagonal3VectorA,
@@ -815,11 +831,11 @@ enum division{
     canonicalmeVector,
     canonicalme2Vector,
     canonicalme3Vector,
-    complement,//null
+    complement,
     complement1,
     complement2,
     complement3,
-    complementTwo,//null
+    complementTwo,
     complementTwo1,
     complementTwo2,
     complementTwo3,
@@ -829,12 +845,12 @@ enum division{
     twoVector,
     twoBodyRitz,
     conditionOverlapNumbers,
-    manyElectronsRitz,//
+    manyElectronsRitz,
     foundationStructure,
     foundationEquals,
     totalVector,
     totalFuzzyVector,
-    squareTwoVector,//
+    squareTwoVector,
     dsyBuffers,
     oneArray,
     oneBasis,
@@ -853,6 +869,40 @@ enum division{
 //    enum division begin;
 //    enum division end;
 //};
+
+struct runTime {
+    INT_TYPE powDecompose;
+    INT_TYPE runFlag;
+    enum blockMemoryType memBlock[BlockCount];
+
+#ifdef OMP
+    INT_TYPE NLanes;
+    INT_TYPE NSlot;
+    double position[MaxCore][6];
+#else
+    INT_TYPE NLanes;
+#endif
+    
+#ifdef MKL
+    INT_TYPE NParallel;
+#endif
+//    INT_TYPE samples;
+
+    double maxEntropy;
+    double TARGET ;
+    double ALPHA ; //condition
+    double CANON ; //threshold
+    double TOL;
+    double vCANON;
+    double EWALD;
+    double targetCondition;
+    double CAP;
+    enum calculationType calcType;
+    enum phaseType phaseType;
+};
+
+
+
 
 
 struct space_label{
@@ -878,15 +928,27 @@ struct name_label {
     enum genus species;
     enum shape header;
     enum spinType spinor;
-    enum division linkNext;
+    enum division linkNext;//another term
+    enum division chainNext;//lump into a term ( sanity sake in reporting energies and labeling terms),, sum SOP with individual canonical rank
+    enum division loopNext;//within on SOP term...direct sum
     INT_TYPE Partition;
     enum memoryType memory;
     struct value_label value;
     struct space_label space[SPACE+1];
     INT_TYPE Current[MaxCore];//if name != name , then Current is a pointer.
+    char operatorSignFlag;
+};
+
+struct nameDispenser{
+    INT_TYPE currLabel;
+    INT_TYPE maxLabel;
+    enum division head;
 };
 
 struct sinc_label {
+    INT_TYPE eikonFlag ;
+    struct nameDispenser eikonLabels;//many 1-term oneBody SOP vectors
+    struct nameDispenser nullLabels;//many 0-term nullBody SOP placeholders
     enum bootType boot;
     INT_TYPE maxEV;
     INT_TYPE irrep;
@@ -915,6 +977,8 @@ struct sinc_label {
 
 
 struct input_label {
+    INT_TYPE eikonFlag ;
+
     INT_TYPE body;
     INT_TYPE irrep;
     INT_TYPE cat;
@@ -981,40 +1045,12 @@ struct general_2index{//one dimension
     struct function_label * fl;
 };
 
-struct runTime {
-    INT_TYPE powDecompose;
-    INT_TYPE runFlag;
-    enum blockMemoryType memBlock[BlockCount];
-
-#ifdef OMP
-    INT_TYPE NLanes;
-    INT_TYPE NSlot;
-    double position[MaxCore][6];
-#else
-    INT_TYPE NLanes;
-#endif
-    
-#ifdef MKL
-    INT_TYPE NParallel;
-#endif
-//    INT_TYPE samples;
-
-    double maxEntropy;
-    double TARGET ;
-    double ALPHA ; //condition
-    double CANON ; //threshold
-    double TOL;
-    double vCANON;
-    double EWALD;
-    double targetCondition;
-    double CAP;
-    enum calculationType calcType;
-    enum phaseType phaseType;
-};
 
 struct input {
+    char controlPath[MAXSTRING];
     INT_TYPE gaussCount;//currently only on origin
     double shiftVector[100][2];
+    INT_TYPE flipSignFlag;
     INT_TYPE barrier;
     double massElectron;//electron
     double massProton;//protons

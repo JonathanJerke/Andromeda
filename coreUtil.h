@@ -2,7 +2,7 @@
  *  coreUtil.h
  *
  *
- *  Copyright 2019 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -61,6 +61,7 @@ INT_TYPE pClear ( struct sinc_label * f1 , enum division label );
 
 INT_TYPE tClear ( struct sinc_label  f1 , enum division label );
 INT_TYPE CanonicalRank( struct sinc_label  f1 , enum division label , INT_TYPE spin );
+INT_TYPE CanonicalOperator( struct sinc_label f1, enum division label, INT_TYPE spin );
 INT_TYPE spins ( struct sinc_label  f1 , enum division label );
 double sumSquare (struct sinc_label  f1,  enum division alloy);
 INT_TYPE tReplace( struct sinc_label f1 , enum division label,INT_TYPE spin,INT_TYPE space,INT_TYPE l );
@@ -70,7 +71,11 @@ Stream_Type* myStreams ( struct sinc_label f1, enum division label ,INT_TYPE spi
 Stream_Type* pMyStreams ( struct sinc_label *f1, enum division label ,INT_TYPE spin );
 Stream_Type* streams ( struct sinc_label f1, enum division label ,INT_TYPE spin, INT_TYPE space );
 Stream_Type* pStreams ( struct sinc_label *f1, enum division label ,INT_TYPE spin, INT_TYPE space );
-
+ 
+enum division anotherLabel(struct sinc_label *f1, enum particleType particle,enum bodyType body);
+void assignSplit( struct sinc_label f1, enum division twoMat ,INT_TYPE len, enum division oneMat, enum division bufcp );
+INT_TYPE topezMult(struct sinc_label f1, double* toep,INT_TYPE N1,Stream_Type * vector);
+INT_TYPE topezOp(enum bodyType bd,enum block tv, INT_TYPE N1,Stream_Type * vector ,  Stream_Type * vectorOut);
 double levelDetermine ( INT_TYPE M1 , double * array ,double level);
 void assignView(INT_TYPE lane, struct sinc_label  f1, enum division A,INT_TYPE part );
 void assignViewBlock(INT_TYPE lane, struct sinc_label  f1,  enum division A );

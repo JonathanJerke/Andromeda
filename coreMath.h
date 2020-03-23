@@ -2,7 +2,7 @@
  *  coreMath.h
  *
  *
- *  Copyright 2019 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -28,9 +28,12 @@
 #include "constants.h"
 #include "coreUtil.h"
 #include "interfaceMath.h"
+#include "Faddeeva.h"
 double Power ( double b, INT_TYPE n );
 
-double sqr(double arg);
+extern double complex Faddeeva_erfcx(double complex z, double relerr);
+DCOMPLEX expErf ( DCOMPLEX z );
+double momentumIntegralInTrain ( double beta, double kl , double d,enum genus hidden, enum bodyType body );
 double cube ( double arg );
 double delta ( INT_TYPE n );
 INT_TYPE sign( INT_TYPE n );

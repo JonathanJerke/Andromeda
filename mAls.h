@@ -2,7 +2,7 @@
  *  mAls.h
  *
  *
- *  Copyright 2019 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -77,8 +77,10 @@ INT_TYPE tOuterProductSuOne( struct sinc_label  f1,INT_TYPE space,enum division 
 double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Stream_Type * cofact, enum division origin,INT_TYPE l1,INT_TYPE l2,INT_TYPE os,   enum division alloy ,INT_TYPE l3,INT_TYPE l4,  INT_TYPE spin ,double tolerance,double magn, INT_TYPE preferred);
 INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1,INT_TYPE dim,  enum division equals,INT_TYPE e, INT_TYPE espin,enum division left,INT_TYPE l,INT_TYPE lspin, enum division right, INT_TYPE r,INT_TYPE rspin );
 INT_TYPE tGEMM (INT_TYPE rank,  struct sinc_label  f1,INT_TYPE dim,  enum division equals, INT_TYPE e,INT_TYPE espin,enum division left,INT_TYPE l,INT_TYPE lspin, enum division right, INT_TYPE r,INT_TYPE rspin );
-INT_TYPE tGEVV (INT_TYPE rank,  struct sinc_label  f1,INT_TYPE dim,  enum division equals, INT_TYPE espin,INT_TYPE leftChar, enum division left,INT_TYPE l,INT_TYPE lspin, INT_TYPE rightChar, enum division right, INT_TYPE r,INT_TYPE rspin );
+INT_TYPE tGEVV (INT_TYPE rank,  struct sinc_label  f1,INT_TYPE dim,  enum division equals,INT_TYPE e, INT_TYPE espin, enum division left,INT_TYPE l,INT_TYPE lspin, enum division right, INT_TYPE r,INT_TYPE rspin );
+
 double tDOT (INT_TYPE rank,  struct sinc_label  f1,INT_TYPE dim,char leftChar, enum division left,INT_TYPE l,INT_TYPE lspin, char rightChar, enum division right, INT_TYPE r,INT_TYPE rspin );
 double traceOne( struct sinc_label  f1 , enum division label , INT_TYPE spin );
+INT_TYPE tHYpY(  INT_TYPE rank, struct sinc_label f1 ,INT_TYPE targSpin, enum division left, INT_TYPE l, INT_TYPE im, double prod, enum division ket , INT_TYPE k, INT_TYPE sp2, enum division oket, INT_TYPE o,INT_TYPE ospin );
 
 #endif /* mAls_h */

@@ -2,7 +2,7 @@
  *  coreMath.c
  *
  *
- *  Copyright 2019 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -26,9 +26,9 @@
 #include "coreMath.h"
 
 
-double sqr(double arg){
-    return arg*arg;
-}
+//double sqr(double arg){
+//    return arg*arg;
+//}
 
 double cube ( double arg ){
     return arg*arg*arg;
@@ -235,10 +235,10 @@ DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
     
     if ( lambda % 2 == 0 ){
         g = gsl_sf_gamma((1.+lambdad)/2.);
-        hg = gsl_sf_hyperg_1F1((1.+lambdad)/2.  ,0.5,-sqr(delta/gamma/2.));
+        hg = gsl_sf_hyperg_1F1((1.+lambdad)/2.  ,0.5,-(delta/gamma/2.)*(delta/gamma/2.));
     } else {
         g = gsl_sf_gamma(1.+lambdad/2.);
-        hg = gsl_sf_hyperg_1F1( 1.+lambdad/2.    ,1.5,-sqr(delta/gamma/2.));
+        hg = gsl_sf_hyperg_1F1( 1.+lambdad/2.    ,1.5,-(delta/gamma/2.)*(delta/gamma/2.));
     }
 
     
@@ -438,7 +438,7 @@ DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
             break;
     }
 
-    value *= 1.7724538509055159/*sqrt(pi)*/*exp(-sqr( delta/2./gamma))/(pow(gamma,2*lambdad)*gamma)/pow(2.,lambdad);
+    value *= 1.7724538509055159/*sqrt(pi)*/*exp(-( delta/2./gamma)*( delta/2./gamma))/(pow(gamma,2*lambdad)*gamma)/pow(2.,lambdad);
 
     return value;
 }
@@ -447,7 +447,54 @@ DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta){
 
 #endif
 
+//The term in the 2-body part of the off diagonal beta-integral
+DCOMPLEX expErf ( DCOMPLEX z ){
+    DCOMPLEX w;
+    w = Faddeeva_w(z*I,1e-15);
+    return cexp(-(cimag(z)*cimag(z))) - cexp(-(creal(z)*creal(z))-2.*I*creal(z)*cimag(z)) *w;
+};
 
+double momentumIntegralInTrain ( double beta, double kl , double d, enum genus hidden, enum bodyType body ){
+    switch(hidden){
+        case eikonDiagonal:
+                switch ( body ){
+                        case one :
+                        //the nominal exp(-2pi*sinc-n) is erased
+                        return creal(sqrt(pi)*(
+                                               2.*(pi+I*beta*beta*kl*d*d)*expErf(pi/beta/d+I*kl*beta*d)
+                        /*+(pi-I*beta*beta*kl*d)*expErf(pi/beta/d-I*kl*beta*d)*/
+                                               -I* 2.* d*d*kl *beta*beta * expErf(I * beta * kl*d)
+                                               )
+                                     + 2.*exp(-(pi/beta/d)*(pi/beta/d))*cos(2.*pi*kl)*beta - 2*beta)/sqrt(4.*pi*pi*pi);
+                    case two:
+                        return creal(
+            sqrt(pi)*(2.*(2.*pi*pi + beta*beta + I * 4. *pi *kl*beta*beta -2.*kl*kl*beta*beta*beta*beta)*expErf(pi/beta+I * kl * beta)
+             + 8.*pi*beta*beta*kl*expErf(I*kl*beta)/I)
+                        -8.*pi*beta
+            +
+                                     (4. *exp(-pi*pi/beta/beta)*(pi*beta*cos(2.*pi*kl)+beta*beta*beta*kl*sin(2.*pi*kl)))
+                                        
+                                     )/sqrt(16.*pi*pi*pi*pi*pi);
+                }
+        case eikonSemiDiagonal:
+            switch ( body ){
+                case one :
+                    printf("error\n");
+                    return 0;
+                case two:
+                    return (-4.*sqrt(pi)*creal((-I *pi + beta*beta * kl )*expErf(pi/beta + I * kl*beta) + pi* I*expErf( I * kl * beta)) + 0*4. *exp(-pi*pi/beta/beta) * sin(2.*pi*kl) * beta)/sqrt(64.*pi*pi*pi*pi*pi);
+            }
+        case eikonOffDiagonal:
+            switch (body){
+                case one:
+                    return creal(-2*I*expErf(pi/beta/d-I*beta*kl*d) /* -I*expErf(pi/beta/d+I*beta*kl*d) */-2 * I * expErf(I * kl * beta*d))/(4*pi);
+                case two:
+                    return 2.*creal(expErf(pi/beta + I * kl * beta ))/(8.*pi*pi);
+            }
+    }
+    return 0.;
+}
+    
 INT_TYPE maxZ( struct input * f1 ){
     INT_TYPE maxz = 0;
     INT_TYPE a,ai;

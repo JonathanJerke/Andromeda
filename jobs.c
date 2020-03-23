@@ -2,7 +2,7 @@
  *  jobs.c
  *
  *
- *  Copyright 2019 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -24,6 +24,8 @@
  */
 
 #include "jobs.h"
+#undef __cplusplus
+#include "Faddeeva.cc"
 
 
 INT_TYPE countHam ( struct calculation *c1 , struct field f1 ){
@@ -83,65 +85,116 @@ INT_TYPE foundation1(struct calculation *c1, struct field f1){
 }
 
 INT_TYPE foundationM(struct calculation *c1, struct field f1){
-    INT_TYPE EV;
+    INT_TYPE EV = 0,space;
     f1.i.Iterations = 1;
     
-    enum division ack ;
-    
-    if (f1.i.body == one )
-        ack = diagonalCube;
-    else
-        ack = quadCube;
-    if ( 1 ){
-        iModel(c1,&f1);
-        ioStoreMatrix(f1.f, ack, 0, "single.matrix", 1);
-        switch(bodies(f1.f,eigen)){
-            case one:
-                tEqua(f1.f, eigen, 0, ack, 0);
-                break;
-            case two:
-                tEqua(f1.f, eigen, 0, ack, 0);
-                break;
-            case three:
-                sumTo3(f1.f, ack, 0,build, 0);
-                tId(f1.f , eigen,0);
-                tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.CANON, 1, 0);
-                break;
-            case four:
-                sumTo4(f1.f, ack, 0,build, 0);
-                tId(f1.f , eigen,0);
-                tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 0, c1->rt.CANON, 1, 0);
-                break;
-            }
-        if ( f1.f.cmpl == 2 ){
-            tClear(f1.f, build);
-            ioStoreMatrix(f1.f, ack, 0, "single.1.matrix", 1);
-            switch(bodies(f1.f,eigen)){
-                case one:
-                    tEqua(f1.f, eigen, 1, ack, 0);
-                    break;
-                case two:
-                    tEqua(f1.f, eigen, 1, ack, 0);
-                    break;
-                case three:
-                    sumTo3(f1.f, ack, 0,build, 0);
-                    tId(f1.f , eigen,1);
-                    tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 1, c1->rt.CANON, 1,    0);
-                    break;
-                case four:
-                    sumTo4(f1.f, ack, 0,build, 0);
-                    tId(f1.f , eigen,1);
-                    tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , 1, c1->rt.CANON, 1, 0);
-                    break;
-            }
-        }
-        tBootManyConstruction(c1,f1.f ,eigen);
-        EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
-        print(c1,f1,1,0,EV , f1.f.user);
 
+    if ( allowQ(f1.f.rt, blockAllocateHamiltonianBlock) ){
+        iModel(c1,&f1);
+        
+        INT_TYPE spin ;
+        enum division onem;
+        if ( bodies(f1.f,hamiltonian ) == one)
+            onem = diagonalCube;
+        else
+            onem = quadCube;
+        tClear(f1.f, onem);
+        
+        {
+            for ( spin = 0 ; spin < f1.f.cmpl ; spin++){
+                tClear(f1.f, hamiltonian);
+                tId(f1.f , onem,spin);
+                enum division ha1 = Ha;
+                while ( ha1 != nullName ){
+                    printf("%f--", traceOne(f1.f, ha1, 0));
+                    if ( bodies(f1.f, name(f1.f,ha1) ) == one ){
+                        for (space = 0; space < SPACE ;space++)
+                            if ( f1.f.rose[space].body != nada)
+                                sumTo2(f1.f, 1.,space,f1.f.tulip[ha1].space[space].block, name(f1.f,ha1), spin, hamiltonian, 0);
+                        f1.f.tulip[hamiltonian].Current[0] += CanonicalRank(f1.f, ha1, 0);
+                    }
+                    else if ( bodies (f1.f,name(f1.f,ha1 ) ) == two )
+                        tAddTw(f1.f, hamiltonian, 0, name(f1.f,ha1), spin);
+                    ha1 = f1.f.tulip[ha1].linkNext;
+                }
+                
+                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,onem  , spin, c1->rt.CANON, 1, 0);
+                switch(bodies(f1.f,eigen)){
+                    case one:
+                        tEqua(f1.f, eigen, spin, onem, spin);
+                        break;
+                    case two:
+                        tEqua(f1.f, eigen, spin, onem, spin);
+                        break;
+                    case three:
+                        tClear(f1.f, build);
+                        for (space = 0; space < SPACE ;space++)
+                            if ( f1.f.rose[space].body != nada)
+                                sumTo3(f1.f,1.0, space, e12,onem, spin,build, 0);
+                            
+                        f1.f.tulip[build].Current[0] += 1;
+                        for (space = 0; space < SPACE ;space++)
+                            if ( f1.f.rose[space].body != nada)
+                                sumTo3(f1.f, 1.0,space, e13,onem, spin,build, 0);
+                        f1.f.tulip[build].Current[0] += 1;
+                        for (space = 0; space < SPACE ;space++)
+                            if ( f1.f.rose[space].body != nada)
+                                sumTo3(f1.f,1.0, space, e23,onem, spin,build, 0);
+                        f1.f.tulip[build].Current[0] += 1;
+        
+                        tId(f1.f , eigen,spin);
+                        tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , spin, c1->rt.CANON, 1, 0);
+                        break;
+                    case four:
+                        tClear(f1.f, build);
+                        for (space = 0; space < SPACE ;space++)
+                            if ( f1.f.rose[space].body != nada)
+                                sumTo4(f1.f,1.0, space, e12,onem, spin,build, 0);
+                                f1.f.tulip[build].Current[0] += 1;
+                                
+                        for (space = 0; space < SPACE ;space++)
+                            if ( f1.f.rose[space].body != nada)
+
+                                sumTo4(f1.f,1.0, space, e13,onem, spin,build, 0);
+                                f1.f.tulip[build].Current[0] += 1;
+                                
+                        for (space = 0; space < SPACE ;space++)
+                            if ( f1.f.rose[space].body != nada)
+
+                                sumTo4(f1.f,1.0, space, e23,onem, spin,build, 0);
+                                f1.f.tulip[build].Current[0] += 1;
+                                
+                        for (space = 0; space < SPACE ;space++)
+                            if ( f1.f.rose[space].body != nada)
+
+                                sumTo4(f1.f,1.0, space, e14,onem, spin,build, 0);
+                                f1.f.tulip[build].Current[0] += 1;
+                                
+                        for (space = 0; space < SPACE ;space++)
+                            if ( f1.f.rose[space].body != nada)
+
+                                sumTo4(f1.f, 1.0,space, e24,onem, spin,build, 0);
+                                f1.f.tulip[build].Current[0] += 1;
+                        for (space = 0; space < SPACE ;space++)
+                            if ( f1.f.rose[space].body != nada)
+
+                                sumTo4(f1.f,1.0, space, e34,onem, spin,build, 0);
+                                f1.f.tulip[build].Current[0] += 1;
+                                
+                            
+                        tId(f1.f , eigen,spin);
+                        tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , spin, c1->rt.CANON, 1, 0);
+                        break;
+                }
+            }
+            tBootManyConstruction(c1,f1.f ,eigen);
+            EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
+            print(c1,f1,1,0,EV , f1.f.user);
+            
+        }
+        fModel(&f1.f);
+        
     }
-    
-    fModel(&f1.f);
 
     return EV;
 }
@@ -284,7 +337,7 @@ INT_TYPE decompose ( struct calculation *c1, struct field f1){
         tEqua(f1.f, hamiltonian, 0, linear, 0);
     }
     tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian , 0, c1->rt.CANON, part(f1.f,trainHamiltonian), c1->rt.powDecompose);
-
+    printf("%f\n", traceOne(f1.f, linear, 0));
     ioStoreMatrix(f1.f, trainHamiltonian, 0, "trainLinear.matrix", 0);
     fModel(&f1.f);
     return 0;
@@ -442,18 +495,14 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
     for ( fi =0 ; fi < f1.i.files ; fi++)
         tLoadEigenWeights (c1,f1, f1.i.fileList[fi],&EV, f1.f.user,f1.i.collect);//UNUSUAL!!!
     if (EV == 0 ){
-        printf ("ack!\n");
+        printf ("no ritz vectors!\n");
         exit(0);
     }
     
     {
-        INT_TYPE typer;
-//        if ( c1->i.shiftFlag )
-//            typer = -1;
-//        else
-            typer = 1;
-    
-    tEigenCycle(typer,f1.f,Ha,CDT, f1.i.nStates, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
+        INT_TYPE typer = 1;
+        
+    tEigenCycle(typer,c1->i.flipSignFlag , f1.f,Ha,CDT, f1.i.nStates, f1.f.user,EV,0, EV,0,1,eigenVectors,twoBodyRitz);
     }
     
     DCOMPLEX *V = (DCOMPLEX*)myStreams(f1.f,matrixHbuild,0);
@@ -466,7 +515,8 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
             fclose(outf);
             sprintf(str, "%s-%d",c1->name,iii+1);
         }
-        for ( ii = 0; ii < EV ; ii++)  printVector(c1,f1.f,f1.f.tulip[f1.f.user+ii].value.title,str,f1.f.tulip[f1.f.user+ii].value.stage-1,f1.i.irrep, V+stride*iii+ii);
+        for ( ii = 0; ii < EV ; ii++)
+            printVector(c1,f1.f,f1.f.tulip[f1.f.user+ii].value.title,str,f1.f.tulip[f1.f.user+ii].value.stage-1,f1.i.irrep, V+stride*iii+ii);
     }
     fModel(&f1.f);
 
@@ -499,87 +549,78 @@ INT_TYPE ritz( struct calculation * c1, struct field f1){
 //    return 0;
 //}
 
-INT_TYPE sumTo2(struct sinc_label f1,INT_TYPE nn, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin){
-    
-    INT_TYPE I1,I2, I3, I4,body,r,space,N1;
-    double value, cn = pow ( nn, - 1./SPACE);
+INT_TYPE sumTo2(struct sinc_label f1,double scalar, INT_TYPE space,enum block bl, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin){
+    enum block bol;
+    INT_TYPE I1,I2, I3, I4,r,N1;
+    double value;
     for ( r = 0; r < CanonicalRank(f1, mat , ms ); r++)
-        for ( body = 0 ; body < 2 ; body++){
-            for ( space = 0; space < SPACE ; space++){
+        for ( bol = tv1 ; bol <= tv2 ; bol++){
+            {
                 N1 = vector1Len(f1, space);
-                Stream_Type * stream = streams(f1,sum,spin,space)+N1*N1*N1*N1*CanonicalRank(f1, sum, spin);
-                if ( CanonicalRank(f1, sum, spin) > part(f1, sum )){
-                    printf("part sum\n");
-                    exit(0);
-                }
+                Stream_Type * stream = streams(f1,sum,spin,space)+N1*N1*N1*N1*(CanonicalRank(f1, sum, spin)+r);
                 for ( I1 = 0 ; I1 < N1 ; I1++)//body 0
                     for ( I2 = 0 ; I2 < N1 ; I2++)//body 0
                         for ( I3 = 0 ; I3 < N1 ; I3++)//body 1
                             for ( I4 = 0 ; I4 < N1 ; I4++)//body 1
+                            if ( bol == bl)
                             {
-                                if ( body == 0 ){
+                                if ( bol == tv1 ){
                                     value  = streams(f1,mat,ms,space)[ I1*N1+I2 + r*N1*N1 ] * delta(I3-I4);
-                                }else {
+                                }else if (bol == tv2){
                                     value  = streams(f1,mat,ms,space)[ I3*N1+I4 + r*N1*N1 ] * delta(I1-I2);
                                 }
-                                stream[ (I1+I3*N1)+ ( I2+I4*N1)*N1*N1 ] = value*cn;
+                                if ( space == 0 )
+                                    value *= scalar;
+                                stream[ (I1+I3*N1)+ ( I2+I4*N1)*N1*N1 ] = value;
                             }
             }
-            f1.tulip[sum].Current[spin]++;
-            
-            //  tAddTwo(f1, sum , quadCube);
         }
     return 0;
 }
 
-INT_TYPE sumTo3(struct sinc_label f1, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin){
+INT_TYPE sumTo3(struct sinc_label f1,double scalar,INT_TYPE space,  enum block bl, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin){
 
     INT_TYPE n2[SPACE];
     length(f1, sum,n2);
 
     if ( bodies ( f1, sum ) == three){
 
-        if (bodies(f1, mat ) == three ){
-            tAddTw(f1, sum ,spin, mat,ms );
-        }else if ( bodies ( f1, mat ) == one ){
-            INT_TYPE I1,I2, I3, I4,I5,I6,body,r,space;
+        if ( bodies ( f1, mat ) == one ){
+            enum block bol;
+            INT_TYPE I1,I2, I3, I4,I5,I6,r;
             INT_TYPE n1[SPACE];
             length1(f1,n1);
             double value;
 
             for ( r = 0; r < CanonicalRank(f1, mat , ms ); r++)
-                for ( body = 0 ; body < 3 ; body++){
-                    for ( space = 0; space < SPACE ; space++){
-                        Stream_Type * stream = streams(f1,sum,spin,space)+n2[space]*CanonicalRank(f1, sum, spin);
-                        if ( CanonicalRank(f1, sum, spin) > part(f1, sum )){
-                            printf("part sum\n");
-                            exit(0);
-                        }
-
+                for ( bol = tv1 ; bol <= tv3 ; bol++){
+                    {
+                        Stream_Type * stream = streams(f1,sum,spin,space)+n2[space]*(CanonicalRank(f1, sum, spin)+r);
+                        if ( bol == bl )
                         for ( I1 = 0 ; I1 < n1[space] ; I1++)
                             for ( I2 = 0 ; I2 < n1[space] ; I2++)
                                 for ( I3 = 0 ; I3 < n1[space] ; I3++)
                                     for ( I4 = 0 ; I4 < n1[space] ; I4++)
                                         for ( I5 = 0 ; I5 < n1[space] ; I5++)
                                             for ( I6 = 0 ; I6 < n1[space] ; I6++)
-
                                             {
                                                 value = 0;
-                                                if ( body == 0 ){
+                                                if ( bol == tv1 ){
                                                     value  = streams(f1,mat,ms,space)[ I1*n1[space]+I2 + r*n1[space]*n1[space] ] * delta(I3-I4)*delta(I5-I6);
-                                                }else if ( body == 1 ) {
+                                                }else if ( bol == tv2 ) {
                                                     value  = streams(f1,mat,ms,space)[ I3*n1[space]+I4 + r*n1[space]*n1[space] ] * delta(I1-I2)*delta(I5-I6);
-                                                }else if ( body == 2 ) {
+                                                }else if ( bol == tv3 ) {
                                                     value  = streams(f1,mat,ms,space)[ I5*n1[space]+I6 + r*n1[space]*n1[space] ] * delta(I1-I2)*delta(I3-I4);
                                                 }
+                                                if ( space == 0 )
+                                                value *= scalar;
                                                 stream[ (I1+I3*n1[space]+I5*n1[space]*n1[space])+ (I2+I4*n1[space]+I6*n1[space]*n1[space])*n1[space]*n1[space]*n1[space]] = value;
                                             }
                     }
-                    f1.tulip[sum].Current[spin]++;
-
                 }
         }else if ( bodies ( f1, mat ) == two ){
-            INT_TYPE I1,I2, I3, I4,I5,I6,pair,r,space,ve;
+            enum block pair ;
+            INT_TYPE I1,I2, I3, I4,I5,I6,r,ve;
             INT_TYPE n1[SPACE];
 
             length1(f1, n1);
@@ -587,13 +628,14 @@ INT_TYPE sumTo3(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
             double value;
 
             for ( r = 0; r < CanonicalRank(f1, mat , ms ); r++)
-                for ( pair = 0 ; pair < 3 ; pair++){
-                    for ( space = 0; space < SPACE ; space++){
-                        Stream_Type * stream = streams(f1,sum,spin,space)+n2[space]*CanonicalRank(f1, sum, spin);
+                for ( pair = e12 ; pair <=e23  ; pair++){
+                    {
+                        Stream_Type * stream = streams(f1,sum,spin,space)+n2[space]*(CanonicalRank(f1, sum, spin)+r);
                         if ( CanonicalRank(f1, sum, spin) > part(f1, sum )){
                             printf("part sum\n");
                             exit(0);
                         }
+                        if ( pair == bl )
                         for ( I1 = 0 ; I1 < n1[space] ; I1++)
                             for ( I2 = 0 ; I2 < n1[space] ; I2++)
                                 for ( I3 = 0 ; I3 < n1[space] ; I3++)
@@ -603,23 +645,24 @@ INT_TYPE sumTo3(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
 
                                             {
                                                 value = 0;
-                                                if ( pair == 0 ){
+                                                if ( pair == e12 ){
                                                     value  = streams(f1,mat,ms,space)[ (I1*n1[space]+I3) + (I2*n1[space]+I4)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I5-I6);
-                                                }else if ( pair == 1 ) {
+                                                }else if ( pair == e13 ) {
                                                     value  = streams(f1,mat,ms,space)[ (I1*n1[space]+I5) + (I2*n1[space]+I6)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I3-I4);
-                                                }else if ( pair == 2 ) {
+                                                }else if ( pair == e23 ) {
                                                     value  = streams(f1,mat,ms,space)[ (I3*n1[space]+I5) + (I4*n1[space]+I6)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I1-I2);
                                                 }
                                                 ve = (I1+I3*n1[space]+I5*n1[space]*n1[space])+ (I2+I4*n1[space]+I6*n1[space]*n1[space])*n1[space]*n1[space]*n1[space];
                                                 //                                                printf("%f %lld %lld\n", value,ve,n2[space]);
                                                 //                                                fflush(stdout);
+                                                if ( space == 0 )
+                                                value *= scalar;
                                                 stream[ ve ] = value;
                                                 //                                                printf("x");
                                                 //                                                fflush(stdout);
 
                                             }
                     }
-                    f1.tulip[sum].Current[spin]++;
                 }
         }
         else {
@@ -638,26 +681,24 @@ INT_TYPE sumTo3(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
 
 
 
-INT_TYPE sumTo4(struct sinc_label f1, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin){
+INT_TYPE sumTo4(struct sinc_label f1,double scalar,INT_TYPE space, enum block bl, enum division mat,INT_TYPE ms, enum division sum,INT_TYPE spin){
 
     INT_TYPE n2[SPACE];
     length(f1, sum,n2);
     if (bodies(f1,sum) == four && f1.rt->calcType == electronicStuctureCalculation){
 
     if ( bodies ( f1, mat ) == one ){
-        INT_TYPE I1,I2, I3, I4,I5,I6,I7,I8,body,r,space;
+        enum block bol ;
+        INT_TYPE I1,I2, I3, I4,I5,I6,I7,I8,r;
         INT_TYPE n1[SPACE];
         length1(f1,n1);
         double value;
 
         for ( r = 0; r < CanonicalRank(f1, mat , ms ); r++)
-            for ( body = 0 ; body < 4 ; body++){
-                for ( space = 0; space < SPACE ; space++){
-                    Stream_Type * stream = streams(f1,sum,spin,space)+n2[space]*CanonicalRank(f1, sum, spin);
-                    if ( CanonicalRank(f1, sum, spin) > part(f1, sum )){
-                        printf("part sum\n");
-                        exit(0);
-                    }
+            for ( bol = tv1 ; bol <= tv4 ; bol++){
+                {
+                    Stream_Type * stream = streams(f1,sum,spin,space)+n2[space]*(CanonicalRank(f1, sum, spin)+r);
+                    if ( bol == bl )
                     for ( I1 = 0 ; I1 < n1[space] ; I1++)
                         for ( I2 = 0 ; I2 < n1[space] ; I2++)
                             for ( I3 = 0 ; I3 < n1[space] ; I3++)
@@ -666,39 +707,41 @@ INT_TYPE sumTo4(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
                                         for ( I6 = 0 ; I6 < n1[space] ; I6++)
                                             for ( I7 = 0 ; I7 < n1[space] ; I7++)
                                                 for ( I8 = 0 ; I8 < n1[space] ; I8++)
-
+                                                        
                                                 {
                                                     value = 0;
-                                                    if ( body == 0 ){
+                                                    if ( bol == tv1 ){
                                                         value  = streams(f1,mat,ms,space)[ I1*n1[space]+I2 + r*n1[space]*n1[space] ] * delta(I3-I4)*delta(I5-I6)*delta(I7-I8);
-                                                    }else if ( body == 1 ) {
+                                                    }else if ( bol == tv2 ) {
                                                         value  = streams(f1,mat,ms,space)[ I3*n1[space]+I4 + r*n1[space]*n1[space] ] * delta(I1-I2)*delta(I5-I6)*delta(I7-I8);
-                                                    }else if ( body == 2 ) {
+                                                    }else if ( bol == tv3 ) {
                                                         value  = streams(f1,mat,ms,space)[ I5*n1[space]+I6 + r*n1[space]*n1[space] ] * delta(I1-I2)*delta(I3-I4)*delta(I7-I8);
-                                                    }else if ( body == 3 ) {
+                                                    }else if ( bol == tv4 ) {
                                                         value  = streams(f1,mat,ms,space)[ I7*n1[space]+I8 + r*n1[space]*n1[space] ] * delta(I1-I2)*delta(I3-I4)*delta(I5-I6);
                                                     }
+                                                    if ( space == 0 )
+                                                    value *= scalar;
                                                     stream[ (I1+I3*n1[space]+I5*n1[space]*n1[space]+I7*n1[space]*n1[space]*n1[space])+ (I2+I4*n1[space]+I6*n1[space]*n1[space]+I8*n1[space]*n1[space]*n1[space])*n1[space]*n1[space]*n1[space]*n1[space]] = value;
                                                 }
                 }
-                f1.tulip[sum].Current[spin]++;
-
             }
     }else if ( bodies ( f1, mat ) == two ){
-        INT_TYPE I1,I2, I3, I4,I5,I6,I7,I8,pair,r,space;
+        enum block pair;
+        INT_TYPE I1,I2, I3, I4,I5,I6,I7,I8,r;
         INT_TYPE n1[SPACE];
         length1(f1, n1);
 
         double value;
 
         for ( r = 0; r < CanonicalRank(f1, mat , ms ); r++)
-            for ( pair = 0 ; pair < 6 ; pair++){
-                for ( space = 0; space < SPACE ; space++){
-                    Stream_Type * stream = streams(f1,sum,spin,space)+n2[space]*CanonicalRank(f1, sum, spin);
+            for ( pair = e12 ; pair <= e34 ; pair++){
+                {
+                    Stream_Type * stream = streams(f1,sum,spin,space)+n2[space]*(CanonicalRank(f1, sum, spin)+r);
                     if ( CanonicalRank(f1, sum, spin) > part(f1, sum )){
                         printf("part sum\n");
                         exit(0);
                     }
+                    if ( pair == bl )
                     for ( I1 = 0 ; I1 < n1[space] ; I1++)
                         for ( I2 = 0 ; I2 < n1[space] ; I2++)
                             for ( I3 = 0 ; I3 < n1[space] ; I3++)
@@ -717,26 +760,27 @@ INT_TYPE sumTo4(struct sinc_label f1, enum division mat,INT_TYPE ms, enum divisi
                                                     //                                            5    e34      5,7     6,8
 
 
-                                                    if ( pair == 0 ){
+                                                    if ( pair == e12 ){
                                                         value  = streams(f1,mat,ms,space)[ (I1*n1[space]+I3) + (I2*n1[space]+I4)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I5-I6)*delta(I7-I8);
-                                                    }else if ( pair == 1 ) {
+                                                    }else if ( pair == e13 ) {
                                                         value  = streams(f1,mat,ms,space)[ (I1*n1[space]+I5) + (I2*n1[space]+I6)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I3-I4)*delta(I7-I8);
-                                                    }else if ( pair == 2 ) {
+                                                    }else if ( pair == e23 ) {
                                                         value  = streams(f1,mat,ms,space)[ (I3*n1[space]+I5) + (I4*n1[space]+I6)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I1-I2)*delta(I7-I8);
-                                                    }else if ( pair == 3 ) {
+                                                    }else if ( pair == e14 ) {
                                                         value  = streams(f1,mat,ms,space)[ (I1*n1[space]+I7) + (I2*n1[space]+I8)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I3-I4)*delta(I5-I6);
-                                                    }else if ( pair == 4 ) {
+                                                    }else if ( pair == e24 ) {
                                                         value  = streams(f1,mat,ms,space)[ (I3*n1[space]+I7) + (I4*n1[space]+I8)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I1-I2)*delta(I5-I6);
-                                                    }else if ( pair == 5 ) {
+                                                    }else if ( pair == e34 ) {
                                                         value  = streams(f1,mat,ms,space)[ (I5*n1[space]+I7) + (I6*n1[space]+I8)*n1[space]*n1[space] + r*n1[space]*n1[space]*n1[space]*n1[space] ]*delta(I1-I2)*delta(I3-I4);
                                                     }else {
                                                         printf ("rails!\n");
                                                         exit(0);
                                                     }
+                                                    if ( space == 0 )
+                                                    value *= scalar;
                                                     stream[ (I1+I3*n1[space]+I5*n1[space]*n1[space]+I7*n1[space]*n1[space]*n1[space])+ (I2+I4*n1[space]+I6*n1[space]*n1[space]+I8*n1[space]*n1[space]*n1[space])*n1[space]*n1[space]*n1[space]*n1[space]] = value;
                                                 }
                 }
-                f1.tulip[sum].Current[spin]++;
             }
     }
     else {
@@ -998,55 +1042,70 @@ INT_TYPE distill ( struct calculation c, struct field f1){
     
     countHam(&c,f1);
 
-    if ( allowQ(f1.f.rt, blockTrainHamiltonianBlock) && allowQ(f1.f.rt, blockHamiltonianBlock)&& allowQ(f1.f.rt, blockTrainingHamiltonianBlock)){
+    if ( allowQ(f1.f.rt, blockTrainHamiltonianBlock) && allowQ(f1.f.rt, blockHamiltonianBlock)&& allowQ(f1.f.rt, blockAllocateHamiltonianBlock)){
     enum division di;
-    INT_TYPE spin ;
+    INT_TYPE spin,space ;
     for ( spin = 0 ; spin < f1.f.cmpl ; spin++){
         tClear(f1.f,hamiltonian);
-
         for ( di = Ha ; di!= nullName; di = f1.f.tulip[di].linkNext){
-            if ( CanonicalRank(f1.f, f1.f.tulip[di].name, spin) && f1.f.tulip[di].name != linear ){
-                switch( bodies(f1.f, f1.f.tulip[di].name) ){
-                    case one :
-                        if ( di - f1.f.tulip[di].name == 1 ){//symmetric hamiltonian.
-                        switch ( f1.i.body ){
-                            case 1:
-                                tAddTw(f1.f, hamiltonian, 0, f1.f.tulip[di].name, spin);
-                                printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
-                                break;
-                            case 2:
-                                sumTo2(f1.f,1, f1.f.tulip[di].name, spin, hamiltonian, 0);
-                                printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
-                                break;
-                            case 3:
-                                sumTo2(f1.f,2, f1.f.tulip[di].name, spin, hamiltonian, 0);
-                                printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
-                                break;
-                            case 4:
-                                sumTo2(f1.f,3, f1.f.tulip[di].name, spin, hamiltonian, 0);
-                                printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
-                                break;
-                        }
-                        }
-                        break;
-                    case two:
-                        switch ( f1.i.body ){//symmetric hamiltonian.
-                            case 2:
-                            case 3:
-                            case 4:
-                            case 5:
-                            case 6:
-                            if ( di - f1.f.tulip[di].name == 1 ){
-                                tAddTw(f1.f, hamiltonian, 0, f1.f.tulip[di].name, spin);
-                                printf("add2 %d %d\n", f1.f.tulip[di].name,spin);
-                            }
-                            case 1:
-                                break;
-                        }
-                    break;
+            if ( CanonicalRank(f1.f, f1.f.tulip[di].name, spin) ){
+                if ( CanonicalRank(f1.f, hamiltonian, 0)+CanonicalRank(f1.f, f1.f.tulip[di].name, spin)  > part(f1.f, hamiltonian )){
+                    printf("part sum\n");
+                    exit(0);
                 }
+                        {//symmetric hamiltonian.
+                            switch( bodies(f1.f, f1.f.tulip[di].name) ){
+                                case one :
+                                    switch ( f1.i.body ){
+                                        case 1:
+                                            tAddTw(f1.f, hamiltonian, 0, f1.f.tulip[di].name, spin);
+                                            printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
+                                            break;
+                                        case 2:
+                                            for (space = 0 ; space < SPACE ; space++)
+                                            if ( f1.f.rose[space].body != nada )
+                                            sumTo2(f1.f,1.,space,f1.f.tulip[di].space[space].block, f1.f.tulip[di].name, spin, hamiltonian, 0);
+                                            f1.f.tulip[hamiltonian].Current[0] += CanonicalRank(f1.f, f1.f.tulip[di].name, spin);
+
+                                            printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
+                                            break;
+                                        case 3:
+                                            for (space = 0 ; space < SPACE ; space++)
+                                            if ( f1.f.rose[space].body != nada )
+                                            sumTo2(f1.f,1./2.,space,f1.f.tulip[di].space[space].block, f1.f.tulip[di].name, spin, hamiltonian, 0);
+                                            f1.f.tulip[hamiltonian].Current[0] += CanonicalRank(f1.f, f1.f.tulip[di].name, spin);
+
+                                            printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
+                                            break;
+                                        case 4:
+                                            for (space = 0 ; space < SPACE ; space++)
+                                            if ( f1.f.rose[space].body != nada )
+                                            sumTo2(f1.f,1./3.,space,f1.f.tulip[di].space[space].block, f1.f.tulip[di].name, spin, hamiltonian, 0);
+                                            f1.f.tulip[hamiltonian].Current[0] += CanonicalRank(f1.f, f1.f.tulip[di].name, spin);
+
+                                            printf("add1 %d %d\n", f1.f.tulip[di].name,spin);
+                                            break;
+                                    }
+                                    break;
+                                case two:
+                                    switch ( f1.i.body ){//symmetric hamiltonian.
+                                        case 2:
+                                        case 3:
+                                        case 4:
+                                        case 5:
+                                        case 6:
+                                        {
+                                            tAddTw(f1.f, hamiltonian, 0, f1.f.tulip[di].name, spin);
+                                            printf("add2 %d %d\n", f1.f.tulip[di].name,spin);
+                                        }
+                                        case 1:
+                                            break;
+                                    }
+                                break;
+                            }
+                }
+                printf("<%f>%d\n", traceOne(f1.f, hamiltonian, 0),CanonicalRank(f1.f, hamiltonian, 0));
             }
-            printf("<%f>%d\n", traceOne(f1.f, hamiltonian, 0),CanonicalRank(f1.f, hamiltonian, 0));
         }
         tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , spin, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
     }
@@ -1054,149 +1113,16 @@ INT_TYPE distill ( struct calculation c, struct field f1){
         
         
     }
-    
-    
-//        if ( f1.i.body >= two ){
-//
-//
-//            if ( c.rt.runFlag == 0 ){
-//                ioStoreMatrixScale(&f1,hamiltonian, 0, "interactionExchange.matrix", 1);
-//
-//                tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
-//                sumTo2(f1.f, kinetic, 0, hamiltonian, 0);
-//                tScaleOne(f1.f, kinetic, 0, 1./oneBodyFraction);
-//
-//                tScaleOne(f1.f, vectorMomentum, 0, oneBodyFraction);
-//                sumTo2(f1.f, vectorMomentum, 0, hamiltonian, 0);
-//                tScaleOne(f1.f, vectorMomentum, 0, 1./oneBodyFraction);
-//
-//                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-//                tClear(f1.f,hamiltonian);
-//                sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
-//                tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
-//
-//            } else {
-//                ioStoreMatrixScale(&f1, hamiltonian, 0, "interactionEwald.matrix", 1);
-//
-//                tScaleOne(f1.f,intercellularSelfEwald, 0, oneBodyFraction);
-//                sumTo2(f1.f, intercellularSelfEwald, 0, hamiltonian, 0);
-//                tScaleOne(f1.f,intercellularSelfEwald, 0, 1./oneBodyFraction);
-//
-//                tScaleOne(f1.f,intracellularSelfEwald, 0, oneBodyFraction);
-//                sumTo2(f1.f, intracellularSelfEwald, 0, hamiltonian, 0);
-//                tScaleOne(f1.f,intracellularSelfEwald, 0, 1./oneBodyFraction);
-//
-//                tScaleOne(f1.f,jelliumElectron, 0, oneBodyFraction);
-//                sumTo2(f1.f, jelliumElectron, 0, hamiltonian, 0);
-//                tScaleOne(f1.f,jelliumElectron, 0, 1./oneBodyFraction);
-//
-//                tScaleOne(f1.f, kinetic, 0, oneBodyFraction);
-//                sumTo2(f1.f, kinetic, 0, hamiltonian, 0);
-//                tScaleOne(f1.f, kinetic, 0, 1./oneBodyFraction);
-//
-//                tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-//                tClear(f1.f,hamiltonian);
-//                sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
-//                tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
-//
-//                tClear(f1.f,hamiltonian);
-//
-//                //
-//                //**
-//                //
-//                ioStoreMatrixScale(&f1, hamiltonian, 0, "interactionEwald.1.matrix", 1);
-//                tScaleOne(f1.f, kinetic, 1, oneBodyFraction);
-//                sumTo2(f1.f, kinetic, 1, hamiltonian, 0);
-//                tScaleOne(f1.f, kinetic, 1, 1./oneBodyFraction);
-//
-//                tScaleOne(f1.f,intercellularSelfEwald, 1, oneBodyFraction);
-//                sumTo2(f1.f, intercellularSelfEwald, 1, hamiltonian, 0);
-//                tScaleOne(f1.f,intercellularSelfEwald, 1, 1./oneBodyFraction);
-//
-//                tScaleOne(f1.f,intracellularSelfEwald, 1, oneBodyFraction);
-//                sumTo2(f1.f, intracellularSelfEwald, 1, hamiltonian, 0);
-//                tScaleOne(f1.f,intracellularSelfEwald, 1, 1./oneBodyFraction);
-//
-//                tScaleOne(f1.f,jelliumElectron, 1, oneBodyFraction);
-//                sumTo2(f1.f, jelliumElectron, 1, hamiltonian, 0);
-//                tScaleOne(f1.f,jelliumElectron, 1, 1./oneBodyFraction);
-//
-//                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-//                tClear(f1.f,hamiltonian);
-//                sortTerms(f1.f,trainHamiltonian,1,hamiltonian,0);
-//                tEqua(f1.f, trainHamiltonian,1, hamiltonian, 0);
-//            }
-//        }else {
-//            if ( c.rt.runFlag == 0 ){
-//
-//                if ( c.rt.calcType == electronicStuctureCalculation){
-//                    tAddTw(f1.f,hamiltonian,0,kinetic ,0);
-//                    tAddTw(f1.f,hamiltonian,0,vectorMomentum ,0);
-//                } else {
-//                    tAddTw(f1.f,hamiltonian,0,shortenPlus ,0);
-//                    tAddTw(f1.f,hamiltonian,0,shortenMinus ,0);
-//                    tAddTw(f1.f,hamiltonian,0,kinetic ,0);
-//                    tAddTw(f1.f,hamiltonian,0,kineticMass ,0);
-//                    tAddTw(f1.f,hamiltonian,0,protonRepulsion ,0);
-//
-//
-//
-//                }
-//                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-//
-//
-//                tClear(f1.f,hamiltonian);
-//                sortTerms(f1.f,trainHamiltonian,0,hamiltonian,0);
-//                tEqua(f1.f, trainHamiltonian,0, hamiltonian, 0);
-//
-//            } else {
-//
-//                tAddTw(f1.f,hamiltonian,0,kinetic ,0);
-//                tAddTw(f1.f,hamiltonian,0,intercellularSelfEwald ,0);
-//                tAddTw(f1.f,hamiltonian,0,intracellularSelfEwald ,0);
-//                tAddTw(f1.f,hamiltonian,0,jelliumElectron ,0);
-//
-//                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 0, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-//              //  printf("train : %d %d\n",CanonicalRank(f1.f,trainHamiltonian,0),CanonicalRank(f1.f,trainHamiltonian,1) );
-//
-//                tClear(f1.f,hamiltonian);
-//                tAddTw(f1.f,hamiltonian,0,kinetic ,1);
-//                tAddTw(f1.f,hamiltonian,0,intercellularSelfEwald ,1);
-//                tAddTw(f1.f,hamiltonian,0,intracellularSelfEwald ,1);
-//                tAddTw(f1.f,hamiltonian,0,jelliumElectron ,1);
-//
-//                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , 1, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
-//               // printf("train : %d %d\n",CanonicalRank(f1.f,trainHamiltonian,0),CanonicalRank(f1.f,trainHamiltonian,1) );
-//
-//
-//
-//            }
-//        }
-    
-    if ( allowQ(f1.f.rt, blockHamiltonianBlock))
-    {
-        enum division onem ;
-        if ( bodies(f1.f,trainHamiltonian ) == one)
-            onem = diagonalCube;
-        else
-            onem = quadCube;
 
-        tClear(f1.f, onem);
+    
+    if ( allowQ(f1.f.rt, blockHamiltonianBlock)&&allowQ(f1.f.rt, blockTrainHamiltonianBlock))
+    {
 
         if ( CanonicalRank(f1.f,trainHamiltonian,0) ){
             ioStoreMatrix(f1.f,trainHamiltonian ,0,"trainHamiltonian.matrix",0);
-
-            tId(f1.f , onem,0);
-            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 0, NULL,onem  , 0, c.rt.CANON, 1, 0);
-            ioStoreMatrix(f1.f,onem ,0,"single.matrix",0);
-
         }
         if ( CanonicalRank(f1.f,trainHamiltonian,1) ){
             ioStoreMatrix(f1.f,trainHamiltonian ,1,"trainHamiltonian.1.matrix",0);
-            tClear(f1.f, onem);
-            tId(f1.f , onem,0);
-            tCycleDecompostionGridOneMP(-1, f1.f, trainHamiltonian, 1, NULL,onem  , 0, c.rt.CANON, 1,0);
-            ioStoreMatrix(f1.f,onem ,0,"single.1.matrix",0);
         }
         
     }
@@ -1205,7 +1131,6 @@ INT_TYPE distill ( struct calculation c, struct field f1){
 }
 
 
-#if 1
 
 int run (INT_TYPE argc , char * argv[]){
     argc--;//erase ./andromeda...
@@ -1236,7 +1161,7 @@ int run (INT_TYPE argc , char * argv[]){
 
             case 0 :
                 //andromeda 0
-                printf("----\nv7.6.3\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\nv7.7\n\n%s\n\n",getenv("LAUNCH"));
                 exit(0);
         }
 
@@ -1294,10 +1219,6 @@ int run (INT_TYPE argc , char * argv[]){
     printf("lanes \t %d\n",  rt->NLanes);
 
 #endif
-
-    
-    
-    
     //0//...   //A//B//C//D//E
     if ( c.rt.phaseType == buildFoundation ){//0
 #ifdef NBODY
@@ -1326,13 +1247,20 @@ int run (INT_TYPE argc , char * argv[]){
         spitGauss ( &c, f);
     }
     printf("\n\nFINIS.\n\n");
+    return 0;
 }
-
-int main (int argc, char* argv[]){
-	run(argc,argv);
-	return 0;
-}
-
+#if 1
+    int main (INT_TYPE argc , char * argv[]){
+        
+#if 0
+#ifdef APPLE
+        printf("%f\n",momentumIntegralInTrain(10, 2, 1,eikonSemiDiagonal, two));
+        return 0;
+#endif
+#else
+        return run(argc,argv);
+#endif
+    }
 #else
 
 int main (INT_TYPE argc , char * argv[]){

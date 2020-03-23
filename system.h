@@ -2,7 +2,7 @@
  *  system.h
  *
  *
- *  Copyright 2019 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -29,21 +29,39 @@
 #ifndef system_h
 #define system_h
 
+
+
+//GAS 0 for Sinc
+#define GAS 0
+//GAS 1 for CEG
+
+//#define SPINOR
+
+
+//NOVEL
+#define EIKON
+#define MAXNAMES 1000
+//NOVEL
+
+
+#define NBODY
+//#define GAUSSIANSINC
+//#define BUFFERSOLVE
+#define CHROME
+//#define BOOTIDENTITY
+
+#ifdef SPINOR
+#define COMPONENT 1
+#define PARTICLE 2
+#define ELEC 1
+#define SPACE (PARTICLE + ELEC)
+#else
 #define COMPONENT 3
 #define PARTICLE 1
 #define SPACE (COMPONENT * PARTICLE)
+#endif
 #define MAXATOM 4
 
-#define GAS 1
-
-
-//SET #define NBODY to allow for builds of foundations in correlated N-body format
-#define NBODY
-
-//SET #define CHROME to get your modern ALS routine
-#define CHROME
-
-//SET //#define GAUSSIANSINC for future work
 
 //Currently under a dozen actual blocks possible, there is extra.
 #define BlockCount 16

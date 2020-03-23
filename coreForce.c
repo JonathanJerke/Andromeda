@@ -2,7 +2,7 @@
  *  coreForce.c
  *
  *
- *  Copyright 2019 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -132,7 +132,7 @@ double testPotential (struct calculation c, struct field f , enum division wavey
                     streams(f.f,wavey,0,3)[i4];
                     if ( fabs(prob)> 0.0001 ){
                         printf("%f\n",(i4*D-(N2-1)/2*D+mx));
-                        sum +=  prob/sqrt( sqr(i2*d)+sqr(i3*d)+sqr((i*d-(N1-1)/2*d)-0.5*(i4*D-(N2-1)/2*D+mx)));
+                        sum +=  prob/sqrt( (i2*d)*(i2*d)+(i3*d)*(i3*d)+pow((i*d-(N1-1)/2*d)-0.5*(i4*D-(N2-1)/2*D+mx),2.));
                     }
                 }
     ME = 0.;
@@ -674,7 +674,7 @@ double aaGetDelta ( double b1,INT_TYPE l1, double o1,double b2,INT_TYPE l2,doubl
 }
 
 double aaGetConst( double b1,INT_TYPE l1, double o1,double b2,INT_TYPE l2,double o2){
-    return exp( - b1*b2/(b1+b2)*sqr(o1-o2))/ pow(b1+b2,1/2.)/sqrt(2.);
+    return exp( - b1*b2/(b1+b2)*(o1-o2)*(o1-o2))/ pow(b1+b2,1/2.)/sqrt(2.);
 }
 
 DCOMPLEX aaGetPoly( double b1,INT_TYPE l1, double o1,double b2,INT_TYPE l2,double o2, INT_TYPE lambda1 ){
@@ -2608,7 +2608,7 @@ DCOMPLEX aaGGCGG( double invbeta, struct general_2index * pa){
     double gamma , delta;
     DCOMPLEX value=0.;
     DCOMPLEX hg[1+xl+xl2],p1[1+xl],p2[1+xl2];
-    gamma = sqr(invbeta/2.);
+    gamma = (invbeta/2.)*(invbeta/2.);
     gamma += aaGetGamma(b1.length, b1.index, b1.origin, k1.length, k1.index, k1.origin);
     gamma += aaGetGamma(b2.length, b2.index, b2.origin, k2.length, k2.index, k2.origin);
     delta = 0.;
@@ -2952,7 +2952,7 @@ DCOMPLEX aaGGCD( double invbeta,   double position, struct general_index * pa){
     double gamma , delta;
     DCOMPLEX value=0.;
     DCOMPLEX hg[1+xl],p1[1+xl];
-    gamma = sqr(invbeta/2.);
+    gamma = (invbeta/2.)*(invbeta/2.);
     gamma += aaGetGamma(b1.length, b1.index, b1.origin, k1.length, k1.index, k1.origin);
     delta =  - position;
     delta += aaGetDelta(b1.length, b1.index, b1.origin, k1.length, k1.index, k1.origin);
@@ -2994,7 +2994,7 @@ DCOMPLEX FGG( double k, struct general_index * pa){
     
     double kp = 1;
     for ( ll = 0; ll <= xl; ll++){
-        hg[ll] =  exp(- gamma *sqr( k) ) * kp * cexp(I * delta * k ) ;
+        hg[ll] =  exp(- gamma *(k* k) ) * kp * cexp(I * delta * k ) ;
         kp *= k;
     }
     
@@ -3088,11 +3088,11 @@ DCOMPLEX BdB (struct basisElement b1, struct basisElement b2){
             if ( fabs(arg) < 1e-6 ){
                 if ( b1.length > b2.length ){
                     arg /= b1.length;
-                    return sqrt(b2.length/b1.length)/sqr(b1.length) * ( arg*(pi*pi/3. - pi * pi * pi * pi/30.*arg*arg + pi * pi * pi * pi*pi*pi/840.*arg*arg*arg*arg)  );
+                    return sqrt(b2.length/b1.length)/(b1.length)/(b1.length) * ( arg*(pi*pi/3. - pi * pi * pi * pi/30.*arg*arg + pi * pi * pi * pi*pi*pi/840.*arg*arg*arg*arg)  );
                 }else {
                     arg /= b2.length;
                     
-                    return sqrt(b1.length/b2.length)/sqr(b2.length) * ( arg*(pi*pi/3. - pi * pi * pi * pi/30.*arg*arg + pi * pi * pi * pi*pi*pi/840.*arg*arg*arg*arg) );
+                    return sqrt(b1.length/b2.length)/(b2.length)/(b2.length) * ( arg*(pi*pi/3. - pi * pi * pi * pi/30.*arg*arg + pi * pi * pi * pi*pi*pi/840.*arg*arg*arg*arg) );
                 }
             } else {
                 if ( b1.length > b2.length ){
@@ -3215,21 +3215,21 @@ DCOMPLEX Bd2B (struct basisElement b1, struct basisElement b2){
             if ( fabs(arg) < 1e-6 ){
                 if ( b1.length > b2.length ){
                     arg /= b1.length;
-                    return sqrt(b2.length/b1.length)/sqr(b1.length) * ( - sqr(pi)* Sinc(1,arg) + 2 *(pi*pi/3. - pi * pi * pi * pi/30.*arg*arg + pi * pi * pi * pi*pi*pi/840.*arg*arg*arg*arg)  );
+                    return sqrt(b2.length/b1.length)/(b1.length)/(b1.length) * ( - pi*(pi)* Sinc(1,arg) + 2 *(pi*pi/3. - pi * pi * pi * pi/30.*arg*arg + pi * pi * pi * pi*pi*pi/840.*arg*arg*arg*arg)  );
                 }else {
                     arg /= b2.length;
                     
-                    return sqrt(b1.length/b2.length)/sqr(b2.length) * ( - sqr(pi)* Sinc(1,arg) + 2 *(pi*pi/3. - pi * pi * pi * pi/30.*arg*arg + pi * pi * pi * pi*pi*pi/840.*arg*arg*arg*arg) );
+                    return sqrt(b1.length/b2.length)/(b2.length)/(b2.length) * ( - pi*(pi)* Sinc(1,arg) + 2 *(pi*pi/3. - pi * pi * pi * pi/30.*arg*arg + pi * pi * pi * pi*pi*pi/840.*arg*arg*arg*arg) );
                 }
             } else {
                 if ( b1.length > b2.length ){
                     arg /= b1.length;
                     
-                    return sqrt(b2.length/b1.length)/sqr(b1.length) * ( - sqr(pi)* Sinc(1,arg) + 2 *( Sinc(1,arg)- cos(pi*arg))/arg/arg );
+                    return sqrt(b2.length/b1.length)/(b1.length)/(b1.length) * ( - pi*(pi)* Sinc(1,arg) + 2 *( Sinc(1,arg)- cos(pi*arg))/arg/arg );
                 }else {
                     arg /= b2.length;
                     
-                    return sqrt(b1.length/b2.length)/sqr(b2.length) * ( - sqr(pi)* Sinc(1,arg) + 2 *( Sinc(1,arg)- cos(pi*arg))/arg/arg );
+                    return sqrt(b1.length/b2.length)/(b2.length)/(b2.length) * ( - pi*(pi)* Sinc(1,arg) + 2 *( Sinc(1,arg)- cos(pi*arg))/arg/arg );
                 }
                 
             }
@@ -3321,7 +3321,7 @@ double gaussianSinc ( double k, void * arg ){
 
     if ( pa->realFlag != 1 )
         act *= -I ;
-    double va =   exp(-sqr(k /2./ beta))*0.28209479177387814/*1/(2*sqrt(pi))*//beta * creal(act* poly(k,beta*beta,pa->powSpace) *FB(-k,&pa->i[0])*FB(k,&pa->i[1]));
+    double va =   exp(-(k /2./ beta)*(k /2./ beta))*0.28209479177387814/*1/(2*sqrt(pi))*//beta * creal(act* poly(k,beta*beta,pa->powSpace) *FB(-k,&pa->i[0])*FB(k,&pa->i[1]));
     if ( isnan(va) || isinf (va)){
         printf("nan or inf\n");
         exit(0);
@@ -3557,13 +3557,13 @@ double inverseLaplaceTransform(double beta, struct function_label * fl){
     }
     if ( fl->fn == Yukawa ){
         double m = fl->param[2];
-        value2  += exp(-sqr(m/2./beta));
+        value2  += exp(-(m/2./beta)*(m/2./beta));
     }
     else if ( fl->fn == Morse ){
         double R = fl->param[2];
         double a = fl->param[3];
-        value2  += - a * exp (     R * a - sqr(a/beta /2.))/sqr(beta);
-        value2  +=   a * exp ( 2 * R * a - sqr(a/beta    ))/sqr(beta);
+        value2  += - a * exp (     R * a - (a/beta /2.)*(a/beta /2.))/(beta*beta);
+        value2  +=   a * exp ( 2 * R * a - (a/beta    )*(a/beta    ))/(beta*beta);
         value2 *= 1.;
     }
     else if ( fl->fn == Coulomb || fl->fn == Pseudo || fl->fn == nullFunction  ){
@@ -4241,7 +4241,7 @@ double quadCal(struct general_2index * aAf ){
             }
             else {
                 x = ( g ) / (1. - g)+1 ;
-                constant /= sqr(1.-g);
+                constant /= (1.-g)*(1.-g);
             }
             x *=  param[1];//beta
             constant *= param[1];//weighting
@@ -4367,7 +4367,7 @@ void mySeparateExactTwo (struct sinc_label  f1, struct interaction_label twoBody
             }
             else {
                 x = ( g ) / (1. - g)+1 ;
-                constant /= sqr(1.-g);
+                constant /= (1.-g)*(1.-g);
             }
             x *=  param[1];//beta
             constant *= param[1];//weighting
@@ -4621,7 +4621,7 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
             }
             else {
                 x = ( g ) / (1. - g)+1 ;
-                constant /= sqr(1.-g);
+                constant /= (1.-g)*(1.-g);
             }
             x *=  param[1];
             constant *= param[1];
@@ -4907,22 +4907,30 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
 
 
 
-INT_TYPE separateInteraction( struct sinc_label f1, double * position, enum division load,struct metric_label metric,enum spinType cmpl,INT_TYPE overline, enum division basis ,INT_TYPE particle1){
-    
+INT_TYPE separateInteraction( struct sinc_label *f, double * position, enum division load,struct metric_label metric,enum spinType cmpl,INT_TYPE overline, enum division basis ,INT_TYPE particle1){
+    enum genus hidden;
+    struct sinc_label f1 = *f;
     enum  bodyType body = bodies(f1, load);
-    enum division temp ;
+    enum division temp , currLoop, currChain,newLabel;
+    if ( f->eikonFlag ){
+        enum division li = load;
+        while ( f1.tulip[li].chainNext != nullName)
+        li =f1.tulip[li].chainNext;
     
-    if ( body == one ){
-        temp = diagonalCube;
+        currChain = li;
+        temp = eikonBuffer;
+    } else {
+        if ( body == one ){
+            temp = diagonalCube;
+        }
+        else if ( body == two ){
+            temp = quadCube;
+        }
+        else {
+            printf("bad body!\n");
+            exit(1);
+        }
     }
-    else if ( body == two ){
-        temp = quadCube;
-    }
-    else {
-        printf("bad body!\n");
-        exit(1);
-    }
-    
     if ( metric.fn.fn == nullFunction){
         printf("null func\n");
         return 0;
@@ -4939,7 +4947,7 @@ INT_TYPE separateInteraction( struct sinc_label f1, double * position, enum divi
                     if ( f1.rose[space].particle == particle1 )
                         spaces++;
     
-    double cpow,constant,value,x,g;
+    double length,cpow,constant,value,x,g;
     Stream_Type  *stream[SPACE];
     struct general_2index g2;
     for ( i = 0; i < SPACE ; i++)
@@ -4983,18 +4991,19 @@ INT_TYPE separateInteraction( struct sinc_label f1, double * position, enum divi
     else {
         ngk = 1;
     }
+if ( ! f->eikonFlag ){
     if ( part(f1, load) < CanonicalRank(f1,load,cmpl-1)+ngk ){
         printf("consider increasing allocation %d\n",part(f1, load));
         exit(1);
     }
-    
+}
     for ( beta = 0; beta < ngk ; beta++){//beta is an index.
         if ( section == 1 ){
             g = gaussQuad(ngk,beta,1);// [1, inf)
             constant = gaussQuad(ngk, beta, 0);
             
             x = ( g ) / (1. - g)+1 ;
-            constant /= sqr(1.-g);
+            constant /= (1.-g)*(1.-g);
             
             
             x *=  metric.beta[0];
@@ -5014,17 +5023,62 @@ INT_TYPE separateInteraction( struct sinc_label f1, double * position, enum divi
             x = metric.beta[0];// value;
             constant = metric.fn.param[0];
         }
-        
-        //x is double beta.
-        
         tClear(f1,temp);
-        zero(f1,temp,0);
         tId(f1,temp,0);
         if ( section < 2 )
             constant *= inverseLaplaceTransform(x,&metric.fn);
         cpow = powl(fabsl(constant),1./spaces);
         printf("%f \t%f\n", constant, x );
         fflush(stdout);
+if ( f->eikonFlag ){
+        //x is beta.
+        if ( overline ){
+            printf("underline this!");
+            exit(0);
+        }
+        tClear(f1,temp);
+        zero(f1,temp,0);
+        enum division newLabel;
+        newLabel = anotherLabel(f,nullParticle,nada);
+        f1.tulip[currChain].chainNext = newLabel;
+        f1.tulip[newLabel].species = eikon;
+        currChain = newLabel;
+        currLoop = currChain;
+        
+        for ( hidden = eikonDiagonal ; hidden <= eikonDiagonal + body;hidden++ )
+            {
+            for ( space = 0 ;space < SPACE  ; space++)
+                if ( f1.rose[space].body != nada )
+                    if ( f1.tulip[load].space[space].body == body )
+                        if(f1.rose[space].particle == particle1  )
+                        {
+                        N1 = n1[space];
+                        length = grabBasis(f1, space, particle1, 0).length;/*HERE*/
+                        double * te = streams(f1, temp, 0, space);
+                        for ( si = 0 ; si < N1 + (N1+1)*(body == two); si++)
+                             {
+                                I1 = si-N1*(body == two)-(N1-1)/2*(body== one);//
+                                te[si] = cpow* momentumIntegralInTrain(x*length, I1-position[space]/length,1, hidden, body);
+                                 if ( (! space) && constant < 0 )
+                                     te[si] *= -1;
+                                 
+                             }
+                        }
+                //get name_label
+                
+                newLabel = anotherLabel(f,particle1,body);
+                //get name_label
+                f1.tulip[temp].Current[0]= 1;
+                tEqua(f1, newLabel, 0, temp, 0);
+                f1.tulip[newLabel].space[0].body = body;
+                f1.tulip[newLabel].space[1].body = body;
+                f1.tulip[newLabel].space[2].body = body;
+                f1.tulip[currLoop].loopNext = newLabel;
+                f1.tulip[newLabel].species = hidden;
+                currLoop = newLabel;
+            }
+        
+} else {
         minusFlag = 1;
         for ( space = 0 ;space < SPACE  ; space++)
             if ( f1.rose[space].body != nada )
@@ -5101,8 +5155,10 @@ INT_TYPE separateInteraction( struct sinc_label f1, double * position, enum divi
                             minusFlag = 0;
 
                         }
+        
         tAddTw(f1, load,cmpl-1, temp,0);
-      //  printf("%f\n", traceOne(f1, temp,0));
+}
+    //  printf("%f\n", traceOne(f1, temp,0));
     }
     
     return 0;
@@ -5511,6 +5567,7 @@ INT_TYPE buildMetric( struct sinc_label f1,double latticePause,INT_TYPE Z, struc
                 //single gaussian
                 metric[nMet].fn.fn = Gaussian;
                 metric[nMet].fn.param[0] = inter.func.param[0];
+            metric[nMet].fn.param[2] = inter.func.param[2];
                 metric[nMet].fn.interval = 0;
                 metric[nMet].metric = dirac;
                 metric[nMet].beta[0] = inter.func.param[2];
@@ -5529,13 +5586,13 @@ INT_TYPE buildMetric( struct sinc_label f1,double latticePause,INT_TYPE Z, struc
 }
 #define MAXb 30*MAXATOM
 
-INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label f1, enum division single,enum particleType particle1, INT_TYPE overline, enum spinType cmpl){
+INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label *f1, enum division single,enum particleType particle1, INT_TYPE overline, enum spinType cmpl){
     INT_TYPE mus=0,m,a,ra=0;
     struct metric_label mu[MAXb];
     struct interaction_label inter  = c1->i.oneBody;
-    tClear(f1, single);
+    tClear(*f1, single);
     for ( a = 1 ; a <= c1->i.Na ; a++){
-        mus =  buildMetric(f1, 2./grabBasis(f1, 0, particle1, 0).length, c1->i.atoms[a].label.Z, inter, MAXb, mu);
+        mus =  buildMetric(*f1, 2./grabBasis(*f1, 0, particle1, 0).length, c1->i.atoms[a].label.Z, inter, MAXb, mu);
 
         for ( m = 0; m < mus ; m++){
             if ( mu[m].metric == interval || mu[m].metric == semiIndefinite)
@@ -5545,7 +5602,7 @@ INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label f1, en
 
 
         }
-        if ( bootedQ(f1) ){
+        if ( bootedQ(*f1) ){
             for ( m = 0; m < mus ; m++){
                 getDescription(&mu[m].fn, 1., stdout);
                 getMetric ( mu[m] );
@@ -5553,7 +5610,7 @@ INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label f1, en
                 }
         }
         }
-    if ( bootedQ(f1) ){
+    if ( bootedQ(*f1) ){
 //        tCycleDecompostionGridOneMP(-2, f1, tempOneMatrix, 0, NULL, single, cmpl-1, f1.rt->CANON, part(f1, single), f1.rt->powDecompose);
 //        printf("Split 1-body ++%d  \t%f %f\n", CanonicalRank(f1, single, cmpl-1),traceOne(f1, single, cmpl-1), distance1(f1, single,cmpl-1, tempOneMatrix,0));
     }
@@ -5561,12 +5618,12 @@ INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label f1, en
     return ra;
 }
 
-INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label f1, enum division pair,enum particleType particle1 , INT_TYPE overline, enum spinType cmpl){
+INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label *f1, enum division pair,enum particleType particle1 , INT_TYPE overline, enum spinType cmpl){
     INT_TYPE mus=0,m,ra=0;
     struct metric_label mu[MAXb];
     struct interaction_label inter = c1->i.twoBody ;
 
-    mus =  buildMetric(f1, 2./grabBasis(f1, 0, electron, 0).length, -1, inter, MAXb, mu);
+    mus =  buildMetric(*f1, 2./grabBasis(*f1, 0, electron, 0).length, -1, inter, MAXb, mu);
     for ( m = 0; m < mus ; m++){
         if ( mu[m].metric == interval || mu[m].metric == semiIndefinite)
             ra += estSize(mu[m].fn.interval);
@@ -5574,12 +5631,18 @@ INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label f1, en
             ra++;
 
     }
-    if ( bootedQ(f1) && part ( f1,pair) <= ra ){
+    if ( bootedQ(*f1)  ){
         for ( m = 0; m < mus ; m++){
             getDescription(&mu[m].fn, 1., stdout);
             getMetric ( mu[m] );
-
-            separateInteraction(f1, NULL,pair , mu[m], cmpl, overline, 0, particle1);
+            double zero[6];
+            zero[0] = 0.;
+            zero[1] = 0.;
+            zero[2] = 0.;
+            zero[3] = 0.;
+            zero[4] = 0.;
+            zero[5] = 0.;
+            separateInteraction(f1, zero,pair , mu[m], cmpl, overline, 0, particle1);
         }
 //        tCycleDecompostionGridOneMP(-2, f1, tempTwoMatrix, 0, NULL, pair, cmpl-1, f1.rt->CANON, part(f1, pair),f1.rt->powDecompose);
 //        printf("Split 2-body ++%d  \t%f %f\n", CanonicalRank(f1, pair, cmpl-1),traceOne(f1, pair, cmpl-1), distance1(f1, pair,cmpl-1, tempTwoMatrix,0));
@@ -5830,7 +5893,7 @@ INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum div
                         ngk = 1;
                         for ( ai = 0 ; ai < ngk ; ai++){
                             gGX[ai] = 1./sqrt(2.)/PSU[5];
-                            gGW[ai] = -PSU[section + 4]/Z*pow(sqr(sqrt(2.)*gGX[ai]), section - 2);
+                            gGW[ai] = -PSU[section + 4]/Z*pow((sqrt(2.)*gGX[ai])*(sqrt(2.)*gGX[ai]), section - 2);
                         }
                         for ( space = 0 ; space < SPACE ; space++)
                             powSpace[space][0] = 0;
@@ -5840,7 +5903,7 @@ INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum div
                         ngk = 3;
                         for ( ai = 0 ; ai < ngk ; ai++){
                             gGX[ai] = 1./sqrt(2.)/PSU[5];
-                            gGW[ai] = -PSU[section + 4]/Z*pow(sqr(sqrt(2.)*gGX[ai]), section - 2);
+                            gGW[ai] = -PSU[section + 4]/Z*pow((sqrt(2.)*gGX[ai])*(sqrt(2.)*gGX[ai]), section - 2);
                         }
                         //a^2 + b^2 + c^2
                         powSpace[0][0] = 2;
@@ -5860,7 +5923,7 @@ INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum div
                         ngk = 6;
                         for ( ai = 0 ; ai < ngk ; ai++){
                             gGX[ai] = 1./sqrt(2.)/PSU[5];
-                            gGW[ai] = -PSU[section + 4]/Z*pow(sqr(sqrt(2.)*gGX[ai]), section - 2);
+                            gGW[ai] = -PSU[section + 4]/Z*pow((sqrt(2.)*gGX[ai])*(sqrt(2.)*gGX[ai]), section - 2);
                         }
                         //a^2 + 2 a b + b^2 + 2 a c + 2 b c + c^2
                         gGW[0]  *= 1;
@@ -5900,7 +5963,7 @@ INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum div
                         ngk = 10;
                         for ( ai = 0 ; ai < ngk ; ai++){
                             gGX[ai] = 1./sqrt(2.)/PSU[5];
-                            gGW[ai] = -PSU[section + 4]/Z*pow(sqr(sqrt(2.)*gGX[ai]), section - 2);
+                            gGW[ai] = -PSU[section + 4]/Z*pow((sqrt(2.)*gGX[ai])*(sqrt(2.)*gGX[ai]), section - 2);
                         }
                         //a^3 + 3 a^2 b + 3 a b^2 + b^3 + 3 a^2 c + 6 a b c + 3 b^2 c +
                         //3 a c^2 + 3 b c^2 + c^3
@@ -6039,7 +6102,7 @@ INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum div
                     constant = gaussQuad(ngk, beta, 0);
                     
                     x = ( g ) / (1. - g)+1 ;
-                    constant /= sqr(1.-g);
+                    constant /= (1.-g)*(1.-g);
                 }else {
                     x = gkX[beta];
                     constant = gkW[beta];
@@ -6170,6 +6233,9 @@ INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division 
 
     return 0;
 }
+
+INT_TYPE separateMomentum( struct sinc_label f1, INT_TYPE periodic,enum division akinetic,  double amass, INT_TYPE particle1 );
+
 
 INT_TYPE separateOverlap( struct sinc_label f1, enum division overlap,enum division overlapTwo,enum division inverse,enum division inversionTwo ){
     if ( ! part(f1,overlap))
@@ -6427,21 +6493,21 @@ INT_TYPE buildElectronProtonInteraction ( struct field * f1, enum division mat){
     if ( bodies(f1, eigenVectors)==two){
         tClear(f1, copy);
         tId(f1, copy,0);
-        tScale(f1, copy,-3.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/sqr(f1->Ne));
+        tScale(f1, copy,-3.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/(f1->Ne)/(f1->Ne));
         //
         tAddTw(f1, mat, 0,copy,0);
     }
     else     if ( bodies(f1, eigenVectors)==three){
         tClear(f1, copy);
         tId(f1, copy,0);
-        tScale(f1, copy,-6.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/sqr(f1->Ne));
+        tScale(f1, copy,-6.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/(f1->Ne)/(f1->Ne));
         //
         tAddTw(f1, mat,0, copy,0);
     }
     else     if ( bodies(f1, eigenVectors)==four){
         tClear(f1, copy);
         tId(f1, copy,0);
-        tScale(f1, copy,-10.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/sqr(f1->Ne));
+        tScale(f1, copy,-10.*traceOne(f1, mat, 0)/(pow(N1,SPACE))/(f1->Ne)/(f1->Ne));
         //
         tAddTw(f1, mat, 0,copy,0);
     }
@@ -6568,7 +6634,7 @@ INT_TYPE tZeroSum ( struct sinc_label f1, enum division mat,INT_TYPE spin){
 
         //    label = diagonalCube;
         else if ( bodies(f1, mat) == two )
-            printf("SUM2 \t %f\n", sum/sqr(n1[0]*n1[1]*n1[2]));
+            printf("SUM2 \t %f\n", sum/(n1[0]*n1[1]*n1[2])/(n1[0]*n1[1]*n1[2]));
 
       //      label = quadCube;
         
@@ -6614,4 +6680,39 @@ void separateX ( struct sinc_label f1,  double vectorDipole ){
     return;
 }//build X final
 
+//7.7
+void exchangeToDirect ( struct sinc_label f1, enum division exchange, enum division direct ){
+    INT_TYPE space,N1,I1,I2,I3,I4,sp,ll,si;
+    Stream_Type * ex , * dir;
+    tClear(f1, quadCube);
+    tId(f1, quadCube, 0);
+    tClear(f1,direct);
+        for ( sp = 0 ; sp < spins(f1,exchange); sp++)
+            for ( ll = 0 ; ll < CanonicalRank(f1, exchange,sp);ll++){
+                for ( space = 0; space < SPACE ; space++)
+                    if ( f1.rose[space].body != nada )
+                        if ( f1.rose[space].component != nullComponent )
+                            {
+                            
+                            ex = streams(f1,exchange, sp, space);
+                            dir = streams(f1,quadCube, 0, space);
 
+                            
+                                N1 = vector1Len(f1,space);
+#ifdef OMP
+#pragma omp parallel for private (si,I1,I2,I3,I4)
+#endif
+                                for ( si = 0 ; si < N1*N1*N1*N1; si++)
+                                    
+                                {
+                                    I1 = ( si ) % N1;
+                                    I3 = ( si / N1) % N1;
+                                    I2 = ( si /  (N1*N1) ) % N1;
+                                    I4 = ( si / ( N1*N1*N1) ) % N1;
+
+                                    dir[I1+ I2 * N1 + I3 * N1*N1 + I4 * N1*N1*N1] = ex[si+N1*N1*N1*N1*ll];
+                                }
+                            }
+                            tAddTw(f1, direct,sp, quadCube,0);
+                            }
+    }

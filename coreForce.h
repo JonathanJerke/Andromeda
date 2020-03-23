@@ -2,7 +2,7 @@
  *  coreForce.h
  *
  *
- *  Copyright 2019 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -42,7 +42,7 @@ double aaGetGamma (  double b1,INT_TYPE l1, double o1,double b2,INT_TYPE l2,doub
 
 DCOMPLEX BgB (double beta, struct basisElement b1, INT_TYPE action , INT_TYPE powSpace,double origin, struct basisElement b2);
 double GTOnorm ( struct basisElement ba );
-
+INT_TYPE separateMomentum( struct sinc_label f1, INT_TYPE periodic,enum division akinetic,  double amass, INT_TYPE particle1 );
 double collective( double beta ,struct general_2index * pa);
 DCOMPLEX ei ( double arg );
 double No(double beta1);
@@ -91,7 +91,8 @@ DCOMPLEX Bd2B (struct basisElement b1, struct basisElement b2);
 DCOMPLEX Bx2B (struct basisElement b1, struct basisElement b2);
 DCOMPLEX periodicBoostOverlapBasis2 ( INT_TYPE N1, double d, INT_TYPE b, INT_TYPE m ,double d2, INT_TYPE bb, INT_TYPE mm );
 double quadCal(struct general_2index * aAf );
-INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label f1, enum division pair, enum particleType particle1 , INT_TYPE overline,enum spinType cmpl);
-INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label f1, enum division single, enum particleType particle1, INT_TYPE overline,enum spinType cmpl);
+INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label *f1, enum division pair, enum particleType particle1 , INT_TYPE overline,enum spinType cmpl);
+INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label *f1, enum division single, enum particleType particle1, INT_TYPE overline,enum spinType cmpl);
 double testPotential (struct calculation c, struct field f , enum division wavey, enum division potential );
+void exchangeToDirect ( struct sinc_label f1, enum division exchange, enum division direct );
 #endif /* coreForce_h */

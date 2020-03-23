@@ -2,7 +2,7 @@
  *  coreUtil.c
  *
  *
- *  Copyright 2019 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -254,6 +254,33 @@ void length1(struct sinc_label f1, INT_TYPE *len){
     return;
 }
 
+enum division anotherLabel(struct sinc_label *f1, enum particleType particle,enum bodyType body){
+    switch(body){
+        case nada:
+            if ( f1->nullLabels.currLabel+1 > f1->nullLabels.maxLabel)
+            {
+                printf("oops null");
+                exit(0);
+            }
+            else
+            return f1->nullLabels.head + f1->nullLabels.currLabel++;
+        case one:
+        case two:
+            if ( f1->eikonLabels.currLabel+1 > f1->eikonLabels.maxLabel)
+            {
+                printf("oops null");
+                exit(0);
+            }
+            else
+            return f1->eikonLabels.head + f1->eikonLabels.currLabel++;
+    }
+    exit(0);
+    return nullName;
+};
+
+
+
+
 INT_TYPE matrixLen(struct sinc_label f1, enum bodyType body, INT_TYPE space){
     if ( body == one )
         return f1.rose[space].count1Basis*f1.rose[space].count1Basis ;
@@ -265,6 +292,70 @@ INT_TYPE matrixLen(struct sinc_label f1, enum bodyType body, INT_TYPE space){
         return f1.rose[space].count1Basis*f1.rose[space].count1Basis*f1.rose[space].count1Basis*f1.rose[space].count1Basis*f1.rose[space].count1Basis*f1.rose[space].count1Basis*f1.rose[space].count1Basis*f1.rose[space].count1Basis  ;
     else
         return 0;
+}
+
+INT_TYPE topezOp(enum bodyType bd,enum block tv, INT_TYPE N1,Stream_Type * vector ,  Stream_Type * vectorOut){
+    //COULD ALWAYS TRANSLATE WITH TRANSLATION OPERATOR
+    INT_TYPE n,m;
+    for ( n = 0 ; n < N1 ; n++)
+        vectorOut[n] = 0.;
+    double sign = 1.;
+    if (bd == one ){
+        //shift cblas_daxpy
+        for (n = 1 ; n < N1 ; n++){
+            cblas_daxpy(N1-n, sign/n, vector+n, 1, vectorOut, 1);
+            cblas_daxpy(N1-n, -sign/n, vector, 1, vectorOut+n,1);
+            sign *= -1;
+        }
+        return 0;
+        //with tolerances
+    }else if ( bd == two ){
+        switch( tv){
+            case tv1:
+                //shift cblas_daxpy
+                for ( m = 0 ; m < N1 ; m++){
+                    sign = 1.;
+                    for (n = 1 ; n < N1 ; n++){
+                        cblas_daxpy(N1-n, sign/n, vector+n+m*N1,1, vectorOut+m*N1, 1);
+                        sign *= -1;
+                        cblas_daxpy(N1-n, sign/n, vector+m*N1, 1, vectorOut+n+m*N1,1);
+                    }
+                }
+                //with tolerances
+                return 0;
+            case tv2:
+                    //shift cblas_daxpy
+                    for (n = 1 ; n < N1 ; n++){
+                        cblas_daxpy(N1*N1-N1*n, sign/n, vector+n*N1, 1, vectorOut, 1);
+                        sign *= -1;
+                        cblas_daxpy(N1*N1-N1*n, sign/n,vector, 1,      vectorOut+n*N1,1);
+                    }
+                    //with tolerances
+                    return 0;
+
+                
+        }
+        
+        
+    }
+    return 0;
+}
+
+INT_TYPE topezMult(struct sinc_label f1, double* toep,INT_TYPE N1,Stream_Type * vector){
+    //COULD ALWAYS TRANSLATE WITH TRANSLATION OPERATOR
+    {
+        INT_TYPE n;
+        //shift cblas_daxpy
+        cblas_dscal(N1, toep[0], vector, N1+1);
+        for (n = 1 ; n < N1 ; n++){
+            {
+                cblas_dscal(N1-n, toep[-n], vector+n, N1+1);
+                cblas_dscal(N1-n, toep[n], vector+N1*n, N1+1);
+            }
+        //with tolerances
+    }
+    return 0;
+}
 }
 
 INT_TYPE alloc ( struct sinc_label f1 , enum division label ,INT_TYPE space){
@@ -282,6 +373,13 @@ INT_TYPE alloc ( struct sinc_label f1 , enum division label ,INT_TYPE space){
             return 1;
         }else if ( species(f1, label ) == outerVector ){
             return outerVectorLen(f1, f1.tulip[name(f1,label)].space[space].body, space);
+        }else if ( species(f1, label ) >= eikon ){
+            if (f1.tulip[name(f1,label)].space[space].body == one )
+                return outerVectorLen(f1, one, space);
+            else if (f1.tulip[name(f1,label)].space[space].body == two)
+                return 2*outerVectorLen(f1, one, space)+1;
+            else
+                return 0;
         } else
             return 1;
 }
@@ -339,7 +437,10 @@ INT_TYPE CanonicalRank( struct sinc_label f1 , enum division label , INT_TYPE sp
     
     if ( f1.tulip[label].name == label){
         if ( spin < spins(f1, label) ){
-            return f1.tulip[label].Current[spin];
+            if ( f1.tulip[label].species == eikon)
+                return 1;
+            else
+                return f1.tulip[label].Current[spin];
         }
             else
                 return 0;
@@ -347,6 +448,17 @@ INT_TYPE CanonicalRank( struct sinc_label f1 , enum division label , INT_TYPE sp
     else {
         return f1.tulip[f1.tulip[label].name].Partition;
     }
+}
+
+INT_TYPE CanonicalOperator( struct sinc_label f1, enum division label, INT_TYPE spin ){
+    INT_TYPE rr = CanonicalRank(f1, label, spin );
+    enum division ll = f1.tulip[name(f1,label)].chainNext;
+    while ( ll != nullName ){
+        rr += CanonicalRank(f1, name(f1,ll), spin);//switch from product to addition!!!
+        
+        ll = f1.tulip[name(f1,ll)].chainNext;
+    }
+    return rr;
 }
 
 INT_TYPE Rank( struct sinc_label f1 , enum division label ){
@@ -391,7 +503,7 @@ double sumSquare (struct sinc_label  f1,  enum division alloy){
             product = 1.;
             for ( dim = 0; dim < SPACE ; dim++)
                 if ( f1.rose[dim].body != nada)
-                product *= sqr(cblas_dnrm2(M2[dim], streams(f1, alloy,sp,dim)+l*M2[dim],iOne));;
+                product *= pow(cblas_dnrm2(M2[dim], streams(f1, alloy,sp,dim)+l*M2[dim],iOne),2.);;
             norm += product ;//* sqr(coeff(f1, alloy , sp,l ));
         }
     return norm;
@@ -457,6 +569,132 @@ void assignTwoWithPointers( struct sinc_label f1, enum division twoMat ){
     }
     return;
 }
+
+
+/////USE 2*len buffer elemetns to define split-operator for any given interactonXYZ.
+///NO NEED TO CHANGE ORDER in [Ha] , only execute this procedure for every interaction..
+//void assignSplit( struct sinc_label f1, enum division twoMat ,INT_TYPE len, enum division oneMat, enum division bufcp ){
+//    INT_TYPE space ,l;
+//    enum block b1=id0,b2=id0;
+//    enum division cur,A,B,daisy = f1.tulip[twoMat].linkNext;
+//    cur = twoMat;
+//    for ( space = 0; space < SPACE ; space++){
+//        A = bufcp;
+//        B = bufcp+1;
+//        switch ( f1.tulip[twoMat].space[space].block ){
+//            case e12:
+//                b1 = tv1;
+//                b2 = tv2;
+//                break;
+//                
+//            case e13:
+//                b1 = tv1;
+//                b2 = tv3;
+//                break;
+//                
+//            case e23:
+//                b1 = tv2;
+//                b2 = tv3;
+//                break;
+//
+//            case e14:
+//                b1 = tv1;
+//                b2 = tv4;
+//                break;
+//
+//            case e24:
+//                b1 = tv2;
+//                b2 = tv4;
+//                break;
+//
+//            case e34:
+//                b1 = tv3;
+//                b2 = tv4;
+//                break;
+//
+//            case e15:
+//                b1 = tv1;
+//                b2 = tv5;
+//                break;
+//
+//            case e25:
+//                b1 = tv2;
+//                b2 = tv5;
+//                break;
+//
+//            case e35:
+//                b1 = tv3;
+//                b2 = tv5;
+//                break;
+//
+//            case e45:
+//                b1 = tv4;
+//                b2 = tv5;
+//                break;
+//
+//            case e16:
+//                b1 = tv1;
+//                b2 = tv6;
+//                break;
+//
+//            case e26:
+//                b1 = tv2;
+//                b2 = tv6;
+//                break;
+//
+//            case e36:
+//                b1 = tv3;
+//                b2 = tv6;
+//                break;
+//
+//            case e46:
+//                b1 = tv4;
+//                b2 = tv6;
+//                break;
+//
+//            case e56:
+//                b1 = tv5;
+//                b2 = tv6;
+//                break;
+//            }
+//        for (l = 0 ; l < len ; l++){
+//            f1.tulip[cur].linkNext = A;
+//            cur = A;
+//
+//            f1.tulip[A].name = oneMat+l;
+//            f1.tulip[B].name = oneMat+l;
+//
+//            f1.tulip[A].operatorSignFlag = f1.tulip[oneMat+l].operatorSignFlag;
+//            f1.tulip[B].operatorSignFlag = f1.tulip[oneMat+l].operatorSignFlag;
+//            f1.tulip[A].chainNext = B;
+//            
+//            //interchangable
+//            if ( f1.tulip[oneMat+l].species != matrix || f1.tulip[oneMat+l].space[space].body != one )
+//            {
+//             //   printf("worng input...");
+//             //   exit(0);
+//            }
+//            
+//            
+//            if ( SPACE > 3 ){
+//                printf("acktung!!");
+//            }//may need work!.. SPACE > 3
+//            f1.tulip[A].space[space].block = b1;
+//            f1.tulip[B].space[space].block = b2;
+//            f1.tulip[A].species = matrix;
+//            f1.tulip[B].species = matrix;
+//
+//            A = A + 2;
+//            B = B + 2;
+//
+//        }
+//        f1.tulip[A-2].linkNext = daisy;
+//
+//    }
+//}
+
+
+
 
 INT_TYPE sizeofDivision(struct sinc_label f1, enum division head, INT_TYPE space ){
     if ( f1.tulip[head].Partition == 0 )
@@ -778,9 +1016,6 @@ INT_TYPE tAddTwo( struct sinc_label f1 , enum division left , enum division righ
     return 0;
 }
 
-INT_TYPE pScaleOne( struct sinc_label *f1, enum division label,INT_TYPE spin, double scalar ){
-    return tScaleOne(*f1, label, spin, scalar);
-}
 INT_TYPE tScaleOne( struct sinc_label f1, enum division label,INT_TYPE spin, double scalar ){
     
     if ( scalar == 1. )
@@ -908,7 +1143,7 @@ INT_TYPE xAddTw( struct sinc_label f1 , enum division left, INT_TYPE lspin,struc
         INT_TYPE MM = LL+LR;
         if ( MM > f1.tulip[left].Partition ){
             //tGetType allocation!
-            printf("tAdd more money! %d -> %d\n",left,right);
+            printf("tAdd more money! %d <+- %d\n",left,right);
             exit(8);
         }
         INT_TYPE M2[SPACE],space;
@@ -1063,7 +1298,7 @@ INT_TYPE tId ( struct sinc_label f1 , enum division label,INT_TYPE spin ){
                 
                 Stream_Type  * stream = streams(f1,label,spin,space)+Current*B1[space];
                 for ( I2 = 0 ; I2 < B1[space] ; I2++){
-                    stream[I2] = sign(I2);
+                    stream[I2] = 1;//sign(I2);
                 }
             }
         }
@@ -1238,7 +1473,7 @@ INT_TYPE tBoot ( struct sinc_label f1 , enum division label,INT_TYPE spin ){
                 Stream_Type  * stream = streams(f1,label,spin,space)+Current*B1[space];
                 for ( I1 = 0 ; I1< B1[space] ; I1++)
                     for ( I2 = 0 ; I2 < B1[space] ; I2++){
-                        stream[I1*B1[space]+I2] = exp(-abs(I1-(B1[space]-1)/2)*0.01)*exp(-sqr(I2-(B1[space]-1)/2)*0.01);
+                        stream[I1*B1[space]+I2] = exp(-abs(I1-(B1[space]-1)/2)*0.01)*exp(-(I2-(B1[space]-1)/2)*(I2-(B1[space]-1)/2)*0.01);
                 }
             }
         }
@@ -1248,7 +1483,7 @@ INT_TYPE tBoot ( struct sinc_label f1 , enum division label,INT_TYPE spin ){
             for ( space = 0; space < SPACE ; space++){
                 Stream_Type  * stream = streams(f1,label,spin,space)+Current*B1[space];
                     for ( I2 = 0 ; I2 < B1[space] ; I2++){
-                        stream[I2] = exp(-sqr(I2-(B1[space]-1)/2)*0.01);
+                        stream[I2] = exp(-(I2-(B1[space]-1)/2)*(I2-(B1[space]-1)/2)*0.01);
                     }
             }
         }
@@ -1330,7 +1565,7 @@ void nuclearArray (struct input c, struct field f1,  enum division array,INT_TYP
                     y = ( j - (M1-1)/2 ) * d;
                     z = ( k - (M1-1)/2 ) * d;
 
-                    dis = sqr( x - c.atoms[at].position[1] ) + sqr( y - c.atoms[at].position[2] ) + sqr( z - c.atoms[at].position[3] );
+                    dis = pow( x - c.atoms[at].position[1] ,2.) + pow( y - c.atoms[at].position[2] ,2.) + pow( z - c.atoms[at].position[3] ,2.);
                     if (  dis < mini ){
                         mini = dis;
                         mi= i;
@@ -1343,7 +1578,7 @@ void nuclearArray (struct input c, struct field f1,  enum division array,INT_TYP
         for ( i = imax(0,mi-l); i < imin(M1,mi+l); i++)
             for ( j = imax(0,mj-l); j < imin(M1,mj+l); j++)
                 for ( k = imax(0,mk-l); k < imin(M1,mk+l); k++)
-                    if ( sqr(mi-i) + sqr( mj-j)+ sqr(k-mk) < l)
+                    if ( (mi-i)*(mi-i) + ( mj-j)*(mj-j)+ (k-mk)*(k-mk) < l)
                         array3d[i+j*M1+k*M1*M1] += 1.;
 
     }

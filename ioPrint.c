@@ -2,7 +2,7 @@
  *  ioPrint.c
  *
  *
- *  Copyright 2019 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -70,7 +70,11 @@ INT_TYPE print(struct calculation *c , struct field f1,INT_TYPE reset,INT_TYPE m
         {
             irrep = tClassify(0, f1.f, eigenVectors+iii);
                 printf("State%d:%d:,%d ,%1.15f, %d, %d(%d) , %1.1f,%1.15f\n", iii+1, f1.i.epi*2+1,iii+1,f1.f.tulip[eigenVectors+iii].value.value,bodies(f1.f,eigenVectors+iii),irrep,irreps(f1.i.body,irrep), deg(f1.f, irreps(f1.i.body,irrep)),f1.f.tulip[eigenVectors+iii].value.value2);
-                
+                    //SIGNAGE
+                    one = sqrt(fabs(f1.f.tulip[eigenVectors+iii].value.value));
+                    if (f1.f.tulip[eigenVectors+iii].value.value < 0 )
+                        one *= -1.;
+            
                     printVector(c,f1.f, c->name,c->name, iii,irrep, &one);
                     for ( cmpl = 0 ; cmpl < spins(f1.f, eigenVectors+iii) ; cmpl++)
                     {
@@ -96,6 +100,7 @@ INT_TYPE print(struct calculation *c , struct field f1,INT_TYPE reset,INT_TYPE m
 
 INT_TYPE ioStoreMatrixScale(struct field *f, enum division op, INT_TYPE spin, char * filename, INT_TYPE ioIn ){
     INT_TYPE out=0;
+#ifndef APPLE
     if ( ioIn == 0){//WRITE OUT...remove biased scale
         tScaleOne(f->f, op, spin, f->i.d);
         
@@ -113,6 +118,7 @@ INT_TYPE ioStoreMatrixScale(struct field *f, enum division op, INT_TYPE spin, ch
         
         tScaleOne(f->f, op, spin, 1./f->i.d);
     }
+#endif
     return out;
 }
 
@@ -1128,7 +1134,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                             resetA(f2.f.rt);
                             blockA(f2.f.rt, blockHamiltonianBlock);
                             blockA(f2.f.rt, blockTrainHamiltonianBlock);
-                            blockA(f2.f.rt, blockTrainingHamiltonianBlock);
+                            blockA(f2.f.rt, blockAllocateHamiltonianBlock);
                             blockA(f2.f.rt, blockFoundationBlock);
                             blockA(f2.f.rt, blockBuildHamiltonianBlock);
                             blockA(f2.f.rt, blockEigenDecomposeBlock);
@@ -1136,6 +1142,8 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                             blockA(f2.f.rt, blockTrainVectorsblock);
                             blockA(f2.f.rt, blockTrainMatricesblock);
                             blockA(f2.f.rt, blockfoundationMblock);
+                            blockA(f2.f.rt, blockResolveTwoBodyBlock);
+                            blockA(f2.f.rt, blockKineticEnergyBlock);
 
                             f2.i.body = inputFormat(f1,name, nullName, 100);
                         
@@ -1197,7 +1205,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                 }
 
 
-                if (( *ct > f1.vectorOperator && inputVectors == f1.vectorOperator )){
+                if (( *ct > f.i.nOperator && inputVectors == f1.vectorOperator )){
                     printf("maxed out buffer of states\n");
                     exit(0);
                 }
@@ -1208,15 +1216,38 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
 
                 if ( flagLoad ) {
                     
-                    tScale(f1, inputVectors+*ct, creal(Occ));//error... need to scale real and complex separately!!!
-                    ov = magnitude(f1, inputVectors+*ct);
+                    if ( species(f1, inputVectors+*ct) == vector){
+                        tScale(f1, inputVectors+*ct, creal(Occ));//error... need to scale real and complex separately!!!
 
+                        printf("vector --");
+                        ov = magnitude(f1, inputVectors+*ct);
+                    }
+                    else{
+                        tScale(f1, inputVectors+*ct, fabs(creal(Occ)));
+                        //setting Occ >0 so that split operators will not lose their signage via operatorSignFlag
+                        
+                        if ( creal(Occ) < 0. ){
+                            printf("matrix -neg-");
+
+                            f1.tulip[inputVectors+*ct].operatorSignFlag = 1;
+                            ov = traceOne(f1, inputVectors+*ct, 0);
+
+                        }else {
+                            printf("matrix -pos-");
+                            ov = traceOne(f1, inputVectors+*ct, 0);
+
+                        }
+                        if ( spins(f1, inputVectors+*ct)> 1 ){
+                            ov = I*traceOne(f1, inputVectors+*ct, 1);
+                        }
+                    }
+                    
                     if ( inputVectors >= f1.vectorOperator){
-                        printf("Density %f\n",sqr(creal(ov)));
-                        if ( sqr(cabs(ov)) > c1->rt.TARGET)
+                        printf("Operator %f\n",cabs(ov));
+                        //if ( sqr(cabs(ov)) > c1->rt.TARGET)
                             (*ct)++;
-                        else
-                            printf("skipped\n");
+                      //  else
+                       //     printf("skipped\n");
                         
                     }
                     else{

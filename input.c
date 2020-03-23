@@ -2,7 +2,7 @@
  *  input.c
  *
  *
- *  Copyright 2019 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -145,7 +145,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
     char test_line [MAXSTRING];
     double value;                    INT_TYPE iii ;
 
-    INT_TYPE NINT_TYPE = 125;
+    INT_TYPE NINT_TYPE = 128;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -171,7 +171,8 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "configuration","densityRank","densityBody","parallel","phase",//110
         "around","cmpl","clampStage","OCSB","decompose",
         "shiftNO","matrix","catalog","increment","blockMemory",//120
-        "blockReset","chrome","reverseStage","chroma","gaussCount"
+        "blockReset","chrome","NULL","chroma","gaussCount",
+        "Sign","switchGeometry","eikon"
     };
     INT_TYPE NDOUBLE = 83;
     char *list_DOUBLE []= {"#",
@@ -804,15 +805,24 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                 case 122:
                     c->i.chromaticRank = ivalue;
                     return i;
-                case 123:
-                    c->i.shiftFlag = ivalue;
-                    return i;
+//                case 123:
+//                    c->i.shiftFlag = ivalue;
+//                    return i;
                 case 124:
                     c->i.chroma = ivalue;
                     return i;
                 case 125:
                     c->i.gaussCount = ivalue;
                     return i;
+                case 126:
+                    c->i.flipSignFlag = !c->i.flipSignFlag;
+                    return i;
+                case 127:
+                    c->i.Na *= -1;
+                    return i;
+                case 128:
+                        f1->eikonFlag = ivalue ;
+                        return i;
 
             }
         
@@ -1099,7 +1109,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     c->rt.EWALD = pow(0.1, value);
                     return d;
                 case 74:
-                    c->i.level = value/sqr( f1->d );
+                    c->i.level = value/( f1->d )/( f1->d );
                     return d;
                 case 75:
                     c->rt.vCANON *= value;
@@ -1172,6 +1182,8 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                         c->i.shiftVector[i][0] = value*flowD[i];
                         c->i.shiftVector[i][1] = value*flowC[i];
                     }
+                    c->i.shiftFlag = 1;
+
                     return d;
                 }
                 case 79:
@@ -1181,6 +1193,8 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                         c->i.shiftVector[i][0] = -value/f1->d/f1->d*pi*pi;
                         c->i.shiftVector[i][1] = 1;
                     }
+                    c->i.shiftFlag = 1;
+
                     return d;
                 }
                 case 80:
@@ -1190,6 +1204,8 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                         c->i.shiftVector[i][0] = 0;
                         c->i.shiftVector[i][1] = value;
                     }
+                    c->i.shiftFlag = 1;
+
                     return d;
                 }
                 case 81:
@@ -1474,7 +1490,7 @@ INT_TYPE intervalGeometry(struct calculation * c, const char * input_line ){
 
 INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const char * input_line ){
     INT_TYPE io;
-    INT_TYPE Nio = 34;
+    INT_TYPE Nio = 35;
     char test_line [MAXSTRING];
     char *list_IO[] = {"#",
         "densityIn","hartreeIn", "densityOut" ,//3
@@ -1488,7 +1504,7 @@ INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const ch
         "component","byHand","Spec",//27
         "vector","operator","print",//30
         "body","shift","control",//33
-        "interaction"
+        "interaction","path"
     };
     char filename[MAXSTRING];
     FILE * mid;
@@ -1742,7 +1758,7 @@ INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const ch
                 mid = NULL;
             {
                 char file2[SUPERMAXSTRING];
-                sprintf(file2,"%s/control/%s",getenv("LAUNCH"),filename);
+                sprintf(file2,"%s/control/%s/%s",getenv("LAUNCH"),c->i.controlPath, filename);
                 mid = fopen ( file2, "r");
             }
                 if( mid == NULL )
@@ -1768,9 +1784,9 @@ INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const ch
                 strcpy(c->name, test_line);//does not inheret name of run
                 fclose( mid);
                 return io;
-                
-
-    
+            case 35:
+                strcpy(c->i.controlPath,filename);
+                return io;    
         }
         }
     }
@@ -1904,7 +1920,7 @@ INT_TYPE readInput(struct calculation *c , struct input_label * f1, FILE * in){
 }
 
 INT_TYPE initCalculation(struct calculation * c ){
-    INT_TYPE g,space,i;
+    INT_TYPE i;
     c->i.level = 1e9;
     c->i.massElectron = 1.;
     c->i.massProton = 1836.15267245;

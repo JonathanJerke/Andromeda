@@ -2,7 +2,7 @@
  *  eigen.c
  *
  *
- *  Copyright 2019 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -28,11 +28,13 @@
 
 double vale ( struct sortClass * f ){
     INT_TYPE * mm = f->mmm+f->i*SPACE*2 ;
-    double value=0.;
+    double value=1.;
     INT_TYPE space;
     for ( space = 0; space < SPACE ; space++)
-        if ( f->n1[space])
-            value +=  f->str[space][mm[2*space] + mm[2*space+1]*f->n1[space]];
+        if ( f->n1[space] ){
+            value *=  f->str[space][mm[2*space] + mm[2*space+1]*f->n1[space]];
+            //printf("%f -- %d %d\n", value, space );
+        }
     return value;
 }
 
@@ -597,7 +599,7 @@ INT_TYPE tSlam (struct sinc_label f1,INT_TYPE allc, enum division vl, double fma
     INT_TYPE tot =0,space,t,n1[SPACE];
     
     
-    tot =  tFoundationLevel(f1, nullName, 0, fmax2, 1, nullName, 0, 0, 0, 0, NULL, 0, 0);
+    tot =  tFoundationLevel(f1, nullName, -INFINITY, fmax2, 1, nullName, 0, 0, 0, 0, NULL, 0, 0);
     for ( space = 0 ; space < SPACE ; space++)
         n1[space] = vectorLen(f1, space);
 //    if ( allc < tot ){
@@ -606,7 +608,7 @@ INT_TYPE tSlam (struct sinc_label f1,INT_TYPE allc, enum division vl, double fma
 //    }
 
     INT_TYPE * mmm = malloc(sizeof(INT_TYPE ) * tot * SPACE *2),*mm;
-    tot =  tFoundationLevel(f1, nullName, 0, fmax2, 0, nullName, 0, 0, 0, 0,mmm, 0, 0);
+    tot =  tFoundationLevel(f1, nullName, -INFINITY, fmax2, 0, nullName, 0, 0, 0, 0,mmm, 0, 0);
 
     {
         INT_TYPE n1[SPACE],i;
@@ -662,9 +664,10 @@ INT_TYPE tBootManyConstruction (struct calculation * c1, struct sinc_label f1, e
     DCOMPLEX * hmat = (DCOMPLEX*)myStreams(f1, matrixHbuild,0), sum ,minus = -1.;
     double * w = (double*)(hmat + n2[0]);
     cmpl = real;
+    printf("\nlevel %f\n",c1->i.level);
+
     for ( i = 0 ;i < cmpl ; i++)
-        balance(f1, eigen,i);
-    
+       balance(f1, eigen,i);///NEEDS WORK FOR COMPLEX H's
             for ( space =  0; space < SPACE ; space++ )
                 if ( f1.rose[space].body != nada){
                     r = 0;
@@ -680,7 +683,7 @@ INT_TYPE tBootManyConstruction (struct calculation * c1, struct sinc_label f1, e
 
                         }
                         tzheev (0,f1,'V',n1[space],hmat,n1[space],streams(f1,foundationStructure,0,space)+r*n1[space]);
-
+                        printf("s%d -- %f %f\n", space,streams(f1,foundationStructure,0,space)[0],streams(f1,foundationStructure,0,space)[1] );
                         for ( i = 0; i < n2[space]; i++){
                             myStreams(f1, bill1+space,0)[i+r*n2[space]] = creal(hmat[i]);
                             if ( spins (f1, eigen) > 1 )
@@ -1189,7 +1192,7 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag ,double sumPart, double r
                 f1.tulip[usz+iii+expon*foundation].value.value =creal(vhv)-sumPart ;
                 
                 
-                printf("%d\t uncertainity:  \t %f\n", iii+1,  creal(vhhv) - sqr(creal(vhv)));
+                printf("%d\t uncertainity:  \t %f\n", iii+1,  creal(vhhv) - (creal(vhv))*(creal(vhv)));
                 if ( cabs(vhhv) > 0. )
                     tScale(f1, usz+iii+expon*foundation, 1./sqrt(cabs(vhhv)));
                 else {
@@ -1417,7 +1420,7 @@ INT_TYPE tEdges(struct sinc_label f1, enum division vector){
 
 
 
-INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE iterations, INT_TYPE foundation, INT_TYPE irrep,INT_TYPE flag,  enum division outputSpace, enum division outputValues){
+INT_TYPE tEigenCycle (INT_TYPE typer,INT_TYPE minusFlag, struct sinc_label  f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE iterations, INT_TYPE foundation, INT_TYPE irrep,INT_TYPE flag,  enum division outputSpace, enum division outputValues){
     INT_TYPE in,gvOut,prevBuild;
     time_t start_t, lapse_t;
     myZero(f1, matrixHbuild, 0);
@@ -1512,8 +1515,12 @@ INT_TYPE tEigenCycle (INT_TYPE typer, struct sinc_label  f1, enum division A ,ch
             
             leftP = f1.tulip[leftP].linkNext;
         } while ( leftP != nullName);
-
-  
+    
+    if (minusFlag){
+        DCOMPLEX one = -1.;
+        cblas_zscal(quantumBasisSize*quantumBasisSize,&one,T,1);
+    }
+    
     if(0){
         INT_TYPE ii;
         for ( ii = 0 ; ii < quantumBasisSize ; ii++){

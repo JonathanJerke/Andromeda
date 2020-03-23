@@ -2,7 +2,7 @@
  *  eigen.h
  *
  *
- *  Copyright 2019 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and Army Research Office.
  *
@@ -26,6 +26,7 @@
 
 #ifndef eigen_h
 #define eigen_h
+#include "constants.h"
 #include "mAls.h"
 #include "coreUtil.h"
 #include "saUtil.h"
@@ -56,7 +57,7 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag ,double sumPart, double r
 INT_TYPE tLesserDivideIteration ( struct sinc_label f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
 INT_TYPE tMinorDivideIteration ( struct sinc_label f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, double shift);
 INT_TYPE tMap (struct calculation * c1 );
-INT_TYPE tEigenCycle (INT_TYPE typer,struct sinc_label  f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE iterations,INT_TYPE foundation, INT_TYPE type,INT_TYPE flag,  enum division outputSpace, enum division outputValues);
+INT_TYPE tEigenCycle (INT_TYPE typer,INT_TYPE minusFlag,struct sinc_label  f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE iterations,INT_TYPE foundation, INT_TYPE type,INT_TYPE flag,  enum division outputSpace, enum division outputValues);
 INT_TYPE tSelect(struct sinc_label  f1, INT_TYPE Ve, INT_TYPE type, enum division usr, enum division usa, INT_TYPE testFlag);
 INT_TYPE tCollect (struct sinc_label  f1, INT_TYPE type,enum division usz, INT_TYPE target,double seekPower);
 INT_TYPE tFilter(struct sinc_label  f1, INT_TYPE Ve, INT_TYPE type, enum division usr);
