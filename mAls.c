@@ -2777,6 +2777,15 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
                             xlxl = 1;
                             break;
                         case eikonSemiDiagonal:
+                            switch(bodies(f1, su)){
+                        case one:
+                            xlxl = 0;
+                            break;
+                        case two:
+                            xlxl = 2;
+                            break;
+                        }
+
                         case eikonOffDiagonal:
                             switch(bodies(f1, su)){
                             case one:
@@ -2808,14 +2817,14 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
 
                             INT_TYPE vi ;
                             if ( timer == 0 ){
-                                flow = -1.;
+                                flow = -1;
                                 for ( vi = 0 ; vi < N2  ; vi += N1){
                                     topezOp(one,tv1,N1,inP+vi, laterP+vi);
                                     cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,N1,0,suP,1, laterP+vi,1);
                                 }
                             }
                             else if ( timer == 1 ){
-                                flow = 1.;
+                                flow = 1;
                                 cblas_dcopy(N2, inP,1, midP,1);
                                 for ( vi = 0 ; vi < N2  ; vi += N1){
                                     cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,N1,0,suP,1, midP+vi,1);
@@ -2832,24 +2841,11 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
                             cblas_dcopy(N2, inP,1, laterP,1);
                                 for ( vi = 0 ; vi < N2  ; vi += N1*N1)
                                     topezMult(f1, suP, N1, laterP+vi);
-
                         }else if ( species(f1,su) == eikonSemiDiagonal ){
 
                            INT_TYPE vi;
-                           if ( timer == 0 ){
-                           flow = 1;
-
-                           //A
-                            cblas_dcopy(N2, inP,1, midP,1);
-                               for ( vi = 0 ; vi < N2  ; vi += N1*N1){
-                                   topezMult(f1, suP, N1, midP+vi);
-                                   topezOp(two,tv1,N1,midP+vi, laterP+vi);
-                               }
-                           //A
-                           }
-
-                           else if ( timer == 1 ){
-                               flow = -1;
+                            if ( timer == 0 ){
+                                flow = -1;
 
                            //B
                                for ( vi = 0 ; vi < N2  ; vi += N1*N1){
@@ -2859,28 +2855,40 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
                            //B
                            }
 
-
-                            if ( timer == 2 ){
-                                flow = 1;
-
-                            //A2
-                            cblas_dcopy(N2, inP,1, midP,1);
-                                for ( vi = 0 ; vi < N2  ; vi += N1*N1){
-                                    topezMult(f1, suP, N1, midP+vi);
-                                    topezOp(two,tv2,N1,midP+vi, laterP+vi);
-                                }
-                            //A2
-                            }
-                            else if ( timer == 3 ){
-                                flow = -1;
+                            else if ( timer == 1 ){
+                                flow = 1 ;
+                                cblas_dcopy(N2, inP,1, midP,1);
 
                             //B2
                                 for ( vi = 0 ; vi < N2  ; vi += N1*N1){
-                                    topezOp(two,tv2,N1,inP+vi, laterP+vi);
+                                    topezOp(two,tv2,N1,midP+vi, laterP+vi);
                                     topezMult(f1, suP, N1, laterP+vi);
                                 }
                             //B2
+                            } else
+                             if ( timer == 2 ){
+                                flow = 1;
+                                     cblas_dcopy(N2, inP,1, midP,1);
+
+                                 //B2
+                                     for ( vi = 0 ; vi < N2  ; vi += N1*N1){
+                                         topezMult(f1, suP, N1, midP+vi);
+                                         topezOp(two,tv1,N1,midP+vi, laterP+vi);
+
+                                     }
                             }
+                        
+                             else if ( timer == 3 ){
+                                 flow = -1 ;
+                                 cblas_dcopy(N2, inP,1, midP,1);
+
+                             //B2
+                                 for ( vi = 0 ; vi < N2  ; vi += N1*N1){
+                                     topezMult(f1, suP, N1, midP+vi);
+                                     topezOp(two,tv2,N1,midP+vi, laterP+vi);
+                                 }
+                             //B2
+                             }
                         }else
                         if ( species(f1,su) == eikonOffDiagonal ) {
                             INT_TYPE vi;
@@ -2890,15 +2898,14 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
                             cblas_dcopy(N2, inP,1, laterP,1);
                                 for ( vi = 0 ; vi < N2  ; vi += N1*N1){
                                     topezMult(f1, suP, N1, laterP+vi);
-                                    topezOp(two,tv1,N1,midP+vi, laterP+vi);
-                                    topezOp(two,tv2,N1,laterP+vi, midP+vi);
+                                    topezOp(two,tv1,N1,laterP+vi, midP+vi);
+                                    topezOp(two,tv2,N1,midP+vi, laterP+vi);
                                 }
                             //A
                             }
                         
                             else if ( timer == 1 ){
-                                flow = 1;
-
+                                flow = 1 ;
                             //B
                                 for ( vi = 0 ; vi < N2  ; vi += N1*N1){
                                     topezOp(two,tv1,N1,inP+vi, midP+vi);
@@ -2908,7 +2915,7 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
                             //B
                             }
                             else if ( timer == 2){
-                                flow = -1;
+                                flow = -1 ;
 
                             //C
                                 for ( vi = 0 ; vi < N2  ; vi += N1*N1){

@@ -297,19 +297,23 @@ INT_TYPE matrixLen(struct sinc_label f1, enum bodyType body, INT_TYPE space){
 INT_TYPE topezOp(enum bodyType bd,enum block tv, INT_TYPE N1,Stream_Type * vector ,  Stream_Type * vectorOut){
     //COULD ALWAYS TRANSLATE WITH TRANSLATION OPERATOR
     INT_TYPE n,m;
-    for ( n = 0 ; n < N1 ; n++)
-        vectorOut[n] = 0.;
     double sign = 1.;
     if (bd == one ){
+        for ( n = 0 ; n < N1 ; n++)
+            vectorOut[n] = 0.;
+
         //shift cblas_daxpy
         for (n = 1 ; n < N1 ; n++){
             cblas_daxpy(N1-n, sign/n, vector+n, 1, vectorOut, 1);
-            cblas_daxpy(N1-n, -sign/n, vector, 1, vectorOut+n,1);
             sign *= -1;
+            cblas_daxpy(N1-n, sign/n, vector, 1, vectorOut+n,1);
         }
         return 0;
         //with tolerances
     }else if ( bd == two ){
+        for ( n = 0 ; n < N1*N1 ; n++)
+            vectorOut[n] = 0.;
+
         switch( tv){
             case tv1:
                 //shift cblas_daxpy
@@ -317,7 +321,7 @@ INT_TYPE topezOp(enum bodyType bd,enum block tv, INT_TYPE N1,Stream_Type * vecto
                     sign = 1.;
                     for (n = 1 ; n < N1 ; n++){
                         cblas_daxpy(N1-n, sign/n, vector+n+m*N1,1, vectorOut+m*N1, 1);
-                        sign *= -1;
+                        sign *= -1;        //         m                   n
                         cblas_daxpy(N1-n, sign/n, vector+m*N1, 1, vectorOut+n+m*N1,1);
                     }
                 }
@@ -347,10 +351,13 @@ INT_TYPE topezMult(struct sinc_label f1, double* toep,INT_TYPE N1,Stream_Type * 
         INT_TYPE n;
         //shift cblas_daxpy
         cblas_dscal(N1, toep[0], vector, N1+1);
+        //printf("0 %f\n",toep[0]);
         for (n = 1 ; n < N1 ; n++){
             {
-                cblas_dscal(N1-n, toep[-n], vector+n, N1+1);
-                cblas_dscal(N1-n, toep[n], vector+N1*n, N1+1);
+              //  printf("%d %f %f\n",n,toep[n],toep[-n]);
+
+                cblas_dscal(N1-n, toep[n], vector+n, N1+1);
+                cblas_dscal(N1-n, toep[-n], vector+N1*n, N1+1);
             }
         //with tolerances
     }

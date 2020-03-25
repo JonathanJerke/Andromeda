@@ -155,7 +155,9 @@ struct field initField (void ) {
         i.i.epi = 2;
         i.i.d = 1;
 #else
-    i.i.d = 1.;
+    i.i.qFloor = 1;
+
+    i.i.d = 1;
     i.i.D = 0.1*2;
     i.i.cmpl = real;
     i.i.bRank = 2;
@@ -167,9 +169,10 @@ struct field initField (void ) {
     i.i.body = two;
     i.i.irrep = 0;
     i.i.cat  = 0;
-    i.i.epi = 1;
+    i.i.epi = 2;
         i.i.around=5;
-    
+    i.i.eikonFlag = 1;
+
 #endif
     return i;
 }
@@ -226,7 +229,7 @@ struct calculation initCal (void ) {
     
     i.rt.calcType = electronicStuctureCalculation;
     i.rt.runFlag = 0;
-    i.rt.phaseType = buildFoundation;
+    i.rt.phaseType = productKrylov;
     i.i.gaussCount = 0;
     //i.i.Na = 1;
 
@@ -257,13 +260,13 @@ struct calculation initCal (void ) {
     i.i.twoBody.func.interval  = 1;
     i.i.twoBody.func.param[0]  = 1;
     i.i.twoBody.func.param[1]  = 1;
-    i.i.twoBody.func.param[2]  = 1;
+    i.i.twoBody.func.param[2]  = 2;
 
     i.i.oneBody.num = 15;
     i.i.oneBody.func.interval  = 1;
     i.i.oneBody.func.param[0]  = 1.;
     i.i.oneBody.func.param[1]  = 1;
-    i.i.oneBody.func.param[2]  = 1;
+    i.i.oneBody.func.param[2]  = 2;
 #else
     i.i.springConstant = 0.;
     i.i.springFlag = 0;
@@ -1597,8 +1600,12 @@ else
     fromBeginning(*f1,eikonBuffer,quadCube);
     f1->tulip[eikonBuffer].Partition = 1;//beta independent
     f1->tulip[eikonBuffer].species = eikon;
-    assignParticle(*f1, eikonBuffer, all, bootBodies);
-
+    if ( bootBodies > one )
+        assignParticle(*f1, eikonBuffer, all, two);
+    else
+        assignParticle(*f1, eikonBuffer, all, one);
+        
+        
     
     
     {
@@ -1608,7 +1615,10 @@ else
             {
                 enum division label1 = f1->eikonLabels.head+ii;
                 f1->tulip[label1].Partition = 1;
-                assignParticle(*f1, label1, all, bootBodies);
+                if ( bootBodies > one )
+                    assignParticle(*f1, label1, all, two);
+                else
+                    assignParticle(*f1, label1, all, one);
                 f1->tulip[label1].species = eikon;
                 fromBeginning(*f1,label1,prev);
                 prev = label1;
@@ -1804,7 +1814,7 @@ else
         separateKinetic(*f1, 0,kinetic, c1->i.massElectron,electron);
 
     }
-#if 0 
+#if 0
     
     
     buildPairWisePotential(c1, f1,interactionExchange,electron,0,real);
@@ -1812,7 +1822,7 @@ else
     
     
     
-//        buildExternalPotential(c1, f1,linear,electron,!(!c1->rt.runFlag),real);
+        buildExternalPotential(c1, f1,linear,electron,!(!c1->rt.runFlag),real);
     tClear ( *f1,copyVector);
     zero(*f1, copyVector, 0);
     tId(*f1,copyVector,0);
@@ -1829,6 +1839,8 @@ else
     streams(*f1,copyVector,0,2)[(N1-1)/2-1] = -1;
 #endif
     printExpectationValues(*f1, interaction12, copyVector);
+    printExpectationValues(*f1, external1, copyVector);
+
     exit(0);
 #endif
 //if one has memory to build and wants Hamiltonian...

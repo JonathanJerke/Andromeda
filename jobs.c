@@ -204,10 +204,10 @@ INT_TYPE foundationM(struct calculation *c1, struct field f1){
 INT_TYPE krylov ( struct calculation *c1, struct field f1){
     INT_TYPE EV = 0,i,fi,next;
 
-
+#ifndef APPLE
     f1.i.qFloor = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
     //count canonical-rank...
-
+#endif
     
     f1.i.nStates =f1.i.Iterations  ;
    
@@ -218,8 +218,15 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
         tLoadEigenWeights (c1,f1, f1.i.fileList[fi], &EV,f1.f.user , f1.i.collect);
     }
         if (EV == 0 ){
+#ifdef APPLE
+            EV =1 ;
+            tId(f1.f, f1.f.user, 0);
+            
+            
+#else
         print(c1,f1,1,0,0,eigenVectors);
         return 1;
+#endif
         }
     INT_TYPE RdsSize = EV,iterator=0;
 
@@ -1254,7 +1261,12 @@ int run (INT_TYPE argc , char * argv[]){
         
 #if 0
 #ifdef APPLE
-        printf("%f\n",momentumIntegralInTrain(10, 2, 1,eikonSemiDiagonal, two));
+        for ( int n = 0 ; n < 10 ;n++){
+            printf("%d\n",n);
+        printf("%f\n",momentumIntegralInTrain(2, n, 1,eikonDiagonal, two));
+        printf("%f\n",momentumIntegralInTrain(2, n, 1,eikonSemiDiagonal, two));
+        printf("%f\n",momentumIntegralInTrain(2, n, 1,eikonOffDiagonal, two));
+        }
         return 0;
 #endif
 #else
