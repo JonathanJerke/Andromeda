@@ -4,7 +4,9 @@
 		turn 1.0
 		scalar 1
 		param 1.0
+		offDiagonals 1
 		interactionOne 3
+		offDiagonals 2
 		interactionTwo 2
 	.Parameters
 .Body
