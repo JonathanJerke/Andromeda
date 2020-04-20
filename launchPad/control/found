@@ -1,5 +1,6 @@
 *Body found/found
 	*InputOutput
+		path eikon
 		control core
 		read ../cnfg
 		read boot

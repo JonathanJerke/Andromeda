@@ -1,7 +1,10 @@
 *Body 
 	*Parameters
+		chain 0
 		eikon 0
 		phase 0
+		filter 1
+		matrix 200
 		switchGeometry
 #		Sign
 		blockReset
@@ -10,7 +13,7 @@
 #                blockMemory 3
 #                blockMemory 5
 		blockMemory 6
-		blockMemory 7
+#		blockMemory 7
 #		blockMemory 8
 		blockMemory 9
                 blockMemory 12
