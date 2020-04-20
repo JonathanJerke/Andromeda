@@ -71,11 +71,10 @@ Stream_Type* myStreams ( struct sinc_label f1, enum division label ,INT_TYPE spi
 Stream_Type* pMyStreams ( struct sinc_label *f1, enum division label ,INT_TYPE spin );
 Stream_Type* streams ( struct sinc_label f1, enum division label ,INT_TYPE spin, INT_TYPE space );
 Stream_Type* pStreams ( struct sinc_label *f1, enum division label ,INT_TYPE spin, INT_TYPE space );
- 
+INT_TYPE diagonalOp(enum bodyType bd,  INT_TYPE act, enum block op, enum block bl, INT_TYPE N1,Stream_Type * vector, Stream_Type * toep, Stream_Type* vectorOut);
 enum division anotherLabel(struct sinc_label *f1, enum particleType particle,enum bodyType body);
 void assignSplit( struct sinc_label f1, enum division twoMat ,INT_TYPE len, enum division oneMat, enum division bufcp );
-INT_TYPE topezMult(struct sinc_label f1, double* toep,INT_TYPE N1,Stream_Type * vector);
-INT_TYPE topezOp(enum bodyType bd,enum block tv, INT_TYPE N1,Stream_Type * vector ,  Stream_Type * vectorOut);
+INT_TYPE topezOp(enum bodyType bd,INT_TYPE act, enum block tv, enum block bl,  INT_TYPE N1,Stream_Type * vector , INT_TYPE pw, Stream_Type * vectorOut);
 double levelDetermine ( INT_TYPE M1 , double * array ,double level);
 void assignView(INT_TYPE lane, struct sinc_label  f1, enum division A,INT_TYPE part );
 void assignViewBlock(INT_TYPE lane, struct sinc_label  f1,  enum division A );
@@ -95,7 +94,6 @@ INT_TYPE tPauli ( struct sinc_label f1  );
 INT_TYPE tId ( struct sinc_label f1 , enum division label,INT_TYPE spin );
 INT_TYPE pBoot ( struct sinc_label *f1 , enum division label,INT_TYPE spin );
 INT_TYPE tBoot ( struct sinc_label f1 , enum division label,INT_TYPE spin );
-
 double vectorElement (struct sinc_label f1, enum division state, INT_TYPE l1,INT_TYPE l2 , INT_TYPE l3 );
 double matrixElement (struct sinc_label  f1, enum division label, INT_TYPE i , INT_TYPE i2, INT_TYPE j,INT_TYPE j2, INT_TYPE k , INT_TYPE k2 );
 void vectorArray (struct sinc_label f1, enum division oneVector, enum division array,INT_TYPE M1);
@@ -109,7 +107,11 @@ double volume ( struct input * f1 );
 INT_TYPE xAddTw( struct sinc_label f1 , enum division left, INT_TYPE lspin,struct sinc_label f2 ,  enum division right , INT_TYPE rspin);
 void xsAdd (double scalar ,  INT_TYPE dim ,struct sinc_label  f1 , enum division targ ,INT_TYPE tspin,struct sinc_label  f2 , enum division orig,INT_TYPE o,INT_TYPE ospin );
 void xsEqu (double scalar ,  INT_TYPE dim ,struct sinc_label  f1 , enum division targ ,INT_TYPE t,INT_TYPE tspin,INT_TYPE dim2,struct sinc_label  f2 , enum division orig,INT_TYPE o,INT_TYPE ospin );
-
+enum division defSpiralVector( struct sinc_label *f1, INT_TYPE term, enum division ket);
+enum division defSpiralMatrix( struct sinc_label *f1, enum division H);
+enum division defSpiralGrid( struct sinc_label *f1, enum division bra, INT_TYPE term, double diagonalPreference);
+enum division defRefVector( struct sinc_label *f1, INT_TYPE spiralOp, enum division ket);
+INT_TYPE zeroSpiraly( struct sinc_label f1, enum division spiral);
 double xEqua ( struct sinc_label  f1 , enum division targ ,INT_TYPE tspin,struct sinc_label  f2 , enum division orig,INT_TYPE ospin );
 double xTwoBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struct sinc_label  f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
 double xThreeBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struct sinc_label  f2, enum division out,INT_TYPE s2, INT_TYPE periodic);

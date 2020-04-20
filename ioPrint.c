@@ -43,7 +43,8 @@ INT_TYPE printVector (struct calculation *c,struct sinc_label f1, char * name,ch
     outf = fopen (str,"a");
     for ( iii = iv; iii <= iv  ; iii++)
     {
-        if ( cabs(*vector)> c->rt.TARGET){
+//        if ( cabs(*vector)> c->rt.TARGET)
+        {
             if( f1.cmpl == 2)
                 fprintf(outf, "\"%s\",%d,%15.15f,%15.15f\n",name, iii+1,creal(*vector),cimag(*vector));
             else
@@ -58,6 +59,7 @@ INT_TYPE print(struct calculation *c , struct field f1,INT_TYPE reset,INT_TYPE m
     INT_TYPE irrep;
     INT_TYPE iii,jjj=1,cmpl;
     char str [SUPERMAXSTRING];
+#ifndef APPLE
     DCOMPLEX one = 1.;
     if ( reset ) {
         FILE * outf ;
@@ -70,10 +72,6 @@ INT_TYPE print(struct calculation *c , struct field f1,INT_TYPE reset,INT_TYPE m
         {
             irrep = tClassify(0, f1.f, eigenVectors+iii);
                 printf("State%d:%d:,%d ,%1.15f, %d, %d(%d) , %1.1f,%1.15f\n", iii+1, f1.i.epi*2+1,iii+1,f1.f.tulip[eigenVectors+iii].value.value,bodies(f1.f,eigenVectors+iii),irrep,irreps(f1.i.body,irrep), deg(f1.f, irreps(f1.i.body,irrep)),f1.f.tulip[eigenVectors+iii].value.value2);
-                    //SIGNAGE
-                    one = sqrt(fabs(f1.f.tulip[eigenVectors+iii].value.value));
-                    if (f1.f.tulip[eigenVectors+iii].value.value < 0 )
-                        one *= -1.;
             
                     printVector(c,f1.f, c->name,c->name, iii,irrep, &one);
                     for ( cmpl = 0 ; cmpl < spins(f1.f, eigenVectors+iii) ; cmpl++)
@@ -93,6 +91,7 @@ INT_TYPE print(struct calculation *c , struct field f1,INT_TYPE reset,INT_TYPE m
             }
 
     fflush(stdout);
+#endif
     return 0;
 }
 
@@ -1127,6 +1126,8 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                             f2.f.rt = &c2.rt;
                             f2.f.rt->phaseType = productKrylov;
                             f2.i = f.i;
+                            f2.i.chainFlag = 0;
+
                             f2.i.Iterations = 1;
                             f2.i.files = 0;
                             f2.i.filesVectorOperator = 0;
@@ -1229,7 +1230,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                         if ( creal(Occ) < 0. ){
                             printf("matrix -neg-");
 
-                            f1.tulip[inputVectors+*ct].operatorSignFlag = 1;
+                     //       f1.tulip[inputVectors+*ct].operatorSignFlag = 1;
                             ov = traceOne(f1, inputVectors+*ct, 0);
 
                         }else {
@@ -1252,10 +1253,10 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                     }
                     else{
                         printf("Norm %f\n",(creal(ov)));
-                        if ( (cabs(ov)) > c1->rt.TARGET)
+//                        if ( (cabs(ov)) > c1->rt.TARGET)
                             (*ct)++;
-                        else
-                            printf("skipped\n");
+//                        else
+//                            printf("skipped\n");
                     }
                 }
             }

@@ -752,7 +752,7 @@ INT_TYPE completeInverse (INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim,enu
 
 
 
-
+#if 0
 double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Stream_Type * cofact, enum division origin,INT_TYPE l1,INT_TYPE l2,INT_TYPE os,   enum division alloy ,INT_TYPE l3,INT_TYPE l4,  INT_TYPE spin ,double tolerance,double magn, INT_TYPE preferred){
     if ( tolerance < 0 ){
         tolerance = -(tolerance);
@@ -795,19 +795,20 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
     
     if ( L1 == 0 ){
         printf("CD: zero length %d %d %d\n", origin,alloy,spin);
-        exit(0);
+      //  exit(0);
         tId(f1, alloy, spin);
         L1 = 1;
         l4 = 1;
         l3 = 0;
     }
     if ( G1 <= L1 ){
-       // printf("here %d %d :%d %d\n", l1,l2,l3,l4);
+        printf("here %d %d :%d %d\n", l1,l2,l3,l4);
+      //  exit(0);
         for ( l = 0 ; l < L1 ; l++)
         {
             double sum;
             INT_TYPE ll,flag = 0;
-            
+
             sum = 0.;
             for ( ll = 0 ; ll < L1 ; ll++)
                 if ( (ll%G1) == (l%G1) )
@@ -815,12 +816,11 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
             for ( space = 0 ;space < SPACE ; space++)
                 if ( f1.rose[space].body != nada){
                     if ( ! flag ){
-                    //    printf("%f\n", sum);
-                        xsEqu(1./sum, space, f1, alloy, l+l3, spin, space,f1, origin, (l%G1)+l1, os);
+                        xsEqu(1./sum, space, f1, alloy, ll+l3, spin, space,f1, origin, (l%G1)+l1, os);
                         flag =1;
                     }
                     else{
-                        xsEqu(1., space, f1, alloy, l+l3, spin,space, f1, origin, (l%G1)+l1, os);
+                        xsEqu(1., space, f1, alloy, ll+l3, spin,space, f1, origin, (l%G1)+l1, os);
                     }
                 }
         }
@@ -833,9 +833,9 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
     double rcond;
     enum division canonicalStore;
     INT_TYPE T1 = G1*L1;
-    if (! singleFlag && (T1 + L1*L1 <=  part(f1,canonicalBuffers))){//REF CORE NUMBER
+    if (! singleFlag ){//REF CORE NUMBER
         //GET CORE... ALLOCATE TO CORE-LANE.
-        
+        //&& (T1 + L1*L1 <=  part(f1,canonicalBuffers))
         
         for ( space = 0; space < SPACE ; space++){
             array[space] =  streams(f1, canonicalBuffers, rank , space);
@@ -846,19 +846,16 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
         track =  myStreams(f1, trackBuffer, rank );
         
         
-        if (  T1 + L1*L1 >  part(f1,canonicalBuffers)|| T1 > part(f1,guideBuffer) || L1*L1 > part(f1,trackBuffer)){
+        if (  L1*G1 + L1*L1 >  part(f1,canonicalBuffers)|| L1*G1 > part(f1,guideBuffer) || L1*L1 > part(f1,trackBuffer)){
 #if 1
             printf("mem prob\n %d %d \n", L1, G1);
 #endif
             exit(0);
         }
         
-        if ( species(f1, origin ) == matrix )
-            canonicalStore = canonicalBuffersBM;
-        else
-            canonicalStore = canonicalBuffersB;
+        canonicalStore = canonicalBuffersB;
         
-        if ( part(f1, canonicalStore) < L1  )
+        if ( part(f1, canonicalStore) < L1)
         {
             printf("list alloc\n");
             exit(0);
@@ -869,7 +866,7 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
     {//REF CORE NUMBER
         //GET CORE... ALLOCATE TO CORE-LANE.
         
-        
+        printf("list\n");
         for ( space = 0; space < SPACE ; space++){
             array[space] =  streams(f1, canonicalBuffers0, 0 , space);
             array2[space] =  streams(f1, canonicalBuffers0, 0 , space) + L1*L1;
@@ -881,17 +878,15 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
         
         if (  T1 + L1*L1 >  part(f1,canonicalBuffers0) || T1 > part(f1,guideBuffer0) || L1*L1 > part(f1,trackBuffer0)){
 #if 1
+            INT_TYPE g =part(f1,guideBuffer0), t =part(f1,trackBuffer0);
             printf("mem prob0\n %d %d  = %d\n", L1, G1,part(f1,canonicalBuffers0));
 #endif
             exit(0);
         }
         
-        if ( species(f1, origin ) == matrix )
-            canonicalStore = canonicalBuffersBM;
-        else
             canonicalStore = canonicalBuffersB;
         
-        if ( part(f1, canonicalStore) < L1  )
+        if ( part(f1, canonicalStore) < L1 )
         {
             printf("list alloc\n");
             exit(0);
@@ -899,6 +894,8 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
         
         
     }
+    double *pt = myStreams(f1,canonicalStore , rank);
+
     INT_TYPE dim0 = 0;
     
     INT_TYPE dim[SPACE],ll;
@@ -952,7 +949,14 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
                         
                         dim[(space0+space)%(spaces)] = dim0++;
                 
-            }
+            } else {
+                       for ( space = 0; space < SPACE ; space++)
+                           if ( f1.rose[space].body != nada)
+                               
+                               dim[dim0++] = (preferred+space)%(spaces);
+                       
+                       
+                   }
             cblas_dcopy(L1*L1, array[dim[1]],1,track,1);
             for ( space = 2; space < dim0 ; space++)
                 if ( f1.rose[dim[space]].body != nada)
@@ -990,7 +994,6 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
             
             
             
-            double *pt = myStreams(f1,canonicalStore , rank);
             
 //            if ( 0 ) {
 //                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,L1,M2[dim[0]],G1,1,guide,L1,streams(f1,origin,os,dim[0]),M2[dim[0]], 0, pt, L1 );
@@ -1095,7 +1098,7 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
                 return 0;
             }
             
-          // printf("(%3.3f %3.3f)\n", subValue2, subValue3);
+        //  printf("(%3.3f %3.3f)\n", subValue2, subValue3);
             count++;
             if ( space0 > 1000 )
             {
@@ -1116,9 +1119,453 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
     return -1;
 }
 
+#else
+
+double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Stream_Type * cofact, enum division origin,INT_TYPE l1,INT_TYPE l2,INT_TYPE os,   enum division alloy ,INT_TYPE l3,INT_TYPE l4,  INT_TYPE spin ,double tolerance,double condition, INT_TYPE X1){
+    if ( l2 < l1 || l4 < l3 ){
+        printf("indices out of order!\n");
+        printf("%d %d %d %d\n", l1,l2,l3,l4);
+        printf("%d %d\n", origin, alloy);
+        exit(0);
+    }//shorten3Plus x200
+    double iGG=0,iGF=0,iFF=0;
+    INT_TYPE flagAllDim;
+    INT_TYPE g,l,count = 1 ,spaces=0;
+    Stream_Type * array[SPACE],curr=0.,prev;
+    Stream_Type * array2[SPACE],*norm[SPACE];
+    Stream_Type * guide, *track;
+    INT_TYPE space,space0;
+    INT_TYPE L1 = l4-l3,preferred =-1;
+    double ww[L1];
+
+    
+    
+    
+    
+    
+    INT_TYPE G1 = l2-l1;
+    if ( G1 == 0 ){
+        f1.tulip[alloy].Current[spin] = 0;
+        printf("CD: empty origin %d _%d -> %d _%d\n", origin, os , alloy, spin);
+        exit(0);
+        return 0;
+    }
+    for ( space = 0; space < SPACE ; space++)
+        if ( f1.rose[space].body != nada )
+            spaces++;
+     if ( L1 == 0 ){
+        printf("CD: zero length %d %d %d\n", origin,alloy,spin);
+        exit(0);
+        tId(f1, alloy, spin);
+        L1 = 1;
+        l4 = 1;
+        l3 = 0;
+    }
+    
+    INT_TYPE M2[SPACE];
+    length(f1,alloy,M2);
+    INT_TYPE info;
+    enum division canonicalStore;
+    INT_TYPE LS1 = L1;
+    {//REF CORE NUMBER
+        //GET CORE... ALLOCATE TO CORE-LANE.
+        //&& (T1 + L1*L1 <=  part(f1,canonicalBuffers))
+        
+        for ( space = 0; space < SPACE ; space++){
+            array[space] =  streams(f1, canonicalBuffers, rank , space);
+            array2[space] =  array[space] + L1*L1;
+            norm[space] = array2[space] + G1*L1;
+        }
+        guide =  myStreams(f1, guideBuffer, rank );
+        track =  myStreams(f1, trackBuffer, rank );
+        
+        
+        if (  L1*G1 + L1*L1+L1 >  part(f1,canonicalBuffers)|| G1*L1 > part(f1,guideBuffer) || L1*L1*2 > part(f1,trackBuffer)){
+#if 1
+            printf("mem prob\n %d %d \n", L1, G1);
+#endif
+            exit(0);
+        }
+        
+        canonicalStore = canonicalBuffersB;
+        
+        if ( part(f1, canonicalStore) < L1 + G1)
+        {
+            printf("list alloc\n");
+            exit(0);
+        }
+        
+        
+    }
+    double *pt = myStreams(f1,canonicalStore , rank);
+    double *ot = myStreams(f1,canonicalStore , rank)+L1;
+    INT_TYPE dim0 = 0;
+    
+    
+    Stream_Type ** originStream[SPACE];
+    Stream_Type ** alloyStream[SPACE];
+    for ( space = 0; space < SPACE;space++){
+    {
+        originStream[space] = malloc(G1*sizeof(Stream_Type*));
+        enum division nIter;
+        INT_TYPE n,ni;
+        nIter = origin;//582
+        ni = 0;
+        for ( n = 0; n < G1+l1 ; n++){
+            if ( n >= l1 ){
+                originStream[space][n-l1] = streams(f1, nIter, os, space) +(n - ni)*M2[space] ;
+//                if ( ! space )
+//                    printf("%d %u\n", n-l1, originStream[space][n-l1]-originStream[space][0]);
+            }
+            while( n - ni >= f1.tulip[nIter].Current[os]&& n+1 < L1+l3){
+                   ni += f1.tulip[nIter].Current[os];
+                   nIter = f1.tulip[nIter].chainNext;
+                   if ( nIter == nullName){
+                       printf("warning, offfA rails");
+                       exit(0);
+                       }
+               }
+        }
+    
+        
+        {
+            alloyStream[space] = malloc(L1*sizeof(Stream_Type*));
+
+            INT_TYPE n,ni;
+            enum division nIter;
+            nIter = alloy;
+            ni = 0;
+            for ( n = 0; n < L1+l3 ; n++){
+                if ( n >= l3){
+                    alloyStream[space][n-l3] = streams(f1, nIter, spin, space) +(n - ni)*M2[space] ;
+//                    if ( ! space )
+//                        printf("%d %u\n", n-l3, alloyStream[space][n-l3]-alloyStream[space][0]);
+                }
+                
+                while ( n - ni >= f1.tulip[nIter].Current[spin] && n+1 < L1+l3){
+                        ni += f1.tulip[nIter].Current[spin];
+                        nIter = f1.tulip[nIter].chainNext;
+                        if ( nIter == nullName){
+                            printf("warning, offfB rails");
+                            exit(0);
+                            }
+                }
+            }
+        }
+    
+    }
+    }
+    
+    Stream_Type * u = alloyStream[0][0];
+    {
+        double product,sum=0.;
+        INT_TYPE l,ll,space;
+        for ( l = 0 ; l < G1 ; l++)
+            for ( ll = 0; ll< G1 ; ll++){
+                product = 1.;
+                for (space = 0; space < SPACE ; space++)
+                    product *= cblas_ddot(M2[space], originStream[space][l], 1, originStream[space][ll], 1);
+                sum += product;
+            }
+        iGG = sum;
+    }
+    
+    {
+        
+        if ( L1 >= G1 ){
+            for ( l = 0; l < G1 ; l++)
+                for ( space = 0 ; space < SPACE ; space++)
+                    cblas_dcopy(M2[space], originStream[space][l],1,alloyStream[space][l],1);
+           // printf("short");
+            return G1 - L1;
+        }
+        if ( iGG < tolerance ){
+           // printf("small\n");
+            return -L1 + 1;
+        }
+    }
+    
+    INT_TYPE dim[SPACE],ll;
+    
+    {
+        
+        space0 = 0;
+        
+        dim0=0;
+        if ( preferred == -1 ){
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1.rose[space].body != nada)
+                    dim[(space0+space)%(spaces)] = dim0++;
+        } else {
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1.rose[space].body != nada){
+                    dim[dim0++] = (preferred+space)%(spaces);
+            }
+        }
+        for ( space = 0; space < dim0 ; space++)
+            if ( f1.rose[space].body != nada){
+            
+                INT_TYPE m,n,i=0;
+                for ( m = 0; m < L1; m++){
+                            norm[space][ m ] = cblas_dnrm2(M2[space], alloyStream[space][m],1);
+                            i = 0;
+                    while ( (norm[space][m])*max(1.,1./iGG) < 1e-13 ){
+                                if ( ! i )
+                                    cblas_dcopy(M2[space], originStream[space][(i++)%G1], 1, alloyStream[space][m], 1);
+                                else if ( i )
+                                    cblas_daxpy(M2[space],1., originStream[space][(i++)%G1], 1, alloyStream[space][m], 1);
+                            norm[space][ m ] = cblas_dnrm2(M2[space], alloyStream[space][m],1);
+
+                        }
+                            cblas_dscal(M2[space], 1./(norm[space][m]),alloyStream[space][m], 1);
+                            if ( space )
+                                norm[space][ m ] = 1.;
+                    array[space][ m*LS1 + m ]  = 1.;
+
+                        for ( n = 0; n < m ; n++){
+                            array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][m],1);
+                            array[space][ m*LS1 + n ] = array[space][ n*LS1 + m ];
+                        }
+                
+                    
+                    
+                    for ( n = 0; n < G1 ; n++){
+                        array2[space][ n*LS1 + m ] = cblas_ddot(M2[space],originStream[space][n],1,alloyStream[space][m],1);
+                    }
+                    //printf("%d %d %f %f %f\n",m, M2[space],array2[space][ m*LS1 + m ],array[space][m*LS1+m],norm[space][ m ]);
+
+                }
+                
+            }
+        }
+            
+        space0 = 0;
+        while (1 ){
+            //all computed inner products
+            //            printf("dim[0]=%d\n", dim[0]);
+            dim0 = 0;
+            if ( preferred == -1 ){
+                for ( space = 0; space < SPACE ; space++)
+                    if ( f1.rose[space].body != nada)
+                        dim[(space0+space)%(spaces)] = dim0++;
+                }
+            else {
+                       for ( space = 0; space < SPACE ; space++)
+                           if ( f1.rose[space].body != nada)
+                               
+                               dim[dim0++] = (preferred+space)%(spaces);
+                       
+                       
+                   }
+            for ( l =0  ; l < L1 ; l++)
+                cblas_dcopy(L1, array[dim[1]]+l*LS1,1,track+l*LS1,1);
+            for ( space = 2; space < dim0 ; space++)
+                if ( f1.rose[dim[space]].body != nada)
+                    for ( l =0  ; l < L1 ; l++)
+                        cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array[dim[space]]+l*LS1,1, track+l*LS1,1 );
+           
+            cblas_dcopy(LS1*LS1, track, 1, track+LS1*LS1, 1);
+            
+            
+            if ( L1 >1 ){
+                
+                ww[0] = 0.;
+                //F - ll = 0
+            if (  ww[0] <= condition && X1 < L1){
+             //   INT_TYPE i,ii;
+//                for ( i = 0; i < L1 ; i++)
+//                    for ( ii =0; ii < L1 ; ii++)
+//                        printf("%f \n", (track+LS1*LS1)[i*LS1 +ii]);
+            tdsyev(rank, f1, 'N', L1, track+LS1*LS1, LS1, ww);
+                if ( ww[0]/ww[L1-1] <= condition ){
+                    L1 -= 1;
+                    printf("drop %d %f %f\n",L1, ww[0]/ww[L1-1],condition);
+                }
+            }
+                
+                
+                for ( l = 0 ; l < L1; l++)
+                    track[ l*LS1 + l ] += condition ;
+
+                    
+                }
+
+            
+            for ( l = 0; l < G1 ; l++)
+                cblas_dcopy(L1, array2[dim[1]]+l*LS1,1,guide+l*L1,1);
+            for ( space = 2; space < dim0 ; space++)
+                if ( f1.rose[dim[space]].body != nada)
+                    for ( l = 0; l < G1 ; l++)
+                        cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[dim[space]]+l*LS1,1, guide+l*L1,1 );
+            if ( cofact != NULL )
+                for ( g = 0; g < G1 ; g++)
+                    for ( l = 0; l < L1 ; l++)
+                        guide[g*L1+l] *= (cofact+l1)[g];
+            
+            // Vectors  L1 x G1
+            // list...  L1 x M2 ==   ( cross * gstream**T )
+            
+            {
+                info = tdpotrf(L1, track,LS1);
+                if ( info != 0 ){
+#if 1
+                    printf("info failure %d\n",L1);
+#endif
+                    for ( space = 0 ; space < SPACE ; space++){
+                        free(alloyStream[space]);
+                        free(originStream[space]);
+                    }
+                    return 1;
+                }
+                INT_TYPE lll;
+                for ( ll = 0; ll < M2[dim[0]] ; ll++){
+                    for ( lll = 0 ;lll < G1 ; lll++)
+                        ot[lll] = originStream[dim[0]][lll][ll];
+                    cblas_dgemv(CblasColMajor, CblasNoTrans,L1,G1,1.,guide,L1,ot,1, 0., pt,1);
+
+                    {
+                        info = tdpotrs(L1,  1, track,LS1,  pt,LS1 );
+                        if ( info != 0 ){
+#if 1
+                            printf("info failture\n");
+#endif
+                            for ( space = 0 ; space < SPACE ; space++){
+                                free(alloyStream[space]);
+                                free(originStream[space]);
+                            }
+
+                            return 1;
+                        }
+                    }
+                    for ( lll = 0 ;lll < L1 ; lll++){
+                        alloyStream[dim[0]][lll][ll] = pt[lll];
+                    }
+                }
+            }
+
+            if (space0 % SPACE == 0 ){
+
+                for ( l = 0; l < G1 ; l++){
+                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[dim[0]]+l*LS1,1, guide+l*L1,1 );
+                }
+                for ( l =0  ; l < L1 ; l++)
+                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array[dim[0]]+l*LS1,1, track+l*LS1+LS1*LS1,1 );
+
+                    iFF = 0.; iGF = 0.;
+                    double product;
+                for ( l = 0 ; l < L1 ; l++){
+                 //   printf("%f %f %f\n", norm[0][l],norm[1][l],norm[2][l]);
+
+                    for ( ll = 0; ll < L1 ; ll++){
+                        product = 1.;
+                        for ( space = 0; space < SPACE ; space++){
+                            product *= (norm[space][l]*norm[space][ll]);
+                        }
+                    //    printf("%f %f \n", product ,(track+LS1*LS1)[ l*LS1+ll]  );
+                        iFF += product *(track+LS1*LS1)[ l*LS1+ll] ;
+                        
+                    }
+                    }
+                
+                for ( l = 0 ; l < G1 ; l++)
+                    for ( ll = 0; ll < L1 ; ll++){
+                        product = 1.;
+                        for ( space = 0; space < SPACE ; space++)
+                            product *= (norm[space][ll]);
+                        iGF += product* (guide)[ l*L1+ll] ;
+                        
+                    }
+
+            
+            prev =curr;
+                curr = fabs(iGG+iFF - 2 * iGF)/iGG;
+            if (count > 10&&  fabs(curr) < tolerance ){
+                printf("A %d %1.15f > %f (%f %f %f)\n", count,curr,tolerance,iGG,iGF,iFF);
+
+                return L1-LS1;
+            }
+            if ( count > 100 && fabs( (curr-prev)*max(1.,1./prev) ) < tolerance){
+                printf("R %d %1.15f > %f (%f %f %f)\n", count,curr,tolerance,iGG,iGF,iFF);
+
+                return L1-LS1;
+            }
+                if ( count > 1000)
+                {
+                    printf("F %d %1.15f > %f (%f %f %f)\n", count,curr,tolerance,iGG,iGF,iFF);
+                    return 1;
+            }
+             //   printf("C %d %1.15f > %f (%f %f %f) canon %d %d \n", count,(iGG+iFF - 2 * iGF)/iGG,tolerance,iGG,iGF,iFF, G1,L1);
+
+            }
+            
+            
+            
+            
+            
+            flagAllDim = 0;
+            count++;
+            //IMPROVE!!
+
+            
+            {
+                    INT_TYPE space ;
+                for ( space = 0 ; space < SPACE ; space++)
+                    if ( flagAllDim == 1 || space == dim[0])
+                {
+                            
+                                INT_TYPE m,n,i=0;
+                                for ( m = 0; m < L1; m++){
+                                    
+                                    norm[space][ m ] = cblas_dnrm2(M2[space], alloyStream[space][m],1);
+                                    i = 0;
+                                    while ( (norm[space][m])*max(1.,1./iGG) < 1e-13 ){
+                                        if ( ! i )
+                                            cblas_dcopy(M2[space], originStream[space][(i++)%G1], 1, alloyStream[space][m], 1);
+                                        else
+                                            cblas_daxpy(M2[space],1., originStream[space][(i++)%G1], 1, alloyStream[space][m], 1);
+                                        norm[space][ m ] = cblas_dnrm2(M2[space], alloyStream[space][m],1);
+                                    }
+                                    cblas_dscal(M2[space], 1./(norm[space][m]),alloyStream[space][m], 1);
+                                    if ( space != dim[0] )
+                                        norm[space][ m ] = 1.;
+                                    array[space][ m*LS1 + m ]  = 1.;
+                                    for ( n = 0; n < m ; n++){
+                                            array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][m],1);
+                                            array[space][ m*LS1 + n ] = array[space][ n*LS1 + m ];
+                                        }
+                                
+                                    
+                                    
+                                    for ( n = 0; n < G1 ; n++){
+                                        array2[space][ n*LS1 + m ] = cblas_ddot(M2[space],originStream[space][n],1,alloyStream[space][m],1);
+                                    }
+                                  //  printf("%d %d %f %f %f\n",m, M2[space],array2[space][ m*LS1 + m ],array[space][m*LS1+m],norm[space][ m ]);
+
+                                }
+                                
+                }else {
+                    INT_TYPE m;
+                    for ( m = 0; m < L1; m++){
+                        norm[space][m] = 1.;
+                    }
+                }
+            }
+            
+            
+            
+
+             space0++;
+            
+        }
+    return -1;
+}
+
+#endif
 
 double tCycleDecompostionListOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
     INT_TYPE ct,ft;
+    if ( rank < 0 )
+        rank = 0;
     if ( CanonicalRank(f1, origin, os) <= maxRun){
         tEqua(f1, alloy, spin, origin, os);
         return 0.;
@@ -1137,7 +1584,7 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
     do{
         if ( !CanonicalRank(f1,alloy,spin))
             tId(f1,alloy,spin);
-        ct = canonicalGridDecompositionMP(rank, f1, coeff, origin, 0,CanonicalRank(f1,origin,os),os,alloy, 0,CanonicalRank(f1,alloy,spin),spin, toleranceAdjust*tolerance,value2,-1);
+        ct = canonicalGridDecompositionMP(rank, f1, coeff, origin, 0,CanonicalRank(f1,origin,os),os,alloy, 0,CanonicalRank(f1,alloy,spin),spin, toleranceAdjust*tolerance,toleranceAdjust*f1.rt->ALPHA,-1);
     
         if ( coeff == NULL ){
             value = (distance1(f1, origin,os, alloy,spin));
@@ -1161,10 +1608,10 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
             printf("List bailed \n");
 #endif
             f1.tulip[alloy].Current[spin]--;
-            canonicalGridDecompositionMP(rank, f1, coeff, origin, 0,CanonicalRank(f1,origin,os),os,alloy, 0,CanonicalRank(f1,alloy,spin),spin, toleranceAdjust*tolerance,value2,-1);        return 0;
+            canonicalGridDecompositionMP(rank, f1, coeff, origin, 0,CanonicalRank(f1,origin,os),os,alloy, 0,CanonicalRank(f1,alloy,spin),spin, toleranceAdjust*tolerance,f1.rt->ALPHA,-1);        return 0;
         }
         else if ( ct == 1 || ! ft ){
-            toleranceAdjust /= 1.1;
+            toleranceAdjust *= 2.;
 
         }
         else if ( ct == 0 ){
@@ -1189,23 +1636,25 @@ double tCycleDecompostionListOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
     return 0.;
 }
 double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
+    if ( rank < 0 )
+        rank = 0;
 
 #ifdef CHROME
     if ( power < 0.5 ){
-        printf("List\n");
+      //  printf("List\n");
 
-        return tCycleDecompostionListOneMP(0, f1, origin, os, coeff, alloy, spin, tolerance, maxRun, power);
+        return tCycleDecompostionListOneMP(rank, f1, origin, os, coeff, alloy, spin, tolerance, maxRun, power);
     }
     else{
-        printf("Chromatic\n");
+      //  printf("Chromatic\n");//
 
     
-        return tCycleDecompostionChromaticOneMP( f1, origin, os, coeff, alloy, spin, tolerance, maxRun, power);
+        return tCycleDecompostionChromaticOneMP(rank, f1, origin, os, coeff, alloy, spin, tolerance, f1.rt->ALPHA,maxRun, power);
     }
 #endif
     //if ( power < 0.5 ){//0
-        printf("LIST\n");
-        return tCycleDecompostionListOneMP(0, f1, origin, os, coeff, alloy, spin, tolerance, maxRun, power);
+      //  printf("LIST\n");
+        return tCycleDecompostionListOneMP(rank, f1, origin, os, coeff, alloy, spin, tolerance, maxRun, power);
     //}
 
     
@@ -1347,13 +1796,13 @@ double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum
     }
     return 0.;
 
-}
+ }
 
-double tCycleDecompostionSingleFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance ,INT_TYPE oRun, INT_TYPE pRun, INT_TYPE nRun, INT_TYPE * xi , INT_TYPE * mi,INT_TYPE *xr,INT_TYPE * mr ){
-    INT_TYPE l,ll;
-    
+double tCycleDecompostionSingleFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance ,double condition,INT_TYPE oRun, INT_TYPE nRun, INT_TYPE * mi , INT_TYPE * xi,INT_TYPE *mr,INT_TYPE * xr ){
     INT_TYPE *iiii[2][2];
     INT_TYPE *iii[2][2];
+    if ( nRun <= 0 )
+        return 0;
 
     iiii[0][0] = malloc(nRun * sizeof( INT_TYPE ));
     iiii[0][1] = malloc(nRun * sizeof( INT_TYPE ));
@@ -1365,144 +1814,67 @@ double tCycleDecompostionSingleFibonacciOneMP ( INT_TYPE rank, struct sinc_label
     iii[1][1] = xi;
     
     
-//    if(0)
-//    if ( a2-a1 > o2-o1 ){
-//        {
-//            for ( l = 0 ; l < a2-a1 ; l++)
-//            {
-//                double sum;
-//                INT_TYPE space;
-//
-//                sum = 0.;
-//                for ( ll = 0 ; ll < a2-a1 ; ll++)
-//                    if ( (ll%(o2-o1)) == (l%(o2-o1)) )
-//                        sum += 1.;
-//                for ( space = 0 ;space < SPACE ; space++)
-//                    if ( f1.rose[space].body != nada)
-//                        xsEqu(1./sum, space, f1, alloy, l+a1, spin, f1, origin, (l%(o2-o1))+a1, os);
-//            }
-//            return 0;
-//        }
-//
-//    }
     
+    INT_TYPE ct,run,r2,space,r;
+    double bailFlag = 0,toleranceAdjust = tolerance, conditionAdjust = condition;
     
-    
-    INT_TYPE r,ran1,step,ct,run,r2;
-    if ( nRun <= 0 )
-        return 0;
-//    if ( o2 == o1 || a2 <= a1 )
-//        return 0;
+    while ( nRun > oRun ){
+        {
+            for ( r2 = 0; r2 < nRun; r2++ ){
+                fflush(stdout);
+                toleranceAdjust = tolerance;
+                conditionAdjust = condition;
+                do{
+                    //printf("alloy %d->%d core %d::nRun %d r2 %d\n",alloy, name(f1,alloy), rank,nRun,r2);
 
-    double bailFlag = 0,toleranceAdjust = 1. ;//= cblas_dnrm2 ( part(f1, origin), coeff, 1);
+                    ct = canonicalGridDecompositionMP(rank, f1, coeff, origin,iii[1][0][r2],iii[1][1][r2], os,alloy, iii[0][0][r2],iii[0][1][r2],spin, toleranceAdjust/sqrt(iii[0][1][r2]-iii[0][0][r2]),conditionAdjust,iii[0][1][r2]-iii[0][0][r2]);
+                    if ( ct > 0  ){
+                        ct = 0;
+                     //   toleranceAdjust *=2;
+                       // conditionAdjust *=2;
+                    }else if ( ct < 0 ){
+                        INT_TYPE t,i;
+                        //reduce iii[0] ranges
+                        for (t = 0 ; t > ct ; t--){
+                                    INT_TYPE L1 = iii[0][1][r2]-iii[0][0][r2], n,ni,l3 =iii[0][0][r2];
+                                    enum division nIter;
+                                    nIter = alloy;
+                                    ni = 0;
+                                    for ( n = 0; n < L1+l3 ; n++){
 
-//    if ( 0&&rank == -2 ){
-//        value2 = 1.00;
-//    }else {
-//        if ( coeff == NULL )
-//            value2 = sqrt(inner(f1, origin,os));
-//        else
-//            value2 = sqrt(tInnerListMP(imax(0,rank), f1, origin, coeff));
-//    }
- //   printf("/%f/\n", value2);
-
-//    if ( value2 < f1.rt->TARGET ){
-//        f1.tulip[alloy].Current[spin]=0;
-//        return 0;
-//    }
-//    assignCores(f1, 1);
-//    f1.tulip[alloy].Current[spin] = 0;
-//    for ( run = 0; run < maxRun ; run++){
-//        tId(f1, alloy,spin);
-//    }
-    //f1.tulip[alloy].Current[spin] = o2-o1;
-    
-//    if (0){
-//    nRun = a2-a1 ;
-//    step = imax(1,(o2-o1)/(a2-a1));
-//    for ( r = 0; r < a2-a1 ; r++){
-//        iii[1][0][r] = r*step+o1;
-//        iii[1][1][r] = (r+1)*step+o1;
-//        iii[0][0][r] = r+a1;
-//        iii[0][1][r] = (r+1)+a1;
-//    }
-//    iii[1][1][a2-a1-1] = o2;
-//    if (iii[1][1][a2-a1-1] == iii[1][0][a2-a1-1] ){
-//        nRun--;
-//        iii[1][1][a2-a1-1-1] = iii[1][1][a2-a1-1];
-//        iii[0][1][a2-a1-1-1] = iii[0][1][a2-a1-1];
-//
-//    }
-//    }
-
-    while ( nRun >oRun ){
-        DCOMPLEX CD;
-        if ( nRun > pRun ){
-        #ifdef OMP
-        #pragma omp parallel for private (ran1,CD,r2,ct,toleranceAdjust) schedule(dynamic,1)
-        #endif
-
-                for ( r2 = 0; r2 < nRun; r2++ ){
-        #ifdef OMP
-                    ran1 = omp_get_thread_num();
-        #else
-                    ran1 = 0;
-        #endif
-                    pOverlap(rank,f1, origin, iii[1][0][r2], iii[1][1][r2], os,  origin, iii[1][0][r2], iii[1][1][r2], os, &CD);
-                    
-                    toleranceAdjust = 1.;
-                    do{
-//                        double dist;
-                   //     printf("%d %d --. %d %d\n", iii[1][0][r2],iii[1][1][r2], iii[0][0][r2],iii[0][1][r2]);
-//                        dist = distanceFrac1(f1, buffer, 0, iii[1][1][r2]-iii[1][0][r2],rank, alloy, iii[0][0][r2], iii[0][1][r2], spin);
-//                                                                     
-//                        printf("%f\n", dist);
-
-                        ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,iii[1][0][r2],iii[1][1][r2], os,alloy, iii[0][0][r2],iii[0][1][r2],spin, toleranceAdjust*tolerance,sqrt(creal(CD)),-1);
-                        toleranceAdjust *= 1.2;
-                        if ( ct == -1 ){
-                            bailFlag = 1;
-                            printf("List bailed \n");
-                            break;
-
-                        }
-                    }while ( ct == 1 );
-                }
-            }
-        else {
-            
-                    
-                    for ( r2 = 0; r2 < nRun; r2++ )
-                    {
-                        DCOMPLEX CD;
-                        pOverlap(rank,f1, origin, iii[1][0][r2], iii[1][1][r2], os,  origin, iii[1][0][r2], iii[1][1][r2], os, &CD);
-                        ran1 = rank;
-                        toleranceAdjust = 1.;
-                        do{
-                            
-            //                if ( nRun ==1 )
-                            printf("%d %d -*-. %d %d\n", iii[1][0][r2],iii[1][1][r2], iii[0][0][r2],iii[0][1][r2]);
-                            
-                            ct = canonicalGridDecompositionMP(ran1, f1, coeff, origin,iii[1][0][r2],iii[1][1][r2], os,alloy, iii[0][0][r2],iii[0][1][r2],spin, toleranceAdjust*tolerance,sqrt(creal(CD)),-1);
-                            toleranceAdjust *= 1.2;
-                            if ( ct == -1 ){
-                                bailFlag = 1;
-                                printf("List bailed \n");
-                                break;
-                                
+                                        while ( n - ni >= f1.tulip[nIter].Current[spin] && n+1 < L1+l3){
+                                                ni += f1.tulip[nIter].Current[spin];
+                                                nIter = f1.tulip[nIter].chainNext;
+                                                if ( nIter == nullName){
+                                                    printf("warning, offfCrails");
+                                                    exit(0);
+                                                    }
+                                        }
+                                    }
+                            for ( space = 0; space < SPACE ; space++)
+                                streams(f1,nIter,spin,space)[L1+l3-1-ni] = 0.;
+                            f1.tulip[nIter].Current[spin]--;
+                            iii[0][1][r2]--;
+                            for ( i = r2+1 ; i < nRun ; i++){
+                                iii[0][0][i]--;
+                                iii[0][1][i]--;
                             }
-                        }while ( ct == 1 );
+                        }
+                        ct = 0;
                     }
 
-            
-            
-            
+                    if ( toleranceAdjust > tolerance * 100 || conditionAdjust > condition * 100){
+                        bailFlag = 1;
+                        if (nRun == 1 ){
+                          printf("List bailed \n");
+                        }
+                        break;
+                        
+                    }
+                }while ( ct == 1 );
+            }
+
         }
-        
-        
-        
-        printf(",%d ",nRun);
-        fflush(stdout);
         //merge
         r2 = 0;
         if ( nRun % 2 == 0 ){
@@ -1527,21 +1899,20 @@ double tCycleDecompostionSingleFibonacciOneMP ( INT_TYPE rank, struct sinc_label
                 iiii[1][1][r2-1] = iii[1][1][nRun-1];
                 iiii[0][1][r2-1] = iii[0][1][nRun-1];
             }
-
+            
         }
         if ( nRun == 1 )
             nRun= 0;
         else
             nRun = r2;
-
-
+        
         for ( run = 0; run < nRun ; run++){
             iii[1][0][run] = iiii[1][0][run];
             iii[1][1][run] = iiii[1][1][run];
             iii[0][0][run] = iiii[0][0][run];
             iii[0][1][run] = iiii[0][1][run];
         }
-
+        
     }
     free(iiii[0][0]);
     free(iiii[0][1]);
@@ -1549,28 +1920,143 @@ double tCycleDecompostionSingleFibonacciOneMP ( INT_TYPE rank, struct sinc_label
     free(iiii[1][1]);
     return 0.;
 }
-double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  ){
-    INT_TYPE rank= 0;
-    assignCores(f1, 1);
+
+double tCycleDecompostionParallelFibonacciOneMP( struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance ,double condition, INT_TYPE oRun, INT_TYPE nRun, INT_TYPE * mi , INT_TYPE * xi,INT_TYPE *mr,INT_TYPE * xr ){
+   // return tCycleDecompostionSingleFibonacciOneMP(0, f1, origin, os, coeff, alloy, spin, tolerance, condition, oRun, nRun, mi, xi, mr, xr);
+        
+    
+    INT_TYPE *iiii[2][2];
+    INT_TYPE *iii[2][2];
+    if ( nRun <= 0 )
+        return 0;
+    INT_TYPE rank;
+    iiii[0][0] = malloc(nRun * sizeof( INT_TYPE ));
+    iiii[0][1] = malloc(nRun * sizeof( INT_TYPE ));
+    iiii[1][0] = malloc(nRun * sizeof( INT_TYPE ));
+    iiii[1][1] = malloc(nRun * sizeof( INT_TYPE ));
+    iii[0][0] = mr;
+    iii[0][1] = xr;
+    iii[1][0] = mi;
+    iii[1][1] = xi;
+    
+    
+    
+    INT_TYPE ct,run,r2,r;
+    double toleranceAdjust,conditionAdjust;
+
+    while ( nRun > oRun ){
+        {
+            
+            
+                                for ( r = 0; r < nRun ; r++){
+                                    iiii[1][0][r] = iii[1][0][r];
+                                    iiii[1][1][r] = iii[1][1][r];
+                                    iiii[0][0][r] = iii[0][0][r];
+                                    iiii[0][1][r] = iii[0][1][r];
+                                    
+                                }
+                        
+                            
+                            
+                            
+                            
+                            #ifdef OMP
+                            #pragma omp parallel for private (rank,r2,toleranceAdjust,conditionAdjust,ct)
+                            #endif
+
+                            
+                            for ( r2 = 0; r2 < nRun; r2++ ){
+                                #ifdef OMP
+                                                rank = omp_get_thread_num();
+                                #else
+                                                rank = 0;
+                                #endif
+
+                                toleranceAdjust = tolerance;
+                                conditionAdjust = condition;
+                                do{
+                                    ct = canonicalGridDecompositionMP(rank, f1, coeff, origin,iiii[1][0][r2],iiii[1][1][r2], os,alloy, iiii[0][0][r2],iiii[0][1][r2],spin, toleranceAdjust/sqrt(iiii[0][1][r2]-iiii[0][0][r2]),conditionAdjust,iiii[0][1][r2]-iiii[0][0][r2]);
+                                    if ( ct > 0  ){
+                                        ct = 0;
+                                      //  toleranceAdjust *=2;
+                                      //  conditionAdjust *=2;
+                                    }
+                                    if ( toleranceAdjust > tolerance * 100 || conditionAdjust > condition * 100){
+                                        if (nRun == 1 ){
+                                          printf("List bailed \n");
+                                        }
+                                        break;
+                                        
+                                    }
+                                }while ( ct == 1 );
+                            }
+                            for ( r = 0; r < nRun ; r++){
+                                iii[1][0][r] = iiii[1][0][r];
+                                iii[1][1][r] = iiii[1][1][r];
+                                iii[0][0][r] = iiii[0][0][r];
+                                iii[0][1][r] = iiii[0][1][r];
+                            }
+
+                        }
+                
+            //END PARALLEL OMP
+        //merge
+        r2 = 0;
+        if ( nRun % 2 == 0 ){
+            for ( run = 0; run < nRun ; run+=2){
+                iiii[1][0][r2] = iii[1][0][run];
+                iiii[1][1][r2] = iii[1][1][run+1];
+                iiii[0][0][r2] = iii[0][0][run];
+                iiii[0][1][r2] = iii[0][1][run+1];
+                r2++;
+            }
+        }
+        else
+        {
+            for ( run = 0; run < nRun-1 ; run+=2){
+                iiii[1][0][r2] = iii[1][0][run];
+                iiii[1][1][r2] = iii[1][1][run+1];
+                iiii[0][0][r2] = iii[0][0][run];
+                iiii[0][1][r2] = iii[0][1][run+1];
+                r2++;
+            }
+            if ( r2 ) {
+                iiii[1][1][r2-1] = iii[1][1][nRun-1];
+                iiii[0][1][r2-1] = iii[0][1][nRun-1];
+            }
+            
+        }
+        if ( nRun == 1 )
+            nRun= 0;
+        else
+            nRun = r2;
+        
+        for ( run = 0; run < nRun ; run++){
+            iii[1][0][run] = iiii[1][0][run];
+            iii[1][1][run] = iiii[1][1][run];
+            iii[0][0][run] = iiii[0][0][run];
+            iii[0][1][run] = iiii[0][1][run];
+        }
+        
+    }
+    free(iiii[0][0]);
+    free(iiii[0][1]);
+    free(iiii[1][0]);
+    free(iiii[1][1]);
+    return 0.;
+}
+#ifdef CHROME
+double tCycleDecompostionChromaticOneMP ( INT_TYPE rank,struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , double condition, INT_TYPE maxRun , double power  ){
+   // assignCores(f1, 1);
 
     double CCC,XXX, CCR;
     INT_TYPE CCI;
     
     
     double inc,Inc=0.,va,iinc;
-    if ( CanonicalRank(f1, origin, os )<= maxRun){
-        tEqua(f1, alloy, spin, origin, os);
-        return 0;
-    }
     INT_TYPE * iii[2][2] ;
 
-    {
-        INT_TYPE r = part(f1,alloy);
-        iii[0][0] = malloc ( r* sizeof(INT_TYPE ) );
-        iii[0][1] = malloc ( r* sizeof(INT_TYPE ) );
-        iii[1][0] = malloc ( r* sizeof(INT_TYPE ) );
-        iii[1][1] = malloc ( r* sizeof(INT_TYPE ) );
-    }
+    
     INT_TYPE iiii=0,xi;
     enum division buffer ;
     buffer = bufferChromatic;
@@ -1590,12 +2076,9 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
     double aveR =0.,dist,Dist=0.;
     INT_TYPE Col,B = part(f1, buffer),r,r2,X0,xl,L,X, l,ll,s,n1[SPACE];
     length(f1, origin, n1);
-    printf("\n[[%d %d -- %d (%f)]]\n", CanonicalRank(f1, origin, os), maxRun, B,CCC);
-    fflush(stdout);
+    //printf("\n[[%d %d -- %d (%f)]]\n", CanonicalRank(f1, origin, os), maxRun, B,CCC);
+    //fflush(stdout);
 
-    f1.tulip[alloy].Current[spin] = 0;
-    for ( r= 0 ; r < maxRun ; r++)
-        tId(f1,alloy,spin);
     
     
     double *cc[SPACE];
@@ -1629,7 +2112,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
     }
     L = ll ;
     
-    if ( L <= part(f1, alloy)){
+    if ( L <= f1.tulip[alloy].Current[spin]){
         
         for ( l = 0; l < L ; l++){
             for ( s = 0; s < SPACE ; s++){
@@ -1637,10 +2120,21 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
                     cblas_dcopy(n1[s], (ccc+l)->val[s], 1, streams(f1,alloy,spin,s)+l*n1[s], 1);
             }
         }
-        printf("cp'd\n");
         f1.tulip[alloy].Current[spin] = L;
+        free(ccc);
         return 0;
     }
+    {
+        INT_TYPE r = part(f1,alloy);
+        iii[0][0] = malloc ( r* sizeof(INT_TYPE ) );
+        iii[0][1] = malloc ( r* sizeof(INT_TYPE ) );
+        iii[1][0] = malloc ( r* sizeof(INT_TYPE ) );
+        iii[1][1] = malloc ( r* sizeof(INT_TYPE ) );
+    }
+    
+    f1.tulip[alloy].Current[spin] = 0;
+    for ( r= 0 ; r < maxRun ; r++)
+        tId(f1,alloy,spin);
 
     INT_TYPE xFlag = 0,chrom,slack;
     r2 = 0;
@@ -1649,7 +2143,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
         if ( xFlag ){
             if ( xFlag == 1 ){
                 
-                printf("chromosScan [%d %d -- %d <%f>] \t%f\n", L, r2, B,CCC,aveR);
+              //  printf("chromosScan [%d %d -- %d <%f>] \t%f\n", L, r2, B,CCC,aveR);
                
                 if (0 )
                     XXX = pow(XXX,1./CCR);
@@ -1689,9 +2183,9 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
             qsort(ccc+X, L-X,sizeof(struct sortx3Type), sortx4Comp );
 
             
-#ifdef OMP
-#pragma omp parallel for private (l,s) schedule(dynamic,1)
-#endif
+//#ifdef OMP
+//#pragma omp parallel for private (l,s) schedule(dynamic,1)
+//#endif
             for ( l = X ; l < L ; l++){
                 for ( s = 0; s < SPACE ; s++)
                     if ( f1.rose[s].body != nada){
@@ -1726,7 +2220,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
                 
                 {
                     r = r2;
-                    r2 = imin(CCI,xl-X)+r;
+                    r2 = imax(0,imin(CCI,xl-X)+r);
                 }
                 if ( r2 > maxRun ){
                     xFlag  = 1;
@@ -1798,15 +2292,15 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
 //    }
 
 
-#ifdef OMP
-#pragma omp parallel for private (c,l,s,rank,inc,Inc,iiii,dist) reduction(+:Dist) schedule(dynamic,1)
-#endif
+//#ifdef OMP
+//#pragma omp parallel for private (c,l,s,rank,inc,Inc,iiii,dist) reduction(+:Dist) schedule(dynamic,1)
+//#endif
     for ( c = 0; c < Col ; c++){
-#ifdef OMP
-        rank = omp_get_thread_num();
-#else
-        rank = 0;
-#endif
+//#ifdef OMP
+//        rank = omp_get_thread_num();
+//#else
+//        rank = 0;
+//#endif
         
         {
             for ( iiii = xx[0][c]; iiii <= xx[1][c] ; iiii++){
@@ -1832,7 +2326,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
                                              iii[1][1][iiii]-iii[1][0][xx[0][c]],
                                              rank,  alloy,
                                              iii[0][0][iiii], iii[0][1][iiii],
-                                             spin, tolerance, sqrt(inc), -1);
+                                             spin, tolerance, condition, -1);
 #if VERBOSE
                 printf("(%d) %d (%d %d) -- %f\n",c,iiii,
                        iii[1][0][iiii], iii[1][1][iiii],
@@ -1846,7 +2340,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
             }
             
             if (xx[1][c] != xx[0][c] )
-                canonicalGridDecompositionMP(rank, f1, coeff, buffer, 0, iii[1][1][xx[1][c]]-iii[1][0][xx[0][c]], rank,  alloy, iii[0][0][xx[0][c]], iii[0][1][xx[1][c]], spin, tolerance, sqrt(Inc), -1);
+                canonicalGridDecompositionMP(rank, f1, coeff, buffer, 0, iii[1][1][xx[1][c]]-iii[1][0][xx[0][c]], rank,  alloy, iii[0][0][xx[0][c]], iii[0][1][xx[1][c]], spin, tolerance, condition, -1);
 
 #if 1
            dist = distanceFrac1(f1, buffer, 0, iii[1][1][xx[1][c]]-iii[1][0][xx[0][c]],rank, alloy, iii[0][0][xx[0][c]], iii[0][1][xx[1][c]], spin);
@@ -1866,15 +2360,15 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
     Col = xi;
 
 
-#ifdef OMP
-#pragma omp parallel for private (iiii,l,s,rank,inc,dist) reduction(+:Dist) schedule(dynamic,1)
-#endif
+//#ifdef OMP
+//#pragma omp parallel for private (iiii,l,s,rank,inc,dist) reduction(+:Dist) schedule(dynamic,1)
+//#endif
     for ( iiii = 0; iiii < xi ; iiii++){
-#ifdef OMP
-        rank = omp_get_thread_num();
-#else
-        rank = 0;
-#endif
+//#ifdef OMP
+//        rank = omp_get_thread_num();
+//#else
+//        rank = 0;
+//#endif
 
         {
             inc = 0.;
@@ -1894,8 +2388,11 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
             }
             {
              //   printf("(%d) \t%d %d : %d %d %f %f\n", rank,iii[1][0][iiii], iii[1][1][iiii], iii[0][0][iiii], iii[0][1][iiii],inc,sqrt(inc));
+                Stream_Type* u = streams(f1, alloy, spin, 0);
+                f1.tulip[buffer].Current[rank] =iii[1][1][iiii]-iii[1][0][iiii];
+            canonicalGridDecompositionMP(rank, f1, coeff, buffer, 0, iii[1][1][iiii]-iii[1][0][iiii], rank,  alloy, iii[0][0][iiii], iii[0][1][iiii], spin, tolerance, condition, iii[0][1][iiii]-iii[0][0][iiii]);
+                f1.tulip[buffer].Current[rank] =iii[1][1][iiii]-iii[1][0][iiii];
 
-            canonicalGridDecompositionMP(rank, f1, coeff, buffer, 0, iii[1][1][iiii]-iii[1][0][iiii], rank,  alloy, iii[0][0][iiii], iii[0][1][iiii], spin, tolerance, sqrt(inc), -1);
             }
 
             if (1){
@@ -1924,11 +2421,12 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
     if (power > 1){
     if ( 0 ){
         //busted!
-        tCycleDecompostionSingleFibonacciOneMP(-1, f1, origin, os, coeff, alloy, spin, tolerance, power-1,0,xi, iii[1][1],iii[1][0],iii[0][1],iii[0][0]);
+        //tCycleDecompostionSingleFibonacciOneMP(-1, f1, origin, os, coeff, alloy, spin, tolerance, power-1,0,xi, iii[1][1],iii[1][0],iii[0][1],iii[0][0]);
         printf("\n>FibonacciFraction>\t%d\t%1.15f / %1.15f \n",CanonicalRank(f1, alloy, spin),(distanceFrac1(f1, origin, 0,CanonicalRank(f1, origin, os),os, alloy, 0,CanonicalRank(f1, alloy, spin), spin)),(inner(f1, alloy,spin)));
     }
     else {
-        canonicalGridDecompositionMP(-1, f1, coeff, origin,0,CanonicalRank(f1, origin, os), os,  alloy, 0, CanonicalRank(f1, alloy, spin), spin, tolerance, sqrt(Inc), -1);
+        printf("canon %d %d\n",CanonicalRank(f1, origin, os),CanonicalRank(f1, alloy, spin)  );
+        canonicalGridDecompositionMP(rank, f1, coeff, origin,0,CanonicalRank(f1, origin, os), os,  alloy, 0, CanonicalRank(f1, alloy, spin), spin, tolerance,condition, CanonicalRank(f1, alloy, spin));
         if (power > 2)
         printf("\n>completeFraction>\t1\t%1.15f / %1.15f \n",(distanceFrac1(f1, origin, 0,CanonicalRank(f1, origin, os),os, alloy, 0,CanonicalRank(f1, alloy, spin), spin)),(inner(f1, alloy,spin)));
     }
@@ -1950,7 +2448,7 @@ double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division 
     
     
 }
-
+#endif
 double tInnerVectorListMP( INT_TYPE rank, struct sinc_label f1 , enum division origin, double * coeff, enum division vector,INT_TYPE spin ){
     
     double sum = 0.,prod;
@@ -2001,11 +2499,11 @@ INT_TYPE printExpectationValues (struct sinc_label  f1 , enum division ha  , enu
         ov = 0.;
         //outputFormat(f1, stdout, proton1, 0);
         pMatrixElements( f1, vector,  Mat,  vector,&me,&ov);
-        if ( CanonicalOperator(f1, name(f1,Mat), 0) + CanonicalOperator(f1, name(f1,Mat), 1)){
-            if (CanonicalOperator(f1, name(f1,Mat), 1))
-                printf("term-Expectation%d:\t%d\t ::\t %d \t| (%d + i%d)\t\t%f %f\n",vector,bodies(f1, Mat),name(f1,Mat), CanonicalOperator(f1, name(f1,Mat), 0),CanonicalRank(f1, name(f1,Mat), 1),creal(me/ov), cimag(me/ov));
+        if ( CanonicalOperator(f1, Mat, 0) + CanonicalOperator(f1, Mat, 1)){
+            if (CanonicalOperator(f1, Mat, 1))
+                printf("term-Expectation%d:\t%d\t ::\t %d \t| (%d + i%d)\t\t%f %f\n",vector,bodies(f1, Mat),name(f1,Mat), CanonicalOperator(f1, Mat, 0),CanonicalRank(f1, name(f1,name(f1,Mat)), 1),creal(me/ov), cimag(me/ov));
                 else
-                    printf("term-Expectation%d:\t%d\t ::\t %d \t| (%d) \t\t%1.15f\n",vector,bodies(f1, Mat),name(f1,Mat), CanonicalOperator(f1, name(f1,Mat), 0),creal(me/ov));
+                    printf("term--\t(%d) \t\t%1.15f\n", CanonicalOperator(f1, Mat, 0),creal(me/ov));
             }
         fflush(stdout);
         totx += me/ov;
@@ -2089,7 +2587,7 @@ void matrixElements ( INT_TYPE rank,struct sinc_label  f1 , enum division bra, e
                             coi = I;
                         else
                             coi = 1;
-                        for ( l = 0 ; l < CanonicalOperator(f1, mat, im);l++){
+                        for ( l = 0 ; l < CanonicalOperator(f1,mat, im);l++){
                             tHYpY(rank, f1, 0, mat, l, im, 1., oket, ok, ork,canonicalmeVector, 0, rank);
                             for ( e = 0 ; e < CanonicalRank(f1, bra, sp);e++){
 
@@ -2112,7 +2610,6 @@ void matrixElements ( INT_TYPE rank,struct sinc_label  f1 , enum division bra, e
 void pOverlap (INT_TYPE rank, struct sinc_label  f1 , enum division bra,INT_TYPE b1, INT_TYPE b2,INT_TYPE sp, enum division ket,INT_TYPE k1, INT_TYPE k2,INT_TYPE sp2,DCOMPLEX *OV ){
     INT_TYPE r,e,dim;
     double prod;
-    assignCores(f1, 1);
     *OV = 0.;
     enum division oket;
     INT_TYPE ok,ork;
@@ -2703,6 +3200,7 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
         printf("Two Head types GEMV\n %d %d %d %d %d %d",equals,header(f1, equals ) ,left,header(f1, left ) ,right,header(f1, right ) );
         exit(1);
     }
+    enum bodyType bd = bodies(f1, right);
     enum division inT,outT;
     INT_TYPE space2 = f1.tulip[left].space[space].mapTo;
     INT_TYPE inR,outR,inS,outS;
@@ -2710,8 +3208,15 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
     f1.tulip[canonicalmv2Vector].Current[rank] = 1;
     f1.tulip[canonicalmv3Vector].Current[rank] = 0;
     if ( (species(f1,left) == matrix || species(f1,left )== eikon) && species(f1, right ) == vector ){
-        char  in =  matrixAction( bodies(f1, right), f1.tulip[left].space[space].block,1);
-        char  out = matrixAction( bodies(f1, right), f1.tulip[left].space[space].block,-1);
+        char  in,out;
+        if ( species(f1,left) == eikon ){
+            in = 1;
+            out = 1;
+        }else {
+            in =  matrixAction( bodies(f1, right),f1.tulip[left].space[space].act, f1.tulip[left].space[space].block,1);
+            out = matrixAction( bodies(f1, right),f1.tulip[left].space[space].act, f1.tulip[left].space[space].block,-1);
+        }
+        
         inT = right;
         inR = r;
         inS = rspin;
@@ -2766,183 +3271,207 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
                     for ( i = 0 ;i < N2 ; i++)
                         outP[i] = 0.;
             
-            struct name_label nm;
-                enum division su = f1.tulip[left].loopNext;
+                enum division su = f1.tulip[left].loopNext;//direct summation per component!
                 INT_TYPE timer = 0,xlxl=0;
                 while ( su != nullName ){
-                    nm = f1.tulip[su];
-
                     switch(species(f1,su)){
                         case eikonDiagonal:
+                        case eikonKinetic:
+                        case eikonConstant:
                             xlxl = 1;
                             break;
                         case eikonSemiDiagonal:
-                            switch(bodies(f1, su)){
-                        case one:
-                            xlxl = 0;
-                            break;
-                        case two:
-                            xlxl = 2;
-                            break;
-                        }
+                            switch(bodies(f1, left)){
+                                case one:
+                                    xlxl = 0;
+                                    break;
+                                case two:
+                                    xlxl = 4;
+                                    break;
+                            }
 
                         case eikonOffDiagonal:
-                            switch(bodies(f1, su)){
-                            case one:
-                                xlxl = 2;
-                                break;
-                            case two:
-                                xlxl = 4;
-                                break;
-                            }
+                            switch(bodies(f1, left)){
+                                case one:
+                                    xlxl = 2;
+                                    break;
+                                case two:
+                                    xlxl = 4;
+                                    break;
+                                }
                     }
                     for ( timer = 0 ; timer < xlxl ; timer++){
-                        double flow = 0.;
+                        double flow = 1.;
                     //the notion is to buffer on mid and accumlate on out
                         INT_TYPE N3 = alloc(f1, su, space);
-                        double * suP  = streams(f1, su , lspin, space)+l*N3+ (bodies(f1, su)==two)*N1;
+                        double * suP  = streams(f1, su , lspin, space)+l*N3+ (bodies(f1, left)==two)*N1;
+                    if ( bodies ( f1,left) == scalar ){
+                        if ( species(f1,su) == eikonKinetic ){
+                            flow *= *suP;
+                            topezOp(bd,f1.tulip[left].space[space].act,tv1, f1.tulip[left].space[space].block,N1,inP,2*(l == space), laterP);
+                        }
+                        else if ( species(f1,su) == eikonConstant){
+                            flow *= *suP;
+                            topezOp(bd,f1.tulip[left].space[space].act,tv1, f1.tulip[left].space[space].block,N1,inP,0, laterP);
+                        }
 
-                    
-                        
-                        
-                    if ( bodies ( f1,su) == one ){
+                    } else 
+                    if ( bodies ( f1,left) == one ){
 
                         if ( species(f1,su) == eikonDiagonal ){
-                            flow = 1.;
-                            INT_TYPE vi;
-                            cblas_dcopy(N2, inP,1, laterP,1);
-                            for ( vi = 0 ; vi < N2  ; vi += N1)
-                                cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,N1,0,suP,1, laterP+vi,1);
+                            flow *= 1.;
+                            diagonalOp(bd,f1.tulip[left].space[space].act,tv1, f1.tulip[left].space[space].block,N1,inP, suP,laterP);
                         }else if ( species(f1,su) == eikonOffDiagonal ){
-
-                            INT_TYPE vi ;
                             if ( timer == 0 ){
-                                flow = -1;
-                                for ( vi = 0 ; vi < N2  ; vi += N1){
-                                    topezOp(one,tv1,N1,inP+vi, laterP+vi);
-                                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,N1,0,suP,1, laterP+vi,1);
-                                }
+                                flow *= -1;
+                                topezOp(bd,1,tv1, f1.tulip[left].space[space].block,N1,inP,1, midP);
+                                diagonalOp(bd,f1.tulip[left].space[space].act,tv1, f1.tulip[left].space[space].block,N1,midP, suP,laterP);
                             }
                             else if ( timer == 1 ){
-                                flow = 1;
-                                cblas_dcopy(N2, inP,1, midP,1);
-                                for ( vi = 0 ; vi < N2  ; vi += N1){
-                                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,N1,0,suP,1, midP+vi,1);
-                                    topezOp(one,tv1,N1,midP+vi, laterP+vi);
-                                }
+                                flow *= 1;
+                                diagonalOp(bd,1,tv1, f1.tulip[left].space[space].block,N1,inP, suP,midP);
+                                topezOp(bd,f1.tulip[left].space[space].act,tv1, f1.tulip[left].space[space].block,N1,midP, 1,laterP);
                             }
                     }
                     }
-                   else  if ( bodies ( f1,su) == two ){
+                   else  if ( bodies ( f1,left) == two ){
 
                        if ( species(f1,su) == eikonDiagonal ){
-                            INT_TYPE vi;
-                           flow = 1;
-                            cblas_dcopy(N2, inP,1, laterP,1);
-                                for ( vi = 0 ; vi < N2  ; vi += N1*N1)
-                                    topezMult(f1, suP, N1, laterP+vi);
+                            flow *= 1;
+                            diagonalOp(bd,f1.tulip[left].space[space].act,e12, f1.tulip[left].space[space].block,N1,inP, suP,laterP);
+//                            cblas_dcopy(N2, inP,1, laterP,1);
+//                                for ( vi = 0 ; vi < N2  ; vi += N1*N1)
+//                                    topezMult(f1, suP, N1, laterP+vi);
                         }else if ( species(f1,su) == eikonSemiDiagonal ){
 
                            INT_TYPE vi;
                             if ( timer == 0 ){
-                                flow = -1;
+                                flow *= -1;
 
                            //B
-                               for ( vi = 0 ; vi < N2  ; vi += N1*N1){
-                                   topezOp(two,tv1,N1,inP+vi, laterP+vi);
-                                   topezMult(f1, suP, N1, laterP+vi);
-                               }
+                                topezOp(bd,1,tv1, f1.tulip[left].space[space].block,N1,inP, 1,midP);
+                                diagonalOp(bd,f1.tulip[left].space[space].act,e12, f1.tulip[left].space[space].block,N1,midP, suP,laterP);
+
+//                               for ( vi = 0 ; vi < N2  ; vi += N1*N1){
+//                                   topezOp(two,tv1,N1,inP+vi, laterP+vi);
+//                                   topezMult(f1, suP, N1, laterP+vi);
+//                               }
                            //B
                            }
 
                             else if ( timer == 1 ){
-                                flow = 1 ;
-                                cblas_dcopy(N2, inP,1, midP,1);
+                                flow *= 1 ;
+                                topezOp(bd,1,tv2, f1.tulip[left].space[space].block,N1,inP, 1,midP);
+                                diagonalOp(bd,f1.tulip[left].space[space].act,e12, f1.tulip[left].space[space].block,N1,midP, suP,laterP);
+                                
+//                                cblas_dcopy(N2, inP,1, midP,1);
 
                             //B2
-                                for ( vi = 0 ; vi < N2  ; vi += N1*N1){
-                                    topezOp(two,tv2,N1,midP+vi, laterP+vi);
-                                    topezMult(f1, suP, N1, laterP+vi);
-                                }
+//                                for ( vi = 0 ; vi < N2  ; vi += N1*N1){
+//                                    topezOp(two,tv2,N1,midP+vi, laterP+vi);
+//                                    topezMult(f1, suP, N1, laterP+vi);
+//                                }
                             //B2
                             } else
                              if ( timer == 2 ){
-                                flow = 1;
-                                     cblas_dcopy(N2, inP,1, midP,1);
+                                flow *= 1;
+                                 
+                                 diagonalOp(bd,1,e12, f1.tulip[left].space[space].block,N1,inP, suP,midP);
+                                 topezOp(bd,f1.tulip[left].space[space].act,tv1, f1.tulip[left].space[space].block,N1,midP, 1,laterP);
 
-                                 //B2
-                                     for ( vi = 0 ; vi < N2  ; vi += N1*N1){
-                                         topezMult(f1, suP, N1, midP+vi);
-                                         topezOp(two,tv1,N1,midP+vi, laterP+vi);
-
-                                     }
+                                 
+                                 
+//                                     cblas_dcopy(N2, inP,1, midP,1);
+//
+//                                 //B2
+//                                     for ( vi = 0 ; vi < N2  ; vi += N1*N1){
+//                                         topezMult(f1, suP, N1, midP+vi);
+//                                         topezOp(two,tv1,N1,midP+vi, laterP+vi);
+//
+//                                     }
                             }
                         
                              else if ( timer == 3 ){
-                                 flow = -1 ;
-                                 cblas_dcopy(N2, inP,1, midP,1);
+                                 flow *= -1 ;
+//                                 cblas_dcopy(N2, inP,1, midP,1);
+                                 
+                                 diagonalOp(bd,1,e12, f1.tulip[left].space[space].block,N1,inP, suP,midP);
+                                 topezOp(bd,f1.tulip[left].space[space].act,tv2, f1.tulip[left].space[space].block,N1,midP, 1,laterP);
 
-                             //B2
-                                 for ( vi = 0 ; vi < N2  ; vi += N1*N1){
-                                     topezMult(f1, suP, N1, midP+vi);
-                                     topezOp(two,tv2,N1,midP+vi, laterP+vi);
-                                 }
-                             //B2
+//                             //B2
+//                                 for ( vi = 0 ; vi < N2  ; vi += N1*N1){
+//                                     topezMult(f1, suP, N1, midP+vi);
+//                                     topezOp(two,tv2,N1,midP+vi, laterP+vi);
+//                                 }
+//                             //B2
                              }
                         }else
                         if ( species(f1,su) == eikonOffDiagonal ) {
-                            INT_TYPE vi;
                             if ( timer == 0 ){
-                            flow = 1;
+                            flow *= 1;
                             //A
-                            cblas_dcopy(N2, inP,1, laterP,1);
-                                for ( vi = 0 ; vi < N2  ; vi += N1*N1){
-                                    topezMult(f1, suP, N1, laterP+vi);
-                                    topezOp(two,tv1,N1,laterP+vi, midP+vi);
-                                    topezOp(two,tv2,N1,midP+vi, laterP+vi);
-                                }
+                                diagonalOp(bd,1,e12, f1.tulip[left].space[space].block,N1,inP, suP,laterP);
+                                topezOp(bd,1,                              tv1, f1.tulip[left].space[space].block,N1,laterP, 1,midP);
+                                topezOp(bd,f1.tulip[left].space[space].act,tv2, f1.tulip[left].space[space].block,N1,midP, 1,laterP);
+
+//                            cblas_dcopy(N2, inP,1, laterP,1);
+//                                for ( vi = 0 ; vi < N2  ; vi += N1*N1){
+//                                    topezMult(f1, suP, N1, laterP+vi);
+//                                    topezOp(two,tv1,N1,laterP+vi, midP+vi);
+//                                    topezOp(two,tv2,N1,midP+vi, laterP+vi);
+//                                }
                             //A
                             }
                         
                             else if ( timer == 1 ){
-                                flow = 1 ;
-                            //B
-                                for ( vi = 0 ; vi < N2  ; vi += N1*N1){
-                                    topezOp(two,tv1,N1,inP+vi, midP+vi);
-                                    topezOp(two,tv2,N1,midP+vi,laterP+vi);
-                                    topezMult(f1, suP, N1, laterP+vi);
-                                }
-                            //B
+                                flow *= 1 ;
+                                topezOp(bd,1,tv1, f1.tulip[left].space[space].block,N1,inP, 1,laterP);
+                                topezOp(bd,1,tv2, f1.tulip[left].space[space].block,N1,laterP, 1,midP);
+                                diagonalOp(bd,f1.tulip[left].space[space].act,e12, f1.tulip[left].space[space].block,N1,midP, suP,laterP);
+
+//                            //B
+//                                for ( vi = 0 ; vi < N2  ; vi += N1*N1){
+//                                    topezOp(two,tv1,N1,inP+vi, midP+vi);
+//                                    topezOp(two,tv2,N1,midP+vi,laterP+vi);
+//                                    topezMult(f1, suP, N1, laterP+vi);
+//                                }
+//                            //B
                             }
                             else if ( timer == 2){
-                                flow = -1 ;
+                                flow *= -1 ;
+                                topezOp(bd,1       ,tv1, f1.tulip[left].space[space].block,N1,inP, 1,laterP);
+                                diagonalOp(bd,1    ,e12, f1.tulip[left].space[space].block,N1,laterP, suP,midP);
+                                topezOp(bd         ,f1.tulip[left].space[space].act,tv2, f1.tulip[left].space[space].block,N1,midP, 1,laterP);
 
-                            //C
-                                for ( vi = 0 ; vi < N2  ; vi += N1*N1){
-                                    topezOp(two,tv1,N1,inP+vi, midP+vi);
-                                    topezMult(f1, suP, N1, midP+vi);
-                                    topezOp(two,tv2,N1,midP+vi, laterP+vi);
-                                }
+//                            //C
+//                                for ( vi = 0 ; vi < N2  ; vi += N1*N1){
+//                                    topezOp(two,tv1,N1,inP+vi, midP+vi);
+//                                    topezMult(f1, suP, N1, midP+vi);
+//                                    topezOp(two,tv2,N1,midP+vi, laterP+vi);
+//                                }
                             //C
                             } else if (timer ==3 ){
-                                flow = -1;
+                                flow *= -1;
+                                topezOp(bd,1       ,tv2, f1.tulip[left].space[space].block,N1                                  ,inP,   1,laterP);
+                                diagonalOp(bd,1    ,e12, f1.tulip[left].space[space].block,N1                                  ,laterP, suP,midP);
+                                topezOp(bd         ,f1.tulip[left].space[space].act,tv1, f1.tulip[left].space[space].block,N1  ,midP,  1,laterP);
 
                             //D
-                                for ( vi = 0 ; vi < N2  ; vi += N1*N1){
-                                    topezOp(two,tv2,N1,inP+vi,  midP+vi);
-                                    topezMult(f1, suP, N1, midP+vi);
-                                    topezOp(two,tv1,N1,midP+vi, laterP+vi);
+//                                for ( vi = 0 ; vi < N2  ; vi += N1*N1){
+//                                    topezOp(two,tv2,N1,inP+vi,  midP+vi);
+//                                    topezMult(f1, suP, N1, midP+vi);
+//                                    topezOp(two,tv1,N1,midP+vi, laterP+vi);
                                     
                             //D
                             }
                             }
                          }
-                   }
+                   
                         cblas_daxpy(N2, flow, laterP, 1, outP, 1);
                     }
                     su = f1.tulip[su].loopNext;//sum channel
-
                 }
+                
         }
         else{
         
@@ -2951,33 +3480,33 @@ INT_TYPE tGEMV (INT_TYPE rank,  struct sinc_label  f1, INT_TYPE space, enum divi
             INT_TYPE N1 = vectorLen(f1, space);
             
             // H O-Inv
-            if ( inverse != 0 ){
-                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,
-                        streams( f1, inverse, 0,space ), N1,
-                        streams(f1, inT, inS,space)+inR*N1,1, 0.,
-                        streams( f1, canonicalmv3Vector, rank,space ), 1  );
-
+//            if ( inverse != 0 ){
+//                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,
+//                        streams( f1, inverse, 0,space ), N1,
+//                        streams(f1, inT, inS,space)+inR*N1,1, 0.,
+//                        streams( f1, canonicalmv3Vector, rank,space ), 1  );
+//
+//                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,
+//                        streams( f1, left, lspin,space )+l*N1*N1, N1,
+//                        streams( f1, canonicalmv3Vector, rank,space ),1, 0.,
+//                        streams( f1, outT, outS,space2 )+outR*N1, 1  );
+//            } else {
                 cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,
                         streams( f1, left, lspin,space )+l*N1*N1, N1,
-                        streams( f1, canonicalmv3Vector, rank,space ),1, 0.,
-                        streams( f1, outT, outS,space2 )+outR*N1, 1  );
-            } else {
-                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,
-                        streams( f1, left, lspin,space )+l*N1*N1, N1,
                         streams(f1, inT, inS,space)+inR*N1,1, 0.,
                         streams( f1, outT, outS,space2 )+outR*N1, 1  );
-            }
+            
         }else if ( bodies(f1,left) < bodies(f1,right))
         {
             INT_TYPE N1 = outerVectorLen(f1,bodies(f1,left),space);
             INT_TYPE N2 = vectorLen(f1, space);
-            if ( inverse != 0 ){
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams( f1, inverse, 0,space ),N1,  streams(f1, inT, inS,space)+inR*N2,N1,0.,streams(f1,canonicalmv3Vector,rank,space),N1);
-
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams( f1, left, lspin,space )+l*N1*N1,N1,streams(f1,canonicalmv3Vector,rank,space),N1, 0., streams( f1, outT, outS,space2)+outR*N2,N1);
-            } else {
+//            if ( inverse != 0 ){
+//                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams( f1, inverse, 0,space ),N1,  streams(f1, inT, inS,space)+inR*N2,N1,0.,streams(f1,canonicalmv3Vector,rank,space),N1);
+//
+//                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams( f1, left, lspin,space )+l*N1*N1,N1,streams(f1,canonicalmv3Vector,rank,space),N1, 0., streams( f1, outT, outS,space2)+outR*N2,N1);
+//            } else {
                 cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams( f1, left, lspin,space )+l*N1*N1,N1,streams(f1, inT, inS,space)+inR*N2,N1, 0.,     streams( f1, outT, outS,space2)+outR*N2,N1);
-            }
+//            }
         }
         }
         if (out != 1 ){
@@ -3012,8 +3541,8 @@ INT_TYPE tGEVV (INT_TYPE rank,  struct sinc_label  f1,  INT_TYPE space,enum divi
     if (( sl == outerVector ) && ( sr == vector ) ){
         enum division inT,midT,outT;
         INT_TYPE inR,midR,outR,inS,midS,outS;
-        char  in =  matrixAction( bodies(f1, right), f1.tulip[left].space[space].block,1);
-        char  out = matrixAction( bodies(f1, right), f1.tulip[left].space[space].block,-1);
+        char  in =  matrixAction( bodies(f1, right),f1.tulip[left].space[space].act, f1.tulip[left].space[space].block,1);
+        char  out = matrixAction( bodies(f1, right),f1.tulip[left].space[space].act, f1.tulip[left].space[space].block,-1);
         inT = right;
         inR = r;
         inS = rspin;
@@ -3234,50 +3763,69 @@ double tMultiplyOne (INT_TYPE rank, struct sinc_label  f1,INT_TYPE space,  enum 
 
 
 INT_TYPE tHYpY(  INT_TYPE rank, struct sinc_label f1 ,INT_TYPE targSpin, enum division left, INT_TYPE l, INT_TYPE im, double prod, enum division ket , INT_TYPE k, INT_TYPE sp2, enum division oket, INT_TYPE o,INT_TYPE ospin ){
-    if ( left == nullName || species(f1, left ) == scalar)
+    if ( left == nullName || species(f1, left ) == scalar){
+        printf("*");
         return 0;
+    }
     INT_TYPE N2,flag;
     INT_TYPE dim;
 
     {
-        flag = 1;
-        for ( dim = 0 ; dim < SPACE ; dim++)
-            if ( f1.rose[dim].body != nada){
-                N2 = alloc(f1, ket, dim);
-                if ( f1.tulip[left].space[dim].block == id0 ){
-                    xsEqu(1.,f1.tulip[left].space[dim].mapTo, f1, oket, o,ospin,dim, f1, ket, k, sp2);
-                }
-                else {
-                    enum division ll = name(f1,left);
+                    enum division ll = left;
                     INT_TYPE mi = 0,xi=0;
                     while ( ll != nullName){//chain will tie various separate terms into a single entity
                         xi += CanonicalRank(f1, ll, im);
                         if ( mi <= l && l < xi ){
                             if ( species(f1, left) == matrix){
-                                tGEMV(rank, f1, dim,oket, o,ospin, ll, l-mi, im, ket, k, sp2);
+                                flag = 1;
+                                for ( dim = 0 ; dim < SPACE ; dim++)
+                                    if ( f1.rose[dim].body != nada){
+                                        N2 = alloc(f1, ket, dim);
+                                        {
+
+                                            tGEMV(rank, f1, dim,oket, o,ospin, ll, l-mi, im, ket, k, sp2);
+                                            if ( flag ){
+                                                cblas_dscal(N2, prod, streams(f1,oket,ospin, dim)+o*N2, 1);
+                                                flag = 0;
+                                            }
+                                        }
+                            
+                                    }
+                                return 0;
+
                             }
                             else if( species(f1, left) == outerVector){
+                                
+                                flag = 1;
+                                for ( dim = 0 ; dim < SPACE ; dim++)
+                                    if ( f1.rose[dim].body != nada){
+                                        N2 = alloc(f1, ket, dim);
+                                        {
+
                                 tGEVV(rank, f1, dim,oket, o,ospin, ll, l-mi, im, ket, k, sp2);
+                                            if ( flag ){
+                                                cblas_dscal(N2, prod, streams(f1,oket,ospin, dim)+o*N2, 1);
+                                                flag = 0;
+                                            }
+                                        }
+                                        
                             }
+                                return 0;
+
                         }
+                            }
                         mi += CanonicalRank(f1, ll, im);
                         ll = f1.tulip[ll].chainNext;
-                    }
+                    
                 }
-                if ( flag ){
-                    cblas_dscal(N2, prod, streams(f1,oket,ospin, dim)+o*N2, 1);
-                    flag = 0;
-                }
-            }
+            
     }
     
     
     return 1;
 }
 
-
 void tHXpX (  INT_TYPE rank, struct sinc_label f1 , enum division left,INT_TYPE shiftFlag, double sum,double product, double productCmpl,  enum division right ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo){
-    rank = 0;
     double prod;
     DCOMPLEX co2,coi,pro = product + I * productCmpl;
     INT_TYPE ilr,Ll,sp2,Rr,im,l , k,targSpin;
@@ -3305,7 +3853,7 @@ void tHXpX (  INT_TYPE rank, struct sinc_label f1 , enum division left,INT_TYPE 
             nm = f1.tulip[pt];
 #if VERBOSE
             Mat = pt;
-            printf("%d-%d\t%d\t%d\t %f || \t",Mat,name(f1,Mat),bodies(f1, Mat),CanonicalOperator(f1, name(f1,Mat), 0),traceOne(f1, name(f1,Mat), 0));
+            printf("%d-%d\t%d\t%d\t %f || \t",Mat,name(f1,Mat),bodies(f1, Mat),CanonicalOperator(f1, Mat, 0),traceOne(f1, name(f1,Mat), 0));
             INT_TYPE space;
             printf(":");
             for ( space = 0; space < SPACE ; space++)
@@ -3382,12 +3930,210 @@ void tHXpX (  INT_TYPE rank, struct sinc_label f1 , enum division left,INT_TYPE 
             pt = f1.tulip[pt].linkNext;
         }while ( pt != nullName );
         
-        tCycleDecompostionGridOneMP(-1, f1, totalVector, 0, NULL,right, targSpin, tolerance, maxRun, f1.rt->powDecompose);
+        tCycleDecompostionListOneMP(0, f1, totalVector, 0, NULL,right, targSpin, tolerance, maxRun, f1.rt->powDecompose);
 
     }
     return;
 }
 
+
+
+
+
+#if 1
+
+void pHXpX (  INT_TYPE rank, struct sinc_label f1 ,enum division bra, enum division left,INT_TYPE shiftFlag, double sum,double product, double productCmpl,  enum division right ,  double tolerance ,double condition, INT_TYPE maxRun){
+    double prod;
+    DCOMPLEX co2,coi,pro = product + I * productCmpl;
+    INT_TYPE dim,tri,bri,ilr,Ll,sp2,Rr,im,l , k,targSpin;
+    enum division opi,pt,Mat;
+    INT_TYPE *iii[2][2],xx;
+    //alloy
+    iii[0][0] = malloc((maxRun+1) * sizeof( INT_TYPE ));
+    iii[0][1] = malloc((maxRun+1) * sizeof( INT_TYPE ));
+    
+    //origin
+    iii[1][0] = malloc((maxRun+1) * sizeof( INT_TYPE ));
+    iii[1][1] = malloc((maxRun+1) * sizeof( INT_TYPE ));
+
+    if (  right == totalVector){
+        printf("oops\n");
+        exit(0);
+    }
+    //cpy in if shifted.
+    for ( targSpin = 0 ; targSpin < spins(f1, right ) ;targSpin++){
+        pt = left;
+        zero(f1, totalVector, rank);
+        if ( shiftFlag  ){
+         //   printf("add %d %f\n", right, sum);
+            tEqua(f1, totalVector, rank, right, targSpin);
+            tScaleOne(f1, totalVector, rank, sum);
+        }
+        else
+            f1.tulip[totalVector].Current[rank] = 0;
+
+        //cycle over all links in left.
+         {
+            Mat = pt;
+            for ( im = 0; im < spins(f1, Mat ); im++)
+                for ( sp2 = 0; sp2 < spins(f1,right); sp2++)
+                {
+                    if (sp2 == 1)
+                        co2 = I;
+                    else
+                        co2 = 1;
+                    if (im == 1 )
+                        coi = I;
+                    else
+                        coi = 1;
+                    if ( targSpin == 0 )
+                        prod  = creal(co2 * coi * pro);
+                    else
+                        prod = cimag(co2 * coi * pro) ;
+                    if ( fabs(prod) > f1.rt->TARGET ){
+                        
+                        Rr = CanonicalRank ( f1, right,sp2 );
+                        Ll = CanonicalOperator(f1, Mat, im);
+                        INT_TYPE su = f1.tulip[totalVector].Current[rank];
+                        for ( ilr = 0; ilr <  Ll*Rr ; ilr++)
+                        {
+                            l = ilr%Ll;
+                            k = ilr/Ll;
+                            tHYpY(rank, f1, targSpin,Mat, l, im,prod, right, k, sp2,totalVector,ilr +su, rank);
+                            //   printf("%d %d : %d\n", l,k, ilr+su);
+                        }
+                        f1.tulip[totalVector].Current[rank]+= Ll*Rr;
+                        if (f1.tulip[totalVector].Current[rank] > part(f1, totalVector ) )
+                        {
+                            printf("bailing\n\n\n\n");
+                            fflush(stdout);
+                            exit(1);
+                        }
+                    }
+                }
+          //  pt = f1.tulip[pt].linkNext;
+        };
+        if ( f1.tulip[totalVector].Current[rank]>0){
+            INT_TYPE r; INT_TYPE ratio = imax(1,floor(f1.tulip[totalVector].Current[rank]*1./maxRun));
+            for ( r = 0; r < imin(maxRun,floor(f1.tulip[totalVector].Current[rank])) ;r++ ){
+                iii[0][0][r] = r;
+                iii[1][0][r] = r*ratio;
+                iii[0][1][r] = (r+1);
+                iii[1][1][r] = (r+1)*ratio;
+            }
+            
+            iii[1][1][r-1] = f1.tulip[totalVector].Current[rank];
+            f1.tulip[bra].Current[targSpin] = maxRun;
+            tCycleDecompostionSingleFibonacciOneMP(rank, f1, totalVector, rank, NULL, bra, targSpin, tolerance,condition, 0, r, iii[1][0], iii[1][1], iii[0][0], iii[0][1]);
+            f1.tulip[bra].Current[targSpin]=maxRun;
+
+        }else
+            f1.tulip[bra].Current[targSpin]=0;
+    }
+    free(iii[0][0]);
+    free(iii[0][1]);
+    free(iii[1][0]);
+    free(iii[1][1]);
+    return;
+}
+
+
+#else
+
+
+void pHXpX (  struct sinc_label f1 , enum division left,INT_TYPE shiftFlag, double sum,double product, double productCmpl,  enum division spiral,enum division right ,  double tolerance ){
+    double prod;
+    DCOMPLEX co2,coi,pro = product + I * productCmpl;
+    INT_TYPE rank=0,ilr,Ll,sp2,Rr,im,l , k,targSpin,term=0;
+    enum division pt,Mat;
+    assignCores(f1, 1);
+    
+    enum division oket;
+    INT_TYPE ok,ork,termShort;
+
+    INT_TYPE nterms = 0;
+    pt = left;
+    while ( pt != nullName){
+        pt = f1.tulip[pt].linkNext;
+        f1.tulip[spiral+nterms].name = right;//one spiral per simulatious multiply
+        nterms++;
+    }
+
+    for ( targSpin = 0 ; targSpin < spins(f1, right ) ;targSpin++){
+        pt = left;
+        //cycle over all links in left.
+        
+#ifdef OMP
+#pragma omp parallel for private (term,pt,termShort,Mat,rank,im,sp2,co,co2,coi,prod,Ll,Rr,oket,ok,ork,ilr,l,k)
+#endif
+        for (term = 0;  term < nterms ; term++){
+#ifdef OMP
+            rank = omp_get_thread_num();
+#endif
+            pt = left;
+
+            for (termShort = 0; termShort < term ; termShort++)
+                pt = f1.tulip[pt].linkNext;
+
+            Mat = pt;
+            //zero(f1, totalVector, rank);
+            if ( shiftFlag  ){
+                //cpy in if shifted.
+
+                tEqua(f1, totalVector, rank, spiral+rank, targSpin);
+                tScaleOne(f1, totalVector, rank, sum);
+            }
+            else
+                f1.tulip[totalVector].Current[rank] = 0;
+            for ( im = 0; im < spins(f1, Mat ); im++)
+                for ( sp2 = 0; sp2 < spins(f1,right); sp2++)
+                {
+                    if (sp2 == 1)
+                        co2 = I;
+                    else
+                        co2 = 1;
+                    if (im == 1 )
+                        coi = I;
+                    else
+                        coi = 1;
+                    if ( targSpin == 0 )
+                        prod  = creal(co2 * coi * pro);
+                    else
+                        prod = cimag(co2 * coi * pro) ;
+                    Ll = 0;
+                    if ( fabs(prod) > f1.rt->TARGET ){
+                        Rr = CanonicalRank ( f1, right,sp2 );
+                        Ll = CanonicalOperator(f1, Mat, im);
+                        for ( ilr = 0; ilr <  Ll*Rr ; ilr++)
+                        {
+                            l = ilr%Ll;
+                            k = ilr/Ll;
+                            
+                            oket = right;
+                            ok = k;
+                            ork = sp2;
+                            tHYpY(rank, f1, targSpin,Mat, l, im,prod, oket, ok, ork,totalVector,ilr, rank);
+                        }
+                        f1.tulip[totalVector].Current[rank] += Ll*Rr;
+                        if ( Ll*Rr > f1.tulip[totalVector].Partition){
+                            printf("whooo..");
+                            exit(0);
+                        }
+                    }
+                }
+            if ( f1.tulip[totalVector].Current[rank] > 0 ){
+                tCycleDecompostionListOneMP(rank, f1, totalVector, rank, NULL,spiral+term, targSpin, tolerance, f1.tulip[spiral+term].Partition, f1.rt->powDecompose);
+            } else {
+                f1.tulip[spiral+term].Current[targSpin] = 0;
+            }
+
+        }
+    }
+    zeroSpiraly(f1, spiral);
+
+    return;
+}
+#endif
 //double distanceOne(INT_TYPE rank,struct sinc_label * f1 , enum division alloy , INT_TYPE spin , enum division alloyBak, INT_TYPE spin2){
 //    double value,value2;
 //    INT_TYPE info;

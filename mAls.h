@@ -31,6 +31,10 @@
 #include "interfaceMath.h"
 #include "saUtil.h"
 #include "eigen.h"
+
+double tCycleDecompostionSingleFibonacciOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance ,double condition,INT_TYPE oRun, INT_TYPE nRun, INT_TYPE * xi , INT_TYPE * mi,INT_TYPE *xr,INT_TYPE * mr );
+double tCycleDecompostionParallelFibonacciOneMP( struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance ,double condition,INT_TYPE oRun, INT_TYPE nRun, INT_TYPE * mi , INT_TYPE * xi,INT_TYPE *mr,INT_TYPE * xr );
+
 INT_TYPE completeOverlap (INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim,enum division vector,INT_TYPE v,INT_TYPE spin, enum division ov , INT_TYPE v2,INT_TYPE sp2);
 INT_TYPE analyze (struct sinc_label  f1 , enum division term,INT_TYPE sp );
 void pContract ( INT_TYPE rank,struct sinc_label  *f1, enum division mat,INT_TYPE ms, enum division vector ,INT_TYPE vs1, enum division vector2,INT_TYPE vs2);
@@ -48,7 +52,7 @@ INT_TYPE spread (struct sinc_label  f1, enum division origin, INT_TYPE l1,INT_TY
 INT_TYPE pSpread (struct sinc_label f1, enum division origin, INT_TYPE l1, INT_TYPE l2, INT_TYPE os, enum division alloy, INT_TYPE l3, INT_TYPE l4, INT_TYPE spin, INT_TYPE space, Stream_Type * output,Stream_Type * output2);
 INT_TYPE balance (struct sinc_label f1,  enum division alloy, INT_TYPE spin);
 double canonicalListDecompositionMP( INT_TYPE rank,struct sinc_label f1 , Stream_Type * cofact, enum division origin,INT_TYPE os,   enum division alloy ,  INT_TYPE spin ,double tolerance,double magn,INT_TYPE preferred);
-double tCycleDecompostionChromaticOneMP ( struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  );
+double tCycleDecompostionChromaticOneMP ( INT_TYPE rank,struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , double condition,INT_TYPE maxRun , double power  );
 double tCycleDecompostionGridOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  );
 double tCycleDecompostionListOneMP ( INT_TYPE rank, struct sinc_label  f1 , enum division origin,INT_TYPE os, double * coeff, enum division alloy,INT_TYPE spin,  double tolerance , INT_TYPE maxRun , double power  );
 INT_TYPE tOuterProductSu( struct sinc_label  f1,enum division vector , INT_TYPE a, enum division vector2,INT_TYPE b, enum division proj, INT_TYPE c);
@@ -61,8 +65,9 @@ double magnitude ( struct sinc_label  f1 , enum division alloy );
 double pMagnitude ( struct sinc_label * f1 , enum division alloy );
 INT_TYPE sortTerms (struct sinc_label  f1 , enum division term,INT_TYPE sp,enum division sorted,INT_TYPE sps );
 
+void pHXpX ( INT_TYPE rank, struct sinc_label f1 ,enum division bra, enum division left,INT_TYPE shiftFlag, double sum,double product, double productCmpl,enum division right ,  double tolerance,double condition,INT_TYPE maxRun);
+
 void tHXpX (  INT_TYPE rank, struct sinc_label  f1 , enum division left,INT_TYPE shiftFlag, double sum,double product, double productCmpl, enum division equals ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo  );
-void pHXpX (  INT_TYPE rank, struct sinc_label  *f1 , enum division left,INT_TYPE shiftFlag, double sum,double product, double productCmpl, enum division equals ,  double tolerance , INT_TYPE maxRun,INT_TYPE solo  );
 
 double positioningElectrons2 (INT_TYPE rank, struct sinc_label  f1 , enum division oneVector, enum division wavefunction,double x1, double y1, double z1, double x2, double y2, double z2);
 INT_TYPE pReady ( struct sinc_label *f1 );

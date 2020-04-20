@@ -294,76 +294,467 @@ INT_TYPE matrixLen(struct sinc_label f1, enum bodyType body, INT_TYPE space){
         return 0;
 }
 
-INT_TYPE topezOp(enum bodyType bd,enum block tv, INT_TYPE N1,Stream_Type * vector ,  Stream_Type * vectorOut){
-    //COULD ALWAYS TRANSLATE WITH TRANSLATION OPERATOR
-    INT_TYPE n,m;
-    double sign = 1.;
-    if (bd == one ){
-        for ( n = 0 ; n < N1 ; n++)
-            vectorOut[n] = 0.;
 
-        //shift cblas_daxpy
-        for (n = 1 ; n < N1 ; n++){
-            cblas_daxpy(N1-n, sign/n, vector+n, 1, vectorOut, 1);
-            sign *= -1;
-            cblas_daxpy(N1-n, sign/n, vector, 1, vectorOut+n,1);
-        }
-        return 0;
-        //with tolerances
-    }else if ( bd == two ){
-        for ( n = 0 ; n < N1*N1 ; n++)
-            vectorOut[n] = 0.;
 
-        switch( tv){
-            case tv1:
-                //shift cblas_daxpy
-                for ( m = 0 ; m < N1 ; m++){
-                    sign = 1.;
-                    for (n = 1 ; n < N1 ; n++){
-                        cblas_daxpy(N1-n, sign/n, vector+n+m*N1,1, vectorOut+m*N1, 1);
-                        sign *= -1;        //         m                   n
-                        cblas_daxpy(N1-n, sign/n, vector+m*N1, 1, vectorOut+n+m*N1,1);
-                    }
+
+
+
+//commandSA(bd,act,op,bl,stridesIn,stridesOut)
+enum bodyType commandSA(enum bodyType bd, INT_TYPE act, enum block cl, enum block bl,INT_TYPE perm[], INT_TYPE op[]){
+    switch ( bd ){
+        case one:
+            perm[0]     = 0;
+            op[0]    = 0;
+            return one;
+        case two:
+            if ( act == 1 ){
+                perm[0] = 0;
+                perm[1] = 1;
+            }else if ( act ==2 ){
+                perm[0] = 1;
+                perm[1] = 0;
+            }
+            if ( cl == tv1){
+                switch(bl){
+                    case id0:
+                //1-body
+                    case tv1:
+                        op[0] = 0;
+                        op[1] = 1;
+                        return one;
+                    case tv2:
+                        op[0] = 1;
+                        op[1] = 0;
+                        return one;
+                //1-body
+                    case e12://if 2-body --on first like tv1
+                        op[0] = 0;
+                        op[1] = 1;
+                        return two;
                 }
-                //with tolerances
-                return 0;
-            case tv2:
-                    //shift cblas_daxpy
-                    for (n = 1 ; n < N1 ; n++){
-                        cblas_daxpy(N1*N1-N1*n, sign/n, vector+n*N1, 1, vectorOut, 1);
-                        sign *= -1;
-                        cblas_daxpy(N1*N1-N1*n, sign/n,vector, 1,      vectorOut+n*N1,1);
-                    }
-                    //with tolerances
-                    return 0;
+            }else if ( cl == tv2 ){//2-body--on second like tv2
+                switch(bl){
+                    case id0:
+                    case tv1:
+                        return one;
+                    case tv2:
+                        return one;
+                    case e12:
+                        op[0] = 1;
+                        op[1] = 0;
+                        return two;
+                }
+            }else if ( cl == e12){
+                op[0] = 0;
+                op[1] = 1;
+                return two;
+            }
+            case three:
+//            1, 2, 3,//1///tv1//e12
+//            1, 3, 2,//2///e13
+//            2, 1, 3,//3///tv2
+//            3, 1, 2,//4// e23-1
+//            2, 3, 1,//5// e23
+//            3, 2, 1//6////tv3
+            switch (act) {
+                case 1:
+                    perm[0] = 0;
+                    perm[1] = 1;
+                    perm[2] = 2;
+                    break;
+                case 2:
+                    perm[0] = 0;
+                    perm[1] = 2;
+                    perm[2] = 1;
+                    break;
+                case 3:
+                    perm[0] = 1;
+                    perm[1] = 0;
+                    perm[2] = 2;
+                    break;
+                case 4:
+                    perm[0] = 2;
+                    perm[1] = 0;
+                    perm[2] = 1;
+                    break;
+                case 5:
+                    perm[0] = 1;
+                    perm[1] = 2;
+                    perm[2] = 0;
+                    break;
+                case 6:
+                    perm[0] = 2;
+                    perm[1] = 1;
+                    perm[2] = 0;
+                    break;
 
                 
-        }
-        
-        
-    }
-    return 0;
-}
-
-INT_TYPE topezMult(struct sinc_label f1, double* toep,INT_TYPE N1,Stream_Type * vector){
-    //COULD ALWAYS TRANSLATE WITH TRANSLATION OPERATOR
-    {
-        INT_TYPE n;
-        //shift cblas_daxpy
-        cblas_dscal(N1, toep[0], vector, N1+1);
-        //printf("0 %f\n",toep[0]);
-        for (n = 1 ; n < N1 ; n++){
-            {
-              //  printf("%d %f %f\n",n,toep[n],toep[-n]);
-
-                cblas_dscal(N1-n, toep[n], vector+n, N1+1);
-                cblas_dscal(N1-n, toep[-n], vector+N1*n, N1+1);
             }
-        //with tolerances
+            if ( cl == tv1){
+                    switch(bl){
+                        case id0:
+                    //1-body
+                        case tv1:
+                            op[0] = 0;
+                            op[1] = 1;
+                            op[2] = 2;
+                            return one;
+                        case tv2:
+                            op[0] = 1;
+                            op[1] = 0;
+                            op[2] = 2;
+                            return one;
+                        case tv3:
+                            op[0] = 2;
+                            op[1] = 1;
+                            op[2] = 0;
+                            return one;
+
+                    //1-body
+                        case e12://if 2-body --on first like tv1
+                            op[0] = 0;
+                            op[1] = 1;
+                            op[2] = 2;
+                            return two;
+                        case e13:
+                            op[0] = 0;
+                            op[1] = 2;
+                            op[2] = 1;
+                            return two;
+                        case e23:
+                            op[0] = 1;
+                            op[1] = 2;
+                            op[2] = 0;
+                            return two;
+
+                    }
+                }else if ( cl == tv2 ){//2-body--on second like tv2
+                    switch(bl){
+                        case id0:
+                        case tv1:
+                            return one;
+                        case tv2:
+                            return one;
+                        case e12:
+                            op[0] = 1;
+                            op[1] = 0;
+                            op[2] = 2;
+                            return two;
+                        case e13:
+                            op[0] = 2;
+                            op[1] = 0;
+                            op[2] = 1;
+                            return two;
+                        case e23:
+                            op[0] = 2;
+                            op[1] = 1;
+                            op[2] = 0;
+                            return two;
+
+                    }
+                }else if ( cl == e12){
+                    switch(bl){
+                        case e12:
+                            op[0] = 0;
+                            op[1] = 1;
+                            op[2] = 2;
+                            return two;
+                        case e13:
+                            op[0] = 0;
+                            op[1] = 2;
+                            op[2] = 1;
+                            return two;
+                        case e23:
+                            op[0] = 1;
+                            op[1] = 2;
+                            op[2] = 0;
+                            return two;
+
+
+                    }
+                }
     }
     return 0;
 }
+
+
+//topezOp(one,f1.tulip[left].space[space].act,tv1, f1.tulip[left].space[space].block,N1,inP,2, laterP);
+
+INT_TYPE topezOp(enum bodyType bd,INT_TYPE act, enum block cl, enum block bl,  INT_TYPE N1,Stream_Type * vector , INT_TYPE pw, Stream_Type * vectorOut){
+    //COULD ALWAYS TRANSLATE WITH TRANSLATION OPERATOR
+    INT_TYPE n,m,m2;
+    double sign = 1.,mult,sign1 =1.;
+    if ( pw == 1 )
+        sign1 = -1.;
+    INT_TYPE n1[7];
+    INT_TYPE perm[7];
+    INT_TYPE op[7];
+    commandSA(bd,act,cl,bl,perm,op);
+    
+    switch(bd){
+        case one:
+            n1[0] = 1;
+            for ( n = 0 ; n < N1 ; n++)
+                vectorOut[n] = 0.;
+        break;
+        case two:
+            n1[0] = 1;
+            n1[1] = N1;
+                for ( n = 0 ; n < N1*N1 ; n++)
+                    vectorOut[n] = 0.;
+            break;
+            case three:
+            n1[0] = 1;
+            n1[1] = N1;
+            n1[2] = N1*N1;
+                    for ( n = 0 ; n < N1*N1*N1; n++)
+                        vectorOut[n] = 0.;
+                break;
+
+    }
+
+
+    
+    switch ( bd ){
+        case one:
+            //  vector -> vectorOut
+            sign = 1.;
+            if ( pw == 0 ){
+                cblas_dcopy(N1, vector, 1, vectorOut, 1);
+            }
+            else {
+                if (pw == 2 ){
+                    cblas_dcopy(N1, vector, 1, vectorOut, 1);
+                    cblas_dscal(N1, -pi*pi/3., vectorOut, 1);
+                }
+
+                for (n = 1 ; n < N1 ; n++){
+                    if (pw == 1 ){
+                        mult = 1./n;
+                    }else {
+                        mult = 2*1./(n*n);
+                    }
+                    cblas_daxpy(N1-n, sign*mult, vector+n, 1, vectorOut, 1);
+
+                    
+                    cblas_daxpy(N1-n, sign1*sign*mult, vector, 1, vectorOut+n,1);
+                    sign *= -1;
+
+                }
+            }
+            break;
+        case two:
+            for ( m = 0; m < N1 ; m++)
+            {
+                sign = 1.;
+                if ( pw == 0 ){
+                    cblas_dcopy(N1, vector+n1[perm[op[1]]]*m, n1[perm[op[0]]], vectorOut+n1[op[1]]*m, n1[op[0]]);//must copy from perm
+                }
+                else {
+                    if (pw == 2) {
+                        cblas_dcopy(N1, vector+n1[perm[op[1]]]*m, n1[perm[op[0]]], vectorOut+n1[op[1]]*m, n1[op[0]]);
+                         cblas_dscal(N1, -pi*pi/3., vectorOut+n1[op[1]]*m, n1[op[0]]);
+                     }
+                }
+            }
+            for ( m = 0; m < N1 ; m++)
+            {
+                     for (n = 1 ; n < N1 ; n++){
+                         if ( pw == 0 ){
+                             mult = 0.;
+                         }else
+                         if (pw == 1 ){
+                             mult = 1./n;
+                         }else if ( pw == 2 ){
+                             mult = 2*1./(n*n);
+                         }else {
+                             printf("bam bam\n");
+                             exit(0);
+                         }
+                         cblas_daxpy(N1-n, sign*mult, vector+n1[perm[op[0]]]*n+n1[perm[op[1]]]*m ,n1[perm[op[0]]], vectorOut+n1[op[1]]*m ,n1[op[0]]);
+                         cblas_daxpy(N1-n, sign1*sign*mult, vector+n1[perm[op[1]]]*m , n1[perm[op[0]]], vectorOut+n1[op[0]]*n+n1[op[1]]*m ,n1[op[0]]);
+                         sign *= -1;
+
+                     }
+                 
+            }
+            break;
+        case three:
+            for ( m = 0; m < N1 ; m++)
+                for ( m2 = 0; m2 < N1 ; m2++)
+                {
+                    sign = 1.;
+                    if ( pw == 0 ){
+                        cblas_dcopy(N1, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2, n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
+                    }
+                    else {
+                        if (pw == 2) {
+                             cblas_dcopy(N1, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2, n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
+                             cblas_dscal(N1, -pi*pi/3., vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
+                         }
+                         
+                         for (n = 1 ; n < N1 ; n++){
+                             if ( pw == 0 ){
+                                 mult = 0.;
+                             }else
+                             if (pw == 1 ){
+                                 mult = 1./n;
+                             }else if ( pw == 2 ){
+                                 mult = 2*1./(n*n);
+                             }else {
+                                 printf("bam bam\n");
+                                 exit(0);
+                             }
+                             cblas_daxpy(N1-n, sign*mult, vector+n1[perm[op[0]]]*n+n1[perm[op[1]]]*m +n1[perm[op[2]]]*m2 ,n1[perm[op[0]]], vectorOut+n1[op[1]]*m +n1[op[2]]*m2,n1[op[0]]);
+                             cblas_daxpy(N1-n, sign1*sign*mult, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2 ,n1[perm[op[0]]], vectorOut+n1[op[0]]*n +n1[op[1]]*m+n1[op[2]]*m2 ,n1[op[0]]);
+                             sign *= -1;
+
+                         }
+                     }
+                }
+            break;
+        case four:
+            break;
+    }
+        
+
+
+
+
+
+
+
+    
+//    if (bd == one ){
+//
+//
+//        for (n = 1 ; n < N1 ; n++){
+//            if (pw == 1 ){
+//                mult = 1./n;
+//            }else {
+//                mult = 2*1./(n*n);
+//            }
+//            cblas_daxpy(N1-n, sign*mult, vector+n, 1, vectorOut, 1);
+//            sign *= -1;
+//            cblas_daxpy(N1-n, sign*mult, vector, 1, vectorOut+n,1);
+//        }
+//
+//
+//        //shift cblas_daxpy
+//        return 0;
+//        //with tolerances
+//    }else if ( bd == two ){
+//        for ( n = 0 ; n < N1*N1 ; n++)
+//            vectorOut[n] = 0.;
+//
+//        switch( tv){
+//            case tv1:
+//                //shift cblas_daxpy
+//                for ( m = 0 ; m < N1 ; m++){
+//                    sign = 1.;
+//                    for (n = 1 ; n < N1 ; n++){
+//                        cblas_daxpy(N1-n, sign/n, vector+n+m*N1,1, vectorOut+m*N1, 1);
+//                        sign *= -1;        //         m                   n
+//                        cblas_daxpy(N1-n, sign/n, vector+m*N1, 1, vectorOut+n+m*N1,1);
+//                    }
+//                }
+//                //with tolerances
+//                return 0;
+//            case tv2:
+//                    //shift cblas_daxpy
+//                    for (n = 1 ; n < N1 ; n++){
+//                        cblas_daxpy(N1*N1-N1*n, sign/n, vector+n*N1, 1, vectorOut, 1);
+//                        sign *= -1;
+//                        cblas_daxpy(N1*N1-N1*n, sign/n,vector, 1,      vectorOut+n*N1,1);
+//                    }
+//                    //with tolerances
+//                    return 0;
+//
+//
+//        }
+//
+//
+//    }
+    return 0;
 }
+
+INT_TYPE diagonalOp(enum bodyType bd,  INT_TYPE act, enum block cl, enum block bl, INT_TYPE N1,Stream_Type * vector, Stream_Type * toep, Stream_Type* vectorOut){
+    //COULD ALWAYS TRANSLATE WITH TRANSLATION OPERATOR
+    INT_TYPE perm[7],m,m2,n;
+    INT_TYPE n1[7];
+    INT_TYPE op[7];
+    switch (commandSA(bd,act,cl,bl,perm,op)){
+        case one://OP
+            switch(bd){
+                case one:
+                    n1[0] = 1;
+                    cblas_dcopy(N1, vector, 1, vectorOut, 1);
+                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,N1,0,toep,1, vectorOut,1);
+                    return 0;
+                case two:
+                    n1[0] = 1;
+                    n1[1] = N1;
+                    for ( m = 0 ; m < N1 ; m++){
+                        cblas_dcopy(N1, vector+n1[perm[op[1]]]*m, n1[perm[op[0]]], vectorOut+n1[op[1]]*m, n1[op[0]]);
+                        cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,N1,0,toep,1, vectorOut+m*n1[op[1]],n1[op[0]]);
+                    }
+                    return 0;
+                case three:
+                    n1[0] = 1;
+                    n1[1] = N1;
+                    n1[2] = N1*N1;
+                    for ( m = 0 ; m < N1 ; m++)
+                        for ( m2 = 0 ; m2 < N1 ; m2++){
+                            cblas_dcopy(N1, vector+m*n1[perm[op[1]]]+m2*n1[perm[op[2]]],n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
+                            cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,N1,0,toep,1, vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
+                        }
+                return 0;
+
+            }
+        case two://OP
+            switch(bd){
+                case one:
+                    printf("oops, dimensionally a donut!");
+                    exit(0);
+                case two:
+                    n1[0] = 1;
+                    n1[1] = N1;
+
+                    for ( m = 0 ; m < N1 ; m++)
+                        cblas_dcopy(N1, vector+m*n1[perm[op[1]]],n1[perm[op[0]]], vectorOut+m*n1[op[1]],n1[op[0]]);
+                    
+                    //below is 2-body
+                    cblas_dscal(N1, toep[0], vectorOut, n1[op[0]]+n1[op[1]]);
+                    for (n = 1 ; n < N1 ; n++){
+                        {
+                            cblas_dscal(N1-n, toep[n], vectorOut+n1[op[0]]*n,  n1[op[0]]+n1[op[1]]);
+                            cblas_dscal(N1-n, toep[-n], vectorOut+n1[op[1]]*n,  n1[op[0]]+n1[op[1]]);
+                        }
+                    }
+                    return 0;
+                case three:
+                    n1[0] = 1;
+                    n1[1] = N1;
+                    n1[2] = N1*N1;
+                    for ( m2 = 0 ; m2 < N1 ; m2++){
+                        for ( m = 0 ; m < N1 ; m++)
+                                cblas_dcopy(N1, vector+m*n1[perm[op[1]]]+m2*n1[perm[op[2]]],n1[perm[op[0]]], vectorOut+m*n1[op[1]]+m2*n1[op[2]],n1[op[0]]);
+                        
+                        //below is 2body
+                        cblas_dscal(N1, toep[0], vectorOut+m2*n1[op[2]], n1[op[1]]+n1[op[0]]);
+                        for (n = 1 ; n < N1 ; n++){
+                            {
+                                cblas_dscal(N1-n, toep[n], vectorOut+n1[op[0]]*n+m2*n1[op[2]], n1[op[1]]+n1[op[0]]);
+                                cblas_dscal(N1-n, toep[-n], vectorOut+n1[op[1]]*n+m2*n1[op[2]], n1[op[1]]+n1[op[0]]);
+                            }
+                        }
+                    }
+                    return 0;
+            }
+    }
+    return 0;
+}
+
 
 INT_TYPE alloc ( struct sinc_label f1 , enum division label ,INT_TYPE space){
     if  ( space <0 || space > SPACE ){
@@ -381,6 +772,9 @@ INT_TYPE alloc ( struct sinc_label f1 , enum division label ,INT_TYPE space){
         }else if ( species(f1, label ) == outerVector ){
             return outerVectorLen(f1, f1.tulip[name(f1,label)].space[space].body, space);
         }else if ( species(f1, label ) >= eikon ){
+            if ( species(f1, label ) == eikonKinetic || species(f1,label) == eikonConstant){
+                return 1;
+            }
             if (f1.tulip[name(f1,label)].space[space].body == one )
                 return outerVectorLen(f1, one, space);
             else if (f1.tulip[name(f1,label)].space[space].body == two)
@@ -444,26 +838,36 @@ INT_TYPE CanonicalRank( struct sinc_label f1 , enum division label , INT_TYPE sp
     
     if ( f1.tulip[label].name == label){
         if ( spin < spins(f1, label) ){
-            if ( f1.tulip[label].species == eikon)
-                return 1;
-            else
+            if ( f1.tulip[label].species == eikon){
+                if ( f1.tulip[f1.tulip[label].loopNext].species == eikonKinetic ||f1.tulip[f1.tulip[label].loopNext].species == eikonConstant )
+                    return f1.tulip[f1.tulip[label].loopNext].Current[spin];
+                else{
+                    return 1;
+                }
+            } else {
+//                if (f1.tulip[label].Current[spin] == 3 )
+//                printf("name %d %d %d\n", label, name(f1,label),f1.tulip[label].Current[spin]);
+
                 return f1.tulip[label].Current[spin];
+            }
         }
             else
                 return 0;
         }
     else {
-        return f1.tulip[f1.tulip[label].name].Partition;
+//        printf("nameless %d %d %d\n", label, name(f1,label),f1.tulip[label].Current[spin]);
+        return f1.tulip[label].Current[spin];
     }
 }
 
 INT_TYPE CanonicalOperator( struct sinc_label f1, enum division label, INT_TYPE spin ){
-    INT_TYPE rr = CanonicalRank(f1, label, spin );
-    enum division ll = f1.tulip[name(f1,label)].chainNext;
+    INT_TYPE rr = CanonicalRank(f1, name(f1,label), spin );
+    enum division ll = f1.tulip[label].chainNext;
     while ( ll != nullName ){
+        //printf("%d ++ %d\n" , label, ll);
         rr += CanonicalRank(f1, name(f1,ll), spin);//switch from product to addition!!!
         
-        ll = f1.tulip[name(f1,ll)].chainNext;
+        ll = f1.tulip[ll].chainNext;
     }
     return rr;
 }
@@ -493,7 +897,7 @@ INT_TYPE spins ( struct sinc_label f1 , enum division label ){
     else if ( sp == cmpl )
         return 2;
     else if (sp == parallel )
-        return 1;
+        return MaxCore;
     return 0;
 }
 
@@ -511,6 +915,7 @@ double sumSquare (struct sinc_label  f1,  enum division alloy){
             for ( dim = 0; dim < SPACE ; dim++)
                 if ( f1.rose[dim].body != nada)
                 product *= pow(cblas_dnrm2(M2[dim], streams(f1, alloy,sp,dim)+l*M2[dim],iOne),2.);;
+           // printf("ss%d->%d %d %1.15f\n",alloy,name(f1,alloy),l, product);
             norm += product ;//* sqr(coeff(f1, alloy , sp,l ));
         }
     return norm;
@@ -530,12 +935,14 @@ void assignOneWithPointers( struct sinc_label f1, enum division oneMat , enum pa
     }
 
     for ( tv = tv1 ; tv <= tv4 ; tv++){
-        f1.tulip[oneMat+tv].Partition = part(f1, oneMat);
+        f1.tulip[oneMat+tv].Current[0] = part(f1, oneMat);
         f1.tulip[oneMat+tv].spinor = spins(f1, oneMat);
         f1.tulip[oneMat+tv].species = matrix;
         f1.tulip[oneMat+tv].name = oneMat;
-        if ( tv < tv4 )
-            f1.tulip[oneMat+tv].linkNext = oneMat+tv+1;
+        if ( tv < tv4 ){
+            if ( !f1.chainFlag )
+                f1.tulip[oneMat+tv].linkNext = oneMat+tv+1;
+        }
         for ( space = 0; space < SPACE ; space++)
             if ((f1.rose[space].body != nada ) &&( f1.rose[space].particle == particle || particle == all)){
                 f1.tulip[oneMat+tv].space[space].block = tv;
@@ -824,7 +1231,7 @@ Stream_Type*  myStreams ( struct sinc_label f1, enum division label ,INT_TYPE sp
 
     if ( f1.tulip[label].memory == bufferAllocation){
         if ( name(f1,label) != label ){
-            return f1.rose[space].stream+f1.tulip[name(f1,label)].space[space].Address + leng * partit * spin + leng*f1.tulip[label].Current[spin] ;
+            return f1.rose[space].stream+f1.tulip[name(f1,label)].space[space].Address + leng * partit * spin + leng*f1.tulip[label].Begin[spin];//HERE->BEGIN
         }
         else{
             return f1.rose[space].stream+f1.tulip[name(f1,label)].space[space].Address + leng * partit * spin  ;
@@ -861,8 +1268,8 @@ Stream_Type* streams ( struct sinc_label f1, enum division label ,INT_TYPE spin,
         INT_TYPE partit = part(f1, name(f1,label));
         
         if ( name(f1,label) != label ){
-         //   printf("*->",label);
-            return f1.rose[space].stream+f1.tulip[name(f1,label)].space[space].Address + leng * partit * spin + leng*f1.tulip[label].Current[spin] ;
+         //   printf("*->",label);//HERE->BEGIN
+            return f1.rose[space].stream+f1.tulip[name(f1,label)].space[space].Address + leng * partit * spin + leng*f1.tulip[label].Begin[spin] ;
         }
         else{
              uu =  f1.rose[space].stream+f1.tulip[name(f1,label)].space[space].Address + leng * partit * spin  ;
@@ -917,15 +1324,16 @@ double xEqua ( struct sinc_label f1 , enum division targ ,INT_TYPE tspin,struct 
     length(f2, orig, M2);
     INT_TYPE N2[SPACE];
     length(f1,targ,N2);
+    struct name_label nm = f1.tulip[targ];
     
     
-    
-    if ( f2.tulip[orig].memory == objectAllocation && f1.tulip[targ].memory == objectAllocation){
+  //  if ( f2.tulip[orig].memory == objectAllocation && f1.tulip[targ].memory == objectAllocation)
+    {
         
-        if ( name(f1,targ) == targ  ) {
+      //  if ( name(f1,targ) == targ  )
+        {
             
             if ( (part(f1,targ) < eb) )
-                
             {
                 printf("tEqual.. memory %d %d %d %d\n", targ,part(f1,targ), orig,part(f1,orig) );
                 printf("partition %d\n", eb);
@@ -956,15 +1364,13 @@ double xEqua ( struct sinc_label f1 , enum division targ ,INT_TYPE tspin,struct 
             }
             f1.tulip[targ].Current[tspin] = f2.tulip[orig].Current[ospin];
             //f1.tulip[name(f1,targ)].header = header(f2, name(f2,orig));
-        } else{
-            printf("xeq 1");
-            exit(9);
-        }
-    } else {
-        printf("xeq 2\n %d %d", targ, orig);
-
-        exit(9);
+        } 
     }
+//    else {
+//        printf("xeq 2\n %d %d", targ, orig);
+//
+//        exit(9);
+//    }
     return 0;
 }
 
@@ -1022,6 +1428,245 @@ INT_TYPE tAddTwo( struct sinc_label f1 , enum division left , enum division righ
     }
     return 0;
 }
+
+
+enum division defSpiralVector( struct sinc_label *f1, INT_TYPE spiralOp, enum division ket){
+    enum division opi = spiralOp;
+    INT_TYPE term = 0;
+    double cweight,weight = 0.;
+    while ( opi != nullName )
+    {
+        weight += 1.;
+        switch(name(*f1,opi)){
+            case kinetic:
+                weight += 9.;
+                break;
+        }
+        opi = f1->tulip[opi].linkNext;
+        term++;
+    }
+    
+    if (term > part(*f1,ket) ){
+        printf("more terms than vector ranks\n");
+        exit(1);
+    }
+    
+    
+    opi = spiralOp;
+    enum division buf,prev=0,spiral=0;
+    INT_TYPE t, curr = 0,sp,len,al[2];
+    al[0] = f1->tulip[ket].Current[0];
+    al[1] = f1->tulip[ket].Current[1];
+
+    for ( t = 0 ; t < term ; t++){
+            buf = anotherLabel(f1, all, nada);
+            if ( ! prev ){
+                spiral = buf;
+            }else {
+                f1->tulip[prev].linkNext = buf;
+            }
+        cweight = 1.;
+        switch(name(*f1,opi)){
+            case kinetic:
+                cweight += 9.;
+                break;
+        }
+
+        len = floor((part(*f1,ket)-term)*cweight/weight)+1;
+
+        
+        
+        {
+            for ( sp = 0  ; sp < f1->cmpl;sp++){
+                f1->tulip[buf].name = ket;
+                f1->tulip[buf].Partition = len;//not actually allocated,,,,it should never have its own name.
+                f1->tulip[buf].Current[sp] = imin(len,al[sp]);
+                f1->tulip[buf].Begin[sp]   = curr;
+                al[sp] = imax(0,al[sp]-len);
+            }
+            curr += len;
+        }
+        prev = buf;
+        opi = f1->tulip[opi].linkNext;
+    }
+    return spiral;
+}
+
+
+enum division defRefVector( struct sinc_label *f1, INT_TYPE spiralOp, enum division ket){
+    enum division opi = spiralOp;
+    INT_TYPE term = 0;
+    double cweight,weight = 0.;
+    while ( opi != nullName )
+    {
+        weight += 1.;
+        switch(name(*f1,opi)){
+            case kinetic:
+                weight += 9.;
+                break;
+        }
+        opi = f1->tulip[opi].linkNext;
+        term++;
+    }
+    
+    if (term > part(*f1,ket) ){
+        printf("more terms than vector ranks\n");
+        exit(1);
+    }
+    
+    
+    opi = spiralOp;
+    enum division buf,prev=0,spiral=0;
+    INT_TYPE t, curr = 0,sp,len,al[2];
+    al[0] = f1->tulip[ket].Current[0];
+    al[1] = f1->tulip[ket].Current[1];
+
+    for ( t = 0 ; t < term ; t++){
+            buf = anotherLabel(f1, all, nada);
+            if ( ! prev ){
+                spiral = buf;
+            }else {
+                f1->tulip[prev].linkNext = buf;
+            }
+        cweight = 1.;
+        switch(name(*f1,opi)){
+            case kinetic:
+                cweight += 9.;
+                break;
+        }
+
+        len = floor((part(*f1,ket)-term)*cweight/weight)+1;
+
+        //ALL POINTING AT SAME STRUCTURE
+        {
+            for ( sp = 0  ; sp < f1->cmpl;sp++){
+                f1->tulip[buf].name = ket;
+                f1->tulip[buf].Partition = len;//not actually allocated,,,,it should never have its own name.
+                f1->tulip[buf].Current[sp] = al[sp];
+                f1->tulip[buf].Begin[sp]   = 0;
+                //al[sp] = imax(0,al[sp]-len);
+            }
+           // curr += len;
+        }
+        prev = buf;
+        opi = f1->tulip[opi].linkNext;
+    }
+    return spiral;
+}
+
+enum division defSpiralMatrix( struct sinc_label *f1, enum division H){
+    
+    enum division pt = H,buf,prev=0,spiral=0;
+    INT_TYPE  sp;
+    INT_TYPE term = 0;
+    do{
+        if ( CanonicalOperator(*f1, pt, 0)+CanonicalOperator(*f1, pt, 1) > 0 ){
+            buf = anotherLabel(f1, all, nada);
+            if ( prev == 0 ){
+                spiral = buf;
+            }else {
+                f1->tulip[prev].linkNext = buf;
+            }
+            for ( sp = 0  ; sp < f1->tulip[pt].spinor;sp++){
+                f1->tulip[buf].name = pt;
+                f1->tulip[buf].Current[sp] = CanonicalOperator(*f1, pt, sp);
+            }
+            term++;
+            prev = buf;
+        }
+        pt = f1->tulip[pt].linkNext;
+    }while ( pt != nullName);
+        return spiral;
+}
+
+
+enum division defSpiralGrid( struct sinc_label *f1, enum division bra, INT_TYPE term, double diagonalPreference){
+    enum division buf,prev=0,spiral=0;
+    INT_TYPE  t,tt;
+    enum spinType sp;
+    INT_TYPE diagonal,offDiagonal,curr;
+    
+    
+    for ( t = 0 ; t < term; t++){
+        curr = 0;
+        for ( tt = 0; tt < term ; tt++){
+            buf=  anotherLabel(f1, all, nada);
+            if ( prev == 0 ){
+                spiral = buf;
+            }else {
+                f1->tulip[prev].chainNext = buf;
+            }
+            
+            //Partition = diagonal + offDiagonal
+            // diagonal = diagonalPreference * offDiagonal
+            if (0){
+                if ( term > 1 )
+                {
+                    diagonal = ceil((part(*f1, bra+t)-term)*diagonalPreference/(1+diagonalPreference))+1;
+                    offDiagonal = (part(*f1, bra+t)-diagonal)/(term-1);
+                }
+                else{
+                    diagonal = (part(*f1, bra+t)-term)+1;
+                    offDiagonal = 0;
+                }
+                
+            }
+            else{
+                offDiagonal = (part(*f1, bra+t))/term;
+                diagonal = part(*f1, bra+t) - (term-1) * offDiagonal;
+                
+                
+            }
+            for ( sp = 0  ; sp < f1->tulip[bra].spinor;sp++){
+                f1->tulip[buf].name = bra+t;
+                if ( t == tt ){
+                    f1->tulip[buf].Current[sp] = 0;
+                    f1->tulip[buf].Partition = diagonal;
+                    f1->tulip[buf].Begin[sp] = curr;
+                    curr += diagonal;
+                }
+                else{
+                    f1->tulip[buf].Current[sp] = 0;
+                    f1->tulip[buf].Partition = offDiagonal;
+                    f1->tulip[buf].Begin[sp] = curr;
+                    curr += offDiagonal;
+
+                }
+            }
+            prev = buf;
+
+        }
+    }
+    return spiral;
+}
+
+
+INT_TYPE zeroSpiraly( struct sinc_label f1, enum division spiral){
+    INT_TYPE i,space,spin,flag = 0;
+    Stream_Type * point;
+    enum division spir = spiral;
+    while ( spir != nullName ){
+        for (spin = 0 ; spin < spins(f1,spiral);spin++){
+            flag = 0;
+
+            for (space = 0 ; space < SPACE ; space++)
+                if ( f1.rose[space].body != nada){
+                    point = streams(f1, spir, spin, space);
+                    struct name_label nm =f1.tulip[spir];
+                    for ( i = f1.tulip[spir].Current[spin] ; i < f1.tulip[spir].Partition; i++)
+                    {
+                        flag = 1;
+                        point[i] = 0.;
+                    }
+                }
+            if ( flag )
+                printf("zero %d->%d %d:%d-%d\n", spir,name(f1,spir), f1.tulip[spir].Begin[spin],f1.tulip[spir].Current[spin], f1.tulip[spir].Partition);
+        }
+        spir = f1.tulip[spir].chainNext;
+    }
+    return 0;
+}
+
 
 INT_TYPE tScaleOne( struct sinc_label f1, enum division label,INT_TYPE spin, double scalar ){
     
@@ -1286,11 +1931,11 @@ INT_TYPE tId ( struct sinc_label f1 , enum division label,INT_TYPE spin ){
     INT_TYPE Current ;
     {
         
-        if ( f1.tulip[label].Current[spin] >= f1.tulip[label].Partition ){
-            printf("%d %d\n", label, spin);
-            printf("tryed to add to full array\n");
-            return 0;
-        }
+//        if ( f1.tulip[label].Current[spin] >= f1.tulip[label].Partition ){
+//            printf("%d %d\n", label, spin);
+//            printf("tryed to add to full array\n");
+//            return 0;
+//        }
         Current =  f1.tulip[label].Current[spin]++;
     }
     
@@ -1305,8 +1950,9 @@ INT_TYPE tId ( struct sinc_label f1 , enum division label,INT_TYPE spin ){
                 
                 Stream_Type  * stream = streams(f1,label,spin,space)+Current*B1[space];
                 for ( I2 = 0 ; I2 < B1[space] ; I2++){
-                    stream[I2] = 1;//sign(I2);
+                    stream[I2] = sign(I2);
                 }
+                    stream[(B1[space]-1)/2]=0.;
             }
         }
         
@@ -1400,7 +2046,7 @@ INT_TYPE tReplace( struct sinc_label f1 , enum division label,INT_TYPE spin,INT_
             return 0;
        }
     {
-        if ( f1.tulip[label].species == vector ){
+        if ( f1.tulip[name(f1,label)].species == vector ){
             INT_TYPE B1 = vectorLen(f1, space);
             {
                 Stream_Type  * stream = streams(f1,label,spin,space)+l*B1;
@@ -1431,7 +2077,7 @@ INT_TYPE tReplace( struct sinc_label f1 , enum division label,INT_TYPE spin,INT_
         //                    }
         //            }
         //        }
-        else if  ( f1.tulip[label].species == matrix ) {
+        else if  ( f1.tulip[name(f1,label)].species == matrix ) {
             INT_TYPE B1;
             B1 = vectorLen(f1, space);
             {

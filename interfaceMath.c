@@ -314,7 +314,7 @@ INT_TYPE tdgeqr( INT_TYPE rank, struct sinc_label f1,INT_TYPE len, INT_TYPE n, d
 }
 
 
-INT_TYPE tdpotrf ( INT_TYPE L1, double * array ) {
+INT_TYPE tdpotrf ( INT_TYPE L1, double * array ,INT_TYPE LS1) {
     INT_TYPE info;
     char charU = 'U';
     
@@ -324,17 +324,17 @@ INT_TYPE tdpotrf ( INT_TYPE L1, double * array ) {
 #endif
 
 #ifdef APPLE
-        dpotrf_( &charU , &L1, array, &L1, &info ) ;
+        dpotrf_( &charU , &L1, array, &LS1, &info ) ;
 
 #else
-info =  LAPACKE_dpotrf(LAPACK_COL_MAJOR,'U',L1,  array, L1 );
+info =  LAPACKE_dpotrf(LAPACK_COL_MAJOR,'U',L1,  array, LS1 );
 #endif
     if ( info != 0 ){
         printf("POTRF %d\n", info);
         INT_TYPE i ;
         for ( i = 0 ; i < L1 *L1 ; i++)
             printf("potrf %f\n", array[i]);
-        exit(1);
+//        exit(1);
     }
     return info;
 }
@@ -347,7 +347,7 @@ INT_TYPE tdgels ( INT_TYPE rank,struct sinc_label  f1 , INT_TYPE L1, INT_TYPE M2
 }
 
 
-INT_TYPE tdpotrs ( INT_TYPE L1, INT_TYPE M2, double * array, double * arrayo ,INT_TYPE inc){
+INT_TYPE tdpotrs ( INT_TYPE L1, INT_TYPE M2, double * array,INT_TYPE LS1, double * arrayo ,INT_TYPE inc){
     INT_TYPE info;
     char charU = 'U';
 #if VERBOSE
@@ -356,9 +356,10 @@ INT_TYPE tdpotrs ( INT_TYPE L1, INT_TYPE M2, double * array, double * arrayo ,IN
 #endif
 
 #ifdef APPLE
-dpotrs_(&charU,&L1,  &M2, array, &L1, arrayo, &inc, &info );
+dpotrs_(&charU,&L1,  &M2, array, &LS1, arrayo, &LS1, &info );
 #else
     INT_TYPE i;
+    if(0)
     for ( i = 0; i < L1*M2 ; i++){
         if ( isnan(arrayo[i]) || isinf(arrayo[i])){
             printf("warning inf, try reducing the rank of vectors\n");
@@ -366,7 +367,7 @@ dpotrs_(&charU,&L1,  &M2, array, &L1, arrayo, &inc, &info );
             exit(0);
         }
     }
-    info =  LAPACKE_dpotrs(LAPACK_COL_MAJOR,'U',L1,  M2, array, L1, arrayo, inc );
+    info =  LAPACKE_dpotrs(LAPACK_COL_MAJOR,'U',L1,  M2, array, LS1, arrayo, LS1 );
 #endif
 #if VERBOSE
     printf("pot-end\n");
@@ -415,7 +416,7 @@ INT_TYPE tdgesvd ( INT_TYPE rank, struct sinc_label f1 ,  INT_TYPE M1, INT_TYPE 
     char Job = 'S';
     INT_TYPE lbuffer = part(f1, dsyBuffers)-M1-M2;
     Stream_Type * sg = myStreams(f1, dsyBuffers,rank );
-    Stream_Type * buf = myStreams(f1, canonicalBuffersBM, rank);
+    Stream_Type * buf ;//HERE// = myStreams(f1, canonicalBuffersBM, rank);
     Stream_Type * work = myStreams(f1, dsyBuffers,rank )+M1+M2;
     
 //    {
@@ -472,7 +473,7 @@ INT_TYPE tdgesvd ( INT_TYPE rank, struct sinc_label f1 ,  INT_TYPE M1, INT_TYPE 
     char Job = 'S';
     INT_TYPE lbuffer = part(f1, dsyBuffers)-M1-M2;
     Stream_Type * sg = myStreams(f1, dsyBuffers,rank );
-    Stream_Type * buf = myStreams(f1, canonicalBuffersBM, rank);
+    Stream_Type * buf ;//HERE= myStreams(f1, canonicalBuffersBM, rank);
     Stream_Type * work = myStreams(f1, dsyBuffers,rank )+M1+M2;
     // printf("%lu %lu %lu \n",sg-ge, buf-sg,work-buf);
     dgesvd_(&Job, &Job, &M1, &M2, ge, &M1, sg, m1, &M1, buf, &Mm, work, &lbuffer, &info);
@@ -483,7 +484,7 @@ INT_TYPE tdgesvd ( INT_TYPE rank, struct sinc_label f1 ,  INT_TYPE M1, INT_TYPE 
     }
     INT_TYPE Mt = 0;
     // cblas_dcopy(M2, myStreams(f1, canonicalBuffersBM, rank), 1, m2, 1);
-    transpose(Mm, M2, myStreams(f1, canonicalBuffersBM, rank), m2);
+    //HERE//transpose(Mm, M2, myStreams(f1, canonicalBuffersBM, rank), m2);
     for ( i = 0; i < Mm; i++){
         //   printf("%d %1.15f\n", i, sg[i] );
         cblas_dscal(M1, sg[i], m1+i, M1);

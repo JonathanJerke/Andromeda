@@ -33,10 +33,9 @@ INT_TYPE countHam ( struct calculation *c1 , struct field f1 ){
     enum division di;
     
     for ( spin = 0 ; spin < f1.f.cmpl ; spin++){
-        tClear(f1.f,hamiltonian);
 
         for ( di = Ha ; di!= nullName; di = f1.f.tulip[di].linkNext){
-            if ( CanonicalRank(f1.f,f1.f.tulip[di].name, spin)){
+             if ( CanonicalRank(f1.f,f1.f.tulip[di].name, spin)){
                 printf("%d %d %d %f %d\n", di, f1.f.tulip[di].name, spin, traceOne(f1.f, di, spin),CanonicalRank(f1.f, di, spin));
                 sum++;
             }
@@ -52,7 +51,7 @@ INT_TYPE foundation1(struct calculation *c1, struct field f1){
     if ( 1 ){
         iModel(c1,&f1);
        // separateKinetic(f1.f, 0,kinetic, 1,electron);
-        tBoot1Construction(c1,f1.f ,build);
+       // tBoot1Construction(c1,f1.f ,build);
         if ( ! tSortBoot(c1,f1.f,build) )
             EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
         else
@@ -106,19 +105,23 @@ INT_TYPE foundationM(struct calculation *c1, struct field f1){
                 tId(f1.f , onem,spin);
                 enum division ha1 = Ha;
                 while ( ha1 != nullName ){
-                    printf("%f--", traceOne(f1.f, ha1, 0));
+                    printf("%f--", traceOne(f1.f, name(f1.f,ha1), 0));
+                    if ( f1.i.body >= two ){
                     if ( bodies(f1.f, name(f1.f,ha1) ) == one ){
                         for (space = 0; space < SPACE ;space++)
                             if ( f1.f.rose[space].body != nada)
                                 sumTo2(f1.f, 1.,space,f1.f.tulip[ha1].space[space].block, name(f1.f,ha1), spin, hamiltonian, 0);
-                        f1.f.tulip[hamiltonian].Current[0] += CanonicalRank(f1.f, ha1, 0);
+                        f1.f.tulip[hamiltonian].Current[0] += CanonicalRank(f1.f, name(f1.f,ha1), 0);
                     }
                     else if ( bodies (f1.f,name(f1.f,ha1 ) ) == two )
                         tAddTw(f1.f, hamiltonian, 0, name(f1.f,ha1), spin);
+                    }else
+                        tAddTw(f1.f, hamiltonian, 0, name(f1.f,ha1), spin);
+
                     ha1 = f1.f.tulip[ha1].linkNext;
                 }
                 
-                tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,onem  , spin, c1->rt.CANON, 1, 0);
+                tCycleDecompostionListOneMP(-1, f1.f, hamiltonian, 0, NULL,onem  , spin, c1->rt.TARGET, 1, 0);
                 switch(bodies(f1.f,eigen)){
                     case one:
                         tEqua(f1.f, eigen, spin, onem, spin);
@@ -143,7 +146,7 @@ INT_TYPE foundationM(struct calculation *c1, struct field f1){
                         f1.f.tulip[build].Current[0] += 1;
         
                         tId(f1.f , eigen,spin);
-                        tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , spin, c1->rt.CANON, 1, 0);
+                        tCycleDecompostionListOneMP(-2, f1.f, build, 0, NULL,eigen , spin, c1->rt.TARGET, 1, 0);
                         break;
                     case four:
                         tClear(f1.f, build);
@@ -183,14 +186,15 @@ INT_TYPE foundationM(struct calculation *c1, struct field f1){
                                 
                             
                         tId(f1.f , eigen,spin);
-                        tCycleDecompostionGridOneMP(-2, f1.f, build, 0, NULL,eigen , spin, c1->rt.CANON, 1, 0);
+                        tCycleDecompostionListOneMP(-2, f1.f, build, 0, NULL,eigen , spin, c1->rt.TARGET, 1, 0);
                         break;
                 }
             }
             tBootManyConstruction(c1,f1.f ,eigen);
             EV =   tSlam(f1.f,f1.i.qFloor,f1.f.user,c1->i.level);
+#ifndef APPLE
             print(c1,f1,1,0,EV , f1.f.user);
-            
+#endif
         }
         fModel(&f1.f);
         
@@ -203,55 +207,44 @@ INT_TYPE foundationM(struct calculation *c1, struct field f1){
 
 INT_TYPE krylov ( struct calculation *c1, struct field f1){
     INT_TYPE EV = 0,i,fi,next;
-
 #ifndef APPLE
     f1.i.qFloor = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
     //count canonical-rank...
-#endif
-    
     f1.i.nStates =f1.i.Iterations  ;
-   
- iModel(c1,&f1);
-    countHam(c1,f1);
-
+    iModel(c1,&f1);
     for ( fi =0 ; fi < f1.i.files ; fi++){
         tLoadEigenWeights (c1,f1, f1.i.fileList[fi], &EV,f1.f.user , f1.i.collect);
     }
-        if (EV == 0 ){
-#ifdef APPLE
-            EV =1 ;
-            tId(f1.f, f1.f.user, 0);
-            
-            
 #else
+    f1.i.qFloor = 1;
+    f1.i.Iterations = 4;
+    f1.i.nStates =  4;
+    iModel(c1,&f1);
+    for (int  i = 0 ; i < f1.i.bRank ; i++)
+        tId(f1.f,f1.f.user,0);
+    EV = 1;
+#endif
+    
+        if (EV == 0 ){
         print(c1,f1,1,0,0,eigenVectors);
         return 1;
-#endif
         }
     INT_TYPE RdsSize = EV,iterator=0;
 
-    if(1){
+    {
         printf ("Step \t%d\n", iterator);
         INT_TYPE cmpl,g ;
-        //        for ( iii = 0; iii < EV ; iii++){
-        //            printf ( "\n Vector \t%d \n", iii+1);
-        //            for ( sp = 0 ; sp < spins(f1.f, f1.f.user); sp++)
-        //                tCycleDecompostionGridOneMP(-1, f1.f, f1.f.user+iii, sp, NULL, eigenVectors+iii, sp, c1->rt.vCANON, part(f1.f,eigenVectors+iii), -1);
         
         for ( cmpl = 0; cmpl < spins(f1.f, f1.f.user) ; cmpl++){
             tClear(f1.f,totalVector);
-            if ( f1.f.cat && f1.i.filter  && f1.i.irrep )
-            {
-                printf("cat filter\n");
-                fflush(stdout);
-                for( g = 0; g < EV ; g++)
-                    tBuild3Irr(0, f1.f, f1.i.irrep, f1.f.user+g, cmpl, totalVector, 0);
-            }
-//            else if ( f1.i.filter  && f1.i.irrep ){
+//            if ( f1.f.cat && f1.i.filter  && f1.i.irrep )
+//            {
+//                printf("cat filter\n");
+//                fflush(stdout);
 //                for( g = 0; g < EV ; g++)
-//                    tBuildIrr(0, f1.f, f1.i.irrep, f1.f.user+g, cmpl, totalVector, 0);
+//                    tBuild3Irr(0, f1.f, f1.i.irrep, f1.f.user+g, cmpl, totalVector, 0);
 //            }
-            else
+//            else
             {
                 for( g = 0; g < EV ; g++)
                     tAddTw(f1.f, totalVector, 0, f1.f.user+g, cmpl);
@@ -280,53 +273,72 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
         fflush(stdout);
         print(c1,f1,1,0,1,eigenVectors);
         if ( c1->rt.runFlag == 0 )
-
-        tEdges(f1.f, eigenVectors);
+            tEdges(f1.f, eigenVectors);
 
     }
-    
-    INT_TYPE flag;
+    sumSquare(f1.f, eigenVectors);
+
+    enum division OpSpiral = defSpiralMatrix(&f1.f, Iterator);//all allocaitons are forgotten after procedure ends!
+    enum division refKet = defRefVector(&f1.f, OpSpiral, eigenVectors);
+    enum division spiralBra = defSpiralVector(&f1.f, OpSpiral, eigenVectors+1);
+    enum division spiralKet = defSpiralVector(&f1.f, OpSpiral, eigenVectors);
+    enum division moving = refKet;
+    DCOMPLEX vhhv;
+    INT_TYPE spin;
     for ( iterator = 1 ; iterator < f1.i.Iterations ; iterator++){
-        
-        
-       
-            flag = 1;
-        
-        
-        
-        if ( ! tGreatDivideIteration(c1->i.shiftFlag, c1->i.shiftVector[iterator-1][0],c1->i.shiftVector[iterator-1][1],  f1.f,Iterator, 1,0,eigenVectors+RdsSize-EV,EV,2*EV,0)){
-            RdsSize += EV;
-            
-            if(1){
-                tFilter(f1.f, EV, !(!f1.i.filter )* f1.i.irrep, eigenVectors+RdsSize-EV);//filter
-                printf ("Step \t%d\n", iterator);
-                fflush(stdout);
-                INT_TYPE iii ;
-                next = 0;
-                for ( iii = 0; iii < 1 ; iii++){
-                    printf ( "\n Vector \t%d \t %d\n", iii+1, +RdsSize-EV+iii);
-                //    tEigenCycle(1, f1.f, Ha, 1, RdsSize, eigenVectors, RdsSize, RdsSize, 1, 0, 0, nullName, twoBodyRitz);
-                    printExpectationValues(f1.f, Ha, eigenVectors+RdsSize-EV+iii);
-                    //assume EV = 1;
-                    print(c1,f1,0,RdsSize-EV+iii,RdsSize-EV+iii+1,eigenVectors);
-                   
-                    if ( c1->rt.runFlag == 0 )
-                        next = tEdges(f1.f , eigenVectors+RdsSize-EV+iii);
-                    else
-                        next = 0;
-                    fflush(stdout);
+        tLesserDivide(c1->i.shiftFlag, c1->i.shiftVector[iterator-1][0], c1->i.shiftVector[iterator-1][1], f1.f,spiralBra,OpSpiral, moving);
+        moving = spiralKet;
+        pMatrixElements( f1.f, eigenVectors+iterator, nullName, eigenVectors+iterator, NULL, &vhhv);
+        for ( spin = 0; spin < spins(f1.f,eigenVectors+iterator);spin++)
+            tScaleOne(f1.f, eigenVectors+iterator, spin, 1./sqrt(cabs(vhhv)));
+       // printf("rank %d", CanonicalRank(f1.f, eigenVectors+1, 0));
+//        for ( i = 0; i < 10 ; i++)
+//            printf("sub %d %d\n", i , CanonicalRank(f1.f, spiralBra+i, 0));
+//
+        {
+            enum division iter;
+            INT_TYPE k=0;
+            struct name_label nlb =f1.f.tulip[spiralBra];
+            struct name_label nlk =f1.f.tulip[spiralKet];
 
-                }
-                if ( next ){
-                    printf("advice:\t %d\n",next);
-                    break;
-                }
+            iter = spiralKet;
+            while ( iter != nullName ){
+                f1.f.tulip[spiralKet+k].name = eigenVectors+iterator;
+                f1.f.tulip[spiralKet+k].Current[0] = f1.f.tulip[spiralBra+k].Current[0];
+                f1.f.tulip[spiralKet+k].Begin[0] = f1.f.tulip[spiralBra+k].Begin[0];
+                iter = f1.f.tulip[iter].linkNext;
+                k++;
             }
-        }else {
-            break;
+            struct name_label nlk2 =f1.f.tulip[spiralKet];
+            struct name_label nlk22 =f1.f.tulip[spiralKet+1];
+
+            iter = spiralBra;
+            k=0;
+            while ( iter != nullName ){
+                f1.f.tulip[iter].name = eigenVectors+iterator+1;
+                f1.f.tulip[spiralBra+k].Current[0] = 0;
+                struct name_label nl = f1.f.tulip[iter];
+                iter = f1.f.tulip[iter].linkNext;
+                k++;
+            }
+            struct name_label nlb2 =f1.f.tulip[spiralBra];
+
         }
-        fflush(stdout);
-    }
+        
+            RdsSize = iterator;
+            tFilter(f1.f, EV, !(!f1.i.filter )* f1.i.irrep, eigenVectors+RdsSize);//filter
+            printf ("Step \t%d\n", iterator);
+            fflush(stdout);
+            next = 0;
+            printf ( "\n Vector \t%d \t %d\n", 1, RdsSize);
+            printExpectationValues(f1.f, Ha, eigenVectors+RdsSize);
+            if ( iterator >= c1->i.minIterationPrint )
+                print(c1,f1,0,RdsSize,RdsSize+1,eigenVectors);
+                       
+                next = tEdges(f1.f , eigenVectors+RdsSize);
+            
+        }
+    fflush(stdout);
     fModel(&f1.f);
 
     return 0;
@@ -343,9 +355,11 @@ INT_TYPE decompose ( struct calculation *c1, struct field f1){
     } else {
         tEqua(f1.f, hamiltonian, 0, linear, 0);
     }
-    tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian , 0, c1->rt.CANON, part(f1.f,trainHamiltonian), c1->rt.powDecompose);
+    tCycleDecompostionGridOneMP(-2, f1.f, hamiltonian, 0, NULL,trainHamiltonian , 0, c1->rt.TARGET, part(f1.f,trainHamiltonian), c1->rt.powDecompose);
     printf("%f\n", traceOne(f1.f, linear, 0));
+#ifndef APPLE
     ioStoreMatrix(f1.f, trainHamiltonian, 0, "trainLinear.matrix", 0);
+#endif
     fModel(&f1.f);
     return 0;
 }
@@ -1114,7 +1128,7 @@ INT_TYPE distill ( struct calculation c, struct field f1){
                 printf("<%f>%d\n", traceOne(f1.f, hamiltonian, 0),CanonicalRank(f1.f, hamiltonian, 0));
             }
         }
-        tCycleDecompostionGridOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , spin, c.rt.CANON, part(f1.f,trainHamiltonian), c.rt.powDecompose);
+        tCycleDecompostionListOneMP(-1, f1.f, hamiltonian, 0, NULL,trainHamiltonian  , spin, c.rt.TARGET, part(f1.f,trainHamiltonian), c.rt.powDecompose);
     }
 
         
@@ -1168,7 +1182,7 @@ int run (INT_TYPE argc , char * argv[]){
 
             case 0 :
                 //andromeda 0
-                printf("----\nv7.7\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\nv8.1\n\n%s\n\n",getenv("LAUNCH"));
                 exit(0);
         }
 
@@ -1261,12 +1275,7 @@ int run (INT_TYPE argc , char * argv[]){
         
 #if 0
 #ifdef APPLE
-        for ( int n = 0 ; n < 10 ;n++){
-            printf("%d\n",n);
-        printf("%f\n",momentumIntegralInTrain(2, n, 1,eikonDiagonal, two));
-        printf("%f\n",momentumIntegralInTrain(2, n, 1,eikonSemiDiagonal, two));
-        printf("%f\n",momentumIntegralInTrain(2, n, 1,eikonOffDiagonal, two));
-        }
+        printf("%f\n",momentumIntegralInTrain(10, 2, 1,eikonSemiDiagonal, two));
         return 0;
 #endif
 #else

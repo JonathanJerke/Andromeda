@@ -77,13 +77,13 @@ void getMetric ( struct metric_label mu ){
             break;
         case interval:
             printf("Interval [%f,%f] with amp %f\n", mu.beta[0],mu.beta[1], mu.fn.param[0]);
-            printf("deriv %d %d %d\n" , mu.deriv[0],mu.deriv[1],mu.deriv[2]);
-            printf("pow %d %d %d\n" , mu.pow[0],mu.pow[1],mu.pow[2]);
+        //    printf("deriv %d %d %d\n" , mu.deriv[0],mu.deriv[1],mu.deriv[2]);
+        //    printf("pow %d %d %d\n" , mu.pow[0],mu.pow[1],mu.pow[2]);
             break;
         case semiIndefinite:
             printf("Semi-Interval [%f,inf) with amp %f\n", mu.beta[0], mu.fn.param[0]);
-            printf("deriv %d %d %d\n" , mu.deriv[0],mu.deriv[1],mu.deriv[2]);
-            printf("pow %d %d %d\n" , mu.pow[0],mu.pow[1],mu.pow[2]);
+        ///    printf("deriv %d %d %d\n" , mu.deriv[0],mu.deriv[1],mu.deriv[2]);
+        ///    printf("pow %d %d %d\n" , mu.pow[0],mu.pow[1],mu.pow[2]);
             break;
             
     }
@@ -4509,7 +4509,7 @@ void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec, double *  occup
  //           printf("= %d\n", CanonicalRank(f1, copyTwo, 0));
         }
     }
-    tCycleDecompostionGridOneMP(-1, f1, copyTwo, 0, NULL, shorten, 0, f1.rt->CANON, part1, f1.rt->powDecompose);
+    tCycleDecompostionGridOneMP(-1, f1, copyTwo, 0, NULL, shorten, 0, f1.rt->TARGET, part1, f1.rt->powDecompose);
     //tScale(f1, shorten, scalar);
     printf("Ewald ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),scalar*traceOne(f1, shorten, 0), distance(f1, shorten, copyTwo));    
 	tScaleOne(f1, shorten,0, scalar);
@@ -4754,7 +4754,7 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
 
         }
     }
-    tCycleDecompostionGridOneMP(-1, f1, tempOneMatrix, 0, NULL, shorten, 0, f1.rt->CANON, part1, f1.rt->powDecompose);
+    tCycleDecompostionGridOneMP(-1, f1, tempOneMatrix, 0, NULL, shorten, 0, f1.rt->TARGET, part1, f1.rt->powDecompose);
     printf("Split 2-body ++%d  \t%f %f\n", CanonicalRank(f1, shorten, 0),scalar*traceOne(f1, shorten, 0), fabs(scalar)*distance1(f1, shorten,0, tempOneMatrix,0));
     tScaleOne(f1, shorten,0, scalar);
     return ;
@@ -4907,16 +4907,14 @@ void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label two
 
 
 
-INT_TYPE separateInteraction( struct sinc_label *f, double * position, enum division load,struct metric_label metric,enum spinType cmpl,INT_TYPE overline, enum division basis ,INT_TYPE particle1){
+INT_TYPE separateInteraction( struct sinc_label *f,double scalar, double * position,INT_TYPE act,enum block bl, enum division load,struct metric_label metric,enum spinType cmpl,INT_TYPE overline, enum division basis ,INT_TYPE particle1,enum bodyType body){
     enum genus hidden;
     struct sinc_label f1 = *f;
-    enum  bodyType body = bodies(f1, load);
     enum division temp , currLoop, currChain,newLabel;
     if ( f->eikonFlag ){
         enum division li = load;
         while ( f1.tulip[li].chainNext != nullName)
-        li =f1.tulip[li].chainNext;
-    
+            li =f1.tulip[li].chainNext;
         currChain = li;
         temp = eikonBuffer;
     } else {
@@ -4943,8 +4941,6 @@ INT_TYPE separateInteraction( struct sinc_label *f, double * position, enum divi
     for ( space = 0 ;space < SPACE  ; space++)
         if ( f1.rose[space].body != nada )
             if ( f1.rose[space].component != nullComponent )
-                if ( f1.tulip[load].space[space].body == body )
-                    if ( f1.rose[space].particle == particle1 )
                         spaces++;
     
     double length,cpow,constant,value,x,g;
@@ -5026,9 +5022,9 @@ if ( ! f->eikonFlag ){
         tClear(f1,temp);
         tId(f1,temp,0);
         if ( section < 2 )
-            constant *= inverseLaplaceTransform(x,&metric.fn);
+            constant *= inverseLaplaceTransform(x,&metric.fn)*scalar;
         cpow = powl(fabsl(constant),1./spaces);
-        printf("%f \t%f\n", constant, x );
+        //printf("%f \t%f\n", constant, x );
         fflush(stdout);
 if ( f->eikonFlag ){
         //x is beta.
@@ -5044,13 +5040,16 @@ if ( f->eikonFlag ){
         f1.tulip[newLabel].species = eikon;
         currChain = newLabel;
         currLoop = currChain;
-        
-        for ( hidden = eikonDiagonal ; hidden <= eikonDiagonal + body;hidden++ )
+        for ( space = 0 ;space < SPACE  ; space++)
+            if ( f1.rose[space].body != nada ){
+                f1.tulip[newLabel].space[space].body = body;
+                f1.tulip[newLabel].space[space].block = bl;
+                f1.tulip[newLabel].space[space].act = act;
+            }
+    for ( hidden = eikonDiagonal ; hidden <= eikonDiagonal + metric.fn.contr;hidden++ )
             {
             for ( space = 0 ;space < SPACE  ; space++)
                 if ( f1.rose[space].body != nada )
-                    if ( f1.tulip[load].space[space].body == body )
-                        if(f1.rose[space].particle == particle1  )
                         {
                         N1 = n1[space];
                         length = grabBasis(f1, space, particle1, 0).length;/*HERE*/
@@ -5058,6 +5057,7 @@ if ( f->eikonFlag ){
                         for ( si = 0 ; si < N1 + (N1+1)*(body == two); si++)
                              {
                                 I1 = si-N1*(body == two)-(N1-1)/2*(body== one);//
+//printf("hidden %d %d\n", hidden,body);
                                 te[si] = cpow* momentumIntegralInTrain(x*length, I1-position[space]/length,1, hidden, body);
                                  if ( (! space) && constant < 0 )
                                      te[si] *= -1;
@@ -5065,14 +5065,11 @@ if ( f->eikonFlag ){
                              }
                         }
                 //get name_label
-                
+               // printf("%f\n",magnitude(f1, temp));
                 newLabel = anotherLabel(f,particle1,body);
                 //get name_label
                 f1.tulip[temp].Current[0]= 1;
                 tEqua(f1, newLabel, 0, temp, 0);
-                f1.tulip[newLabel].space[0].body = body;
-                f1.tulip[newLabel].space[1].body = body;
-                f1.tulip[newLabel].space[2].body = body;
                 f1.tulip[currLoop].loopNext = newLabel;
                 f1.tulip[newLabel].species = hidden;
                 currLoop = newLabel;
@@ -5204,6 +5201,7 @@ INT_TYPE buildMetric( struct sinc_label f1,double latticePause,INT_TYPE Z, struc
                 metric[nMet].fn.param[0] = -Z*inter.func.param[0];
                 metric[nMet].fn.param[2] = inter.func.param[2];
                 metric[nMet].fn.interval = inter.func.interval;
+                metric[nMet].fn.contr    = inter.func.contr;
                 metric[nMet].metric = interval;
                 metric[nMet].beta[0] = 0;
                 metric[nMet].beta[1] = 1./inter.func.param[2];
@@ -5219,6 +5217,7 @@ INT_TYPE buildMetric( struct sinc_label f1,double latticePause,INT_TYPE Z, struc
                 metric[nMet].fn.param[0] = -Z*inter.func.param[0];
                 metric[nMet].fn.param[2] = inter.func.param[2];
                 metric[nMet].fn.interval     = inter.func.interval;
+                metric[nMet].fn.contr    = inter.func.contr;
                 metric[nMet].metric = interval;
                 metric[nMet].beta[0] = 0;
                 metric[nMet].beta[1] = latticePause;
@@ -5232,6 +5231,7 @@ INT_TYPE buildMetric( struct sinc_label f1,double latticePause,INT_TYPE Z, struc
                 metric[nMet].fn.param[0] = -Z*inter.func.param[0];
                 metric[nMet].fn.param[2] = inter.func.param[2];
                 metric[nMet].fn.interval = inter.func.interval;
+                metric[nMet].fn.contr    = inter.func.contr;
                 metric[nMet].metric = interval;
                 metric[nMet].beta[0] = latticePause;
                 metric[nMet].beta[1] = 1./inter.func.param[2];
@@ -5251,6 +5251,7 @@ INT_TYPE buildMetric( struct sinc_label f1,double latticePause,INT_TYPE Z, struc
             metric[nMet].fn.param[0] = -Z*inter.func.param[0];
             metric[nMet].fn.param[2] = inter.func.param[2];
             metric[nMet].fn.interval = inter.func.interval;
+            metric[nMet].fn.contr    = inter.func.contr;
             metric[nMet].metric = interval;
             metric[nMet].beta[0] = 0;
             metric[nMet].beta[1] = latticePause;
@@ -5264,6 +5265,7 @@ INT_TYPE buildMetric( struct sinc_label f1,double latticePause,INT_TYPE Z, struc
             metric[nMet].fn.param[0] = -Z*inter.func.param[0];
             metric[nMet].fn.param[2] = inter.func.param[2];
             metric[nMet].fn.interval = inter.func.interval;
+            metric[nMet].fn.contr    = inter.func.contr;
             metric[nMet].metric = semiIndefinite;
             metric[nMet].beta[0] = latticePause;
             for ( space = 0; space < SPACE ; space++){
@@ -5301,6 +5303,7 @@ INT_TYPE buildMetric( struct sinc_label f1,double latticePause,INT_TYPE Z, struc
                 metric[nMet].fn.param[0] = -PSU[1];
                 metric[nMet].fn.param[2] = (sqrt(2.)*PSU[5]);
                 metric[nMet].fn.interval = inter.func.interval;
+                metric[nMet].fn.contr    = inter.func.contr;
                 metric[nMet].metric = interval;
                 metric[nMet].beta[0] = 0;
                 metric[nMet].beta[1] =  1./(sqrt(2.)*PSU[5]);
@@ -5317,6 +5320,7 @@ INT_TYPE buildMetric( struct sinc_label f1,double latticePause,INT_TYPE Z, struc
                 metric[nMet].fn.param[0] = -PSU[1];
                 metric[nMet].fn.param[2] = (sqrt(2.)*PSU[5]);
                 metric[nMet].fn.interval = inter.func.interval;
+                metric[nMet].fn.contr    = inter.func.contr;
                 metric[nMet].metric = interval;
                 metric[nMet].beta[0] = 0;
                 metric[nMet].beta[1] = latticePause;
@@ -5330,6 +5334,7 @@ INT_TYPE buildMetric( struct sinc_label f1,double latticePause,INT_TYPE Z, struc
                 metric[nMet].fn.param[0] = -PSU[1];
                 metric[nMet].fn.param[2] = (sqrt(2.)*PSU[5]);
                 metric[nMet].fn.interval = inter.func.interval;
+                metric[nMet].fn.contr    = inter.func.contr;
                 metric[nMet].metric = interval;
                 metric[nMet].beta[0] = latticePause;
                 metric[nMet].beta[1] =  1./(sqrt(2.)*PSU[5]);
@@ -5586,11 +5591,79 @@ INT_TYPE buildMetric( struct sinc_label f1,double latticePause,INT_TYPE Z, struc
 }
 #define MAXb 30*MAXATOM
 
-INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label *f1, enum division single,enum particleType particle1, INT_TYPE overline, enum spinType cmpl){
+
+INT_TYPE buildKinetic(struct calculation *c1, struct sinc_label *f1,double scalar,INT_TYPE act, enum block bl,enum division single,enum particleType particle1, INT_TYPE overline, enum spinType cmpl){
+    INT_TYPE space,spacy;
+    enum division li = single;
+    while ( f1->tulip[li].chainNext != nullName)
+        li =f1->tulip[li].chainNext;
+    //x is beta.
+    if ( overline ){
+        printf("underline this!");
+        exit(0);
+    }
+    f1->tulip[single].species = matrix;
+    enum division headLabel;
+    headLabel = anotherLabel(f1,nullParticle,nada);
+    f1->tulip[li].chainNext = headLabel;
+    f1->tulip[headLabel].species = eikon;
+    enum division memoryLabel = anotherLabel(f1,all,one);
+    f1->tulip[headLabel].loopNext = memoryLabel;
+    f1->tulip[memoryLabel].species = eikonKinetic;
+    f1->tulip[memoryLabel].Current[0] = SPACE;
+    f1->tulip[memoryLabel].Partition = SPACE;
+    for ( space = 0 ; space < SPACE ; space++){
+        f1->tulip[headLabel].space[space].block = bl;
+        f1->tulip[headLabel].space[space].act = act;
+
+        for (spacy = 0 ; spacy < SPACE ; spacy++){
+            if (space == spacy)
+                streams(*f1, memoryLabel, 0, space)[spacy] = -0.500/f1->rose[space].basisList[0].length/f1->rose[space].basisList[0].length*scalar;
+            else
+                streams(*f1,memoryLabel,0,space)[spacy] = 1.;
+                }
+    }
+    return 0;
+}
+
+INT_TYPE buildConstant(struct calculation *c1, struct sinc_label *f1,double scalar,INT_TYPE act, enum block bl,enum division single,enum particleType particle1, INT_TYPE overline, enum spinType cmpl){
+    INT_TYPE space,spacy;
+    enum division li = single;
+    while ( f1->tulip[li].chainNext != nullName)
+        li =f1->tulip[li].chainNext;
+    //x is beta.
+    if ( overline ){
+        printf("underline this!");
+        exit(0);
+    }
+    f1->tulip[single].species = matrix;
+    enum division headLabel;
+    headLabel = anotherLabel(f1,nullParticle,nada);
+    f1->tulip[li].chainNext = headLabel;
+    f1->tulip[headLabel].species = eikon;
+    enum division memoryLabel = anotherLabel(f1,all,one);
+    f1->tulip[headLabel].loopNext = memoryLabel;
+    f1->tulip[memoryLabel].species = eikonConstant;
+    f1->tulip[memoryLabel].Current[0] = 1;
+    f1->tulip[memoryLabel].Partition = 1;
+    for ( space = 0 ; space < SPACE ; space++){
+        f1->tulip[headLabel].space[space].block = bl;
+        f1->tulip[headLabel].space[space].act = act;
+        streams(*f1, memoryLabel, 0, space)[0] = 1.;
+
+    }
+    streams(*f1, memoryLabel, 0, 0)[0] = scalar;
+
+    return 0;
+}
+
+
+INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label *f1,double scalar, INT_TYPE act,enum block bl,enum division single,enum particleType particle1, INT_TYPE overline, enum spinType cmpl){
     INT_TYPE mus=0,m,a,ra=0;
     struct metric_label mu[MAXb];
+    f1->tulip[single].species = matrix;
+
     struct interaction_label inter  = c1->i.oneBody;
-    tClear(*f1, single);
     for ( a = 1 ; a <= c1->i.Na ; a++){
         mus =  buildMetric(*f1, 2./grabBasis(*f1, 0, particle1, 0).length, c1->i.atoms[a].label.Z, inter, MAXb, mu);
 
@@ -5602,11 +5675,12 @@ INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label *f1, e
 
 
         }
+        getDescription(&mu[0].fn, 1., stdout);
+
         if ( bootedQ(*f1) ){
             for ( m = 0; m < mus ; m++){
-                getDescription(&mu[m].fn, 1., stdout);
                 getMetric ( mu[m] );
-                    separateInteraction(f1, c1->i.atoms[a].position+1, single, mu[m], cmpl, overline, 0, particle1);
+                    separateInteraction(f1,scalar, c1->i.atoms[a].position+1,act,bl, single, mu[m], cmpl, overline, 0, particle1,one);
                 }
         }
         }
@@ -5618,11 +5692,11 @@ INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label *f1, e
     return ra;
 }
 
-INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label *f1, enum division pair,enum particleType particle1 , INT_TYPE overline, enum spinType cmpl){
+INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label *f1,double scalar, INT_TYPE act,enum block bl, enum division pair,enum particleType particle1 , INT_TYPE overline, enum spinType cmpl){
     INT_TYPE mus=0,m,ra=0;
     struct metric_label mu[MAXb];
     struct interaction_label inter = c1->i.twoBody ;
-
+    f1->tulip[pair].species = matrix;
     mus =  buildMetric(*f1, 2./grabBasis(*f1, 0, electron, 0).length, -1, inter, MAXb, mu);
     for ( m = 0; m < mus ; m++){
         if ( mu[m].metric == interval || mu[m].metric == semiIndefinite)
@@ -5631,9 +5705,10 @@ INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label *f1, e
             ra++;
 
     }
+    getDescription(&mu[0].fn, 1., stdout);
+
     if ( bootedQ(*f1)  ){
         for ( m = 0; m < mus ; m++){
-            getDescription(&mu[m].fn, 1., stdout);
             getMetric ( mu[m] );
             double zero[6];
             zero[0] = 0.;
@@ -5642,7 +5717,7 @@ INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label *f1, e
             zero[3] = 0.;
             zero[4] = 0.;
             zero[5] = 0.;
-            separateInteraction(f1, zero,pair , mu[m], cmpl, overline, 0, particle1);
+            separateInteraction(f1, scalar,zero,act,bl,pair , mu[m], cmpl, overline, 0, particle1,two);
         }
 //        tCycleDecompostionGridOneMP(-2, f1, tempTwoMatrix, 0, NULL, pair, cmpl-1, f1.rt->CANON, part(f1, pair),f1.rt->powDecompose);
 //        printf("Split 2-body ++%d  \t%f %f\n", CanonicalRank(f1, pair, cmpl-1),traceOne(f1, pair, cmpl-1), distance1(f1, pair,cmpl-1, tempTwoMatrix,0));

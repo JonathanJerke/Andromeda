@@ -1386,75 +1386,108 @@ INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum 
     return 0;
 }
 //SA++
-INT_TYPE tBuild3Irr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin){
-    INT_TYPE space;
-
-    for ( space =0 ; space < SPACE ; space++){
-        tBuild3IrrOne(rank,f1,space,meta,origin,ospin,targ,tspin);
-    }
-    f1.tulip[targ].Current[tspin]= CanonicalRank(f1, origin, ospin);
-    return 0;
-}
+//INT_TYPE tBuild3Irr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin){
+//    INT_TYPE space;
+//
+//    for ( space =0 ; space < SPACE ; space++){
+//        tBuild3IrrOne(rank,f1,space,meta,origin,ospin,targ,tspin);
+//    }
+//    f1.tulip[targ].Current[tspin]= CanonicalRank(f1, origin, ospin);
+//    return 0;
+//}
 ////SA++
 //
-INT_TYPE tBuild3IrrOne ( INT_TYPE rank, struct sinc_label  f1,INT_TYPE space, INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin){
-    INT_TYPE p,oo;
-
-    if ( meta == 0 || bodies(f1,origin ) == one ){
-        tEqua(f1, targ, tspin, origin, ospin);
-        return 0;
-    }
-    if (! CanonicalRank(f1, origin, ospin ))
-        return 0;
-    enum bodyType bd =bodies(f1,origin);
-    INT_TYPE nPerm=tPerms(bd);
-    
-    if ( CanonicalRank(f1, origin, ospin) > part(f1,targ)){
-        printf("Irr\n");
-        printf("%d %d %d\n", CanonicalRank(f1, origin, ospin), part(f1, origin), part(f1, targ));
-        exit(0);
-    }
-    //SA++
-    INT_TYPE sp = tCat3(bd, meta, f1.cat, space);
-
-    for ( oo= 0 ; oo < CanonicalRank(f1, origin, ospin); oo++){
-        zero(f1, permutationVector,rank);
-        f1.tulip[permutationVector].Current[rank] = 0;
-            for ( p = 1 ; p <= nPerm ; p++)
-            {
-                f1.tulip[permutation2Vector].Current[rank] = 0;
-                tPermuteOne(rank, f1, space, p, origin, oo, ospin, permutation2Vector,0, rank);
-                //printf("%d %d %d %d %f\n", oo, space, p, sp,tGetVector(bd, sp, p));
-                cblas_daxpy(vectorLen(f1, space),  tGetProjection(bd, sp, p), streams(f1,permutation2Vector,rank,space), 1, streams(f1,permutationVector,rank,space), 1);
-            }
-        f1.tulip[permutationVector].Current[rank] = 1;
-        cblas_dcopy(alloc(f1, permutationVector, space), streams(f1,permutationVector,rank,space), 1, streams(f1,targ,tspin,space)+oo*alloc(f1, permutationVector, space), 1);
-    }
-    return 0;
-}
+//INT_TYPE tBuild3IrrOne ( INT_TYPE rank, struct sinc_label  f1,INT_TYPE space, INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin){
+//    INT_TYPE p,oo;
+//
+//    if ( meta == 0 || bodies(f1,origin ) == one ){
+//        tEqua(f1, targ, tspin, origin, ospin);
+//        return 0;
+//    }
+//    if (! CanonicalRank(f1, origin, ospin ))
+//        return 0;
+//    enum bodyType bd =bodies(f1,origin);
+//    INT_TYPE nPerm=tPerms(bd);
+//    
+//    if ( CanonicalRank(f1, origin, ospin) > part(f1,targ)){
+//        printf("Irr\n");
+//        printf("%d %d %d\n", CanonicalRank(f1, origin, ospin), part(f1, origin), part(f1, targ));
+//        exit(0);
+//    }
+//    //SA++
+//    //INT_TYPE sp = tCat3(bd, meta, f1.cat, space);
+//
+//    for ( oo= 0 ; oo < CanonicalRank(f1, origin, ospin); oo++){
+//        zero(f1, permutationVector,rank);
+//        f1.tulip[permutationVector].Current[rank] = 0;
+//            for ( p = 1 ; p <= nPerm ; p++)
+//            {
+//                f1.tulip[permutation2Vector].Current[rank] = 0;
+//                tPermuteOne(rank, f1, space, p, origin, oo, ospin, permutation2Vector,0, rank);
+//                //printf("%d %d %d %d %f\n", oo, space, p, sp,tGetVector(bd, sp, p));
+//          //      cblas_daxpy(vectorLen(f1, space),  tGetProjection(bd, sp, p), streams(f1,permutation2Vector,rank,space), 1, streams(f1,permutationVector,rank,space), 1);
+//            }
+//        f1.tulip[permutationVector].Current[rank] = 1;
+//        cblas_dcopy(alloc(f1, permutationVector, space), streams(f1,permutationVector,rank,space), 1, streams(f1,targ,tspin,space)+oo*alloc(f1, permutationVector, space), 1);
+//    }
+//    return 0;
+//}
 ////SA++
 //
 //
 //
 //
-INT_TYPE matrixAction ( enum bodyType bd, enum block bk, INT_TYPE direction){
+INT_TYPE matrixAction ( enum bodyType bd,INT_TYPE act, enum block bk, INT_TYPE direction){
 
     //action on right vector...direction = 1
     //action on product vector ... direction = -1
 
     if ( bd == two ){
-        switch (bk){
-            case tv1 :
-                return 1;
+        switch ( act){
+            case 1:
+                switch (bk){
+                    case tv1 :
+                        if (direction == 1 )
+                            return 1;
+                        else
+                            return 1;
+                    case tv2 :
+                        if (direction == 1 )
+                            return 2;
+                        else
+                            return 2;
 
-            case tv2 :
-                return 2;
+                    case e12:
+                        if (direction == 1 )
+                            return 1;
+                        else
+                            return 1;
 
-            case e12:
-                return 1;
+                }
+                break;
+            case 2:
+                switch (bk){
+                    case tv1 :
+                        if (direction == 1 )
+                            return 1;
+                        else
+                            return 2;
 
+                    case tv2 :
+                        if (direction == 1 )
+                            return 2;
+                        else
+                            return 1;
+
+                    case e12:
+                        if (direction == 1 )
+                            return 2;
+                        else
+                            return 1;
+
+                }
+                break;
         }
-
     } else if ( bd == three ){
 //        {
 //        1, 2, 3,//1///tv1//e12
@@ -2597,7 +2630,6 @@ INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim, INT_TYP
     INT_TYPE v[12],u[12],cb,cb2,cb1,ll = vector1Len(f1, dim),prev,d,cur = CanonicalRank(f1, equals, espin);
     Stream_Type * str = streams(f1, left, lspin, dim)+ l * alloc(f1, left, dim);
     Stream_Type * out = streams(f1, equals, espin, dim)+e*alloc(f1, equals, dim);
-//    printf("HERE %d %d\n",left,equals);
 //    printf("%d:%d %d %d\n",leftChar, at[0],at[1],at[2]);
 //    fflush(stdout);
 

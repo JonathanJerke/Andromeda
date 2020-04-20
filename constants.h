@@ -223,7 +223,9 @@ enum genus{
     eikon,
     eikonDiagonal,
     eikonOffDiagonal,
-    eikonSemiDiagonal
+    eikonSemiDiagonal,
+    eikonKinetic,
+    eikonConstant
 };
 
 enum shape{
@@ -250,6 +252,7 @@ enum functionType{
 
 struct function_label{
     INT_TYPE interval;
+    INT_TYPE contr;
     enum   functionType fn;
     double param[MaxParamFunc];
 };
@@ -393,9 +396,6 @@ enum blockMemoryType{
 
 
 
-
-
-
 enum division{
     nullName,
     nullScalar,
@@ -432,6 +432,13 @@ enum division{
     kinetic4,
     kinetic5,
     kinetic6,
+    kinetic_2,
+    kinetic1_2,
+    kinetic2_2,
+    kinetic3_2,
+    kinetic4_2,
+    kinetic5_2,
+    kinetic6_2,
     linear,
     external1,
     external2,
@@ -439,6 +446,12 @@ enum division{
     external4,
     external5,
     external6,
+    external1_2,
+    external2_2,
+    external3_2,
+    external4_2,
+    external5_2,
+    external6_2,
     interactionExchangePlus,
     interaction1Plus,
     interaction2Plus,
@@ -607,6 +620,7 @@ enum division{
     interaction36,
     interaction46,
     interaction56,
+    interaction12_2,
     interactionExchangeB,
     interaction12B,
     interaction13B,
@@ -680,6 +694,16 @@ enum division{
     interactionD56,
     buffer,
     oneByOneBuffer,
+    bra,
+    bra2,
+    bra3,
+    bra4,
+    bra5,
+    bra6,
+    bra7,
+    bra8,
+    bra9,
+    bra10,
     Ha, 
     Iterator,
     printOperator,
@@ -817,7 +841,6 @@ enum division{
     diagonal1VectorC,
     diagonal1VectorD,
     canonicalBuffersB,
-    canonicalBuffersBM,
     canonicalBuffersC,
     canonicalmvVector,
     canonicalmv2Vector,
@@ -907,11 +930,11 @@ struct runTime {
 
 struct space_label{
     ADDRESS_TYPE Address;
-    
     //matrix types
     enum bodyType body;
     enum block block;
     INT_TYPE mapTo;
+    INT_TYPE act;
     //not vector types
 };
 
@@ -936,7 +959,7 @@ struct name_label {
     struct value_label value;
     struct space_label space[SPACE+1];
     INT_TYPE Current[MaxCore];//if name != name , then Current is a pointer.
-    char operatorSignFlag;
+    INT_TYPE Begin[MaxCore];
 };
 
 struct nameDispenser{
@@ -946,27 +969,33 @@ struct nameDispenser{
 };
 
 struct sinc_label {
-    INT_TYPE eikonFlag ;
+    short int chainFlag;
+    short int eikonFlag ;
     struct nameDispenser eikonLabels;//many 1-term oneBody SOP vectors
     struct nameDispenser nullLabels;//many 0-term nullBody SOP placeholders
     enum bootType boot;
     INT_TYPE maxEV;
     INT_TYPE irrep;
-    INT_TYPE cat;
+//    INT_TYPE cat;
     INT_TYPE bootedMemory;
     struct canon rose[SPACE+1];
     struct name_label *tulip;//vectors
     enum division user;
     enum division vectorOperator;
     enum division end;
-    enum division purity;
+#ifdef ERIC
     enum division vMatrix;
+#endif
+#ifdef CHROME
     INT_TYPE chrome;
     INT_TYPE chroma;
     double chromos;
     double chromous;
     double chromaticStep;
+#endif
 #ifdef PURITY
+    enum division purity;
+
     enum division purityOverlap;
     enum division temp;
     INT_TYPE purityCanon;
@@ -977,7 +1006,8 @@ struct sinc_label {
 
 
 struct input_label {
-    INT_TYPE eikonFlag ;
+    short int eikonFlag ;
+    short int chainFlag;
 
     INT_TYPE body;
     INT_TYPE irrep;
@@ -1047,6 +1077,7 @@ struct general_2index{//one dimension
 
 
 struct input {
+    INT_TYPE minIterationPrint;
     char controlPath[MAXSTRING];
     INT_TYPE gaussCount;//currently only on origin
     double shiftVector[100][2];
@@ -1057,8 +1088,6 @@ struct input {
     double massClampPair;//clamped second particle
     INT_TYPE shiftFlag ;
     double realPart ;
-    double minClamp;
-    double maxClamp;
     double orgClamp;
     double level;
     INT_TYPE magFlag;
@@ -1071,16 +1100,12 @@ struct input {
     INT_TYPE mkl;
 #endif
     INT_TYPE canonRank;
+#ifdef CHROME
     INT_TYPE chromaticRank;
     INT_TYPE chroma;
     double chromos;
     double chromous;
-
-    double scalar;
-    double turn;
-    double param1;
-    double param2;
-    INT_TYPE interval;
+#endif
     INT_TYPE M1;
     double vectorMomentum;
     double springConstant;

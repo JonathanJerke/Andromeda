@@ -482,7 +482,7 @@ double momentumIntegralInTrain ( double beta, double kl , double d, enum genus h
                     printf("error\n");
                     return 0;
                 case two:
-                    return (-4.*sqrt(pi)*creal((-I *pi + beta*beta * kl )*expErf(pi/beta + I * kl*beta) + pi* I*expErf( I * kl * beta)) + 4. *exp(-pi*pi/beta/beta) * sin(2.*pi*kl) * beta)/sqrt(64.*pi*pi*pi*pi*pi);
+                    return (-4.*sqrt(pi)*creal((-I *pi + beta*beta * kl )*expErf(pi/beta + I * kl*beta) + pi* I*expErf( I * kl * beta)) + 0*4. *exp(-pi*pi/beta/beta) * sin(2.*pi*kl) * beta)/sqrt(64.*pi*pi*pi*pi*pi);
             }
         case eikonOffDiagonal:
             switch (body){

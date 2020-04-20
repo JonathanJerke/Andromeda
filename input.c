@@ -144,8 +144,19 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
     INT_TYPE i,d,ivalue;
     char test_line [MAXSTRING];
     double value;                    INT_TYPE iii ;
+    
+    
+   static double minClamp;
+static double maxClamp;
 
-    INT_TYPE NINT_TYPE = 128;
+    static INT_TYPE contr;
+    static double scalar;
+    static double turn;
+    static double param1;
+     static double param2;
+    static INT_TYPE interval;
+
+    INT_TYPE NINT_TYPE = 131;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -172,7 +183,8 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
         "around","cmpl","clampStage","OCSB","decompose",
         "shiftNO","matrix","catalog","increment","blockMemory",//120
         "blockReset","chrome","NULL","chroma","gaussCount",
-        "Sign","switchGeometry","eikon"
+        "Sign","switchGeometry","eikon","chain","Above",
+        "offDiagonals"
     };
     INT_TYPE NDOUBLE = 83;
     char *list_DOUBLE []= {"#",
@@ -667,23 +679,25 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     return i;
                 
                 case 87:
-                        c->i.oneBody.func.interval = c->i.interval;
+                        c->i.oneBody.func.interval = interval;
+                        c->i.oneBody.func.contr = contr;
                         c->i.oneBody.func.fn = ivalue;
-                        c->i.oneBody.func.param[0] = c->i.scalar;
-                        c->i.oneBody.func.param[1] = c->i.turn;
-                        c->i.oneBody.func.param[2] = c->i.param1;
-                        c->i.oneBody.func.param[3] = c->i.param2;
+                        c->i.oneBody.func.param[0] = scalar;
+                        c->i.oneBody.func.param[1] = turn;
+                        c->i.oneBody.func.param[2] = param1;
+                        c->i.oneBody.func.param[3] = param2;
 
                         return i;
 
                     
                 case 88:
-                        c->i.twoBody.func.interval = c->i.interval;
+                        c->i.twoBody.func.interval = interval;
+                        c->i.twoBody.func.contr = contr;
                         c->i.twoBody.func.fn = ivalue;
-                        c->i.twoBody.func.param[0] = c->i.scalar;
-                        c->i.twoBody.func.param[1] = c->i.turn;
-                        c->i.twoBody.func.param[2] = c->i.param1;
-                        c->i.twoBody.func.param[3] = c->i.param2;
+                        c->i.twoBody.func.param[0] = scalar;
+                        c->i.twoBody.func.param[1] = turn;
+                        c->i.twoBody.func.param[2] = param1;
+                        c->i.twoBody.func.param[3] = param2;
 
                         return i;
                 case 89:
@@ -699,7 +713,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                  //   c->i.entropyFlag = ivalue;
                     return i;
                 case 92:
-                    c->i.interval = ivalue;
+                    interval = ivalue;
                     return i;
                 case 93:
                     c->i.RAMmax = ivalue;
@@ -765,8 +779,8 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     
                 case 111:
                     c->rt.calcType = 2;
-                    c->i.orgClamp = 0.5*(c->i.minClamp+c->i.maxClamp);
-                    f1->around = floor((c->i.orgClamp-c->i.minClamp)/f1->D);
+                    c->i.orgClamp = 0.5*(minClamp+maxClamp);
+                    f1->around = floor((c->i.orgClamp-minClamp)/f1->D);
                     return i;
                     
                 case 112:
@@ -802,6 +816,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                 case 121:
                     resetA(&c->rt);
                     return i;
+#ifdef CHROME
                 case 122:
                     c->i.chromaticRank = ivalue;
                     return i;
@@ -810,6 +825,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
 //                    return i;
                 case 124:
                     c->i.chroma = ivalue;
+#endif
                     return i;
                 case 125:
                     c->i.gaussCount = ivalue;
@@ -823,6 +839,15 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                 case 128:
                         f1->eikonFlag = ivalue ;
                         return i;
+                case 129:
+                        f1->chainFlag = ivalue ;
+                        return i;
+                case 130:
+                    c->i.minIterationPrint = ivalue;
+                    return i;
+                case 131:
+                    contr = ivalue ;
+                    return i;
 
             }
         
@@ -1047,7 +1072,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                  //   c->i.domainMin = value;
                     return d;
                 case 55:
-                    c->i.param1 = value;
+                    param1 = value;
                     return d;
                 case 56:
                     c->rt.maxEntropy = pow(0.1,value);
@@ -1056,13 +1081,13 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                       f1->attack = value;
                     return d;
                 case 58:
-                    c->i.scalar = value;
+                    scalar = value;
                     return d;
                 case 59:
-                    c->i.turn = value;
+                    turn = value;
                     return d;
                 case 60:
-                    c->i.param2 = value;
+                    param2 = value;
                     return d;
                 case 61:
                    // c->rt.condition = pow(10., value);
@@ -1087,10 +1112,10 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     c->i.magFlag = 1;
                     return d;
                 case 67:
-                    c->i.minClamp = value;
+                    minClamp = value;
                     return d;
                 case 68:
-                    c->i.maxClamp = value;
+                    maxClamp = value;
                     return d;
                 case 69:
                     c->i.massElectron = value;
@@ -1103,7 +1128,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     return d;
                 case 72:
                     //Jacek Karwowski 06/17/2019
-                    c->i.turn = pow(120.*(1.+sqrt(value/(20.*2*c->i.param1*c->i.param1*(c->i.massProton * c->i.massClampPair/(c->i.massProton + c->i.massClampPair) )*c->i.scalar))) ,1./6);
+                    turn = pow(120.*(1.+sqrt(value/(20.*2*param1*param1*(c->i.massProton * c->i.massClampPair/(c->i.massProton + c->i.massClampPair) )*scalar))) ,1./6);
                     return d;
                 case 73:
                     c->rt.EWALD = pow(0.1, value);
@@ -1213,6 +1238,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     c->rt.CAP = pow(0.1, value);
                     return d;
                 }
+#ifdef CHROME
                 case 82:
                 {
                     c->i.chromos = value;
@@ -1223,7 +1249,7 @@ INT_TYPE getParam ( struct calculation * c,struct input_label *f1, const char * 
                     c->i.chromous = value;
                     return d;
                 }
-
+#endif
             }
 
         }
@@ -1925,7 +1951,7 @@ INT_TYPE initCalculation(struct calculation * c ){
     c->i.massElectron = 1.;
     c->i.massProton = 1836.15267245;
     c->i.massClampPair = 1836.15267245;
-    c->rt.powDecompose = 2;
+    c->rt.powDecompose = 3;
     c->i.shiftFlag = 0;
     c->i.RAMmax = 0;//Gb  needs updating
     c->i.springFlag = 0;

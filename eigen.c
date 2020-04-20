@@ -32,7 +32,7 @@ double vale ( struct sortClass * f ){
     INT_TYPE space;
     for ( space = 0; space < SPACE ; space++)
         if ( f->n1[space] ){
-            value *=  f->str[space][mm[2*space] + mm[2*space+1]*f->n1[space]];
+            value +=  f->str[space][mm[2*space] + mm[2*space+1]*f->n1[space]];
             //printf("%f -- %d %d\n", value, space );
         }
     return value;
@@ -99,394 +99,394 @@ int sortComp (const void * elem1, const void * elem2)
 //    return 0;
 //}
 
-INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum division eigen){
-    assignCores(f1,1);
-    enum bodyType bootBodies = f1.rose[0].body;
-    INT_TYPE n1[SPACE];
-    length1(f1,n1);
-    INT_TYPE N1,rank;
-    INT_TYPE space,N2,i,ii,iii,iv,v;
-    double * ar,*w;
-    DCOMPLEX * arc ;
-    INT_TYPE cmplFlag = spins(f1,kinetic)-1;
-
-    
-    
-    f1.tulip[Iterator].linkNext = kinetic1;
-    f1.tulip[kinetic1].linkNext = kinetic2;
-    f1.tulip[kinetic2].linkNext = kinetic3;
-    f1.tulip[kinetic3].linkNext = kinetic4;
-    f1.tulip[kinetic4].linkNext = kinetic5;
-    f1.tulip[kinetic5].linkNext = kinetic6;
-
-    if (bootBodies==two){
-        f1.tulip[kinetic2].linkNext = nullName;
-    }
-    else if ( bootBodies == three ){
-        f1.tulip[kinetic3].linkNext = nullName;
-    }    else if ( bootBodies == four ){
-        f1.tulip[kinetic4].linkNext = nullName;
-    }    else if ( bootBodies == five ){
-        f1.tulip[kinetic5].linkNext = nullName;
-    }    else if ( bootBodies == six ){
-        f1.tulip[kinetic6].linkNext = nullName;
-    }
-
-    
-    
-    
-    
-    
-    
-    
-    for ( space = 0 ;space < SPACE ; space++)
-        if( f1.rose[space].body != nada){
-            
-            N1 = n1[space];
-            INT_TYPE Nx = N1;//imin(N1,c1->i.bootRestriction);
-            struct name_label u = f1.tulip[canonicalBuffersBM];
-            enum division em;
-            N2 = N1*N1;
-            myZero(f1,canonicalBuffersBM,0);
-            ar = myStreams(f1, canonicalBuffersBM, 0);
-            INT_TYPE part1 = part(f1, canonicalBuffersBM);
-            arc = (DCOMPLEX*)myStreams(f1, canonicalBuffersBM, 0);
-            w = ar + 4*N2;
-//            {//here
-//                INT_TYPE j;
-//                for ( i = 0; i < N1 ; i++)
-//                    for ( j =0 ; j < N1 ; j++)
-//                        ar[i*N1+j] = delta(i-j);
-//                
-//            }
-            if ( c1->rt.calcType == electronicStuctureCalculation ){
-                INT_TYPE j;
-
-#ifdef BOOTIDENTITY
-                    for ( i = 0; i < N1 ; i++)
-                        for ( j =0 ; j < N1 ; j++)
-                            ar[i*N1+j] = delta(i-j);
-#else
-                for ( v = 0 ; v < N2 ; v++){
-                        if ( f1.tulip[kinetic].spinor == cmpl){
-                            cmplFlag = 1;
-                            arc[v] = (streams(f1, kinetic,0,space)+space*N2)[v] + I * (streams(f1, kinetic,1,space)+space*N2)[v];
-                            printf("%f + I %f\n", creal(arc[v]), cimag(arc[v]));
-                        }
-                        else
-                    {
-                            ar[v] = (streams(f1, kinetic,0,space)+space*N2)[v];
-                        }
-                }
-#endif
-                }
-            
-            else if ( c1->rt.calcType == clampProtonElectronCalculation ){
-                if ( space < COMPONENT )
-                    cblas_dcopy(N2, streams(f1, kinetic,0,space)+space*N2, 1, ar, 1);
-                else {
-                    cblas_dcopy(N2,streams(f1, kineticMass,0,space), 1, ar, 1);
-                    if ( c1->i.oneBody.func.fn == LennardJones){
-                    
-                   for ( i = 0; i < CanonicalRank(f1, protonRepulsion, 0);i++)
-                       cblas_daxpy(N2, 1., streams(f1,protonRepulsion,0,space)+i*N2, 1,ar,1 );
-                    
-                    printf("LJ %d\n", CanonicalRank(f1, protonRepulsion, 0));
-                    }
-                    if (0)
-                    for ( i = 0 ; i < N1 ; i++) printf("%1.3f,", ar[i*N1+i]);
-                    // N12 >= 3
-//                    exit(0);
-                }
-            }
-//            if ( c1->i.springFlag ){
-//                if ( space == 0 &&  ( c1->rt.runFlag )%2 == 0 ){
-//                    cblas_daxpy(N2, 1.0,streams(f1, harmonium,0,0)+0*N2, 1, ar, 1);
-//                }
-//                if ( space == 1 &&  ( c1->rt.runFlag/2 )%2 == 0 ){
-//                    cblas_daxpy(N2, 1.0,streams(f1, harmonium,0,1)+1*N2, 1, ar, 1);
-//                }
-//                if ( space == 2 &&  ( c1->rt.runFlag/4 )%2 == 0 ){
-//                    cblas_daxpy(N2, 1.0,streams(f1, harmonium,0,2)+2*N2, 1, ar, 1);
-//                }
-//            }
-            INT_TYPE complete;
-            if ( cmplFlag )
-               complete =  tzheev(0, f1, 'V', N1, arc, N1, w);
-            else
-                complete =   tdsyev(0, f1, 'V', N1, ar, N1, w);
-            
-            if ( complete ){
-                printf("eigensovle failed\n");
-                exit(0);
-            }
-            
-            if(0)
-            if (  space == 0 || space == COMPONENT ){
-                if ( cmplFlag ){
-                    for ( i = 0 ; i < N1 ; i++){
-                        printf("\n\n%f \n\n", w[i]);
-
-                        for ( ii = 0; ii < N1 ; ii++)
-                            printf("\n%d--%f+I%f,",ii+1, creal(arc[i*N1+ii]),cimag(arc[i*N1+ii]));
-                    }
-
-
-                }else {
-                    for ( i = 0 ; i < N1 ; i++){
-                        printf("\n\n%d %f \n\n",i+1, w[i]);
-
-                        for ( ii = 0; ii < N1 ; ii++)
-                            printf("%f,", ar[i*N1+ii]);
-                    }
-
-                }
-            }
-
-            if ( bootBodies == nada ){
-
-            }   else
-
-            if ( bootBodies == one ){
-                
-                for ( i = 0  ; i < N1 ; i++)
-                    if ( w[i] - w[0] < c1->i.level ){
-                        streams(f1,foundationStructure,0,space)[i] = w[i]-w[0];
-                        
-                        streams(f1,foundationStructure,1,space)[i] = 1;
-                    }
-                
-                if ( cmplFlag ){
-                    for ( v = 0 ; v < N2 ; v++){
-                        myStreams(f1, bill1+space,0)[v] = creal(arc[v]);
-                        myStreams(f1, bill1+space,1)[v] = cimag(arc[v]);
-                    }
-                } else
-                    cblas_dcopy(N2 , ar,1,myStreams(f1, bill1+space,0),1);
-            }else if ( bootBodies == two ){
-                
-                
-#ifdef OMP
-#pragma omp parallel for private (v,rank,i,ii) schedule(dynamic,1)
-#endif
-                
-                for ( v = 0 ; v < Nx*Nx ; v++){
-#ifdef OMP
-                    rank = omp_get_thread_num();
-#else
-                    rank = 0;
-#endif
-                    
-                    i = (v)%Nx;
-                    ii = (v/Nx)%Nx;
-                    if ( w[i]-w[0] + w[ii] - w[0] < c1->i.level ){
-
-                    
-                     //   printf("%d %d %f %f\n", i,ii, c1->i.level, w[i]-w[0] + w[ii] - w[0]);
-                        
-                        
-                        
-                        
-                        cblas_dcopy(N1, ar+i*N1, 1, streams(f1,diagonal1VectorA,rank,space), 1);
-                        f1.tulip[diagonal1VectorA].Current[rank] = 1;
-                        cblas_dcopy(N1, ar+ii*N1, 1, streams(f1,diagonal1VectorB,rank,space), 1);
-                        f1.tulip[diagonal1VectorB].Current[rank] = 1;
-                        f1.tulip[diagonalVectorA].Current[rank] = 0;
-                        tOuterProductSuOne(f1,space, diagonal1VectorA, rank, diagonal1VectorB, rank, diagonalVectorA, rank);
-                        
-                        
-                        
-                        //SA++
-                        if ( f1.cat ){
-                            f1.tulip[diagonalVectorB].Current[rank] = 0;
-                            f1.tulip[diagonalVectorA].Current[rank] = 1;
-                            tBuild3IrrOne(rank, f1,space, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
-                            if ( cblas_dnrm2(N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
-                                cblas_dcopy(N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
-                                streams(f1,foundationStructure,0,space)[v] = 0.;
-                                for ( em = kinetic1 ; em < kinetic1 + bootBodies ; em++){
-                                    tGEMV(rank, f1, space, diagonalVectorA, 0, rank, em, space, 0, diagonalVectorB, 0, rank);
-                                    streams(f1,foundationStructure,0,space)[v] += tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
-                                }
-                                if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
-                                streams(f1,foundationStructure,1,space)[v] = 1;
-                            }
-                        } else
-                        {
-                            cblas_dcopy(N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
-                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0];
-                            streams(f1,foundationStructure,1,space)[v] = 1;
-
-                        }
-                    
-                    }
-                    //SA++
-
-                }
-                
-                
-                
-                
-                
-            }else if ( bootBodies == three ){
-#ifdef OMP
-#pragma omp parallel for private (v,rank,i,ii,iii) schedule(dynamic,1)
-#endif
-                
-                for ( v = 0 ; v < Nx*Nx*Nx ; v++){
-#ifdef OMP
-                    rank = omp_get_thread_num();
-#else
-                    rank = 0;
-#endif
-                    
-                    i = (v)%Nx;
-                    ii = (v/Nx)%Nx;
-                    iii = (v/(Nx*Nx))%Nx;
-                    
-                    if ( w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0] < c1->i.level )
-                    {
-                    cblas_dcopy(N1, ar+i*N1, 1, streams(f1,diagonal1VectorA,rank,space), 1);
-                    double va = cblas_dnrm2(N1, streams(f1,diagonal1VectorA,rank,space), 1);
-
-                    f1.tulip[diagonal1VectorA].Current[rank] = 1;
-                    cblas_dcopy(N1, ar+ii*N1, 1, streams(f1,diagonal1VectorB,rank,space), 1);
-                    va = cblas_dnrm2(N1, streams(f1,diagonal1VectorB,rank,space), 1);
-
-                    f1.tulip[diagonal1VectorB].Current[rank] = 1;
-                    f1.tulip[diagonal2VectorA].Current[rank] = 0;
-                    
-                    struct name_label d2 = f1.tulip[diagonal2VectorA];
-                    
-                    
-                    tOuterProductSuOne(f1, space,diagonal1VectorA, rank, diagonal1VectorB,rank, diagonal2VectorA, rank);
-                    va = cblas_dnrm2(N1*N1, streams(f1,diagonal2VectorA,rank,space), 1);
-                    cblas_dcopy(N1, ar+iii*N1, 1, streams(f1,diagonal1VectorC,rank,space), 1);
-                    
-                    f1.tulip[diagonal1VectorC].Current[rank] = 1;
-                    f1.tulip[diagonal2VectorA].Current[rank] = 1;
-
-                    f1.tulip[diagonalVectorA].Current[rank] = 0;
-                    tOuterProductSuOne(f1,space, diagonal2VectorA, rank, diagonal1VectorC, rank, diagonalVectorA, rank);
-                    
-                    //SA++
-                        if ( f1.cat ){
-                            f1.tulip[diagonalVectorB].Current[rank] = 0;
-                            f1.tulip[diagonalVectorA].Current[rank] = 1;
-
-                            tBuild3IrrOne(rank, f1,space, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
-                        //     printf("\n%d %d %f\n",space, v,cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1));
-                            if ( cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
-
-                                cblas_dcopy(N1*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
-
-
-                                streams(f1,foundationStructure,0,space)[v] = 0.;
-                                for ( em = kinetic1 ; em < kinetic1 + bootBodies ; em++){
-                                    tGEMV(rank, f1, space, diagonalVectorA, 0, rank, em, space, 0, diagonalVectorB, 0, rank);
-                                    streams(f1,foundationStructure,0,space)[v] += tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
-                                }
-                                if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
-                                streams(f1,foundationStructure,1,space)[v] = 1;
-                            }
-                            //SA++
-
-                        }else
-                        {
-                            cblas_dcopy(N2*N1, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2*N1, 1);
-                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0];
-                            streams(f1,foundationStructure,1,space)[v] = 1;
-                            
-                        }
-                    }
-                }
-            }else if ( bootBodies == four ){
-                
-                
-#ifdef OMP
-#pragma omp parallel for private (v,rank,i,ii,iii,iv) schedule(dynamic,1)
-#endif
-                
-                for ( v = 0 ; v < Nx*Nx*Nx*Nx ; v++){
-#ifdef OMP
-                    rank = omp_get_thread_num();
-#else
-                    rank = 0;
-#endif
-                    i = (v)%Nx;
-                    ii = (v/Nx)%Nx;
-                    iii = (v/(Nx*Nx))%Nx;
-                    iv = (v/(Nx*Nx*Nx))%Nx;
-                    
-                    if( w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0] + w[iv]-w[0]< c1->i.level ){
-                    cblas_dcopy(N1, ar+i*N1, 1, streams(f1,diagonal1VectorA,rank,space), 1);
-                    
-                    f1.tulip[diagonal1VectorA].Current[rank] = 1;
-                    cblas_dcopy(N1, ar+ii*N1, 1, streams(f1,diagonal1VectorB,rank,space), 1);
-                    
-                    f1.tulip[diagonal1VectorB].Current[rank] = 1;
-                    f1.tulip[diagonal2VectorA].Current[rank] = 0;
-                    tOuterProductSuOne(f1, space,diagonal1VectorA, rank, diagonal1VectorB, rank, diagonal2VectorA, rank);
-
-                    cblas_dcopy(N1, ar+iii*N1, 1, streams(f1,diagonal1VectorC,rank,space), 1);
-                    //    double u0 = cblas_dnrm2(N1, ar+iii*N1, 1);
-
-                    f1.tulip[diagonal1VectorC].Current[rank] = 1;
-                    
-                    cblas_dcopy(N1, ar+iv*N1, 1, streams(f1,diagonal1VectorD,rank,space), 1);
-                    
-                    f1.tulip[diagonal1VectorD].Current[rank] = 1;
-                    
-                    f1.tulip[diagonal2VectorB].Current[rank] = 0;
-                    f1.tulip[diagonalVectorA].Current[rank] = 0;
-                    
-                    tOuterProductSuOne(f1, space,diagonal1VectorC, rank, diagonal1VectorD, rank, diagonal2VectorB, rank);
-                        
-                        f1.tulip[diagonal2VectorA].Current[rank] = 1;
-                        f1.tulip[diagonal2VectorB].Current[rank] = 1;
-
-                    tOuterProductSuOne(f1,space, diagonal2VectorA, rank, diagonal2VectorB, rank, diagonalVectorA, rank);
-                        if (f1.cat ){
-                            //SA++
-                            f1.tulip[diagonalVectorB].Current[rank] = 0;
-                            f1.tulip[diagonalVectorA].Current[rank] = 1;
-                            
-                            tBuild3IrrOne(rank, f1,space, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
-                            // printf("\n%d %d %f\n",space, v,cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1));
-                            if ( cblas_dnrm2(N2*N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
-                                
-                                cblas_dcopy(N2*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2*N2, 1);
-                                
-                                
-                                streams(f1,foundationStructure,0,space)[v] = 0.;
-                                for ( em = kinetic1 ; em < kinetic1 + bootBodies ; em++){
-                                    tGEMV(rank, f1, space, diagonalVectorA, 0, rank, em, space, 0, diagonalVectorB, 0, rank);
-                                    streams(f1,foundationStructure,0,space)[v] += tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
-                                }                                if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
-
-                                    streams(f1,foundationStructure,1,space)[v] = 1;
-                            }
-                            
-                            //SA++
-                        } else
-                        {
-                            cblas_dcopy(N2*N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2*N2, 1);
-                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0]+w[iv]-w[0];
-                            streams(f1,foundationStructure,1,space)[v] = 1;
-                            
-                        }
-//                       // double u = cblas_dnrm2(N2*N2, streams(f1, diagonalVectorA,rank,space), 1);
-//                        cblas_dcopy(N2*N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2*N2, 1);
+//INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label f1, enum division eigen){
+//    assignCores(f1,1);
+//    enum bodyType bootBodies = f1.rose[0].body;
+//    INT_TYPE n1[SPACE];
+//    length1(f1,n1);
+//    INT_TYPE N1,rank;
+//    INT_TYPE space,N2,i,ii,iii,iv,v;
+//    double * ar,*w;
+//    DCOMPLEX * arc ;
+//    INT_TYPE cmplFlag = spins(f1,kinetic)-1;
 //
-//                    streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0] + w[iv]-w[0];
-//                    streams(f1,foundationStructure,1,space)[v] = 1;
+//    
+//    
+//    f1.tulip[Iterator].linkNext = kinetic1;
+//    f1.tulip[kinetic1].linkNext = kinetic2;
+//    f1.tulip[kinetic2].linkNext = kinetic3;
+//    f1.tulip[kinetic3].linkNext = kinetic4;
+//    f1.tulip[kinetic4].linkNext = kinetic5;
+//    f1.tulip[kinetic5].linkNext = kinetic6;
+//
+//    if (bootBodies==two){
+//        f1.tulip[kinetic2].linkNext = nullName;
+//    }
+//    else if ( bootBodies == three ){
+//        f1.tulip[kinetic3].linkNext = nullName;
+//    }    else if ( bootBodies == four ){
+//        f1.tulip[kinetic4].linkNext = nullName;
+//    }    else if ( bootBodies == five ){
+//        f1.tulip[kinetic5].linkNext = nullName;
+//    }    else if ( bootBodies == six ){
+//        f1.tulip[kinetic6].linkNext = nullName;
+//    }
+//
+//    
+//    
+//    
+//    
+//    
+//    
+//    
+//    for ( space = 0 ;space < SPACE ; space++)
+//        if( f1.rose[space].body != nada){
+//            //HERE//
+////            N1 = n1[space];
+////            INT_TYPE Nx = N1;//imin(N1,c1->i.bootRestriction);
+////            struct name_label u = f1.tulip[canonicalBuffersBM];
+////            enum division em;
+////            N2 = N1*N1;
+////            myZero(f1,canonicalBuffersBM,0);
+////            ar = myStreams(f1, canonicalBuffersBM, 0);
+////            INT_TYPE part1 = part(f1, canonicalBuffersBM);
+////            arc = (DCOMPLEX*)myStreams(f1, canonicalBuffersBM, 0);
+////            w = ar + 4*N2;
+////            {//here
+////                INT_TYPE j;
+////                for ( i = 0; i < N1 ; i++)
+////                    for ( j =0 ; j < N1 ; j++)
+////                        ar[i*N1+j] = delta(i-j);
+////                
+////            }
+//            if ( c1->rt.calcType == electronicStuctureCalculation ){
+//                INT_TYPE j;
+//
+//#ifdef BOOTIDENTITY
+//                    for ( i = 0; i < N1 ; i++)
+//                        for ( j =0 ; j < N1 ; j++)
+//                            ar[i*N1+j] = delta(i-j);
+//#else
+//                for ( v = 0 ; v < N2 ; v++){
+//                        if ( f1.tulip[kinetic].spinor == cmpl){
+//                            cmplFlag = 1;
+//                            arc[v] = (streams(f1, kinetic,0,space)+space*N2)[v] + I * (streams(f1, kinetic,1,space)+space*N2)[v];
+//                            printf("%f + I %f\n", creal(arc[v]), cimag(arc[v]));
+//                        }
+//                        else
+//                    {
+//                            ar[v] = (streams(f1, kinetic,0,space)+space*N2)[v];
+//                        }
+//                }
+//#endif
+//                }
+//            
+//            else if ( c1->rt.calcType == clampProtonElectronCalculation ){
+//                if ( space < COMPONENT )
+//                    cblas_dcopy(N2, streams(f1, kinetic,0,space)+space*N2, 1, ar, 1);
+//                else {
+//                    cblas_dcopy(N2,streams(f1, kineticMass,0,space), 1, ar, 1);
+//                    if ( c1->i.oneBody.func.fn == LennardJones){
+//                    
+//                   for ( i = 0; i < CanonicalRank(f1, protonRepulsion, 0);i++)
+//                       cblas_daxpy(N2, 1., streams(f1,protonRepulsion,0,space)+i*N2, 1,ar,1 );
+//                    
+//                    printf("LJ %d\n", CanonicalRank(f1, protonRepulsion, 0));
 //                    }
-                }
-                }
-            }
-        }
-    return 0;
-}
+//                    if (0)
+//                    for ( i = 0 ; i < N1 ; i++) printf("%1.3f,", ar[i*N1+i]);
+//                    // N12 >= 3
+////                    exit(0);
+//                }
+//            }
+////            if ( c1->i.springFlag ){
+////                if ( space == 0 &&  ( c1->rt.runFlag )%2 == 0 ){
+////                    cblas_daxpy(N2, 1.0,streams(f1, harmonium,0,0)+0*N2, 1, ar, 1);
+////                }
+////                if ( space == 1 &&  ( c1->rt.runFlag/2 )%2 == 0 ){
+////                    cblas_daxpy(N2, 1.0,streams(f1, harmonium,0,1)+1*N2, 1, ar, 1);
+////                }
+////                if ( space == 2 &&  ( c1->rt.runFlag/4 )%2 == 0 ){
+////                    cblas_daxpy(N2, 1.0,streams(f1, harmonium,0,2)+2*N2, 1, ar, 1);
+////                }
+////            }
+//            INT_TYPE complete;
+//            if ( cmplFlag )
+//               complete =  tzheev(0, f1, 'V', N1, arc, N1, w);
+//            else
+//                complete =   tdsyev(0, f1, 'V', N1, ar, N1, w);
+//            
+//            if ( complete ){
+//                printf("eigensovle failed\n");
+//                exit(0);
+//            }
+//            
+//            if(0)
+//            if (  space == 0 || space == COMPONENT ){
+//                if ( cmplFlag ){
+//                    for ( i = 0 ; i < N1 ; i++){
+//                        printf("\n\n%f \n\n", w[i]);
+//
+//                        for ( ii = 0; ii < N1 ; ii++)
+//                            printf("\n%d--%f+I%f,",ii+1, creal(arc[i*N1+ii]),cimag(arc[i*N1+ii]));
+//                    }
+//
+//
+//                }else {
+//                    for ( i = 0 ; i < N1 ; i++){
+//                        printf("\n\n%d %f \n\n",i+1, w[i]);
+//
+//                        for ( ii = 0; ii < N1 ; ii++)
+//                            printf("%f,", ar[i*N1+ii]);
+//                    }
+//
+//                }
+//            }
+//
+//            if ( bootBodies == nada ){
+//
+//            }   else
+//
+//            if ( bootBodies == one ){
+//                
+//                for ( i = 0  ; i < N1 ; i++)
+//                    if ( w[i] - w[0] < c1->i.level ){
+//                        streams(f1,foundationStructure,0,space)[i] = w[i]-w[0];
+//                        
+//                        streams(f1,foundationStructure,1,space)[i] = 1;
+//                    }
+//                
+//                if ( cmplFlag ){
+//                    for ( v = 0 ; v < N2 ; v++){
+//                        myStreams(f1, bill1+space,0)[v] = creal(arc[v]);
+//                        myStreams(f1, bill1+space,1)[v] = cimag(arc[v]);
+//                    }
+//                } else
+//                    cblas_dcopy(N2 , ar,1,myStreams(f1, bill1+space,0),1);
+//            }else if ( bootBodies == two ){
+//                
+//                
+//#ifdef OMP
+//#pragma omp parallel for private (v,rank,i,ii) schedule(dynamic,1)
+//#endif
+//                
+//                for ( v = 0 ; v < Nx*Nx ; v++){
+//#ifdef OMP
+//                    rank = omp_get_thread_num();
+//#else
+//                    rank = 0;
+//#endif
+//                    
+//                    i = (v)%Nx;
+//                    ii = (v/Nx)%Nx;
+//                    if ( w[i]-w[0] + w[ii] - w[0] < c1->i.level ){
+//
+//                    
+//                     //   printf("%d %d %f %f\n", i,ii, c1->i.level, w[i]-w[0] + w[ii] - w[0]);
+//                        
+//                        
+//                        
+//                        
+//                        cblas_dcopy(N1, ar+i*N1, 1, streams(f1,diagonal1VectorA,rank,space), 1);
+//                        f1.tulip[diagonal1VectorA].Current[rank] = 1;
+//                        cblas_dcopy(N1, ar+ii*N1, 1, streams(f1,diagonal1VectorB,rank,space), 1);
+//                        f1.tulip[diagonal1VectorB].Current[rank] = 1;
+//                        f1.tulip[diagonalVectorA].Current[rank] = 0;
+//                        tOuterProductSuOne(f1,space, diagonal1VectorA, rank, diagonal1VectorB, rank, diagonalVectorA, rank);
+//                        
+//                        
+//                        
+//                        //SA++
+//                        if ( f1.cat ){
+//                            f1.tulip[diagonalVectorB].Current[rank] = 0;
+//                            f1.tulip[diagonalVectorA].Current[rank] = 1;
+//                            tBuild3IrrOne(rank, f1,space, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
+//                            if ( cblas_dnrm2(N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
+//                                cblas_dcopy(N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
+//                                streams(f1,foundationStructure,0,space)[v] = 0.;
+//                                for ( em = kinetic1 ; em < kinetic1 + bootBodies ; em++){
+//                                    tGEMV(rank, f1, space, diagonalVectorA, 0, rank, em, space, 0, diagonalVectorB, 0, rank);
+//                                    streams(f1,foundationStructure,0,space)[v] += tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
+//                                }
+//                                if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
+//                                streams(f1,foundationStructure,1,space)[v] = 1;
+//                            }
+//                        } else
+//                        {
+//                            cblas_dcopy(N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2, 1);
+//                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0];
+//                            streams(f1,foundationStructure,1,space)[v] = 1;
+//
+//                        }
+//                    
+//                    }
+//                    //SA++
+//
+//                }
+//                
+//                
+//                
+//                
+//                
+//            }else if ( bootBodies == three ){
+//#ifdef OMP
+//#pragma omp parallel for private (v,rank,i,ii,iii) schedule(dynamic,1)
+//#endif
+//                
+//                for ( v = 0 ; v < Nx*Nx*Nx ; v++){
+//#ifdef OMP
+//                    rank = omp_get_thread_num();
+//#else
+//                    rank = 0;
+//#endif
+//                    
+//                    i = (v)%Nx;
+//                    ii = (v/Nx)%Nx;
+//                    iii = (v/(Nx*Nx))%Nx;
+//                    
+//                    if ( w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0] < c1->i.level )
+//                    {
+//                    cblas_dcopy(N1, ar+i*N1, 1, streams(f1,diagonal1VectorA,rank,space), 1);
+//                    double va = cblas_dnrm2(N1, streams(f1,diagonal1VectorA,rank,space), 1);
+//
+//                    f1.tulip[diagonal1VectorA].Current[rank] = 1;
+//                    cblas_dcopy(N1, ar+ii*N1, 1, streams(f1,diagonal1VectorB,rank,space), 1);
+//                    va = cblas_dnrm2(N1, streams(f1,diagonal1VectorB,rank,space), 1);
+//
+//                    f1.tulip[diagonal1VectorB].Current[rank] = 1;
+//                    f1.tulip[diagonal2VectorA].Current[rank] = 0;
+//                    
+//                    struct name_label d2 = f1.tulip[diagonal2VectorA];
+//                    
+//                    
+//                    tOuterProductSuOne(f1, space,diagonal1VectorA, rank, diagonal1VectorB,rank, diagonal2VectorA, rank);
+//                    va = cblas_dnrm2(N1*N1, streams(f1,diagonal2VectorA,rank,space), 1);
+//                    cblas_dcopy(N1, ar+iii*N1, 1, streams(f1,diagonal1VectorC,rank,space), 1);
+//                    
+//                    f1.tulip[diagonal1VectorC].Current[rank] = 1;
+//                    f1.tulip[diagonal2VectorA].Current[rank] = 1;
+//
+//                    f1.tulip[diagonalVectorA].Current[rank] = 0;
+//                    tOuterProductSuOne(f1,space, diagonal2VectorA, rank, diagonal1VectorC, rank, diagonalVectorA, rank);
+//                    
+//                    //SA++
+//                        if ( f1.cat ){
+//                            f1.tulip[diagonalVectorB].Current[rank] = 0;
+//                            f1.tulip[diagonalVectorA].Current[rank] = 1;
+//
+//                            tBuild3IrrOne(rank, f1,space, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
+//                        //     printf("\n%d %d %f\n",space, v,cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1));
+//                            if ( cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
+//
+//                                cblas_dcopy(N1*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N1*N2, 1);
+//
+//
+//                                streams(f1,foundationStructure,0,space)[v] = 0.;
+//                                for ( em = kinetic1 ; em < kinetic1 + bootBodies ; em++){
+//                                    tGEMV(rank, f1, space, diagonalVectorA, 0, rank, em, space, 0, diagonalVectorB, 0, rank);
+//                                    streams(f1,foundationStructure,0,space)[v] += tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
+//                                }
+//                                if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
+//                                streams(f1,foundationStructure,1,space)[v] = 1;
+//                            }
+//                            //SA++
+//
+//                        }else
+//                        {
+//                            cblas_dcopy(N2*N1, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2*N1, 1);
+//                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0];
+//                            streams(f1,foundationStructure,1,space)[v] = 1;
+//                            
+//                        }
+//                    }
+//                }
+//            }else if ( bootBodies == four ){
+//                
+//                
+//#ifdef OMP
+//#pragma omp parallel for private (v,rank,i,ii,iii,iv) schedule(dynamic,1)
+//#endif
+//                
+//                for ( v = 0 ; v < Nx*Nx*Nx*Nx ; v++){
+//#ifdef OMP
+//                    rank = omp_get_thread_num();
+//#else
+//                    rank = 0;
+//#endif
+//                    i = (v)%Nx;
+//                    ii = (v/Nx)%Nx;
+//                    iii = (v/(Nx*Nx))%Nx;
+//                    iv = (v/(Nx*Nx*Nx))%Nx;
+//                    
+//                    if( w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0] + w[iv]-w[0]< c1->i.level ){
+//                    cblas_dcopy(N1, ar+i*N1, 1, streams(f1,diagonal1VectorA,rank,space), 1);
+//                    
+//                    f1.tulip[diagonal1VectorA].Current[rank] = 1;
+//                    cblas_dcopy(N1, ar+ii*N1, 1, streams(f1,diagonal1VectorB,rank,space), 1);
+//                    
+//                    f1.tulip[diagonal1VectorB].Current[rank] = 1;
+//                    f1.tulip[diagonal2VectorA].Current[rank] = 0;
+//                    tOuterProductSuOne(f1, space,diagonal1VectorA, rank, diagonal1VectorB, rank, diagonal2VectorA, rank);
+//
+//                    cblas_dcopy(N1, ar+iii*N1, 1, streams(f1,diagonal1VectorC,rank,space), 1);
+//                    //    double u0 = cblas_dnrm2(N1, ar+iii*N1, 1);
+//
+//                    f1.tulip[diagonal1VectorC].Current[rank] = 1;
+//                    
+//                    cblas_dcopy(N1, ar+iv*N1, 1, streams(f1,diagonal1VectorD,rank,space), 1);
+//                    
+//                    f1.tulip[diagonal1VectorD].Current[rank] = 1;
+//                    
+//                    f1.tulip[diagonal2VectorB].Current[rank] = 0;
+//                    f1.tulip[diagonalVectorA].Current[rank] = 0;
+//                    
+//                    tOuterProductSuOne(f1, space,diagonal1VectorC, rank, diagonal1VectorD, rank, diagonal2VectorB, rank);
+//                        
+//                        f1.tulip[diagonal2VectorA].Current[rank] = 1;
+//                        f1.tulip[diagonal2VectorB].Current[rank] = 1;
+//
+//                    tOuterProductSuOne(f1,space, diagonal2VectorA, rank, diagonal2VectorB, rank, diagonalVectorA, rank);
+//                        if (f1.cat ){
+//                            //SA++
+//                            f1.tulip[diagonalVectorB].Current[rank] = 0;
+//                            f1.tulip[diagonalVectorA].Current[rank] = 1;
+//                            
+//                            tBuild3IrrOne(rank, f1,space, f1.irrep, diagonalVectorA, rank, diagonalVectorB, rank);
+//                            // printf("\n%d %d %f\n",space, v,cblas_dnrm2(N1*N2, streams(f1, diagonalVectorB,rank,space), 1));
+//                            if ( cblas_dnrm2(N2*N2, streams(f1, diagonalVectorB,rank,space), 1) > 0.001 ){
+//                                
+//                                cblas_dcopy(N2*N2, streams(f1, diagonalVectorB,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2*N2, 1);
+//                                
+//                                
+//                                streams(f1,foundationStructure,0,space)[v] = 0.;
+//                                for ( em = kinetic1 ; em < kinetic1 + bootBodies ; em++){
+//                                    tGEMV(rank, f1, space, diagonalVectorA, 0, rank, em, space, 0, diagonalVectorB, 0, rank);
+//                                    streams(f1,foundationStructure,0,space)[v] += tDOT(rank, f1, space, 1, diagonalVectorA, 0, rank, 1, diagonalVectorB, 0, rank);
+//                                }                                if ( streams(f1,foundationStructure,0,space)[v]  < c1->i.level)
+//
+//                                    streams(f1,foundationStructure,1,space)[v] = 1;
+//                            }
+//                            
+//                            //SA++
+//                        } else
+//                        {
+//                            cblas_dcopy(N2*N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2*N2, 1);
+//                            streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0]+w[iv]-w[0];
+//                            streams(f1,foundationStructure,1,space)[v] = 1;
+//                            
+//                        }
+////                       // double u = cblas_dnrm2(N2*N2, streams(f1, diagonalVectorA,rank,space), 1);
+////                        cblas_dcopy(N2*N2, streams(f1, diagonalVectorA,rank,space), 1, myStreams(f1,bill1+space,0)+v*N2*N2, 1);
+////
+////                    streams(f1,foundationStructure,0,space)[v] = w[i]-w[0] + w[ii] - w[0]+w[iii]-w[0] + w[iv]-w[0];
+////                    streams(f1,foundationStructure,1,space)[v] = 1;
+////                    }
+//                }
+//                }
+//            }
+//        }
+//    return 0;
+//}
 
 INT_TYPE tSortBoot(struct calculation * c1, struct sinc_label f1, enum division eigen){
     assignCores(f1,1);
@@ -665,7 +665,7 @@ INT_TYPE tBootManyConstruction (struct calculation * c1, struct sinc_label f1, e
     double * w = (double*)(hmat + n2[0]);
     cmpl = real;
     printf("\nlevel %f\n",c1->i.level);
-
+    printf("%f--tr\n", traceOne(f1, eigen, 0));
     for ( i = 0 ;i < cmpl ; i++)
        balance(f1, eigen,i);///NEEDS WORK FOR COMPLEX H's
             for ( space =  0; space < SPACE ; space++ )
@@ -809,15 +809,15 @@ INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum divisio
         for( ii= 0 ; ii < Ve ; ii++){
             for ( cmpl = 0 ; cmpl < spins(f1, usr+ii) ; cmpl++){
                 
-                f1.tulip[copyTwoVector].Current[rank] = 0;
+                f1.tulip[totalVector].Current[rank] = 0;
                 {
-                    if ( f1.cat )
-                        tBuild3Irr(rank, f1, irrep, usr+ii, cmpl, copyTwoVector, rank);
-                    else
-                        tBuildIrr(rank, f1, irrep, usr+ii, cmpl, copyTwoVector, rank);
+//                    if ( f1.cat )
+//                        tBuild3Irr(rank, f1, irrep, usr+ii, cmpl, copyTwoVector, rank);
+//                    else
+                        tBuildIrr(rank, f1, irrep, usr+ii, cmpl, totalVector, rank);
                 }
                 
-                tCycleDecompostionGridOneMP(-2, f1, copyTwoVector, rank, NULL,usr+ii , cmpl, f1.rt->TARGET, part(f1,usr+ii), f1.rt->powDecompose);
+                tCycleDecompostionGridOneMP(-2, f1, totalVector, rank, NULL,usr+ii , cmpl, f1.rt->TARGET, part(f1,usr+ii), f1.rt->powDecompose);
             }
             pMatrixElements( f1, usr+ii, nullName, usr+ii, NULL, &norm);
             tScale(f1, usr+ii, 1./sqrt(cabs(norm)));
@@ -874,9 +874,9 @@ INT_TYPE tSelect(struct sinc_label  f1, INT_TYPE Ve, INT_TYPE type, enum divisio
     if ( type ) {
         tClear(f1, usr+Ve);
         for ( sp = 0; sp < spins(f1, usr+Ve);sp++){
-            f1.tulip[copyVector].Current[rank] = 0;
-            tBuildIrr(rank, f1, type, usa, sp, copyVector, rank);
-            tCycleDecompostionListOneMP(rank, f1, copyVector, rank, NULL,usr+Ve, sp, f1.rt->vCANON, part(f1,usr+Ve), -1);
+            f1.tulip[totalVector].Current[rank] = 0;
+            tBuildIrr(rank, f1, type, usa, sp, totalVector, rank);
+            tCycleDecompostionListOneMP(rank, f1, totalVector, rank, NULL,usr+Ve, sp, f1.rt->vCANON, part(f1,usr+Ve), -1);
         }
         
         value = magnitude(f1, usr+Ve);
@@ -1166,32 +1166,18 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag ,double sumPart, double r
     
     for( expon = 1 ; foundation*expon < nMult  ; expon++){
         
-//#ifdef OMP
-//#pragma omp parallel for private (iii,rank,vhhv,vhv) schedule(dynamic,1)
-//#endif
         for ( iii = 0; iii < foundation ; iii++)
         {
             
-//#ifdef OMP
-//            rank = omp_get_thread_num();
-//#else
             rank = 0;
-//#endif
-            
-            
             {
                 tEquals(f1,usz+iii+expon*foundation,usz+(expon-1)*foundation+iii );//initialize
-//                matrixElements(rank, f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
-//                tScale(f1, usz+iii+expon*foundation, 1./sqrt(cabs(vhhv)));
-
                 tHXpX(rank, f1, A, translateFlag,sumPart, translateFlag*realPart+ (!translateFlag)*1., 0.0, usz+iii+expon*foundation, f1.rt->TARGET , part(f1,usz+(expon)*foundation+iii),1 == 1);
-                
                 pMatrixElements( f1, usz+iii+expon*foundation, nullName, usz+iii+expon*foundation, NULL, &vhhv);
                 pMatrixElements( f1, usz+iii+expon*foundation, nullName, usz+iii+(expon-1)*foundation, NULL, &vhv);
 
                 f1.tulip[usz+iii+expon*foundation].value.value =creal(vhv)-sumPart ;
-                
-                
+            
                 printf("%d\t uncertainity:  \t %f\n", iii+1,  creal(vhhv) - (creal(vhv))*(creal(vhv)));
                 if ( cabs(vhhv) > 0. )
                     tScale(f1, usz+iii+expon*foundation, 1./sqrt(cabs(vhhv)));
@@ -1221,7 +1207,101 @@ INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag ,double sumPart, double r
     return 0;
 }
 
-INT_TYPE tLesserDivideIteration ( struct sinc_label  f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
+INT_TYPE tLesserDivide ( INT_TYPE translateFlag ,double sumPart, double realPart,struct sinc_label  f1,enum division spiralBra,enum division OpSpiral , enum division spiralKet){
+    INT_TYPE *iii[2][2];
+    struct name_label xx = f1.tulip[spiralBra],xxx = f1.tulip[spiralKet];
+    INT_TYPE i,ii,spin;
+    INT_TYPE itok,nitok=0;
+    INT_TYPE rank;
+    //time_t start_t, lapse_t;
+    enum division pt,gridSpiral;
+    //time(&start_t);
+    if ( translateFlag ){
+        printf (" %1.6f | PSI > + %1.6f H | PSI > \n",sumPart,realPart);
+    }else {
+        printf (" %1.6f H | PSI >\n", realPart);
+    }
+
+    //////bra///
+    pt = OpSpiral;
+    while ( pt != nullName){
+        nitok++;
+        pt = f1.tulip[pt].linkNext;
+    }
+    if ( nitok == 0 )
+        return -1;
+
+    gridSpiral = defSpiralGrid(&f1, bra, nitok, 1.);
+
+    #ifdef OMP
+    #pragma omp parallel for private (itok,rank)
+    #endif
+            for (itok = 0;  itok < nitok*nitok ; itok++){
+    #ifdef OMP
+                rank = omp_get_thread_num();
+    #else
+                rank = 0;
+    #endif
+                pHXpX(rank, f1, gridSpiral+itok, f1.tulip[OpSpiral+itok/nitok].name, translateFlag*(itok%nitok == itok/nitok) ,sumPart, realPart, 0.0, spiralKet+itok%nitok, f1.rt->TARGET , f1.rt->ALPHA,f1.tulip[gridSpiral+itok].Partition);
+    }
+    //alloy
+    iii[0][0] = malloc(part(f1,name(f1,spiralKet)) * sizeof( INT_TYPE ));
+    iii[0][1] = malloc(part(f1,name(f1,spiralKet)) * sizeof( INT_TYPE ));
+    
+    //origin
+    iii[1][0] = malloc(part(f1,name(f1,spiralKet)) * sizeof( INT_TYPE ));
+    iii[1][1] = malloc(part(f1,name(f1,spiralKet)) * sizeof( INT_TYPE ));
+    
+    
+    for ( spin = 0 ;spin < spins(f1,spiralKet) ;spin++){
+        INT_TYPE sumi = 0,rr=0;
+
+        for ( i = 0 ; i < nitok ; i++){
+            for (ii = 0 ;ii < nitok ; ii++){//582
+                sumi+=CanonicalRank(f1, gridSpiral+ii+i*nitok, spin);
+                if ( ii+i*nitok +1 < nitok * nitok )
+                    f1.tulip[gridSpiral+ii+i*nitok].chainNext = gridSpiral+ii+i*nitok+1;
+            }
+            if ( i + 1 < nitok)
+                f1.tulip[spiralBra+i].chainNext = spiralBra+i+1;
+            f1.tulip[spiralBra+i].Current[spin] = f1.tulip[spiralBra+i].Partition;
+        }
+            INT_TYPE r; INT_TYPE ratio = imax(1,floor(sumi *1./part(f1,name(f1,spiralBra))));
+            
+                for ( r = 0; r < imin(sumi,part(f1,name(f1,spiralBra))) ;r++ ){
+                    iii[0][0][rr] = rr;
+                    iii[1][0][rr] = rr*ratio;
+                    iii[0][1][rr] = (rr+1);
+                    iii[1][1][rr] = (rr+1)*ratio;
+                    rr++;
+                }
+                iii[1][1][rr-1] = sumi;
+        
+        tCycleDecompostionParallelFibonacciOneMP( f1, gridSpiral, spin, NULL, spiralBra, spin, f1.rt->TARGET,f1.rt->ALPHA, 0, rr, iii[1][0], iii[1][1], iii[0][0], iii[0][1]);
+        f1.tulip[name(f1,spiralBra)].Current[spin] = rr;
+
+    }
+    
+
+    zeroSpiraly(f1, spiralBra);
+
+    INT_TYPE x=0;
+    for ( i = 0 ; i < nitok ; i++){
+        for ( ii = 0 ; ii < nitok ; ii++){
+            f1.tulip[gridSpiral+x++].chainNext = nullName;
+
+        }
+        f1.tulip[spiralBra+i].chainNext = nullName;
+
+    }
+    
+    free(iii[0][0]);
+    free(iii[0][1]);
+    free(iii[1][0]);
+    free(iii[1][1]);
+
+    return 0;
+};
 
 INT_TYPE tEdges(struct sinc_label f1, enum division vector){
     INT_TYPE info,spatial;
@@ -1875,7 +1955,7 @@ INT_TYPE tEigenCycle (INT_TYPE typer,INT_TYPE minusFlag, struct sinc_label  f1, 
 
                                 exit(0);
                             }
-                            tCycleDecompostionGridOneMP(-2,f1, eigenList,0, pointers[rank],el+iii   , cmpl, f1.rt->vCANON, part(f1, el+iii), f1.rt->powDecompose);
+                            tCycleDecompostionListOneMP(-2,f1, eigenList,0, pointers[rank],el+iii   , cmpl, f1.rt->vCANON, part(f1, el+iii), f1.rt->powDecompose);
                         
 //                            INT_TYPE jj;
   //                          for ( jj = 0 ;jj <= iii ; jj++)
