@@ -15,9 +15,9 @@ foreach curr ( $argv )
 		if ( $flag == 1 ) then
 			set flag = 0
 			if ( $curr == found ) then
-				$LAUNCH/csh/hamiltonian.csh $curr
-				$LAUNCH/csh/distill.csh $curr
-				$LAUNCH/csh/distillExternal.csh $curr	
+#NOT USED				$LAUNCH/csh/hamiltonian.csh $curr
+#NOT USED				$LAUNCH/csh/distill.csh $curr
+#NOT USED				$LAUNCH/csh/distillExternal.csh $curr	
 			sleep 3
 				$LAUNCH/csh/gos.csh found/found
 				$LAUNCH/csh/go.csh found/Afound
@@ -39,9 +39,9 @@ foreach curr ( $argv )
 				endif
 			endif
 			#echo "cp $curr $iinc"
-            		$LAUNCH/csh/hamiltonian.csh $curr
-			$LAUNCH/csh/distill.csh $curr
-                        $LAUNCH/csh/distillExternal.csh $curr
+#NOT USED            		$LAUNCH/csh/hamiltonian.csh $curr
+#NOT USED			$LAUNCH/csh/distill.csh $curr
+#NOT USED                        $LAUNCH/csh/distillExternal.csh $curr
             		$LAUNCH/csh/krylov.csh $prev $curr states
 			sleep 3
             $LAUNCH/csh/prevRitzB.csh $curr $curr states
