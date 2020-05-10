@@ -2717,12 +2717,200 @@ INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct sinc_label  f1 , enum div
     }
 
     for ( i = 1; i <= nPerm ; i++){
-        sequ[i] = tMultiplyMP(rank, &info,f1,1. , -1, nullVector, 0, i, left, lspin, CDT, right, rspin);
+        sequ[i] = tMultiplyMP(rank, &info,f1,1. , -1, nullName, 0, i, left, lspin, CDT, right, rspin);
     }
    // printf("\n");
     return nPerm;
 }
 
+
+//commandSA(bd,act,op,bl,stridesIn,stridesOut)
+enum bodyType commandSA(enum bodyType bd, INT_TYPE act, enum block cl, enum block bl,INT_TYPE perm[], INT_TYPE op[]){
+    
+    perm[0] = 0;
+    perm[1] = 1;
+    perm[2] = 2;
+    perm[3] = 3;
+    perm[4] = 4;
+    perm[5] = 5;
+
+    
+    
+    switch ( bd ){
+        case one:
+            perm[0]     = 0;
+            op[0]    = 0;
+            return one;
+        case two:
+            if ( act == 1 ){
+                perm[0] = 0;
+                perm[1] = 1;
+            }else if ( act ==2 ){
+                perm[0] = 1;
+                perm[1] = 0;
+            }
+            if ( cl == tv1){
+                switch(bl){
+                    case id0:
+                //1-body
+                    case tv1:
+                        op[0] = 0;
+                        op[1] = 1;
+                        return one;
+                    case tv2:
+                        op[0] = 1;
+                        op[1] = 0;
+                        return one;
+                //1-body
+                    case e12://if 2-body --on first like tv1
+                        op[0] = 0;
+                        op[1] = 1;
+                        return two;
+                }
+            }else if ( cl == tv2 ){//2-body--on second like tv2
+                switch(bl){
+                    case id0:
+                    case tv1:
+                        return one;
+                    case tv2:
+                        return one;
+                    case e12:
+                        op[0] = 1;
+                        op[1] = 0;
+                        return two;
+                }
+            }else if ( cl == e12){
+                op[0] = 0;
+                op[1] = 1;
+                return two;
+            }
+            case three:
+//            1, 2, 3,//1///tv1//e12
+//            1, 3, 2,//2///e13
+//            2, 1, 3,//3///tv2
+//            3, 1, 2,//4// e23-1
+//            2, 3, 1,//5// e23
+//            3, 2, 1//6////tv3
+            switch (act) {
+                case 1:
+                    perm[0] = 0;
+                    perm[1] = 1;
+                    perm[2] = 2;
+                    break;
+                case 2:
+                    perm[0] = 0;
+                    perm[1] = 2;
+                    perm[2] = 1;
+                    break;
+                case 3:
+                    perm[0] = 1;
+                    perm[1] = 0;
+                    perm[2] = 2;
+                    break;
+                case 4:
+                    perm[0] = 2;
+                    perm[1] = 0;
+                    perm[2] = 1;
+                    break;
+                case 5:
+                    perm[0] = 1;
+                    perm[1] = 2;
+                    perm[2] = 0;
+                    break;
+                case 6:
+                    perm[0] = 2;
+                    perm[1] = 1;
+                    perm[2] = 0;
+                    break;
+
+                
+            }
+            if ( cl == tv1){
+                    switch(bl){
+                        case id0:
+                    //1-body
+                        case tv1:
+                            op[0] = 0;
+                            op[1] = 1;
+                            op[2] = 2;
+                            return one;
+                        case tv2:
+                            op[0] = 1;
+                            op[1] = 0;
+                            op[2] = 2;
+                            return one;
+                        case tv3:
+                            op[0] = 2;
+                            op[1] = 1;
+                            op[2] = 0;
+                            return one;
+
+                    //1-body
+                        case e12://if 2-body --on first like tv1
+                            op[0] = 0;
+                            op[1] = 1;
+                            op[2] = 2;
+                            return two;
+                        case e13:
+                            op[0] = 0;
+                            op[1] = 2;
+                            op[2] = 1;
+                            return two;
+                        case e23:
+                            op[0] = 1;
+                            op[1] = 2;
+                            op[2] = 0;
+                            return two;
+
+                    }
+                }else if ( cl == tv2 ){//2-body--on second like tv2
+                    switch(bl){
+                        case id0:
+                        case tv1:
+                            return one;
+                        case tv2:
+                            return one;
+                        case e12:
+                            op[0] = 1;
+                            op[1] = 0;
+                            op[2] = 2;
+                            return two;
+                        case e13:
+                            op[0] = 2;
+                            op[1] = 0;
+                            op[2] = 1;
+                            return two;
+                        case e23:
+                            op[0] = 2;
+                            op[1] = 1;
+                            op[2] = 0;
+                            return two;
+
+                    }
+                }else if ( cl == e12){
+                    switch(bl){
+                        case e12:
+                            op[0] = 0;
+                            op[1] = 1;
+                            op[2] = 2;
+                            return two;
+                        case e13:
+                            op[0] = 0;
+                            op[1] = 2;
+                            op[2] = 1;
+                            return two;
+                        case e23:
+                            op[0] = 1;
+                            op[1] = 2;
+                            op[2] = 0;
+                            return two;
+
+
+                    }
+                }
+    }
+    return 0;
+}
 
 INT_TYPE tTabulateInnerProjection( INT_TYPE rank, struct sinc_label  f1 , enum division vec, double *up){
 

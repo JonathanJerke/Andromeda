@@ -68,6 +68,7 @@ INT_TYPE tBuild3IrrOne ( INT_TYPE rank, struct sinc_label  f1,INT_TYPE space, IN
 INT_TYPE tBuild3Irr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin);
 INT_TYPE tPermute(INT_TYPE rank, struct sinc_label , INT_TYPE leftChar , enum division left, INT_TYPE lspin, enum division equals, INT_TYPE espin);
 INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct sinc_label  f1 , enum division left ,INT_TYPE lspin, enum division right ,INT_TYPE rspin, double * sequ);
+enum bodyType commandSA(enum bodyType bd, INT_TYPE act, enum block cl, enum block bl,INT_TYPE perm[], INT_TYPE op[]);
 INT_TYPE tAddUpComponents( INT_TYPE rank, struct sinc_label  f1 , enum division left , enum division right ,  double *up);
 INT_TYPE tTabulateInnerProjection( INT_TYPE rank, struct sinc_label  f1 , enum division vec, double *up);
 double tTestInner ( enum bodyType bd, INT_TYPE i , INT_TYPE j );

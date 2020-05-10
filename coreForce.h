@@ -75,7 +75,6 @@ void mySeparateExactTwo (struct sinc_label f1, struct interaction_label twoBody,
 void mySeparateEwaldCoulomb1(struct sinc_label f1,INT_TYPE nVec,double *  occupy, enum division vectors,INT_TYPE part1,enum division interaction,enum division shorten, double scalar,INT_TYPE plus,double rescale, enum particleType particle);
 void mySeparateExactOneByOne (struct sinc_label f1, struct interaction_label twoBody,INT_TYPE periodic, enum division interactionExchangePlus,enum division shorten ,double scalar,  INT_TYPE plus,double rescale, enum particleType particle1,enum particleType particle2);
 INT_TYPE separateExternal( struct calculation * c1,struct sinc_label f1,enum division linear, INT_TYPE periodic, INT_TYPE atom,double scalar, INT_TYPE dim, enum division basis , INT_TYPE particle1 );
-INT_TYPE buildKinetic(struct calculation *c1, struct sinc_label *f1,double scalar,INT_TYPE act, enum block bl,enum division single,enum particleType particle1, INT_TYPE overline, enum spinType cmpl);
 INT_TYPE separateBackground( struct calculation * c1,INT_TYPE periodic, INT_TYPE Ns,INT_TYPE background, INT_TYPE dim, enum division basis );
 INT_TYPE separateKinetic( struct sinc_label f1, INT_TYPE periodic,enum division akinetic, double mass , INT_TYPE particle1);
 INT_TYPE separateBoost( struct sinc_label f1, enum division in,INT_TYPE dim ,double vectorMomentum );
@@ -92,10 +91,13 @@ DCOMPLEX Bd2B (struct basisElement b1, struct basisElement b2);
 DCOMPLEX Bx2B (struct basisElement b1, struct basisElement b2);
 DCOMPLEX periodicBoostOverlapBasis2 ( INT_TYPE N1, double d, INT_TYPE b, INT_TYPE m ,double d2, INT_TYPE bb, INT_TYPE mm );
 double quadCal(struct general_2index * aAf );
-INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label *f1,double scalar,INT_TYPE act,enum block bl, enum division pair, enum particleType particle1 , INT_TYPE overline,enum spinType cmpl);
-INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label *f1,double scalar,INT_TYPE act,enum block bl, enum division single, enum particleType particle1, INT_TYPE overline,enum spinType cmpl);
-INT_TYPE buildConstant(struct calculation *c1, struct sinc_label *f1,double scalar,INT_TYPE act, enum block bl,enum division single,enum particleType particle1, INT_TYPE overline, enum spinType cmpl);
-INT_TYPE buildKinetic(struct calculation *c1, struct sinc_label *f1,double scalar,INT_TYPE act, enum block bl,enum division single,enum particleType particle1, INT_TYPE overline, enum spinType cmpl);
+INT_TYPE buildPairWisePotential(struct calculation *c1, struct sinc_label *f1,double scalar,INT_TYPE invert,INT_TYPE act,enum block bl, double adjustOne,  enum division pair, enum particleType particle1 , INT_TYPE overline,enum spinType cmpl);
+INT_TYPE buildExternalPotential(struct calculation *c1, struct sinc_label *f1,double scalar,INT_TYPE invert,INT_TYPE act,enum block bl, double adjustOne,enum division single, enum particleType particle1, INT_TYPE overline,enum spinType cmpl);
+INT_TYPE buildConstant(struct calculation *c1, struct sinc_label *f1,double scalar,INT_TYPE invert,INT_TYPE act, enum block bl,enum division single,enum particleType particle1, INT_TYPE overline, enum spinType cmpl);
+INT_TYPE buildKinetic(struct calculation *c1, struct sinc_label *f1,double scalar,INT_TYPE invert,INT_TYPE act, enum block bl,enum division single,enum particleType particle1, INT_TYPE overline, enum spinType cmpl);
+INT_TYPE buildSHO(struct calculation *c1, struct sinc_label *f1,double scalar,INT_TYPE invert,INT_TYPE act, enum block bl,enum division single,enum particleType particle1, INT_TYPE overline, enum spinType cmpl);
+INT_TYPE buildLinear(struct calculation *c1, struct sinc_label *f1,double scalar,INT_TYPE invert,INT_TYPE act, enum block bl,enum division single,enum particleType particle1, INT_TYPE overline, enum spinType cmpl);
+
 double testPotential (struct calculation c, struct field f , enum division wavey, enum division potential );
 void exchangeToDirect ( struct sinc_label f1, enum division exchange, enum division direct );
 #endif /* coreForce_h */

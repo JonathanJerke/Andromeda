@@ -205,8 +205,9 @@ INT_TYPE foundationM(struct calculation *c1, struct field f1){
 
 
 
-INT_TYPE krylov ( struct calculation *c1, struct field f1){
+double krylov ( struct calculation *c1, struct field f1){
     INT_TYPE EV = 0,i,fi,next;
+    double returnValue;
 #ifndef APPLE
     f1.i.qFloor = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
     //count canonical-rank...
@@ -269,17 +270,15 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
         RdsSize = 1;
         fflush(stdout);
         tFilter(f1.f, EV, 0, eigenVectors);//classify
-        printExpectationValues(f1.f, Ha, eigenVectors);
+        printExpectationValues(f1.f,eigenVectors, Ha, eigenVectors);
         fflush(stdout);
         print(c1,f1,1,0,1,eigenVectors);
-        if ( c1->rt.runFlag == 0 )
+        if ( f1.i.Iterations == 1 )
             tEdges(f1.f, eigenVectors);
 
     }
-    sumSquare(f1.f, eigenVectors);
-
     enum division OpSpiral = defSpiralMatrix(&f1.f, Iterator);//all allocaitons are forgotten after procedure ends!
-    enum division refKet = defRefVector(&f1.f, OpSpiral, eigenVectors);
+    enum division refKet = defRefVector(&f1.f, 1, eigenVectors);
     enum division spiralBra = defSpiralVector(&f1.f, OpSpiral, eigenVectors+1);
     enum division spiralKet = defSpiralVector(&f1.f, OpSpiral, eigenVectors);
     enum division moving = refKet;
@@ -288,13 +287,6 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
     for ( iterator = 1 ; iterator < f1.i.Iterations ; iterator++){
         tLesserDivide(c1->i.shiftFlag, c1->i.shiftVector[iterator-1][0], c1->i.shiftVector[iterator-1][1], f1.f,spiralBra,OpSpiral, moving);
         moving = spiralKet;
-        pMatrixElements( f1.f, eigenVectors+iterator, nullName, eigenVectors+iterator, NULL, &vhhv);
-        for ( spin = 0; spin < spins(f1.f,eigenVectors+iterator);spin++)
-            tScaleOne(f1.f, eigenVectors+iterator, spin, 1./sqrt(cabs(vhhv)));
-       // printf("rank %d", CanonicalRank(f1.f, eigenVectors+1, 0));
-//        for ( i = 0; i < 10 ; i++)
-//            printf("sub %d %d\n", i , CanonicalRank(f1.f, spiralBra+i, 0));
-//
         {
             enum division iter;
             INT_TYPE k=0;
@@ -327,21 +319,30 @@ INT_TYPE krylov ( struct calculation *c1, struct field f1){
         
             RdsSize = iterator;
             tFilter(f1.f, EV, !(!f1.i.filter )* f1.i.irrep, eigenVectors+RdsSize);//filter
+        {
+            double me =  printExpectationValues(f1.f, eigenVectors+RdsSize-1,Ha, eigenVectors+RdsSize);
+            returnValue = pow(f1.f.tulip[eigenVectors].value.value - me ,2);
+        }
+        pMatrixElements( f1.f, eigenVectors+iterator, nullName, eigenVectors+iterator, NULL, &vhhv);
+        for ( spin = 0; spin < spins(f1.f,eigenVectors+iterator);spin++)
+            tScaleOne(f1.f, eigenVectors+iterator, spin, 1./sqrt(cabs(vhhv)));
+
             printf ("Step \t%d\n", iterator);
             fflush(stdout);
             next = 0;
             printf ( "\n Vector \t%d \t %d\n", 1, RdsSize);
-            printExpectationValues(f1.f, Ha, eigenVectors+RdsSize);
+            printExpectationValues(f1.f, eigenVectors+RdsSize,Ha, eigenVectors+RdsSize);
             if ( iterator >= c1->i.minIterationPrint )
                 print(c1,f1,0,RdsSize,RdsSize+1,eigenVectors);
                        
-                next = tEdges(f1.f , eigenVectors+RdsSize);
-            
-        }
+              //  next = tEdges(f1.f , eigenVectors+RdsSize);
+        
+        
+    }
     fflush(stdout);
     fModel(&f1.f);
 
-    return 0;
+    return returnValue;
 }
 
 INT_TYPE decompose ( struct calculation *c1, struct field f1){
@@ -1151,8 +1152,6 @@ INT_TYPE distill ( struct calculation c, struct field f1){
     return 0;
 }
 
-
-
 int run (INT_TYPE argc , char * argv[]){
     argc--;//erase ./andromeda...
     argv++;
@@ -1182,7 +1181,7 @@ int run (INT_TYPE argc , char * argv[]){
 
             case 0 :
                 //andromeda 0
-                printf("----\nv8.1\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\nv8.3\n\n%s\n\n",getenv("LAUNCH"));
                 exit(0);
         }
 
@@ -1194,52 +1193,8 @@ int run (INT_TYPE argc , char * argv[]){
 
     }
     
-    INT_TYPE space,i,a,plusSize,nStatesTrans=0,nStatesFound=0 ,RdsSize = 0,totalIter = 0;
-    FILE * out = stdout;
-    struct runTime * rt = & c.rt;
-    f.f.rt = rt;
-#ifdef OMP
-    if ( c.i.omp > MaxCore ){
-        printf("lanes > MaxCore\n");
-        c.i.omp = MaxCore;
-    }
-    if ( c.i.omp == -1 ){
-#ifdef MKL
-        if ( c.i.mkl < 1 )
-        {
-            printf("set parallel");
-            exit(0);
-        }
-        
-        c.i.omp = MaxCore/c.i.mkl;
-#else
-        c.i.omp = MaxCore;
-#endif
-    }
-
-    rt->NLanes = c.i.omp;
-#pragma omp parallel for private (i)
-    for ( i = 0; i < MaxCore ; i++){
-        rt->NSlot = omp_get_num_threads();
-    }
-    if ( rt->NLanes > rt->NSlot ){
-        printf("decrease lanes or increase your number of OMP cores\n");
-        rt->NLanes = rt->NSlot;
-    }
+    defineCores(&c,&f);
     
-#ifdef MKL
-    if ( rt->NSlot < c.i.omp*c.i.mkl )
-    {
-        printf("not enough slots for omp\n" );
-        c.i.omp = rt->NSlot/c.i.mkl;
-    }
-    rt->NParallel = c.i.mkl;
-    printf("parallel \t %d\n", rt->NParallel);
-
-#endif
-    printf("lanes \t %d\n",  rt->NLanes);
-
-#endif
     //0//...   //A//B//C//D//E
     if ( c.rt.phaseType == buildFoundation ){//0
 #ifdef NBODY

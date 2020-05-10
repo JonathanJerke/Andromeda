@@ -819,8 +819,8 @@ INT_TYPE tFilter(struct sinc_label f1, INT_TYPE Ve, INT_TYPE irrep, enum divisio
                 
                 tCycleDecompostionGridOneMP(-2, f1, totalVector, rank, NULL,usr+ii , cmpl, f1.rt->TARGET, part(f1,usr+ii), f1.rt->powDecompose);
             }
-            pMatrixElements( f1, usr+ii, nullName, usr+ii, NULL, &norm);
-            tScale(f1, usr+ii, 1./sqrt(cabs(norm)));
+        //    pMatrixElements( f1, usr+ii, nullName, usr+ii, NULL, &norm);
+       //     tScale(f1, usr+ii, 1./sqrt(cabs(norm)));
         }
 //        {
 //            rank = 0;
@@ -1211,10 +1211,10 @@ INT_TYPE tLesserDivide ( INT_TYPE translateFlag ,double sumPart, double realPart
     INT_TYPE *iii[2][2];
     struct name_label xx = f1.tulip[spiralBra],xxx = f1.tulip[spiralKet];
     INT_TYPE i,ii,spin;
-    INT_TYPE itok,nitok=0;
+    INT_TYPE itok,nitok=0,nik=0;
     INT_TYPE rank;
     //time_t start_t, lapse_t;
-    enum division pt,gridSpiral;
+    enum division pt;
     //time(&start_t);
     if ( translateFlag ){
         printf (" %1.6f | PSI > + %1.6f H | PSI > \n",sumPart,realPart);
@@ -1231,41 +1231,54 @@ INT_TYPE tLesserDivide ( INT_TYPE translateFlag ,double sumPart, double realPart
     if ( nitok == 0 )
         return -1;
 
-    gridSpiral = defSpiralGrid(&f1, bra, nitok, 1.);
+    pt = spiralKet;
+    while ( pt != nullName){
+        nik++;
+        pt = f1.tulip[pt].linkNext;
+    }
+    if ( nik == 0 )
+        return -1;
 
-    #ifdef OMP
-    #pragma omp parallel for private (itok,rank)
-    #endif
-            for (itok = 0;  itok < nitok*nitok ; itok++){
-    #ifdef OMP
-                rank = omp_get_thread_num();
-    #else
+//    #ifdef OMP
+//    #pragma omp parallel for private (itok,rank)
+//    #endif
+            for (itok = 0;  itok < nitok*nik ; itok++){
+//    #ifdef OMP
+//                rank = omp_get_thread_num();
+//    #else
                 rank = 0;
-    #endif
-                pHXpX(rank, f1, gridSpiral+itok, f1.tulip[OpSpiral+itok/nitok].name, translateFlag*(itok%nitok == itok/nitok) ,sumPart, realPart, 0.0, spiralKet+itok%nitok, f1.rt->TARGET , f1.rt->ALPHA,f1.tulip[gridSpiral+itok].Partition);
+                printf("ham%d ket%d\n", itok/nik+1,itok%nik+1);
+                fflush(stdout);
+//    #endif
+                
+                //consumer of totalVector..
+                pHXpX(rank, f1,  f1.bra+itok, f1.tulip[OpSpiral+itok/nik].name, translateFlag*((itok%nik == itok/nik)||(nik == 1 )) ,sumPart, realPart, 0.0, spiralKet+itok%nik, f1.rt->vCANON , f1.rt->ALPHA,f1.tulip[f1.bra+itok].Partition);
     }
     //alloy
-    iii[0][0] = malloc(part(f1,name(f1,spiralKet)) * sizeof( INT_TYPE ));
-    iii[0][1] = malloc(part(f1,name(f1,spiralKet)) * sizeof( INT_TYPE ));
+    iii[0][0] = malloc(part(f1,name(f1,spiralBra)) * sizeof( INT_TYPE ));
+    iii[0][1] = malloc(part(f1,name(f1,spiralBra)) * sizeof( INT_TYPE ));
     
     //origin
-    iii[1][0] = malloc(part(f1,name(f1,spiralKet)) * sizeof( INT_TYPE ));
-    iii[1][1] = malloc(part(f1,name(f1,spiralKet)) * sizeof( INT_TYPE ));
+    iii[1][0] = malloc(part(f1,name(f1,spiralBra)) * sizeof( INT_TYPE ));
+    iii[1][1] = malloc(part(f1,name(f1,spiralBra)) * sizeof( INT_TYPE ));
     
     
-    for ( spin = 0 ;spin < spins(f1,spiralKet) ;spin++){
+    for ( spin = 0 ;spin < spins(f1,spiralBra) ;spin++){
         INT_TYPE sumi = 0,rr=0;
-
+        INT_TYPE ix = 0;
         for ( i = 0 ; i < nitok ; i++){
-            for (ii = 0 ;ii < nitok ; ii++){//582
-                sumi+=CanonicalRank(f1, gridSpiral+ii+i*nitok, spin);
-                if ( ii+i*nitok +1 < nitok * nitok )
-                    f1.tulip[gridSpiral+ii+i*nitok].chainNext = gridSpiral+ii+i*nitok+1;
+            for (ii = 0 ;ii < nik ; ii++){//582
+                sumi+=CanonicalRank(f1, f1.bra+ix, spin);
+                f1.tulip[f1.bra+ix].chainNext = f1.bra+ix+1;
+                ix++;
             }
-            if ( i + 1 < nitok)
-                f1.tulip[spiralBra+i].chainNext = spiralBra+i+1;
+            f1.tulip[spiralBra+i].chainNext = spiralBra+i+1;
             f1.tulip[spiralBra+i].Current[spin] = f1.tulip[spiralBra+i].Partition;
         }
+        
+        f1.tulip[spiralBra+i-1].chainNext = nullName;
+        f1.tulip[f1.bra+ix-1].chainNext = nullName;
+
             INT_TYPE r; INT_TYPE ratio = imax(1,floor(sumi *1./part(f1,name(f1,spiralBra))));
             
                 for ( r = 0; r < imin(sumi,part(f1,name(f1,spiralBra))) ;r++ ){
@@ -1277,22 +1290,21 @@ INT_TYPE tLesserDivide ( INT_TYPE translateFlag ,double sumPart, double realPart
                 }
                 iii[1][1][rr-1] = sumi;
         
-        tCycleDecompostionParallelFibonacciOneMP( f1, gridSpiral, spin, NULL, spiralBra, spin, f1.rt->TARGET,f1.rt->ALPHA, 0, rr, iii[1][0], iii[1][1], iii[0][0], iii[0][1]);
+        tCycleDecompostionParallelFibonacciOneMP( f1, f1.bra, spin, NULL, spiralBra, spin, f1.rt->vCANON,f1.rt->ALPHA, 0, rr, iii[1][0], iii[1][1], iii[0][0], iii[0][1]);
         f1.tulip[name(f1,spiralBra)].Current[spin] = rr;
 
     }
     
 
-    zeroSpiraly(f1, spiralBra);
+  //  zeroSpiraly(f1, spiralBra);
 
     INT_TYPE x=0;
     for ( i = 0 ; i < nitok ; i++){
-        for ( ii = 0 ; ii < nitok ; ii++){
-            f1.tulip[gridSpiral+x++].chainNext = nullName;
+        for ( ii = 0 ; ii < nik ; ii++){
+            f1.tulip[f1.bra+x++].chainNext = nullName;
 
         }
         f1.tulip[spiralBra+i].chainNext = nullName;
-
     }
     
     free(iii[0][0]);
@@ -1387,11 +1399,11 @@ INT_TYPE tEdges(struct sinc_label f1, enum division vector){
         }
     }
     
-    if ( totalSum < f1.rt->CAP ){
-        return 0;
-    }else {
+//    if ( totalSum < f1.rt->CAP ){
+//        return 0;
+//    }else {
         return cblas_idamax(4, sum, 1)+1;
-    }
+//    }
     return 0;
 }
 

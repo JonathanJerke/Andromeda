@@ -1122,6 +1122,8 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                             struct field f2 = initField();
                             struct calculation c2;
                             c2 = *c1;
+                            c2.i.termNumber = 0;
+                            c2.rt.NLanes = 1;
                             c2.i.gaussCount = inputFormat(f1,name, nullName, -1);
                             f2.f.rt = &c2.rt;
                             f2.f.rt->phaseType = productKrylov;
@@ -1140,6 +1142,7 @@ INT_TYPE tLoadEigenWeights (struct calculation * c1, struct field f,char * filen
                             blockA(f2.f.rt, blockBuildHamiltonianBlock);
                             blockA(f2.f.rt, blockEigenDecomposeBlock);
                             blockA(f2.f.rt, blockSeparateTwoBodyBlock);
+                            blockA(f2.f.rt, blockTotalVectorBlock);
                             blockA(f2.f.rt, blockTrainVectorsblock);
                             blockA(f2.f.rt, blockTrainMatricesblock);
                             blockA(f2.f.rt, blockfoundationMblock);

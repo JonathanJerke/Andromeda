@@ -129,7 +129,7 @@ struct field initField (void ) {
     i.f.boot = noMatrices;
     for( space = 0 ; space <= SPACE ; space++){
         i.f.rose[space].stream = NULL;
-        i.f.rose[space].basisList = NULL;
+     //   i.f.rose[space].basisList = NULL;
     }
     i.f.bootedMemory = 0;
     i.f.tulip = NULL;
@@ -159,13 +159,13 @@ struct field initField (void ) {
     i.i.d = 1 ;
     i.i.D = 0.1*2;
     i.i.cmpl = real;
-    i.i.bRank = 8 ;
+    i.i.bRank = 5 ;
     i.i.iRank = 1;
     i.i.nStates = 1;
     i.i.qFloor = 0;
     i.i.filter = 0;
     i.f.boot = fullMatrices;
-    i.i.body = one;
+    i.i.body = two;
     i.i.irrep = 0;
     i.i.cat  = 0;
     i.i.epi = 4;
@@ -180,13 +180,15 @@ struct calculation initCal (void ) {
     struct calculation i;
     i.i.minIterationPrint = 0;
     i.i.flipSignFlag = 0;
-    i.i.shiftFlag = 1;
+    i.i.shiftFlag = 0;
+    i.i.termNumber = 0;
     INT_TYPE n;
     for ( n= 0 ; n < 100 ; n++){
         i.i.shiftVector[n][0] = -50;
         i.i.shiftVector[n][1] = 1;
-
     }
+    i.rt.GAMMA = 50;
+    i.rt.BETA = 0.0001;
 #ifdef APPLE
     resetA(&i.rt);
     blockA(&i.rt, blockHamiltonianBlock);
@@ -203,7 +205,6 @@ struct calculation initCal (void ) {
     i.i.chromos = 0.9999;
     i.i.chroma = 1;
 #endif
-    i.i.barrier = 0;
    // i.i.OCSBflag = 0;
     i.i.springConstant = 0.;
     i.i.springFlag = 0;
@@ -214,7 +215,6 @@ struct calculation initCal (void ) {
     i.i.orgClamp = 2.;
     i.i.Angstroms = 0;
     i.rt.TARGET = 1e-2;
-    i.rt.targetCondition = 1e-7;
     i.rt.ALPHA = 1e-5;
     i.rt.CANON = 1e-7;
     i.rt.vCANON = 1e-3;
@@ -288,7 +288,6 @@ struct calculation initCal (void ) {
     i.i.orgClamp = 2.;
     i.i.Angstroms = 0;
     i.rt.TARGET = 1e-6;
-    i.rt.targetCondition = 1e-7;
     i.rt.ALPHA = 1e-8;
     i.rt.CANON = 1e-7;
     i.rt.vCANON = 1e-6;
@@ -337,8 +336,8 @@ INT_TYPE fModel ( struct sinc_label * f1){
             f1->rose[i].stream = NULL;
 
             if ( i < SPACE ){
-                free(f1->rose[i].basisList);
-                f1->rose[i].basisList = NULL;
+         //       free(f1->rose[i].basisList);
+           //     f1->rose[i].basisList = NULL;
             }
         }
         {
@@ -457,11 +456,13 @@ INT_TYPE singleSincModel( struct calculation * c1, struct field * f){
             }
             periodic *= 2;
             f1->rose[space].count1Basis = N1;
+            f1->rose[space].lattice = f->i.d;
             if (f1->rose[space].component > 3  )
                 f1->rose[space].count1Basis *= 2;
-            f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
-            for ( bl = 0 ; bl < f1->rose[space].count1Basis  ; bl++)
-                f1->rose[space].basisList[bl] = defineSincBasis(nullNote, f1->rose[space].component, f1->rose[space].basis, f->i.d, 0.,             f1->rose[space].count1Basis,bl);
+          //  f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
+
+//            for ( bl = 0 ; bl < f1->rose[space].count1Basis  ; bl++)
+//                f1->rose[space].basisList[bl] = defineSincBasis(nullNote, f1->rose[space].component, f1->rose[space].basis, f->i.d, 0.,             f1->rose[space].count1Basis,bl);
 
         }
     } else  if ( c1->rt.calcType == clampProtonElectronCalculation){
@@ -477,9 +478,9 @@ INT_TYPE singleSincModel( struct calculation * c1, struct field * f){
             }
 
             f1->rose[space].count1Basis = N1;
-            f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
-            for ( bl = 0 ; bl < f1->rose[space].count1Basis  ; bl++)
-                f1->rose[space].basisList[bl] = defineSincBasis(nullNote, f1->rose[space].component, f1->rose[space].basis, f->i.d, 0.  ,             f1->rose[space].count1Basis,bl);
+//            f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
+//            for ( bl = 0 ; bl < f1->rose[space].count1Basis  ; bl++)
+//                f1->rose[space].basisList[bl] = defineSincBasis(nullNote, f1->rose[space].component, f1->rose[space].basis, f->i.d, 0.  ,             f1->rose[space].count1Basis,bl);
 
 
         }
@@ -495,9 +496,9 @@ INT_TYPE singleSincModel( struct calculation * c1, struct field * f){
             }
 
             f1->rose[space].count1Basis = N2;
-            f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
-            for ( bl = 0 ; bl < f1->rose[space].count1Basis  ; bl++)
-                f1->rose[space].basisList[bl] = defineSincBasis(nullNote, f1->rose[space].component, f1->rose[space].basis, f->i.D, c1->i.orgClamp,             f1->rose[space].count1Basis,bl);
+//            f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
+//            for ( bl = 0 ; bl < f1->rose[space].count1Basis  ; bl++)
+//                f1->rose[space].basisList[bl] = defineSincBasis(nullNote, f1->rose[space].component, f1->rose[space].basis, f->i.D, c1->i.orgClamp,             f1->rose[space].count1Basis,bl);
 
 
         }
@@ -508,7 +509,7 @@ INT_TYPE singleSincModel( struct calculation * c1, struct field * f){
             f1->rose[space].component = spatialComponent1+space%COMPONENT+ ((c1->rt.runFlag/periodic)%2)*3;
             periodic *= 2;
             f1->rose[space].count1Basis = 0;
-            f1->rose[space].basisList = malloc(sizeof(struct basisElement)*1);
+//            f1->rose[space].basisList = malloc(sizeof(struct basisElement)*1);
             
         }
         
@@ -563,9 +564,9 @@ INT_TYPE singleGaussModel( struct calculation * c1, struct field * f){
             f1->rose[space].body = 1;
             f1->rose[space].component = spatialComponent1+space%COMPONENT ;
             f1->rose[space].count1Basis = 3;//change
-            f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
-            for ( bl = 0 ; bl < f1->rose[space].count1Basis  ; bl++)
-                f1->rose[space].basisList[bl] = defineGaussBasis(nullNote, f1->rose[space].component, GaussianBasisElement, ble[bl], 0.,             f1->rose[space].count1Basis,0);
+//            f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
+//            for ( bl = 0 ; bl < f1->rose[space].count1Basis  ; bl++)
+//                f1->rose[space].basisList[bl] = defineGaussBasis(nullNote, f1->rose[space].component, GaussianBasisElement, ble[bl], 0.,             f1->rose[space].count1Basis,0);
             
         }
     }
@@ -594,13 +595,13 @@ INT_TYPE singleTestModel( struct calculation * c1, struct field * f){
             f1->rose[space].body = f->i.body;
             f1->rose[space].component = spatialComponent1+space%COMPONENT ;
             f1->rose[space].count1Basis = N1+B1;
-            f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
-            for ( bl = 0; bl < B1  ; bl++){
-                f1->rose[space].basisList[bl] = defineGaussBasis(nullNote, f1->rose[space].component, GaussianBasisElement, ble[bl]/(f->i.d)/( f->i.d ), 0.,             f1->rose[space].count1Basis,0);
-            }
-            for ( bl = 0 ; bl < N1  ; bl++){
-                f1->rose[space].basisList[bl+B1] = defineSincBasis(nullNote, f1->rose[space].component, SincBasisElement, f->i.d, 0.,             f1->rose[space].count1Basis-B1,bl);
-            }
+//            f1->rose[space].basisList = malloc(sizeof(struct basisElement)*f1->rose[space].count1Basis);
+//            for ( bl = 0; bl < B1  ; bl++){
+//                f1->rose[space].basisList[bl] = defineGaussBasis(nullNote, f1->rose[space].component, GaussianBasisElement, ble[bl]/(f->i.d)/( f->i.d ), 0.,             f1->rose[space].count1Basis,0);
+//            }
+//            for ( bl = 0 ; bl < N1  ; bl++){
+//                f1->rose[space].basisList[bl+B1] = defineSincBasis(nullNote, f1->rose[space].component, SincBasisElement, f->i.d, 0.,             f1->rose[space].count1Basis-B1,bl);
+//            }
         }
     
 return 1;
@@ -633,6 +634,9 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
         printf("\t threshold\t\t%1.1f\n", -log(c1->rt.CANON)/log(10));//matrix training standard
         printf("\t vectorThreshold\t%1.1f\n", -log(c1->rt.vCANON)/log(10));//vector training standard
         printf("\t condition\t\t%1.1f\n", -log(c1->rt.ALPHA )/log(10));//Beylkin parameter
+        printf("\t relativeThreshold\t\t%1.1f\n", -log(c1->rt.BETA )/log(10));//
+        printf("\t minALS\t\t%1.1f\n", c1->rt.GAMMA);//
+
         printf(".Parameters\n\n");
         
         printf("\n\n\t  \tBox %d \t: Lattice  %1.3f \t\n\t\n",2* f->i.epi + 1,f->i.d);
@@ -732,6 +736,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
                             f1->tulip[label1].space[space].block = id0;//matrix prototype
                             f1->tulip[label1].space[space].body = nada;//matrix prototype
                             f1->tulip[label1].space[space].act = 1;
+                            f1->tulip[label1].space[space].invert = 0;
                         }
                     }
                     tClear(*f1,label1);
@@ -750,8 +755,37 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
     struct name_label *u = &f->f.tulip[intracellularSelfEwald];
     {
         
+        {
+            INT_TYPE terms = defineTerms(c1, f1,Iterator,0);
+            if ( terms){
+                printf("yo, there are %d terms,\n",terms);
+            if ( maxVector % terms != 0 ){
+                printf("increasing basisRank by %d\n" ,terms - maxVector % terms );
+                maxVector += terms - maxVector % terms;
+            }
+            }
+            INT_TYPE i,iterTerm,term,buffer;
+            enum division prev = 0;
+            for (term = 0; term < terms*terms; term++){
+                enum division brat = anotherLabel(f1, all, nada);
+                f1->tulip[brat].Partition = maxVector;//HERE
+                f1->tulip[brat].species = vector;
+                f1->tulip[brat].spinor = f1->cmpl;
+                fromBeginning(*f1, brat, prev);
+                if ( ! prev )
+                    f1->bra = brat;
+                prev = brat;
+
+
+            }
+        
+            fromBeginning(*f1, kinetic1, prev);
+            
+        }
+        
+        
+        
         assignOneWithPointers(*f1, kinetic, all);
-        fromBeginning(*f1, kinetic1, 0);
         f1->tulip[kinetic1].Partition = allowQ(f1->rt,blockKineticEnergyBlock)*COMPONENT;//
         f1->tulip[kinetic1].name = kinetic1;
         assignParticle(*f1, kinetic1, all, one);
@@ -872,7 +906,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
 if (f1->eikonFlag)
     f1->tulip[linear].Partition =  0;
 else
-        f1->tulip[linear].Partition = buildExternalPotential(c1, f1,1.,nullName,1,id0,electron ,0,real)+(GAS==0)*COMPONENT  ;//
+        f1->tulip[linear].Partition = buildExternalPotential(c1, f1,1.,nullName,0,1,id0,1,electron ,0,real)+(GAS==0)*COMPONENT  ;//
 
     fromBeginning(*f1, overlap, linear);
         f1->tulip[overlap].species = matrix;
@@ -1043,7 +1077,7 @@ else
                     }
                     f1->tulip[eigenVectors+di].spinor =f1->cmpl;
                     if ( d0 < f->i.nStates ){
-                        f1->tulip[eigenVectors+di].Partition = f->i.bRank;
+                        f1->tulip[eigenVectors+di].Partition = maxVector;
                         d0++;
                     }
                     else if ( eigenVectors+di <= eigenVectors+f->i.nStates+maxEV){
@@ -1231,7 +1265,7 @@ else
 if (f1->eikonFlag)
         f1->tulip[oneVector].Partition = 0;
 else
-        f1->tulip[oneVector].Partition = buildExternalPotential(c1, f1,1.,1,id0,nullName,electron ,0,real);
+        f1->tulip[oneVector].Partition = buildExternalPotential(c1, f1,1.,0,1,id0,1,nullName,electron ,0,real);
         f1->tulip[oneVector].species = outerVector;
        // f1->tulip[oneVector].spinor = parallel;
         assignParticle(*f1, oneVector, all, one);
@@ -1245,26 +1279,13 @@ else
         fromBeginning(*f1,totalVector,twoVector);
   
     if ( allowQ(f1->rt,blockTotalVectorBlock) ){
-            f1->tulip[totalVector].Partition =  imax( f->i.xRank, c1->i.canonRank * f->i.bRank) ;
+            f1->tulip[totalVector].Partition =  imax( f->i.xRank, c1->i.canonRank * maxVector) ;
         
     }
         f1->tulip[totalVector].species = vector;
-        f1->tulip[totalVector].spinor = parallel;
 
-    {
-        INT_TYPE term;
-        enum division prev = totalVector;
-        for (term = 0; term < 5  ; term++){
-             fromBeginning(*f1,bra+term,prev);
-             prev = bra+term;//HERE//HERE//HERE
-             f1->tulip[bra+term].Partition =   maxVector;
-             f1->tulip[bra+term].species = vector;
-             f1->tulip[bra+term].spinor = f1->cmpl;
-        }
     
-    
-    fromBeginning(*f1,totalFuzzyVector,prev);
-    }
+        fromBeginning(*f1,totalFuzzyVector,totalVector);
         f1->tulip[totalFuzzyVector].Partition = 0*(c1->i.canonRank);
         f1->tulip[totalFuzzyVector].species = vector;
         f1->tulip[totalFuzzyVector].spinor = parallel;
@@ -1318,14 +1339,14 @@ else
         assignParticle(*f1, diagonal3VectorA, all , three);
         
         fromBeginning(*f1,bandBasis,diagonal3VectorA);
-        f1->tulip[bandBasis].Partition = mxlen;
+        f1->tulip[bandBasis].Partition = 4*mx1len*mx1len+2*mxlen;
         f1->tulip[bandBasis].memory = bufferAllocation;
 
     
 
     
         fromBeginning(*f1,copy,bandBasis);
-        f1->tulip[copy].Partition = 1+(c1->rt.phaseType == buildFoundation)*(c1->rt.phaseType == svdOperation)* imax(f->i.bRank*f->i.bRank,imax(mx1len*mx1len, c1->i.decomposeRankMatrix+ imax(c1->i.oneBody.num,   imax(c1->i.decomposeRankMatrix*c1->i.Na,outVector) )));
+        f1->tulip[copy].Partition = 1+(c1->rt.phaseType == buildFoundation)*(c1->rt.phaseType == svdOperation)* imax(maxVector*f->i.bRank,imax(mx1len*mx1len, c1->i.decomposeRankMatrix+ imax(c1->i.oneBody.num,   imax(c1->i.decomposeRankMatrix*c1->i.Na,outVector) )));
         if ( c1->rt.phaseType == svdOperation){
                 f1->tulip[copy].spinor = parallel;
         }
@@ -1499,7 +1520,7 @@ else
 if (f1->eikonFlag)
         f1->tulip[interactionExchange].Partition = 0;
     else
-        f1->tulip[interactionExchange].Partition = allowQ(f1->rt, blockSeparateTwoBodyBlock)*(  allowQ(f1->rt,blockHamiltonianBlock))*buildPairWisePotential(c1, f1,1.,1,id0,nullName, electron, 0,real)+allowQ(f1->rt, blockResolveTwoBodyBlock)*part(*f1,trainHamiltonian);
+        f1->tulip[interactionExchange].Partition = allowQ(f1->rt, blockSeparateTwoBodyBlock)*(  allowQ(f1->rt,blockHamiltonianBlock))*buildPairWisePotential(c1, f1,1.,1,1,id0,1,nullName, electron, 0,real)+allowQ(f1->rt, blockResolveTwoBodyBlock)*part(*f1,trainHamiltonian);
             f1->tulip[interactionExchange].species = matrix;
             f1->tulip[interactionExchange].spinor = f1->cmpl;
             assignParticle(*f1, interactionExchange, electron, two);
@@ -1569,7 +1590,7 @@ if (f1->eikonFlag)
 if (f1->eikonFlag)
     f1->tulip[interactionEwald].Partition =  0;
 else
-    f1->tulip[interactionEwald].Partition =  allowQ(f1->rt, blockSeparateTwoBodyBlock)* allowQ(f1->rt,blockHamiltonianBlock)*buildPairWisePotential(c1, f1,1.,1,id0,nullName, electron, 0,real) * (c1->rt.runFlag > 0 );
+    f1->tulip[interactionEwald].Partition =  allowQ(f1->rt, blockSeparateTwoBodyBlock)* allowQ(f1->rt,blockHamiltonianBlock)*buildPairWisePotential(c1, f1,1.,0,1,id0,1,nullName, electron, 0,real) * (c1->rt.runFlag > 0 );
 
         f1->tulip[interactionEwald].species = matrix;
         f1->tulip[interactionEwald].spinor = f1->cmpl;
@@ -1898,9 +1919,9 @@ else
    //     separateKinetic(*f1, 0,kinetic2_2, c1->i.massElectron,all);
        // separateKinetic(*f1, 0,kinetic3_2, c1->i.massElectron,all);
     }
-        
-
-        
+    f1->tulip[Ha].linkNext = Iterator;
+    defineTerms(c1, f1,Iterator,1);
+    
         
 #if 0
 #if 1
@@ -1984,7 +2005,7 @@ else
 
         enum division spiralOp  =  defSpiralMatrix(f1, Ha);
         tLesserDivide(0, 0., 1., *f1,defSpiralVector(f1, spiralOp, copyVector) ,spiralOp,defSpiralVector(f1, spiralOp, copyTwoVector));
-        printExpectationValues(*f1, Ha, copyVector);
+        printExpectationValues(*f1,copyVector, Ha, copyVector);
 
     }
     printf("\n\nFINIS.\n\n");
@@ -1994,7 +2015,7 @@ else
         tId(*f1,copyVector,0);
 
         tHXpX( 0,*f1, Ha, 0, 0., 1., 0., copyVector, 1e-8, part(*f1,copyVector),0);
-        printExpectationValues(*f1, Ha, copyVector);
+        printExpectationValues(*f1,copyVector, Ha, copyVector);
 
     }
     //JUST NEED TO ZERO FROM CURRENT -> PARTION ON EACH subVector Rank structure.
@@ -2027,7 +2048,7 @@ else
 #endif
                     
                     for ( c = real ; c <= spins (*f1, linear) ; c++){
-                            buildExternalPotential(c1, f1,1.,1,id0,linear,electron,!(!c1->rt.runFlag),c);
+                            buildExternalPotential(c1, f1,1.,0,1,id0,1,linear,electron,!(!c1->rt.runFlag),c);
                     }
                 }
                 if ( f1->rose[0].component == periodicComponent1 ){
@@ -2041,7 +2062,7 @@ else
                                     if ( allowQ(f1->rt, blockSeparateTwoBodyBlock ) || f1->eikonFlag)
                                     {
                                         for ( c = real ; c <= spins (*f1, interactionEwald) ; c++)
-                                            buildPairWisePotential(c1, f1,1.,1,id0,interactionEwald,electron, 1,c);
+                                            buildPairWisePotential(c1, f1,1.,0.,1,id0,1,interactionEwald,electron, 1,c);
                             }
                     }
                     if ( c1->i.twoBody.func.fn != nullFunction){
@@ -2054,7 +2075,7 @@ else
                                 if ( ! flag )
 #endif
                                     for ( c = real ; c <= spins (*f1, interactionExchange) ; c++)
-                                        buildPairWisePotential(c1, f1,1.,1,id0,interactionExchange,electron, 2/*diagonal*/,c);
+                                        buildPairWisePotential(c1, f1,1.,0,1,id0,1,interactionExchange,electron, 2/*diagonal*/,c);
                         }
                 }else {//non-periodic
                     if ( bootBodies > one ){
@@ -2077,7 +2098,7 @@ else
                     
 #else
                     for ( c = real ; c <= spins (*f1, interactionExchange) ; c++){
-                        buildPairWisePotential(c1, f1,1.,1,id0,interactionExchange,electron,0,c);
+                        buildPairWisePotential(c1, f1,1.,0,1,id0,1,interactionExchange,electron,0,c);
                     }
 
                     
@@ -2132,7 +2153,7 @@ else
 
                 }
                 
-                if ( c1->i.springFlag ){
+                if ( c1->i.springFlag && allowQ(f1->rt, blockKineticEnergyBlock)){
                     INT_TYPE deriv[SPACE];
                     INT_TYPE power[SPACE];
                     
@@ -2184,7 +2205,7 @@ else
                         
                             if ( ! flag )
                                 for ( c = real ; c <= spins (*f1, interactionExchange) ; c++){
-                                    buildPairWisePotential(c1, f1,1.,1,id0,interactionExchange,electron,0,c);
+                                    buildPairWisePotential(c1, f1,1.,0,1,id0,1,interactionExchange,electron,0,c);
                                     }
                     }
                 }
@@ -2213,7 +2234,7 @@ else
                     if ( c1->i.oneBody.func.fn != nullFunction )
                         if(   ! ioStoreMatrix(*f1, linear, 0, "linear.matrix",1)){
                             for ( c = real ; c <= real ; c++){
-                                    buildExternalPotential(c1, f1,1.,1,id0,linear,electron,!(!c1->rt.runFlag),c);
+                                    buildExternalPotential(c1, f1,1.,0,1,id0,1,linear,electron,!(!c1->rt.runFlag),c);
                             }
                         }
                 if ( c1->i.springFlag ){
@@ -2560,133 +2581,175 @@ else
 
                 }
 
-        }else {
-            if ( bootBodies == one && ( c1->rt.calcType == electronicStuctureCalculation  )&& f1->chainFlag){
-                    f1->tulip[external1].species = matrix;
-
-                f1->tulip[Ha].linkNext = kinetic1;
-                f1->tulip[Iterator].linkNext = kinetic1;
-                f1->tulip[kinetic1].linkNext = nullName;
-                tClear(*f1,kinetic1);
-                buildKinetic(c1, f1, 1., 1,tv1, kinetic1, electron, 0, real);
-
-                buildExternalPotential(c1, f1,1.,1,tv1,kinetic1,electron,!(!c1->rt.runFlag),real);
-
-                
-            }
-            if ( bootBodies == two && ( c1->rt.calcType == electronicStuctureCalculation  )&& f1->chainFlag){
-                
-                if( 1 ){
-                    f1->tulip[kinetic1].chainNext  = kinetic1_2;
-                    f1->tulip[kinetic1].linkNext  = kinetic2;
-                    f1->tulip[kinetic2].chainNext  = kinetic2_2;
-                    f1->tulip[kinetic2].linkNext  = external1;
-                    
-                    
-                    if ( 1 ){
-                    f1->tulip[external1].chainNext  = external1_2;
-                    f1->tulip[external1].linkNext  = external2;
-                    f1->tulip[external2].chainNext  =external2_2;
-                    f1->tulip[external2].linkNext  = interaction12;
-                    f1->tulip[interaction12].chainNext = interaction12_2;
-                    } else{
-                        f1->tulip[external1].linkNext  = external2;
-                        
-                        f1->tulip[external2].linkNext  = interaction12;
-
-                    }
-                }else {
-                    
-                        f1->tulip[kinetic1].linkNext  = kinetic1_2;
-                        f1->tulip[kinetic1_2].linkNext  = kinetic2;
-                        f1->tulip[kinetic2].linkNext  = kinetic2_2;
-                        f1->tulip[kinetic2_2].linkNext  = external1;
-                    //    f1->tulip[external1].chainNext  = external1_2;
-                       f1->tulip[external1].linkNext  = external2;
-                //    f1->tulip[external2].chainNext  = external2_2;
-                    f1->tulip[external2].linkNext = interaction12;
-                    f1->tulip[interaction12].chainNext = interaction12_2;
-
-
-                }
-
-//
-//
-//                                    f1->tulip[kinetic1].linkNext = kinetic2;
-//
-//            //HERE
-                
-                
-                
-
-//
-                                    f1->tulip[Ha].linkNext = kinetic1;
-                                    f1->tulip[Iterator].linkNext = kinetic1;
-                                    buildPairWisePotential(c1, f1,1.0,1,e12,interaction12,electron, 0,real);
-                                 //   buildPairWisePotential(c1, f1,-0.5,2,e12,interaction12,electron, 0,real);
-
-                buildExternalPotential(c1, f1,1.,1,tv1,external1,electron,!(!c1->rt.runFlag),real);
-                               //  buildExternalPotential(c1, f1,0.5,2,tv1,external1,electron,!(!c1->rt.runFlag),real);
-                buildExternalPotential(c1, f1,1.,tv2,1,external1,electron,!(!c1->rt.runFlag),real);
-                //  buildExternalPotential(c1, f1,0.5,tv2,1,external2,electron,!(!c1->rt.runFlag),real);
-                
-                if ((1)){
-                    buildKinetic(c1, f1, 1.,1, tv1, kinetic1, electron, 0, real);
-                    buildKinetic(c1, f1, 1.,1, tv2, kinetic1, electron, 0, real);
-//                                    buildKinetic(c1, f1, 0.5,1, tv2, kinetic2, electron, 0, real);
-//                                    buildKinetic(c1, f1, 0.5,2, tv2, kinetic2_2, electron, 0, real);
-                }
-
-            }else           if ( bootBodies == three && ( c1->rt.calcType == electronicStuctureCalculation  )&& f1->chainFlag){
-                                    
-
-                    
-                                    f1->tulip[kinetic1].linkNext = kinetic2;
-                                    f1->tulip[kinetic2].linkNext = kinetic3;
-                                    f1->tulip[kinetic3].linkNext = interaction12;
-                                        
-                //HERE
-                                    
-                                    f1->tulip[Ha].linkNext = kinetic1;
-                                    f1->tulip[Iterator].linkNext = kinetic1;
-                buildPairWisePotential(c1, f1,1.,1,e12,interaction12,electron, 0,real);
-                buildPairWisePotential(c1, f1,1.,1,e13,interaction12,electron, 0,real);
-                buildPairWisePotential(c1, f1,1.,1,e23,interaction12,electron, 0,real);
-
-                buildExternalPotential(c1, f1,1.,1,tv1,kinetic1,electron,!(!c1->rt.runFlag),real);
-                buildExternalPotential(c1, f1,1.,1,tv2,kinetic2,electron,!(!c1->rt.runFlag),real);
-                buildExternalPotential(c1, f1,1.,1,tv3,kinetic3,electron,!(!c1->rt.runFlag),real);
-
-                if (0){
-                    double scalar = -9/f->i.d/f->i.d;
-                buildConstant(c1, f1, 2.*scalar,1, tv1, Iterator, electron, 0, real);
-                buildConstant(c1, f1, 2.*scalar,1, tv2, Iterator, electron, 0, real);
-                buildConstant(c1, f1, 2.*scalar,1, tv3, Iterator, electron, 0, real);
-                buildConstant(c1, f1, -0.5*scalar,4, tv1,Iterator, electron, 0, real);
-                buildConstant(c1, f1, -0.5*scalar,4, tv2, Iterator, electron, 0, real);
-                buildConstant(c1, f1, -0.5*scalar,4, tv3, Iterator, electron, 0, real);
-                buildConstant(c1, f1, -0.5*scalar,5, tv1, Iterator, electron, 0, real);
-                buildConstant(c1, f1, -0.5*scalar,5, tv2, Iterator, electron, 0, real);
-                buildConstant(c1, f1, -0.5*scalar,5, tv3, Iterator, electron, 0, real);
-                }
-                {
-                    double scalar = 1.;
-                    buildKinetic(c1, f1, 1.,1, tv1, kinetic1, electron, 0, real);
-                    buildKinetic(c1, f1, 1.,1, tv2, kinetic2, electron, 0, real);
-                    buildKinetic(c1, f1, 1.,1, tv3, kinetic3, electron, 0, real);
-//                    buildKinetic(c1, f1, 2.*scalar,1, tv1, kinetic1, electron, 0, real);
-//                    buildKinetic(c1, f1, 2.*scalar,1, tv2, kinetic1, electron, 0, real);
-//                    buildKinetic(c1, f1, 2.*scalar,1, tv3, kinetic1, electron, 0, real);
-//                    buildKinetic(c1, f1, -0.5*scalar,4, tv1, kinetic1, electron, 0, real);
-//                    buildKinetic(c1, f1, -0.5*scalar,4, tv2, kinetic1, electron, 0, real);
-//                    buildKinetic(c1, f1, -0.5*scalar,4, tv3, kinetic1, electron, 0, real);
-//                    buildKinetic(c1, f1, -0.5*scalar,5, tv1, kinetic1, electron, 0, real);
-//                    buildKinetic(c1, f1, -0.5*scalar,5, tv2, kinetic1, electron, 0, real);
-//                    buildKinetic(c1, f1, -0.5*scalar,5, tv3, kinetic1, electron, 0, real);
-
-                }
         }
-        }
+//        else {
+//            if ( bootBodies == one && ( c1->rt.calcType == electronicStuctureCalculation  )&& f1->chainFlag){
+//                    f1->tulip[external1].species = matrix;
+//
+//                f1->tulip[Ha].linkNext = kinetic1;
+//                f1->tulip[Iterator].linkNext = kinetic1;
+//                f1->tulip[kinetic1].linkNext = nullName;
+//                tClear(*f1,kinetic1);
+//                buildKinetic(c1, f1, 1., 1,tv1, kinetic1, electron, 0, real);
+//
+//                buildExternalPotential(c1, f1,1.,1,tv1,kinetic1,electron,!(!c1->rt.runFlag),real);
+//
+//                if (c1->i.springFlag)
+//                    buildSHO(c1, f1, c1->i.springConstant,1, tv1, kinetic1, electron, 0, real);
+//
+//            }
+//            if ( bootBodies == two && ( c1->rt.calcType == electronicStuctureCalculation  )&& f1->chainFlag){
+//
+//                if( 1 ){
+//                    f1->tulip[kinetic1].chainNext  = kinetic1_2;
+//                    f1->tulip[kinetic1].linkNext  = kinetic2;
+//                    f1->tulip[kinetic2].chainNext  = kinetic2_2;
+//                    f1->tulip[kinetic2].linkNext  = external1;
+//
+//
+//                    if ( 1 ){
+//                    f1->tulip[external1].chainNext  = external1_2;
+//                    f1->tulip[external1].linkNext  = external2;
+//                    f1->tulip[external2].chainNext  =external2_2;
+//                    f1->tulip[external2].linkNext  = interaction12;
+//                    f1->tulip[interaction12].chainNext = interaction12_2;
+//                    } else{
+//                        f1->tulip[external1].linkNext  = external2;
+//
+//                        f1->tulip[external2].linkNext  = interaction12;
+//
+//                    }
+//                }else {
+//
+//                        f1->tulip[kinetic1].linkNext  = kinetic1_2;
+//                        f1->tulip[kinetic1_2].linkNext  = kinetic2;
+//                        f1->tulip[kinetic2].linkNext  = kinetic2_2;
+//                        f1->tulip[kinetic2_2].linkNext  = external1;
+//                    //    f1->tulip[external1].chainNext  = external1_2;
+//                       f1->tulip[external1].linkNext  = external2;
+//                //    f1->tulip[external2].chainNext  = external2_2;
+//                    f1->tulip[external2].linkNext = interaction12;
+//                    f1->tulip[interaction12].chainNext = interaction12_2;
+//
+//
+//                }
+//
+////
+////
+////                                    f1->tulip[kinetic1].linkNext = kinetic2;
+////
+////            //HERE
+//
+//
+//
+//
+////
+//                                    f1->tulip[Ha].linkNext = kinetic1;
+//                                    f1->tulip[Iterator].linkNext = kinetic1;
+//                                    buildPairWisePotential(c1, f1,1.0,1,e12,interaction12,electron, 0,real);
+//                                 //   buildPairWisePotential(c1, f1,-0.5,2,e12,interaction12,electron, 0,real);
+//
+//                buildExternalPotential(c1, f1,1.,1,tv1,external1,electron,!(!c1->rt.runFlag),real);
+//                               //  buildExternalPotential(c1, f1,0.5,2,tv1,external1,electron,!(!c1->rt.runFlag),real);
+//                buildExternalPotential(c1, f1,1.,tv2,1,external1,electron,!(!c1->rt.runFlag),real);
+//                //  buildExternalPotential(c1, f1,0.5,tv2,1,external2,electron,!(!c1->rt.runFlag),real);
+//
+//                if ( c1->i.springFlag ){
+//                    buildSHO(c1, f1, c1->i.springConstant,1, tv1, external2, electron, 0, real);
+//                    buildSHO(c1, f1, c1->i.springConstant,1, tv2, external2, electron, 0, real);
+//                }
+//
+//
+//
+//                if ((1)){
+//                    buildKinetic(c1, f1, 1.,1, tv1, kinetic1, electron, 0, real);
+//                    buildKinetic(c1, f1, 1.,1, tv2, kinetic1, electron, 0, real);
+////                                    buildKinetic(c1, f1, 0.5,1, tv2, kinetic2, electron, 0, real);
+////                                    buildKinetic(c1, f1, 0.5,2, tv2, kinetic2_2, electron, 0, real);
+//                }
+//
+//            }else           if ( bootBodies == three && ( c1->rt.calcType == electronicStuctureCalculation  )&& f1->chainFlag){
+//
+//
+//
+//                              //      f1->tulip[kinetic1].linkNext = kinetic2;
+//                              //      f1->tulip[kinetic2].linkNext = kinetic3;
+//                f1->tulip[interaction12].linkNext = interaction13;
+//                f1->tulip[interaction13].linkNext = interaction23;
+//                //HERE
+//                                    f1->tulip[Ha].linkNext = interaction12;
+//                                    f1->tulip[Iterator].linkNext = interaction12;
+//                buildPairWisePotential(c1, f1,1.,1,e12,interaction12,electron, 0,real);
+//                buildPairWisePotential(c1, f1,1.,1,e13,interaction13,electron, 0,real);
+//                buildPairWisePotential(c1, f1,1.,1,e23,interaction23,electron, 0,real);
+//
+//
+//
+//
+//
+//                buildExternalPotential(c1, f1,0.5,1,tv1,interaction12,electron,!(!c1->rt.runFlag),real);
+//                buildExternalPotential(c1, f1,0.5,1,tv1,interaction13,electron,!(!c1->rt.runFlag),real);
+//                buildKinetic(c1, f1, 0.5,1, tv1, interaction12, electron, 0, real);
+//                buildKinetic(c1, f1, 0.5,1, tv1, interaction13, electron, 0, real);
+//
+//
+//                buildExternalPotential(c1, f1,0.5,1,tv2,interaction12,electron,!(!c1->rt.runFlag),real);
+//                buildExternalPotential(c1, f1,0.5,1,tv2,interaction23,electron,!(!c1->rt.runFlag),real);
+//                buildKinetic(c1, f1, 0.5,1, tv2, interaction12, electron, 0, real);
+//                buildKinetic(c1, f1, 0.5,1, tv2, interaction23, electron, 0, real);
+//
+//
+//
+//
+//                buildExternalPotential(c1, f1,0.5,1,tv3,interaction13,electron,!(!c1->rt.runFlag),real);
+//                buildExternalPotential(c1, f1,0.5,1,tv3,interaction23,electron,!(!c1->rt.runFlag),real);
+//                buildKinetic(c1, f1, 0.5,1, tv3, interaction13, electron, 0, real);
+//                buildKinetic(c1, f1, 0.5,1, tv3, interaction23, electron, 0, real);
+//
+//
+//                if (0){
+//                    double scalar = -9/f->i.d/f->i.d;
+//                buildConstant(c1, f1, 2.*scalar,1, tv1, Iterator, electron, 0, real);
+//                buildConstant(c1, f1, 2.*scalar,1, tv2, Iterator, electron, 0, real);
+//                buildConstant(c1, f1, 2.*scalar,1, tv3, Iterator, electron, 0, real);
+//                buildConstant(c1, f1, -0.5*scalar,4, tv1,Iterator, electron, 0, real);
+//                buildConstant(c1, f1, -0.5*scalar,4, tv2, Iterator, electron, 0, real);
+//                buildConstant(c1, f1, -0.5*scalar,4, tv3, Iterator, electron, 0, real);
+//                buildConstant(c1, f1, -0.5*scalar,5, tv1, Iterator, electron, 0, real);
+//                buildConstant(c1, f1, -0.5*scalar,5, tv2, Iterator, electron, 0, real);
+//                buildConstant(c1, f1, -0.5*scalar,5, tv3, Iterator, electron, 0, real);
+//                }
+//                {
+//                    double scalar = 1.;
+////                    buildKinetic(c1, f1, 1.,1, tv1, kinetic1, electron, 0, real);
+////                    buildKinetic(c1, f1, 1.,1, tv2, kinetic2, electron, 0, real);
+////                    buildKinetic(c1, f1, 1.,1, tv3, kinetic3, electron, 0, real);
+//                    if ( c1->i.springFlag){
+//                    buildSHO(c1, f1, c1->i.springConstant/2,1, tv1, interaction12, electron, 0, real);
+//                        buildSHO(c1, f1, c1->i.springConstant/2,1, tv2, interaction12, electron, 0, real);
+//
+//
+//
+//                        buildSHO(c1, f1, c1->i.springConstant/2,1, tv1, interaction13, electron, 0, real);
+//                    buildSHO(c1, f1, c1->i.springConstant/2,1, tv3, interaction13, electron, 0, real);
+//
+//
+//                        buildSHO(c1, f1, c1->i.springConstant/2,1, tv2, interaction23, electron, 0, real);
+//                    buildSHO(c1, f1, c1->i.springConstant/2,1, tv3, interaction23, electron, 0, real);
+//                    }
+////                    buildKinetic(c1, f1, 2.*scalar,1, tv1, kinetic1, electron, 0, real);
+////                    buildKinetic(c1, f1, 2.*scalar,1, tv2, kinetic1, electron, 0, real);
+////                    buildKinetic(c1, f1, 2.*scalar,1, tv3, kinetic1, electron, 0, real);
+////                    buildKinetic(c1, f1, -0.5*scalar,4, tv1, kinetic1, electron, 0, real);
+////                    buildKinetic(c1, f1, -0.5*scalar,4, tv2, kinetic1, electron, 0, real);
+////                    buildKinetic(c1, f1, -0.5*scalar,4, tv3, kinetic1, electron, 0, real);
+////                    buildKinetic(c1, f1, -0.5*scalar,5, tv1, kinetic1, electron, 0, real);
+////                    buildKinetic(c1, f1, -0.5*scalar,5, tv2, kinetic1, electron, 0, real);
+////                    buildKinetic(c1, f1, -0.5*scalar,5, tv3, kinetic1, electron, 0, real);
+//
+//                }
+//        }
+//        }
     //7.7
 #if VERBOSE
     printf("boot complete\n");

@@ -41,7 +41,7 @@ INT_TYPE countHam ( struct calculation *c1 , struct field f1 );
 INT_TYPE foundation1 (struct calculation *c1 , struct field f1);
 INT_TYPE foundationM (struct calculation *c1 , struct field f1);
 INT_TYPE decompose ( struct calculation *c1, struct field f1);
-INT_TYPE krylov (struct calculation *c1  , struct field f1);
+double krylov (struct calculation *c1  , struct field f1);
 INT_TYPE ritz (struct calculation *c1  , struct field f1);
 INT_TYPE frameEwald( struct calculation * c , struct field f);
 

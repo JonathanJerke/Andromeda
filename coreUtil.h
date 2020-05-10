@@ -102,6 +102,7 @@ void pNuclearArray (struct input c, struct field *f1,  enum division array,INT_T
 
 void nuclearArray (struct input c, struct field f1,  enum division array,INT_TYPE M1);
 INT_TYPE assignCores(struct sinc_label  f1, INT_TYPE parallel );
+INT_TYPE defineCores(struct calculation * c, struct field * f);
 INT_TYPE Rank( struct sinc_label  f1 , enum division label );
 double volume ( struct input * f1 );
 INT_TYPE xAddTw( struct sinc_label f1 , enum division left, INT_TYPE lspin,struct sinc_label f2 ,  enum division right , INT_TYPE rspin);
@@ -125,4 +126,6 @@ struct basisElement defineSpinorBasis (enum noteType note, enum componentType sp
 struct basisElement transformBasis( INT_TYPE flip,double scale, struct basisElement ba );
 INT_TYPE  countLinesFromFile( struct calculation *c1,struct field f1,INT_TYPE location, INT_TYPE * ir,INT_TYPE *ix);
 INT_TYPE completeInverse (INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim,enum division vector,INT_TYPE v,INT_TYPE spin, enum division ov , INT_TYPE v2,INT_TYPE sp2);
+INT_TYPE defineTerms(struct calculation * c, struct sinc_label *f1, enum division head, INT_TYPE memory);
+INT_TYPE InvertOp(enum bodyType bd,INT_TYPE invert, INT_TYPE N1,Stream_Type * vector, Stream_Type* vectorOut);
 #endif /* coreUtil_h */

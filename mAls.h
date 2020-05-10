@@ -75,7 +75,7 @@ INT_TYPE ready ( struct sinc_label f1 );
 INT_TYPE bootedQ ( struct sinc_label f1);
 
 INT_TYPE xConstructFoundation (struct sinc_label calc , enum division usr, INT_TYPE UR, struct sinc_label calc2, enum division usz, INT_TYPE UZ ,INT_TYPE mx);
-INT_TYPE printExpectationValues (struct sinc_label  f1 , enum division ha  , enum division vector);
+double printExpectationValues (struct sinc_label  f1 ,enum division vector2,  enum division ha  , enum division vector);
 INT_TYPE pPrintExpectationValues (struct sinc_label * f1 , enum division ha  , enum division vector);
 
 INT_TYPE tOuterProductSuOne( struct sinc_label  f1,INT_TYPE space,enum division vector , INT_TYPE a, enum division vector2,INT_TYPE b, enum division proj, INT_TYPE c);

@@ -111,12 +111,12 @@ INT_TYPE comment (const char * line ){
 
 INT_TYPE control ( const char * line ){
     INT_TYPE m,s;
-    INT_TYPE Ncom = 6;
+    INT_TYPE Ncom = 7;
     char *list_control []= {"#",
         "Body",
         "Parameters",       "Geometry",
-        "Translation" ,       "Basis",
-        "InputOutput",
+        "Translation" ,     "Basis",
+        "InputOutput",      "Term"
     };
 
     char *list_line [] = {".","*"};
@@ -156,7 +156,7 @@ static double maxClamp;
      static double param2;
     static INT_TYPE interval;
 
-    INT_TYPE NINT_TYPE = 131;
+    INT_TYPE NINT_TYPE = 132;
     char *list_INT_TYPE []= {"#",
         "LOST1","maxCycle" , "spinor", "charge","fineStr",//5
         "process", "NB", "MB", "percentFull","general",//10
@@ -180,11 +180,11 @@ static double maxClamp;
         "hartreeFock","basisStage","iterations","collect","states",//100
         "length","XHA","lookBack","step","theory",//105
         "configuration","densityRank","densityBody","parallel","phase",//110
-        "around","cmpl","clampStage","OCSB","decompose",
+        "around","cmpl","clampStage","OCSB","decompose",//115
         "shiftNO","matrix","catalog","increment","blockMemory",//120
         "blockReset","chrome","NULL","chroma","gaussCount",
         "Sign","switchGeometry","eikon","chain","Above",
-        "offDiagonals"
+        "offDiagonals","gamma"
     };
     INT_TYPE NDOUBLE = 83;
     char *list_DOUBLE []= {"#",
@@ -520,8 +520,6 @@ static double maxClamp;
                     //expand range by number given.
                     f1->d *= pow( (2.* f1->epi + 1.) /(2.*f1->epi + 2*ivalue + 1),f1->attack);
                     f1->epi  += ivalue;
-                    
-                    
 
                     return i;
 
@@ -799,7 +797,7 @@ static double maxClamp;
                     c->rt.powDecompose = ivalue;
                     return i;
                 case 116:
-                    c->i.shiftFlag = 0;
+                    c->i.shiftFlag = ivalue;
                     return i;
                 case 117:
                     c->i.decomposeRankMatrix = ivalue;
@@ -847,6 +845,9 @@ static double maxClamp;
                     return i;
                 case 131:
                     contr = ivalue ;
+                    return i;
+                case 132:
+                    c->rt.GAMMA = ivalue ;
                     return i;
 
             }
@@ -1010,7 +1011,7 @@ static double maxClamp;
                 //    c->i.charge3 = value;
                     return d;
                 case 41 :
-                 //   c->i.beta = value;
+                    c->rt.BETA = pow(10.,-value);
                     return d;
 //                case 42 :
 //                    c->i.Aspect = value;
@@ -1131,7 +1132,7 @@ static double maxClamp;
                     turn = pow(120.*(1.+sqrt(value/(20.*2*param1*param1*(c->i.massProton * c->i.massClampPair/(c->i.massProton + c->i.massClampPair) )*scalar))) ,1./6);
                     return d;
                 case 73:
-                    c->rt.EWALD = pow(0.1, value);
+           //         c->rt.EWALD = pow(0.1, value);
                     return d;
                 case 74:
                     c->i.level = value/( f1->d )/( f1->d );
@@ -1235,7 +1236,7 @@ static double maxClamp;
                 }
                 case 81:
                 {
-                    c->rt.CAP = pow(0.1, value);
+                    //    c->rt.CAP = pow(0.1, value);
                     return d;
                 }
 #ifdef CHROME
@@ -1250,6 +1251,7 @@ static double maxClamp;
                     return d;
                 }
 #endif
+
             }
 
         }
@@ -1821,6 +1823,157 @@ INT_TYPE getInputOutput(struct calculation * c,struct input_label * f1, const ch
 
 
 
+
+INT_TYPE getTermDefinitions(struct calculation * c, const char * input_line ){
+    static double scalar =1.;
+    static enum block bl = id0;
+    static INT_TYPE act = 1;
+    static INT_TYPE newTerm = 1;
+    static INT_TYPE buffer = 10;
+    static INT_TYPE invert = 0;
+    
+    static INT_TYPE interval = 1;
+    static INT_TYPE contr = 1;
+    static double adjustOne = 1.;
+    static double constant = 1;
+    static double turn = 1;
+    static double param1 = 1;
+    static double param2 = 1;
+    static INT_TYPE funcType = 3;
+    char test_line [MAXSTRING];
+    INT_TYPE i,d,ivalue;
+    double value;    
+        INT_TYPE io;
+        INT_TYPE Nio = 7;
+        char *list_IO[] = {"#",
+            "constant","linear","spring",
+            "deriv","kinetic","external",
+            "interaction"
+        };
+        char filename[MAXSTRING];
+        
+        for( io = 1 ; io <= Nio ; io++){
+            if ( strstr( input_line, list_IO [io])!=NULL){
+                sscanf(input_line,"%s %s", test_line,  filename);
+                    c->i.terms[c->i.termNumber].type = io;
+                    c->i.terms[c->i.termNumber].act = act;
+                    c->i.terms[c->i.termNumber].bl = bl;
+                    c->i.terms[c->i.termNumber].scalar = constant;
+                    c->i.terms[c->i.termNumber].buffer = buffer;
+                    c->i.terms[c->i.termNumber].invert = invert;
+                    strcpy(c->i.terms[c->i.termNumber].desc,filename);
+                    c->i.terms[c->i.termNumber].headFlag = newTerm;
+                newTerm = 0;
+                    c->i.terms[c->i.termNumber].func.interval = interval;
+                    c->i.terms[c->i.termNumber].func.contr = contr;
+                    c->i.terms[c->i.termNumber].func.fn = funcType;
+                    c->i.terms[c->i.termNumber].func.param[0] = scalar;
+                    c->i.terms[c->i.termNumber].func.param[1] = turn;
+                    c->i.terms[c->i.termNumber].func.param[2] = param1;
+                    c->i.terms[c->i.termNumber].func.param[3] = param2;
+                c->i.terms[c->i.termNumber].adjustOne = adjustOne;
+                
+                    c->i.termNumber++;
+                return io;
+                    
+    
+            }
+                
+        }
+        
+    INT_TYPE NINT_TYPE = 8;
+        char *list_INT_TYPE []= {"#",
+            "invert","block","act","newTerm","buffer",
+            "interval","offDiagonals","funcType"
+        };
+        INT_TYPE NDOUBLE = 6;
+        char *list_DOUBLE []= {"#",
+            "funcScalar","scalar","funcTurn","funcParam1","funcParam2",
+            "adjustOne"
+        };
+        
+        for ( i = 1 ; i <= NINT_TYPE ; i++){
+            
+            if ( strstr( input_line, list_INT_TYPE[i])!= NULL){
+    #ifdef BIT_INT
+                sscanf(input_line,"%s %d", test_line,&ivalue);
+    #endif
+                
+    #ifdef BIT_LONG
+                sscanf(input_line,"%s %ld", test_line,&ivalue);
+    #endif
+
+    #ifdef MKL
+                sscanf(input_line,"%s %lld", test_line,&ivalue);
+    #endif
+                
+                switch ( i ){
+                    case 1:
+                        invert = ivalue;
+                        return i;
+                    case 2:
+                        bl = ivalue;
+                        return i;
+                    case 3:
+                        act = ivalue ;
+                        return i;
+                    case 4:
+                        newTerm = ivalue ;
+                        return i;
+                    case 5:
+                        buffer = ivalue ;
+                        return i;
+                    case 6 :
+                        interval = ivalue;
+                        return i;
+                    case 7:
+                        contr = ivalue;
+                        return i;
+                    case 8:
+                        funcType = ivalue;
+                        return i;
+                        
+                }
+//
+            }
+        }
+    
+    
+        for ( d = 1; d <= NDOUBLE ; d++){
+            
+            sprintf(test_line ,"%s", list_DOUBLE[d]);
+            if ( strstr( input_line, test_line)!= NULL){
+                sscanf(input_line,"%s %lf", test_line, &value);
+                
+                switch ( d ){
+                    case 1:
+                        scalar = value;
+                        return d;
+                    case 2:
+                        constant = value;
+                        return d;
+                    case 3:
+                        turn = value;
+                        return d;
+                    case 4:
+                        param1 = value;
+                        return d;
+                    case 5:
+                        param2 = value;
+                        return d;
+                    case 6:
+                        adjustOne = value;
+                        return d;
+
+                }
+            }
+        }
+    return 0;
+};
+    
+    
+    
+    
 //default includes write to outFileName = name.kappa
 
 INT_TYPE readInput(struct calculation *c , struct input_label * f1, FILE * in){
@@ -1907,9 +2060,9 @@ INT_TYPE readInput(struct calculation *c , struct input_label * f1, FILE * in){
                         return state;
                     }
                 }
-       //         else if ( state == 7 ){
-            //        if (getInitialGeneral(c,input_line)) return state;
-            //    }
+                else if ( state == 7 ){
+                  if (!getTermDefinitions(c,input_line)) return state;
+                }
 //                else if ( state == 8 ){
 //                    if ( getBuildParameters(c,input_line)) return state;
 //                }

@@ -188,14 +188,14 @@ enum bootType{
 enum block{
     id0,
     //nada
-    tv1,
-    tv2,
-    tv3,
+    tv1,//1
+    tv2,//2
+    tv3,//3
     tv4,
     tv5,
-    tv6,
+    tv6,//6
     //ee interaction between label 1 and 2
-    e12,
+    e12,//7
     e13,
     e23,
     //four
@@ -225,7 +225,9 @@ enum genus{
     eikonOffDiagonal,
     eikonSemiDiagonal,
     eikonKinetic,
-    eikonConstant
+    eikonConstant,
+    eikonLinear,
+    eikonQuad
 };
 
 enum shape{
@@ -329,8 +331,8 @@ struct basisElement {
 
 struct canon {
     Stream_Type *stream ;
-    struct basisElement *basisList;
-    //vector types
+    //struct basisElement *basisList;//legacy for most purposes...
+    double lattice;
     enum basisElementType basis;
     enum componentType component;
     enum bodyType body;
@@ -380,12 +382,6 @@ enum blockMemoryType{
     blockResolveTwoBodyBlock,//12 NEED-To Add this to assign interactionDirect to Hamiltonian (Res)
     blockKineticEnergyBlock //13
 };
-
-
-
-
-
-
 
 
 
@@ -888,6 +884,20 @@ enum division{
     eigenVectors
 };
 
+struct termType {
+    struct function_label func;
+    char desc[MAXSTRING];
+    double scalar ;
+    INT_TYPE type;
+    enum block bl ;
+    INT_TYPE act;
+    double adjustOne;
+    INT_TYPE invert;//particle 1
+    INT_TYPE headFlag ;
+    INT_TYPE buffer;
+};
+
+
 //struct divisionRange {
 //    enum division begin;
 //    enum division end;
@@ -901,7 +911,7 @@ struct runTime {
 #ifdef OMP
     INT_TYPE NLanes;
     INT_TYPE NSlot;
-    double position[MaxCore][6];
+    //double position[MaxCore][6];
 #else
     INT_TYPE NLanes;
 #endif
@@ -909,17 +919,14 @@ struct runTime {
 #ifdef MKL
     INT_TYPE NParallel;
 #endif
-//    INT_TYPE samples;
-
     double maxEntropy;
     double TARGET ;
-    double ALPHA ; //condition
     double CANON ; //threshold
-    double TOL;
     double vCANON;
-    double EWALD;
-    double targetCondition;
-    double CAP;
+    double TOL;
+    double ALPHA ; //condition
+    double BETA;
+    double GAMMA;
     enum calculationType calcType;
     enum phaseType phaseType;
 };
@@ -935,6 +942,7 @@ struct space_label{
     enum block block;
     INT_TYPE mapTo;
     INT_TYPE act;
+    INT_TYPE invert;//particle 1
     //not vector types
 };
 
@@ -969,21 +977,21 @@ struct nameDispenser{
 };
 
 struct sinc_label {
-    short int chainFlag;
-    short int eikonFlag ;
+    INT_TYPE chainFlag;
+    INT_TYPE eikonFlag ;
     struct nameDispenser eikonLabels;//many 1-term oneBody SOP vectors
     struct nameDispenser nullLabels;//many 0-term nullBody SOP placeholders
     enum bootType boot;
     INT_TYPE maxEV;
     INT_TYPE irrep;
-//    INT_TYPE cat;
     INT_TYPE bootedMemory;
     struct canon rose[SPACE+1];
     struct name_label *tulip;//vectors
     enum division user;
     enum division vectorOperator;
     enum division end;
-#ifdef ERIC
+    enum division bra;
+#if 1
     enum division vMatrix;
 #endif
 #ifdef CHROME
@@ -1006,9 +1014,8 @@ struct sinc_label {
 
 
 struct input_label {
-    short int eikonFlag ;
-    short int chainFlag;
-
+    INT_TYPE eikonFlag ;
+    INT_TYPE chainFlag;
     INT_TYPE body;
     INT_TYPE irrep;
     INT_TYPE cat;
@@ -1077,12 +1084,14 @@ struct general_2index{//one dimension
 
 
 struct input {
+    
+    INT_TYPE termNumber ;
+    struct termType terms[40];//HERE//== nubmer of terms in division
     INT_TYPE minIterationPrint;
     char controlPath[MAXSTRING];
     INT_TYPE gaussCount;//currently only on origin
     double shiftVector[100][2];
     INT_TYPE flipSignFlag;
-    INT_TYPE barrier;
     double massElectron;//electron
     double massProton;//protons
     double massClampPair;//clamped second particle
