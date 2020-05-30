@@ -68,7 +68,7 @@
 //Currently under a dozen actual blocks possible, there is extra.
 #define BlockCount 16
 
-#define APPLE
+//#define APPLE
 
 #ifdef APPLE
 #define BIT_INT
