@@ -57,7 +57,7 @@ foreach com (`cat commands`)
 	
                 $LAUNCH/csh/go.csh $com
                 echo "$com" >> driver
-                sleep 3
+                sleep 1
                 echo "$com"
 
         endif

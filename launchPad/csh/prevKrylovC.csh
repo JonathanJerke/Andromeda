@@ -3,7 +3,7 @@
 if $#argv == 3 then
 set src = $1
 set dir = $2
-set prev = $src/C.riz
+set prev = $src/A.riz
 foreach i (`cat $3`)
 set file = $dir/D.kry.${i}
 echo "*Body $file" > $file

@@ -8,6 +8,7 @@ chdir $1
 mkdir found
 cp $LAUNCH/control/*found found
 cp $LAUNCH/control/stage found
+cp $LAUNCH/control/two .
 
 if ( -e ../boot ) then
 cp ../boot .

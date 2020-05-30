@@ -6,7 +6,7 @@ setenv LAUNCHER_WORKDIR `pwd`
 if (-e ppn) then
 	setenv LAUNCHER_PPN `cat ppn`
 else
-	echo "set PPN for speedup"
+	echo "set ppn for speedup"
 	setenv LAUNCHER_PPN 4
 endif
 
