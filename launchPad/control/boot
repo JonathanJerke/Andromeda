@@ -4,7 +4,7 @@
 	.InputOutput
 
 	*Parameters
-	        basisRank 6
+	        basisRank 3
                 states 10
 	.Parameters
 				
