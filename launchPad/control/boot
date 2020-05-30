@@ -4,13 +4,8 @@
 	.InputOutput
 
 	*Parameters
-		power 1	
-		matrix 24	
-		levelScale 100
-		foundation 100	
-                basisRank 24
+	        basisRank 6
                 states 10
-		iterations 9
 	.Parameters
 				
 .Body

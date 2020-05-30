@@ -1,0 +1,34 @@
+*Body print
+	*Parameters
+		body 2
+	.Parameters
+	
+*Term
+	act 1
+	interval 7
+	minBeta 0
+	maxBeta 10
+.Term
+*InputOutput
+	read ../cn1
+.InputOutput
+
+*Term
+        act 1
+        interval 7
+        minBeta 10
+        maxBeta -1
+.Term
+*InputOutput
+        read ../cn1
+	read ../ke2
+.InputOutput
+		
+	*Geometry
+		2 0 0 0
+	.Geometry
+	
+	*Parameters
+	canon 7
+	.Parameters
+.Body

@@ -1,0 +1,13 @@
+*Body
+	*Term
+		newTerm 1
+                block 1
+		kinetic
+                newTerm 1
+                block 2
+		kinetic
+                newTerm 1
+                block 3
+		kinetic
+	.Term
+.Body

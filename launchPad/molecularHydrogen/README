@@ -1,0 +1,4 @@
+start.csh neo A1
+seq 1 12 > spam
+pathFinder1.csh found `seq 1 10` 
+drive.csh

@@ -3,24 +3,28 @@
 		chain 0
 		eikon 0
 		phase 0
-		filter 1
-		matrix 200
-		switchGeometry
+		collect 0
+		canon 100
+		matrix 100
+		levelScale 100
+		foundation 100
+#		switchGeometry
 #		Sign
 		blockReset
 #	        blockMemory 1
 		blockMemory 2
-#                blockMemory 3
-#                blockMemory 5
+ #               blockMemory 3
+#	          blockMemory 5
 		blockMemory 6
 #		blockMemory 7
-#		blockMemory 8
+		blockMemory 8
 		blockMemory 9
-                blockMemory 12
+#		blockMemory 10 
+               blockMemory 12
 	.Parameters
 
 
 	*InputOutput
-		control moreLanes
+		control one
 	.InputOutput
 .Body

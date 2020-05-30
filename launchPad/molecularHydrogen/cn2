@@ -1,0 +1,31 @@
+*Body
+	*Term
+		funcType 3
+                offDiagonals 1
+                funcScalar 1
+                block 1
+                scalar 1.
+                newTerm 1
+                atom 1
+		external
+                newTerm 1
+                block 2
+                newTerm 1
+                atom 1
+                external
+                newTerm 1
+		block 1
+		atom 2
+		external 
+		newTerm 1
+		block 2
+		atom 2
+		external
+                offDiagonals 2
+		scalar -1
+                block 7
+                newTerm 1
+                interaction
+                newTerm 1
+       	.Term
+.Body

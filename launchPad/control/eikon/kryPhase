@@ -1,12 +1,12 @@
 *Body print
 	*Parameters
-		chrome 6
-		chromos 0.99
-		chroma 1
-		chromous 0.01
+		canon 200		
+		chrome 0
+		matrix 0
 		chain 1
 		eikon 1
-		switchGeometry
+		spam -1
+#		switchGeometry
 		phase 1
 	 	filter 1
 		blockReset
@@ -25,6 +25,6 @@
 
 
 	*InputOutput
-		control two
+		read two
 	.InputOutput
 .Body

@@ -1,0 +1,36 @@
+*Body print
+	*Parameters
+		body 2
+	.Parameters
+	
+*Term
+	act 1
+	interval 15
+	minBeta 0
+	maxBeta 10
+.Term
+*InputOutput
+	read ../cn3
+.InputOutput
+
+*Term
+        act 1
+        interval 15
+        minBeta 10
+        maxBeta -1
+.Term
+*InputOutput
+        read ../cn3
+	read ../ke2
+.InputOutput
+		
+	*Geometry
+		1 0 0.519615 0
+		1 0 -0.259808 0.45
+		1 0 -0.259808 -0.45
+	.Geometry
+	
+	*Parameters
+	canon 15
+	.Parameters
+.Body

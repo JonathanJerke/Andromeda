@@ -1,0 +1,7 @@
+*Body 
+	*Parameters
+		maxRAM 48
+		lanes 1
+		parallel 1
+	.Parameters
+.Body
