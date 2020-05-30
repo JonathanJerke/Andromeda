@@ -779,7 +779,7 @@ INT_TYPE iModel( struct calculation * c1, struct field *f){
             
             
            //krylov            for (term = 0; term < terms*terms; term++){
-            if ( c1->rt.phaseType == productKrylov && f->i.Iterations > 1)
+            if ( cf->i.Iterations > 1)
             for (term = 0; term < terms*terms ; term++){
                 enum division brat = anotherLabel(f1, all, nada);
                 f1->tulip[brat].Partition = maxVector;//HERE
