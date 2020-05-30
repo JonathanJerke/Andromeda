@@ -1,4 +1,7 @@
+## A1, A2, and E are the allowed 3body symmetry groups
+
 start.csh neo E
+cd neo
 seq 1 21 > spam
 pathFinder1.csh found `seq 1 10` 
 drive.csh
