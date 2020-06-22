@@ -1421,7 +1421,7 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
                 for ( ll = 0; ll < M2[dim[0]] ; ll++){
                     for ( lll = 0 ;lll < G1 ; lll++)
                         ot[lll] = originStream[dim[0]][lll][ll];
-                    cblas_dgemv(CblasColMajor, CblasNoTrans,L1,G1,1.,guide,L1,ot,1, 0., pt,1);
+                    cblas_dgemv(CblasColMajor, CblasTrans,L1,G1,1.,guide,L1,ot,1, 0., pt,1);
 
                     {
                         info = tdpotrs(L1,  1, track,LS1,  pt,LS1 );
