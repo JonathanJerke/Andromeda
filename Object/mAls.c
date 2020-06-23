@@ -1217,7 +1217,7 @@ double canonicalGridDecompositionMP( INT_TYPE rank,struct sinc_label  f1 , Strea
 //                if ( ! space )
 //                    printf("%d %u\n", n-l1, originStream[space][n-l1]-originStream[space][0]);
             }
-            while( n - ni >= f1.tulip[nIter].Current[os]&& n+1 < L1+l3){
+            while( n - ni >= f1.tulip[nIter].Current[os]&& n+1 < G1+l1){
                    ni += f1.tulip[nIter].Current[os];
                    nIter = f1.tulip[nIter].chainNext;
                    if ( nIter == nullName){
