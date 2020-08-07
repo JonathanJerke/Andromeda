@@ -1,33 +1,11 @@
 *Body print
 	*Parameters
-		#HERE
-		#HERE
-		canon 0
-		chrome 0
-		chromos 0.99
-		chroma 1
-		chromous 0.01
-		chain 1
-		eikon 1	
 		spam 0
 		phase 1
-	 	filter 0
-		iterations 1
-		decompose 3
 		blockReset 
-		blockMemory 1
-		blockMemory 2
 		blockMemory 3
 		blockMemory 4
-		blockMemory 5
-		blockMemory 6
-		blockMemory 8
-		blockMemory 10
-		blockMemory 11
-		blockMemory 12
-		blockMemory 13
-		.Parameters
-
+	.Parameters
 
 	*InputOutput
 		read two

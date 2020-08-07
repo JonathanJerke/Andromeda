@@ -1,7 +1,9 @@
 *Body 
 	*Parameters
-		attack 0.5
-		bandStage 1
-		basisStage 3	
+		canonStage 1
 	.Parameters
+
+	*Dim	
+		count1Stage 1	
+	.Dim
 .Body

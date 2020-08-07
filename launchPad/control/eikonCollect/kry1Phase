@@ -1,9 +1,9 @@
 *Body print
 	*Parameters
 		Above 0
+		iterations 2
 		shiftNO -1
 		phase 1
-		iterations 2
 		blockReset
 		blockMemory 3
 	.Parameters

@@ -1,13 +1,13 @@
 *Body print
 	*Parameters
-		lambda 0
 		spam -1
 		phase 2
-		collect 0
 		blockReset 
-		blockMemory 1
-	        blockMemory 2
-                blockMemory 3
+#		blockMemory 1
+#		blockMemory 2
+		blockMemory 3
+#		blockMemory 4
+#		blockMemory 5
 	.Parameters
 
 

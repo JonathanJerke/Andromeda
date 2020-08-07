@@ -1,13 +1,12 @@
 *Body print
 	*Parameters
-		Above 0
-		shiftNO -1
+		collect 0
+		spam 0
 		phase 1
-		iterations 2
-		blockReset
+		blockReset 
 		blockMemory 3
+		blockMemory 4
 	.Parameters
-
 
 	*InputOutput
 		read two

@@ -1,29 +1,11 @@
 *Body print
 	*Parameters
-		matrix 0 
-		chrome 0
-		canon 0
-		chain 1
-		eikon 1
-#		switchGeometry
+		lambda 0
 		spam -1
-		iterations 1
 		phase 1
-	 	filter 1
-		decompose 3
 		blockReset 
-		blockMemory 1
-		blockMemory 2
 		blockMemory 3
-		blockMemory 4
-		blockMemory 5
-		blockMemory 6
-		blockMemory 8
-		blockMemory 10
-		blockMemory 11
-		blockMemory 12
-		blockMemory 13
-		.Parameters
+	.Parameters
 
 
 	*InputOutput

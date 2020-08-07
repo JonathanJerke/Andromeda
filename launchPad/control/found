@@ -1,12 +1,9 @@
 *Body found/found
 	*InputOutput
-		path eikon
-		control core
 		read ../cnfg
-		read boot
 		read symmetry
+		control core
 		control foundPhase
-		control moreLanes
-		print 1
+		read two
 	.InputOutput
 .Body

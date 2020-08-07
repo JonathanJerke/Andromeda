@@ -1,6 +1,5 @@
 *Body 
 	*Parameters
-		maxRAM 4
 		lanes 1
 		parallel 1
 	.Parameters

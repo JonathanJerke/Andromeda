@@ -1,10 +1,8 @@
 *Body print
 	*Parameters
-		Above 0
-		shiftNO -1
+		spam -1
 		phase 1
-		iterations 2
-		blockReset
+		blockReset 
 		blockMemory 3
 	.Parameters
 
