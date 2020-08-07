@@ -1,10 +1,10 @@
-/*
+/**
  *  Model.h
  *
  *
  *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
- *  the Robert A. Welch Foundation, and Army Research Office.
+ *  the Robert A. Welch Foundation, and the Army Research Office.
  *
  
  *   *   This file is part of Andromeda.
@@ -33,13 +33,8 @@
 #include "mAls.h"
 #include "coreForce.h"
 
-INT_TYPE definePurity(struct sinc_label *f1, INT_TYPE R,INT_TYPE can, enum division head);
-struct calculation initCal (void);
-struct calculation gas (void );
-INT_TYPE iModel( struct calculation * c1, struct field *f1);
-INT_TYPE fModel( struct sinc_label *f1);
-void resetExternal(struct calculation * i, INT_TYPE number, double scale );
-struct field initField (void );
-INT_TYPE singleSincModel( struct calculation * c1, struct field *f);
-INT_TYPE multModel( struct calculation * c1,INT_TYPE nv, struct field * v,struct field *f);
+calculation initCal (void);
+inta iModel(  calculation * c1,  field *f1);
+inta fModel(  sinc_label *f1);
+field initField (void );
 #endif /* Model_h */

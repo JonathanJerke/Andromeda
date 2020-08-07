@@ -1,10 +1,10 @@
-/*
+/**
  *  coreUtil.h
  *
  *
  *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
- *  the Robert A. Welch Foundation, and Army Research Office.
+ *  the Robert A. Welch Foundation, and the Army Research Office.
  *
  
  *   *   This file is part of Andromeda.
@@ -25,107 +25,99 @@
 
 #ifndef coreUtil_h
 #define coreUtil_h
+
 #include "constants.h"
 #include "coreMath.h"
 #include "coreForce.h"
 #include "ioPrint.h"
-double lattice ( struct input * f1, INT_TYPE space );
-INT_TYPE vector1Len(struct sinc_label f1, INT_TYPE space);
-void length1(struct sinc_label f1, INT_TYPE *len);
-INT_TYPE spaces( struct sinc_label  f1, enum division label);
-enum division name ( struct sinc_label   f1, enum division label);
-INT_TYPE pPart ( struct sinc_label *f1 , enum division label );
+inta vector1Len(  sinc_label f1, inta space);
+void length1(  sinc_label f1, inta *len);
+division name (   sinc_label   f1,   division label);
+inta part (   sinc_label f1 ,   division label );
+inta species (   sinc_label  f1 ,   division label );
+bodyType bodies (   sinc_label  f1 ,   division label);
+bodyType Bodies (   sinc_label  f1 ,   division label,inta space);
+inta header (   sinc_label f1 ,   division label );
+inta sizeofDivision(  sinc_label f1,   division head, inta space );
+inta vectorLen(  sinc_label f1, inta space);
+inta matrixLen(  sinc_label f1,   bodyType body,inta space);
+inta length (   sinc_label  f1 ,   division label, inta *lens );
+void assignParticle(  sinc_label  f1,   division ma, inta label ,   bodyType ba );
+void assignOneWithPointers(   sinc_label f1,   division oneMat, inta label );
+void assignTwoWithPointers(   sinc_label f1,   division twoMat );
+inta outerVectorLen(  sinc_label f1,   bodyType bd, inta space);
+inta alloc (   sinc_label  f1 ,   division label,inta space );
+inta pZero (   sinc_label  *f1 ,   division label, inta spin );
+inta zero (   sinc_label  f1 ,   division label, inta spin );
+inta myZero (   sinc_label  f1 ,   division label, inta spin );
+double tTrace(   sinc_label f1 ,   division label );
+inta pClear (   sinc_label * f1 ,   division label );
+inta tClear (   sinc_label  f1 ,   division label );
+inta CanonicalRank(   sinc_label  f1 ,   division label , inta spin );
+inta CanonicalOperator(   sinc_label f1,   division label, inta spin );
+inta spins (   sinc_label  f1 ,   division label );
+inta tReplace(   sinc_label f1 ,   division label,inta spin,inta space,inta l );
+void  fromBeginning(   sinc_label  f1 ,  division new,   division head );
+inta sumTo2(  sinc_label f1,double scalar, inta space,   blockType bl,   division mat,inta ms,   division sum,inta spin);
+inta sumTo3(  sinc_label f1,double scalar, inta space,   blockType bl,   division mat,inta ms,   division sum,inta spin);
+inta sumTo4(  sinc_label f1,double scalar, inta space,   blockType bl,   division mat,inta ms,   division sum,inta spin);
+floata* myStreams (   sinc_label f1,   division label ,inta spin );
+floata* pMyStreams (   sinc_label *f1,   division label ,inta spin );
+floata* streams (   sinc_label f1,   division label ,inta spin, inta space );
+floata* pStreams (   sinc_label *f1,   division label ,inta spin, inta space );
+inta diagonalOp(  bodyType bd,  inta act,   blockType op,   blockType bl, inta N1,floata * vector, floata * toep, floata* vectorOut);
+  division anotherLabel(  sinc_label *f1,   inta particle,  bodyType body);
+void assignSplit(   sinc_label f1,   division twoMat ,inta len,   division oneMat,   division bufcp );
+inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType tv,   blockType bl,  inta N1,floata * vector , inta pw, floata * vectorOut);
+void assignView(inta lane,   sinc_label  f1,   division A,inta part );
+void assignViewBlock(inta lane,   sinc_label  f1,    division A );
+  division ocean(inta lane,   sinc_label f1,  inta l, inta spin);
+double tEqua (   sinc_label f1 ,   division targ ,inta tspin,   division orig,inta ospin );
+inta pScaleOne(   sinc_label *f1,   division label,inta spin, double scalar );
+inta tScaleOne(   sinc_label  f1,   division label,inta spin, double scalar );
+inta tScale(   sinc_label  f1,   division label, DCOMPLEX scalar );
+inta tAddTw(   sinc_label f1 ,   division left, inta lspin,   division right , inta rspin);
+inta tEquals(   sinc_label  f1 ,   division left ,   division right);
+inta tAddTwo(   sinc_label f1 ,   division left ,   division right);
+inta tSumMatrices(  sinc_label f1,   division sum ,inta spin,   division mat  );
+inta tPartialSumMatrices(  sinc_label f1,   division sum ,   division mat ,inta tGetType );
+inta tAlt(  sinc_label  f1 ,   division label, inta spin , inta space1,   bodyType body);
+inta tEnd(  sinc_label f1 ,   division label, inta spin , inta space1,   bodyType body);
+inta tPauli (   sinc_label f1  );
+inta tId (   sinc_label f1 ,   division label,inta spin );
+inta pBoot (   sinc_label *f1 ,   division label,inta spin );
+inta tBoot (   sinc_label f1 ,   division label,inta spin );
+double vectorElement (  sinc_label f1,   division state, inta l1,inta l2 , inta l3 );
+double matrixElement (  sinc_label  f1,   division label, inta i , inta i2, inta j,inta j2, inta k , inta k2 );
+inta assignCores(  sinc_label  f1, inta parallel );
+inta defineCores(  calculation * c,   field * f);
+inta Rank(   sinc_label  f1 ,   division label );
+double volume (   input * f1 );
+inta xAddTw(   sinc_label f1 ,   division left, inta lspin,  sinc_label f2 ,    division right , inta rspin);
+void xsAdd (double scalar ,  inta dim ,  sinc_label  f1 ,   division targ ,inta tspin,  sinc_label  f2 ,   division orig,inta o,inta ospin );
+void xsEqu (double scalar ,  inta dim ,  sinc_label  f1 ,   division targ ,inta t,inta tspin,inta dim2,  sinc_label  f2 ,   division orig,inta o,inta ospin );
+inta ready (   sinc_label f1 );
+inta bootedQ (   sinc_label f1);
+double traceOne(   sinc_label  f1 ,   division label , inta spin );
 
-INT_TYPE part ( struct sinc_label f1 , enum division label );
-INT_TYPE species ( struct sinc_label  f1 , enum division label );
-enum bodyType bodies ( struct sinc_label  f1 , enum division label);
-enum bodyType Bodies ( struct sinc_label  f1 , enum division label,INT_TYPE space);
-enum particleType particle ( struct sinc_label  f1 , enum division label ,INT_TYPE space);
-INT_TYPE header ( struct sinc_label f1 , enum division label );
-INT_TYPE sizeofDivision(struct sinc_label f1, enum division head, INT_TYPE space );
-INT_TYPE vectorLen(struct sinc_label f1, INT_TYPE space);
-INT_TYPE pVectorLen(struct sinc_label *f1, INT_TYPE space);
+division defSpiralVector(   sinc_label *f1, inta term,   division ket);
+division defSpiralMatrix(   sinc_label *f1,   division H);
+division defSpiralGrid(   sinc_label *f1,   division bra, inta term, double diagonalPreference);
+division defRefVector(   sinc_label *f1, inta spiralOp,   division ket);
+inta zeroSpiraly(   sinc_label f1,   division spiral);
+double xEqua (   sinc_label  f1 ,   division targ ,inta tspin,  sinc_label  f2 ,   division orig,inta ospin );
+double xOneBand (  sinc_label f1,inta space,   division vector1 ,inta s1,   sinc_label  f2,   division out,inta s2, inta periodic);
+double xTwoBand (  sinc_label f1,inta space,   division vector1 ,inta s1,   sinc_label  f2,   division out,inta s2, inta periodic);
+double xThreeBand (  sinc_label f1,inta space,   division vector1 ,inta s1,   sinc_label  f2,   division out,inta s2, inta periodic);
+double xFourBand (  sinc_label f1,inta space,   division vector1 ,inta s1,   sinc_label  f2,   division out,inta s2, inta periodic);
+  basisElement_label grabBasis (  sinc_label  f1, inta space, inta particle, inta elementIndex);
+  basisElement_label transformBasis( inta flip,double scale,   basisElement_label ba );
+inta  countLinesFromFile(   calculation *c1,  field f1,inta location, inta * ir,inta *ix);
+inta defineTerms(  calculation * c,   sinc_label *f1,   division head, inta memory);
+inta InvertOp(  bodyType bd,inta invert, inta N1,floata * vector, floata* vectorOut);
+inta balance (  sinc_label f1,    division alloy, inta spin);
 
-INT_TYPE matrixLen(struct sinc_label f1, enum bodyType body,INT_TYPE space);
-INT_TYPE length ( struct sinc_label  f1 , enum division label, INT_TYPE *lens );
-void assignParticle(struct sinc_label  f1, enum division ma, enum particleType pa , enum bodyType ba );
-void assignOneWithPointers( struct sinc_label f1, enum division oneMat, enum particleType particle );
-void assignTwoWithPointers( struct sinc_label f1, enum division twoMat );
-INT_TYPE outerVectorLen(struct sinc_label f1, enum bodyType bd, INT_TYPE space);
-INT_TYPE alloc ( struct sinc_label  f1 , enum division label,INT_TYPE space );
-INT_TYPE pZero ( struct sinc_label  *f1 , enum division label, INT_TYPE spin );
-INT_TYPE zero ( struct sinc_label  f1 , enum division label, INT_TYPE spin );
-INT_TYPE myZero ( struct sinc_label  f1 , enum division label, INT_TYPE spin );
-double tTrace( struct sinc_label f1 , enum division label );
-INT_TYPE pClear ( struct sinc_label * f1 , enum division label );
-
-INT_TYPE tClear ( struct sinc_label  f1 , enum division label );
-INT_TYPE CanonicalRank( struct sinc_label  f1 , enum division label , INT_TYPE spin );
-INT_TYPE CanonicalOperator( struct sinc_label f1, enum division label, INT_TYPE spin );
-INT_TYPE spins ( struct sinc_label  f1 , enum division label );
-double sumSquare (struct sinc_label  f1,  enum division alloy);
-INT_TYPE tReplace( struct sinc_label f1 , enum division label,INT_TYPE spin,INT_TYPE space,INT_TYPE l );
-void  fromBeginning( struct sinc_label  f1 ,enum division new, enum division head );
-
-Stream_Type* myStreams ( struct sinc_label f1, enum division label ,INT_TYPE spin );
-Stream_Type* pMyStreams ( struct sinc_label *f1, enum division label ,INT_TYPE spin );
-Stream_Type* streams ( struct sinc_label f1, enum division label ,INT_TYPE spin, INT_TYPE space );
-Stream_Type* pStreams ( struct sinc_label *f1, enum division label ,INT_TYPE spin, INT_TYPE space );
-INT_TYPE diagonalOp(enum bodyType bd,  INT_TYPE act, enum block op, enum block bl, INT_TYPE N1,Stream_Type * vector, Stream_Type * toep, Stream_Type* vectorOut);
-enum division anotherLabel(struct sinc_label *f1, enum particleType particle,enum bodyType body);
-void assignSplit( struct sinc_label f1, enum division twoMat ,INT_TYPE len, enum division oneMat, enum division bufcp );
-INT_TYPE topezOp(enum bodyType bd,INT_TYPE act, enum block tv, enum block bl,  INT_TYPE N1,Stream_Type * vector , INT_TYPE pw, Stream_Type * vectorOut);
-double levelDetermine ( INT_TYPE M1 , double * array ,double level);
-void assignView(INT_TYPE lane, struct sinc_label  f1, enum division A,INT_TYPE part );
-void assignViewBlock(INT_TYPE lane, struct sinc_label  f1,  enum division A );
-enum division ocean(INT_TYPE lane, struct sinc_label f1,  INT_TYPE l, INT_TYPE spin);
-double tEqua ( struct sinc_label f1 , enum division targ ,INT_TYPE tspin, enum division orig,INT_TYPE ospin );
-INT_TYPE pScaleOne( struct sinc_label *f1, enum division label,INT_TYPE spin, double scalar );
-INT_TYPE tScaleOne( struct sinc_label  f1, enum division label,INT_TYPE spin, double scalar );
-INT_TYPE tScale( struct sinc_label  f1, enum division label, DCOMPLEX scalar );
-INT_TYPE tAddTw( struct sinc_label f1 , enum division left, INT_TYPE lspin, enum division right , INT_TYPE rspin);
-INT_TYPE tEquals( struct sinc_label  f1 , enum division left , enum division right);
-INT_TYPE tAddTwo( struct sinc_label f1 , enum division left , enum division right);
-INT_TYPE tSumMatrices(struct sinc_label f1, enum division sum ,INT_TYPE spin, enum division mat  );
-INT_TYPE tPartialSumMatrices(struct sinc_label f1, enum division sum , enum division mat ,INT_TYPE tGetType );
-INT_TYPE tAlt(struct sinc_label  f1 , enum division label, INT_TYPE spin , INT_TYPE space1);
-INT_TYPE tEnd(struct sinc_label f1 , enum division label, INT_TYPE spin , INT_TYPE space1);
-INT_TYPE tPauli ( struct sinc_label f1  );
-INT_TYPE tId ( struct sinc_label f1 , enum division label,INT_TYPE spin );
-INT_TYPE pBoot ( struct sinc_label *f1 , enum division label,INT_TYPE spin );
-INT_TYPE tBoot ( struct sinc_label f1 , enum division label,INT_TYPE spin );
-double vectorElement (struct sinc_label f1, enum division state, INT_TYPE l1,INT_TYPE l2 , INT_TYPE l3 );
-double matrixElement (struct sinc_label  f1, enum division label, INT_TYPE i , INT_TYPE i2, INT_TYPE j,INT_TYPE j2, INT_TYPE k , INT_TYPE k2 );
-void vectorArray (struct sinc_label f1, enum division oneVector, enum division array,INT_TYPE M1);
-void pVectorArray (struct sinc_label *f1, enum division oneVector, enum division array,INT_TYPE M1);
-void pNuclearArray (struct input c, struct field *f1,  enum division array,INT_TYPE M1);
-
-void nuclearArray (struct input c, struct field f1,  enum division array,INT_TYPE M1);
-INT_TYPE assignCores(struct sinc_label  f1, INT_TYPE parallel );
-INT_TYPE defineCores(struct calculation * c, struct field * f);
-INT_TYPE Rank( struct sinc_label  f1 , enum division label );
-double volume ( struct input * f1 );
-INT_TYPE xAddTw( struct sinc_label f1 , enum division left, INT_TYPE lspin,struct sinc_label f2 ,  enum division right , INT_TYPE rspin);
-void xsAdd (double scalar ,  INT_TYPE dim ,struct sinc_label  f1 , enum division targ ,INT_TYPE tspin,struct sinc_label  f2 , enum division orig,INT_TYPE o,INT_TYPE ospin );
-void xsEqu (double scalar ,  INT_TYPE dim ,struct sinc_label  f1 , enum division targ ,INT_TYPE t,INT_TYPE tspin,INT_TYPE dim2,struct sinc_label  f2 , enum division orig,INT_TYPE o,INT_TYPE ospin );
-enum division defSpiralVector( struct sinc_label *f1, INT_TYPE term, enum division ket);
-enum division defSpiralMatrix( struct sinc_label *f1, enum division H);
-enum division defSpiralGrid( struct sinc_label *f1, enum division bra, INT_TYPE term, double diagonalPreference);
-enum division defRefVector( struct sinc_label *f1, INT_TYPE spiralOp, enum division ket);
-INT_TYPE zeroSpiraly( struct sinc_label f1, enum division spiral);
-double xEqua ( struct sinc_label  f1 , enum division targ ,INT_TYPE tspin,struct sinc_label  f2 , enum division orig,INT_TYPE ospin );
-double xTwoBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struct sinc_label  f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
-double xThreeBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struct sinc_label  f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
-double xFourBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struct sinc_label  f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
-double xOneBand (struct sinc_label f1, enum division vector1 ,INT_TYPE s1, struct sinc_label  f2, enum division out,INT_TYPE s2, INT_TYPE periodic);
-void printVectorAllocations(struct sinc_label f1);
-struct basisElement grabBasis (struct sinc_label  f1, INT_TYPE space, INT_TYPE particle, INT_TYPE elementIndex);
-struct basisElement defineSincBasis (enum noteType note, enum componentType space, enum basisElementType basis, double lattice , double origin, INT_TYPE count1, INT_TYPE elementIndex );
-struct basisElement defineGaussBasis (enum noteType note, enum componentType space, enum basisElementType basis, double lattice , double origin, INT_TYPE count1, INT_TYPE elementIndex );
-struct basisElement defineSpinorBasis (enum noteType note, enum componentType space,INT_TYPE total, INT_TYPE elementIndex );
-struct basisElement transformBasis( INT_TYPE flip,double scale, struct basisElement ba );
-INT_TYPE  countLinesFromFile( struct calculation *c1,struct field f1,INT_TYPE location, INT_TYPE * ir,INT_TYPE *ix);
-INT_TYPE completeInverse (INT_TYPE rank, struct sinc_label  f1, INT_TYPE dim,enum division vector,INT_TYPE v,INT_TYPE spin, enum division ov , INT_TYPE v2,INT_TYPE sp2);
-INT_TYPE defineTerms(struct calculation * c, struct sinc_label *f1, enum division head, INT_TYPE memory);
-INT_TYPE InvertOp(enum bodyType bd,INT_TYPE invert, INT_TYPE N1,Stream_Type * vector, Stream_Type* vectorOut);
+void linkDetails(  sinc_label f1,   division linkHeader);
+void chainDetails(  sinc_label f1,   division chainHeader);
+void loopDetails(  sinc_label f1,   division loopHeader);
 #endif /* coreUtil_h */

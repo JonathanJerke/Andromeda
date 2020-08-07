@@ -1,10 +1,10 @@
-/*
+/**
  *  ioPrint.h
  *
  *
  *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
- *  the Robert A. Welch Foundation, and Army Research Office.
+ *  the Robert A. Welch Foundation, and the Army Research Office.
  *
  
  *   *   This file is part of Andromeda.
@@ -25,37 +25,24 @@
 
 #ifndef ioPrint_h
 #define ioPrint_h
-#include <unistd.h>
 #include "mAls.h"
 #include"input.h"
 #include"Model.h"
-struct fieldArray {
-    struct field * f1;
-    double radius[MaxCore];
-    double displacement[MaxCore][SPACE];
-    INT_TYPE class;
-    INT_TYPE number;
-};
-INT_TYPE print(struct calculation *c,struct field f1, INT_TYPE reset,INT_TYPE mv,INT_TYPE lv,enum division eigenVectors );
-INT_TYPE printVector (struct calculation *c,struct sinc_label f1,char * name,char * vectorName,INT_TYPE iv, INT_TYPE irrep, DCOMPLEX * vector);
+
+void tFilename (char * cycleName, inta count, inta body ,inta IRREP, inta cmpl, char * filename);
+inta print(  calculation *c,  field f1, inta reset,inta mv,inta lv,  division eigenVectors );
+inta printVector (  calculation *c,  sinc_label f1,char * name,char * vectorName,inta iv, inta irrep, mea * vector);
 double evaluateDensityBracket( double x [], size_t dim , void * params );
 double evaluateVectorBracket( double x [], size_t dim , void * params );
-INT_TYPE tSymmetryClass (char * cycleName, char * read , char * filename,INT_TYPE cmplFlag, INT_TYPE cmpl);
+inta tSymmetryClass (char * cycleName, char * read , char * filename,inta cmplFlag, inta cmpl);
 void tFromReadToToken (char * read , char * token);
-void pOutputFormat(struct sinc_label   *f1, FILE * out, enum division output ,INT_TYPE spin);
-
-void outputFormat(struct sinc_label   f1, FILE * out, enum division output ,INT_TYPE spin);
-INT_TYPE inputFormat(struct sinc_label f1,char * name,  enum division buffer, INT_TYPE input);
-double tComputeRadialPlot(struct sinc_label f1, INT_TYPE number, INT_TYPE class,  double radius,INT_TYPE numC );
-double tComputeVectorPlot(struct sinc_label f1,INT_TYPE number,  INT_TYPE class,  double *displacement,INT_TYPE numC );
-INT_TYPE ioStoreMatrix(struct sinc_label f1, enum division op, INT_TYPE spin, char * filename, INT_TYPE ioIn );
-INT_TYPE printOutput ( struct sinc_label f1,INT_TYPE number);
-INT_TYPE printVectorOutput ( struct sinc_label f1,INT_TYPE number);
-INT_TYPE printFaceOutput ( struct sinc_label f1,INT_TYPE number);
-
-INT_TYPE tLoadEigenWeights ( struct calculation * c1,struct field f1, char * filename ,INT_TYPE *ct, enum division input, INT_TYPE collect);
-INT_TYPE ioStoreMatrixScale(struct field *f, enum division op, INT_TYPE spin, char * filename, INT_TYPE ioIn );
-void tFilename (char * cycleName, INT_TYPE count, INT_TYPE body ,INT_TYPE IRREP, INT_TYPE cmpl, char * filename);
-DCOMPLEX tFromReadToFilename (char * cycleName, char * read , char * filename,INT_TYPE cmplFlag, INT_TYPE cmpl,char * title,INT_TYPE *number);
-
+void outputFormat(  sinc_label   f1, FILE * out,   division output ,inta spin);
+inta inputFormat(  sinc_label f1,char * name,    division buffer, inta input);
+inta printOutput (   sinc_label f1,inta number);
+inta printVectorOutput (   sinc_label f1,inta number);
+inta printFaceOutput (   sinc_label f1,inta number);
+inta ioArray(  calculation *c1,   field f,char * name,inta N1, floata * matrix, inta ioIn);
+inta tLoadEigenWeights (   calculation * c1,  field f1, char * filename ,inta *ct,   division input, inta collect);
+void tFilename (char * cycleName, inta count, inta body ,inta IRREP, inta cmpl, char * filename);
+mea tFromReadToFilename (char * cycleName, char * read , char * filename,inta cmplFlag, inta cmpl,char * title,inta *number);
 #endif /* ioPrint_h */

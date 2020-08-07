@@ -1,10 +1,10 @@
-/*
+/**
  *  system.h
  *
  *
  *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
- *  the Robert A. Welch Foundation, and Army Research Office.
+ *  the Robert A. Welch Foundation, and the Army Research Office.
  *
  
  *   *   This file is part of Andromeda.
@@ -23,98 +23,74 @@
  *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-//HERE LIES THE external CODE level changes!
+/**
+ *Andromeda: a few-body plane wave calculator
+ *
+ *v9.0
+ *quantumGalaxies.org
+ *
+ *Jonathan Jerke
+ *Bill Poirier
+ *
+ *Texas Tech University
+*/
 
 #ifndef system_h
 #define system_h
-
-
-
-//GAS 0 for SINC
-#define GAS 0
-//GAS 1 for CEG
-//#define GAS 1
-//else GAS -1 for simplicity
-
-//#define SPINOR
-
-
-//NOVEL
-#define EIKON
-#define MAXNAMES 1000
-//NOVEL
-
-
-#define NBODY
-//#define GAUSSIANSINC
-//#define BUFFERSOLVE
-#define CHROME
-//#define BOOTIDENTITY
-
-#ifdef SPINOR
-#define COMPONENT 1
-#define PARTICLE 2
-#define ELEC 1
-#define SPACE (PARTICLE + ELEC)
-#else
-#define COMPONENT 3
-#define PARTICLE 1
-#define SPACE (COMPONENT * PARTICLE)
-#endif
-#define MAXATOM 4
-
-
-//Currently under a dozen actual blocks possible, there is extra.
-#define BlockCount 16
-
+#define ASTER_FLAT
+///to compile with acceleration in APPLE, not for distribution
 //#define APPLE
+///Number of components, no limit
+#define SPACE 12
+///Number of 'atoms' under geometry,  really no reason to to keep this big
+#define MAXATOM 16
+///All internal numbers are in au, including Hartrees.
+///input in Angstroms unless 'Angstroms 0' set
+#define a0  0.52917721
+///natural
+#define pi  3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679
+///Standard Position of identity group action
+#define CDT 1
+///switch
+#define VERBOSE 0
+///Maximum number of input terms at prompt, at minor cost to increase
+#define MAXTERM 1000
+///Maximum bodies per component currently supported
+#define MAXBODY 3
+///Switch to make stuff complex at compiler level,not working yet
+//#define COMPLEXME
+///really just vistidual, but some places still use it
+#define COMPONENT 3
+///basically overwritten, will remove
+#define MAX_PARAM_FUNC 4
+///The block-memory commands act to negate memory allocations,  this is the maximum number of blocks.  Leave this alone, unless you add blocks.
+#define BLOCK_COUNT 6
 
 #ifdef APPLE
-#define BIT_INT
-#define MAXSTRING 1
-#define SUPERMAXSTRING 10
-#define MAXFILE 1
-//APPLE
-#define MaxCore 4
-//APPLE
+    #define SPHERE
+    #define BIT_INT
+    #define MAXSTRING 1
+    #define SUPERMAXSTRING 10
+    #define MAX_FILE 1
+    #define MAX_CORE 2
+#else
+///for including omp.h
+    #define OMP
+///intel MKL
+    #define MKL
+
+///Probably too much, but dont care,
+    #define MAXSTRING 1024
+///Probably too much, but dont care,
+    #define SUPERMAXSTRING 2048
+///Maximum number of .mac files that are loadable,  (not vectors, ---> files of .vector)
+    #define MAX_FILE 10000
+///Maybe necessary for integrating momentums in GaussianSinc-basis--otherwise, not used.
+//#define GSL_LIB
+///Set true if you want to use GSL cblas
+//#define GSL_CBLAS
+///Normal super computer size, could be more or less,
+    #define MAX_CORE 72
 #endif
-
-
-
-
-
-#ifndef APPLE
-//NOT APPLE!!
-#define MAXSTRING 1024
-#define SUPERMAXSTRING 2048
-#define MAXFILE 100
-#define OMP
-//SELECT BIT-length
-//int:
-#define BIT_INT
-//long int: BROKEN        #define BIT_LONG
-//long long int:    #define MKL
-
-//USE libgslcblas else use libblas
-#define GSL_CBLAS
-
-
-
-//NEEDED
-#define GSL_LIB
-
-//UNIX
-#define MaxCore 4
-//UNIX
-#ifndef GSL_LIB
-    THIS PROGRAM NEEDS INTEGRATION ROUTINES
-#endif
-
-
-//NOT APPLE!!
-#endif
-
-
 
 #endif /* system_h */

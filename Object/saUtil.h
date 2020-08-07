@@ -1,10 +1,10 @@
-/*
+/**
  *  saUtil.h
  *
  *
  *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
- *  the Robert A. Welch Foundation, and Army Research Office.
+ *  the Robert A. Welch Foundation, and the Army Research Office.
  *
  
  *   *   This file is part of Andromeda.
@@ -37,44 +37,30 @@
 #define sr3 0.5773502691896257645
 #define sr2 0.7071067811865475244
 
-enum grp {
-    nullGroup,
-    A1,
-    A2,
-    EE,
-    T1,
-    T2
-};
-
-void testSAAgain ( struct sinc_label f1 , enum division vector );
-INT_TYPE tPerms(enum bodyType bd);
-void tTestSA (enum bodyType bd, INT_TYPE n);
-INT_TYPE tSize(enum bodyType bd);
-INT_TYPE tPaths(enum bodyType bd , INT_TYPE irrep );
-INT_TYPE nEqua(enum bodyType bd, INT_TYPE *a );
-void tIntr ( enum bodyType bd , INT_TYPE eq , double * a);
-INT_TYPE tInnerTest( struct sinc_label f1, enum division A ,enum division B);
-double deg(struct sinc_label , INT_TYPE cl );
-INT_TYPE tSA (enum bodyType bd, INT_TYPE X, INT_TYPE Y, INT_TYPE Z, INT_TYPE T );
-double tGetProjection( enum bodyType bd, INT_TYPE type , INT_TYPE perm );
-double tGetVector(enum bodyType bd , INT_TYPE type , INT_TYPE perm );
-INT_TYPE tClassifyComponents( struct sinc_label  , double * up, double * entropy );
-INT_TYPE tClassify(INT_TYPE rank, struct sinc_label  , enum division label);
-INT_TYPE tBuildIrr ( INT_TYPE rank, struct sinc_label , INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin);
-INT_TYPE matrixAction ( enum bodyType bd,INT_TYPE act, enum block bk, INT_TYPE direction);
-INT_TYPE tPermuteOne(INT_TYPE rank, struct sinc_label , INT_TYPE dim, INT_TYPE leftChar , enum division left, INT_TYPE l, INT_TYPE lspin, enum division equals,INT_TYPE e, INT_TYPE espin);
-INT_TYPE tCat3(enum bodyType bd ,  INT_TYPE irrep,INT_TYPE cat, INT_TYPE space);
-INT_TYPE tBuild3IrrOne ( INT_TYPE rank, struct sinc_label  f1,INT_TYPE space, INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin);
-INT_TYPE tBuild3Irr ( INT_TYPE rank, struct sinc_label  f1, INT_TYPE meta , enum division origin, INT_TYPE ospin, enum division targ , INT_TYPE tspin);
-INT_TYPE tPermute(INT_TYPE rank, struct sinc_label , INT_TYPE leftChar , enum division left, INT_TYPE lspin, enum division equals, INT_TYPE espin);
-INT_TYPE tAllCompPermMultiplyMP( INT_TYPE rank, struct sinc_label  f1 , enum division left ,INT_TYPE lspin, enum division right ,INT_TYPE rspin, double * sequ);
-enum bodyType commandSA(enum bodyType bd, INT_TYPE act, enum block cl, enum block bl,INT_TYPE perm[], INT_TYPE op[]);
-INT_TYPE tAddUpComponents( INT_TYPE rank, struct sinc_label  f1 , enum division left , enum division right ,  double *up);
-INT_TYPE tTabulateInnerProjection( INT_TYPE rank, struct sinc_label  f1 , enum division vec, double *up);
-double tTestInner ( enum bodyType bd, INT_TYPE i , INT_TYPE j );
-INT_TYPE tTest ( enum bodyType bd );
-INT_TYPE tSizeUp(INT_TYPE rank, struct sinc_label  f1 , INT_TYPE type, enum division label);
-INT_TYPE testSA ( struct sinc_label f1 , enum division vector );
-INT_TYPE irreps ( enum bodyType bd, INT_TYPE type );
-INT_TYPE mapir(enum bodyType bd , INT_TYPE class );
+void testSAAgain (   sinc_label f1 ,   division vector );
+inta tPerms(  bodyType bd);
+void tTestSA (  bodyType bd, inta n);
+inta tSize(  bodyType bd);
+inta tPaths(  bodyType bd , inta irrep );
+inta nEqua(  bodyType bd, inta *a );
+void tIntr (   bodyType bd , inta eq , double * a);
+inta tInnerTest(   sinc_label f1,   division A ,  division B);
+inta tSA (  bodyType bd, inta X, inta Y, inta Z, inta T );
+double tGetProjection(   bodyType bd, inta type , inta perm );
+double tGetVector(  bodyType bd , inta type , inta perm );
+inta tClassifyComponents(   sinc_label  , double * up, double * entropy );
+inta tClassify(inta rank,   sinc_label  ,   division label);
+inta tBuildIrr ( inta rank,   sinc_label , inta meta ,   division origin, inta ospin,   division targ , inta tspin);
+inta tPermuteOne(inta rank,   sinc_label , inta dim, inta leftChar ,   division left, inta l, inta lspin,   division equals,inta e, inta espin);
+inta tPermute(inta rank,   sinc_label , inta leftChar ,   division left, inta lspin,   division equals, inta espin);
+inta tAllCompPermMultiplyMP( inta rank,   sinc_label  f1 ,   division left ,inta lspin,   division right ,inta rspin, double * sequ);
+  bodyType commandSA(  bodyType bd, inta act,   blockType cl,   blockType bl,inta perm[], inta op[]);
+inta tAddUpComponents( inta rank,   sinc_label  f1 ,   division left ,   division right ,  double *up);
+inta tTabulateInnerProjection( inta rank,   sinc_label  f1 ,   division vec, double *up);
+double tTestInner (   bodyType bd, inta i , inta j );
+inta tTest (   bodyType bd );
+inta tSizeUp(inta rank,   sinc_label  f1 , inta type,   division label);
+inta testSA (   sinc_label f1 ,   division vector );
+inta irreps (   bodyType bd, inta type );
+inta mapir(  bodyType bd , inta class );
 #endif /* saUtil_h */

@@ -1,10 +1,10 @@
-/*
+/**
  *  coreMath.h
  *
  *
  *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
- *  the Robert A. Welch Foundation, and Army Research Office.
+ *  the Robert A. Welch Foundation, and the Army Research Office.
  *
  
  *   *   This file is part of Andromeda.
@@ -28,22 +28,16 @@
 #include "constants.h"
 #include "coreUtil.h"
 #include "interfaceMath.h"
-#include "Faddeeva.h"
-double Power ( double b, INT_TYPE n );
 
+
+double Power ( double b, inta n );
 extern double complex Faddeeva_erfcx(double complex z, double relerr);
 DCOMPLEX expErf ( DCOMPLEX z );
-double momentumIntegralInTrain ( double beta, double kl , double d,enum genus hidden, enum bodyType body );
-double cube ( double arg );
-double delta ( INT_TYPE n );
-INT_TYPE sign( INT_TYPE n );
-INT_TYPE imax( INT_TYPE x1, INT_TYPE x2 );
-INT_TYPE imin( INT_TYPE x1, INT_TYPE x2 );
+double momentumIntegralInTrain ( double beta, double kl , double d,  genusType hidden,   bodyType body );
+double delta ( inta n );
+inta sign( inta n );
+inta imax( inta x1, inta x2 );
+inta imin( inta x1, inta x2 );
 double max( double x1, double x2 );
 double min( double x1, double x2 );
-INT_TYPE maxZ( struct input * f1 );
-INT_TYPE sumZ( struct input * f1 );
-DCOMPLEX hyperGeometric (double gamma, INT_TYPE lambda, double delta);
-DCOMPLEX periodicBoost0 (INT_TYPE N, double P, INT_TYPE bb, double kk ,double dd, INT_TYPE LL,INT_TYPE b, double k ,double d,INT_TYPE L);
-DCOMPLEX periodicBoostBasisBasis( INT_TYPE N , double P, INT_TYPE bb, INT_TYPE kki ,double dd, INT_TYPE LL,  INT_TYPE b, INT_TYPE ki,double d,INT_TYPE L );
 #endif /* coreMath_h */

@@ -1,10 +1,10 @@
-/*
+/**
  *  eigen.h
  *
  *
  *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
- *  the Robert A. Welch Foundation, and Army Research Office.
+ *  the Robert A. Welch Foundation, and the Army Research Office.
  *
  
  *   *   This file is part of Andromeda.
@@ -32,36 +32,8 @@
 #include "saUtil.h"
 #include "interfaceMath.h"
 
-struct sortClass {
-    double * str[SPACE];
-    INT_TYPE *mmm;
-    INT_TYPE i;
-   // INT_TYPE nG;
-    INT_TYPE *n1;
-};
-
-int sortComp (const void * elem1, const void * elem2);
-int sort2Comp (const void * elem1, const void * elem2);
-int sortxComp (const void * elem1, const void * elem2);
-int sortx2Comp (const void * elem1, const void * elem2);
-INT_TYPE tBootManyConstruction (struct calculation * c1, struct sinc_label f1, enum division eigen);
-INT_TYPE tBoot1Construction(struct calculation * c1, struct sinc_label, enum division eigen);
-INT_TYPE tSlam (struct sinc_label  f1,INT_TYPE allc, enum division vl, double fmax2);
-//INT_TYPE tSASplit ( struct sinc_label  f1, INT_TYPE type , INT_TYPE Ve ,INT_TYPE target, enum division usz, enum division vector);
-INT_TYPE tSortBoot(struct calculation * c1, struct sinc_label f1, enum division eigen);
-INT_TYPE tFoundationLevel( struct sinc_label  f1, enum division A , double lvlm,double lvlx, INT_TYPE ops,enum division build,INT_TYPE xB, double lvl1, double lvl2, double lvl3,INT_TYPE * mmm, INT_TYPE type,double seekPower);
-//void tDFTChallenge(struct sinc_label * f1, INT_TYPE index);
-INT_TYPE tOCSB (struct calculation * c1 , enum division usz);
-INT_TYPE tSquareVectors(struct sinc_label f1, INT_TYPE EV2, enum division usz,enum division usr );
-INT_TYPE tGreaterDivideIteration (INT_TYPE translateFlag ,double sumPart, double realPart, struct sinc_label f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
-INT_TYPE tGreatDivideIteration (INT_TYPE translateFlag ,double sumPart, double realPart,  struct sinc_label  f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, INT_TYPE shift);
-INT_TYPE tMinorDivideIteration ( struct sinc_label f1, enum division A , INT_TYPE I1, INT_TYPE I2, enum division usz, INT_TYPE foundation,INT_TYPE nMult, double shift);
-INT_TYPE tMap (struct calculation * c1 );
-INT_TYPE tEigenCycle (INT_TYPE typer,INT_TYPE minusFlag,struct sinc_label  f1, enum division A ,char permutation,  INT_TYPE Ne, enum division usz, INT_TYPE quantumBasisSize ,INT_TYPE iterations,INT_TYPE foundation, INT_TYPE type,INT_TYPE flag,  enum division outputSpace, enum division outputValues);
-INT_TYPE tSelect(struct sinc_label  f1, INT_TYPE Ve, INT_TYPE type, enum division usr, enum division usa, INT_TYPE testFlag);
-INT_TYPE tCollect (struct sinc_label  f1, INT_TYPE type,enum division usz, INT_TYPE target,double seekPower);
-INT_TYPE tFilter(struct sinc_label  f1, INT_TYPE Ve, INT_TYPE type, enum division usr);
-INT_TYPE tEdges(struct sinc_label f1, enum division vector);
-INT_TYPE tLesserDivide ( INT_TYPE translateFlag ,double sumPart, double realPart,struct sinc_label  f1,enum division bra,enum division Op , enum division ket);
-INT_TYPE tGreaterDivide ( INT_TYPE translateFlag ,double sumPart, double realPart,struct sinc_label  f1,enum division spiralBra,enum division Op,enum division spiralKet);
+inta tSelect(  sinc_label  f1, inta Ve, inta type,   division usr,  inta testFlag);
+inta tFilter(  sinc_label  f1, inta Ve, inta type,   division usr);
+inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,    division usz, inta quantumBasisSize);
+inta tSolveMatrix (inta typer,   sinc_label  f1,inta Ne,  division usz, inta quantumBasisSize,   division outputValues);
 #endif /* eigen_h */

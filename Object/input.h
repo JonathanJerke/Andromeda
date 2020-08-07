@@ -1,10 +1,10 @@
-/*
+/**
  *  input.h
  *
  *
  *  Copyright 2020 Jonathan Jerke and Bill Poirier.
- *  We acknowledge the generous support of Texas Tech University
- *  and the Robert A. Welch Foundation.
+ *  We acknowledge the generous support of Texas Tech University,
+ *  the Robert A. Welch Foundation, and the Army Research Office.
  *
  
  *   *   This file is part of Andromeda.
@@ -29,29 +29,23 @@
 
 #include"constants.h"
 #include"coreMath.h"
-#include <dirent.h>
-INT_TYPE resetA( struct runTime *rt);
-INT_TYPE allowQ( struct runTime *  f1, enum blockMemoryType a );
-INT_TYPE blockA( struct runTime *  f1, enum blockMemoryType a );
-INT_TYPE rotateGeometry (struct calculation * c, double * u  );
-INT_TYPE getInitialGeneral(struct calculation * c, const char * input_line );
-INT_TYPE initCalculation(struct calculation * c );
-INT_TYPE destructCalculation ( struct calculation * c );
-INT_TYPE control ( const char * line );
-INT_TYPE comment ( const char * line );
-INT_TYPE getCore(struct calculation * c, const char * input_line );
-INT_TYPE readInput(struct calculation *c ,struct input_label *f1, FILE * in);
-INT_TYPE setOutputSchedule( struct calculation * c, const char * segement );
-INT_TYPE  getParam ( struct calculation * c,struct input_label* f1, const char * input_line );
-INT_TYPE  getGeometry(struct calculation * c,const char * input_line );
-INT_TYPE modGeometry(struct calculation * c,const char * input_line );
-INT_TYPE getBasis(struct calculation * c,  char * input_line );
-INT_TYPE getInputOutput(struct calculation * c,struct input_label *f1,const char * input_line );
-INT_TYPE finalizeInit(struct calculation * c );
-INT_TYPE modifyGeometry(struct calculation * c,const char * input_line );
-INT_TYPE getBuildParameters(struct calculation * c,const char * input_line );
-INT_TYPE defineNaturalBasis ( struct calculation * c , char * input_line );
-INT_TYPE assignNaturalBasis ( struct calculation * c, char * input_line );
-INT_TYPE bootShell (INT_TYPE argc , char * argv[],struct calculation * c1, struct field *f);
-INT_TYPE estSize ( INT_TYPE interval );
+
+inta resetA(   runTime *rt);
+inta allowQ(   runTime *  f1,   blockMemoryType a );
+inta blockA(   runTime *  f1,   blockMemoryType a );
+inta rotateGeometry (  calculation * c, double * u  );
+inta getInitialGeneral(  calculation * c, const char * input_line );
+inta initCalculation(  calculation * c );
+inta destructCalculation (   calculation * c );
+inta control ( const char * line );
+inta comment ( const char * line );
+inta getCore(  calculation * c, const char * input_line );
+inta readInput(  calculation *c ,  field *f1, FILE * in);
+inta getParam (   calculation * c,  input_label* f1, const char * input_line );
+inta getGeometry(  calculation * c,const char * input_line );
+inta getInputOutput(  calculation * c,  field *f1,const char * input_line );
+inta finalizeInit(  calculation * c );
+inta modifyGeometry(  calculation * c,const char * input_line );
+inta getBuildParameters(  calculation * c,const char * input_line );
+inta bootShell (inta argc , char * argv[],  calculation * c1,   field *f);
 #endif /* input_h */

@@ -1,10 +1,10 @@
-/*
+/**
  *  constants.h
- *  
+ *
  *
  *  Copyright 2020 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
- *  the Robert A. Welch Foundation, and Army Research Office.
+ *  the Robert A. Welch Foundation, and the Army Research Office.
  *
  
 *   *   This file is part of Andromeda.
@@ -22,38 +22,46 @@
 *   *   You should have received a copy of the GNU General Public License
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
- 
-//VERSION 8.0
+
+/**
+ *Andromeda: a few-body plane wave calculator
+ *
+ *v9.0
+ *quantumGalaxies.org
+ *
+ *Jonathan Jerke
+ *Bill Poirier
+ *
+ *Texas Tech University
+ *Welch Foundation
+ *Army Research Office
+ */
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 #include "system.h"
-#include <time.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <math.h>
-#include <sys/stat.h>
-#define VERBOSE 0
 
 #ifdef APPLE
 #include "Accelerate/Accelerate.h"
 #include "complex.h"
 typedef double __complex__ DCOMPLEX;
-typedef __CLPK_integer  INT_TYPE;
-typedef __CLPK_doublereal Stream_Type;
+typedef __CLPK_integer  inta;
+typedef __CLPK_doublereal floata;
 typedef unsigned long ADDRESS_TYPE;
 #else
 
+typedef double floata;
 
-typedef double Stream_Type;
-
+#ifdef  OMP
 #include "omp.h"
-#include "complex.h"
+#endif
 
 #ifdef GSL_LIB
-#define MAXINT 1000
+///May not need all of these,
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_deriv.h>
 #include <gsl/gsl_integration.h>
@@ -73,7 +81,7 @@ typedef double Stream_Type;
 #include "mkl.h"
 #include "mkl_lapacke.h"
 #include "mkl_types.h"
-typedef MKL_INT INT_TYPE;
+typedef MKL_INT inta;
 typedef MKL_INT ADDRESS_TYPE;
 typedef double __complex__ DCOMPLEX;
 typedef MKL_Complex16 DCOMPLEX_PRIME;
@@ -82,14 +90,13 @@ typedef MKL_Complex16 DCOMPLEX_PRIME;
 
 #ifdef BIT_LONG
 typedef long long int ADDRESS_TYPE;
-#include "omp.h"
 #include "lapacke.h"
 #include "lapacke_utils.h"
 #ifdef GSL_CBLAS
     #include "gsl/gsl_blas.h"
 #endif
 #define lapack_int long int
-typedef lapack_int INT_TYPE;
+typedef lapack_int inta;
 typedef double __complex__ DCOMPLEX;
 typedef double __complex__ DCOMPLEX_PRIME;
 #endif
@@ -97,51 +104,29 @@ typedef double __complex__ DCOMPLEX_PRIME;
 
 #ifdef BIT_INT
 typedef long long int ADDRESS_TYPE;
-#include "omp.h"
 #include "lapacke.h"
 #include "lapacke_utils.h"
 #ifdef GSL_CBLAS
     #include "gsl/gsl_blas.h"
 #endif
-typedef lapack_int INT_TYPE;
+typedef lapack_int inta;
 typedef double __complex__ DCOMPLEX;
 typedef double __complex__ DCOMPLEX_PRIME;
 #endif
 
-
-
-
-
 #endif
 
+#include "complex.h"
 
-#define MaxParamFunc 4
+#ifdef COMPLEXME
+typedef DCOMPLEX mea;
+#else
+typedef double mea;
+#endif
 
-#define Mag  0.0000021271911715764754 // Hartree/Tesla
-//input in Angstroms...
-#define a0  0.52917721  //A
-//all internal numbers are in au
-#define Ry 13.60569253  //eV
-//used in spin-orbit coupling
-#define Alpha 0.0072973525698  //unitless
-
-#define pi  3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679
-        
-#define iNS 16
-
-
-#define MAX_PROTOTYPE_ATOMS 100
-#define MAX_ANGULAR_SYMMETRY 2
-#define MAX_LABEL 3
-#define NO_SINC_LABEL_NAME 2
-
-////////////////////////
-/////////
-////
-
-#define CDT 1
-#define MaxSpin 2
-
+/**
+ *Component by component body type
+ */
 enum bodyType {
     nada,
     one,
@@ -152,63 +137,59 @@ enum bodyType {
     six
 };
 
+/**
+ *not used.
+ */
 enum particleType{
-    nullParticle,
-    electron,
-    proton,
-    pair,
     all
 };
 
+/**
+ *Command run by job
+ */
 enum phaseType{
-    buildFoundation,//0
-    productKrylov,//1
-    solveRitz,//2
-    svdOperation, //3
-    distillMatrix,//4
-    reportMatrix,//5
-    decomposeMatrix, //6
-    gauss,//7
-    singleKrylov//8
+    buildFoundation,
+    productKrylov,
+    solveRitz
 };
 
+/**
+ *For future
+ */
 enum calculationType{
     nullCalculation,
-    electronicStuctureCalculation,
-    particlesInBoxCalculation,
-    clampProtonElectronCalculation,
-    protonsElectronsCalculation,
-    svdCalculation
+    electronicStuctureCalculation
 };
 
+/**
+ *TO turn off printing for bootup.
+ */
 enum bootType{
     noMatrices,
     fullMatrices
 };
 
-enum block{
+/**
+ *Interaction type labed, i.e. tv1 = act on particle 1 of component in question.
+ */
+enum blockType{
     id0,
-    //nada
-    tv1,//1
-    tv2,//2
-    tv3,//3
+    tv1,
+    tv2,
+    tv3,
     tv4,
     tv5,
-    tv6,//6
-    //ee interaction between label 1 and 2
-    e12,//7
+    tv6,
+    e12,
     e13,
     e23,
-    //four
     e14,
     e24,
     e34,
-    //five
     e15,
     e25,
     e35,
     e45,
-    //six
     e16,
     e26,
     e36,
@@ -216,7 +197,11 @@ enum block{
     e56
 };
 
-enum genus{
+/**
+ *Controling aspects of Hamiltonian Terms and more generally
+ *the concept of a division.
+ */
+enum genusType{
     scalar,
     vector,
     matrix,
@@ -225,58 +210,34 @@ enum genus{
     eikonDiagonal,
     eikonOffDiagonal,
     eikonSemiDiagonal,
+    eikonDeriv,
     eikonKinetic,
     eikonConstant,
     eikonLinear,
-    eikonQuad
+    eikonSpring,
+    eikonElement,
+    eikonOuter
 };
 
-enum shape{
-    Cube,
-    g1,
-    g2,
-    g3,
-    g4,
-    g5,
-    g6,
-    Train
-};
-
+/**
+ *The function type, defined in InverseLaplaceTransform
+ */
 enum functionType{
-    nullFunction,//0
-    Pseudo,//1
-    Yukawa,//2
-    Coulomb,//3
-    Morse,//4
-    LennardJones,//5
-    LDA,//6
-    BLYP,//7
-    Gaussian//8
-};
-
-struct function_label{
-    INT_TYPE interval;
-    INT_TYPE contr;
-    enum   functionType fn;
-    double param[MaxParamFunc];
-};
-
-struct interaction_label{
-    INT_TYPE num;
-    struct function_label func;
+    nullFunction,
+    Pseudo,
+    Yukawa,
+    Coulomb,
+    Morse,
+    LennardJones,
+    LDA,
+    BLYP,
+    Gaussian
 };
 
 
-struct atom_label {
-    INT_TYPE Z;
-    INT_TYPE label;
-};
-
-struct atom {
-	double position[4];
-    struct atom_label label;
-};
-
+/**
+ *For counting number of spins associated with a division
+ */
 enum spinType {
     none,
     real,
@@ -284,105 +245,83 @@ enum spinType {
     parallel
 };
 
+
+/**
+ *Exclusively canon[space<SPACE] for objectAllocation
+ *and canon[SPACE] for bufferAllocation
+ *just one of those redundancies
+ */
 enum memoryType {
     noAllocation,
     objectAllocation,
     bufferAllocation
 };
 
+/**
+ *Printed at runtime, 'y'
+ */
 
 enum basisElementType {
     nullBasisElement,
     SincBasisElement,
     GaussianBasisElement,
     DiracDeltaElement,
-    SpinorBasisElement
+    StateBasisElement
 };
 
+/**
+ *canon parameter, for labeling component
+ */
 enum componentType {
     nullComponent,
-    spatialComponent1,//1
-    spatialComponent2,//2
-    spatialComponent3,//3
-    periodicComponent1,//4
-    periodicComponent2,//5
-    periodicComponent3,//6
-    periodicSumComponent1,//7
-    periodicSumComponent2,//8
-    periodicSumComponent3,//9
-    periodicBoostComponent1,//10
-    periodicBoostComponent2,//11
-    periodicBoostComponent3//12
+    spatialComponent1,
+    spatialComponent2,
+    spatialComponent3,
+    periodicComponent1,
+    periodicComponent2,
+    periodicComponent3,
 };
 
+
+/**
+ *For periodic boundary conditions
+ */
 enum noteType {
-    nullNote,//0
-    interactionCell//1
+    nullNote,
+    interactionCell
 };
 
-struct basisElement {
-    enum basisElementType basis;
-    enum componentType type;
-    enum noteType note;
-    INT_TYPE index;
-    INT_TYPE index2;//boost for periodicBoostComponent##
-    double length;
-    double origin;
-    INT_TYPE grid;
-};
-
-struct canon {
-    Stream_Type *stream ;
-    //struct basisElement *basisList;//legacy for most purposes...
-    double lattice;
-    enum basisElementType basis;
-    enum componentType component;
-    enum bodyType body;
-    enum particleType particle;
-    INT_TYPE count1Basis;
-};
-
+/**
+ *The Lebequse metric of integration of beta integral
+ *
+ *These controls can create most any kind of quantum operator.
+ */
 enum metricType {
     dirac,
     separateDirac,
     interval,
-    semiIndefinite
+    semiIndefinite,
+    pureInterval,
+    pureSemiIndefinite
 };
 
-struct metric_label {
-    INT_TYPE pow[SPACE];
-    INT_TYPE powB[SPACE];
-    INT_TYPE deriv[SPACE];
-    struct function_label fn;
-    enum metricType metric;
-    double beta[2];//lower and upper bound
-    //beta here...  -beta^2 is the exponent
-};
-
-//Ham--build 2body exchange
-//Dis--train 2body Hamiltonian
-//Dix--train 1body external fields
-//Resolve 2body Hamiltonain into a 1body matrices
-//Ria--ritz
-//Ray--kry
-//phi--natural orbitals of 1-body matrices
-//define hamiltonian by VECTOR-OPERATORS.
-//blockMemory:
+/**
+ *Enumerate memory controls
+ *
+ *This is control by negation, setting a positive switch 'blockMemory 1' will turn off allocaiton
+ *of totalVector, which is the primary buffer.
+ *
+ *TrainVectors will allow ALS to run
+ *CopyVectors are only used in exploratory works.
+ *Transfer Basis will allow one to boot from a previous (smaller) basis.
+ */
 enum blockMemoryType{
-    passBlock,//
-    blockHamiltonianBlock,//1
-    blockTrainHamiltonianBlock,//2
-    blockAllocateHamiltonianBlock,//3
-    blockFoundationBlock,//4
-    blockBuildHamiltonianBlock,//5
-    blockEigenDecomposeBlock,//6
-    blockTotalVectorBlock,//7
-    blockSeparateTwoBodyBlock,//8
-    blockTrainVectorsblock,//9
-    blockTrainMatricesblock,//10
-    blockfoundationMblock,//11
-    blockResolveTwoBodyBlock,//12 NEED-To Add this to assign interactionDirect to Hamiltonian (Res)
-    blockKineticEnergyBlock //13
+    passBlock,
+    blockTotalVectorBlock,
+    blockTrainVectorsblock,
+    blockCopyBlock,
+    blockTransferBasisblock,
+    blockMatrixElementsblock
 };
 
 
@@ -396,304 +335,75 @@ enum blockMemoryType{
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ *Divisions define and indicate data.
+ *Lined up with 400 so a division number can be easily read.
+ */
 enum division{
     nullName,
-    nullScalar,
+    nullOverlap,
     nullVector,
     nullMatrix,
-    hamiltonian,
-    trainHamiltonian,
-    h12,
-    h13,
-    h23,
-    h14,
-    h24,
-    h34,
-    h15,
-    h25,
-    h35,
-    h45,
-    h16,
-    h26,
-    h36,
-    h46,
-    h56,
-	kineticMass,
-    kineticMass1,
-    kineticMass2,
-    kineticMass3,
-    kineticMass4,
-    kineticMass5,
-    kineticMass6,
-    kinetic,
-    kinetic1,
-    kinetic2,
-    kinetic3,
-    kinetic4,
-    kinetic5,
-    kinetic6,
-    kinetic_2,
-    kinetic1_2,
-    kinetic2_2,
-    kinetic3_2,
-    kinetic4_2,
-    kinetic5_2,
-    kinetic6_2,
-    linear,
-    external1,
-    external2,
-    external3,
-    external4,
-    external5,
-    external6,
-    external1_2,
-    external2_2,
-    external3_2,
-    external4_2,
-    external5_2,
-    external6_2,
-    interactionExchangePlus,
-    interaction1Plus,
-    interaction2Plus,
-    interaction3Plus,
-    interaction4Plus,
-    interaction5Plus,
-    interaction6Plus,
-    interactionExchangeMinus,
-    interaction1Minus,
-    interaction2Minus,
-    interaction3Minus,
-    interaction4Minus,
-    interaction5Minus,
-    interaction6Minus,
-    interactionEwald,
-    interaction12Ewald,
-    interaction13Ewald,
-    interaction23Ewald,
-    interaction14Ewald,
-    interaction24Ewald,
-    interaction34Ewald,
-    interaction15Ewald,
-    interaction25Ewald,
-    interaction35Ewald,
-    interaction45Ewald,
-    interaction16Ewald,
-    interaction26Ewald,
-    interaction36Ewald,
-    interaction46Ewald,
-    interaction56Ewald,
-    intercellularSelfEwald,
-    intercellularSelf1Ewald,
-    intercellularSelf2Ewald,
-    intercellularSelf3Ewald,
-    intercellularSelf4Ewald,
-    intercellularSelf5Ewald,
-    intercellularSelf6Ewald,
-    intracellularSelfEwald,
-    intracellularSelf1Ewald,
-    intracellularSelf2Ewald,
-    intracellularSelf3Ewald,
-    intracellularSelf4Ewald,
-    intracellularSelf5Ewald,
-    intracellularSelf6Ewald,
-    jelliumElectron,
-    jellium1Electron,
-    jellium2Electron,
-    jellium3Electron,
-    jellium4Electron,
-    jellium5Electron,
-    jellium6Electron,
-    shortenPlus,
-    shorten1Plus,
-    shorten2Plus,
-    shorten3Plus,
-    shorten4Plus,
-    shorten5Plus,
-    shorten6Plus,
-    shortenMinus,
-    shorten1Minus,
-    shorten2Minus,
-    shorten3Minus,
-    shorten4Minus,
-    shorten5Minus,
-    shorten6Minus,
-    interactionTwoAcrossDimensions,
-    interactionTAD11,
-    interactionTAD12,
-    interactionTAD13,
-    interactionTAD14,
-    interactionTAD21,
-    interactionTAD22,
-    interactionTAD23,
-    interactionTAD24,
-    interactionTAD31,
-    interactionTAD32,
-    interactionTAD33,
-    interactionTAD34,
-    interactionTAD41,
-    interactionTAD42,
-    interactionTAD43,
-    interactionTAD44,
-    interactionTAD15,
-    interactionTAD25,
-    interactionTAD35,
-    interactionTAD45,
-    interactionTAD16,
-    interactionTAD26,
-    interactionTAD36,
-    interactionTAD46,
-    interactionTAD56,
-    shortTwoAcrossDimensions,
-    shortTAD11,
-    shortTAD12,
-    shortTAD13,
-    shortTAD14,
-    shortTAD21,
-    shortTAD22,
-    shortTAD23,
-    shortTAD24,
-    shortTAD31,
-    shortTAD32,
-    shortTAD33,
-    shortTAD34,
-    shortTAD41,
-    shortTAD42,
-    shortTAD43,
-    shortTAD44,
-    shortTAD15,
-    shortTAD25,
-    shortTAD35,
-    shortTAD45,
-    shortTAD16,
-    shortTAD26,
-    shortTAD36,
-    shortTAD46,
-    shortTAD56,
-    protonRepulsion,
-    proton1,
-    proton2,
-    proton3,
-    proton4,
-    proton5,
-    proton6,
-    edgeHamiltonian,
-    edgeHamiltonian1,
-    edgeHamiltonian2,
-    edgeHamiltonian3,
-    edgeHamiltonian4,
-    edgeHamiltonian5,
-    edgeHamiltonian6,
-    X,
-    X1,
-    X2,
-    X3,
-    X4,
-    X5,
-    X6,
-    harmonium,
-    harmonium1,
-    harmonium2,
-    harmonium3,
-    harmonium4,
-    harmonium5,
-    harmonium6,
-    vectorMomentum,
-    vectorMomentum1,
-    vectorMomentum2,
-    vectorMomentum3,
-    vectorMomentum4,
-    vectorMomentum5,
-    vectorMomentum6,
-    interactionExchange,
-    interaction12,
-    interaction13,
-    interaction23,
-    interaction14,
-    interaction24,
-    interaction34,
-    interaction15,
-    interaction25,
-    interaction35,
-    interaction45,
-    interaction16,
-    interaction26,
-    interaction36,
-    interaction46,
-    interaction56,
-    interaction12_2,
-    interactionExchangeB,
-    interaction12B,
-    interaction13B,
-    interaction23B,
-    interaction14B,
-    interaction24B,
-    interaction34B,
-    interaction15B,
-    interaction25B,
-    interaction35B,
-    interaction45B,
-    interaction16B,
-    interaction26B,
-    interaction36B,
-    interaction46B,
-    interaction56B,
-    edgeElectronMatrix,
-    edgeEMatrix1,
-    edgeEMatrix2,
-    edgeEMatrix3,
-    edgeEMatrix4,
-    edgeEMatrix5,
-    edgeEMatrix6,
-    edgeProtonMatrix,
-    edgePMatrix1,
-    edgePMatrix2,
-    edgePMatrix3,
-    edgePMatrix4,
-    edgePMatrix5,
-    edgePMatrix6,
-    hartree,
-    forces,
-    northoKet,
-    inversion,
-    inversion1,
-    inversion2,
-    inversion3,
-    inversion4,
-    inversionTwo,
-    overlap,
-    overlap1,
-    overlap2,
-    overlap3,
-    overlap4,
-    overlapTwo,
-    tempOneMatrix,
-    resolveBufferMatrix,
-    distanceBufferVector,
-    distanceBufferMatrix,
-    distanceBufferScalar,
-    maxBufferVector,
-    squareVector,
-    diagonal,
-    square,
-    project,
-    interactionDirect,
-    interactionD12,
-    interactionD13,
-    interactionD23,
-    interactionD14,
-    interactionD24,
-    interactionD34,
-    interactionD15,
-    interactionD25,
-    interactionD35,
-    interactionD45,
-    interactionD16,
-    interactionD26,
-    interactionD36,
-    interactionD46,
-    interactionD56,
     buffer,
-    oneByOneBuffer,
     bra,
     bra2,
     bra3,
@@ -713,66 +423,6 @@ enum division{
     copyFour,
     copyFive,
     eigen,
-    bill1,
-    bill2,
-    bill3,
-    bill4,
-    bill5,
-    bill6,
-    bill7,
-    bill8,
-    bill9,
-    bill10,
-    bill11,
-    bill12,
-    bill13,
-    bill14,
-    bill15,
-    bill16,
-    bill17,
-    bill18,
-    bill19,
-    bill20,
-    bill21,
-    bill22,
-    bill23,
-    bill24,
-    bill25,
-    bill26,
-    bill27,
-    bill28,
-    bill29,
-    bill30,
-    bill31,
-    bill32,
-    bill33,
-    bill34,
-    bill35,
-    bill36,
-    bill37,
-    bill38,
-    bill39,
-    bill40,
-    bill41,
-    bill42,
-    bill43,
-    bill44,
-    bill45,
-    bill46,
-    bill47,
-    bill48,
-    bill49,
-    bill50,
-    bill51,
-    bill52,
-    bill53,
-    bill54,
-    bill55,
-    bill56,
-    bill57,
-    bill58,
-    bill59,
-    bill60,
     PauliX,
     PauliY,
     PauliZ,
@@ -788,13 +438,6 @@ enum division{
     vectors3,
 	basis,
     subBasis,
-    edges,
-    edges1,
-    edges2,
-    edges3,
-    edgesA1,
-    edgesA2,
-    edgesA3,
     quad,
     quad2,
     bandBasis,
@@ -811,23 +454,12 @@ enum division{
     permutation2Vector,
     permutation3Vector,
     permutation4Vector,
-    build,
     eikonBuffer,
-    squareTwo,
-    foundationBasis,
     basisBuffers,
-    tensorBuffers,
-    tensorBuffers2,
-    tensorBuffers3,
-    tensorBuffers4,
-    tensorBuffers5,
-    tensorBuffers6,
     canonicalBuffers,
     guideBuffer,
     trackBuffer,
-    canonicalBuffers0,
-    guideBuffer0,
-    trackBuffer0,
+    canonicalVector,
     vectorCubeBuffers,
     diagonalQuad,
     diDiagonalQuad,
@@ -854,296 +486,396 @@ enum division{
     canonicalmeVector,
     canonicalme2Vector,
     canonicalme3Vector,
-    complement,
-    complement1,
-    complement2,
-    complement3,
-    complementTwo,
-    complementTwo1,
-    complementTwo2,
-    complementTwo3,
+    multiplyVector,
     eigenList,
-    canonicalBuffersB2,
+    canonicalBuffersAster,
     oneVector,
     twoVector,
     twoBodyRitz,
-    conditionOverlapNumbers,
-    manyElectronsRitz,
-    foundationStructure,
-    foundationEquals,
     totalVector,
-    totalFuzzyVector,
     squareTwoVector,
     dsyBuffers,
-    oneArray,
-    oneBasis,
-    threeArray,
-    seconds,
-    MomentumDot,
     matrixSbuild,
     matrixHbuild,
     vectorHbuild,
     twoBodyProjector,
-    bufferChromatic,
     eigenVectors
 };
 
-struct termType {
-    struct function_label func;
-    char desc[MAXSTRING];
+typedef enum bodyType bodyType;
+typedef enum particleType particleType;
+typedef enum phaseType phaseType;
+typedef enum calculationType calculationType;
+typedef enum bootType bootType;
+typedef enum blockType blockType;
+typedef enum genusType genusType;
+typedef enum functionType functionType;
+typedef enum spinType spinType;
+typedef enum memoryType memoryType;
+typedef enum basisElementType basisElementType;
+typedef enum componentType componentType;
+typedef enum noteType noteType;
+typedef enum metricType metricType;
+typedef enum blockMemoryType blockMemoryType;
+typedef enum division division;
+
+typedef struct function_label function_label;
+typedef struct atom_label atom_label;
+typedef struct basisElement_label basisElement_label;
+typedef struct canon_label canon_label;
+typedef struct metric_label metric_label;
+typedef struct term_label term_label;
+typedef struct runTime runTime;
+typedef struct space_label space_label;
+typedef struct value_label value_label;
+typedef struct name_label name_label;
+typedef struct nameDispenser_label nameDispenser_label;
+typedef struct sinc_label sinc_label;
+typedef struct input_label input_label;
+typedef struct field field;
+typedef struct general_index general_index;
+typedef struct general_2index general_2index;
+typedef struct input input;
+typedef struct calculation calculation;
+
+struct function_label{
+    ///number of canonical ranks of function per chain element
+    inta interval;
+    ///degree of off-diagonal
+    inta contr;
+    ///function type
+    functionType fn;
+    ///allowances for function parameters, not used
+    double param[MAX_PARAM_FUNC];
+};
+
+struct atom_label {
+    ///count begins with 1, 3 components allocated
+    double position[3+1];
+    ///ion charge
+    inta Z;
+};
+
+struct basisElement_label {
+    ///the type of of basis in component
+    basisElementType basis;
+    ///the type of a particular component
+    componentType component;
+    ///for periodic systems
+    noteType note;
+    ///lattice index
+    inta index;
+    ///boost for periodicBoostComponent
+    inta index2;
+    double length;
+    ///the position on the axis of the left edge of the grid
+    double origin;
+    ///L , number of grid sites in 1 dimension
+    inta grid;
+};
+
+struct dimensions_label {
+    ///1D lattice spacing
+    double lattice;
+    ///in [0,1], larger values will stage basis into momentum more
+    double attack;
+    ///spatial posiiton of the anchor
+    double origin;
+    ///the fraction of grid for which origin attached; internally anchor is transformed to 0.
+    double anchor;
+};
+
+struct canon_label {
+    ///actual pointer , developers ignore this level
+    floata *stream ;
+    ///type of basis element
+    basisElementType basis;
+    ///the size of the component group
+    componentType component;
+    ///particle count on component, nada for null components throughout
+    bodyType body;
+    ///an ID allowing for grouping of components
+    inta label;
+    ///L , the length of the 1D basis, 'count1Basis'
+    inta count1Basis;
+    ///L+, the increment of L under 'count1Stage'
+    inta count1Inc;
+    ///the ID of the component in the group
+    inta space;
+    ///all the double informaton
+    struct dimensions_label particle[MAXBODY+1];
+};
+
+struct metric_label {
+    ///future
+    inta pow[SPACE];
+    ///future
+    inta powB[SPACE];
+    ///future
+    inta deriv[SPACE];
+    ///a potential and inner parameters
+    struct function_label fn;
+    ///metric type, i.e. point, interval, or indefinite interval
+    metricType metric;
+    ///lower and upper bounds,  where -1 => infinity
+    double beta[2];//lower and upper bound
+};
+
+struct term_label {
+    ///internal potential parameters
+    function_label func;
+    ///description of term
+    char desc[16];
+    ///external multiplication of term
     double scalar ;
-    INT_TYPE type;
-    enum block bl ;
-    INT_TYPE act;
+    ///internal indicator of interaction type, i.e. 'kinetic','spring',...
+    inta type;
+    ///multiply type and particle address, i.e. e2= 2 and 7 = e12
+    blockType bl ;
+    ///Symmetry Adpated action on vector multiply
+    inta act;
+    ///rescaling particle 1 of twoBody interaction
     double adjustOne;
-    INT_TYPE invert;//particle 1
-    INT_TYPE headFlag ;
-    INT_TYPE buffer;
-    INT_TYPE atom;
+    ///ID of component group to address
+    inta label;
+    ///invert flag on particle 1
+    inta invert;
+    ///new term flag, may be 0 or 1
+    inta headFlag ;
+    ///tieing oneBody field to atomic geometry and Z
+    inta atom;
+    ///for state elements
+    inta bra;
+    ///for state elements
+    inta ket;
+    ///multiply each Gaussian Term by more G(0)'s
+    inta embed;
+    ///the metric of the beta
     struct metric_label mu;
 };
 
-
-//struct divisionRange {
-//    enum division begin;
-//    enum division end;
-//};
-
 struct runTime {
-    INT_TYPE powDecompose;
-    INT_TYPE runFlag;
-    enum blockMemoryType memBlock[BlockCount];
-
+    ///scripting level changes to memory allocations, mostly inert
+    blockMemoryType memBlock[BLOCK_COUNT];
+    ///number of memory allocated processing lanes for OMP
+    inta NLanes;
 #ifdef OMP
-    INT_TYPE NLanes;
-    INT_TYPE NSlot;
-    //double position[MaxCore][6];
-#else
-    INT_TYPE NLanes;
+    ///number of OMP cores total
+    inta NSlot;
 #endif
-    
 #ifdef MKL
-    INT_TYPE NParallel;
+    ///number of cores per lane
+    inta NParallel;
 #endif
-    double maxEntropy;
-    double TARGET ;
-    double CANON ; //threshold
-    double vCANON;
-    double TOL;
-    double ALPHA ; //condition
-    double BETA;
-    double GAMMA;
-    enum calculationType calcType;
-    enum phaseType phaseType;
+    ///standard tolerance for canonical decomposition
+    double TOLERANCE ;
+    ///how small vectors can get
+    double THRESHOLD;
+    ///COLLECT MAX CONDITION number
+    double XCONDITION;
+    ///Beylkin's condition parameter
+    double ALPHA ;
+    ///relative Tolerance for canonical decomposition
+    double relativeTOLERANCE;
+    ///controlled by 'maxCycle'
+    inta MAX_CYCLE;
+    ///inert
+    calculationType calcType;
+    ///ritz,krylov,...
+    phaseType phaseType;
 };
 
-
-
-
-
 struct space_label{
+    ///actual memory address of allocated named element, or buffer,
     ADDRESS_TYPE Address;
-    //matrix types
-    enum bodyType body;
-    enum block block;
-    INT_TYPE mapTo;
-    INT_TYPE act;
-    INT_TYPE invert;//particle 1
-    //not vector types
+    ///when not vector, it will allocate based on this parameter
+    bodyType body;
+    ///the type/address of the interaction iff a matrix
+    blockType block;
+    ///for SA action
+    inta act;
+    ///will invert particle 1
+    inta invert;
+    ///for explicit matrix elements, called state elements
+    inta bra;
+    ///for explicit matrix elements, called state elements
+    inta ket;
 };
 
 struct value_label{
-    char title [MAXSTRING];
-    INT_TYPE stage;
+    ///vector title
+    char title [16];
+    ///a way to label the iteration number
+    inta stage;
+    ///the energy
     double value;
+    ///the Symmetry Adaption entropy
     double value2;
-    INT_TYPE symmetry;
+    ///the best irrep description
+    inta symmetry;
 };
 
 struct name_label {
-    enum division name;//pointer iff name != name
-    enum genus species;
-    enum shape header;
-    enum spinType spinor;
-    enum division linkNext;//another term
-    enum division chainNext;//lump into a term ( sanity sake in reporting energies and labeling terms),, sum SOP with individual canonical rank
-    enum division loopNext;//within on SOP term...direct sum
-    INT_TYPE Partition;
-    enum memoryType memory;
-    struct value_label value;
-    struct space_label space[SPACE+1];
-    INT_TYPE Current[MaxCore];//if name != name , then Current is a pointer.
-    INT_TYPE Begin[MaxCore];
+    ///pointer iff name != name
+    division name;
+    ///vector, matrix,...
+    genusType species;
+    ///parallel, complex, real
+    spinType spinor;
+    ///another term
+    division linkNext;
+    ///lump into a term, defined like link, in so far that it adds
+    division chainNext;
+    ///equal lineups in chain will multiply together
+    inta multId;
+    ///within an SOP collective...direct sum
+    division loopNext;
+    ///Allocated number of elements of type defined wherein
+    inta Partition;
+    ///extra level of protection of memory types
+    memoryType memory;
+    ///various numerical values
+    value_label value;
+    ///allocations, commands, and internal memory pointers
+    space_label space[SPACE+1];
+    ///dynamic canonical length of SOP-object
+    inta Current[MAX_CORE];
+    ///if name != name , then Begin is a pointer.
+    inta Begin[MAX_CORE];
 };
 
-struct nameDispenser{
-    INT_TYPE currLabel;
-    INT_TYPE maxLabel;
-    enum division head;
+struct nameDispenser_label{
+    ///Current label index, will return this one
+    inta currLabel;
+    ///defined by 'names', will control max number of name_labels allocated
+    inta maxLabel;
+    ///division of block of names
+    division head;
 };
 
 struct sinc_label {
-    INT_TYPE chainFlag;
-    INT_TYPE eikonFlag ;
-    struct nameDispenser eikonLabels;//many 1-term oneBody SOP vectors
-    struct nameDispenser nullLabels;//many 0-term nullBody SOP placeholders
-    enum bootType boot;
-    INT_TYPE maxEV;
-    INT_TYPE irrep;
-    INT_TYPE bootedMemory;
-    struct canon rose[SPACE+1];
-    struct name_label *tulip;//vectors
-    enum division user;
-    enum division vectorOperator;
-    enum division end;
-    enum division bra;
-#if 1
-    enum division vMatrix;
-#endif
-#ifdef CHROME
-    INT_TYPE chrome;
-    INT_TYPE chroma;
-    double chromos;
-    double chromous;
-    double chromaticStep;
-#endif
-#ifdef PURITY
-    enum division purity;
-
-    enum division purityOverlap;
-    enum division temp;
-    INT_TYPE purityCanon;
-#endif
-    enum spinType cmpl;
+    ///many 1-term twoBody SOP vectors
+    struct nameDispenser_label eikonLabels;
+    ///many 0-term nullBody SOP vectors
+    struct nameDispenser_label nullLabels;
+    ///control the process of defining terms
+    bootType boot;
+    ///count of various matrix sizes
+    inta maxEV;
+    ///Irreducible representation called for, may be zero.
+    inta irrep;
+    ///flags on booted memory
+    inta bootedMemory;
+    ///SOP component definitions
+    canon_label canon[SPACE+1];
+    ///names that pass and control SOP meaning
+    name_label *name;
+    ///used for storing the foundation
+    division user;
+    ///for loading in vectors as operators
+    division vectorOperator;
+    ///last name
+    division end;
+    ///complexity / parallel , exactly the number of allocated versions in terms of MAX_CORE
+    spinType cmpl;
+    ///pointer to runTime environment
     struct runTime * rt;
 };
 
-
 struct input_label {
-    INT_TYPE OpIndex;
-    INT_TYPE eikonFlag ;
-    INT_TYPE chainFlag;
-    INT_TYPE body;
-    INT_TYPE bodyTo;
-    INT_TYPE irrep;
-    INT_TYPE cat;
-    INT_TYPE files ;
-    INT_TYPE filesVectorOperator ;
-    char fileVectorOperator [MAXFILE][MAXSTRING];
-    char fileList [MAXFILE][MAXSTRING];
-    char file2 [MAXSTRING];
-    INT_TYPE file2Fill;
-    INT_TYPE epi;
-    INT_TYPE around;
-    double d;
-    double D;
-    double attack;
-    INT_TYPE Iterations;
-    INT_TYPE nStates;
-    INT_TYPE iRank ;
-    INT_TYPE bRank;
-    INT_TYPE xRank;
-    INT_TYPE qFloor;
-    INT_TYPE nOperator;
-    INT_TYPE filter;
-    INT_TYPE collect;
-    INT_TYPE cmpl;
+    ///range of canonRank
+    inta flex;
+    ///0 - no terms, -1 - all terms, n -- nth term
+    inta OpIndex;
+    ///used in slightly antiquited SA
+    inta body;
+    ///used in slightly antiquited SA
+    inta irrep;
+    ///number of files for 'sum' load
+    inta matrices ;
+    ///list of filenames for 'sum' load
+    char matrixList [MAX_FILE][MAXSTRING];
+    ///number of files for 'sum' load
+    inta files ;
+    ///list of filenames for 'vector' load
+    char fileList [MAX_FILE][MAXSTRING];
+    ///number of files for 'operator' load
+    inta filesVectorOperator ;
+    ///list of filenaems for 'operator' load
+    char fileVectorOperator [MAX_FILE][MAXSTRING];
+    ///may be 1 or 2
+    inta Iterations;
+    ///number of vectors io
+    inta nStates;
+    ///number of ranks at input
+    inta iRank ;
+    ///number of ranks for processing
+    inta canonRank;
+    ///max ranks for (all) krylovs
+    inta xRank;
+    ///max number of internal vectors, for foundation
+    inta qFloor;
+    ///flag for operator loaded by 'operator'
+    inta nOperator;
+    ///+1-> filter on input to program; +2-> filter at input. ; +4 -> filter after processing vectors 
+    inta filter;
+    ///switch 0/1 control max condition of input of krylov vectors
+    inta collect;
+    ///secondary level controlling complexity of numbers
+    inta cmpl;
 };
 
-
 struct field {
+    ///for boot up
     struct input_label i;
+    ///for most processing
     struct sinc_label f;
 };
 
-struct general_index{//one dimension
-    struct basisElement bra;
-    struct basisElement ket;
-    INT_TYPE action ;//0 = no derivative.  1 derivative.
-    double x0;//gaussain1 position in 1-d
-    INT_TYPE pointer;
-
-    //line in sand...
-    double b0;
-    double b1;
-    INT_TYPE l0;
-    INT_TYPE l1;
-    double x1;
-    enum spinType realFlag;//1 == real , else == complex
-
-    
-    double d;
-    double n;//function index.
-    double m;
-    
-};
-
-struct general_2index{//one dimension
-	struct general_index i[2];
-    double beta;
-    double momentumShift;
-    INT_TYPE point;
-    INT_TYPE pow2[2];
-    INT_TYPE powSpace;//r^2*pow in Gaussian term!!
-    INT_TYPE gaussianAccelerationFlag;//pre-integrated selection
-    enum spinType realFlag;//1 == real , else == complex
-    
-    //for element calculations
-    struct function_label * fl;
-};
-
-
 struct input {
-    
-    INT_TYPE termNumber ;
-    struct termType terms[40];//HERE//== nubmer of terms in division
-    INT_TYPE minIterationPrint;
+    ///number of empty names
+    inta numNames;
+    ///number of twoBody names
+    inta numVectors;
+    ///switch for loading krylov matrix elements
+    inta build;
+    ///number of chain elements, not terms exactly
+    inta termNumber ;
+    ///*Term input container
+    struct term_label terms[MAXTERM];
+    ///avoid printing to disk lower iterations
+    inta minIterationPrint;
+    ///dir for 'control'
     char controlPath[MAXSTRING];
-    INT_TYPE gaussCount;//currently only on origin
-    double shiftVector[100][2];
-    INT_TYPE flipSignFlag;
-    double massElectron;//electron
-    double massProton;//protons
-    double massClampPair;//clamped second particle
-    INT_TYPE shiftFlag ;
-    double realPart ;
-    double orgClamp;
-    double level;
-    INT_TYPE magFlag;
-    double  mag ;
+    ///shiftVector[0] + H shiftVector[1]
+    double shiftVector[2];
+    ///switch shift of H
+    inta shiftFlag ;
 #ifdef OMP
-    INT_TYPE omp;
+    inta omp;
 #endif
 
 #ifdef MKL
-    INT_TYPE mkl;
+    inta mkl;
 #endif
-    INT_TYPE canonRank;
-#ifdef CHROME
-    INT_TYPE chromaticRank;
-    INT_TYPE chroma;
-    double chromos;
-    double chromous;
-#endif
-    INT_TYPE M1;
-    double vectorMomentum;
-    double springConstant;
-    INT_TYPE springFlag;
-  //  INT_TYPE OCSBflag;
-    INT_TYPE RAMmax ;
-  //  INT_TYPE bootRestriction;
-    INT_TYPE decomposeRankMatrix;
-    INT_TYPE Angstroms;
-    struct atom atoms[MAXATOM+1];
-    INT_TYPE Na;
-    struct interaction_label twoBody;
-    struct interaction_label oneBody;
+    ///for krylov, max rank per term
+    inta lambda;
+    ///Gb of of total allocated ram cap
+    inta RAMmax ;
+    ///0,1 flag for switching geometry to Angstroms
+    inta Angstroms;
+    ///atom geometry
+    struct atom_label atoms[MAXATOM+1];
+    ///number of atoms
+    inta Na;
 };
 
-
 struct calculation {
+    ///the name of the computation leading script '*Body ----'
 	char name[MAXSTRING];
+    ///general input parameters
 	struct input i;
+    ///runtime parameters
     struct runTime rt;
 };
 
