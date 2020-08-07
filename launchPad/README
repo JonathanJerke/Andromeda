@@ -1,0 +1,4 @@
+start.sh neo  <SA>
+--Where <SA> in all,A1,A2, or E
+pathFinder.sh found `seq 1 10` 
+launcher.sh
