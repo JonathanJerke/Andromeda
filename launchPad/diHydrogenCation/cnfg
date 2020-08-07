@@ -1,0 +1,183 @@
+*Body 	print
+
+*InputOutput
+	path eikon
+.InputOutput
+
+
+*Parameters
+	eikons 1000
+	names 6000
+	#spam 9
+	states 20
+	body 1
+	canonRank 2
+	collect 0
+	filter 0
+.Parameters
+
+*Dim
+	basis 1
+	count1Inc 2
+	anchorOne 0.0
+	latticeOne 2.0
+	attackOne 0.8
+	originOne 0.0
+	latticeTwo 4.0
+	attackTwo 0.5
+	originTwo 0.0
+	anchorTwo 0.5
+	body 2
+	count1Basis 3
+	oneComponent
+	count1Inc 1
+	anchorAll 0.5
+	latticeAll 4.0
+	attackAll 0.25
+	originAll 0.0
+	body 1
+	twoComponent
+.Dim
+
+*Term
+	interval 35
+	act 1
+	##
+	#
+.Term
+
+#PROBLEM IS INTERWEAVING TWO INTERACTIONS + PROTON in 3D
+#1
+*Term
+##electron-proton
+	newTerm 1
+	flags 0
+	scalar -1.
+	minBeta 0
+	maxBeta 10
+	block 7
+	axis 1
+	adjustOne 0.5
+	twoBody ep1
+	flags 1
+	scalar 1.0
+	block 1
+	axis 2
+	oneBody 
+.Term
+#2
+*Term
+        newTerm 1
+	flags 0
+	scalar -1.0     
+	minBeta 10
+        maxBeta -1
+        block 7
+        axis 1
+	adjustOne 0.5
+        twoBody ep1
+	scalar 1.
+	flags 1
+        block 1
+        axis 2
+      	oneBody 
+.Term
+
+
+*Term
+##3electron-proton
+        newTerm 1
+	flags 0
+	scalar -1.0
+        minBeta 0
+        maxBeta 10
+        block 7
+        axis 1
+        adjustOne -0.5
+        twoBody ep2
+        flags 1
+	scalar 1.0
+        block 1
+        axis 2
+        oneBody ep2
+.Term
+#4
+*Term
+        newTerm 1
+	flags 0
+	scalar -1
+        minBeta 10
+        maxBeta -1
+        block 7        
+        axis 1
+	adjustOne -0.5
+        twoBody ep2
+        scalar 1.0
+	flags 1
+        block 1
+        axis 2
+        oneBody
+.Term
+
+
+##5 proton-proton
+*Term
+        newTerm 1
+	flags 0
+	scalar 1.  	   
+  	minBeta 0
+        maxBeta 10
+	block 1
+	axis 1	
+	oneBody pp
+.Term
+#6
+*Term
+        newTerm 1
+        scalar 1.
+	minBeta 10
+        maxBeta -1
+     	newTerm 1
+        block 1
+        axis 1 	
+	oneBody pp
+.Term
+
+*Term
+	flags 0
+.Term
+
+#7	#KINETIC electron
+*Term
+	newTerm 1
+	axis 1
+	block 2
+	scalar 1.00027
+	kinetic ke-e
+.Term
+#8
+*Term
+	newTerm 1
+	scalar 1.00027
+	axis 2
+	block 1
+	kinetic ke-e
+.Term
+
+#9	#KINETIC PROTON
+*Term
+	newTerm 1
+	axis 1
+	block 1
+	scalar 0.00108923
+	kinetic ke-p
+.Term	
+	
+	*Geometry
+		1 0 0 0
+	.Geometry
+	
+	*Parameters
+		lambda 36
+	.Parameters
+.Body

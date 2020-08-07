@@ -1,0 +1,93 @@
+*Body	print
+
+*InputOutput
+	path eikonCollect
+.InputOutput
+
+*Parameters
+	eikons 1000
+	names 2000
+	#spam 21
+	states 6
+	body 3
+	canonRank 1
+	collect 1
+	filter 3
+.Parameters
+
+*Dim
+#target 50 count1 at 20 box
+	latticeAll 5.25306
+	attackAll 0.4
+	body 3
+	basis 1
+	count1Basis 2
+	threeComponent
+.Dim
+
+*Term
+	act 1
+	block 1
+	scalar 1.
+	axis 1
+	interval 7
+	minBeta 0
+	maxBeta 1
+.Term
+
+#1
+*InputOutput
+	read ../cn1
+.InputOutput
+
+
+
+*Term
+        minBeta 1
+        maxBeta 2 
+.Term
+
+#2
+*InputOutput
+       read ../cn1
+.InputOutput
+
+*Term
+        minBeta 2
+        maxBeta 4
+.Term
+
+
+#3
+*InputOutput
+       read ../cn1
+.InputOutput
+
+*Term
+     	minBeta 4
+        maxBeta 16
+.Term
+
+#4
+*InputOutput
+       read ../cn1
+.InputOutput
+
+*Term
+     	minBeta 16 
+        maxBeta -1
+.Term
+
+#5,6
+*InputOutput
+  	  read ../cn1
+	read ../ke1
+.InputOutput
+		
+	*Geometry
+	.Geometry
+	
+	*Parameters
+		lambda 16
+	.Parameters
+.Body

@@ -1,11 +1,9 @@
 *Body
 	*Term
-		scalar 1.
-		newTerm 1
                 block 1
-		kinetic
+		scalar -1
                 newTerm 1
-                block 2
-		kinetic
+                atom 1
+		oneBody e1-p
        	.Term
 .Body

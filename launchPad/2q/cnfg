@@ -1,0 +1,336 @@
+*Body print	
+
+*InputOutput
+	path eikonCollect
+.InputOutput
+
+*Parameters
+	eikons 1000
+	names 10000
+	#spam 33
+	states 100
+	canonRank 1
+	collect 1
+	filter 0
+	body 1
+.Parameters
+
+
+*Dim
+    	count1Basis 5
+        body 1
+	basis 4
+        oneComponent      
+        body 1
+	basis 1
+        attackOne 0.5
+        latticeOne 12.
+        oneComponent
+        oneComponent
+.Dim
+
+*Term	
+	act 1
+	block 1
+.Term
+
+*Term
+	scalar 1
+	bra 0
+	ket 0
+	element
+	axis 2
+	scalar 0.000690688
+	linear
+.Term
+*Term
+     	newTerm 1
+	axis 1
+	scalar 1
+	bra 2
+	ket 2
+	element
+        axis 2
+	scalar 0.000690688
+        linear
+.Term
+*Term
+     	newTerm 1
+	axis 1
+	scalar 1
+	bra 3
+	ket 3
+	element
+        axis 2
+	scalar 0.000690688
+        linear 
+.Term
+*Term
+     	newTerm 1
+	axis 1
+	scalar 1
+	bra 4
+	ket 4
+	element
+        axis 2
+	scalar 0.000690688
+        linear
+.Term
+
+
+*Term
+     	newTerm 1
+	axis 1
+	scalar 1
+	bra 1
+	ket 1
+	element 
+        axis 3
+        scalar 0.000690688
+        linear
+.Term
+*Term
+     	newTerm 1
+	axis 1
+	scalar 1
+	bra 2
+	ket 2
+	element
+        axis 3
+        scalar 0.000690688
+        linear 0.000690688
+.Term
+*Term
+     	newTerm 1
+	axis 1
+	scalar 1
+	bra 3
+	ket 3
+	element
+        axis 3
+        scalar 0.000690688
+        linear
+.Term
+*Term
+     	newTerm 1
+	axis 1
+	scalar 1
+	bra 4
+	ket 4
+        axis 3
+        scalar 0.000690688
+	linear
+.Term
+
+
+
+*Term
+     	newTerm 1
+        axis 2
+	scalar 1.
+        kinetic
+.Term
+*Term
+	newTerm 1
+    	axis 2
+        scalar 0.0000540657
+        spring 
+.Term
+
+
+*Term
+     	newTerm 1
+        axis 3
+        scalar 1.
+        kinetic
+.Term
+*Term
+        newTerm 1
+        axis 3        
+        scalar 0.0000540657
+        spring
+.Term
+
+
+
+
+*Term
+	newTerm 1
+	axis 1
+        scalar 0.08125
+	bra 0
+	ket 0
+	elementx
+.Term
+*Term
+        newTerm 1
+     	axis 1
+	scalar 0.08125
+        bra 1
+	ket 1
+	element
+.Term
+*Term
+        newTerm 1
+        axis 1
+        scalar 0.103162
+        bra 2
+        ket 2
+        element
+.Term
+*Term
+        newTerm 1
+     	axis 1
+	scalar 0.103162
+        bra 3
+	ket 3
+        element
+.Term
+*Term
+        newTerm 1
+	axis 1
+        scalar 0.0632353
+	bra 4
+	ket 4 
+        element
+.Term
+
+
+*Term
+        newTerm 1
+     	axis 1
+        scalar -0.00125809
+        bra 0
+        ket 1
+	element
+.Term
+*Term
+        newTerm 1
+     	axis 1
+	scalar -0.00125809
+        bra 1
+	ket 0
+	element
+.Term
+*Term
+        newTerm 1
+        axis 1
+    	scalar -0.00899632
+        bra 0
+	ket 2
+        element
+.Term
+*Term
+        newTerm 1
+        axis 1
+        scalar -0.00899632
+        bra 2
+	ket 0
+	element
+.Term
+*Term
+        newTerm 1
+        axis 1
+    	scalar -0.0114779
+        bra 0
+	ket 3
+        element
+.Term
+*Term
+        newTerm 1
+        axis 1
+        scalar -0.0114779
+        bra 3
+	ket 0
+	element
+.Term
+*Term
+        newTerm 1
+     	axis 1
+	scalar -0.0114779
+        bra 1
+	ket 2
+        element
+.Term   
+*Term
+        newTerm 1
+        axis 1
+        scalar -0.0114779
+        bra 2
+	ket 1
+	element
+.Term
+*Term
+        newTerm 1
+     	axis 1
+	scalar -0.00899632
+        bra 1
+	ket 2
+        element
+.Term   
+*Term
+        newTerm 1
+        axis 1
+        scalar -0.00899632
+        bra 2
+	ket 1
+	element
+.Term
+*Term
+        newTerm 1
+     	axis 1
+	scalar 0.0111488
+        bra 2
+	ket 4
+        element
+.Term
+*Term
+        newTerm 1
+        axis 1
+        scalar 0.0111488
+        bra 4
+        ket 2
+	element
+.Term
+*Term
+        newTerm 1
+	axis 1
+        scalar 0.0111488  
+        bra 3 
+        ket 4
+        element
+.Term
+*Term
+        newTerm 1
+	axis 1
+	scalar 0.0111488
+        bra 4
+        ket 3
+     	element
+.Term
+*Term
+        newTerm 1
+	axis 1
+        scalar 0.0111488  
+        bra 2 
+        ket 4
+        element
+.Term
+*Term
+        newTerm 1
+	axis 1
+	scalar 0.0111488
+        bra 4
+        ket 2
+     	element
+.Term
+
+
+
+	*Geometry
+	.Geometry
+	
+	*Parameters
+	  lambda 5
+	.Parameters
+.Body

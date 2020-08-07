@@ -1,0 +1,7 @@
+*Body
+	*Term
+		newTerm 1
+		block 7
+		twoBody
+	.Term
+.Body
