@@ -22,9 +22,7 @@
 
 Added commands to build runtime in each species subdirectory.
 New distributed programming can effectively compute Lithum in normal super computer.
-
-Watch for buggies as this new thing is a bit different.
-
+v9.0 has been tested extensively and the code is much more readable.
 
 See (Count Down) on WIKI.
 
