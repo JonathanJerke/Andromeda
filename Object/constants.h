@@ -88,28 +88,24 @@ typedef MKL_Complex16 DCOMPLEX_PRIME;
 #endif
 
 
-#ifdef BIT_LONG
-typedef long long int ADDRESS_TYPE;
-#include "lapacke.h"
-#include "lapacke_utils.h"
-#ifdef GSL_CBLAS
-    #include "gsl/gsl_blas.h"
-#endif
-#define lapack_int long int
-typedef lapack_int inta;
-typedef double __complex__ DCOMPLEX;
-typedef double __complex__ DCOMPLEX_PRIME;
+#ifdef ATLAS
+#include "cblas-atlas.h"
+#define LAPACK_COL_MAJOR 102
 #endif
 
+
+#ifdef LAPACKE
+#include "lapacke.h"
+//#include "lapacke_utils.h"
+#endif
+
+#ifdef GSL_CBLAS
+#include "gsl/gsl_blas.h"
+#endif
 
 #ifdef BIT_INT
 typedef long long int ADDRESS_TYPE;
-#include "lapacke.h"
-#include "lapacke_utils.h"
-#ifdef GSL_CBLAS
-    #include "gsl/gsl_blas.h"
-#endif
-typedef lapack_int inta;
+typedef int inta;
 typedef double __complex__ DCOMPLEX;
 typedef double __complex__ DCOMPLEX_PRIME;
 #endif
@@ -117,6 +113,15 @@ typedef double __complex__ DCOMPLEX_PRIME;
 #endif
 
 #include "complex.h"
+
+#ifdef BIT_LONG
+typedef long long int ADDRESS_TYPE;
+#define lapack_int long int
+typedef lapack_int inta;
+typedef double __complex__ DCOMPLEX;
+typedef double __complex__ DCOMPLEX_PRIME;
+#endif
+
 
 #ifdef COMPLEXME
 typedef DCOMPLEX mea;

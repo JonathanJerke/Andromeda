@@ -851,6 +851,7 @@ double AsterCanonicalRankDecomposition ( inta rank,  sinc_label  f1 , double * c
     do {
         if ( out < 0 )
             printf("Aster, reiterate due to linear dependence\t%d\n",L1);
+        fflush(stdout);
         for ( n = 0; n < G1 ; n++){
             cblas_dgemv(CblasColMajor, CblasNoTrans,G1,G1,1.,overlap,G1,me+n*G1,1, 0.,sum,1);
             ove[n] = cblas_ddot(G1, me+n*G1, 1, sum, 1);
