@@ -54,7 +54,7 @@
 ///switch
 #define VERBOSE 0
 ///Maximum number of input terms at prompt, at minor cost to increase
-#define MAXTERM 1000
+#define MAXTERM 100
 ///Maximum bodies per component currently supported
 #define MAXBODY 3
 ///Switch to make stuff complex at compiler level,not working yet
@@ -81,20 +81,21 @@
    // #define MKL
 
 /// gnu compatible
+    #define ATLAS
+    #define LAPACKE
     #define BIT_INT
-
 ///Probably too much, but dont care,
-    #define MAXSTRING 1024
+    #define MAXSTRING 88
 ///Probably too much, but dont care,
-    #define SUPERMAXSTRING 2048
+    #define SUPERMAXSTRING 120
 ///Maximum number of .mac files that are loadable,  (not vectors, ---> files of .vector)
-    #define MAX_FILE 10000
+    #define MAX_FILE 100
 ///Maybe necessary for integrating momentums in GaussianSinc-basis--otherwise, not used.
 //#define GSL_LIB
 ///Set true if you want to use GSL cblas
 //#define GSL_CBLAS
 ///Normal super computer size, could be more or less,
-    #define MAX_CORE 72
+    #define MAX_CORE 4
 #endif
 
 #endif /* system_h */
