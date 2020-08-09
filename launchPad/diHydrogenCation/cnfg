@@ -1,7 +1,7 @@
 *Body 	print
 
 *InputOutput
-	path eikon
+	path eikonCollect
 .InputOutput
 
 
@@ -12,7 +12,7 @@
 	states 20
 	body 1
 	canonRank 2
-	collect 0
+	collect 1
 	filter 0
 .Parameters
 
