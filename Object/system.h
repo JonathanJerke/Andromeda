@@ -76,8 +76,12 @@
 #else
 ///for including omp.h
     #define OMP
+
 ///intel MKL
-    #define MKL
+   // #define MKL
+
+/// gnu compatible
+    #define BIT_INT
 
 ///Probably too much, but dont care,
     #define MAXSTRING 1024
