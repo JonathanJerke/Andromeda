@@ -4,13 +4,14 @@ LAPACK          =
 LAPACKlib       = ${LAPACK}
 LAPACKinc       = ${LAPACK}/LAPACKE/include
 
-GSL             = 
-GSLlib          = ${GSL}/lib
-GSLinc          = ${GSL}/include
+#GSL             = 
+#GSLlib          = ${GSL}/lib
+#GSLinc          = ${GSL}/include
 
-flags           = -I${GSLinc} -I${LAPACKinc} -L${GSLlib}  -L${LAPACKlib}
-lib             = -lm -lgfortran -llapacke -llapack -lgslcblas  -lgsl -lgfortran
-
+flags           =-I${LAPACKinc}   -L${LAPACKlib}
+# -I${GSLinc} -L${GSLlib}
+lib             = -lm -lgfortran -llapacke -llapack  -lgfortran
+#-lgslcblas  -lgsl
 
 andromeda: system.h ioPrint.c ioPrint.h eigen.c eigen.h jobs.c input.c input.h constants.h  coreMath.c  coreUtil.h  mAls.c   Model.h coreForce.c  coreMath.h  interfaceMath.c  mAls.h  saUtil.c coreForce.h  input.c  coreUtil.c  interfaceMath.h  Model.c  saUtil.h
 	$(cc) $(flags) -fopenmp jobs.c input.c eigen.c coreMath.c mAls.c coreForce.c interfaceMath.c saUtil.c coreUtil.c Model.c ioPrint.c $(lib) -o andromeda
