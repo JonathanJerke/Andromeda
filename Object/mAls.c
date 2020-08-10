@@ -32,7 +32,6 @@
  *
  *
  *Mean to be run for fixed input lengths from ASTER
- *@param rank      OMP rank
  *@param f1          container
  *@param[in] cofact allows for rescaling the origin by each canonical rank
  *@param[in] GG          internal from ASTER, will speedup processes
@@ -49,7 +48,6 @@
  *@param condition Beylkin's condition (alpha)
  *@param threshold the smallest number
  *@param maxCycle the maxmium number of cycles in this routine
- *@param X1 the minimum number of canonical ranks out, not used now.
  */
 inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   division origin,inta l1,inta l2,inta os, division alloy ,inta l3 , inta l4,  inta spin ,double tolerance,double relativeTolerance, double condition,double threshold, inta maxCycle){
     if (l2 < l1 || l4 < l3 ){
@@ -277,7 +275,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
             }
         iGG = sum;
         
-        //here one could argue for iGG begin too small.
+        ///here one could argue for iGG begin too small.
         
     } else {
         double product,sum=0. ;
@@ -387,7 +385,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
         }
         
         
-        //get inners
+        ///get inners
         for ( space = 0; space < dim0 ; space++)
             if ( f1.canon[space].body != nada){
             
@@ -409,8 +407,8 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
             
         space0 = 1;
         while (1 ){
-            //all computed inner products
-            //            printf("dim[0]=%d\n", dim[0]);
+            ///all computed inner products
+            ///            printf("dim[0]=%d\n", dim[0]);
             dim0 = 0;
             for ( space = 0; space < SPACE ; space++)
                 if ( f1.canon[space].body != nada)
@@ -447,8 +445,8 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
                     for ( l = 0; l < L1 ; l++)
                         guide[g*L1+l] *= (cofact)[originIndex[g]];
             
-            // Vectors  L1 x G1
-            // list...  L1 x M2 ==   ( cross * gstream**T )
+            /// Vectors  L1 x G1
+            /// list...  L1 x M2 ==   ( cross * gstream**T )
             
             {
                 info = tdpotrf(L1, track,LS1);
@@ -687,7 +685,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
                     
                     
 #ifdef OMP
-#pragma omp parallel for private (m)
+#pragma omp parallel for private (m,n)
 #endif
                                 for ( m = 0; m < L1; m++){
                                     if ( flipSignFlag && space == dim[0] )
@@ -741,10 +739,10 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
  *@param condition Beylkin's condition (alpha)
  *@param threshold the smallest number
  *@param maxCycle the maxmium number of cycles in this routine
- *@param canon  the minimum number of canonical ranks out, not used now.
+ *@param canon  canonical ranks.
  */
 double AsterCanonicalRankDecomposition ( inta rank,  sinc_label  f1 , double * cofact,   division origin,inta os,   division alloy,inta spin,  double tolerance ,  double relativeTolerance, double condition,double threshold, inta maxCycle , inta canon  ){
-    inta ii,xm,ll,ggg,lll,lv,gg,c,n,m,l,g,G1 = CanonicalRank(f1, origin, os), L1 = canon,out;
+    inta ii,xm,ll,ggg,gg,c,n,m,l,g,G1 = CanonicalRank(f1, origin, os), L1 = canon,out;
       division G =nullName,L=nullName;
     if ( ! G1 ){
         printf("AsterCanonicalRankDecomposition, Origin is empty\n");
@@ -915,7 +913,7 @@ double AsterCanonicalRankDecomposition ( inta rank,  sinc_label  f1 , double * c
         ///Each attempt will have perfect input canonical Ranks,
         ///simply reduce number of them if re-iteration occurs
     } while ( out < 0  );
-        
+    balance(f1,alloy,spin);
     return 0;
 }
 
