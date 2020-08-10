@@ -1063,32 +1063,18 @@ inta bootedQ (   sinc_label f1){
 
 inta balance (  sinc_label  f1,    division alloy, inta spin){
     inta l;
-    inta L1 = CanonicalRank(f1, alloy,spin),sign[SPACE],signs;
-    double sum,snorm;
-    long double prod,factor,norm[SPACE] ;
-    inta n1,ii,M2[SPACE],space,spaces=0;
+    inta L1 = CanonicalRank(f1, alloy,spin);
+    double snorm;
+    long double prod,norm[SPACE] ;
+    inta M2[SPACE],space;
     length(f1,alloy,M2);
     inta iOne = 1;
-    //#pragma omp parallel for private(l,norm,flag,ii,i,trace,space)
-    if ( species(f1, alloy ) == vector ){
-      //IGNORE
-        return 0;
-    }
     {
         for ( l = 0; l < L1 ;l++){
             
             for ( space = 0; space < SPACE ; space++)
                 if ( f1.canon[space].body != nada){
-                    spaces++;
                     norm[space] = cblas_dnrm2(M2[space], streams(f1, alloy,spin,space)+l*M2[space],iOne);
-                    sum = 0.;
-                    n1 = outerVectorLen(f1, bodies(f1,alloy), space);
-                    for ( ii = 0; ii < n1; ii++)
-                        sum += ( streams(f1, alloy,spin,space)+l*M2[space])[ii*n1+ii];
-                    if ( sum >= 0 )
-                        sign[space] = 1;
-                    else
-                        sign[space] = -1;
                 }
             
             
@@ -1096,21 +1082,15 @@ inta balance (  sinc_label  f1,    division alloy, inta spin){
            // printf("%d ::", alloy);
             for ( space = 0 ;space < SPACE ; space++)
                 if ( f1.canon[space].body != nada){
-                    prod *= sign[space]*norm[space];
-              //      printf("%f ", sign[space]*norm[space]);
-                    
+                    prod *= norm[space];
                 }
-          //  printf("\n");
-            if ( prod >= 0 )
-                signs = 1;
-            else
-                signs = -1;
-            factor = powl( fabsl(prod),1./spaces);
             for ( space = 0; space < SPACE ; space++)
                if ( f1.canon[space].body != nada)
                {
-                snorm = factor/norm[space]*signs/sign[space] ;
-                cblas_dscal(M2[space], snorm, streams(f1, alloy,spin,space)+l*M2[space],iOne);
+                   snorm = 1./norm[space] ;
+                   if (! space )
+                       snorm *= prod;
+                   cblas_dscal(M2[space], snorm, streams(f1, alloy,spin,space)+l*M2[space],iOne);
                }
             
         }

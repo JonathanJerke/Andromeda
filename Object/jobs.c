@@ -148,7 +148,7 @@ double singlekrylov (   calculation *c1,   field f1){
         }
     }
     printExpectationValues(c1, f1.f, Iterator, eigenVectors);
-
+    balance(f1.f, eigenVectors, 0);
     print(c1,f1,1,0,1,eigenVectors);
     fModel(&f1.f);
     return 0;
