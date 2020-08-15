@@ -122,6 +122,7 @@
 
 ##5 proton-proton
 *Term
+        embed 2
         newTerm 1
 	flags 0
 	scalar 1.  	   
