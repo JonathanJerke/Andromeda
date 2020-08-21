@@ -12,14 +12,19 @@ if [ -f hosts ]
     fi
 
 export LAUNCHER_WORKDIR=`pwd`
-if [ -f ppn ]
+
+COM1=`head -n 1 launcher.com`
+HEADER=`header.sh $COM1`
+if [ -f $HEADER ]
     then
-        export LAUNCHER_PPN=`cat ppn`
+        export LAUNCHER_PPN=`cat $HEADER`
+    elif [ -f ppn ]
+        then
+            export LAUNCHER_PPN=`cat ppn`
     else
         echo "set ppn for speedup"
         export LAUNCHER_PPN=4
-    fi
-
+fi
 
 if [ -f jobDone ]
     then
