@@ -7,7 +7,7 @@ if [ $# -eq 4 ]
          prev=$src/B.kry
          for i in `cat $3`
             do
-            file=$dir/b.sum.$i
+            file=$dir/b.sum.$4.$i
             echo "*Body $file" > $file
             echo "*InputOutput" >> $file
             echo "read found/found" >> $file

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# -eq 4 ]
+if [ $# -eq 5 ]
     then
      src=$1
      dir=$2
@@ -11,11 +11,13 @@ if [ $# -eq 4 ]
     echo "*InputOutput" >> $file
     echo "read found/found" >> $file
     echo "read $dir/stage " >> $file
-    for f in `cat $3`
+    for state in `cat $3`
         do
-        
-        echo "vector $prev.$f" >> $file
-        echo "vector $curr.$f" >> $file
+        echo "vector $prev.$state" >> $file
+        for sum in `cat $5`
+            do
+            echo "vector $curr.$sum.$state" >> $file
+        done
     done
     for h in `cat $4`
         do

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ -f stop ]
+    then
+    rm stop
+fi
+
 
 touch waiter
 flag=1
@@ -30,11 +35,14 @@ for curr in $*
             cp inc $curr/inc
             krylov1.sh $prev $curr states spam
             wait
-			sum1.sh $curr $curr states spam
+            for f in `cat sums`
+                do
+                sum1.sh $curr $curr states $f
+            done
             wait
-            ritzb.sh $prev $curr states spam
+            ritzb.sh $prev $curr states spam sums
             wait
-            ritzs.sh $prev $curr states spam
+            ritzs.sh $prev $curr states spam sums
             wait
          	prevKrylovD.sh  $curr $curr states
 		fi
