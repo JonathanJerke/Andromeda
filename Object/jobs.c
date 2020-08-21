@@ -261,7 +261,7 @@ int run (inta argc , char * argv[]){
 
             case 0 :
                 ///andromeda 0
-                printf("----\nv9.0\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\nv9.1\n\n%s\n\n",getenv("LAUNCH"));
                 printf("cat file |  andromeda 1 \n\t\t--> MEMORY AND TERM output without committing\n");
                 printf("cat file |  andromeda  \n");
                 printf("andromeda -1 file \n");

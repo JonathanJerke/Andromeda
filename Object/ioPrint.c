@@ -237,6 +237,11 @@ inta ioArray(  calculation *c1,   field f,char * name,inta N1, floata * array, i
     blockA(f2.f.rt, blockTrainVectorsblock);
     blockA(f2.f.rt, blockCopyBlock);
     blockA(f2.f.rt, blockTransferBasisblock);
+    blockA(f2.f.rt, blockMatrixElementsblock);
+    blockA(f2.f.rt, blockPermutationsblock);
+    blockA(f2.f.rt, blockParallelMultiplyblock);
+    blockA(f2.f.rt, blockParallelMatrixElementblock);
+    blockA(f2.f.rt, blockParallelPermuteblock);
 
     f2.i.body = one;
 
@@ -500,7 +505,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                             field f2 = initField();
                             calculation c2;
                             c2 = *c1;
-                            c2.i.numNames = 0;
+                            c2.i.numNames = 3*inputFormat(f1, name, nullName, 2);
                             c2.i.numVectors = 0;
 
                             c2.i.termNumber = 0;
@@ -513,12 +518,15 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                             f2.i.files = 0;
                             f2.i.filesVectorOperator = 0;
                             f2.i.qFloor = 0;
+                            c2.i.lambda = 6;
                             resetA(f2.f.rt);
-                            blockA(f2.f.rt, blockTotalVectorBlock);
-                            blockA(f2.f.rt, blockTrainVectorsblock);
                             blockA(f2.f.rt, blockCopyBlock);
-                            blockA(f2.f.rt, blockTransferBasisblock);
-
+                            blockA(f2.f.rt, blockMatrixElementsblock);
+                            blockA(f2.f.rt, blockPermutationsblock);
+                            blockA(f2.f.rt, blockParallelMultiplyblock);
+                            blockA(f2.f.rt, blockParallelMatrixElementblock);
+                            blockA(f2.f.rt, blockParallelPermuteblock);
+                        
                             f2.i.body = inputFormat(f1,name, nullName, 100);
                         
                             f2.f.boot = noMatrices;
@@ -551,11 +559,22 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                             }
                             iModel(&c2,&f2);
                             inputFormat(f2.f, name, eigenVectors,1);
+                            
+                        {
+                            inta sp;
                             ///will only filter +2 with collect
+                            if ( (((f.i.filter/2)%2)==1)*f.f.irrep ) {
+                                for ( sp = 0; sp < spins(f1, eigenVectors);sp++){
+                                    f2.f.name[totalVector].Current[0] = 0;
+                                    tBuildIrr(0, f2.f, f.f.irrep, eigenVectors, sp, totalVector, 0);
+                                    AsterCanonicalRankDecomposition(0, f2.f, NULL,totalVector, 0,eigenVectors,sp, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE, part(f2.f,eigenVectors));
+                                }
+                            }
+                        }
                             if ( collect ){
                                 xEqua(f1,inputVectors+*ct, cmpl , f2.f, eigenVectors,0);
                                 flagLoad = 0;
-                                if ( tSelect(f1, *ct, (((f.i.filter/2)%2)==1)*f.f.irrep, inputVectors, 1) ) {
+                                if ( tSelect(f1, *ct, 0, inputVectors, 1) ) {
                                     
                                     f1.name[inputVectors+*ct].value.symmetry = tClassify(0, f1, inputVectors+*ct);
                                     

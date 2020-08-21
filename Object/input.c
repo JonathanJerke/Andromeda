@@ -977,7 +977,7 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
         inta NINT_TYPE = 6;
             char *list_INT_TYPE []= {"#",
                 "count1Basis","body","basis",
-                "count1Stage","basisTranslate","count1Inc"
+                "count1Stage","revise","count1Inc"
             };
             inta NDOUBLE = 16;
             char *list_DOUBLE []= {"#",
@@ -1034,6 +1034,12 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                             for ( dim = 0; dim < SPACE ; dim++)
                                 if ( f->f.canon[dim].body != nada)
                                     if ( f->f.canon[dim].basis == SincBasisElement){
+                                        ///Use count1Inc to update step increments
+                                        ///this has been done to reduce memory in basis-transfers
+                                        if (ivalue > 1 )
+                                            ivalue = 1;
+                                        
+                                        
                                         for (body1 = one ; body1 <= f->f.canon[dim].body; body1++){
                                             f->f.canon[dim].particle[body1].origin += +f->f.canon[dim].particle[body1].lattice*(f->f.canon[dim].count1Basis-1)*f->f.canon[dim].particle[body1].anchor;
                                             ///remove previous origin
@@ -1056,7 +1062,10 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                                 f->f.canon[dim].particle[one].origin   += origin1;
                                 f->f.canon[dim].particle[two].origin   += origin2;
                                 f->f.canon[dim].particle[three].origin += origin3;
-
+                                f->f.canon[dim].count1Inc = count1Inc;
+                                f->f.canon[dim].particle[one].attack = attack1;
+                                f->f.canon[dim].particle[two].attack = attack2;
+                                f->f.canon[dim].particle[three].attack = attack3;
                             }
                             return i;
                         case 6:

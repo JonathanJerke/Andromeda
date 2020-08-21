@@ -489,25 +489,20 @@ inta iModel(   calculation * c1,   field *f){
             f1->name[diagonalVectorB].species = vector;
 
         }
-        
-        inta len[SPACE],mxlen=0;
-        length(*f1, eigenVectors, len);
-        for ( space = 0 ; space < SPACE ; space++)
-            if ( f1->canon[space].body != nada )
-            if(len[space] > mxlen)
-                mxlen = len[space];
-        
+        inta len[SPACE];
+        inta mxlen=0;
         inta mx1len=0;
         length1(*f1, len);
         for ( space = 0 ; space < SPACE ; space++)
-            if ( f1->canon[space].body != nada )
-
-            if(len[space] > mx1len)
-                mx1len = len[space];
-
+            if ( f1->canon[space].body != nada ){
+                len[space]+=f1->canon[space].count1Inc;
+                if(len[space] > mx1len)
+                    mx1len = len[space];
+            }
+        mxlen = Power(mx1len, bootBodies);
     
         fromBeginning(*f1,productVector,diagonalVectorB);
-        f1->name[productVector].Partition =  1;
+        f1->name[productVector].Partition =  0;
         f1->name[productVector].species = vector;
         f1->name[productVector].spinor = parallel;
 
@@ -518,49 +513,54 @@ inta iModel(   calculation * c1,   field *f){
         f1->name[scalarTemp].spinor = real;
 
         fromBeginning(*f1,permutationVector,scalarTemp);
-        f1->name[permutationVector].Partition =  maxVector;
+        f1->name[permutationVector].Partition =  allowQ(f1->rt, blockPermutationsblock);
         f1->name[permutationVector].species = vector;
-        f1->name[permutationVector].spinor = parallel;
+        if ( allowQ(f1->rt, blockParallelPermuteblock) )
+            f1->name[permutationVector].spinor = parallel;
         
         fromBeginning(*f1,permutation2Vector,permutationVector);
-        f1->name[permutation2Vector].Partition = maxVector;
+        f1->name[permutation2Vector].Partition = allowQ(f1->rt, blockPermutationsblock);
         f1->name[permutation2Vector].species = vector;
-        f1->name[permutation2Vector].spinor = parallel;
+        if ( allowQ(f1->rt, blockParallelPermuteblock) )
+            f1->name[permutation2Vector].spinor = parallel;
     
     
         fromBeginning(*f1,multiplyVector,permutation2Vector);
         f1->name[multiplyVector].Partition = 1;
         f1->name[multiplyVector].species = vector;
-        f1->name[multiplyVector].spinor = parallel;
+        if ( allowQ(f1->rt, blockParallelMultiplyblock) )
+            f1->name[multiplyVector].spinor = parallel;
 
     
         fromBeginning(*f1,canonicalmvVector,multiplyVector);
-        f1->name[canonicalmvVector].Partition = 1;
+        f1->name[canonicalmvVector].Partition = 1*0;
         f1->name[canonicalmvVector].species = vector;
         f1->name[canonicalmvVector].spinor = parallel;
 
         fromBeginning(*f1,canonicalmv2Vector,canonicalmvVector);
-        f1->name[canonicalmv2Vector].Partition = 1;
+        f1->name[canonicalmv2Vector].Partition = 1*0;
         f1->name[canonicalmv2Vector].species = vector;
-        f1->name[canonicalmv2Vector].spinor = parallel;
 
         fromBeginning(*f1,canonicalmv3Vector,canonicalmv2Vector);
         f1->name[canonicalmv3Vector].Partition = 2;
         f1->name[canonicalmv3Vector].species = vector;
-        f1->name[canonicalmv3Vector].spinor = parallel;
+        if ( allowQ(f1->rt, blockParallelMultiplyblock) )
+            f1->name[canonicalmv3Vector].spinor = parallel;
 
         fromBeginning(*f1,canonicaldotVector,canonicalmv3Vector);
-        f1->name[canonicaldotVector].Partition = 1;
+        f1->name[canonicaldotVector].Partition = allowQ(f1->rt, blockPermutationsblock);
         f1->name[canonicaldotVector].species = vector;;
-        f1->name[canonicaldotVector].spinor = parallel;
+        if ( allowQ(f1->rt, blockParallelPermuteblock) )
+            f1->name[canonicaldotVector].spinor = parallel;
         
         fromBeginning(*f1,canonicaldot2Vector,canonicaldotVector);
-        f1->name[canonicaldot2Vector].Partition = 1;
+        f1->name[canonicaldot2Vector].Partition = allowQ(f1->rt, blockPermutationsblock);
         f1->name[canonicaldot2Vector].species = vector;;
-        f1->name[canonicaldot2Vector].spinor = parallel;
+        if ( allowQ(f1->rt, blockParallelPermuteblock) )
+            f1->name[canonicaldot2Vector].spinor = parallel;
         
         fromBeginning(*f1,canonicaldot3Vector,canonicaldot2Vector);
-        f1->name[canonicaldot3Vector].Partition = 1;
+        f1->name[canonicaldot3Vector].Partition = 1*0;
         f1->name[canonicaldot3Vector].species = vector;;
         f1->name[canonicaldot3Vector].spinor = parallel;
         
@@ -582,38 +582,28 @@ inta iModel(   calculation * c1,   field *f){
         fromBeginning(*f1,canonicalmeVector,canonicalvv3Vector);
         f1->name[canonicalmeVector].Partition = 1;
         f1->name[canonicalmeVector].species = vector;;
-        f1->name[canonicalmeVector].spinor = parallel;
+        if (allowQ(f1->rt, blockParallelMatrixElementblock))
+            f1->name[canonicalmeVector].spinor = parallel;
         
-        fromBeginning(*f1,canonicalme2Vector,canonicalmeVector);
-        f1->name[canonicalme2Vector].species = vector;;
-        f1->name[canonicalme2Vector].spinor = parallel;
-        
-        fromBeginning(*f1,canonicalme3Vector,canonicalme2Vector);
-        f1->name[canonicalme3Vector].species = vector;;
-        f1->name[canonicalme3Vector].spinor = parallel;
-
-        fromBeginning(*f1,copyVector,canonicalme3Vector);
+        fromBeginning(*f1,copyVector,canonicalmeVector);
         if ( allowQ(&c1->rt, blockCopyBlock))
             f1->name[copyVector].Partition = maxVector;
         f1->name[copyVector].species = vector;
-        //f1->name[copyVector].spinor = parallel;
 
         fromBeginning(*f1,copyTwoVector,copyVector);
-        f1->name[copyTwoVector].Partition =   0;//f->i.canonRank*f->i.canonRank;
-       // if ( ! f1->cat )
-        //    f1->name[copyTwoVector].Partition *= ra;
+        if ( allowQ(&c1->rt, blockCopyBlock))
+            f1->name[copyTwoVector].Partition =   maxVector;
         f1->name[copyTwoVector].species = vector;
-        //f1->name[copyTwoVector].spinor = parallel;
 
         fromBeginning(*f1,copyThreeVector,copyTwoVector);
-        f1->name[copyThreeVector].Partition =   maxVector*0;//f->i.canonRank*f->i.canonRank;
+        if ( allowQ(&c1->rt, blockCopyBlock))
+            f1->name[copyThreeVector].Partition =   maxVector;
         f1->name[copyThreeVector].species = vector;
-        f1->name[copyThreeVector].spinor = parallel;
 
         fromBeginning(*f1,copyFourVector,copyThreeVector);
-        f1->name[copyFourVector].Partition =    maxVector*0;//f->i.canonRank*f->i.canonRank;
+        if ( allowQ(&c1->rt, blockCopyBlock))
+            f1->name[copyFourVector].Partition =    maxVector;
         f1->name[copyFourVector].species = vector;
-        f1->name[copyFourVector].spinor = parallel;
         
         fromBeginning(*f1,totalVector,copyFourVector);
   

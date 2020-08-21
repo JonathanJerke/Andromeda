@@ -2340,7 +2340,7 @@ double xOneBand (  sinc_label f1,inta space,   division vector1 ,inta s1,   sinc
     length1(f1,n1);
     inta n2[SPACE];
     length1(f2,n2);
-    floata *band = myStreams(f2, bandBasis, rank);
+    floata *band = myStreams(f1, bandBasis, rank);
     inta L1;
     f2.name[out].Current[s2] = 0;
     
@@ -2373,7 +2373,7 @@ double xTwoBand (  sinc_label f1,inta space,   division vector1 ,inta s1,   sinc
     length1(f1,n1);
     inta n2[SPACE];
     length1(f2,n2);
-    floata *band = myStreams(f2, bandBasis, rank);
+    floata *band = myStreams(f1, bandBasis, rank);
     
     
     floata *buffer = band+n1[0]*n2[0]*2;
@@ -2416,7 +2416,7 @@ double xThreeBand (  sinc_label f1, inta space,  division vector1 ,inta s1,   si
     length1(f1,n1);
     inta n2[SPACE];
     length1(f2,n2);
-    floata *band = myStreams(f2, bandBasis, rank);
+    floata *band = myStreams(f1, bandBasis, rank);
     floata *buffer = band+n1[0]*n2[0]*3;
     floata *buffer2= buffer+n2[0]*n2[0]*n2[0];
 
@@ -2464,7 +2464,7 @@ double xFourBand (  sinc_label f1,inta space,   division vector1 ,inta s1,   sin
     length1(f1,n1);
     inta n2[SPACE];
     length1(f2,n2);
-    floata *band = myStreams(f2, bandBasis, rank);
+    floata *band = myStreams(f1, bandBasis, rank);
     floata *buffer = band+n2[0]*n2[0]*4;
     floata *buffer2= buffer+n2[0]*n2[0]*n2[0]*n2[0];
 

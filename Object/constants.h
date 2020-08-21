@@ -26,7 +26,7 @@
 /**
  *Andromeda: a few-body plane wave calculator
  *
- *v9.0
+ *v9.1
  *quantumGalaxies.org
  *
  *Jonathan Jerke
@@ -310,6 +310,12 @@ enum metricType {
     pureSemiIndefinite
 };
 
+
+
+
+
+
+
 /**
  *Enumerate memory controls
  *
@@ -326,38 +332,125 @@ enum blockMemoryType{
     blockTrainVectorsblock,
     blockCopyBlock,
     blockTransferBasisblock,
-    blockMatrixElementsblock
+    blockMatrixElementsblock,
+    blockPermutationsblock,
+    blockParallelMultiplyblock,
+    blockParallelMatrixElementblock,
+    blockParallelPermuteblock
 };
 
 
+/**
+ *Direct
+*/
+
+///B
+///block: 3,4, 5, 6,7, 9
+
+///b
+///block: 3, 4, 5, 6, 7,  9
+
+///C
+///block 1,2,3,4,6,7,9
+
+///c
+///block 1,2,3,4,6,7,8,9
+
+///D
+///block 3,4,5,6,7,9
 
 
+/**
+ *Collect
+*/
+
+///B
+///block: 3, 4,5, 7,  9
+
+///b
+///block: 3, 4, 5, 7, 9
+
+///C
+///collect 1
+///block 3,4, 6,7,9
+
+///c
+///collect 1
+///block 3,4,6,7,8,9
+
+///D
+///block 3,4,5,6,7,9
+
+/**
+ *CollectFilter at output
+*/
+
+///B
+///block: 3, 4,5, 7, 9
+
+///b
+///filter 4
+///block: 3, 4, 5, 7, 9
+
+///C
+///collect 1
+///block 3,4, 6,7,9
+
+///c
+///collect 1
+///block 3,4,6,7,8,9
+
+///D
+///filter 4
+///block 3,4,5,6,7,9
 
 
+/**
+ *Filter post creation of vector
+*/
+
+///B
+///block: 3,4, 5, 6,7,  9
+
+///b
+///block: 3, 4, 5, 7,  9
+///filter 4
+
+///C
+///block 1,2,3,4,6,7,9
+
+///c
+///block 1,2,3,4,6,7,9
+
+///D
+///block 3,4,5,7,9
+///filter 4
 
 
+/**
+ *InputFilter
+ *Collect and filter at input
+*/
 
+///B
+///block: 3,4,5,7,9
 
+///b
+///block: 3,4,5,7,9
 
+///C
+///filter 3
+///collect 1
+///block 3,4,7,9
 
+///c
+///filter 3
+///collect 1
+///block 3,4,7,9
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+///D
+///filter 3
+///block 3,4,5,7,9
 
 
 
@@ -401,7 +494,7 @@ enum blockMemoryType{
 
 /**
  *Divisions define and indicate data.
- *Lined up with 400 so a division number can be easily read.
+ *Lined up with 500 so a division number can be easily read.
  */
 enum division{
     nullName,

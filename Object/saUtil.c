@@ -624,8 +624,10 @@ inta tBuildIrr ( inta rank,   sinc_label  f1, inta meta , division origin, inta 
     if (! CanonicalRank(f1, origin, ospin ))
         return 0;
     
-    inta i,nPerm=tPerms(bodies(f1,origin));
-    
+    inta o,space,i,nPerm=tPerms(bodies(f1,origin));
+    f1.name[permutationVector].Current[rank] = 1;
+    f1.name[permutation2Vector].Current[rank] = 1;
+
     if ( CanonicalRank(f1, origin, ospin)*nPerm > part(f1,targ)){
         printf("Irr\n");
         printf("%d %d %d\n", CanonicalRank(f1, origin, ospin), part(f1, origin), part(f1, targ));
@@ -635,9 +637,15 @@ inta tBuildIrr ( inta rank,   sinc_label  f1, inta meta , division origin, inta 
         for ( i = 1; i <= nPerm ; i++){
             irrep = meta;
             f1.name[permutation2Vector].Current[rank] = 0;
-            tPermute(rank,f1, i, origin, ospin, permutation2Vector, rank);
-            tScaleOne(f1, permutation2Vector, rank, tGetProjection(bodies(f1, origin), irrep, i));
-            tAddTw(f1, targ, tspin, permutation2Vector, rank);
+            for ( o = 0; o < CanonicalRank(f1, origin, ospin);o++){
+                for ( space = 0; space < SPACE ; space++)
+                    if ( f1.canon[space].body != nada )
+                        xsEqu(1., space, f1, permutationVector, 0, rank, space, f1, origin, o, ospin);
+                f1.name[permutation2Vector].Current[rank] = 0;
+                tPermute(rank,f1, i, permutationVector, rank, permutation2Vector, rank);
+                tScaleOne(f1, permutation2Vector, rank, tGetProjection(bodies(f1, origin), irrep, i));
+                tAddTw(f1, targ, tspin, permutation2Vector, rank);
+            }
         }
     
     return 0;

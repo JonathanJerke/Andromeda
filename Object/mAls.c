@@ -446,7 +446,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
                         guide[g*L1+l] *= (cofact)[originIndex[g]];
             
             /// Vectors  L1 x G1
-            /// list...  L1 x M2 ==   ( cross * gstream**T )
+            // list...  L1 x M2 ==   ( cross * gstream**T )
             
             {
                 info = tdpotrf(L1, track,LS1);
@@ -1061,7 +1061,6 @@ double tMatrixElements ( inta rank,  sinc_label  f1 ,   division bra, inta bspin
                                 if ( f1.canon[space].body != nada){
                                     prod *= tDOT(rank, f1,space,CDT, bra, e, bspin,CDT, holder, holderRank, holderSpin);
                                 }
-                       //     printf("%d %d %d (%f) __%f__\n", k,l,e,prod,ME);
                             ME += prod;
                         }
                     }

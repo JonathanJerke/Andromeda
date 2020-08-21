@@ -48,16 +48,9 @@ inta tFilter(  sinc_label f1, inta Ve, inta irrep,   division usr){
         }
     }
     
-#ifdef OMP
-#pragma omp parallel for private (ii,rank) schedule(dynamic,1)
-#endif
     for ( ii = 0; ii < Ve ; ii++)
     {
-#ifdef OMP
-        rank = omp_get_thread_num();
-#else
         rank = 0;
-#endif
         f1.name[usr+ii].value.symmetry = tClassify(rank, f1, usr+ii);
     }
     return 0;
