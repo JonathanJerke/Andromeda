@@ -26,7 +26,7 @@
 /**
  *Andromeda: a few-body plane wave calculator
  *
- *v9.0
+ *v9.1
  *quantumGalaxies.org
  *
  *Jonathan Jerke
@@ -64,7 +64,7 @@
 ///basically overwritten, will remove
 #define MAX_PARAM_FUNC 4
 ///The block-memory commands act to negate memory allocations,  this is the maximum number of blocks.  Leave this alone, unless you add blocks.
-#define BLOCK_COUNT 6
+#define BLOCK_COUNT 11
 
 #ifdef APPLE
     #define SPHERE
@@ -77,13 +77,12 @@
 ///for including omp.h
     #define OMP
 
-///intel MKL
-   // #define MKL
-
+#ifndef MKL
 /// gnu compatible
     #define ATLAS
     #define LAPACKE
     #define BIT_INT
+#endif
 ///Probably too much, but dont care,
     #define MAXSTRING 88
 ///Probably too much, but dont care,
