@@ -3,6 +3,7 @@
 		eikons 1000
 		names 10000
 		#spam 42
+		canonRank 6
 		states 12
 		body 2
 		maxCycle 1000
