@@ -590,8 +590,8 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                             } else {
                                 xEqua(f1,inputVectors+*ct, cmpl, f2.f, eigenVectors,0);
 
-                                f1.name[inputVectors+*ct].value.symmetry = f2.f.name[eigenVectors].value.symmetry;
-                                
+                                f1.name[inputVectors+*ct].value.symmetry = tClassify(0, f1, inputVectors+*ct);
+
                                 printf("%s\tSA%d\n", name,  f1.name[inputVectors+*ct].value.symmetry);
                                 fflush(stdout);
 
