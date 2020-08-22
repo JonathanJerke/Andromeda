@@ -84,6 +84,7 @@
 *InputOutput
 	read ../cn3
 	read ../ke2
+	read ../geo
 .InputOutput
 	
 	*Parameters
