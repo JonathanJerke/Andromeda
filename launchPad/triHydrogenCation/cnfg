@@ -82,6 +82,7 @@
 .Term
 *InputOutput
 	read ../cn3
+	read ../ke2
 .InputOutput
 	
 	*Parameters
