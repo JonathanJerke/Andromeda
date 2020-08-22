@@ -1,0 +1,30 @@
+
+*Body def
+	*Parameters
+		#
+		#
+		#system resources
+		maxRAM 160
+		collect 0
+		filter 0
+		#set in two
+		#
+		#	
+		cmpl 1	
+		tolerance 8
+		relativeTolerance 8
+		condition 8
+		threshold 12
+		maxCycle 10000
+		maxCondition 11
+		#
+		#
+		configuration 0
+		phase 0
+		lanes 1 
+		parallel 1
+		Angstroms 0
+.Parameters
+
+.Body
+

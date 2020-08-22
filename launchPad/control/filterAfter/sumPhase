@@ -1,0 +1,17 @@
+*Body print
+	*Parameters
+		spam 0
+		phase 1
+		filter 4
+		blockReset 
+		blockMemory 3
+		blockMemory 4
+                blockMemory 5
+                blockMemory 7
+                blockMemory 9
+	.Parameters
+
+	*InputOutput
+		read two
+	.InputOutput
+.Body
