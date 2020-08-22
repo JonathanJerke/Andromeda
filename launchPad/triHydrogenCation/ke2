@@ -3,10 +3,9 @@
 		scalar 1.
 		newTerm 1
                 block 1
-		kinetic
+		kinetic T1
                 newTerm 1
                 block 2
-		kinetic
-                newTerm 1
+		kinetic T2
        	.Term
 .Body

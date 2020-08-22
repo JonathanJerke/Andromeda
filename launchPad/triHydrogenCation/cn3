@@ -1,36 +1,30 @@
 *Body
 	*Term
-		funcType 3
-                offDiagonals 1
-                funcScalar 1
                 block 1
-                scalar 1.
+                scalar -1.
                 newTerm 1
                 atom 1
-		external
+		oneBody e1-p1
 		newTerm 1
 		atom 2
-		external
+		oneBody e1-p2
                 newTerm 1
 		atom 3
-		external
+		oneBody e1-p3
                 newTerm 1
                 block 2
-                scalar 1.
                 newTerm 1
                 atom 1
-                external
+                oneBody e2-p1
                 newTerm 1
                 atom 2
-                external
+                oneBody e2-p2
                 newTerm 1
                 atom 3
-                external
-                offDiagonals 2
-		scalar -1
+                oneBody e2-p3
+		scalar 1
                 block 7
                 newTerm 1
-                interaction
-                newTerm 1
+                twoBody e1-e2
        	.Term
 .Body

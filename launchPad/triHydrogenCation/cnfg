@@ -1,37 +1,90 @@
 *Body print
 	*Parameters
+		eikons 1000
+		names 10000
+		#spam 42
+		states 12
 		body 2
-		Angstroms 1
+		maxCycle 1000
 	.Parameters
+
+	*InputOutput
+		path filterInput
+	.InputOutput
+
 	
+*Dim
+	count1Inc 2
+	latticeAll 4
+	attackAll 0.784662
+	body 2
+	basis 1
+	count1Basis 2
+	threeComponent
+.Dim
+
+
 *Term
 	act 1
-	interval 15
+	interval 7
 	minBeta 0
-	maxBeta 10
+	maxBeta 1
 .Term
 *InputOutput
 	read ../cn3
 .InputOutput
 
 *Term
-        act 1
-        interval 15
-        minBeta 10
+     	act 1
+	interval 7 
+        minBeta 1
+        maxBeta 2 
+.Term
+*InputOutput
+	read ../cn3
+.InputOutput
+
+*Term
+     	act 1
+	interval 7 
+        minBeta 2
+        maxBeta 4 
+.Term
+*InputOutput
+	read ../cn3
+.InputOutput
+
+*Term
+     	act 1
+	interval 7 
+        minBeta 4
+        maxBeta 8 
+.Term
+*InputOutput
+	read ../cn3
+.InputOutput
+
+*Term
+     	act 1
+	interval 7 
+        minBeta 8
+        maxBeta 16 
+.Term
+*InputOutput
+	read ../cn3
+.InputOutput
+
+*Term
+     	act 1
+	interval 7 
+        minBeta 16
         maxBeta -1
 .Term
 *InputOutput
-        read ../cn3
-	read ../ke2
+	read ../cn3
 .InputOutput
-		
-	*Geometry
-		1 0 0.519615 0
-		1 0 -0.259808 0.45
-		1 0 -0.259808 -0.45
-	.Geometry
 	
 	*Parameters
-	canon 15
+	lambda 8
 	.Parameters
 .Body
