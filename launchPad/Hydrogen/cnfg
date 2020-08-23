@@ -1,7 +1,7 @@
 *Body	print
 
 *InputOutput
-	path eikon
+	path direct
 .InputOutput
 
 *Parameters
@@ -11,8 +11,6 @@
 	states 1
 	body 1
 	canonRank 1
-	collect 0
-	filter 0
 .Parameters
 
 *Dim
