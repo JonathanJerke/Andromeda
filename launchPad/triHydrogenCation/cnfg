@@ -10,7 +10,7 @@
 	.Parameters
 
 	*InputOutput
-		path filterInput
+		path filterAfter
 	.InputOutput
 
 	
