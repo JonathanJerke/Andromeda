@@ -1,0 +1,9 @@
+*Body found/found
+	*InputOutput
+		read ../cnfg
+		read symmetry
+		control core
+		control foundPhase
+		read two
+	.InputOutput
+.Body
