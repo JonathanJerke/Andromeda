@@ -1,5 +1,0 @@
-start.csh neo A1
-cd neo
-seq 1 16 > spam
-pathFinder1.csh found `seq 1 10` 
-drive.csh
