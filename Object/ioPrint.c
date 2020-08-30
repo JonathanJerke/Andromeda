@@ -284,9 +284,14 @@ inta ioArray(  calculation *c1,   field f,char * name,inta N1, floata * array, i
         floata *pt = streams(f2.f,eigenVectors,0,0);
         for ( i = 0 ; i < N1  ; i++)
             pt[i] = array[i];//column major matrix.
+        
+#ifdef writeHDF5
+        writeFast(f2.f, name, 0, eigenVectors,0);
+#else
         FILE* file = fopen(name,"w");
         outputFormat(f2.f, file, eigenVectors, 0);
         fclose(file);
+#endif
         //OUT
     }
     fModel(&f2.f);
