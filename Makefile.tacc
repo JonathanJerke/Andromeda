@@ -1,12 +1,13 @@
 gcc   = icc
 
-MKLPATH = $(MKLROOT)/lib/intel64
+MKLPATH 	= $(MKLROOT)/lib/intel64
+HDF5 		= /opt/apps/intel18/hdf5/1.8.21/x86_64/
 
 all: olympics
 
-lib = -Wl,--start-group ${MKLPATH}/libmkl_intel_ilp64.a ${MKLPATH}/libmkl_intel_thread.a ${MKLPATH}/libmkl_core.a ${MKLPATH}/libmkl_blacs_openmpi_ilp64.a -Wl,--end-group  -liomp5 -lpthread -lm -ldl  
+lib = -Wl,--start-group ${MKLPATH}/libmkl_intel_ilp64.a ${MKLPATH}/libmkl_intel_thread.a ${MKLPATH}/libmkl_core.a ${MKLPATH}/libmkl_blacs_openmpi_ilp64.a -Wl,--end-group  -liomp5 -lpthread -lm -ldl -L${HDF5}/lib -lhdf5_hl -lhdf5
 
-flags = -DMKL_ILP64 -m64 -I${MKLROOT}/include  
+flags = -DMKL_ILP64 -m64 -I${MKLROOT}/include -I${HDF5}/include
 
 olympics: ioPrint.c ioPrint.h eigen.c eigen.h input.c input.h constants.h  coreMath.c  coreUtil.h   mAls.c   Model.h coreForce.c  coreMath.h  interfaceMath.c mAls.h saUtil.c coreForce.h  coreUtil.c  interfaceMath.h  Model.c  saUtil.h
 	$(gcc) $(flags)  -fopenmp jobs.c input.c eigen.c coreMath.c mAls.c coreForce.c interfaceMath.c saUtil.c coreUtil.c Model.c ioPrint.c $(lib) -o olympics
