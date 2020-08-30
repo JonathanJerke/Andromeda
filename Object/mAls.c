@@ -1720,19 +1720,20 @@ void tHXpY (  inta rank,   sinc_label f1 ,  division bra,   division left,inta s
         pt = left;
         zero(f1, totalVector, rank);
         f1.name[totalVector].Current[rank] =0;
-        if ( shiftFlag  == 1){
-            tEqua(f1, totalVector, rank, bra, targSpin);
-        }
-        else if ( shiftFlag  == -1){
-            tEqua(f1, totalVector, rank, right, targSpin);
-            mea ME;
-            ME = tMatrixElements(rank, f1, right, 0, left, 0, right, 0);
-            tScaleOne(f1, totalVector, rank, -ME);
-        }
 
-        else
-            f1.name[totalVector].Current[rank] = 0;
-
+        if (  bra != totalVector){
+            if ( shiftFlag  == 1){
+                tEqua(f1, totalVector, rank, bra, targSpin);
+            }
+            else if ( shiftFlag  == -1){
+                tEqua(f1, totalVector, rank, right, targSpin);
+                mea ME;
+                ME = tMatrixElements(rank, f1, right, 0, left, 0, right, 0);
+                tScaleOne(f1, totalVector, rank, -ME);
+            }
+            else
+                f1.name[totalVector].Current[rank] = 0;
+        }
          {
             Mat = pt;
             for ( im = 0; im < spins(f1, Mat ); im++)
@@ -1778,7 +1779,9 @@ void tHXpY (  inta rank,   sinc_label f1 ,  division bra,   division left,inta s
                 }
         };
         
-        AsterCanonicalRankDecomposition(rank, f1,  NULL,totalVector, rank, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle, canon);
+        if (  bra != totalVector){
+            AsterCanonicalRankDecomposition(rank, f1,  NULL,totalVector, rank, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle, canon);
+        }
     }
     return;
 }

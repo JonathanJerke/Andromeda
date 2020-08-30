@@ -82,12 +82,22 @@ inta print(  calculation *c ,   field f1,inta reset,inta mv, inta lv,  division 
 #ifndef APPLE
                         tFilename(c->name,iii+1,bodies(f1.f, eigenVectors+iii) ,irrep, cmpl,str);
                         
+                        
+#ifdef writeHDF5
+                        {
+                            inta space;
+                        for ( space = 0; space < SPACE ; space++)
+                            if ( f1.f.canon[space].body != nada)
+                                writeFast(f1.f, str, space, eigenVectors+iii,cmpl);
+                        }
+#else
                         FILE * out = NULL;
                         out = fopen ( str,"w" );
                         if ( out != NULL ){
                             outputFormat(f1.f, out, eigenVectors+iii,cmpl  );
                             fclose(out);
                         }
+#endif
 #endif
                     }
             
@@ -285,6 +295,25 @@ inta ioArray(  calculation *c1,   field f,char * name,inta N1, floata * array, i
 }
 
 inta inputFormat(  sinc_label f1,char * name,    division buffer, inta input){
+#ifdef readHDF5
+    inta space ,part = 1,prev = 0;
+    if ( input == 0 )
+        return readFast(f1,name, 0,0,buffer,0,0);
+    if ( input == 2 )
+        return readFast(f1,name, 2,0,buffer,0,0);
+    if ( 100 <= input && input < 200 )
+        return readFast(f1,name, 3,input-100,buffer,0,0);
+    if ( 200 <= input  )
+        return readFast(f1,name, 4,input-200,buffer,0,0);
+
+    if ( input == 1 ){
+        for ( space = 0; space < SPACE ; space++)
+            if ( f1.canon[space].body != nada)
+                readFast(f1,name,1,space,buffer,0,space);
+        f1.name[buffer].Current[0] = readFast(f1,name, 2,0,buffer,0,0);
+    }
+    return 0;
+#else
     int maxRead = MAXSTRING;
     char input_line [maxRead];
     double value,lvalue;
@@ -467,8 +496,9 @@ inta inputFormat(  sinc_label f1,char * name,    division buffer, inta input){
         return ct;
     }
     
-    
+
     return 0;
+#endif
 }
 
 
@@ -520,6 +550,10 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                             f2.i.qFloor = 0;
                             c2.i.lambda = 6;
                             resetA(f2.f.rt);
+                            if ( (f.i.filter/2)%2 == 0 ){
+                                blockA(f2.f.rt, blockTotalVectorBlock);
+                                blockA(f2.f.rt, blockTrainVectorsblock);
+                            }
                             blockA(f2.f.rt, blockCopyBlock);
                             blockA(f2.f.rt, blockMatrixElementsblock);
                             blockA(f2.f.rt, blockPermutationsblock);
@@ -541,7 +575,11 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                                 if ( f2.f.canon[space].body != nada )
                                 if ( f1.canon[space].basis == SincBasisElement  )
                                 {
-                                        f2.f.canon[space].count1Basis =((inputFormat(f1, name, nullName, 200+f2.f.canon[space].label-1)));
+#ifdef readHDF5
+                                    f2.f.canon[space].count1Basis =((inputFormat(f1, name, nullName,200+space)));
+#else
+                                    f2.f.canon[space].count1Basis =((inputFormat(f1, name, nullName, 200+f2.f.canon[space].label-1)));
+#endif
                                     for (body = one ; body <= f2.f.canon[space].body; body++)
                                         {
                                             f2.f.canon[space].particle[body].origin +=  +f1.canon[space].particle[body].lattice*(f1.canon[space].count1Basis-1)*f1.canon[space].particle[body].anchor;
@@ -562,7 +600,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                             
                         {
                             inta sp;
-                            ///will only filter +2 with collect
+                            ///filter with +2,  will filter input vector.
                             if ( (((f.i.filter/2)%2)==1)*f.f.irrep ) {
                                 for ( sp = 0; sp < spins(f1, eigenVectors);sp++){
                                     f2.f.name[totalVector].Current[0] = 0;
@@ -662,3 +700,200 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
     fflush(stdout);
     return 0;
 };
+
+#ifdef writeHDF5
+/**
+ *An IO solution for big systems
+ *@param f1          container
+ *@param filename  char*
+ *@param space to write
+ *@param label  the destination of the input
+ *@param spin to write
+ *
+ *http://web.mit.edu/fwtools_v3.1.0/www/Intro/IntroExamples.html
+*/
+inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta spin){
+    
+    hid_t       file;                        /* handles */
+    hid_t       dataset;
+    hid_t       filespace;
+    hid_t       dataspace;
+    hid_t       datatype;
+    hid_t       memspace;
+    hid_t       aid2;
+    hid_t       attr2;
+    hid_t       ret;
+    hid_t       ret1;
+    hsize_t     dims[1];                     /* dataset */
+
+    herr_t      status, status_n;
+   
+    int canonRank = CanonicalRank(f1,label,spin),genus=1,particle,body = Bodies(f1,label,spin),count1 = vector1Len(f1,space);
+    char str[5];
+    const char * pstr;
+
+    sprintf(str,"%3d-%1d",space,spin);
+    pstr = &str[0];
+
+    /*
+     * Open the file and the dataset.
+     */
+    if ( !space )
+        file = H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    else
+        file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+
+    
+    dims[0] = canonRank*vectorLen(f1,space);
+    
+    dataspace = H5Screate_simple(1, dims, NULL);
+    
+        ///
+        ///
+        
+    
+        dataset = H5Dcreate2(file, pstr, H5T_NATIVE_DOUBLE, dataspace,
+                            H5P_DEFAULT,H5P_DEFAULT,H5P_DEFAULT);
+
+        status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
+                  H5P_DEFAULT, streams(f1,label,spin,space));
+        aid2  = H5Screate(H5S_SCALAR);
+        attr2 = H5Acreate2(dataset, "genus", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
+                          H5P_DEFAULT);
+        ret = H5Awrite(attr2, H5T_NATIVE_INT, &genus);
+
+        
+        aid2  = H5Screate(H5S_SCALAR);
+        attr2 = H5Acreate2(dataset, "canonRank", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
+                          H5P_DEFAULT);
+        ret = H5Awrite(attr2, H5T_NATIVE_INT, &canonRank);
+
+        
+        aid2  = H5Screate(H5S_SCALAR);
+        attr2 = H5Acreate2(dataset, "count1Basis", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
+                          H5P_DEFAULT);
+        ret = H5Awrite(attr2, H5T_NATIVE_INT, &count1);
+
+        aid2  = H5Screate(H5S_SCALAR);
+        attr2 = H5Acreate2(dataset, "body", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
+                          H5P_DEFAULT);
+        ret = H5Awrite(attr2, H5T_NATIVE_INT, &body);
+        
+    H5Sclose(dataspace);
+
+    H5Dclose(dataset);
+    H5Fclose(file);
+
+}
+
+#endif
+
+#ifdef readHDF5
+
+/**
+ *An IO solution for big systems
+ *@param f1          container
+ *@param filename  char*
+ *@param command to program, may read various attributes or file
+ *0 output genus
+ *1 read vector
+ *2 output CanonRank
+ *3 body
+ *4 count1Basis
+ *@param space to read from disk
+ *@param label  the destination of the input
+ *@param space2 to place into label
+*/
+inta readFast( sinc_label f1, char * filename, inta command, inta space, division label ,inta spin, inta space2){
+    
+    hid_t       file;                        /* handles */
+    hid_t       dataset;
+    hid_t       filespace;
+    hid_t       attr;
+    hid_t       ret;
+    hid_t       memspace;
+    hsize_t     dims[1];                     /* dataset */
+
+    herr_t      status, status_n;
+   
+    int canonRank,genus,particle,body,count1;
+    char str[5];
+    const char * pstr;
+    /*
+     * Open the file and the dataset.
+     */
+    file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+
+    {///
+        ///
+        ///
+        sprintf(str,"%3d-%1d",space,spin);
+        pstr = &str[0];
+
+        dataset = H5Dopen(file, pstr, H5P_DEFAULT);
+        
+        if ( command == 0 ){
+            attr = H5Aopen_name(dataset,"genus");
+            ret  = H5Aread(attr, H5T_NATIVE_INT, &genus);
+            ///close.
+            H5Dclose(dataset);
+            H5Fclose(file);
+
+            return genus;
+        }
+        
+        if ( command == 2 ){
+            attr = H5Aopen_name(dataset,"canonRank");
+            ret  = H5Aread(attr, H5T_NATIVE_INT, &canonRank);
+            ///close.
+            H5Dclose(dataset);
+            H5Fclose(file);
+
+            return canonRank;
+        }
+                
+        if ( command == 3 ){
+            attr = H5Aopen_name(dataset,"body");
+            ret  = H5Aread(attr, H5T_NATIVE_INT, &body);
+            ///close.
+            H5Dclose(dataset);
+            H5Fclose(file);
+
+            return body;
+        }
+
+        if ( command == 4 ){
+            attr = H5Aopen_name(dataset,"genus");
+            ret  = H5Aread(attr, H5T_NATIVE_INT, &genus);
+            attr = H5Aopen_name(dataset,"body");
+            ret  = H5Aread(attr, H5T_NATIVE_INT, &body);
+            attr = H5Aopen_name(dataset,"count1Basis");
+            ret  = H5Aread(attr, H5T_NATIVE_INT, &count1);
+            ///close.
+            H5Dclose(dataset);
+            H5Fclose(file);
+
+            return pow(count1,body * genus );
+        }
+
+        filespace = H5Dget_space(dataset);    /* Get filespace handle first. */
+        
+        status_n  = H5Sget_simple_extent_dims(filespace, dims, NULL);
+
+        /*
+         * Define the memory space to read dataset.
+         */
+        memspace = H5Screate_simple(1,dims,NULL);
+         
+        /*
+        * Read dataset
+        */
+        status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace,H5P_DEFAULT, streams(f1,label,spin,space2) );
+     }///spin,space
+
+    H5Dclose(dataset);
+    H5Fclose(file);
+
+    return 0;
+}
+#endif

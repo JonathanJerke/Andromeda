@@ -28,6 +28,23 @@
 #include "mAls.h"
 #include"input.h"
 #include"Model.h"
+#ifdef writeHDF5
+#include <string.h>
+#include "hdf5.h"
+#endif
+#ifdef readHDF5
+#include <string.h>
+
+#include "hdf5.h"
+#endif
+
+
+
+inta writeFast( sinc_label f1,char * filename, inta space, division label ,inta spin);
+
+inta readFast ( sinc_label f1,char * filename, inta command ,inta space, division label ,inta spin, inta space2);
+
+
 
 void tFilename (char * cycleName, inta count, inta body ,inta IRREP, inta cmpl, char * filename);
 inta print(  calculation *c,  field f1, inta reset,inta mv,inta lv,  division eigenVectors );

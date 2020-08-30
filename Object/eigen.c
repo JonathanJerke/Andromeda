@@ -168,11 +168,7 @@ inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,    division 
         }
     }
 
-        leftP = A;
         
-        do {
-            if ( f1.name[leftP].species == matrix ){
-                
 #ifdef OMP
 #pragma omp parallel for private (in,m,rank,n) schedule(dynamic,1)
 #endif
@@ -187,14 +183,18 @@ inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,    division 
                 m = in % quantumBasisSize;
                 n = (in/quantumBasisSize) % quantumBasisSize;
                 if ( m<=n ){
-                    T[n*stride+m] += tMatrixElements(rank, f1, usz+n,0, leftP, 0, usz+m, 0);
+                    S[n*stride+m] = tMatrixElements(rank, f1, usz+n,0, nullOverlap, 0, usz+m, 0);
+
                 }
             }
-            }
-            leftP = f1.name[leftP].linkNext;
-        } while ( leftP != nullName);
+          
     
-    
+
+    leftP = A;
+
+    do {
+        if ( f1.name[leftP].species == matrix ){
+#ifdef CHERRY_PICKER
     #ifdef OMP
     #pragma omp parallel for private (in,m,rank,n) schedule(dynamic,1)
     #endif
@@ -209,11 +209,32 @@ inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,    division 
                     m = in % quantumBasisSize;
                     n = (in/quantumBasisSize) % quantumBasisSize;
                     if ( m<=n ){
-                        S[n*stride+m] = tMatrixElements(rank, f1, usz+n,0, nullOverlap, 0, usz+m, 0);
+                        T[n*stride+m] += tMatrixElements(rank, f1, usz+n,0, leftP, 0, usz+m, 0);
                     }
                 }
-
+#else
+        #ifdef OMP
+        #pragma omp parallel for private (m,rank,n) schedule(dynamic,1)
+        #endif
+                    for ( m = 0 ;m < quantumBasisSize; m++)
+                    {
+                        
+        #ifdef OMP
+                        rank = omp_get_thread_num();
+        #else
+                        rank = 0;
+        #endif
+                        tHXpY(rank, f1, totalVector, leftP, 0, usz+m, 0, 0, 0, 0, 0, CanonicalRank(f1, leftP, 0), CanonicalRank(f1, leftP, 0));
+                        for ( n = 0 ;n < quantumBasisSize; n++)
+                            if ( m<=n ){
+                                T[n*stride+m] += tMatrixElements(rank, f1, usz+n,0, nullOverlap, 0, totalVector, rank);
+                            }
+                    }
     
+#endif
+                }
+              leftP = f1.name[leftP].linkNext;
+          } while ( leftP != nullName);
     
     
     
