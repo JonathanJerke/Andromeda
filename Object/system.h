@@ -37,6 +37,9 @@
 
 #ifndef system_h
 #define system_h
+#define readHDF5
+#define writeHDF5
+
 #define ASTER_FLAT
 ///to compile with acceleration in APPLE, not for distribution
 //#define APPLE
