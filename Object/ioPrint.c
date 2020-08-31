@@ -540,7 +540,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                             field f2 = initField();
                             calculation c2;
                             c2 = *c1;
-                            c2.i.numNames = 3*inputFormat(f1, name, nullName, 2);
+                            c2.i.numNames = 100+3*inputFormat(f1, name, nullName, 2);
                             c2.i.numVectors = 0;
 
                             c2.i.termNumber = 0;
