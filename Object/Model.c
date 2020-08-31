@@ -266,7 +266,7 @@ inta iModel(   calculation * c1,   field *f){
     
         ///simplify the allocations
         f->i.iRank = imax(f->i.iRank ,f->i.canonRank);
-
+        f->i.xRank = imax( f->i.xRank,f->i.iRank*f->i.qFloor  );
         inta maxVector = imax(f->i.canonRank,1+f->i.iRank);
     
     
