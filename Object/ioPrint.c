@@ -570,7 +570,9 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                         
                             f2.f.boot = noMatrices;
                             
-                            f2.i.canonRank  = inputFormat(f1, name, nullName, 2);
+                            ///below it *May* filter-decompose
+                            f2.i.canonRank  = imax(part(f1,inputVectors+*ct), inputFormat(f1, name, nullName, 2));
+                        
                             f2.i.nStates = 1;
                             for (space = 0 ;space < SPACE ; space++){
                                 

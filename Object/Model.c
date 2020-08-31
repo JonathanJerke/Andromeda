@@ -264,6 +264,9 @@ inta iModel(   calculation * c1,   field *f){
         
         bodyType bootBodies = f->i.body;
     
+        ///simplify the allocations
+        f->i.iRank = imax(f->i.iRank ,f->i.canonRank);
+
         inta maxVector = imax(f->i.canonRank,1+f->i.iRank);
     
     
