@@ -29,12 +29,9 @@
 #include"input.h"
 #include"Model.h"
 #ifdef writeHDF5
-#include <string.h>
 #include "hdf5.h"
 #endif
 #ifdef readHDF5
-#include <string.h>
-
 #include "hdf5.h"
 #endif
 
