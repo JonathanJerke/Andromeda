@@ -749,46 +749,49 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
         file = H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     else
         file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
-
     
     dims[0] = canonRank*vectorLen(f1,space);
-    
     dataspace = H5Screate_simple(1, dims, NULL);
+        
+    dataset = H5Dcreate2(file, pstr, H5T_NATIVE_DOUBLE, dataspace,
+                        H5P_DEFAULT,H5P_DEFAULT,H5P_DEFAULT);
+    status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
+              H5P_DEFAULT, streams(f1,label,spin,space));
     
-        ///
-        ///
-        
+    aid2  = H5Screate(H5S_SCALAR);
+    attr2 = H5Acreate2(dataset, "genus", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
+                      H5P_DEFAULT);
+    ret = H5Awrite(attr2, H5T_NATIVE_INT, &genus);
+    H5Sclose(aid2);
+    H5Aclose(attr2);
     
-        dataset = H5Dcreate2(file, pstr, H5T_NATIVE_DOUBLE, dataspace,
-                            H5P_DEFAULT,H5P_DEFAULT,H5P_DEFAULT);
+    aid2  = H5Screate(H5S_SCALAR);
+    attr2 = H5Acreate2(dataset, "canonRank", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
+                      H5P_DEFAULT);
+    ret = H5Awrite(attr2, H5T_NATIVE_INT, &canonRank);
+    H5Sclose(aid2);
+    H5Aclose(attr2);
 
-        status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
-                  H5P_DEFAULT, streams(f1,label,spin,space));
-        aid2  = H5Screate(H5S_SCALAR);
-        attr2 = H5Acreate2(dataset, "genus", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
-                          H5P_DEFAULT);
-        ret = H5Awrite(attr2, H5T_NATIVE_INT, &genus);
+    
+    aid2  = H5Screate(H5S_SCALAR);
+    attr2 = H5Acreate2(dataset, "count1Basis", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
+                      H5P_DEFAULT);
+    ret = H5Awrite(attr2, H5T_NATIVE_INT, &count1);
+    H5Sclose(aid2);
+    H5Aclose(attr2);
 
-        
-        aid2  = H5Screate(H5S_SCALAR);
-        attr2 = H5Acreate2(dataset, "canonRank", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
-                          H5P_DEFAULT);
-        ret = H5Awrite(attr2, H5T_NATIVE_INT, &canonRank);
 
-        
-        aid2  = H5Screate(H5S_SCALAR);
-        attr2 = H5Acreate2(dataset, "count1Basis", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
-                          H5P_DEFAULT);
-        ret = H5Awrite(attr2, H5T_NATIVE_INT, &count1);
 
-        aid2  = H5Screate(H5S_SCALAR);
-        attr2 = H5Acreate2(dataset, "body", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
-                          H5P_DEFAULT);
-        ret = H5Awrite(attr2, H5T_NATIVE_INT, &body);
-        
-    H5Sclose(dataspace);
+    aid2  = H5Screate(H5S_SCALAR);
+    attr2 = H5Acreate2(dataset, "body", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
+                      H5P_DEFAULT);
+    ret = H5Awrite(attr2, H5T_NATIVE_INT, &body);
+    H5Sclose(aid2);
+    H5Aclose(attr2);
+
 
     H5Dclose(dataset);
+    H5Sclose(dataspace);
     H5Fclose(file);
 
 }
@@ -845,7 +848,8 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
             ///close.
             H5Dclose(dataset);
             H5Fclose(file);
-
+            H5Aclose(attr);
+            
             return genus;
         }
         
@@ -855,6 +859,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
             ///close.
             H5Dclose(dataset);
             H5Fclose(file);
+            H5Aclose(attr);
 
             return canonRank;
         }
@@ -865,6 +870,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
             ///close.
             H5Dclose(dataset);
             H5Fclose(file);
+            H5Aclose(attr);
 
             return body;
         }
@@ -875,18 +881,26 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
             ///close.
             H5Dclose(dataset);
             H5Fclose(file);
+            H5Aclose(attr);
 
             return count1;
         }
         attr = H5Aopen_name(dataset,"canonRank");
         ret  = H5Aread(attr, H5T_NATIVE_INT, &canonRank);
+        H5Aclose(attr);
 
         attr = H5Aopen_name(dataset,"genus");
         ret  = H5Aread(attr, H5T_NATIVE_INT, &genus);
+        H5Aclose(attr);
+
         attr = H5Aopen_name(dataset,"body");
         ret  = H5Aread(attr, H5T_NATIVE_INT, &body);
+        H5Aclose(attr);
+
         attr = H5Aopen_name(dataset,"count1Basis");
         ret  = H5Aread(attr, H5T_NATIVE_INT, &count1);
+        H5Aclose(attr);
+
         ///close.
         dims[0] = canonRank*pow(count1,body * genus );
 
