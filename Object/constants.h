@@ -802,7 +802,7 @@ struct space_label{
 
 struct value_label{
     ///vector title
-    char title [16];
+    char title[MAXSTRING];
     ///a way to label the iteration number
     inta stage;
     ///the energy
