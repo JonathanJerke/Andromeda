@@ -1839,7 +1839,7 @@ inta  countLinesFromFile(  calculation *c1,   field f1,inta location, inta *ir, 
     char name[MAXSTRING];
     char name2[MAXSTRING];
     char line2[MAXSTRING];
-    char title [MAXSTRING];
+    char title [SUPERMAXSTRING];
 
     char *line = line0;
     inta FIT,iva ;

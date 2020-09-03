@@ -929,6 +929,10 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
     mea totx,me,ov,edge;
     inta space,ed,i,spacer;
       bodyType body;
+    if ( !allowQ(f1.rt, blockPrintStuffblock))
+        return 0.;
+    
+
     totx = 0.;
     printf("\n======Expectation========\n");
     if (CanonicalRank(f1, vector, 1))

@@ -735,7 +735,7 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
 
     herr_t      status, status_n;
    
-    int canonRank = CanonicalRank(f1,label,spin),genus=1,particle,body = Bodies(f1,label,spin),count1 = vector1Len(f1,space);
+    int canonRank = CanonicalRank(f1,label,spin),genus=1,particle,body = f1.canon[space].body ,count1 = vector1Len(f1,space);
     char str[5];
     const char * pstr;
 

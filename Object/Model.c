@@ -387,6 +387,7 @@ inta iModel(   calculation * c1,   field *f){
                     char line0[MAXSTRING];
                     char name[MAXSTRING];
                     char title[MAXSTRING];
+                    title[0]= '\0';
                     char *line = line0;
                     inta FIT ;
                     FIT = f->i.filesVectorOperator ;
