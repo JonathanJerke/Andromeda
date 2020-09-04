@@ -737,13 +737,11 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                                 for ( si = 0 ; si < N1; si++){
                                         I1 = si;//
                                     te[si] = momentumIntegralInTrain(x*oneL, ((I1*oneL+oneOri)-position[f1.canon[space].space])/oneL,1, hidden, body);
-                                    for ( spacy = 0 ; spacy < embed ; spacy++)
-                                        te[si] *= momentumIntegralInTrain(x*oneL, 0,1, hidden, body);
-                                    
-                                    
-                                    
-                                    if ( invertSign  )
-                                             te[si] *= constant;
+                                    if ( invertSign  ){
+                                            te[si] *= constant;
+                                            for ( spacy = 0 ; spacy < embed ; spacy++)
+                                                te[si] *= momentumIntegralInTrain(x*oneL, 0,1, hidden, body);
+                                    }
                                     if ( alloc(f1, temp, space) < si ){
                                         printf("creation of oneBody, somehow allocations of vectors are too small. %d\n",newLabel);
                                         exit(0);
@@ -774,10 +772,12 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                                     for ( I1 = 0 ; I1 < N1; I1++)
                                      {
                                         te[si] = momentumIntegralInTrain(x*max(fabs(oneL),twoL), ((oneL*I1+oneOri)-(twoL*I2+twoOri))/max(fabs(oneL),twoL),1, hidden, body);
-                                         for ( spacy = 0 ; spacy < embed ; spacy++)
-                                             te[si] *= momentumIntegralInTrain(x*max(fabs(oneL),twoL), 0,1, hidden, body);
-                                         if ( invertSign )
+                                         if ( invertSign ){
                                              te[si] *= constant;
+                                             for ( spacy = 0 ; spacy < embed ; spacy++)
+                                                 te[si] *= momentumIntegralInTrain(x*max(fabs(oneL),twoL), 0,1, hidden, body);
+                                         }
+                                             
                                          si++;
                                          if ( alloc(f1, temp, space) < si ){
                                              printf("creation of twoBody, somehow allocations of vectors are too small. %d\n",newLabel);

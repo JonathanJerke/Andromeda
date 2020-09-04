@@ -32,7 +32,6 @@
  */
 inta tFilter(  sinc_label f1, inta Ve, inta irrep,   division usr){
     inta ii,cmpl=0,rank;
-    assignCores(f1, 1);
     rank = 0;
 
     if ( irrep ){
@@ -108,7 +107,7 @@ inta tSelect(  sinc_label  f1, inta Ve, inta irrep,   division usr, inta testFla
         }
         
     }
-    assignCores(f1, 0);
+    assignCores(f1, 2);
     inta complete;
 #ifdef COMPLEXME
     complete = tzheev(0, f1, 'N', Ve+1,S, stride, ov);
@@ -141,7 +140,8 @@ inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,    division 
     inta i,stride = f1.maxEV;
     mea *T  =  (mea *) myStreams(f1, matrixHbuild,0/*CORE RANK*/);
     mea *S  =  (mea *) myStreams(f1, matrixSbuild,0/*CORE RANK*/);
-    
+    assignCores(f1, 1);
+
     if ( part(f1, matrixHbuild) * sizeof(double) < stride*stride*sizeof(mea) ){
         printf("somehow there is not enough allocation for matrixHbuild\n");
         exit(0);
@@ -286,7 +286,7 @@ inta tSolveMatrix (inta typer,   sinc_label  f1,inta Ne,  division usz, inta qua
             qs = quantumBasisSize;
             
             if (1){
-                assignCores(f1, 0);
+                assignCores(f1, 2);
                 inta complete;
                 char Job = 'V';
 #ifdef COMPLEXME

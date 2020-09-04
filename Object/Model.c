@@ -387,7 +387,6 @@ inta iModel(   calculation * c1,   field *f){
                     char line0[MAXSTRING];
                     char name[MAXSTRING];
                     char title[MAXSTRING];
-                    title[0]= '\0';
                     char *line = line0;
                     inta FIT ;
                     FIT = f->i.filesVectorOperator ;
@@ -775,8 +774,6 @@ inta iModel(   calculation * c1,   field *f){
         }
 
         f1->bootedMemory = 1;
-        assignCores(*f1, 1);
-
         inta RdsSize;
         RdsSize = 0;
     

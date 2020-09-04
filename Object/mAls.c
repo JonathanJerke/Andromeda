@@ -59,7 +59,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
     inta rank = 0;
     double xprod = 0.;
     inta xOriginIndex=0;
-    
+    assignCores(f1, 1);
     double sum2 ,iGG=0,iGF=0,iFF=0;
     inta flagAllDim,spaces = 0;
     inta g,l,count = 1;
@@ -744,6 +744,12 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
 double AsterCanonicalRankDecomposition ( inta rank,  sinc_label  f1 , double * cofact,   division origin,inta os,   division alloy,inta spin,  double tolerance ,  double relativeTolerance, double condition,double threshold, inta maxCycle , inta canon  ){
     inta ii,xm,ll,ggg,gg,c,n,m,l,g,G1 = CanonicalRank(f1, origin, os), L1 = canon,out;
       division G =nullName,L=nullName;
+   
+    ///this is not a parallelizable routine...currently
+    rank = 0;
+    
+    
+    
     if ( ! G1 ){
         printf("AsterCanonicalRankDecomposition, Origin is empty\n");
         return 0;
@@ -811,6 +817,7 @@ double AsterCanonicalRankDecomposition ( inta rank,  sinc_label  f1 , double * c
     floata me[G1*G1],overlap[G1*G1],sum[G1],ove[G1];
 #endif
     
+    assignCores(f1, 1);
     
     #ifdef OMP
     #pragma omp parallel for private (ii,n,m,rank) schedule(dynamic,1)

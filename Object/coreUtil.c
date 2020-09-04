@@ -1839,7 +1839,7 @@ inta  countLinesFromFile(  calculation *c1,   field f1,inta location, inta *ir, 
     char name[MAXSTRING];
     char name2[MAXSTRING];
     char line2[MAXSTRING];
-    char title [SUPERMAXSTRING];
+    char title [MAXSTRING];
 
     char *line = line0;
     inta FIT,iva ;
@@ -2289,27 +2289,47 @@ inta sumTo4(  sinc_label f1,double scalar,inta space,   blockType bl,   division
 
 inta assignCores(  sinc_label f1, inta parallel ){
 #ifdef OMP
+#ifdef MKL
     inta nSlot = f1.rt->NSlot;
-#ifdef MKL
     inta nParallel = f1.rt->NParallel;
-#endif
     inta nLanes = f1.rt->NLanes;
-
+  
     inta omp;
-    if ( parallel == 0){
-        omp = 1;
-    }else if ( parallel ){
-        omp = nLanes;
-    }
-    omp_set_num_threads(omp);
-#endif
-#ifdef MKL
-    if ( parallel == 0 )
+    if ( parallel == 2 ){
+        ///for serious serial MKL operations
+        omp_set_num_threads(1);
         mkl_set_num_threads(nParallel*nLanes);
-    else
+    }
+    else if ( parallel == 1 ){
+        ///mixed split between lanes and MLK parallelism
+        omp_set_num_threads(nLanes);
         mkl_set_num_threads(nParallel);
+    }
+    else if ( parallel == 0 ){
+        ///i suspect HDF5 behaves well here
+        omp_set_num_threads(nLanes*nParallel);
+        mkl_set_num_threads(1);
+    }
+#else
+    ///not MKL
+      inta nSlot = f1.rt->NSlot;
+      inta nLanes = f1.rt->NLanes;
+    
+      inta omp;
+      if ( parallel == 2 ){
+          ///not recommended
+          omp_set_num_threads(1);
+      }
+      else if ( parallel == 1 ){
+          omp_set_num_threads(nLanes);
+      }
+      else if ( parallel == 0 ){
+          omp_set_num_threads(nLanes);
+      }
 #endif
-
+#else
+    ///nothing to change
+#endif
     return 0;
 
 }
