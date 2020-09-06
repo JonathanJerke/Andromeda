@@ -7,7 +7,8 @@
 		blockMemory 2
 		blockMemory 3
                 blockMemory 4
-                blockMemory 9		
+                blockMemory 9
+		blockMemory 10
 		blockMemory 11
 	.Parameters
 
