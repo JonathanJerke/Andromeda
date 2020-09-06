@@ -337,7 +337,8 @@ enum blockMemoryType{
     blockParallelMultiplyblock,
     blockParallelMatrixElementblock,
     blockParallelPermuteblock,
-    blockPrintStuffblock
+    blockPrintStuffblock,
+    blockTotalVectorParallelBlock
 };
 
 
@@ -452,7 +453,6 @@ enum blockMemoryType{
 ///D
 ///filter 3
 ///block 3,4,5,7,9
-
 
 
 

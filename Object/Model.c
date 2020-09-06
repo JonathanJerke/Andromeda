@@ -633,7 +633,11 @@ inta iModel(   calculation * c1,   field *f){
             f1->name[totalVector].Partition =  imax( imax(f->i.xRank, c1->i.lambda * maxVector), ra * maxVector) ;
     }
     }
-        f1->name[totalVector].species = vector;
+    if ( allowQ(f1->rt, blockTotalVectorParallelBlock))
+        f1->name[totalVector].spinor = parallel;
+        
+    
+    f1->name[totalVector].species = vector;
                     
         fromBeginning(*f1,bandBasis,totalVector);
         f1->name[bandBasis].Partition = allowQ(f1->rt,blockTransferBasisblock)*(4*mx1len*mx1len+2*mxlen);

@@ -28,10 +28,18 @@
 #include "mAls.h"
 #include"input.h"
 #include"Model.h"
+
+
 #ifdef writeHDF5
 #include "hdf5.h"
 #endif
 #ifdef readHDF5
+#include "hdf5.h"
+#endif
+#ifdef READ_FAST
+#include "hdf5.h"
+#endif
+#ifdef WRITE_FAST
 #include "hdf5.h"
 #endif
 

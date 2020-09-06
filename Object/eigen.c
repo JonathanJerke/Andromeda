@@ -49,8 +49,7 @@ inta tFilter(  sinc_label f1, inta Ve, inta irrep,   division usr){
     
     for ( ii = 0; ii < Ve ; ii++)
     {
-        rank = 0;
-        f1.name[usr+ii].value.symmetry = tClassify(rank, f1, usr+ii);
+        f1.name[usr+ii].value.symmetry = tClassify( f1, usr+ii);
     }
     return 0;
 }
@@ -159,14 +158,14 @@ inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,    division 
     inta n,m;
       division leftP ;
     prevBuild = 0;
-    for ( n = prevBuild; n < quantumBasisSize ; n++)
-    {
-        if ( magnitude(f1, usz+n,0) == 0. )
-        {
-            printf("The vector %d is zero!\n",n);
-            exit(0);
-        }
-    }
+//    for ( n = prevBuild; n < quantumBasisSize ; n++)
+//    {
+//        if ( magnitude(f1, usz+n,0) == 0. )
+//        {
+//            printf("The vector %d is zero!\n",n);
+//            exit(0);
+//        }
+//    }
 
         
 #ifdef OMP

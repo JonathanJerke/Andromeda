@@ -1799,15 +1799,59 @@ void tHXpY (  inta rank,   sinc_label f1 ,  division bra,   division left,inta s
 
 
 /**
- *l-2 norm
+ *L-2 norm
+ *upgraded in v9.2 for parallel operation
  *
  *@param f1 container
  *@param alloy vector
  *@param spin vector's spin
  */
 double magnitude (   sinc_label  f1 ,   division alloy , inta spin){
-    mea OV = 0.;
-    OV = (tMatrixElements(0, f1, alloy, spin, nullOverlap, 0, alloy, spin));
+    inta rank,i ,cr = CanonicalRank(f1, alloy, spin);
+    mea OV, ov[f1.rt->NLanes];
+    
+    division left=0;
+    for ( rank = 0; rank < f1.rt->NLanes; rank++){
+        ov[rank] = 0.;
+        if ( ! rank )
+            left = anotherLabel(&f1, 0, nada);
+        else
+            anotherLabel(&f1, 0, nada);
+
+        f1.name[left+rank].Current[spin] = 1;
+        f1.name[left+rank].name = alloy;
+        f1.name[left+rank].name = alloy;
+    }
+    ///need to be in order to make each rank-array contiguous.
+    division right=0 ;
+    for ( rank = 0; rank < f1.rt->NLanes; rank++){
+        if ( ! rank )
+            right = anotherLabel(&f1, 0, nada);
+        else
+            anotherLabel(&f1, 0, nada);
+        f1.name[right+rank].Current[spin] = 1;
+        f1.name[right+rank].name = alloy;
+    }
+
+    
+    #ifdef OMP
+    #pragma omp parallel for private (i,rank) schedule(dynamic,1)
+    #endif
+                for ( i = 0 ;i < cr*cr; i++)
+                {
+    #ifdef OMP
+                    rank = omp_get_thread_num();
+    #else
+                    rank = 0;
+    #endif
+                    f1.name[left+rank].Begin[spin] = (i)%cr;
+                    f1.name[right+rank].Begin[spin] = (i/cr)%cr;
+                    ov[rank] += (tMatrixElements(rank, f1, left+rank, spin, nullOverlap, 0, right+rank, spin));
+                }
+    OV = 0.;
+    for ( rank = 0; rank < f1.rt->NLanes; rank++)
+        OV += ov[rank];
+
 #ifdef COMPLEXME
     return sqrt(creal(OV));
 #else
