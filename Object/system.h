@@ -68,7 +68,7 @@
 ///basically overwritten, will remove
 #define MAX_PARAM_FUNC 4
 ///The block-memory commands act to negate memory allocations,  this is the maximum number of blocks.  Leave this alone, unless you add blocks.
-#define BLOCK_COUNT 11
+#define BLOCK_COUNT 13
 
 #ifdef APPLE
     #define SPHERE
