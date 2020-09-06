@@ -7,8 +7,18 @@ echo "#SBATCH -J omp_job        # Job name"
 echo "#SBATCH -o omp_job.o%j    # Name of stdout output file"
 echo "#SBATCH -e omp_job.o%j    # Name of stderr output file"
 echo "#SBATCH -p normal  # Queue name"
-echo "#SBATCH -N 1              # Total number of nodes requested"
-echo "#SBATCH -n 48	          # Total number of mpi tasks requested"
+
+if [ -e hosts ] 
+then
+	let hosts=`cat hosts`
+else
+	echo "set hosts for speedup"
+	let hosts=1
+fi
+let MPI=48*hosts
+echo "#SBATCH -N $hosts              # Total number of nodes requested"
+
+echo "#SBATCH -n $MPI	          # Total number of mpi tasks requested"
 echo "#SBATCH -t $1:00:00       # Run time (hh:mm:ss) - 1.5 hours"
 echo "# The next line is required if the user has more than one project"
 echo "#SBATCH -A ScalIT  # Project/allocation number"
