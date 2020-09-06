@@ -26,7 +26,7 @@
 /**
  *Andromeda: a few-body plane wave calculator
  *
- *v9.2
+ *v9.3
  *quantumGalaxies.org
  *
  *Jonathan Jerke
