@@ -946,7 +946,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
         printf("\t%d (%d + i%d)\n", vector, CanonicalRank(f1, vector, 0), CanonicalRank(f1, vector, 1));
     else
         printf("\t(%d)\t%d\n",  CanonicalRank(f1, vector, 0),vector-eigenVectors);
-    ov = tMatrixElements(0, f1, vector, 0, nullOverlap, 0, vector,0);
+    ov = pMatrixElement( f1, vector, 0, nullOverlap, 0, vector,0);
     printf("------Edges------\n\n");
       division header = anotherLabel(&f1, 0, nada);
       division eik    = anotherLabel(&f1, 0, nada);
@@ -979,7 +979,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
                     streams(f1,mem,0,space)[vector1Len(f1, space)-1] = 1;
                     break;
             }
-                edge = tMatrixElements(0, f1, vector, 0, header, 0, vector,0);
+                edge = pMatrixElement(f1, vector, 0, header, 0, vector,0);
                 printf("\t%d\t%d\t%s \t%1.15f\n", space+1,body,desc[ed], edge/ov);
             }
     }
@@ -1002,7 +1002,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
             oo++;
         }
         
-        me = tMatrixElements(0, f1, vector, 0, op+o, 0, vector,0);
+        me = pMatrixElement( f1, vector, 0, op+o, 0, vector,0);
         cr = CanonicalOperator(f1, f1.name[op+o].name, 0);
         scr += cr;
         printf("\t(%d)\t%6.6f\n", cr,creal(me/ov));
@@ -1799,15 +1799,21 @@ void tHXpY (  inta rank,   sinc_label f1 ,  division bra,   division left,inta s
 
 
 /**
- *L-2 norm
- *upgraded in v9.2 for parallel operation
+ *matrix element
+ *upgraded in v9.3 for parallel operation
+ *only one of these can run at a time.
  *
  *@param f1 container
- *@param alloy vector
- *@param spin vector's spin
+ *@param alloy1 vector
+ *@param spin1 vector's spin
+ *@param op operator
+ *@param ospin operator spin
+ *@param alloy2 vector
+ *@param spin2 vector's spin
+
  */
-double magnitude (   sinc_label  f1 ,   division alloy , inta spin){
-    inta rank,i ,cr = CanonicalRank(f1, alloy, spin);
+double pMatrixElement ( sinc_label  f1 ,   division alloy1 , inta spin1, division op, inta ospin, division alloy2 , inta spin2 ){
+    inta rank,i ,cl = CanonicalRank(f1, alloy1, spin1),cr = CanonicalRank(f1, alloy2, spin2);
     mea OV, ov[f1.rt->NLanes];
     
     division left=0;
@@ -1818,9 +1824,8 @@ double magnitude (   sinc_label  f1 ,   division alloy , inta spin){
         else
             anotherLabel(&f1, 0, nada);
 
-        f1.name[left+rank].Current[spin] = 1;
-        f1.name[left+rank].name = alloy;
-        f1.name[left+rank].name = alloy;
+        f1.name[left+rank].Current[spin1] = 1;
+        f1.name[left+rank].name = alloy1;
     }
     ///need to be in order to make each rank-array contiguous.
     division right=0 ;
@@ -1829,33 +1834,33 @@ double magnitude (   sinc_label  f1 ,   division alloy , inta spin){
             right = anotherLabel(&f1, 0, nada);
         else
             anotherLabel(&f1, 0, nada);
-        f1.name[right+rank].Current[spin] = 1;
-        f1.name[right+rank].name = alloy;
+        f1.name[right+rank].Current[spin2] = 1;
+        f1.name[right+rank].name = alloy2;
     }
 
     
     #ifdef OMP
     #pragma omp parallel for private (i,rank) schedule(dynamic,1)
     #endif
-                for ( i = 0 ;i < cr*cr; i++)
+                for ( i = 0 ;i < cl*cr; i++)
                 {
     #ifdef OMP
                     rank = omp_get_thread_num();
     #else
                     rank = 0;
     #endif
-                    f1.name[left+rank].Begin[spin] = (i)%cr;
-                    f1.name[right+rank].Begin[spin] = (i/cr)%cr;
-                    ov[rank] += (tMatrixElements(rank, f1, left+rank, spin, nullOverlap, 0, right+rank, spin));
+                    f1.name[left+rank].Begin[spin1] = (i)%cl;
+                    f1.name[right+rank].Begin[spin2] = (i/cl);
+                    ov[rank] += (tMatrixElements(rank, f1, left+rank, spin1, op, ospin, right+rank, spin2));
                 }
     OV = 0.;
     for ( rank = 0; rank < f1.rt->NLanes; rank++)
         OV += ov[rank];
 
 #ifdef COMPLEXME
-    return sqrt(creal(OV));
+    return (creal(OV));
 #else
-    return sqrt(OV);
+    return (OV);
 #endif
 }
 

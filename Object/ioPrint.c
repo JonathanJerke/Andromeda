@@ -717,7 +717,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                         printf("vector --");
                         fflush(stdout);
                         if ( allowQ (f1.rt, blockPrintStuffblock))
-                            ov = magnitude(f1, inputVectors+*ct,0);
+                            ov = sqrt(pMatrixElement(f1, inputVectors+*ct ,0,nullOverlap,0,inputVectors+*ct ,0));
                     }
                     else{
                         tScale(f1, inputVectors+*ct, fabs(creal(Occ)));

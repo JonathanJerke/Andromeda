@@ -665,11 +665,11 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                 
         }
         
-    inta NINT_TYPE = 14;
+    inta NINT_TYPE = 15;
         char *list_INT_TYPE []= {"#",
             "invert","block","act","newTerm","buffer",
             "interval","offDiagonals","funcType","atom","axis",
-            "bra","ket","flags","embed"
+            "bra","ket","flags","embed","revise"
         };
         inta NDOUBLE = 10;
         char *list_DOUBLE []= {"#",
@@ -734,7 +734,9 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                     case 14:
                         embed = ivalue;
                         return i;
-
+                    case 15:
+                        c->i.terms[ivalue].scalar *= scalar;
+                        return i;
                 }
 //
             }

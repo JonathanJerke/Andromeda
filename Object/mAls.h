@@ -37,7 +37,7 @@ double AsterCanonicalRankDecomposition ( inta rank,  sinc_label  f1 , double * c
 double printExpectationValues ( calculation *c,   sinc_label  f1 , division ha  , division vector);
 double tMatrixElements ( inta rank,  sinc_label  f1 ,   division bra, inta bspin,  division mat, inta mspin,  division ket, inta kspin );
 inta tOuterProductSu( sinc_label  f1,  division vector , inta a, division vector2,inta b, division proj, inta c);
-double magnitude ( sinc_label  f1 , division alloy, inta spin);
+double pMatrixElement (   sinc_label  f1 ,   division alloy1 , inta spin1,division op, inta ospin, division alloy2 , inta spin2);
 inta tOuterProductSuOne( sinc_label  f1,inta space, division vector , inta a,   division vector2,inta b,   division proj, inta c);
 inta tGEMV (inta rank, sinc_label  f1,inta dim, division equals,inta e, inta espin, division left,inta l,inta lspin, division right, inta r,inta rspin );
 inta tGEVV (inta rank,  sinc_label  f1,inta dim, division equals,inta e, inta espin, division left,inta l,inta lspin, division right, inta r,inta rspin );

@@ -997,7 +997,7 @@ double traceOne(   sinc_label  f1 ,   division label , inta spin ){
 
     if ( species(f1, name(f1,label)) != matrix ){
         printf("\nvector->matrix\n");
-        return magnitude( f1,label,spin);
+        return sqrt(pMatrixElement(f1, label ,spin,nullOverlap,0,label ,spin));
     }
 
     sum2 = 0.;

@@ -98,10 +98,6 @@ inta tSelect(  sinc_label  f1, inta Ve, inta irrep,   division usr, inta testFla
             S[n*stride+m] = tMatrixElements(rank, f1, usr+n, 0, nullOverlap, 0, usr+m, 0);
             if ( m < n ){
                 S[m*stride+n] = (S[n*stride+m]);
-
-                
-              //  S[m*stride+n] = conj(S[n*stride+m]);
-
             }
         }
         
@@ -183,7 +179,6 @@ inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,    division 
                 n = (in/quantumBasisSize) % quantumBasisSize;
                 if ( m<=n ){
                     S[n*stride+m] = tMatrixElements(rank, f1, usz+n,0, nullOverlap, 0, usz+m, 0);
-
                 }
             }
           

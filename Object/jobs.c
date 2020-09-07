@@ -130,7 +130,7 @@ double singlekrylov (   calculation *c1,   field f1){
     
     if ( f1.i.Iterations == 2 ){
         {
-            double norm = magnitude(f1.f, eigenVectors ,0);
+            double norm = sqrt(pMatrixElement(f1.f, eigenVectors ,0,nullOverlap,0,eigenVectors ,0));
             if ( norm > c1->rt.THRESHOLD ){
                 printf("for multiply, Normed from %f\n", norm );
                 fflush(stdout);
@@ -141,7 +141,7 @@ double singlekrylov (   calculation *c1,   field f1){
     }
     if ( f1.i.Iterations == 1 &&((((f1.i.filter/4)%2)==1) * f1.i.irrep) ){
         tFilter(f1.f, 1, (((f1.i.filter/4)%2)==1) * f1.i.irrep, eigenVectors);
-        double norm = magnitude(f1.f, eigenVectors ,0);
+        double norm = sqrt(pMatrixElement(f1.f, eigenVectors ,0,nullOverlap,0,eigenVectors ,0));
         if ( norm > c1->rt.THRESHOLD ){
             printf("After Filter, Normed from %f\n", norm );
             fflush(stdout);
