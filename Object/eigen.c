@@ -305,7 +305,7 @@ inta tSolveMatrix (inta typer,   sinc_label  f1,inta Ne,  division usz, inta qua
                 for ( iii = 0; iii < imin(qs,Ne) ; iii++)
                 {
                     f1.name[eigenVectors+iii].value.value = ritz[iii];
-                    printf("Press%d:,%1.15f, %f\n", iii+1, f1.name[eigenVectors+iii].value.value,cblas_dznrm2(qs,T+iii*stride, 1));
+                    printf("\nPress%d:,%1.15f, %f", iii+1, f1.name[eigenVectors+iii].value.value,cblas_dznrm2(qs,T+iii*stride, 1));
                     fflush(stdout);
                 }
             }
