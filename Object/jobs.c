@@ -139,11 +139,13 @@ double singlekrylov (   calculation *c1,   field f1){
         }
         tHXpY(0, f1.f,  eigenVectors, target, c1->i.shiftFlag , eigenVectors, f1.f.rt->TOLERANCE,f1.f.rt->relativeTOLERANCE,f1.f.rt->ALPHA,f1.f.rt->THRESHOLD,f1.f.rt->MAX_CYCLE,  f1.f.name[eigenVectors].Partition,f1.f.name[eigenVectors].Partition*0.8);
     }
-    if ( f1.i.Iterations == 1 &&((((f1.i.filter/4)%2)==1) * f1.i.irrep) ){
+    if ( ((((f1.i.filter/4)%2)==1) * f1.i.irrep) ){
         tFilter(f1.f, 1, (((f1.i.filter/4)%2)==1) * f1.i.irrep, eigenVectors);
+    }
+    if (f1.i.Iterations == 1 ){
         double norm = sqrt(pMatrixElement(f1.f, eigenVectors ,0,nullOverlap,0,eigenVectors ,0));
         if ( norm > c1->rt.THRESHOLD ){
-            printf("After Filter, Normed from %f\n", norm );
+            printf("Normed from %f\n", norm );
             fflush(stdout);
             tScaleOne(f1.f, eigenVectors, 0, 1./norm);
         }
