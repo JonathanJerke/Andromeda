@@ -235,9 +235,11 @@ double tdpocon (inta rank,  sinc_label  f1,  inta L1 , double * Matrix , inta St
     inta info;
     char charU = 'U';
     double rcond;
-    
+    inta l;
     ///not used, but may want to use stride,
-    double norm1 = cblas_dasum(L1*L1, Matrix, 1);
+    double norm1=0.;
+    for ( l = 0 ; l < L1 ; l++)
+        norm1 += cblas_dasum(L1, Matrix+l*Stride, 1);
     #ifdef APPLE
     inta lbuffer = part(f1, dsyBuffers);
     dpocon_( &charU, &L1, Matrix, &L1, &norm1, &rcond, myStreams(f1, dsyBuffers,rank ),&lbuffer ,&info );

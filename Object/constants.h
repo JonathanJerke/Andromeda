@@ -586,7 +586,7 @@ enum division{
     canonicalme3Vector,
     multiplyVector,
     eigenList,
-    canonicalBuffersAster,
+    CanonicalBuffers,
     oneVector,
     twoVector,
     twoBodyRitz,

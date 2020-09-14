@@ -42,7 +42,7 @@ inta tFilter(  sinc_label f1, inta Ve, inta irrep,   division usr){
                 
                 f1.name[totalVector].Current[rank] = 0;
                 tBuildIrr(rank, f1, irrep, usr+ii, cmpl, totalVector, rank);
-                AsterCanonicalRankDecomposition(0, f1, NULL,totalVector, rank,  usr+ii, cmpl, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE, part(f1,usr+ii));
+                CanonicalRankDecomposition(0, f1, NULL,totalVector, rank,  usr+ii, cmpl, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE,f1.rt->XCONDITION, part(f1,usr+ii));
             }
         }
     }
@@ -70,7 +70,7 @@ inta tSelect(  sinc_label  f1, inta Ve, inta irrep,   division usr, inta testFla
         for ( sp = 0; sp < spins(f1, usr+Ve);sp++){
             f1.name[totalVector].Current[rank] = 0;
             tBuildIrr(rank, f1, irrep, usr+Ve, sp, totalVector, rank);
-            AsterCanonicalRankDecomposition(0, f1, NULL,totalVector, rank,usr+Ve,sp, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE, part(f1,name(f1,usr+Ve)));
+            CanonicalRankDecomposition(0, f1, NULL,totalVector, rank,usr+Ve,sp, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE,f1.rt->XCONDITION, part(f1,name(f1,usr+Ve)));
         }
 
     }
@@ -218,7 +218,7 @@ inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,    division 
         #else
                         rank = 0;
         #endif
-                        tHXpY(rank, f1, totalVector, leftP, 0, usz+m, 0, 0, 0, 0, 0, CanonicalRank(f1, leftP, 0), CanonicalRank(f1, leftP, 0));
+                        tHXpY(rank, f1, totalVector, leftP, 0, usz+m, 0, 0, 0, 0, 0,1e6, CanonicalRank(f1, leftP, 0), CanonicalRank(f1, leftP, 0));
                         for ( n = 0 ;n < quantumBasisSize; n++)
                             if ( m<=n ){
                                 T[n*stride+m] += tMatrixElements(rank, f1, usz+n,0, nullOverlap, 0, totalVector, rank);

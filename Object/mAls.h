@@ -32,8 +32,8 @@
 #include "saUtil.h"
 #include "eigen.h"
 
-inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG, division origin,inta l1,inta l2,inta os, division alloy ,inta l3 , inta l4,  inta spin ,double tolerance,double relativeTolerance, double condition,double threshold, inta maxCycle);
-double AsterCanonicalRankDecomposition ( inta rank,  sinc_label  f1 , double * cofact, division origin,inta os, division alloy,inta spin,  double tolerance ,  double relativeTolerance, double condition,double threshold, inta maxCycle , inta canon );
+inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,floata *GG, division origin,inta l1,inta l2,inta os, inta neo,division alloy ,inta l3 , inta l4,  inta spin ,double tolerance,double relativeTolerance, double condition,double maxCondition, inta maxCycle);
+double CanonicalRankDecomposition ( inta rank,  sinc_label  f1 , double * cofact, division origin,inta os, division alloy,inta spin,  double tolerance ,  double relativeTolerance, double condition,double threshold, inta maxCycle ,double maxCondition, inta canon );
 double printExpectationValues ( calculation *c,   sinc_label  f1 , division ha  , division vector);
 double tMatrixElements ( inta rank,  sinc_label  f1 ,   division bra, inta bspin,  division mat, inta mspin,  division ket, inta kspin );
 inta tOuterProductSu( sinc_label  f1,  division vector , inta a, division vector2,inta b, division proj, inta c);
@@ -43,5 +43,5 @@ inta tGEMV (inta rank, sinc_label  f1,inta dim, division equals,inta e, inta esp
 inta tGEVV (inta rank,  sinc_label  f1,inta dim, division equals,inta e, inta espin, division left,inta l,inta lspin, division right, inta r,inta rspin );
 double tDOT (inta rank, sinc_label  f1,inta dim,char leftChar, division left,inta l,inta lspin, char rightChar, division right, inta r,inta rspin );
 inta tHX(  inta rank, sinc_label f1 ,division left, inta l, inta im, double prod, division ket , inta k, inta sp2,   division oket, inta o,inta ospin );
-void tHXpY (  inta rank,   sinc_label f1 ,  division bra,   division left,inta shiftFlag,  division right ,  double tolerance ,double relativeTolerance,double condition,double threshold, inta maxCycle, inta canon,inta X1);
+void tHXpY (  inta rank,   sinc_label f1 ,  division bra,   division left,inta shiftFlag,  division right ,  double tolerance ,double relativeTolerance,double condition,double threshold, inta maxCycle, double maxCondition, inta canon,inta X1);
 #endif /* mAls_h */

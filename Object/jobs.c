@@ -39,9 +39,10 @@ inta foundationS(  calculation *c1,   field f1){
         iModel(c1,&f1);
         
         tBoot(f1.f, f1.f.user, 0);
+        tId(f1.f, f1.f.user, 0);
 
         printf("irrep%d\n",tClassify(f1.f, f1.f.user));
-        tHXpY(0, f1.f, f1.f.user+1, f1.f.name[defSpiralMatrix(&f1.f,Iterator)].name, 0, f1.f.user, 1e-4, 1e-4, 1e-8, 1e-15, 1000, 2, 2);
+        tHXpY(0, f1.f, f1.f.user+1, f1.f.name[defSpiralMatrix(&f1.f,Iterator)].name, 0, f1.f.user, 1e-4, 1e-4, 1e-8, 1e-15, 5,1000, 5, 1);
         printExpectationValues(c1, f1.f, Iterator, totalVector);
         printf("irrep%d\n",tClassify(f1.f, totalVector));
 
@@ -111,7 +112,7 @@ double singlekrylov (   calculation *c1,   field f1){
             for( g = 0; g < EV ; g++){
                 tAddTw(f1.f, totalVector, 0, f1.f.user+g, cmpl);
             }
-            AsterCanonicalRankDecomposition(0, f1.f, NULL, totalVector, 0, eigenVectors, cmpl, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, c1->rt.ALPHA, c1->rt.THRESHOLD, c1->rt.MAX_CYCLE, part(f1.f,eigenVectors));
+            CanonicalRankDecomposition(0, f1.f, NULL, totalVector, 0, eigenVectors, cmpl, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, c1->rt.ALPHA, c1->rt.THRESHOLD, c1->rt.MAX_CYCLE,c1->rt.XCONDITION, part(f1.f,eigenVectors));
         }
         tClear(f1.f, totalVector);
     }
@@ -137,7 +138,7 @@ double singlekrylov (   calculation *c1,   field f1){
                 tScaleOne(f1.f, eigenVectors, 0, 1./norm);
             }
         }
-        tHXpY(0, f1.f,  eigenVectors, target, c1->i.shiftFlag , eigenVectors, f1.f.rt->TOLERANCE,f1.f.rt->relativeTOLERANCE,f1.f.rt->ALPHA,f1.f.rt->THRESHOLD,f1.f.rt->MAX_CYCLE,  f1.f.name[eigenVectors].Partition,f1.f.name[eigenVectors].Partition*0.8);
+        tHXpY(0, f1.f,  eigenVectors, target, c1->i.shiftFlag , eigenVectors, f1.f.rt->TOLERANCE,f1.f.rt->relativeTOLERANCE,f1.f.rt->ALPHA,f1.f.rt->THRESHOLD,f1.f.rt->MAX_CYCLE,f1.f.rt->XCONDITION,  f1.f.name[eigenVectors].Partition,f1.f.name[eigenVectors].Partition*0.8);
     }
     if ( ((((f1.i.filter/4)%2)==1) * f1.i.irrep) ){
         tFilter(f1.f, 1, (((f1.i.filter/4)%2)==1) * f1.i.irrep, eigenVectors);

@@ -650,12 +650,12 @@ inta iModel(   calculation * c1,   field *f){
         f1->name[canonicalBuffers].Partition = flag*(maxTrainRank*maxTrainRank+ maxOriginRank*maxTrainRank+maxTrainRank) ;
         f1->name[canonicalBuffers].species = scalar;
     
-        fromBeginning(*f1,canonicalBuffersAster,canonicalBuffers);
-        f1->name[canonicalBuffersAster].Partition = flag*(2*maxOriginRank+ 2*maxOriginRank*maxOriginRank) ;
-        f1->name[canonicalBuffersAster].memory = bufferAllocation;
-        f1->name[canonicalBuffersAster].species = scalar;
+        fromBeginning(*f1,CanonicalBuffers,canonicalBuffers);
+        f1->name[CanonicalBuffers].Partition = flag*(2*maxOriginRank+ 6*maxOriginRank*maxOriginRank ) ;
+        f1->name[CanonicalBuffers].memory = bufferAllocation;
+        f1->name[CanonicalBuffers].species = scalar;
     
-        fromBeginning(*f1,trackBuffer,canonicalBuffersAster);
+        fromBeginning(*f1,trackBuffer,CanonicalBuffers);
         f1->name[trackBuffer].Partition = 2*flag*(maxTrainRank*maxTrainRank);
         f1->name[trackBuffer].memory = bufferAllocation;
         f1->name[trackBuffer].species = scalar;

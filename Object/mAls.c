@@ -39,6 +39,7 @@
  *@param l1         Allowance for starting somewhere else but the first index
  *@param l2         last index of origin
  *@param os         spin of origin to consider
+ *@param neo    flag for replacing last canonRank
  *@param[in,out] alloy  the division with less canonical ranks, to be trained
  *@param l3         alloy's first index
  *@param l4         alloy's last index
@@ -46,16 +47,19 @@
  *@param tolerance a number setting the absolute quality
  *@param relativeTolerance a number seting quality relative to magnitude of origin
  *@param condition Beylkin's condition (alpha)
- *@param threshold the smallest number
+ *@param maxCondition the smallest number
  *@param maxCycle the maxmium number of cycles in this routine
  */
-inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   division origin,inta l1,inta l2,inta os, division alloy ,inta l3 , inta l4,  inta spin ,double tolerance,double relativeTolerance, double condition,double threshold, inta maxCycle){
-    if (l2 < l1 || l4 < l3 ){
+inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,floata *GG,   division origin,inta l1,inta l2,inta os, inta neo,division alloy ,inta l3 , inta l4,  inta spin ,double tolerance,double relativeTolerance, double condition,double maxCondition, inta maxCycle){
+    if (l2 < l1 || l4 < l3 )
+    {
         printf("indices out of order!\n");
         printf("%d %d %d %d\n", l1,l2,l3,l4);
         printf("%d %d\n", origin, alloy);
         exit(0);
     }
+    double iCondition;
+
     inta rank = 0;
     double xprod = 0.;
     inta xOriginIndex=0;
@@ -86,12 +90,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
         if ( f1.canon[space].body != nada )
             spaces++;
     
-    
-     if ( L1 == 0 ){
-        printf("CD: zero length %d %d %d\n", origin,alloy,spin);
-         exit(0);
-     }
-    
+        
     length(f1,alloy,M2);
 #if VERBOSE
     printf("m2 %d %d %d\n", M2[0],M2[1],M2[2]);
@@ -161,7 +160,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
         originStream[space] = malloc((G1+1)*sizeof(floata*));
         originStream[space][G1] = streams(f1,canonicalVector,rank,space);//
 
-          division nIter;
+        division nIter;
         inta n,ni,nc ;
         nIter = origin;
         ni = 0;
@@ -181,6 +180,8 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
             if ( n >= l1 ){
                 originStream[space][n-l1] = streams(f1, nIter, os, space) + (n - ni)*M2[space] ;
                 originIndex[n-l1] = f1.name[nIter].Begin[os]+(n - ni);
+//                if  ( ! space)
+//                    printf("%d%d<%d %d %d>\n",origin,alloy, n-l1, n, originIndex[n-l1]);
                 if ( cofact != NULL && ! space )
                     cblas_daxpy(M2[space], cofact[originIndex[n-l1]] , originStream[space][n-l1], 1, originStream[space][G1], 1);
                 else
@@ -199,7 +200,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
             alloyStream[space] = malloc(L1*sizeof(floata*));
 
             inta n,ni,nc;
-              division nIter;
+            division nIter;
             nIter = alloy;
             nc = f1.name[nIter].Current[spin];
             ni = 0;
@@ -228,35 +229,12 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
     
     }
         }
-            if(1){
-                inta ct = 0;
-                for ( space = 0; space < SPACE;space++)
-                    if ( f1.canon[space].body != nada ){
-                        ct++;
-                        if ( L1 == 1 )
-                                cblas_dcopy(M2[space], originStream[space][G1], 1, alloyStream[space][0], 1);
-                    }
-                if ( ct == 1 || L1 == 1){
-                    //NO SOP!
-                    for ( space = 0; space < SPACE;space++)
-                        if ( f1.canon[space].body != nada ){
-                            free(alloyStream[space]);
-                            free(originStream[space]);
-                        }
-                    free(alloyStream);
-                    free(originStream);
-                    free(originIndex);
-                    ///automatically did the explicit summation.
-                    return 1;
-                    
-                }
-                ///separate output ..which means first rank is done...
-            }
-
+    
+    
     if ( GG == NULL ){
-        //intended for single continuous origin, even if pointers are all messy.  Tied to ASTER PROCEDURE.
-        //to avoid redundancy of computation.
-        double product,sum=0. ;
+        ///intended for single continuous origin, even if pointers are all messy.  Tied to ASTER PROCEDURE.
+        ///to avoid redundancy of computation.
+        floata product,sum=0. ;
         inta l,ll,space;
         for ( l = 0 ; l < G1 ; l++)
             for ( ll = 0; ll< G1 ; ll++){
@@ -278,11 +256,11 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
         ///here one could argue for iGG begin too small.
         
     } else {
-        double product,sum=0. ;
+        floata product,sum=0. ;
         inta l,ll;
         for ( l = 0 ; l < G1 ; l++)
             for ( ll = 0; ll< G1 ; ll++){
-                    product = GG[originIndex[l]*G1+originIndex[ll]];
+                    product = GG[originIndex[l]*G+originIndex[ll]];
                     if ( cofact != NULL ){
                         product *= (cofact)[originIndex[l]]*(cofact)[originIndex[ll]];
                     }
@@ -296,7 +274,33 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
         iGG = sum;
     }
     target = max( iGG*relativeTolerance , tolerance );
-
+    
+    
+            if(1){
+                inta ct = 0,ll;
+                for ( space = 0; space < SPACE;space++)
+                    if ( f1.canon[space].body != nada ){
+                        ct++;
+                        if ( neo ){
+                            cblas_dcopy(M2[space], originStream[space][G1], 1, alloyStream[space][L1-1], 1);
+                        }
+                    }
+                if ( ct == 1 ){
+                    //NO SOP!
+                    for ( space = 0; space < SPACE;space++)
+                        if ( f1.canon[space].body != nada ){
+                            free(alloyStream[space]);
+                            free(originStream[space]);
+                        }
+                    free(alloyStream);
+                    free(originStream);
+                    free(originIndex);
+                    ///automatically did the explicit summation.
+                    return 1;
+                    
+                }
+                ///separate output ..which means first rank is done...
+            }
     {
         
         if ( L1 >= G1 ){
@@ -317,22 +321,22 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
             free(originIndex);
             return G1;
         }
-        if ( iGG < threshold ){
-#if VERBOSE
-            printf("small\n");
-            fflush(stdout);
-#endif
-            for ( space = 0; space < SPACE;space++)
-                if ( f1.canon[space].body != nada ){
-                    free(alloyStream[space]);
-                    free(originStream[space]);
-                }
-            free(alloyStream);
-            free(originStream);
-            free(originIndex);
-
-            return 0;
-        }
+//        if ( iGG < tolerance ){
+//#if VERBOSE
+//            printf("small\n");
+//            fflush(stdout);
+//#endif
+//            for ( space = 0; space < SPACE;space++)
+//                if ( f1.canon[space].body != nada ){
+//                    free(alloyStream[space]);
+//                    free(originStream[space]);
+//                }
+//            free(alloyStream);
+//            free(originStream);
+//            free(originIndex);
+//
+//            return 0;
+//        }
     }
     
     inta dim[SPACE],ll;
@@ -348,8 +352,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
         
         
         {
-            double prod;
-            inta m,space,xm=0;
+            inta m,space;
 
         
         ///get norms
@@ -359,31 +362,8 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
                     norm[space][ m ] = cblas_dnrm2(M2[space], alloyStream[space][m],1);
                 }
             }
-        
-            ///get alloy mags
-            for ( m = 0; m < L1; m++){
-                prod = 1;
-                for ( space = 0; space < dim0 ; space++)
-                    if ( f1.canon[space].body != nada){
-                            prod *= norm[space][ m ];
-                    }
-                guide[m] = prod;
-            }
-        
-            
-            ///copy biggest origin across all low threshold ones.
-            for ( m = 0; m < L1; m++)
-                if ( guide[m] < threshold){
-                    for ( space = 0; space < dim0 ; space++)
-                        if ( f1.canon[space].body != nada){
-                            cblas_dcopy(M2[space], originStream[space][xOriginIndex], 1, alloyStream[space][m], 1);
-                            norm[space][ m ] = norm[space][ xm ];
-                        }
-                }
-
             
         }
-        
         
         ///get inners
         for ( space = 0; space < dim0 ; space++)
@@ -391,15 +371,27 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
             
                 inta m,n;
                 for ( m = 0; m < L1; m++){
-                        cblas_dscal(M2[space], 1./(norm[space][m]),alloyStream[space][m], 1);
-                        array[space][ m*LS1 + m ]  = 1.;
-                        for ( n = 0; n < m ; n++){
-                            array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][m],1);
-                            array[space][ m*LS1 + n ] = array[space][ n*LS1 + m ];
-                        }
-            
+#if VERBOSE
+                    for ( l= 0 ; l < M2[space] ; l++)
+                        if (isnan (alloyStream[space][m][l] ) || isinf(alloyStream[space][m][l]))
+                            printf("alloy error\n");
+#endif
+                    if ( norm[space][m] == 0. )
+                        printf("oops %d %d",space,m);
+                    cblas_dscal(M2[space], 1./(norm[space][m]),alloyStream[space][m], 1);
+                    array[space][ m*LS1 + m ]  = 1.;
+                    for ( n = 0; n < m ; n++){
+                        array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][m],1);
+                        array[space][ m*LS1 + n ] = array[space][ n*LS1 + m ];
+                    }
                     for ( n = 0; n < G1 ; n++){
+#if VERBOSE
+                            for ( l= 0 ; l < M2[space] ; l++)
+                                if (isnan (originStream[space][n][l] ) || isinf(originStream[space][n][l]))
+                                    printf("origin error\n");
+#endif
                         array2[space][ n*LS1 + m ] = cblas_ddot(M2[space],originStream[space][n],1,alloyStream[space][m],1);
+                        
                     }
                 }
             }
@@ -424,12 +416,54 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
                         cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array[dim[space]]+l*LS1,1, track+l*LS1,1 );
            
             cblas_dcopy(LS1*LS1, track, 1, track+LS1*LS1, 1);
-            
-            
             for ( l = 0 ; l < L1; l++)
                     track[ l*LS1 + l ] += condition ;
 
+            if(0){
+                double ev[LS1];
 
+                printf("\n{");
+                for ( l = 0; l < L1*L1 ; l++)
+                {
+                        printf("%f,",track[l]);
+                }
+                printf("}\n");
+
+                
+                tdsyev(0, f1, 'N', L1, track, LS1, ev);
+                
+                
+                
+//                cblas_dcopy(LS1*LS1, track+LS1*LS1, 1, track, 1);
+//                for ( l = 0 ; l < L1; l++)
+//                        track[ l*LS1 + l ] += condition ;
+//
+//                iCondition = tdpocon(0, f1, L1, track, LS1);
+//                printf("c %f %f\n", ev[L1-1]/ev[0],iCondition);
+                iCondition = 1;
+                if ( 1./maxCondition > ev[0]/ev[L1-1] || isnan(ev[0]/ev[L1-1])||isinf(ev[0]/ev[L1-1])  ){
+                    #if 1
+                    printf("Linear Dependence failure %f\n",1./iCondition);
+                                        fflush(stdout);
+                    #endif
+                                        for ( space = 0 ; space < SPACE ; space++)
+                                            if ( f1.canon[space].body != nada ){
+                                                free(alloyStream[space]);
+                                                free(originStream[space]);
+                                            }
+                                        free(alloyStream);
+                                        free(originStream);
+                                        free(originIndex);
+
+                                        return -1;
+                }
+                cblas_dcopy(LS1*LS1, track+LS1*LS1, 1, track, 1);
+                for ( l = 0 ; l < L1; l++ )
+                    track[ l*LS1 + l ] += condition ;
+            }
+            
+            
+            
             for ( l = 0; l < G1 ; l++)
                 cblas_dcopy(L1, array2[dim[1]]+l*LS1,1,guide+l*L1,1);
             for ( space = 2; space < dim0 ; space++)
@@ -451,8 +485,11 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
             {
                 info = tdpotrf(L1, track,LS1);
                 if ( info != 0 ){
-#if VERBOSE
-                    printf("Linear Dependence failure %d\n",L1);
+#if 1
+                    printf("Linear Dependence failure %f\n",1./iCondition);
+                    fflush(stdout);
+
+                    printf("potrf-Linear Dependence failure %d\n",info);
                     fflush(stdout);
 #endif
                     for ( space = 0 ; space < SPACE ; space++)
@@ -493,8 +530,11 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
                 }
                 
                 if ( info != 0 ){
-    #if VERBOSE
-                    printf("Linear Dependence failure\n");
+    #if 1
+                    printf("Linear Dependence failure %f\n",1./iCondition);
+                    fflush(stdout);
+
+                    printf("potrs-Linear Dependence failure %d\n",info);
                     fflush(stdout);
 
     #endif
@@ -534,9 +574,9 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
                     cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[dim[0]]+l*LS1,1, guide+l*L1,1 );
                 }
                 for ( l =0  ; l < L1 ; l++)
-                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array[dim[0]]+l*LS1,1, track+l*LS1+LS1*LS1,1 );
+                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array[dim[0]]+l*LS1,1, track+LS1*LS1+l*LS1,1 );
 
-                    iFF = 0.; iGF = 0.;
+                iFF = 0.; iGF = 0.;
                 
                 for ( l = 0; l < L1 ; l++)
                     for ( ll = 0 ; ll < L1 ; ll++)
@@ -563,7 +603,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
                 fflush(stdout);
 #endif
                 prev =curr;
-                if ( fabs(iGG+iFF - 2 * iGF) < fabs(iGG+iFF + 2 * iGF) ){
+                if (fabs(iGG+iFF - 2 * iGF) < fabs(iGG+iFF + 2 * iGF) ){
                     curr = fabs(iGG+iFF - 2 * iGF);
                     flipSignFlag = 0;
                     }else
@@ -575,7 +615,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
                 {
                 
 #if VERBOSE
-            printf("%d curr %f\n", count, curr);
+            printf("%d %f %d %d\n", count, curr,G1,L1);
             fflush(stdout);
 #endif
             if ( fabs(curr) < target ){
@@ -634,46 +674,19 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
             
             {
                 {
-                    double prod;
-                    inta m,space,xm=0;
+                    inta m,space;
                     
                     for ( space = 0; space < dim0 ; space++)
-                                    if ( f1.canon[space].body != nada)
-                                    {
-                                        for ( m = 0; m < L1; m++){
-                                            norm[space][ m ] = cblas_dnrm2(M2[space], alloyStream[space][m],1);
-                                        }
-                                    }
-
-                ///get vector mags and max vector lengt
-                    xm = 0;
-                    for ( m = 0; m < L1; m++){
-                        prod = 1;
-                        for ( space = 0; space < dim0 ; space++)
-                            if ( f1.canon[space].body != nada){
-                                    prod *= norm[space][ m ];
+                        if ( f1.canon[space].body != nada){
+                            for ( m = 0; m < L1; m++){
+                                norm[space][ m ] = cblas_dnrm2(M2[space], alloyStream[space][m],1);
                             }
-                        guide[m] = prod;
-                        if ( guide[xm] < guide[m] ){
-                                xm = m;
                         }
-                    }
-                    
-                    ///copy biggest vector across all low threshold ones.
-                    for ( m = 0; m < L1; m++)
-                        if ( guide[m] < threshold ){
-                            for ( space = 0; space < dim0 ; space++)
-                                if ( f1.canon[space].body != nada){
-                                    cblas_dcopy(M2[space], alloyStream[space][xm], 1, alloyStream[space][m], 1);
-                                    norm[space][ m ] = norm[space][ xm ];
-                                }
-                        }
-                    
                 }
                 
                 
                             
-                    inta space ;
+                inta space ;
                 for ( space = 0 ; space < SPACE ; space++)
                     if( f1.canon[space].body != nada ){
 
@@ -684,26 +697,29 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
                     inta m,n;
                     
                     
+    #ifdef OMP
+        #pragma omp parallel for private (m,n)
+                    #endif
+                    for ( m = 0; m < L1; m++){
+                        if ( flipSignFlag && space == dim[0] )
+                            cblas_dscal(M2[space], -1./(norm[space][m]),alloyStream[space][m], 1);
+                        else
+                            cblas_dscal(M2[space], 1./(norm[space][m]),alloyStream[space][m], 1);
+                    }
+                    
 #ifdef OMP
 #pragma omp parallel for private (m,n)
 #endif
-                                for ( m = 0; m < L1; m++){
-                                    if ( flipSignFlag && space == dim[0] )
-                                        cblas_dscal(M2[space], -1./(norm[space][m]),alloyStream[space][m], 1);
-                                    else
-                                        cblas_dscal(M2[space], 1./(norm[space][m]),alloyStream[space][m], 1);
-
-                                    array[space][ m*LS1 + m ]  = 1.;
-                                    for ( n = 0; n < m ; n++){
-                                            array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][m],1);
-                                            array[space][ m*LS1 + n ] = array[space][ n*LS1 + m ];
-                                        }
-                                    
-                                    
-                                    for ( n = 0; n < G1 ; n++){
-                                        array2[space][ n*LS1 + m ] = cblas_ddot(M2[space],originStream[space][n],1,alloyStream[space][m],1);
-                               }
+                for ( m = 0; m < L1; m++){
+                        array[space][ m*LS1 + m ]  = 1.;
+                        for ( n = 0; n < m ; n++){
+                            array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][m],1);
+                            array[space][ m*LS1 + n ] = array[space][ n*LS1 + m ];
                         }
+                        for ( n = 0; n < G1 ; n++){
+                            array2[space][ n*LS1 + m ] = cblas_ddot(M2[space],originStream[space][n],1,alloyStream[space][m],1);
+                       }
+                    }
                 }else {
                     inta m;
                     for ( m = 0; m < L1; m++){
@@ -724,205 +740,6 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,floata *GG,   
     return 0;
 }
 
-/**
- * Controls to initiate and run canonicalRankDecomposition
- *
- *@param rank      OMP rank
- *@param f1          container
- *@param cofact allows for rescaling the origin by each canonical rank
- *@param[in] origin the division with more canonical ranks
- *@param os         spin of origin to consider
- *@param[out] alloy  the division with less canonical ranks, to be trained
- *@param spin      spin of alloy to consider
- *@param tolerance a number setting the absolute quality
- *@param relativeTolerance a number seting quality relative to magnitude of origin
- *@param condition Beylkin's condition (alpha)
- *@param threshold the smallest number
- *@param maxCycle the maxmium number of cycles in this routine
- *@param canon  canonical ranks.
- */
-double AsterCanonicalRankDecomposition ( inta rank,  sinc_label  f1 , double * cofact,   division origin,inta os,   division alloy,inta spin,  double tolerance ,  double relativeTolerance, double condition,double threshold, inta maxCycle , inta canon  ){
-    inta ii,xm,ll,ggg,gg,c,n,m,l,g,G1 = CanonicalRank(f1, origin, os), L1 = canon,out;
-      division G =nullName,L=nullName;
-   
-    ///this is not a parallelizable routine...currently
-    rank = 0;
-    
-    
-    
-    if ( ! G1 ){
-        printf("AsterCanonicalRankDecomposition, Origin is empty\n");
-        return 0;
-    }
-    if ( G1 <= L1 ){
-        tEqua(f1, alloy, spin, origin, os);
-        return 0;
-    }
-    ///allocate many pointers permenately associated with G and L by their array position.///
-    for ( g = 0 ; g < G1 ; g++){
-        if ( G== nullName )
-            G = anotherLabel(&f1, 0, nada);
-        else
-            anotherLabel(&f1, 0, nada);//will be in place
-        f1.name[G+g].name = origin;
-        f1.name[G+g].Partition = 1;
-        for ( c = 0 ; c < MAX_CORE; c++){
-            f1.name[G+g].Begin[c] = 0;
-            f1.name[G+g].Current[c] = 0;
-        }
-        f1.name[G+g].Begin[os] = g;
-        f1.name[G+g].Current[os] = 1;
-        if ( g + 1 < G1 )
-            f1.name[G+g].chainNext = G+g+1;
-        else
-            f1.name[G+g].chainNext =nullName;
-
-    }
-    
-    ///allocated, and will be forgotten after run, as f1 status elments are not saved...///
-    for ( l = 0 ; l < L1 ; l++){
-        if ( L== nullName )
-            L = anotherLabel(&f1, 0, nada);
-        else
-            anotherLabel(&f1, 0, nada);//will be in place
-        f1.name[L+l].name = alloy;
-        f1.name[L+l].Partition = 1;
-        for ( c = 0 ; c < MAX_CORE; c++){
-            f1.name[L+l].Begin[c] = 0;
-            f1.name[L+l].Current[c] = 0;
-        }
-        f1.name[L+l].Begin[spin] = l;
-        f1.name[L+l].Current[spin] = 1;
-        if ( l +1 < L1 )
-            f1.name[L+l].chainNext = L+l+1;
-        else
-            f1.name[L+l].chainNext =nullName;
-
-    }
-    inta map[L1];
-
-#if 1
-    floata * me ,* overlap,*sum,*ove;
-    if ( part(f1, canonicalBuffersAster) < 2*G1*G1+2*G1)
-    {
-        printf("Aster,somehow the buffer is too small\n");
-        exit(0);
-    }
-        
-    me = myStreams(f1, canonicalBuffersAster, 0);
-    overlap = me + G1*G1;
-    sum = overlap + G1*G1;
-    ove = sum + G1;
-#else
-    floata me[G1*G1],overlap[G1*G1],sum[G1],ove[G1];
-#endif
-    
-    assignCores(f1, 1);
-    
-    #ifdef OMP
-    #pragma omp parallel for private (ii,n,m,rank) schedule(dynamic,1)
-    #endif
-
-    for ( ii= 0; ii < G1*G1 ; ii++){
-
-        m = ii%G1;
-        n = (ii/G1)%G1;
-                
-        #ifdef OMP
-                rank = omp_get_thread_num();
-        #else
-                rank = 0;
-        #endif
-        
-        if ( m <= n ){
-            overlap[G1*n+m]  = tMatrixElements(rank, f1, G+n, 0, nullOverlap, 0, G+m, 0);
-            overlap[G1*m+n]  = overlap[G1*n+m];
-        }
-    }
-    cblas_dcopy( G1*G1,overlap,1,me,1);
-
-    tdsyev(0, f1, 'V', G1, me, G1, ove);
-
-    
-#ifdef ASTER_FLAT
-    for ( n = 0; n < G1 ; n++){
-        xm = cblas_idamax(G1, me+n, G1);
-        for ( m = 0 ; m < G1 ; m++)
-            me[m*G1+n] = 0.;
-        me[xm*G1+n] = 1.;
-    }
-#endif
-    out = 1;
-    do {
-        if ( out < 0 )
-            printf("Aster, reiterate due to linear dependence\t%d\n",L1);
-        fflush(stdout);
-        for ( n = 0; n < G1 ; n++){
-            cblas_dgemv(CblasColMajor, CblasNoTrans,G1,G1,1.,overlap,G1,me+n*G1,1, 0.,sum,1);
-            ove[n] = cblas_ddot(G1, me+n*G1, 1, sum, 1);
-        }
-
-        for ( n = 0; n < G1 ; n++){
-            sum[n] = 0.;
-        }
-        
-        
-        ///Without cycling, this part will produce Linear independent alloy vectors.
-        ll= 0;
-        for ( l = 0; l < G1 ; l++)
-            {
-                g = cblas_idamax(G1, ove, 1);
-                map[ll] = g;
-                if ( ove[g] > f1.rt->THRESHOLD ){
-                    cblas_daxpy(G1, 1., me+G1*g, 1, sum, 1);
-                    if ( ll < L1 ){
-                        ggg = 0;
-                        for ( gg = 0; gg < G1 ; gg++){
-                            if ( fabs((me+g*G1)[gg]) > f1.rt->THRESHOLD ){
-                                f1.name[G+gg].Current[os] = 1;
-                                ggg++;
-                            }
-                            else{
-                                f1.name[G+gg].Current[os] = 0;
-                            }
-                        }
-                        if ( ggg >= 1 ){
-                            ///each of these will NOT cycle, as the input canonRank = 1, they will only give a trival summation...
-                            ///Trying to attain orthogonal packets of information per canonRank, to decompose well *below*.
-                            ll += canonicalRankDecomposition( f1, me+G1*g,overlap, G, 0, ggg, os, L+ll, 0,1, spin, tolerance,relativeTolerance, condition,threshold,1);
-                        }
-                    }
-                }
-                ove[g] = 0.;
-
-            }
-        L1 = ll;
-        if ( L1 == 0 ){
-            out = 0;
-            f1.name[alloy].Current[spin] = 0 ;
-            
-        }else {
-        
-                ggg = 0;
-                for ( gg = 0; gg < G1 ; gg++)
-                    if ( fabs((sum)[gg]) > f1.rt->THRESHOLD ){
-                        f1.name[G+gg].Current[os] = 1;
-                        ggg++;
-                    }else {
-                        f1.name[G+gg].Current[os] = 0;
-                    }
-                f1.name[alloy].Current[spin] = L1 ;
-                ///return -1, if tripping on linear dependence then it will reduce L1 and repeat.
-                out =  canonicalRankDecomposition( f1, sum, overlap,G, 0, ggg, os, L, 0, L1, spin,tolerance,relativeTolerance, condition,threshold,maxCycle);
-        
-            L1--;
-        }
-        ///Each attempt will have perfect input canonical Ranks,
-        ///simply reduce number of them if re-iteration occurs
-    } while ( out < 0  );
-    balance(f1,alloy,spin);
-    return 0;
-}
 
 /**
  *The printing output in D.kry
@@ -948,9 +765,9 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
         printf("\t(%d)\t%d\n",  CanonicalRank(f1, vector, 0),vector-eigenVectors);
     ov = pMatrixElement( f1, vector, 0, nullOverlap, 0, vector,0);
     printf("------Edges------\n\n");
-      division header = anotherLabel(&f1, 0, nada);
-      division eik    = anotherLabel(&f1, 0, nada);
-      division mem    = anotherLabel(&f1, 0, one);
+    division header = anotherLabel(&f1, 0, nada);
+    division eik    = anotherLabel(&f1, 0, nada);
+    division mem    = anotherLabel(&f1, 0, one);
     char* desc [] = {"fourier","negative","positive"};
     for ( space = 0; space < SPACE ; space++){
         for (body = one ; body <=  f1.canon[space].body ; body++ )
@@ -986,7 +803,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
         
     printf("------Terms------\n");
 
-      division op = defSpiralMatrix(&f1, Hamiltonian);
+    division op = defSpiralMatrix(&f1, Hamiltonian);
     inta o,scr=0,cr =0;;
     inta terms = 0,oo=0;
     
@@ -1714,7 +1531,7 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
  *@param maxCycle the maxmium number of cycles in this routine
  *@param canon rank of output vector
 */
-void tHXpY (  inta rank,   sinc_label f1 ,  division bra,   division left,inta shiftFlag,  division right ,  double tolerance ,double relativeTolerance,double condition,double threshold, inta maxCycle, inta canon,inta X1){
+void tHXpY (  inta rank,   sinc_label f1 ,  division bra,   division left,inta shiftFlag,  division right ,  double tolerance ,double relativeTolerance,double condition,double threshold, inta maxCycle, double maxCondition,inta canon,inta X1){
     double prod;
     if ( rank < 0 ) {
         rank = 0;
@@ -1791,7 +1608,7 @@ void tHXpY (  inta rank,   sinc_label f1 ,  division bra,   division left,inta s
         };
         
         if (  bra != totalVector){
-            AsterCanonicalRankDecomposition(rank, f1,  NULL,totalVector, rank, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle, canon);
+            CanonicalRankDecomposition(rank, f1,  NULL,totalVector, rank, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle,maxCondition, canon);
         }
     }
     return;
@@ -1933,7 +1750,7 @@ inta tOuterProductSuOne(   sinc_label  f1,inta space,  division vector , inta a,
 //
 //        for ( ii = 1 ; ii < 30 ; ii++){
 //            tId(f1,copyTwoVector,0);
-//            AsterCanonicalRankDecomposition(0, f1, NULL, copyVector, 0, copyTwoVector, 0,  f1.rt->TOLERANCE,  f1.rt->relativeTOLERANCE,  f1.rt->ALPHA, f1.rt->THRESHOLD, f1.rt->MAX_CYCLE, <#inta canon#>)
+//            CanonicalRankDecomposition(0, f1, NULL, copyVector, 0, copyTwoVector, 0,  f1.rt->TOLERANCE,  f1.rt->relativeTOLERANCE,  f1.rt->ALPHA, f1.rt->THRESHOLD, f1.rt->MAX_CYCLE, <#inta canon#>)
 //        }
 //    }
 //
