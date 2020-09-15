@@ -27,7 +27,6 @@
 */
 double CanonicalRankDecomposition ( inta rank,  sinc_label  f1 ,double * coeff,   division origin,inta os,  division alloy,inta spin, double tolerance, double relativeTolerance, double condition,double threshold, inta maxCycle ,double maxCondition, inta canon ){
     
-    
     inta L1 = canon;
         
     inta *iiii[2][2];
@@ -36,6 +35,16 @@ double CanonicalRankDecomposition ( inta rank,  sinc_label  f1 ,double * coeff, 
     
     division G = nullName;
     inta ii,n,m,c,g,G1 = CanonicalRank(f1, origin, os);
+    
+    if ( ! G1 ){
+        printf("CanonicalRankDecomposition, Origin is empty\n");
+        return 0;
+    }
+    if ( G1 <= L1 ){
+        tEqua(f1, alloy, spin, origin, os);
+        return 0;
+    }
+
     for ( g = 0 ; g < G1 ; g++){
         if ( G== nullName )
             G = anotherLabel(&f1, 0, nada);
