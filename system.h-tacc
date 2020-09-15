@@ -40,7 +40,7 @@
 #define CHERRY_PICKER
 #define readHDF5
 #define writeHDF5
-
+#define MKL
 #define ASTER_FLAT
 ///to compile with acceleration in APPLE, not for distribution
 //#define APPLE
