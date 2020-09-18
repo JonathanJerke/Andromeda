@@ -20,13 +20,18 @@ else
                 then
                     if [ -f $com.hout ]
                         then
-                            echo "passed over $com b/c noOverWrite"
-                        else
+                            if [[ `grep FINIS $com.hout` =~ "FINIS." ]]
+                            then
+                                echo "passed over $com b/c noOverWrite"
+                            else
                             date > $com.hout
                             cat $com | andromeda >> $com.hout
                             date >> $com.hout
-
-                        fi
+                        else
+                        date > $com.hout
+                        cat $com | andromeda >> $com.hout
+                        date >> $com.hout
+                    fi
                 else
                 date > $com.hout
                 cat $com | andromeda >> $com.hout
