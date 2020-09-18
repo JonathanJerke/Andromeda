@@ -19,7 +19,7 @@ if [ -f summa ]
     wait
     ritzSC.sh  $2
     wait
-    prevKrylovD.sh $2 $2 states
+    KrylovF.sh $2 $2 states
     wait
 
     rm waiter
