@@ -14,11 +14,24 @@ if [ -f waiter ]
 else
 	for com in $*
 		do	
-			date > $com.hout
             before=`date`
             before2=`date -d "$before" +%s `
-			cat $com | andromeda >> $com.hout
-			date >> $com.hout
+            if [ -f noOverWrite ]
+                then
+                    if [ -f $com.hout ]
+                        then
+                            echo "passed over $com b/c noOverWrite"
+                        else
+                            date > $com.hout
+                            cat $com | andromeda >> $com.hout
+                            date >> $com.hout
+
+                        fi
+                else
+                date > $com.hout
+                cat $com | andromeda >> $com.hout
+                date >> $com.hout
+            fi
             after=`date`
             after2=`date -d "$after" +%s `
             seconds=`echo "$before2 $after2" | awk '{print $2 - $1}'`
