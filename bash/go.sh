@@ -27,6 +27,7 @@ else
                             date > $com.hout
                             cat $com | andromeda >> $com.hout
                             date >> $com.hout
+			    fi
                         else
                         date > $com.hout
                         cat $com | andromeda >> $com.hout
