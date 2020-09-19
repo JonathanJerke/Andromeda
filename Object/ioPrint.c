@@ -791,7 +791,7 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     
     
     int canonRank = CanonicalRank(f1,label,spin),genus=1,particle,body = f1.canon[space].body ,count1 = vector1Len(f1,space);
-    char str[5];
+    char str[6];
     const char * pstr;
 
     sprintf(str,"%3d-%1d",space,spin);
@@ -878,7 +878,7 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     
     
     int s,canonRank = CanonicalRank(f1,label,spin),genus=1,particle,body = f1.canon[space].body ,count1 = vector1Len(f1,space);
-    char str[5];
+    char str[6];
     const char * pstr;
 
     sprintf(str,"%3d-%1d",space,spin);
@@ -969,7 +969,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
     herr_t      status, status_n;
    
     int canonRank,genus,particle,body,count1;
-    char str[5];
+    char str[6];
     const char * pstr;
     /*
      * Open the file and the dataset.
@@ -1101,7 +1101,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
     herr_t      status, status_n;
    
     int canonRank,genus,particle,body,count1;
-    char str[5];
+    char str[6];
     const char * pstr;
     /*
      * Open the file and the dataset.
