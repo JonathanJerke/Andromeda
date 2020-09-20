@@ -7,7 +7,7 @@ if [ $# -eq 3 ]
      prev=$src/e.riz
     for i in `cat $3`
         do
-        file=$dir/F.kry.${i}
+        file=$dir/D.kry.${i}
         echo "*Body $file" > $file
         echo "*InputOutput" >> $file
         echo "read found/found" >> $file
