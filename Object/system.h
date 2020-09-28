@@ -26,7 +26,7 @@
 /**
  *Andromeda: a few-body plane wave calculator
  *
- *v9.3
+ *v9.4
  *quantumGalaxies.org
  *
  *Jonathan Jerke
@@ -37,13 +37,14 @@
 
 #ifndef system_h
 #define system_h
-#define CHERRY_PICKER
-#define readHDF5
-#define writeHDF5
 
-#define ASTER_FLAT
+//#define writeHDF5
+//#define readHDF5
+//#define READ_FAST
+
+#define CHERRY_PICKER
 ///to compile with acceleration in APPLE, not for distribution
-//#define APPLE
+#define APPLE
 ///Number of components, no limit
 #define SPACE 12
 ///Number of 'atoms' under geometry,  really no reason to to keep this big
@@ -58,7 +59,7 @@
 ///switch
 #define VERBOSE 0
 ///Maximum number of input terms at prompt, at minor cost to increase
-#define MAXTERM 100
+#define MAXTERM 1000
 ///Maximum bodies per component currently supported
 #define MAXBODY 3
 ///Switch to make stuff complex at compiler level,not working yet
@@ -68,7 +69,7 @@
 ///basically overwritten, will remove
 #define MAX_PARAM_FUNC 4
 ///The block-memory commands act to negate memory allocations,  this is the maximum number of blocks.  Leave this alone, unless you add blocks.
-#define BLOCK_COUNT 13
+#define BLOCK_COUNT 11
 
 #ifdef APPLE
     #define SPHERE
@@ -80,6 +81,7 @@
 #else
 ///for including omp.h
     #define OMP
+///intel MKL
 
 #ifndef MKL
 /// gnu compatible
@@ -90,15 +92,15 @@
 ///Probably too much, but dont care,
     #define MAXSTRING 88
 ///Probably too much, but dont care,
-    #define SUPERMAXSTRING 200
-///Maximum number of .mac files that are loadable,  (not vectors, ---> files of .vector)
-    #define MAX_FILE 100
+    #define SUPERMAXSTRING 176
+///Maximum number of .mac files that are loadable,  (not vectors, rather files of .vector)
+    #define MAX_FILE 1000
 ///Maybe necessary for integrating momentums in GaussianSinc-basis--otherwise, not used.
 //#define GSL_LIB
 ///Set true if you want to use GSL cblas
 //#define GSL_CBLAS
 ///Normal super computer size, could be more or less,
-    #define MAX_CORE 4
+    #define MAX_CORE 36
 #endif
 
 #endif /* system_h */

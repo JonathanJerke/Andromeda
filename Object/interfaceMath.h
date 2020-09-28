@@ -29,7 +29,7 @@
 #include "coreUtil.h"
 inta tdsyev( inta rank,   sinc_label f1, char job , inta n, double * ar, inta ns , double * w );
 inta tdsygv( inta rank,   sinc_label f1, char job , inta n, double * sr, double * ar, inta ns , double * w );
-inta tdgeqr( inta rank,   sinc_label f1,inta len, inta n, double * ar, inta ns ,double *w);
+inta tdgeqr( inta rank,   sinc_label f1,inta len, inta n, double * ar, inta ns ,double *w, double *xr , inta xs );
 inta tzheev( inta rank,   sinc_label f1, char job , inta n,DCOMPLEX * ar, inta ns , double * w );
 inta tzhegv( inta rank,   sinc_label f1, char job , inta n,DCOMPLEX * sr, DCOMPLEX * ar, inta ns , double * w );
 void transpose(inta N, inta M, floata * orig, floata* targ);

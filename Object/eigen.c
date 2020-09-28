@@ -207,22 +207,24 @@ inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,    division 
                     }
                 }
 #else
-        #ifdef OMP
-        #pragma omp parallel for private (m,rank,n) schedule(dynamic,1)
-        #endif
                     for ( m = 0 ;m < quantumBasisSize; m++)
                     {
                         
-        #ifdef OMP
-                        rank = omp_get_thread_num();
-        #else
-                        rank = 0;
-        #endif
-                        tHXpY(rank, f1, totalVector, leftP, 0, usz+m, 0, 0, 0, 0, 0,1e6, CanonicalRank(f1, leftP, 0), CanonicalRank(f1, leftP, 0));
-                        for ( n = 0 ;n < quantumBasisSize; n++)
+                        tHXpY(0, f1, totalVector, leftP, 0, usz+m, 0, 0, 0, 0, 0,1e6, CanonicalRank(f1, leftP, 0), CanonicalRank(f1, leftP, 0));
+#ifdef OMP
+#pragma omp parallel for private (rank,n) schedule(dynamic,1)
+#endif
+                        for ( n = 0 ;n < quantumBasisSize; n++){
+                            #ifdef OMP
+                                            rank = omp_get_thread_num();
+                            #else
+                                            rank = 0;
+                            #endif
+
                             if ( m<=n ){
-                                T[n*stride+m] += tMatrixElements(rank, f1, usz+n,0, nullOverlap, 0, totalVector, rank);
+                                T[n*stride+m] += tMatrixElements(rank, f1, usz+n,0, nullOverlap, 0, totalVector, 0);
                             }
+                        }
                     }
     
 #endif

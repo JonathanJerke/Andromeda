@@ -1,5 +1,5 @@
 /**
-*  Fibonacci.h
+*  BoostFibonacci.h
 *
 *
 *  Copyright 2020 Jonathan Jerke and Bill Poirier.
@@ -22,6 +22,7 @@
 *   *   You should have received a copy of the GNU General Public License
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 
 #ifndef Fibonacci_h
 #define Fibonacci_h

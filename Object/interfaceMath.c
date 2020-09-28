@@ -173,10 +173,10 @@ inta tzhegv( inta rank,   sinc_label f1, char job , inta n,DCOMPLEX * sr, DCOMPL
                                
 
                               
-inta tdgeqr( inta rank,   sinc_label f1,inta len, inta n, double * ar, inta ns ,double *w){
-    inta info,info2;
+inta tdgeqr( inta rank,   sinc_label f1,inta len, inta n, double * ar, inta ns ,double *w, double *xr , inta xs ){
+    inta info,info2,i;
     if ( len > n ){
-        printf("%d -> %d\n", len, n);
+        printf("Gram Schmidt: %d -> %d\n", len, n);
         len = n;
     }else if ( len <= 0 ){
         printf("cancel tdgeqr\n");
@@ -184,14 +184,24 @@ inta tdgeqr( inta rank,   sinc_label f1,inta len, inta n, double * ar, inta ns ,
     }
     ///len is number of elements to consider, if len > n, then you may as well remove some of len...its over-linear dependent.
 
-    printf("tdgeqr %d %d %d %d\n", rank, len, n, ns );
 #ifdef APPLE
     inta lbuffer = part(f1, dsyBuffers);
     dgeqrf_(&n,& len, ar, &ns, w, myStreams(f1, dsyBuffers,rank ), &lbuffer, &info);
+    for ( i = 0 ; i < len ; i++){
+        cblas_dcopy(i+1, ar+ns*i, 1, xr+xs*i, 1);
+    }
     dorgqr_(&n, &len, &len, ar, &ns, w, myStreams(f1, dsyBuffers,rank ), &lbuffer, &info2);
 #else
     info = LAPACKE_dgeqrf(LAPACK_COL_MAJOR, n,len, ar, ns, w);
+    for ( i = 0 ; i < len ; i++){
+        cblas_dcopy(i+1, ar+ns*i, 1, xr+xs*i, 1);
+    }
     info2 = LAPACKE_dorgqr(LAPACK_COL_MAJOR,n,len,len,ar,ns,w);
+    
+#if 0
+    ///mapping back...
+    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, n, len, len, 1., ar, ns, xr, xs, 0., out, ns);
+#endif
 #endif
     return info * 100000 + info2;
 

@@ -698,7 +698,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,floata 
                     
                     
     #ifdef OMP
-        #pragma omp parallel for private (m,n)
+        #pragma omp parallel for private (m)
                     #endif
                     for ( m = 0; m < L1; m++){
                         if ( flipSignFlag && space == dim[0] )
