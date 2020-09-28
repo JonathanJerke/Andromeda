@@ -42,7 +42,7 @@
 //#define readHDF5
 //#define READ_FAST
 
-#define CHERRY_PICKER
+//#define CHERRY_PICKER
 ///to compile with acceleration in APPLE, not for distribution
 #define APPLE
 ///Number of components, no limit
