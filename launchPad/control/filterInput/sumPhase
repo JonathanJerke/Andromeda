@@ -3,10 +3,14 @@
 		spam 0
 		phase 1
 		blockReset 
+		blockMemory 2
 		blockMemory 3
 		blockMemory 4
                 blockMemory 5
-                blockMemory 9
+#                blockMemory 6
+                blockMemory 7
+ #               blockMemory 9
+		blockMemory 10
 		blockMemory 11
 	.Parameters
 

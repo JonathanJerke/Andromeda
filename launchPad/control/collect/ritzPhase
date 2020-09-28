@@ -3,18 +3,20 @@
 		spam -1
 		phase 2
 		collect 1
-		blockReset
-		blockMemory 1
+		blockReset 
+#!CHERRY_PICKER	blockMemory 1
 		blockMemory 2
 		blockMemory 3
                 blockMemory 4
-                blockMemory 9
+                blockMemory 6
+  		blockMemory 7
+                blockMemory 9		
 		blockMemory 10
 		blockMemory 11
 	.Parameters
-
+	
 
 	*InputOutput
-		control moreLanes	
+		read two
 	.InputOutput
 .Body
