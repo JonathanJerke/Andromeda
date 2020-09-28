@@ -90,7 +90,7 @@
 ///Probably too much, but dont care,
     #define MAXSTRING 88
 ///Probably too much, but dont care,
-    #define SUPERMAXSTRING 120
+    #define SUPERMAXSTRING 200
 ///Maximum number of .mac files that are loadable,  (not vectors, ---> files of .vector)
     #define MAX_FILE 100
 ///Maybe necessary for integrating momentums in GaussianSinc-basis--otherwise, not used.
