@@ -44,7 +44,7 @@
 
 //#define CHERRY_PICKER
 ///to compile with acceleration in APPLE, not for distribution
-#define APPLE
+//#define APPLE
 ///Number of components, no limit
 #define SPACE 12
 ///Number of 'atoms' under geometry,  really no reason to to keep this big
