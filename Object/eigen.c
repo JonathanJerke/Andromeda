@@ -210,7 +210,7 @@ inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,    division 
                     for ( m = 0 ;m < quantumBasisSize; m++)
                     {
                         
-                        tHXpY(0, f1, totalVector, leftP, 0, usz+m, 0, 0, 0, 0, 0,1e6, CanonicalRank(f1, leftP, 0), CanonicalRank(f1, leftP, 0));
+                        tHXpY(0, f1, totalVector, leftP, 0, usz+m, 0, 0, 0, 0, 0,1e6, CanonicalRank(f1,usz+m)*CanonicalRank(f1, leftP, 0), CanonicalRank(f1,usz+m)*CanonicalRank(f1, leftP, 0));
 #ifdef OMP
 #pragma omp parallel for private (rank,n) schedule(dynamic,1)
 #endif
