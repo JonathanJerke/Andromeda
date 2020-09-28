@@ -8,11 +8,9 @@
 	eikons 1000
 	names 2000
 		#spam 8
-		states 10
+		states 12
 		body 2
-		canonRank 1
-		collect 1
-		filter 7
+		canonRank 8
 	.Parameters
 	
 *Dim
@@ -28,7 +26,7 @@
 	act 1
 	interval 15
 	minBeta 0
-	maxBeta 10
+	maxBeta 4
 .Term
 *InputOutput
 	read ../cn1
@@ -36,8 +34,8 @@
 
 *Term
         act 1
-        interval 15
-        minBeta 10
+        interval 7
+        minBeta 4
         maxBeta -1
 .Term
 *InputOutput
