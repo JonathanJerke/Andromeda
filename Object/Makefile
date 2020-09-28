@@ -14,5 +14,5 @@ LAPACKinc       = /usr/include/x86_64-linux-gnu
 flags           =-I${LAPACKinc}   -L${LAPACKlib}
 lib             = -lm -lgfortran -latlas -llapack_atlas  -llapacke -lcblas
 
-andromeda: Fibonacci.c Fibonacci.h system.h ioPrint.c ioPrint.h eigen.c eigen.h jobs.c input.c input.h constants.h  coreMath.c  coreUtil.h  mAls.c   Model.h coreForce.c  coreMath.h  interfaceMath.c  mAls.h  saUtil.c coreForce.h  input.c  coreUtil.c  interfaceMath.h  Model.c  saUtil.h
-	$(cc) $(flags) -fopenmp jobs.c input.c eigen.c coreMath.c mAls.c coreForce.c interfaceMath.c saUtil.c coreUtil.c Model.c ioPrint.c Fibonacci.c $(lib) -o andromeda
+andromeda: BoostFibonacci.c BoostFibonacci.h system.h ioPrint.c ioPrint.h eigen.c eigen.h jobs.c input.c input.h constants.h  coreMath.c  coreUtil.h  mAls.c   Model.h coreForce.c  coreMath.h  interfaceMath.c  mAls.h  saUtil.c coreForce.h  input.c  coreUtil.c  interfaceMath.h  Model.c  saUtil.h
+	$(cc) $(flags) -fopenmp jobs.c input.c eigen.c coreMath.c mAls.c coreForce.c interfaceMath.c saUtil.c coreUtil.c Model.c ioPrint.c BoostFibonacci.c $(lib) -o andromeda
