@@ -32,6 +32,6 @@
 #include "saUtil.h"
 #include "eigen.h"
 
-double CanonicalRankDecomposition ( inta rank,  sinc_label  f1 , double * cofact, division origin,inta os, division alloy,inta spin,  double tolerance ,  double relativeTolerance, double condition,double threshold, inta maxCycle ,double maxCondition, inta canon );
+double CanonicalRankDecomposition ( sinc_label  f1 , double * cofact, division origin,inta os, division alloy,inta spin,  double tolerance ,  double relativeTolerance, double condition,double threshold, inta maxCycle ,double maxCondition, inta canon );
 
 #endif /* Fibonacci_h */

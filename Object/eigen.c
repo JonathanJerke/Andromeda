@@ -42,7 +42,7 @@ inta tFilter(  sinc_label f1, inta Ve, inta irrep,   division usr){
                 
                 f1.name[totalVector].Current[rank] = 0;
                 tBuildIrr(rank, f1, irrep, usr+ii, cmpl, totalVector, rank);
-                CanonicalRankDecomposition(0, f1, NULL,totalVector, rank,  usr+ii, cmpl, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE,f1.rt->XCONDITION, part(f1,usr+ii));
+                CanonicalRankDecomposition( f1, NULL,totalVector, rank,  usr+ii, cmpl, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE,f1.rt->XCONDITION, part(f1,usr+ii));
             }
         }
     }
@@ -70,7 +70,7 @@ inta tSelect(  sinc_label  f1, inta Ve, inta irrep,   division usr, inta testFla
         for ( sp = 0; sp < spins(f1, usr+Ve);sp++){
             f1.name[totalVector].Current[rank] = 0;
             tBuildIrr(rank, f1, irrep, usr+Ve, sp, totalVector, rank);
-            CanonicalRankDecomposition(0, f1, NULL,totalVector, rank,usr+Ve,sp, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE,f1.rt->XCONDITION, part(f1,name(f1,usr+Ve)));
+            CanonicalRankDecomposition( f1, NULL,totalVector, rank,usr+Ve,sp, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE,f1.rt->XCONDITION, part(f1,name(f1,usr+Ve)));
         }
 
     }
@@ -210,7 +210,7 @@ inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,    division 
                     for ( m = 0 ;m < quantumBasisSize; m++)
                     {
                         
-                        tHXpY(0, f1, totalVector, leftP, 0, usz+m, 0, 0, 0, 0, 0,1e6, CanonicalRank(f1,usz+m,0)*CanonicalRank(f1, leftP, 0), CanonicalRank(f1,usz+m,0)*CanonicalRank(f1, leftP, 0));
+                        tHXpY(f1, totalVector, leftP, 0, usz+m, 0, 0, 0, 0, 0,1e6, CanonicalRank(f1,usz+m,0)*CanonicalRank(f1, leftP, 0), CanonicalRank(f1,usz+m,0)*CanonicalRank(f1, leftP, 0));
 #ifdef OMP
 #pragma omp parallel for private (rank,n) schedule(dynamic,1)
 #endif

@@ -1518,7 +1518,6 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
 /**
  *Multiply in total
  *
- *@param rank      OMP rank
  *@param f1          container
  *@param[out] bra vector
  *@param left matrix
@@ -1531,12 +1530,9 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
  *@param maxCycle the maxmium number of cycles in this routine
  *@param canon rank of output vector
 */
-void tHXpY (  inta rank,   sinc_label f1 ,  division bra,   division left,inta shiftFlag,  division right ,  double tolerance ,double relativeTolerance,double condition,double threshold, inta maxCycle, double maxCondition,inta canon,inta X1){
+void tHXpY ( sinc_label f1 ,  division bra,   division left,inta shiftFlag,  division right ,  double tolerance ,double relativeTolerance,double condition,double threshold, inta maxCycle, double maxCondition,inta canon,inta X1){
     double prod;
-    if ( rank < 0 ) {
-        rank = 0;
-    }
-    
+    inta rank0 = 0 ,rank;
     mea co2,coi;
     inta ilr,Ll,sp2,Rr,im,l , k,targSpin;
       division pt,Mat;
@@ -1546,21 +1542,21 @@ void tHXpY (  inta rank,   sinc_label f1 ,  division bra,   division left,inta s
     }
     for ( targSpin = 0 ; targSpin < spins(f1, right ) ;targSpin++){
         pt = left;
-        zero(f1, totalVector, rank);
-        f1.name[totalVector].Current[rank] =0;
+        zero(f1, totalVector, rank0);
+        f1.name[totalVector].Current[rank0] =0;
 
         if (  bra != totalVector){
             if ( shiftFlag  == 1){
-                tEqua(f1, totalVector, rank, bra, targSpin);
+                tEqua(f1, totalVector, rank0, bra, targSpin);
             }
             else if ( shiftFlag  == -1){
-                tEqua(f1, totalVector, rank, right, targSpin);
+                tEqua(f1, totalVector, rank0, right, targSpin);
                 mea ME;
-                ME = tMatrixElements(rank, f1, right, 0, left, 0, right, 0);
-                tScaleOne(f1, totalVector, rank, -ME);
+                ME = tMatrixElements(rank0, f1, right, targSpin, left, 0, right, targSpin);
+                tScaleOne(f1, totalVector, rank0, -ME);
             }
             else
-                f1.name[totalVector].Current[rank] = 0;
+                f1.name[totalVector].Current[rank0] = 0;
         }
          {
             Mat = pt;
@@ -1583,21 +1579,32 @@ void tHXpY (  inta rank,   sinc_label f1 ,  division bra,   division left,inta s
                         
                         Rr = CanonicalRank ( f1, right,sp2 );
                         Ll = CanonicalOperator(f1, Mat, im);
-                        inta su = f1.name[totalVector].Current[rank];
+                        inta su = f1.name[totalVector].Current[rank0];
                         
-                        for ( ilr = 0; ilr <  Ll*Rr ; ilr++)
-                        {
-                            l = ilr%Ll;
-                            k = ilr/Ll;
-                            tHX(rank, f1,Mat, l, im,prod, right, k, sp2,totalVector,ilr +su, rank);
-                            //tUX(rank, f1,totalVector,ilr +su, rank,  copyVector,0,rank);
-                        }
+                        
+                        
+                        #ifdef OMP
+                        #pragma omp parallel for private (ilr,l,k,rank) schedule(dynamic,1)
+                        #endif
+                            for ( ilr = 0; ilr <  Ll*Rr ; ilr++)
+                            {
+
+                            #ifdef OMP
+                                    rank = omp_get_thread_num();
+                            #else
+                                    rank = 0;
+                            #endif
+
+                                l = ilr%Ll;
+                                k = ilr/Ll;
+                                tHX(rank, f1,Mat, l, im,prod, right, k, sp2,totalVector,ilr +su, rank0);
+                            }
 #if VERBOSE
                         printf("'lambda' -> %d %d %d\n", su , su+Ll*Rr,part(f1, totalVector ));
                         
 #endif
-                        f1.name[totalVector].Current[rank]+= Ll*Rr;
-                        if (f1.name[totalVector].Current[rank] > part(f1, totalVector ) )
+                        f1.name[totalVector].Current[rank0]+= Ll*Rr;
+                        if (f1.name[totalVector].Current[rank0] > part(f1, totalVector ) )
                         {
                             printf("'lambda' is too small\n");
                             fflush(stdout);
@@ -1608,7 +1615,7 @@ void tHXpY (  inta rank,   sinc_label f1 ,  division bra,   division left,inta s
         };
         
         if (  bra != totalVector){
-            CanonicalRankDecomposition(rank, f1,  NULL,totalVector, rank, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle,maxCondition, canon);
+            CanonicalRankDecomposition( f1,  NULL,totalVector, rank0, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle,maxCondition, canon);
         }
     }
     return;

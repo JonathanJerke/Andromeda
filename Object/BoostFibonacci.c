@@ -28,7 +28,6 @@
 /**
  * Controls to initiate and run canonicalRankDecomposition
  *
- *@param rank      OMP rank
  *@param f0          container
  *@param coeff allows for rescaling the origin by each canonical rank
  *@param[in] origin the division with more canonical ranks
@@ -41,8 +40,8 @@
  *@param threshold the smallest number
  *@param maxCycle the maxmium number of cycles in this routine
 */
-double CanonicalRankDecomposition ( inta rank,  sinc_label  f0 ,double * coeff,   division origin,inta os,  division alloy,inta spin, double tolerance, double relativeTolerance, double condition,double threshold, inta maxCycle ,double maxCondition, inta canon ){
-    
+double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division origin,inta os,  division alloy,inta spin, double tolerance, double relativeTolerance, double condition,double threshold, inta maxCycle ,double maxCondition, inta canon ){
+    inta rank;
     division G = nullName;
     inta ii,n,m,c,g,G1 = CanonicalRank(f0, origin, os);
     
