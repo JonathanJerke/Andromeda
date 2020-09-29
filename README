@@ -33,7 +33,7 @@ v9.0 has been tested extensively and the code is much more readable.
 v9.1 has cut the pork and now can easily allocate my systems of choice.
 v9.2 has implemented HDF5 because I had a huge IO issue.
 v9.3 has sped up and or avoided various slow procedures.
-v9.4 has sped up the core ALS routine by many orders.
+v9.4 has sped up the core ALS routine by many orders and parallelized the Matrix-vector product.
 
 See (Count Down) on WIKI.
 
