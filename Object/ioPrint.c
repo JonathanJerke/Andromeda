@@ -312,21 +312,23 @@ inta ioArray(  calculation *c1,   field f,char * name,inta N1, floata * array, i
 
 inta inputFormat(  sinc_label f1,char * name,    division buffer, inta input){
 #ifdef READ_FAST
-    inta space ,part = 1,prev = 0;
-    if ( input == 0 )
-        return readFast(f1,name, 0,0,buffer,0,0);
-    if ( input == 2 )
-        return readFast(f1,name, 2,0,buffer,0,0);
-    if ( 100 <= input && input < 200 )
-        return readFast(f1,name, 3,input-100,buffer,0,0);
-    if ( 200 <= input  )
-        return readFast(f1,name, 4,input-200,buffer,0,0);
+    {
+        inta space ,part = 1,prev = 0;
+        if ( input == 0 )
+            return readFast(f1,name, 0,0,buffer,0,0);
+        if ( input == 2 )
+            return readFast(f1,name, 2,0,buffer,0,0);
+        if ( 100 <= input && input < 200 )
+            return readFast(f1,name, 3,input-100,buffer,0,0);
+        if ( 200 <= input  )
+            return readFast(f1,name, 4,input-200,buffer,0,0);
 
-    if ( input == 1 ){
-        for ( space = 0; space < SPACE ; space++)
-            if ( f1.canon[space].body != nada)
-                readFast(f1,name,1,space,buffer,0,space);
-        f1.name[buffer].Current[0] = readFast(f1,name, 2,0,buffer,0,0);
+        if ( input == 1 ){
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1.canon[space].body != nada)
+                    readFast(f1,name,1,space,buffer,0,space);
+            f1.name[buffer].Current[0] = readFast(f1,name, 2,0,buffer,0,0);
+        }
     }
     return 0;
 #endif
@@ -1058,6 +1060,8 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
         */
         status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace,H5P_DEFAULT, streams(f1,label,spin,space2) );
         
+        H5Dclose(filespace);
+        
         H5Sclose(memspace);
         
         H5Dclose(dataset);
@@ -1100,7 +1104,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
 
     herr_t      status, status_n;
    
-    int canonRank,genus,particle,body,count1;
+    int s,canonRank,genus,particle,body,count1;
     char str[6];
     const char * pstr;
     /*
@@ -1180,9 +1184,8 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
         H5Aclose(attr);
 
         ///close.
-        dims[1] = pow(count1, body);
         dims[0] = canonRank;
-
+        dims[1] = pow(count1, body);
          
         filespace = H5Dget_space(dataset);    /* Get filespace handle first. */
         memspace = H5Screate_simple(2,dims,NULL);
@@ -1195,6 +1198,8 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
         for ( s = 0 ; s < dims[0] ; s++)
             ptr[s] = streams(f1,label,spin,space2)+s*dims[1];
         status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace,H5P_DEFAULT, ptr );
+
+        H5Dclose(filespace);
 
         free(ptr);                
         
