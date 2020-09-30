@@ -1060,7 +1060,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
         */
         status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace,H5P_DEFAULT, streams(f1,label,spin,space2) );
         
-        H5Dclose(filespace);
+        H5Sclose(filespace);
         
         H5Sclose(memspace);
         
