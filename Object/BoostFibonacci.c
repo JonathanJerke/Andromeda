@@ -182,10 +182,7 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
        
 
        for ( ii= 0; ii < G1 ; ii++){
-                   
-                   rank = 0;
-           
-           me[G1*ii+ii]  = tMatrixElements(rank, F1.f, G+ii, 0, nullOverlap, 0, G+ii, 0);
+           me[G1*ii+ii]  = pMatrixElement( F1.f, G+ii, 0, nullOverlap, 0, G+ii, 0);
        }
     
     inta iv = 0;
@@ -206,11 +203,9 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
 
         m = ii%G1;
         n = (ii/G1)%G1;
-                
-        rank = 0;
-        
+                        
         if ( m <= n ){
-            me[G1*n+m]  = tMatrixElements(rank, F1.f, G+n, 0, nullOverlap, 0, G+m, 0);
+            me[G1*n+m]  = pMatrixElement(F1.f, G+n, 0, nullOverlap, 0, G+m, 0);
             me[G1*m+n]  = me[G1*n+m];
         }
     }
@@ -305,7 +300,7 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
     for ( space = 0; space < SPACE ; space++)
         if ( f0.canon[space].body != nada){
             if ( GG1 < vectorLen(f0, space) ){
-            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, vectorLen(f0, space), L1, G1, 1., streams(f0,origin,os,space), vectorLen(f0, space), streams(F1.f,eigenVectors,0,space), G1, 0., streams(f0,alloy,spin,space),vectorLen(f0, space) );
+                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, vectorLen(f0, space), L1, vectorLen(f0, space), 1., streams(f0,origin,os,space), vectorLen(f0, space), streams(F1.f,eigenVectors,0,space), vectorLen(F1.f,space), 0., streams(f0,alloy,spin,space),vectorLen(f0, space) );
             } else {
                 cblas_dcopy(L1*vectorLen(f0, space),streams(F1.f,eigenVectors,0,space),1,streams(f0,alloy,spin,space),1);
             }
