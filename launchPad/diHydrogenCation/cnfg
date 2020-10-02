@@ -30,7 +30,7 @@
 	body 2
 	count1Basis 3
 	oneComponent
-	count1Inc 1
+	count1Inc 2
 	anchorAll 0.5
 	latticeAll 4.0
 	attackAll 0.25
