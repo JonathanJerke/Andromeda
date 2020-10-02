@@ -11,8 +11,6 @@
 	#spam 39
 	states 3
 	body 3
-	collect 1
-	filter 3
 	canonRank 2
 .Parameters
 
