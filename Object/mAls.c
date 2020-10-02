@@ -1639,7 +1639,9 @@ void tHXpY ( sinc_label f1 ,  division bra,   division left,inta shiftFlag,  div
 double pMatrixElement ( sinc_label  f1 ,   division alloy1 , inta spin1, division op, inta ospin, division alloy2 , inta spin2 ){
     inta rank,i ,cl = CanonicalRank(f1, alloy1, spin1),cr = CanonicalRank(f1, alloy2, spin2);
     mea OV, ov[f1.rt->NLanes];
-    
+    for ( rank = 0; rank < f1.rt->NLanes; rank++)
+        ov[rank]=0;
+
     division left=0;
     for ( rank = 0; rank < f1.rt->NLanes; rank++){
         ov[rank] = 0.;
