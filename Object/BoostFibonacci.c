@@ -135,6 +135,10 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
             #else
                     rank = 0;
             #endif
+            if ( part(f0,CanonicalBuffers) < G1 ){
+                printf("CanonicalBuffers0 \n");
+                exit(0);
+            }
 
             if ( G1 < vectorLen(f0, space) )
                 tdgeqr(rank, f0, G1, vectorLen(f0, space), streams(f0,origin,os,space), vectorLen(f0, space), myStreams(f0,CanonicalBuffers,rank), streams(F1.f,totalVector,0,space), G1);
@@ -148,7 +152,10 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
     {
         floata * me;
         me = myStreams(F1.f, CanonicalBuffers, 0);
-
+        if ( part(F1.f,CanonicalBuffers) < G1*G1 ){
+            printf("CanonicalBuffers1 \n");
+            exit(0);
+        }
            ///RENAME
            division origin = totalVector;
             
@@ -182,16 +189,16 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
        
 
        for ( ii= 0; ii < G1 ; ii++){
-           me[G1*ii+ii]  = pMatrixElement( F1.f, G+ii, 0, nullOverlap, 0, G+ii, 0);
+           me[ii]  = pMatrixElement( F1.f, G+ii, 0, nullOverlap, 0, G+ii, 0);
        }
     
     inta iv = 0;
     for (ii= 0; ii < G1 ; ii++)
-        if ( me[G1*ii+ii] > f0.rt->THRESHOLD ){
+        if ( me[ii] > f0.rt->THRESHOLD ){
             if ( ii > iv ){
                 for ( space = 0; space < SPACE ; space++)
                     if ( F1.f.canon[space].body != nada){
-                        cblas_dcopy(M2[space], streams(F1.f,origin,0,space)+ii*M2[space], 1, streams(F1.f,origin,0,space)+iv*M2[space], 1);
+                        cblas_dcopy(M2[space], streams(F1.f,origin,os,space)+ii*M2[space], 1, streams(F1.f,origin,os,space)+iv*M2[space], 1);
                     }
             }
             iv++;

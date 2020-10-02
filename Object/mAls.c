@@ -1639,9 +1639,7 @@ void tHXpY ( sinc_label f1 ,  division bra,   division left,inta shiftFlag,  div
 double pMatrixElement ( sinc_label  f1 ,   division alloy1 , inta spin1, division op, inta ospin, division alloy2 , inta spin2 ){
     inta rank,i ,cl = CanonicalRank(f1, alloy1, spin1),cr = CanonicalRank(f1, alloy2, spin2);
     mea OV, ov[f1.rt->NLanes];
-    for ( rank = 0; rank < f1.rt->NLanes; rank++)
-        ov[rank]=0;
-
+    
     division left=0;
     for ( rank = 0; rank < f1.rt->NLanes; rank++){
         ov[rank] = 0.;
@@ -1675,8 +1673,8 @@ double pMatrixElement ( sinc_label  f1 ,   division alloy1 , inta spin1, divisio
     #else
                     rank = 0;
     #endif
-                    f1.name[left+rank].Begin[spin1] = (i)%cl;
-                    f1.name[right+rank].Begin[spin2] = (i/cl);
+                    f1.name[left+rank].Begin[spin1] = (i)%cl+f1.name[alloy1].Begin[spin1];
+                    f1.name[right+rank].Begin[spin2] = (i/cl)+f1.name[alloy2].Begin[spin2];
                     ov[rank] += (tMatrixElements(rank, f1, left+rank, spin1, op, ospin, right+rank, spin2));
                 }
     OV = 0.;
