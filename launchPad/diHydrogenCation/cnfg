@@ -33,14 +33,14 @@
 	count1Inc 2
 	anchorAll 0.5
 	latticeAll 4.0
-	attackAll 0.25
+	attackAll 0.5
 	originAll 0.0
 	body 1
 	twoComponent
 .Dim
 
 *Term
-	interval 35
+	interval 15
 	act 1
 	##
 	#
@@ -54,7 +54,7 @@
 	flags 0
 	scalar -1.
 	minBeta 0
-	maxBeta 10
+	maxBeta 4
 	block 7
 	axis 1
 	adjustOne 0.5
@@ -70,7 +70,7 @@
         newTerm 1
 	flags 0
 	scalar -1.0     
-	minBeta 10
+	minBeta 4
         maxBeta -1
         block 7
         axis 1
@@ -90,7 +90,7 @@
 	flags 0
 	scalar -1.0
         minBeta 0
-        maxBeta 10
+        maxBeta 4
         block 7
         axis 1
         adjustOne -0.5
@@ -106,7 +106,7 @@
         newTerm 1
 	flags 0
 	scalar -1
-        minBeta 10
+        minBeta 4
         maxBeta -1
         block 7        
         axis 1
@@ -127,7 +127,7 @@
 	flags 0
 	scalar 1.  	   
   	minBeta 0
-        maxBeta 10
+        maxBeta 4
 	block 1
 	axis 1	
 	oneBody pp
@@ -136,7 +136,7 @@
 *Term
         newTerm 1
         scalar 1.
-	minBeta 10
+	minBeta 4
         maxBeta -1
      	newTerm 1
         block 1
@@ -179,6 +179,6 @@
 	.Geometry
 	
 	*Parameters
-		lambda 36
+		lambda 16
 	.Parameters
 .Body
