@@ -83,14 +83,6 @@ inta print(  calculation *c ,   field f1,inta reset,inta mv, inta lv,  division 
                         tFilename(c->name,iii+1,bodies(f1.f, eigenVectors+iii) ,irrep, cmpl,str);
                         
                         
-#ifdef WRITE_FAST
-                        {
-                            inta space;
-                        for ( space = 0; space < SPACE ; space++)
-                            if ( f1.f.canon[space].body != nada)
-                                writeFast(f1.f, str, space, eigenVectors+iii,cmpl);
-                        }
-#endif
 #ifdef writeHDF5
                         {
                             inta space;
@@ -293,9 +285,6 @@ inta ioArray(  calculation *c1,   field f,char * name,inta N1, floata * array, i
         for ( i = 0 ; i < N1  ; i++)
             pt[i] = array[i];//column major matrix.
         
-#ifdef WRITE_FAST
-        writeFast(f2.f, name, 0, eigenVectors,0);
-#endif
 #ifdef writeHDF5
         writeFast(f2.f, name, 0, eigenVectors,0);
 #else
@@ -763,6 +752,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
 };
 
 #ifdef writeHDF5
+#ifndef WRITE_FAST
 /**
  *An IO solution for big systems
  *@param f1          container
@@ -846,10 +836,8 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
 
 }
 
-#endif
+#else
 
-
-#ifdef WRITE_FAST
 /**
  *An IO solution for big systems, chunked
  *@param f1          container
@@ -941,8 +929,10 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
 }
 
 #endif
+#endif
 
 #ifdef readHDF5
+#ifndef READ_FAST
 
 /**
  *An IO solution for big systems
@@ -1073,11 +1063,8 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
 
     return 0;
 }
-#endif
 
-
-#ifdef READ_FAST
-
+#else
 /**
  *An IO solution for big systems, makes an 2D image
  *@param f1          container
@@ -1214,4 +1201,5 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
 
     return 0;
 }
+#endif
 #endif
