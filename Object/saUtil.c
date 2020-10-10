@@ -1112,6 +1112,7 @@ inta tPermute(inta rank,   sinc_label f1, inta leftChar ,   division left, inta 
  *Conduct inner products with group action
 */
 inta tAllCompPermMultiplyMP( sinc_label  f1 ,   division left ,inta lspin,   division right ,inta rspin, double * sequ){
+    inta rank = 0;
     inta dim,l,r;
     double prod;
     if ( CanonicalRank(f1, left, lspin ) * CanonicalRank(f1, right, rspin ) == 0)
@@ -1121,7 +1122,7 @@ inta tAllCompPermMultiplyMP( sinc_label  f1 ,   division left ,inta lspin,   div
         printf("tGetType real!\n");
         exit(0);
     }
-    inta i,ii,nPerm=tPerms(bodies(f1,left));
+    inta i,nPerm=tPerms(bodies(f1,left));
     
     for ( i = 1; i <= nPerm ; i++){
         sequ[i] = 0.;
@@ -1130,58 +1131,17 @@ inta tAllCompPermMultiplyMP( sinc_label  f1 ,   division left ,inta lspin,   div
     if ( CanonicalRank(f1, left, lspin ) * CanonicalRank(f1, right, rspin ) == 0){
         return 0;
     }
-    
-    inta rank ,cl = CanonicalRank(f1, left, lspin),cr = CanonicalRank(f1, right, rspin);
-    mea ov[f1.rt->NLanes];
-    
-    division eft=0;
-    for ( rank = 0; rank < f1.rt->NLanes; rank++){
-        ov[rank] = 0.;
-        if ( ! rank )
-            eft = anotherLabel(&f1, 0, nada);
-        else
-            anotherLabel(&f1, 0, nada);
-
-        f1.name[eft+rank].Current[lspin] = 1;
-        f1.name[eft+rank].name = left;
-        f1.name[eft+rank].name = left;
-    }
-    ///need to be in order to make each rank-array contiguous.
-    division ight=0 ;
-    for ( rank = 0; rank < f1.rt->NLanes; rank++){
-        if ( ! rank )
-            ight = anotherLabel(&f1, 0, nada);
-        else
-            anotherLabel(&f1, 0, nada);
-        f1.name[ight+rank].Current[rspin] = 1;
-        f1.name[ight+rank].name = right;
-    }
 
     for ( i = 1; i <= nPerm ; i++){
-        for ( rank = 0; rank < f1.rt->NLanes; rank++)
-            ov[rank] = 0.;
-
-    #ifdef OMP
-    #pragma omp parallel for private (ii,dim,rank,prod) schedule(dynamic,1)
-    #endif
-                for ( ii = 0 ;ii < cl*cr; ii++)
-                {
-    #ifdef OMP
-                    rank = omp_get_thread_num();
-    #else
-                    rank = 0;
-    #endif
-                    prod = 1;
-                    f1.name[eft+rank].Begin[lspin] = (ii)%cl;
-                    f1.name[ight+rank].Begin[rspin] = (ii/cl);
-                    for ( dim = 0; dim < SPACE ; dim++)
-                        if ( f1.canon[dim].body != nada)
-                            prod *= tDOT(rank, f1, dim, i, eft+rank, 0, lspin, CDT, ight+rank, 0, rspin);
-                    ov[rank] += prod;
-                }
-        sequ[i] = 0.;
-        for ( rank = 0; rank < f1.rt->NLanes; rank++)
-            sequ[i] += ov[rank];
+        sequ[i] =0 ;
+        for ( l = 0; l < CanonicalRank(f1,left,lspin) ; l++)
+            for ( r = 0; r < CanonicalRank(f1,left,rspin) ; r++){
+                prod = 1;
+                for ( dim = 0; dim < SPACE ; dim++)
+                    if ( f1.canon[dim].body != nada)
+                        prod *= tDOT(rank, f1, dim, i, left, l, lspin, CDT, right, r, rspin);
+                sequ[i] += prod;
+            }
     }
     return nPerm;
 }
