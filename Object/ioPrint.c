@@ -42,7 +42,7 @@ inta printVector (  calculation *c,  sinc_label f1, char * name,char * vectorNam
     sprintf(str, "%s.vector",vectorName);
     outf = fopen (str,"a");
     for ( iii = iv; iii <= iv  ; iii++)
-    {        
+    {
 #ifdef COMPLEXME
         {
             if( f1.cmpl == 2)
@@ -258,7 +258,7 @@ inta ioArray(  calculation *c1,   field f,char * name,inta N1, floata * array, i
     f2.f.boot = noMatrices;
     
     f2.i.canonRank  = 1;
-    f2.i.nStates = 1;    
+    f2.i.nStates = 1;
     
     for ( space = 1 ; space < SPACE ; space++)
         f2.f.canon[space].body = nada;
@@ -353,7 +353,7 @@ inta inputFormat(  sinc_label f1,char * name,    division buffer, inta input){
     FILE * in = NULL;
     in = fopen(name, "r");
     if ( in == NULL ){
-        return 0;        
+        return 0;
     }
     fgets(inputPt,maxRead, in   );
     inta ct = 0;
@@ -778,9 +778,7 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     hsize_t     dims[1];                     /* dataset */
 
     herr_t      status, status_n;
-   
-    assignCores(f1,1);
-    
+       
     
     int canonRank = CanonicalRank(f1,label,spin),genus=1,particle,body = f1.canon[space].body ,count1 = vector1Len(f1,space);
     char str[6];
@@ -860,22 +858,20 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     hid_t       attr1,attr2,attr3,attr4;
     hid_t       ret;
     hid_t       ret1;
-    hsize_t     dims[4];                     /* dataset */
+    hsize_t     dims[2];                     /* dataset */
 
     herr_t      status, status_n;
-   
-    assignCores(f1,1);
-    
+       
     
     int s,canonRank = CanonicalRank(f1,label,spin),genus=1,particle,body = f1.canon[space].body ,count1 = vector1Len(f1,space);
-    char str[6];
+    char str2[8];
     const char * pstr;
 
-    sprintf(str,"%3d-%1d",space,spin);
-    pstr = &str[0];
-    dims[1] = vectorLen(f1,space);
+    sprintf(str2,"%3d-2-%1d",space,spin);
+    pstr = &str2[0];
     dims[0] = canonRank;
-        
+    dims[1] = vectorLen(f1,space);
+
     /*
      * Open the file and the dataset.
      */
@@ -966,7 +962,6 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
     /*
      * Open the file and the dataset.
      */
-    assignCores(f1,1);
 
     file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
 
@@ -1066,7 +1061,8 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
 
 #else
 /**
- *An IO solution for big systems, makes an 2D image
+ *An IO solution for big systems, makes an 2D image.  Can accept older 1D images.
+ *
  *@param f1          container
  *@param filename  char*
  *@param command to program, may read various attributes or file
@@ -1088,27 +1084,37 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
     hid_t       ret;
     hid_t       memspace;
     hsize_t     dims[2];                     /* dataset */
-
     herr_t      status, status_n;
    
-    int s,canonRank,genus,particle,body,count1;
+    
+    
+    int type2,s,canonRank,genus,particle,body,count1;
+    char str2[8];
     char str[6];
     const char * pstr;
     /*
      * Open the file and the dataset.
      */
-    assignCores(f1,1);
 
     file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
 
     {///
+        ///first attempt to open -2-
         ///
-        ///
-        sprintf(str,"%3d-%1d",space,spin);
-        pstr = &str[0];
-
-        
+        type2 = 1;
+        sprintf(str2,"%3d-2-%1d",space,spin);
+        pstr = &str2[0];
         dataset = H5Dopen(file, pstr, H5P_DEFAULT);
+        if ( dataset < 0 ){
+            sprintf(str,"%3d-%1d",space,spin);
+            pstr = &str[0];
+            dataset = H5Dopen(file, pstr, H5P_DEFAULT);
+            type2 = 0;
+        }
+        
+        
+        
+        
         
         if ( command == 0 ){
             attr = H5Aopen_name(dataset,"genus");
@@ -1170,30 +1176,44 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
         ret  = H5Aread(attr, H5T_NATIVE_INT, &count1);
         H5Aclose(attr);
 
-        ///close.
-        dims[0] = canonRank;
-        dims[1] = pow(count1, body);
-         
-        filespace = H5Dget_space(dataset);    /* Get filespace handle first. */
-        memspace = H5Screate_simple(2,dims,NULL);
-         
-        /*
-        * Read dataset
-        */
         
-        double **ptr = malloc(sizeof(double*)*dims[0]);
-        for ( s = 0 ; s < dims[0] ; s++)
-            ptr[s] = streams(f1,label,spin,space2)+s*dims[1];
-        status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace,H5P_DEFAULT, ptr );
+        if (type2 ){
+            ///close.
+            dims[0] = canonRank;
+            dims[1] = pow(count1, body);
+             
+            filespace = H5Dget_space(dataset);    /* Get filespace handle first. */
+            memspace = H5Screate_simple(2,dims,NULL);
+             
+            /*
+            * Read dataset
+            */
+            printf("dims %d %d\n", dims[0],dims[1]);
+            double **ptr = malloc(sizeof(double*)*dims[0]);
+            for ( s = 0 ; s < dims[0] ; s++)
+                ptr[s] = streams(f1,label,spin,space2)+s*dims[1];
+            status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace,H5P_DEFAULT, ptr );
+            free(ptr);
+            H5Sclose(filespace);
+            H5Sclose(memspace);
 
-        H5Sclose(filespace);
+        }else {
+            
+            dims[0] = canonRank*pow(count1,body * genus );
 
-        free(ptr);                
-        
-        H5Sclose(memspace);
+            filespace = H5Dget_space(dataset);    /* Get filespace handle first. */
+            memspace = H5Screate_simple(1,dims,NULL);
+             
+            /*
+            * Read dataset
+            */
+            status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace,H5P_DEFAULT, streams(f1,label,spin,space2) );
+            H5Sclose(filespace);
+            H5Sclose(memspace);
+
+        }
         
         H5Dclose(dataset);
-
      }///spin,space
 
     f1.name[label].Current[spin] = canonRank;
