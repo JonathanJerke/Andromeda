@@ -300,27 +300,6 @@ inta ioArray(  calculation *c1,   field f,char * name,inta N1, floata * array, i
 }
 
 inta inputFormat(  sinc_label f1,char * name,    division buffer, inta input){
-#ifdef READ_FAST
-    {
-        inta space ,part = 1,prev = 0;
-        if ( input == 0 )
-            return readFast(f1,name, 0,0,buffer,0,0);
-        if ( input == 2 )
-            return readFast(f1,name, 2,0,buffer,0,0);
-        if ( 100 <= input && input < 200 )
-            return readFast(f1,name, 3,input-100,buffer,0,0);
-        if ( 200 <= input  )
-            return readFast(f1,name, 4,input-200,buffer,0,0);
-
-        if ( input == 1 ){
-            for ( space = 0; space < SPACE ; space++)
-                if ( f1.canon[space].body != nada)
-                    readFast(f1,name,1,space,buffer,0,space);
-            f1.name[buffer].Current[0] = readFast(f1,name, 2,0,buffer,0,0);
-        }
-    }
-    return 0;
-#endif
 #ifdef readHDF5
     inta space ,part = 1,prev = 0;
     if ( input == 0 )
@@ -603,15 +582,11 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                                 if ( f2.f.canon[space].body != nada )
                                 if ( f1.canon[space].basis == SincBasisElement  )
                                 {
-#ifdef READ_FAST
-                                    f2.f.canon[space].count1Basis =((inputFormat(f1, name, nullName,200+space)));
-#else
 #ifdef readHDF5
                                     f2.f.canon[space].count1Basis =((inputFormat(f1, name, nullName,200+space)));
 
 #else
                                     f2.f.canon[space].count1Basis =((inputFormat(f1, name, nullName, 200+f2.f.canon[space].label-1)));
-#endif
 #endif
                                     
                                     
