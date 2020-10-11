@@ -314,7 +314,7 @@ int run (inta argc , char * argv[]){
         bootShell(argc, argv,&c,&f);
     }
     defineCores(&c,&f);
-    
+    assignCores(f.f,1 );
     if ( c.rt.phaseType == buildFoundation ){//0
 #ifdef SPHERE
         foundationS(&c,f);
