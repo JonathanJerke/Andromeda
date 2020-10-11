@@ -88,7 +88,42 @@ inta foundationB(  calculation *c1,   field f1){
     return EV;
 }
 
+/**
+ *Test Permutation actions
+ *
+ */
+double testPermutations (){
+    calculation c2 = initCal();
+    field f2 = initField();
+    c2.i.numNames = 1000;
+    c2.i.numVectors = 0;
 
+    c2.i.termNumber = 0;
+    c2.rt.NLanes = 1;
+    f2.f.rt = &c2.rt;
+    f2.f.rt->phaseType = productKrylov;
+    
+    f2.i.Iterations = 1;
+    f2.i.files = 0;
+    f2.i.filesVectorOperator = 0;
+    f2.i.qFloor = 0;
+    c2.i.lambda = 6;
+    resetA(f2.f.rt);
+    blockA(f2.f.rt, blockTrainVectorsblock);
+    blockA(f2.f.rt, blockCopyBlock);
+    blockA(f2.f.rt, blockMatrixElementsblock);
+    blockA(f2.f.rt, blockPermutationsblock);
+    blockA(f2.f.rt, blockParallelMultiplyblock);
+    blockA(f2.f.rt, blockParallelMatrixElementblock);
+    blockA(f2.f.rt, blockParallelPermuteblock);
+    f2.i.body = two;
+    f2.f.boot = noMatrices;
+    
+    
+    return 0;
+    
+    
+}
 /**
  *Multiply, decompose, and filter
  *
@@ -166,6 +201,11 @@ inta ritz(   calculation * c1,   field f1){
     char filename[MAXSTRING];    char str[SUPERMAXSTRING];
 
     inta fi,EV = 0;
+    if ( ! allowQ(f1.f.rt,blockMatrixElementsblock)){
+        printf("blockMatrixElementsblock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
 
     f1.i.qFloor = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
     iModel(c1,&f1);
@@ -179,10 +219,8 @@ inta ritz(   calculation * c1,   field f1){
     }
     inta stride = f1.f.maxEV;
     if(c1->i.build){
-         tBuildMatrix(0 , f1.f,Ha, f1.f.user,EV);
-        
-        
-        
+        tBuildMatrix(0 , f1.f,Ha, f1.f.user,EV);
+            
         if ( f1.i.OpIndex != -1 ){
         //WRITE OUT V
             tFilename(c1->name, 2, 0, 0, 0, filename);

@@ -97,15 +97,13 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
     calculation c1;
     c1.rt = *f0.rt;
     resetA(&c1.rt);
-    allowQ(&c1.rt, blockCopyBlock);
-    allowQ(&c1.rt, blockTransferBasisblock);
-    allowQ(&c1.rt, blockMatrixElementsblock);
-    allowQ(&c1.rt, blockPermutationsblock);
-    allowQ(&c1.rt, blockParallelMultiplyblock);
-    allowQ(&c1.rt, blockParallelMatrixElementblock);
-    allowQ(&c1.rt, blockParallelPermuteblock);
-    allowQ(&c1.rt, blockPrintStuffblock);
-    allowQ(&c1.rt, blockTotalVectorParallelBlock);
+    blockA(&c1.rt, blockCopyBlock);
+    blockA(&c1.rt, blockTransferBasisblock);
+    blockA(&c1.rt, blockMatrixElementsblock);
+    blockA(&c1.rt, blockParallelMultiplyblock);
+    blockA(&c1.rt, blockParallelPermuteblock);
+    blockA(&c1.rt, blockPrintStuffblock);
+    blockA(&c1.rt, blockTotalVectorParallelBlock);
 
     F1.f.eikonLabels.currLabel = 0;
     F1.f.nullLabels.currLabel = 0;
@@ -122,7 +120,11 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
     c1.i.termNumber = 0;
     iModel(&c1, &F1);
     
-    
+    if ( ! allowQ(F1.f.rt,blockTotalVectorBlock)){
+        printf("blockTotalVectorBlock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
     zero(F1.f, totalVector, 0);
     
     #ifdef OMP

@@ -27,7 +27,7 @@
 
 
 division name (   sinc_label f1,   division label){
-    return f1.name[f1.name[f1.name[label].name].name].name;
+    return f1.name[f1.name[f1.name[f1.name[label].name].name].name].name;
 }
 
 
@@ -2367,6 +2367,11 @@ inta assignCores(  sinc_label f1, inta parallel ){
 }
 
 double xOneBand (  sinc_label f1,inta space,   division vector1 ,inta s1,   sinc_label f2,   division out,inta s2,inta oldPeriodic){
+    if ( ! allowQ(f1.rt, blockTransferBasisblock)){
+        printf("blockTransferBasisblock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
     inta i,l,r,rank=0,p;
     inta n1[SPACE],N2;
     length1(f1,n1);
@@ -2406,7 +2411,12 @@ double xTwoBand (  sinc_label f1,inta space,   division vector1 ,inta s1,   sinc
     inta n2[SPACE];
     length1(f2,n2);
     floata *band = myStreams(f1, bandBasis, rank);
-    
+    if ( ! allowQ(f1.rt, blockTransferBasisblock)){
+        printf("blockTransferBasisblock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
+
     
     floata *buffer = band+n1[0]*n2[0]*2;
 
@@ -2451,6 +2461,11 @@ double xThreeBand (  sinc_label f1, inta space,  division vector1 ,inta s1,   si
     floata *band = myStreams(f1, bandBasis, rank);
     floata *buffer = band+n1[0]*n2[0]*3;
     floata *buffer2= buffer+n2[0]*n2[0]*n2[0];
+    if ( ! allowQ(f1.rt, blockTransferBasisblock)){
+        printf("blockTransferBasisblock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
 
     inta L1;
     f2.name[out].Current[s2] = 0;
@@ -2499,6 +2514,11 @@ double xFourBand (  sinc_label f1,inta space,   division vector1 ,inta s1,   sin
     floata *band = myStreams(f1, bandBasis, rank);
     floata *buffer = band+n2[0]*n2[0]*4;
     floata *buffer2= buffer+n2[0]*n2[0]*n2[0]*n2[0];
+    if ( ! allowQ(f1.rt, blockTransferBasisblock)){
+        printf("blockTransferBasisblock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
 
     inta L1;
     f2.name[out].Current[s2] = 0;

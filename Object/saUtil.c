@@ -616,6 +616,11 @@ inta tClassify( sinc_label  f1 ,   division label){
 */
 inta tBuildIrr ( inta rank,   sinc_label  f1, inta meta , division origin, inta ospin,division targ , inta tspin){
     inta irrep;
+    if ( ! allowQ(f1.rt,blockPermutationsblock)){
+        printf("blockPermutationsblock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
 
     if ( meta == 0 || bodies(f1,origin ) == one ){
         tEqua(f1, targ, tspin, origin, ospin);

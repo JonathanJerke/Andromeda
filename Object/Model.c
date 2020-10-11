@@ -633,9 +633,11 @@ inta iModel(   calculation * c1,   field *f){
             f1->name[totalVector].Partition =  imax( imax(f->i.xRank, c1->i.lambda * maxVector), ra * maxVector) ;
     }
     }
-    if ( allowQ(f1->rt, blockTotalVectorParallelBlock))
-        f1->name[totalVector].spinor = parallel;
+    if ( allowQ(f1->rt, blockTotalVectorParallelBlock)){
+        printf("blockTotalVectorParallelBlock not used\n");
         
+        f1->name[totalVector].spinor = parallel;
+    }
     
     f1->name[totalVector].species = vector;
                     

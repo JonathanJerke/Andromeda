@@ -59,7 +59,11 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,floata 
         exit(0);
     }
     double iCondition;
-
+    if ( ! allowQ(f1.rt,blockTrainVectorsblock)){
+        printf("blockTrainVectorsblock allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
     inta rank = 0;
     double xprod = 0.;
     inta xOriginIndex=0;
@@ -858,6 +862,15 @@ double tMatrixElements ( inta rank,  sinc_label  f1 ,   division bra, inta bspin
     inta k,l,e,space;
     double prod,ME=0;
     inta ca;
+    
+    if ( rank )
+        if ( ! allowQ(f1.rt, blockParallelMatrixElementblock)){
+            printf("blockParallelMatrixElementblock Allow!\n");
+            fflush(stdout);
+            exit(0);
+        }
+    
+    
     if ( mat == nullName || f1.name[mat].name == nullName)
         return 0.;
     
@@ -919,8 +932,16 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
         printf("Two Head types GEMV\n %d %d %d %d %d %d",equals,header(f1, equals ) ,left,header(f1, left ) ,right,header(f1, right ) );
         exit(1);
     }
-      bodyType bd = Bodies(f1, right,space);
-      division inT,outT;
+    if ( rank ) {
+        if ( ! allowQ(f1.rt, blockParallelMultiplyblock)){
+            printf("blockParallelMultiplyblock allow!\n");
+            fflush(stdout);
+            exit(0);
+        }
+    }
+    
+    bodyType bd = Bodies(f1, right,space);
+    division inT,outT;
     inta inR,outR,inS,outS;
     f1.name[canonicalmvVector].Current[rank] = 0;
     f1.name[canonicalmv2Vector].Current[rank] = 1;
@@ -1339,8 +1360,16 @@ double tDOT (inta rank,    sinc_label  f1,inta dim,char leftChar,   division lef
       division bra,ket;
     f1.name[canonicaldotVector].Current[rank] = 0;
     f1.name[canonicaldot2Vector].Current[rank] = 0;
-    f1.name[canonicaldot3Vector].Current[rank] = 0;
-
+    if ( rank ){
+        ///check for parallel allocations
+        if ( ! allowQ(f1.rt, blockParallelPermuteblock)){
+            printf("blockParallelPermuteblock allow\n");
+            fflush(stdout);
+            exit(0);
+        }
+    }
+    
+    
     if ( rightChar != CDT){
         tPermuteOne(rank, f1, space, rightChar, right, r, rspin, canonicaldotVector,0, rank);
         bra = canonicaldotVector;
@@ -1396,7 +1425,18 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
         return 0;
     }
 
-      division in=nullName,out=nullName;
+    if ( rank ){
+        ///check for parallel allocations
+        if ( ! allowQ(f1.rt, blockParallelMultiplyblock)){
+            printf("blockParallelMultiplyblock allow\n");
+            fflush(stdout);
+            exit(0);
+        }
+    }
+
+    
+    
+    division in=nullName,out=nullName;
     inta inSp,outSp,inRank,outRank;
     
     inta N2,flag,lll,found;
@@ -1536,6 +1576,13 @@ void tHXpY ( sinc_label f1 ,  division bra,   division left,inta shiftFlag,  div
     mea co2,coi;
     inta ilr,Ll,sp2,Rr,im,l , k,targSpin;
       division pt,Mat;
+    
+    if ( ! allowQ(f1.rt,blockTotalVectorBlock)){
+        printf("blockTotalVectorBlock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
+
     if (  right == totalVector){
         printf("you cannot feed totalVector into tHXpY\n");
         exit(0);

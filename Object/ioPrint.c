@@ -558,10 +558,9 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                             if ( (f.i.filter/2)%2 == 0 ){
                                 blockA(f2.f.rt, blockTotalVectorBlock);
                                 blockA(f2.f.rt, blockTrainVectorsblock);
+                                blockA(f2.f.rt, blockPermutationsblock);
                             }
                             blockA(f2.f.rt, blockCopyBlock);
-                            blockA(f2.f.rt, blockMatrixElementsblock);
-                            blockA(f2.f.rt, blockPermutationsblock);
                             blockA(f2.f.rt, blockParallelMultiplyblock);
                             blockA(f2.f.rt, blockParallelMatrixElementblock);
                             blockA(f2.f.rt, blockParallelPermuteblock);
@@ -614,6 +613,12 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                             inta sp;
                             ///filter with +2,  will filter input vector.
                             if ( (((f.i.filter/2)%2)==1)*f.f.irrep ) {
+                                if ( ! allowQ(f2.f.rt,blockTotalVectorBlock)){
+                                    printf("blockTotalVectorBlock Allow!\n");
+                                    fflush(stdout);
+                                    exit(0);
+                                }
+
                                 for ( sp = 0; sp < spins(f1, eigenVectors);sp++){
                                     f2.f.name[totalVector].Current[0] = 0;
                                     tBuildIrr(0, f2.f, f.f.irrep, eigenVectors, sp, totalVector, 0);

@@ -33,6 +33,11 @@
 inta tFilter(  sinc_label f1, inta Ve, inta irrep,   division usr){
     inta ii,cmpl=0,rank;
     rank = 0;
+    if ( ! allowQ(f1.rt,blockTotalVectorBlock)){
+        printf("blockTotalVectorBlock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
 
     if ( irrep ){
         
@@ -65,6 +70,18 @@ inta tSelect(  sinc_label  f1, inta Ve, inta irrep,   division usr, inta testFla
         return 0;
     }
 
+    if ( ! allowQ(f1.rt,blockMatrixElementsblock)){
+        printf("blockMatrixElementsblock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
+    if ( ! allowQ(f1.rt,blockTotalVectorBlock)){
+        printf("blockTotalVectorBlock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
+
+    
 
     if ( irrep ) {
         for ( sp = 0; sp < spins(f1, usr+Ve);sp++){
@@ -133,6 +150,13 @@ inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,    division 
     inta in,prevBuild;
     inta rank;
     inta i,stride = f1.maxEV;
+    if ( ! allowQ(f1.rt, blockMatrixElementsblock)){
+        printf("blockMatrixElementsblock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
+    
+    
     mea *T  =  (mea *) myStreams(f1, matrixHbuild,0/*CORE RANK*/);
     mea *S  =  (mea *) myStreams(f1, matrixSbuild,0/*CORE RANK*/);
     assignCores(f1, 1);
@@ -272,13 +296,19 @@ inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,    division 
  */
 inta tSolveMatrix (inta typer,   sinc_label  f1,inta Ne,  division usz, inta quantumBasisSize,   division outputValues){
 
+    if ( ! allowQ(f1.rt, blockMatrixElementsblock)){
+        printf("blockMatrixElementsblock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
+
             inta qs;
             inta iii = 0,maxEV = f1.maxEV;
             inta stride = maxEV;
             double * ritz = myStreams(f1, outputValues, 0);
             mea *T  =  (mea *) myStreams(f1, matrixHbuild,0/*CORE RANK*/);
             mea *S  =  (mea *) myStreams(f1, matrixSbuild,0/*CORE RANK*/);
-        
+    
             qs = quantumBasisSize;
             
             if (1){
