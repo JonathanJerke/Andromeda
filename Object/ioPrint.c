@@ -252,6 +252,8 @@ inta ioArray(  calculation *c1,   field f,char * name,inta N1, floata * array, i
     blockA(f2.f.rt, blockParallelMultiplyblock);
     blockA(f2.f.rt, blockParallelMatrixElementblock);
     blockA(f2.f.rt, blockParallelPermuteblock);
+    blockA(f2.f.rt, blockTotalVectorParallelBlock);
+
 
     f2.i.body = one;
 
@@ -564,7 +566,8 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                             blockA(f2.f.rt, blockParallelMultiplyblock);
                             blockA(f2.f.rt, blockParallelMatrixElementblock);
                             blockA(f2.f.rt, blockParallelPermuteblock);
-                        
+                            blockA(f2.f.rt, blockTotalVectorParallelBlock);
+
                             f2.i.body = inputFormat(f1,name, nullName, 100);
                         
                             f2.f.boot = noMatrices;
