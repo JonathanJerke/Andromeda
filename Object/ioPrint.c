@@ -565,7 +565,6 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                             blockA(f2.f.rt, blockCopyBlock);
                             blockA(f2.f.rt, blockParallelMultiplyblock);
                             blockA(f2.f.rt, blockParallelMatrixElementblock);
-                            blockA(f2.f.rt, blockParallelPermuteblock);
                             blockA(f2.f.rt, blockTotalVectorParallelBlock);
 
                             f2.i.body = inputFormat(f1,name, nullName, 100);
