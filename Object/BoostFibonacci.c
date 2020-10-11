@@ -100,7 +100,6 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
     blockA(&c1.rt, blockCopyBlock);
     blockA(&c1.rt, blockTransferBasisblock);
     blockA(&c1.rt, blockMatrixElementsblock);
-    blockA(&c1.rt, blockParallelMultiplyblock);
     blockA(&c1.rt, blockPrintStuffblock);
     blockA(&c1.rt, blockTotalVectorParallelBlock);
 
