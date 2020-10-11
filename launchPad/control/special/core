@@ -15,7 +15,7 @@
 		relativeTolerance 8
 		condition 8
 		threshold 12
-		maxCycle 10000
+		maxCycle 1000
 		maxCondition 11
 		#
 		#
