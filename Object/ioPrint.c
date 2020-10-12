@@ -868,12 +868,11 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     dataset = H5Dcreate2(file, pstr, H5T_NATIVE_DOUBLE, dataspace,
                         H5P_DEFAULT,H5P_DEFAULT,H5P_DEFAULT);
     
-    double **ptr = malloc(sizeof(double*)*dims[0]);
+    double *ptr[dims[0]];
     for ( s = 0 ; s < dims[0] ; s++)
         ptr[s] = streams(f1,label,spin,space)+s*dims[1];
     status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
               H5P_DEFAULT, ptr);
-    free(ptr);
     
     aid2  = H5Screate(H5S_SCALAR);
     attr1 = H5Acreate2(dataset, "genus", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
@@ -1181,7 +1180,6 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
             */
 
             status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace,H5P_DEFAULT, ptr );
-            free(ptr);
             H5Sclose(filespace);
             H5Sclose(memspace);
 
