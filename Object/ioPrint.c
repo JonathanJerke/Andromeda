@@ -1166,14 +1166,20 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
              
             filespace = H5Dget_space(dataset);    /* Get filespace handle first. */
             memspace = H5Screate_simple(2,dims,NULL);
-             
+            
+         
+            /*
+            * Define 2D image 
+            */
+
+            double *ptr[dims[0]];
+            for ( s = 0 ; s < dims[0] ; s++)
+                ptr[s] = streams(f1,label,spin,space2)+s*dims[1];
+         
             /*
             * Read dataset
             */
-            printf("dims %d %d\n", dims[0],dims[1]);
-            double **ptr = malloc(sizeof(double*)*dims[0]);
-            for ( s = 0 ; s < dims[0] ; s++)
-                ptr[s] = streams(f1,label,spin,space2)+s*dims[1];
+
             status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace,H5P_DEFAULT, ptr );
             free(ptr);
             H5Sclose(filespace);
