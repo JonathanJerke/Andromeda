@@ -155,7 +155,8 @@ enum particleType{
 enum phaseType{
     buildFoundation,
     productKrylov,
-    solveRitz
+    solveRitz,
+    buildQuad
 };
 
 /**
@@ -453,7 +454,6 @@ enum blockMemoryType{
 ///D
 ///filter 3
 ///block 3,4,5,7,9
-
 
 
 

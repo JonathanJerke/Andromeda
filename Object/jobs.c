@@ -88,6 +88,7 @@ inta foundationB(  calculation *c1,   field f1){
     return EV;
 }
 
+#if 0
 /**
  *Test Permutation actions
  *
@@ -121,9 +122,56 @@ double testPermutations (){
     
     
     return 0;
-    
-    
 }
+#endif
+
+/**
+ *Quad Traces
+ *Tr [ mu.Transpose(mu) . ( a . Transpose( b ) ) ]
+ *
+ *outputs files labeled with mu,
+ *each file is a matrix of a,b
+ */
+double quads ( calculation *c1, field f1){
+    if ( ! allowQ(f1.f.rt,blockMatrixElementsblock)){
+        printf("blockMatrixElementsblock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
+
+    inta EV = 0;
+    inta fi,a,b,mu;
+    char filename[MAXSTRING];
+    {
+        f1.i.nStates = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
+        f1.i.qFloor = f1.i.nStates*f1.i.nStates;
+        iModel(c1,&f1);
+        for ( fi = 0 ; fi < f1.i.files ; fi++){
+            tLoadEigenWeights (c1,f1, f1.i.fileList[fi], &EV,eigenVectors , 0);
+        }
+        
+        for ( a = 0 ; a < f1.i.nStates ; a++){
+            for ( b = 0 ; b < f1.i.nStates ; b++){
+                tHXpY(f1.f, f1.f.user+f1.i.nStates*a+b, eigenVectors+a, 0, eigenVectors+b, f1.f.rt->TOLERANCE,f1.f.rt->relativeTOLERANCE,f1.f.rt->ALPHA,f1.f.rt->THRESHOLD,f1.f.rt->MAX_CYCLE,f1.f.rt->XCONDITION, part(f1.f,f1.f.user+f1.i.nStates*a+b), part(f1.f,f1.f.user+f1.i.nStates*a+b));
+            }
+        }
+        
+        for ( mu = 0 ; mu < f1.i.nStates ; mu++){
+            for ( a = 0 ; a < f1.i.nStates ; a++){
+                for ( b = 0 ; b < f1.i.nStates ; b++){
+                    myStreams(f1.f,matrixSbuild,0)[f1.i.nStates*a+b] = pMatrixElement( f1.f, f1.f.user+f1.f.user*mu+mu, 0, nullOverlap, 0, f1.f.user+f1.f.user*a+b, 0);
+                }
+            }
+            
+            tFilename(c1->name, mu, 0, 0, 0, filename);
+            ioArray(c1, f1, filename, f1.i.qFloor, (mea*)myStreams(f1.f,matrixSbuild,0), 0);
+        }
+    }
+    return 0.;
+}
+
+
+
 /**
  *Multiply, decompose, and filter
  *
@@ -245,11 +293,10 @@ inta ritz(   calculation * c1,   field f1){
         }
         tFilename(f1.i.matrixList[0], 1, 0, 0, 0, filename);
         ioArray(c1, f1, filename, stride*stride, (mea*)myStreams(f1.f,matrixSbuild,0), 1);
-
     }
     
     
-    if ( f1.i.OpIndex <= 0  ){
+    if ( f1.i.OpIndex <= 0 ){
         mea *V = (mea*)myStreams(f1.f,matrixHbuild,0);
 
         tSolveMatrix(1, f1.f, f1.i.nStates, f1.f.user, EV, twoBodyRitz);
@@ -328,6 +375,10 @@ int run (inta argc , char * argv[]){
     else if ( c.rt.phaseType == solveRitz ){
         ritz(&c,f);
     }
+    else if ( c.rt.phaseType == buildQuad ){
+        quads(&c,f);
+    }
+
     ///Scripts look for this ...
     printf("\n\nFINIS.\n\n");
     return 0;
