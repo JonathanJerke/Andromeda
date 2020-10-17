@@ -161,7 +161,7 @@ double quads ( calculation *c1, field f1){
         for ( mu = 0 ; mu < f1.i.nStates ; mu++){
             for ( a = 0 ; a < f1.i.nStates ; a++){
                 for ( b = 0 ; b < f1.i.nStates ; b++){
-                    myStreams(f1.f,matrixSbuild,0)[f1.i.nStates*a+b] = pMatrixElement( f1.f, f1.f.user+f1.f.user*mu+mu, 0, nullOverlap, 0, f1.f.user+f1.f.user*a+b, 0);
+                    myStreams(f1.f,matrixSbuild,0)[f1.i.nStates*a+b] = tMatrixElements(0, f1.f, f1.f.user+f1.f.user*mu+mu, 0, nullOverlap, 0, f1.f.user+f1.f.user*a+b, 0);
                 }
             }
             
