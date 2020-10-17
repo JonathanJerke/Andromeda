@@ -1559,7 +1559,7 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
                 if ( f1.canon[space].body != nada ){
                     inta N1 = vector1Len(f1, space);
                     inta N2 = N1*N1;
-                    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,N1,N1,N1,1.,streams( f1, left, im,space )+l*N2,N1,streams(f1, in, ket,space)+l*N2,N1, 0.,streams( f1, oket, ospin,space)+o*N2,N1);
+                    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,N1,N1,N1,1.,streams( f1, left, im,space )+l*N2,N1,streams(f1, in, ket,space)+k*N2,N1, 0.,streams( f1, oket, ospin,space)+o*N2,N1);
             }
         }
     }
