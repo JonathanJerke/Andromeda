@@ -1553,7 +1553,8 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
 
     }else if ( species(f1, left) == vector && species(f1,ket) == vector && species(f1,oket) == vector){
         ///specifically for geminals * transpose-geminals = geminal
-        if ( bodies(f1, left) == two && bodies(f1,in) == two && bodies(f1,out)== two ){
+        //if ( bodies(f1, left) == two && bodies(f1,in) == two && bodies(f1,out)== two )
+        {
             inta space;
             for ( space = 0; space < SPACE ; space++)
                 if ( f1.canon[space].body != nada ){
