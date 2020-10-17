@@ -145,11 +145,13 @@ double quads ( calculation *c1, field f1){
     {
         f1.i.nStates = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
         f1.i.qFloor = f1.i.nStates*f1.i.nStates;
+        printf("load %d states\n",f1.i.nStates);
         iModel(c1,&f1);
         for ( fi = 0 ; fi < f1.i.files ; fi++){
             tLoadEigenWeights (c1,f1, f1.i.fileList[fi], &EV,eigenVectors , 0);
         }
-        
+        printf("loaded %d states\n",EV);
+
         for ( a = 0 ; a < f1.i.nStates ; a++){
             for ( b = 0 ; b < f1.i.nStates ; b++){
                 tHXpY(f1.f, f1.f.user+f1.i.nStates*a+b, eigenVectors+a, 0, eigenVectors+b, f1.f.rt->TOLERANCE,f1.f.rt->relativeTOLERANCE,f1.f.rt->ALPHA,f1.f.rt->THRESHOLD,f1.f.rt->MAX_CYCLE,f1.f.rt->XCONDITION, part(f1.f,f1.f.user+f1.i.nStates*a+b), part(f1.f,f1.f.user+f1.i.nStates*a+b));
