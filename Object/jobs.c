@@ -166,6 +166,7 @@ double quads ( calculation *c1, field f1){
             tFilename(c1->name, mu, 0, 0, 0, filename);
             ioArray(c1, f1, filename, f1.i.qFloor, (mea*)myStreams(f1.f,matrixSbuild,0), 0);
         }
+        fModel(&f1.f);
     }
     return 0.;
 }
