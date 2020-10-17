@@ -1424,25 +1424,25 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
         printf("*");
         return 0;
     }
-
-    if ( rank ){
-        ///check for parallel allocations
-        if ( ! allowQ(f1.rt, blockParallelMultiplyblock)){
-            printf("blockParallelMultiplyblock allow\n");
-            fflush(stdout);
-            exit(0);
-        }
-    }
-
-    
     
     division in=nullName,out=nullName;
     inta inSp,outSp,inRank,outRank;
     
     inta N2,flag,lll,found;
     inta dim,iter=0;
+    if ( species(f1, left) == matrix && species(f1,ket) == vector && species(f1,oket) == vector){
+        
+        if ( rank ){
+            ///check for parallel allocations
+            if ( ! allowQ(f1.rt, blockParallelMultiplyblock)){
+                printf("blockParallelMultiplyblock allow\n");
+                fflush(stdout);
+                exit(0);
+            }
+        }
 
-    {
+        
+        
           division ll = f1.name[left].chainNext,xx,zz;
                     inta mi = 0,xi=0;
                     while ( ll != nullName){
@@ -1498,7 +1498,6 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
                                         }
                                         
                                         
-                                    if ( species(f1, left) == matrix){
                                         flag = 1;
                                         for ( dim = 0 ; dim < SPACE ; dim++)
                                             if ( f1.canon[dim].body != nada){
@@ -1515,7 +1514,9 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
                                                 }
 
                                             }
-                                    }
+                                    
+                                        
+                                        
 //                                    else if( species(f1, left) == outerVector){
 //
 //                                        flag = 1;
@@ -1541,15 +1542,26 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
                         ll = f1.name[ll].chainNext;
 
                 }
-            
-    }
-    if ( iter > 1 && (iter%2) == 0 ){
-      // printf("flip\n");
-        for ( dim = 0 ; dim < SPACE ; dim++)
-            if ( f1.canon[dim].body != nada){
-                N2 = alloc(f1, ket, dim);
-                cblas_dcopy(N2, streams(f1,multiplyVector, rank, dim), 1, streams(f1,oket,ospin,dim)+o*N2, 1);
+        
+            if ( iter > 1 && (iter%2) == 0 ){
+                for ( dim = 0 ; dim < SPACE ; dim++)
+                    if ( f1.canon[dim].body != nada){
+                        N2 = alloc(f1, ket, dim);
+                        cblas_dcopy(N2, streams(f1,multiplyVector, rank, dim), 1, streams(f1,oket,ospin,dim)+o*N2, 1);
+                    }
             }
+
+    }else if ( species(f1, left) == vector && species(f1,ket) == vector && species(f1,oket) == vector){
+        ///specifically for geminals * transpose-geminals = geminal
+        if ( bodies(f1, left) == two && bodies(f1,in) == two && bodies(f1,out)== two ){
+            inta space;
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1.canon[space].body != nada ){
+                    inta N1 = vector1Len(f1, space);
+                    inta N2 = N1*N1;
+                    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,N1,N1,N1,1.,streams( f1, left, im,space )+l*N2,N1,streams(f1, in, ket,space)+l*N2,N1, 0.,streams( f1, oket, ospin,space)+o*N2,N1);
+            }
+        }
     }
     
     return 1;
@@ -1570,12 +1582,12 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
  *@param maxCycle the maxmium number of cycles in this routine
  *@param canon rank of output vector
 */
-void tHXpY ( sinc_label f1 ,  division bra,   division left,inta shiftFlag,  division right ,  double tolerance ,double relativeTolerance,double condition,double threshold, inta maxCycle, double maxCondition,inta canon,inta X1){
+void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, division right , double tolerance , double relativeTolerance, double condition, double threshold, inta maxCycle, double maxCondition, inta canon, inta X1){
     double prod;
     inta rank0 = 0 ,rank;
     mea co2,coi;
     inta ilr,Ll,sp2,Rr,im,l , k,targSpin;
-      division pt,Mat;
+    division pt,Mat;
     
     if ( ! allowQ(f1.rt,blockTotalVectorBlock)){
         printf("blockTotalVectorBlock Allow!\n");
@@ -1623,12 +1635,9 @@ void tHXpY ( sinc_label f1 ,  division bra,   division left,inta shiftFlag,  div
                     else
                         prod = cimag(co2 * coi ) ;
                     if ( fabs(prod) > f1.rt->THRESHOLD ){
-                        
                         Rr = CanonicalRank ( f1, right,sp2 );
                         Ll = CanonicalOperator(f1, Mat, im);
                         inta su = f1.name[totalVector].Current[rank0];
-                        
-                        
                         
                         #ifdef OMP
                         #pragma omp parallel for private (ilr,l,k,rank) schedule(dynamic,1)
