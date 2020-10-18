@@ -1171,17 +1171,19 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
             * Define 2D image 
             */
 
-            double *ptr[dims[0]];
-            for ( s = 0 ; s < dims[0] ; s++)
-                ptr[s] = streams(f1,label,spin,space2)+s*dims[1];
+            double ptr[dims[0]][dims[1]];
          
             /*
             * Read dataset
             */
 
             status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace,H5P_DEFAULT, ptr );
-            H5Sclose(memspace);
-            H5Sclose(filespace);
+         
+            for ( s = 0 ; s < dims[0] ; s++)
+                cblas_dcopy(dims[1], ptr[s],1,  streams(f1,label,spin,space2)+s*dims[1],1);
+          
+         
+         
 
         }else {
             
@@ -1194,12 +1196,13 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
             * Read dataset
             */
             status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace,H5P_DEFAULT, streams(f1,label,spin,space2) );
-            H5Sclose(memspace);
-            H5Sclose(filespace);
 
         }
         
         H5Dclose(dataset);
+        H5Sclose(filespace);
+        H5Sclose(memspace);
+
      }///spin,space
 
     f1.name[label].Current[spin] = canonRank;
