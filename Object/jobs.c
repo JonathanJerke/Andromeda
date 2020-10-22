@@ -140,7 +140,7 @@ double quads ( calculation *c1, field f1){
     }
 
     inta EV = 0;
-    inta fi,a,b,mu;
+    inta fi,a,b,mu,nu;
     char filename[MAXSTRING];
     {
         f1.i.nStates = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
