@@ -127,7 +127,7 @@ double testPermutations (){
 
 /**
  *Quad Traces
- *Tr [ mu.Transpose(mu) . ( a . Transpose( b ) ) ]
+ *Tr [ mu.Transpose(nu) . ( a . Transpose( b ) ) ]
  *
  *outputs files labeled with mu,
  *each file is a matrix of a,b
@@ -144,7 +144,7 @@ double quads ( calculation *c1, field f1){
     char filename[MAXSTRING];
     {
         f1.i.nStates = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
-        f1.i.qFloor = f1.i.nStates*f1.i.nStates;
+        f1.i.qFloor = f1.i.nStates*f1.i.nStates*f1.i.nStates*f1.i.nStates;
         printf("load %d states\n",f1.i.nStates);
         iModel(c1,&f1);
         for ( fi = 0 ; fi < f1.i.files ; fi++){
@@ -155,19 +155,23 @@ double quads ( calculation *c1, field f1){
         for ( a = 0 ; a < f1.i.nStates ; a++){
             for ( b = 0 ; b < f1.i.nStates ; b++){
                 tHXpY(f1.f, f1.f.user+f1.i.nStates*a+b, eigenVectors+a, 0, eigenVectors+b, f1.f.rt->TOLERANCE,f1.f.rt->relativeTOLERANCE,f1.f.rt->ALPHA,f1.f.rt->THRESHOLD,f1.f.rt->MAX_CYCLE,f1.f.rt->XCONDITION, part(f1.f,f1.f.user+f1.i.nStates*a+b), part(f1.f,f1.f.user+f1.i.nStates*a+b));
+                fflush(stdout);
             }
         }
         
         for ( mu = 0 ; mu < f1.i.nStates ; mu++){
-            for ( a = 0 ; a < f1.i.nStates ; a++){
+           for ( nu = 0 ; nu < f1.i.nStates ; nu++){
+             for ( a = 0 ; a < f1.i.nStates ; a++){
                 for ( b = 0 ; b < f1.i.nStates ; b++){
-                    myStreams(f1.f,matrixSbuild,0)[f1.i.nStates*a+b] = tMatrixElements(0, f1.f, f1.f.user+f1.i.nStates*mu+mu, 0, nullOverlap, 0, f1.f.user+f1.i.nStates*a+b, 0);
+                    myStreams(f1.f,matrixSbuild,0)[f1.i.nStates*a+b+(f1.i.nStates*f1.i.nStates)*(nu+f1.i.nStates * mu)] = tMatrixElements(0, f1.f, f1.f.user+f1.i.nStates*mu+nu, 0, nullOverlap, 0, f1.f.user+f1.i.nStates*a+b, 0);
                 }
             }
-            
-            tFilename(c1->name, mu, 0, 0, 0, filename);
-            ioArray(c1, f1, filename, f1.i.qFloor, (mea*)myStreams(f1.f,matrixSbuild,0), 0);
+           }
+           printf("%d\n", mu);
         }
+        tFilename(c1->name, 0, 0, 0, 0, filename);
+        ioArray(c1, f1, filename, f1.i.qFloor, (mea*)myStreams(f1.f,matrixSbuild,0), 0);
+        
         fModel(&f1.f);
     }
     return 0.;
