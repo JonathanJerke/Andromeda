@@ -127,7 +127,7 @@ double testPermutations (){
 
 /**
  *Quad Traces
- *Tr [ mu.Transpose(nu) . ( a . Transpose( b ) ) ]
+ *[f1.i.nStates*a+b+(f1.i.nStates*f1.i.nStates)*(nu+f1.i.nStates * mu)] = Tr [ nu.Transpose(mu) . ( a . Transpose( b ) ) ]
  *
  *outputs files labeled with mu,
  *each file is a matrix of a,b
@@ -145,17 +145,23 @@ double quads ( calculation *c1, field f1){
     {
         f1.i.nStates = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
         f1.i.qFloor = f1.i.nStates*f1.i.nStates*f1.i.nStates*f1.i.nStates;
-        printf("load %d states\n",f1.i.nStates);
         iModel(c1,&f1);
         for ( fi = 0 ; fi < f1.i.files ; fi++){
             tLoadEigenWeights (c1,f1, f1.i.fileList[fi], &EV,eigenVectors , 0);
         }
         printf("loaded %d states\n",EV);
 
+        for ( mu = 0 ; mu < f1.i.nStates ; mu++)
+            myStreams(f1.f,matrixSbuild,0)[mu] = traceOne(f1.f, eigenVectors+mu, 0);
+        
+        tFilename(c1->name, 2, 0, 0, 0, filename);
+        ioArray(c1, f1, filename, f1.i.nStates, (mea*)myStreams(f1.f,matrixSbuild,0), 0);
+
         for ( a = 0 ; a < f1.i.nStates ; a++){
             for ( b = 0 ; b < f1.i.nStates ; b++){
                 tHXpY(f1.f, f1.f.user+f1.i.nStates*a+b, eigenVectors+a, 0, eigenVectors+b, f1.f.rt->TOLERANCE,f1.f.rt->relativeTOLERANCE,f1.f.rt->ALPHA,f1.f.rt->THRESHOLD,f1.f.rt->MAX_CYCLE,f1.f.rt->XCONDITION, part(f1.f,f1.f.user+f1.i.nStates*a+b), part(f1.f,f1.f.user+f1.i.nStates*a+b));
                 fflush(stdout);
+                ///f1.f.user+f1.i.nStates*a+b = a b^T
             }
         }
         
@@ -164,31 +170,34 @@ double quads ( calculation *c1, field f1){
              for ( a = 0 ; a < f1.i.nStates ; a++){
                 for ( b = 0 ; b < f1.i.nStates ; b++){
                     myStreams(f1.f,matrixSbuild,0)[f1.i.nStates*a+b+(f1.i.nStates*f1.i.nStates)*(nu+f1.i.nStates * mu)] = tMatrixElements(0, f1.f, f1.f.user+f1.i.nStates*mu+nu, 0, nullOverlap, 0, f1.f.user+f1.i.nStates*a+b, 0);
+                    ///[f1.i.nStates*a+b+(f1.i.nStates*f1.i.nStates)*(nu+f1.i.nStates * mu)] = ( a b^T ) . ( mu nu^T ) = Tr[ a b^T nu mu^T ]
                 }
             }
            }
            printf("%d\n", mu);
         }
      
+        tFilename(c1->name, 0, 0, 0, 0, filename);
+        ioArray(c1, f1, filename, f1.i.nStates*f1.i.nStates*f1.i.nStates*f1.i.nStates, (mea*)myStreams(f1.f,matrixSbuild,0), 0);
+
+            
          for ( nu = 0 ; nu < f1.i.nStates ; nu++){
              for ( a = 0 ; a < f1.i.nStates ; a++){
                 for ( b = 0 ; b < f1.i.nStates ; b++){
-                    myStreams(f1.f,matrixHbuild,0)[f1.i.nStates*a+b+(f1.i.nStates*f1.i.nStates)*(nu)] = tMatrixElements(0, f1.f, eigenVectors+nu, 0, nullOverlap, 0, f1.f.user+f1.i.nStates*a+b, 0);
+                    myStreams(f1.f,matrixSbuild,0)[f1.i.nStates*a+b+(f1.i.nStates*f1.i.nStates)*(nu)] = tMatrixElements(0, f1.f, eigenVectors+nu, 0, nullOverlap, 0, f1.f.user+f1.i.nStates*a+b, 0);
+                    ///[f1.i.nStates*a+b+(f1.i.nStates*f1.i.nStates)*(nu)] = ( nu ) . ( a b^T ) = Tr[ nu b a^T ]
                 }
             }
            printf("%d\n", nu);
         }
 
-     
-        tFilename(c1->name, 0, 0, 0, 0, filename);
-        ioArray(c1, f1, filename, f1.i.qFloor, (mea*)myStreams(f1.f,matrixSbuild,0), 0);
-
-         tFilename(c1->name, 1, 0, 0, 0, filename);
-        ioArray(c1, f1, filename, f1.i.qFloor, (mea*)myStreams(f1.f,matrixHbuild,0), 0);
+        tFilename(c1->name, 1, 0, 0, 0, filename);
+        ioArray(c1, f1, filename, f1.i.nStates*f1.i.nStates*f1.i.nStates, (mea*)myStreams(f1.f,matrixSbuild,0), 0);
 
  
         fModel(&f1.f);
     }
+        
     return 0.;
 }
 
@@ -371,7 +380,7 @@ int run (inta argc , char * argv[]){
 
             case 0 :
                 ///andromeda 0
-                printf("----\nv9.4\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\nv9.5\n\n%s\n\n",getenv("LAUNCH"));
                 printf("cat file |  andromeda 1 \n\t\t--> MEMORY AND TERM output without committing\n");
                 printf("cat file |  andromeda  \n");
                 printf("andromeda -1 file \n");

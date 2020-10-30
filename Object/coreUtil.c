@@ -995,6 +995,8 @@ double traceOne(   sinc_label  f1 ,   division label , inta spin ){
 
         N1[i] = sqrt(N2[i]);
 
+    
+    if ( species(f1, name(f1,label)) != vector && bodies(f1,label) != two)
     if ( species(f1, name(f1,label)) != matrix ){
         printf("\nvector->matrix\n");
         return sqrt(pMatrixElement(f1, label ,spin,nullOverlap,0,label ,spin));
