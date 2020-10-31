@@ -129,6 +129,7 @@ double testPermutations (){
  *Traces
  *1 through 6 geminal elements under a trace
  *Counting on high degree of A1/A2 quality to keep from outputing all permutations of Transposes.
+ *Tensor order equals trace order, in almost every case, the Transposes alternate, which looks like a density term.
 */
 double traces ( calculation *c1, field f1){
     if ( ! allowQ(f1.f.rt,blockMatrixElementsblock)){
@@ -150,13 +151,16 @@ double traces ( calculation *c1, field f1){
         printf("loaded %d states\n",EV);
         ns = EV;
         
-        for ( mu = 0 ; mu < f1.i.nStates ; mu++){
-            myStreams(f1.f,matrixHbuild,0)[mu] = traceOne(f1.f, eigenVectors+mu, 0);
-            printf("%d\n", mu);
+        {
+            for ( mu = 0 ; mu < f1.i.nStates ; mu++){
+                myStreams(f1.f,matrixHbuild,0)[mu] = traceOne(f1.f, eigenVectors+mu, 0);
+                printf("%d\n", mu);
+            }
+            tFilename(c1->name, 1, 0, 0, 0, filename);
+            ioArray(c1, f1, filename, ns, (mea*)myStreams(f1.f,matrixHbuild,0), 0);
         }
-        tFilename(c1->name, 1, 0, 0, 0, filename);
-        ioArray(c1, f1, filename, ns, (mea*)myStreams(f1.f,matrixHbuild,0), 0);
         
+        {
             for ( nu = 0 ; nu < ns ; nu++){
                 for ( mu = 0 ; mu < ns ; mu++){
 
@@ -168,13 +172,14 @@ double traces ( calculation *c1, field f1){
         
         tFilename(c1->name, 2, 0, 0, 0, filename);
         ioArray(c1, f1, filename, ns*ns, (mea*)myStreams(f1.f,matrixHbuild,0), 0);
-
+        }
         
+        {
             for ( nu = 0 ; nu < ns ; nu++){
                 for ( mu = 0 ; mu < ns ; mu++){
                 for ( xu = 0 ; xu < ns ; xu++){
-                    myStreams(f1.f,matrixHbuild,0)[(nu+ns*xu+(ns*ns)*mu)] = tMatrixElements(0, f1.f, eigenVectors+nu, 0, eigenVectors+xu, 0, eigenVectors+mu, 0);
-                       ///[(nu+ns*xu+(ns*ns)*nu)] =  Tr[ nu xu mu^T ]
+                    myStreams(f1.f,matrixHbuild,0)[(nu+ns*mu+(ns*ns)*xu)] = tMatrixElements(0, f1.f, eigenVectors+nu, 0, eigenVectors+xu, 0, eigenVectors+mu, 0);
+                       ///[(nu+ns*xu+(ns*ns)*nu)] =  ( nu ) . (xu mu)^T  = Tr[ nu mu^T xu^T ]
                     }
                 }
               printf("%d\n", nu);
@@ -182,8 +187,8 @@ double traces ( calculation *c1, field f1){
         
         tFilename(c1->name, 3, 0, 0, 0, filename);
         ioArray(c1, f1, filename, ns*ns*ns, (mea*)myStreams(f1.f,matrixHbuild,0), 0);
-
-        
+        }
+        {
         for ( a = 0 ; a < ns ; a++){
             for ( b = 0 ; b < ns ; b++){
                 tHXpY(f1.f, f1.f.user+a+ns*b, eigenVectors+a, 0, eigenVectors+b, f1.f.rt->TOLERANCE,f1.f.rt->relativeTOLERANCE,f1.f.rt->ALPHA,f1.f.rt->THRESHOLD,f1.f.rt->MAX_CYCLE,f1.f.rt->XCONDITION, part(f1.f,f1.f.user+a+ns*b), part(f1.f,f1.f.user+a+ns*b));
@@ -191,14 +196,15 @@ double traces ( calculation *c1, field f1){
                 ///[a+ns*b] -> a b^T
             }
         }
-        
+        }
+        {
            for ( nu = 0 ; nu < ns ; nu++){
                for ( mu = 0 ; mu < ns ; mu++){
 
              for ( a = 0 ; a < ns ; a++){
                 for ( b = 0 ; b < ns ; b++){
-                    myStreams(f1.f,matrixHbuild,0)[nu+(ns)*(a+ns*b)+(ns*ns*ns)*mu] = tMatrixElements(0, f1.f, eigenVectors+nu, 0, f1.f.user + a+ns*b, 0, eigenVectors+mu, 0);
-                    ///[nu+(ns)*(a+ns*b)+(ns*ns*ns)*mu] = tr [nu a b^T mu^T]
+                    myStreams(f1.f,matrixHbuild,0)[nu+ns*(mu)+(ns*ns)*(b+ns*a)] = tMatrixElements(0, f1.f, eigenVectors+nu, 0, f1.f.user + a+ns*b, 0, eigenVectors+mu, 0);
+                    ///[nu+(ns)*(a+ns*b)+(ns*ns*ns)*mu] = (nu). ( a b^T mu ) ^T = Tr[ nu mu^T b a^T]
             }
            }
            }
@@ -207,8 +213,9 @@ double traces ( calculation *c1, field f1){
      
         tFilename(c1->name, 4, 0, 0, 0, filename);
         ioArray(c1, f1, filename, ns*ns*ns*ns, (mea*)myStreams(f1.f,matrixHbuild,0), 0);
-
-            
+        }
+         
+        {
                for ( nu = 0 ; nu < ns ; nu++){
                    for ( et = 0; et < ns ; et++){
                        
@@ -217,8 +224,8 @@ double traces ( calculation *c1, field f1){
                     for ( x = 0 ; x< ns ; x++){
                         for ( y = 0 ; y < ns ; y++){
 
-                            myStreams(f1.f,matrixHbuild,0)[nu+et*ns + ns*ns*(x+ns*y) + ns*ns*ns*ns*(mu) ] = tMatrixElements(0, f1.f, f1.f.user+nu+ns*et, 0, f1.f.user+x+ns*y, 0, eigenVectors+mu, 0);
-                            ///[nu+et*ns + ns*ns*(x+ns*y) + ns*ns*ns*ns*(mu) ] = tr[ nu et^T x y^T mu^T ]
+                            myStreams(f1.f,matrixHbuild,0)[nu+et*ns + ns*ns*(mu) + ns*ns*ns*(y+ns*x) ] = tMatrixElements(0, f1.f, f1.f.user+nu+ns*et, 0, f1.f.user+x+ns*y, 0, eigenVectors+mu, 0);
+                            ///[nu+et*ns + ns*ns*(x+ns*y) + ns*ns*ns*ns*(mu) ] = ( nu et^T ) . [ x y^T (mu)^T ] ^T = tr[ nu et^T mu y x^T ]
                         }
                      }
                  }
@@ -228,8 +235,9 @@ double traces ( calculation *c1, field f1){
 
         tFilename(c1->name, 5, 0, 0, 0, filename);
         ioArray(c1, f1, filename, ns*ns*ns*ns*ns, (mea*)myStreams(f1.f,matrixHbuild,0), 0);
-
+        }
  
+        {
             for ( nu = 0 ; nu < f1.i.nStates ; nu++){
                 for ( et = 0; et < ns ; et++){
                     for ( mu = 0 ; mu < f1.i.nStates ; mu++){
@@ -237,23 +245,24 @@ double traces ( calculation *c1, field f1){
 
                             for ( x = 0 ; x< f1.i.nStates ; x++){
                                 for ( y = 0 ; y < f1.i.nStates ; y++){
-                                    myStreams(f1.f,matrixHbuild,0)[nu+ns*et+(ns*ns)*(x+ns*y)+(ns*ns*ns*ns)*(zt+ns*mu)] = tMatrixElements(0, f1.f, f1.f.user+nu+ns*et, 0, f1.f.user+x+ns*y, 0, f1.f.user+ns*zt+mu, 0);
-                                    ///[nu+ns*et+(ns*ns)*(x+ns*y)+(ns*ns*ns*ns)*(zt+ns*mu)] = tr[ nu et^T x y^T zt mu^T  ]
-                                   }
+                                    myStreams(f1.f,matrixHbuild,0)[nu+ns*et+(ns*ns)*(mu+zt*y)+(ns*ns*ns*ns)*(y+ns*x)] = tMatrixElements(0, f1.f, f1.f.user+nu+ns*et, 0, f1.f.user+x+ns*y, 0, f1.f.user+mu+ns*zt, 0);
+                                    ///[nu+ns*et+(ns*ns)*(mu+ns*zt)+(ns*ns*ns*ns)*(x+ns*y)] = (nu et^T). [ ( x y^T ) . ( mu zt^T )^T ]^T =  (nu et^T). [ ( x y^T ) . ( zt mu^T ) ]^T
+                                    /// = tr[ nu et^T mu zt^T y x^T ]
+                                    }
                                 }
                             }
                         }
                     }
                   printf("%d\n", nu);
               }
-        
+            ///the interwining of Transposing is physically motived and will therefore improve stablility
            tFilename(c1->name, 6, 0, 0, 0, filename);
            ioArray(c1, f1, filename, ns*ns*ns*ns*ns*ns, (mea*)myStreams(f1.f,matrixHbuild,0), 0);
+        }
         
-        
-        fModel(&f1.f);
-    }
-        
+        fModel(&f1.f);///standard allocation of matrixHbuild is (qFloor)**2
+    }///I could possibly add up to 8 traces without another multiply....skipping it for now.  I would have to edit the matrixElement code.
+
     return 0.;
 }
 
