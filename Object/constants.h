@@ -156,7 +156,7 @@ enum phaseType{
     buildFoundation,
     productKrylov,
     solveRitz,
-    buildQuad
+    buildTraces
 };
 
 /**

@@ -126,13 +126,11 @@ double testPermutations (){
 #endif
 
 /**
- *Quad Traces
- *[f1.i.nStates*a+b+(f1.i.nStates*f1.i.nStates)*(nu+f1.i.nStates * mu)] = Tr [ nu.Transpose(mu) . ( a . Transpose( b ) ) ]
- *
- *outputs files labeled with mu,
- *each file is a matrix of a,b
- */
-double quads ( calculation *c1, field f1){
+ *Traces
+ *1 through 6 geminal elements under a trace
+ *Counting on high degree of A1/A2 quality to keep from outputing all permutations of Transposes.
+*/
+double traces ( calculation *c1, field f1){
     if ( ! allowQ(f1.f.rt,blockMatrixElementsblock)){
         printf("blockMatrixElementsblock Allow!\n");
         fflush(stdout);
@@ -140,7 +138,7 @@ double quads ( calculation *c1, field f1){
     }
 
     inta EV = 0;
-    inta fi,a,b,mu,nu;
+    inta fi,a,b,mu,nu,x,y,ns,xu,et,zt;
     char filename[MAXSTRING];
     {
         f1.i.nStates = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
@@ -150,51 +148,109 @@ double quads ( calculation *c1, field f1){
             tLoadEigenWeights (c1,f1, f1.i.fileList[fi], &EV,eigenVectors , 0);
         }
         printf("loaded %d states\n",EV);
-
-        for ( mu = 0 ; mu < f1.i.nStates ; mu++)
-            myStreams(f1.f,matrixSbuild,0)[mu] = traceOne(f1.f, eigenVectors+mu, 0);
-        
-        tFilename(c1->name, 2, 0, 0, 0, filename);
-        ioArray(c1, f1, filename, f1.i.nStates, (mea*)myStreams(f1.f,matrixSbuild,0), 0);
-
-        for ( a = 0 ; a < f1.i.nStates ; a++){
-            for ( b = 0 ; b < f1.i.nStates ; b++){
-                tHXpY(f1.f, f1.f.user+f1.i.nStates*a+b, eigenVectors+a, 0, eigenVectors+b, f1.f.rt->TOLERANCE,f1.f.rt->relativeTOLERANCE,f1.f.rt->ALPHA,f1.f.rt->THRESHOLD,f1.f.rt->MAX_CYCLE,f1.f.rt->XCONDITION, part(f1.f,f1.f.user+f1.i.nStates*a+b), part(f1.f,f1.f.user+f1.i.nStates*a+b));
-                fflush(stdout);
-                ///f1.f.user+f1.i.nStates*a+b = a b^T
-            }
-        }
+        ns = EV;
         
         for ( mu = 0 ; mu < f1.i.nStates ; mu++){
-           for ( nu = 0 ; nu < f1.i.nStates ; nu++){
-             for ( a = 0 ; a < f1.i.nStates ; a++){
-                for ( b = 0 ; b < f1.i.nStates ; b++){
-                    myStreams(f1.f,matrixSbuild,0)[f1.i.nStates*a+b+(f1.i.nStates*f1.i.nStates)*(nu+f1.i.nStates * mu)] = tMatrixElements(0, f1.f, f1.f.user+f1.i.nStates*mu+nu, 0, nullOverlap, 0, f1.f.user+f1.i.nStates*a+b, 0);
-                    ///[f1.i.nStates*a+b+(f1.i.nStates*f1.i.nStates)*(nu+f1.i.nStates * mu)] = ( a b^T ) . ( mu nu^T ) = Tr[ a b^T nu mu^T ]
+            myStreams(f1.f,matrixHbuild,0)[mu] = traceOne(f1.f, eigenVectors+mu, 0);
+            printf("%d\n", mu);
+        }
+        tFilename(c1->name, 1, 0, 0, 0, filename);
+        ioArray(c1, f1, filename, ns, (mea*)myStreams(f1.f,matrixHbuild,0), 0);
+        
+            for ( nu = 0 ; nu < ns ; nu++){
+                for ( mu = 0 ; mu < ns ; mu++){
+
+                myStreams(f1.f,matrixHbuild,0)[(nu+ns*mu)] = tMatrixElements(0, f1.f, eigenVectors+nu, 0, nullOverlap, 0, eigenVectors+mu, 0);
+                       ///[nu + ns * mu)] = ( mu nu ) = Tr[ nu mu^T ]
                 }
+              printf("%d\n", nu);
+           }
+        
+        tFilename(c1->name, 2, 0, 0, 0, filename);
+        ioArray(c1, f1, filename, ns*ns, (mea*)myStreams(f1.f,matrixHbuild,0), 0);
+
+        
+            for ( nu = 0 ; nu < ns ; nu++){
+                for ( mu = 0 ; mu < ns ; mu++){
+                for ( xu = 0 ; xu < ns ; xu++){
+                    myStreams(f1.f,matrixHbuild,0)[(nu+ns*xu+(ns*ns)*mu)] = tMatrixElements(0, f1.f, eigenVectors+nu, 0, eigenVectors+xu, 0, eigenVectors+mu, 0);
+                       ///[(nu+ns*xu+(ns*ns)*nu)] =  Tr[ nu xu mu^T ]
+                    }
+                }
+              printf("%d\n", nu);
+           }
+        
+        tFilename(c1->name, 3, 0, 0, 0, filename);
+        ioArray(c1, f1, filename, ns*ns*ns, (mea*)myStreams(f1.f,matrixHbuild,0), 0);
+
+        
+        for ( a = 0 ; a < ns ; a++){
+            for ( b = 0 ; b < ns ; b++){
+                tHXpY(f1.f, f1.f.user+a+ns*b, eigenVectors+a, 0, eigenVectors+b, f1.f.rt->TOLERANCE,f1.f.rt->relativeTOLERANCE,f1.f.rt->ALPHA,f1.f.rt->THRESHOLD,f1.f.rt->MAX_CYCLE,f1.f.rt->XCONDITION, part(f1.f,f1.f.user+a+ns*b), part(f1.f,f1.f.user+a+ns*b));
+                fflush(stdout);
+                ///[a+ns*b] -> a b^T
+            }
+        }
+        
+           for ( nu = 0 ; nu < ns ; nu++){
+               for ( mu = 0 ; mu < ns ; mu++){
+
+             for ( a = 0 ; a < ns ; a++){
+                for ( b = 0 ; b < ns ; b++){
+                    myStreams(f1.f,matrixHbuild,0)[nu+(ns)*(a+ns*b)+(ns*ns*ns)*mu] = tMatrixElements(0, f1.f, eigenVectors+nu, 0, f1.f.user + a+ns*b, 0, eigenVectors+mu, 0);
+                    ///[nu+(ns)*(a+ns*b)+(ns*ns*ns)*mu] = tr [nu a b^T mu^T]
             }
            }
-           printf("%d\n", mu);
+           }
+           printf("%d\n", nu);
         }
      
-        tFilename(c1->name, 0, 0, 0, 0, filename);
-        ioArray(c1, f1, filename, f1.i.nStates*f1.i.nStates*f1.i.nStates*f1.i.nStates, (mea*)myStreams(f1.f,matrixSbuild,0), 0);
+        tFilename(c1->name, 4, 0, 0, 0, filename);
+        ioArray(c1, f1, filename, ns*ns*ns*ns, (mea*)myStreams(f1.f,matrixHbuild,0), 0);
 
             
-         for ( nu = 0 ; nu < f1.i.nStates ; nu++){
-             for ( a = 0 ; a < f1.i.nStates ; a++){
-                for ( b = 0 ; b < f1.i.nStates ; b++){
-                    myStreams(f1.f,matrixSbuild,0)[f1.i.nStates*a+b+(f1.i.nStates*f1.i.nStates)*(nu)] = tMatrixElements(0, f1.f, eigenVectors+nu, 0, nullOverlap, 0, f1.f.user+f1.i.nStates*a+b, 0);
-                    ///[f1.i.nStates*a+b+(f1.i.nStates*f1.i.nStates)*(nu)] = ( nu ) . ( a b^T ) = Tr[ nu b a^T ]
-                }
+               for ( nu = 0 ; nu < ns ; nu++){
+                   for ( et = 0; et < ns ; et++){
+                       
+                       for ( mu = 0 ; mu < ns ; mu++){
+
+                    for ( x = 0 ; x< ns ; x++){
+                        for ( y = 0 ; y < ns ; y++){
+
+                            myStreams(f1.f,matrixHbuild,0)[nu+et*ns + ns*ns*(x+ns*y) + ns*ns*ns*ns*(mu) ] = tMatrixElements(0, f1.f, f1.f.user+nu+ns*et, 0, f1.f.user+x+ns*y, 0, eigenVectors+mu, 0);
+                            ///[nu+et*ns + ns*ns*(x+ns*y) + ns*ns*ns*ns*(mu) ] = tr[ nu et^T x y^T mu^T ]
+                        }
+                     }
+                 }
             }
            printf("%d\n", nu);
         }
 
-        tFilename(c1->name, 1, 0, 0, 0, filename);
-        ioArray(c1, f1, filename, f1.i.nStates*f1.i.nStates*f1.i.nStates, (mea*)myStreams(f1.f,matrixSbuild,0), 0);
+        tFilename(c1->name, 5, 0, 0, 0, filename);
+        ioArray(c1, f1, filename, ns*ns*ns*ns*ns, (mea*)myStreams(f1.f,matrixHbuild,0), 0);
 
  
+            for ( nu = 0 ; nu < f1.i.nStates ; nu++){
+                for ( et = 0; et < ns ; et++){
+                    for ( mu = 0 ; mu < f1.i.nStates ; mu++){
+                        for ( zt = 0; zt < ns ; zt++){
+
+                            for ( x = 0 ; x< f1.i.nStates ; x++){
+                                for ( y = 0 ; y < f1.i.nStates ; y++){
+                                    myStreams(f1.f,matrixHbuild,0)[nu+ns*et+(ns*ns)*(x+ns*y)+(ns*ns*ns*ns)*(zt+ns*mu)] = tMatrixElements(0, f1.f, f1.f.user+nu+ns*et, 0, f1.f.user+x+ns*y, 0, f1.f.user+ns*zt+mu, 0);
+                                    ///[nu+ns*et+(ns*ns)*(x+ns*y)+(ns*ns*ns*ns)*(zt+ns*mu)] = tr[ nu et^T x y^T zt mu^T  ]
+                                   }
+                                }
+                            }
+                        }
+                    }
+                  printf("%d\n", nu);
+              }
+        
+           tFilename(c1->name, 6, 0, 0, 0, filename);
+           ioArray(c1, f1, filename, ns*ns*ns*ns*ns*ns, (mea*)myStreams(f1.f,matrixHbuild,0), 0);
+        
+        
         fModel(&f1.f);
     }
         
@@ -406,8 +462,8 @@ int run (inta argc , char * argv[]){
     else if ( c.rt.phaseType == solveRitz ){
         ritz(&c,f);
     }
-    else if ( c.rt.phaseType == buildQuad ){
-        quads(&c,f);
+    else if ( c.rt.phaseType == buildTraces ){
+        traces(&c,f);
     }
 
     ///Scripts look for this ...
