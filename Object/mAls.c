@@ -855,7 +855,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
  *@param ket        division on right of operator
  *@param kspin  ket's spin
  */
-double tMatrixElements ( inta rank,  sinc_label  f1 ,   division bra, inta bspin,  division mat, inta mspin,  division ket, inta kspin ){
+double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin,  division mat, inta mspin,  division ket, inta kspin ){
     
       division holder ;
     inta holderRank, holderSpin;
@@ -876,7 +876,7 @@ double tMatrixElements ( inta rank,  sinc_label  f1 ,   division bra, inta bspin
     
     if (mat == nullOverlap  )
         ca = 1;
-    else if ( f1.name[mat].species == matrix )
+    else if ( f1.name[mat].species == matrix || f1.name[mat].species == vector )
         ca = CanonicalOperator(f1,f1.name[mat].name, mspin);
     else
         return 0.;
