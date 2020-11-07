@@ -164,7 +164,7 @@ double traces ( calculation *c1, field f1){
             for ( nu = 0 ; nu < ns ; nu++){
                 for ( mu = 0 ; mu < ns ; mu++){
 
-                myStreams(f1.f,matrixHbuild,0)[(nu+ns*mu)] = tMatrixElements(0, f1.f, eigenVectors+nu, 0, nullOverlap, 0, eigenVectors+mu, 0);
+                myStreams(f1.f,matrixHbuild,0)[(nu+ns*mu)] = pMatrixElement( f1.f, eigenVectors+nu, 0, nullOverlap, 0, eigenVectors+mu, 0);
                        ///[nu + ns * mu)] = ( mu nu ) = Tr[ nu mu^T ]
                 }
               printf("%d\n", nu);
@@ -178,7 +178,7 @@ double traces ( calculation *c1, field f1){
             for ( nu = 0 ; nu < ns ; nu++){
                 for ( mu = 0 ; mu < ns ; mu++){
                 for ( xu = 0 ; xu < ns ; xu++){
-                    myStreams(f1.f,matrixHbuild,0)[(nu+ns*mu+(ns*ns)*xu)] = tMatrixElements(0, f1.f, eigenVectors+nu, 0, eigenVectors+xu, 0, eigenVectors+mu, 0);
+                    myStreams(f1.f,matrixHbuild,0)[(nu+ns*mu+(ns*ns)*xu)] = pMatrixElement(  f1.f, eigenVectors+nu, 0, eigenVectors+xu, 0, eigenVectors+mu, 0);
                        ///[(nu+ns*xu+(ns*ns)*nu)] =  ( nu ) . (xu mu)^T  = Tr[ nu mu^T xu^T ]
                     }
                 }
@@ -203,7 +203,7 @@ double traces ( calculation *c1, field f1){
 
              for ( a = 0 ; a < ns ; a++){
                 for ( b = 0 ; b < ns ; b++){
-                    myStreams(f1.f,matrixHbuild,0)[nu+ns*(mu)+(ns*ns)*(b+ns*a)] = tMatrixElements(0, f1.f, eigenVectors+nu, 0, f1.f.user + a+ns*b, 0, eigenVectors+mu, 0);
+                    myStreams(f1.f,matrixHbuild,0)[nu+ns*(mu)+(ns*ns)*(b+ns*a)] = pMatrixElement(  f1.f, eigenVectors+nu, 0, f1.f.user + a+ns*b, 0, eigenVectors+mu, 0);
                     ///[nu+(ns)*(a+ns*b)+(ns*ns*ns)*mu] = (nu). ( a b^T mu ) ^T = Tr[ nu mu^T b a^T]
             }
            }
@@ -224,7 +224,7 @@ double traces ( calculation *c1, field f1){
                     for ( x = 0 ; x< ns ; x++){
                         for ( y = 0 ; y < ns ; y++){
 
-                            myStreams(f1.f,matrixHbuild,0)[nu+et*ns + ns*ns*(mu) + ns*ns*ns*(y+ns*x) ] = tMatrixElements(0, f1.f, f1.f.user+nu+ns*et, 0, f1.f.user+x+ns*y, 0, eigenVectors+mu, 0);
+                            myStreams(f1.f,matrixHbuild,0)[nu+et*ns + ns*ns*(mu) + ns*ns*ns*(y+ns*x) ] = pMatrixElement(  f1.f, f1.f.user+nu+ns*et, 0, f1.f.user+x+ns*y, 0, eigenVectors+mu, 0);
                             ///[nu+et*ns + ns*ns*(x+ns*y) + ns*ns*ns*ns*(mu) ] = ( nu et^T ) . [ x y^T (mu)^T ] ^T = tr[ nu et^T mu y x^T ]
                         }
                      }
@@ -245,7 +245,7 @@ double traces ( calculation *c1, field f1){
 
                             for ( x = 0 ; x< f1.i.nStates ; x++){
                                 for ( y = 0 ; y < f1.i.nStates ; y++){
-                                    myStreams(f1.f,matrixHbuild,0)[nu+ns*et+(ns*ns)*(mu+zt*y)+(ns*ns*ns*ns)*(y+ns*x)] = tMatrixElements(0, f1.f, f1.f.user+nu+ns*et, 0, f1.f.user+x+ns*y, 0, f1.f.user+mu+ns*zt, 0);
+                                    myStreams(f1.f,matrixHbuild,0)[nu+ns*et+(ns*ns)*(mu+zt*y)+(ns*ns*ns*ns)*(y+ns*x)] = pMatrixElement(  f1.f, f1.f.user+nu+ns*et, 0, f1.f.user+x+ns*y, 0, f1.f.user+mu+ns*zt, 0);
                                     ///[nu+ns*et+(ns*ns)*(mu+ns*zt)+(ns*ns*ns*ns)*(x+ns*y)] = (nu et^T). [ ( x y^T ) . ( mu zt^T )^T ]^T =  (nu et^T). [ ( x y^T ) . ( zt mu^T ) ]^T
                                     /// = tr[ nu et^T mu zt^T y x^T ]
                                     }
