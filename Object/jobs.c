@@ -60,8 +60,8 @@ inta foundationS(  calculation *c1,   field f1){
 inta foundationB(  calculation *c1,   field f1){
     
     ///Variables
-    floata level = -0.5;
-    inta nx=4,mx = 10;
+    floata level = -0.05;
+    inta nx=4,mx = 5;
     
     floata spi = sqrt(pi);
     f1.i.Iterations = 1;
@@ -69,7 +69,7 @@ inta foundationB(  calculation *c1,   field f1){
     f1.i.qFloor = 0 ;
     f1.i.nStates = 1;
     inta counter = 0;
-    inta msp,vsp,vc,vn1,vx,stars = 1 , basis = 1;
+    inta msp,vsp,vc,mpp,mn1,vn1,vx,stars = 1 , basis = 0;
     floata variable;
     bodyType body;
     for ( space = 0 ;space < SPACE ; space++)
@@ -77,7 +77,7 @@ inta foundationB(  calculation *c1,   field f1){
             stars *= pow(mx,f1.f.canon[space].body);
     for ( space = 0 ;space < SPACE ; space++)
         if ( f1.f.canon[space].body != nada)
-            basis *= vectorLen(f1.f, space);
+            basis += vectorLen(f1.f, space);
 
     ///spatial lattice is sqrt-pi grid,
     ///n = 1/2 occupies 2 sincs, 3/2 occupies 3 sincs, 5/2 occupies 4 sincs
@@ -85,37 +85,38 @@ inta foundationB(  calculation *c1,   field f1){
         iModel(c1,&f1);
     for ( n = 0 ;n < nx ; n++)
         for ( mc = 0; mc < stars ; mc++){
-            
-            for ( vc = 0; vc < basis ; vc++){
 
             f1.f.name[eigenVectors].Current[0] = 1;
             zero(f1.f, eigenVectors, 0);
-                msp = 1;
-                vsp = 1;
+            msp = 1;
 
             for  ( space =0; space < SPACE ; space++){
                 if ( f1.f.canon[space].body != nada){
-                    variable = 1;
-                    vx = 0;
-                    vn1 = vector1Len(f1.f,space) ;
-                    for ( body = one ; body <= f1.f.canon[space].body ; body++){
+                    for ( vc = 0; vc < vectorLen(f1.f, space) ; vc++){
+                        vsp = 1;
+                        mpp = 1;
+
+                        variable = 1;
+                        vn1 = vector1Len(f1.f,space) ;
+                        for ( body = one ; body <= f1.f.canon[space].body ; body++){
                         
                             v = (vc/vsp)%vn1-(vn1-1)/2;
                             vsp *= vn1;
-                        vx *= vn1;
-                        vx += v+(vn1-1)/2;
-
-                            m = (mc/msp)%mx-(mx-1)/2;
-                            msp *= mx;
-                        
+                            m = (mc/(msp*mpp))%mx-(mx-1)/2;
+                            mpp *= mx;
+                            if ( vc == 0)
+                            printf("%d %d %d\n",space, body,m);
                             variable *= SymmetrizedGaussianInSinc(pi/f1.f.canon[space].particle[body].lattice,n,m,f1.f.canon[space].particle[body].lattice * v );
+                            variable *= f1.f.canon[space].particle[body].lattice/2.3152;
                         }
-                        streams(f1.f,eigenVectors,0,space)[vx] = variable;
+                        streams(f1.f,eigenVectors,0,space)[vc] = variable;
                     }
+                    mn1 = pow(mx,f1.f.canon[space].body);
+                    msp *= mn1;
+
                 }
             }
-            printf("%f\n",pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0));
-         if ( pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0) > 0.8 )
+         if ( pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0) > 0.9 )
             if ( printExpectationValues(c1,f1.f, Ha, eigenVectors) < level ){
                 print(c1,f1,!counter,counter,counter+1 , eigenVectors-counter);
                 counter++;
