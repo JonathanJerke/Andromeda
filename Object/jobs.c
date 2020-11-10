@@ -102,12 +102,14 @@ inta foundationB(  calculation *c1,   field f1){
                     }
                 }
             }
+         printf ( "%f\n", pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0) );
             if ( printExpectationValues(c1,f1.f, Ha, eigenVectors) < level ){
                 print(c1,f1,!counter,counter,counter+1 , eigenVectors-counter);
                 counter++;
             }
         }
-    }
+    
+        }
     fModel(&f1.f);
     }
     return counter;
