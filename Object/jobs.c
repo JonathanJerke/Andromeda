@@ -69,8 +69,8 @@ inta foundationB(  calculation *c1,   field f1){
     f1.i.qFloor = 0 ;
     f1.i.nStates = 1;
     inta counter = 0;
-    inta msp,vsp,vc,vn1, stars = 1 , basis = 1;
-    double variable;
+    inta msp,vsp,vc,vn1,vx,stars = 1 , basis = 1;
+    floata variable;
     bodyType body;
     for ( space = 0 ;space < SPACE ; space++)
         if ( f1.f.canon[space].body != nada)
@@ -96,23 +96,25 @@ inta foundationB(  calculation *c1,   field f1){
             for  ( space =0; space < SPACE ; space++){
                 if ( f1.f.canon[space].body != nada){
                     variable = 1;
+                    vx = 0;
                     vn1 = vector1Len(f1.f,space) ;
                     for ( body = one ; body <= f1.f.canon[space].body ; body++){
                         
                             v = (vc/vsp)%vn1-(vn1-1)/2;
                             vsp *= vn1;
-                        
+                        vx *= vn1;
+                        vx += v+(vn1-1)/2;
+
                             m = (mc/msp)%mx-(mx-1)/2;
                             msp *= mx;
                         
                             variable *= SymmetrizedGaussianInSinc(pi/f1.f.canon[space].particle[body].lattice,n,m,f1.f.canon[space].particle[body].lattice * v );
                         }
-                        streams(f1.f,eigenVectors,0,space)[vc] = variable;
+                        streams(f1.f,eigenVectors,0,space)[vx] = variable;
                     }
                 }
             }
-                     printf("%f\n",pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0));
-
+            printf("%f\n",pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0));
          if ( pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0) > 0.8 )
             if ( printExpectationValues(c1,f1.f, Ha, eigenVectors) < level ){
                 print(c1,f1,!counter,counter,counter+1 , eigenVectors-counter);
