@@ -63,15 +63,15 @@ inta foundationB(  calculation *c1,   field f1){
     floata level = -0.5;
     inta nx=4,mx = 10;
     
-    
+    floata spi = sqrt(pi);
     f1.i.Iterations = 1;
     inta space,m,n,mc,v ;
     f1.i.qFloor = 0 ;
     f1.i.nStates = 1;
     inta counter = 0;
-    inta ssp,ssp2,vc,vn1,stars = 1;
+    inta ssp,vc,vn1,stars = 1;
     double variable;
-    bodyType body   ;
+    bodyType body;
     for ( space = 0 ;space < SPACE ; space++)
         if ( f1.f.canon[space].body != nada)
             stars *= pow(mx,f1.f.canon[space].body);
@@ -85,32 +85,32 @@ inta foundationB(  calculation *c1,   field f1){
         {
             f1.f.name[eigenVectors].Current[0] = 1;
             zero(f1.f, eigenVectors, 0);
+            ssp = 1;
+            variable = 1.;
+            vn1 = mx ;
+
             for  ( space =0; space < SPACE ; space++){
                 if ( f1.f.canon[space].body != nada){
-                    vn1 =mx ;
                     for ( vc = 0; vc <  pow(mx,f1.f.canon[space].body) ; vc++){
-                        ssp = 1;
-                        ssp2 = 1;
-                        variable = 1.;
                         for ( body = one ; body <= f1.f.canon[space].body ; body++){
                             m = (mc/ssp)%vn1;
                             v = (vc/ssp)%vn1;
                             ssp *= vn1;
-                            variable = SymmetrizedGaussianInSinc(pi/f1.f.canon[space].particle[body].lattice,n,m-(mx-1)/2,v-(mx-1)/2 );
+                            variable = SymmetrizedGaussianInSinc(pi/f1.f.canon[space].particle[body].lattice,n,(m-(mx-1)/2)-(v-(mx-1)/2),0. );
                             variable /= sqrt( 2 * pi );
                         }
                         streams(f1.f,eigenVectors,0,space)[vc] = variable;
                     }
                 }
             }
-         if ( pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0) > 0.8 );
+         if ( pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0) > 0.8 )
             if ( printExpectationValues(c1,f1.f, Ha, eigenVectors) < level ){
                 print(c1,f1,!counter,counter,counter+1 , eigenVectors-counter);
                 counter++;
             }
         }
     
-        }
+    }
     fModel(&f1.f);
     }
     return counter;
