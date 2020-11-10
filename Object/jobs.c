@@ -69,35 +69,43 @@ inta foundationB(  calculation *c1,   field f1){
     f1.i.qFloor = 0 ;
     f1.i.nStates = 1;
     inta counter = 0;
-    inta ssp,vc,vn1,stars = 1;
+    inta msp,vsp,vc,vn1, stars = 1 , basis = 1;
     double variable;
     bodyType body;
     for ( space = 0 ;space < SPACE ; space++)
         if ( f1.f.canon[space].body != nada)
             stars *= pow(mx,f1.f.canon[space].body);
-    
+    for ( space = 0 ;space < SPACE ; space++)
+        if ( f1.f.canon[space].body != nada)
+            basis *= vectorLen(f1.f, space);
+
     ///spatial lattice is sqrt-pi grid,
     ///n = 1/2 occupies 2 sincs, 3/2 occupies 3 sincs, 5/2 occupies 4 sincs
     if ( 1 ){
         iModel(c1,&f1);
-        for ( n = 0 ;n < nx ; n++)
-            for ( mc = 0; mc < stars ; mc++){
-        {
+    for ( n = 0 ;n < nx ; n++)
+        for ( mc = 0; mc < stars ; mc++){
+            
+            for ( vc = 0; vc < basis ; vc++){
+
             f1.f.name[eigenVectors].Current[0] = 1;
             zero(f1.f, eigenVectors, 0);
-            ssp = 1;
-            variable = 1.;
-            vn1 = mx ;
+                msp = 1;
+                vsp = 1;
 
             for  ( space =0; space < SPACE ; space++){
                 if ( f1.f.canon[space].body != nada){
-                    for ( vc = 0; vc <  pow(mx,f1.f.canon[space].body) ; vc++){
-                        for ( body = one ; body <= f1.f.canon[space].body ; body++){
-                            m = (mc/ssp)%vn1;
-                            v = (vc/ssp)%vn1;
-                            ssp *= vn1;
-                            variable = SymmetrizedGaussianInSinc(pi/f1.f.canon[space].particle[body].lattice,n,(m-(mx-1)/2)-(v-(mx-1)/2),0. );
-                            variable /= sqrt( 2 * pi );
+                    variable = 1;
+                    vn1 = vector1Len(f1.f,space) ;
+                    for ( body = one ; body <= f1.f.canon[space].body ; body++){
+                        
+                            v = (vc/vsp)%vn1-(vn1-1)/2;
+                            vsp *= vn1;
+                        
+                            m = (mc/msp)%mx-(mx-1)/2;
+                            msp *= mx;
+                        
+                            variable *= SymmetrizedGaussianInSinc(pi/f1.f.canon[space].particle[body].lattice,n,m,f1.f.canon[space].particle[body].lattice * v );
                         }
                         streams(f1.f,eigenVectors,0,space)[vc] = variable;
                     }
@@ -108,7 +116,7 @@ inta foundationB(  calculation *c1,   field f1){
                 print(c1,f1,!counter,counter,counter+1 , eigenVectors-counter);
                 counter++;
             }
-        }
+        
     
     }
     fModel(&f1.f);
