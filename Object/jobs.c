@@ -58,34 +58,59 @@ inta foundationS(  calculation *c1,   field f1){
  *One vector per vector element
  */
 inta foundationB(  calculation *c1,   field f1){
-    inta EV;
-    f1.i.Iterations = 1;
-    inta space,i;
-    f1.i.qFloor = 1;
-    inta ssp;
-    for ( space = 0 ;space< SPACE ; space++)
-        if ( f1.f.canon[space].body != nada)
-            f1.i.qFloor *= vectorLen(f1.f, space);
     
-    EV = f1.i.qFloor ;
+    ///Variables
+    floata level = -0.5;
+    inta nx=4;
+    
+    
+    f1.i.Iterations = 1;
+    inta space,m,n,mc,v ;
+    f1.i.qFloor = 0 ;
+    f1.i.nStates = 1;
+    inta counter = 0;
+    inta ssp,ssp2,vc,vn1,stars = 1;
+    double variable;
+    bodyType body   ;
+    for ( space = 0 ;space < SPACE ; space++)
+        if ( f1.f.canon[space].body != nada)
+            stars *= vectorLen(f1.f, space);
+    
+    ///spatial lattice is sqrt-pi grid,
+    ///n = 1/2 occupies 2 sincs, 3/2 occupies 3 sincs, 5/2 occupies 4 sincs
     if ( 1 ){
         iModel(c1,&f1);
-        for ( i = 0; i < f1.i.qFloor ; i++)
+        for ( n = 0 ;n < nx ; n++)
+            for ( mc = 0; mc < stars ; mc++){
         {
-            ssp = 1;
-            zero(f1.f, f1.f.user+i, 0);
+            f1.f.name[eigenVectors].Current[0] = 1;
+            zero(f1.f, eigenVectors, 0);
             for  ( space =0; space < SPACE ; space++){
                 if ( f1.f.canon[space].body != nada){
-                    streams(f1.f,f1.f.user+i,0,space)[(i/ssp)%vectorLen(f1.f, space)] = 1;
-                    ssp *=vectorLen(f1.f, space);
+                    vn1 = vectorLen(f1.f, space) ;
+                    for ( vc = 0; vc < vectorLen(f1.f, space) ; vc++){
+                        ssp = 1;
+                        ssp2 = 1;
+                        variable = 1.;
+                        for ( body = one ; body <= f1.f.canon[space].body ; body++){
+                            m = (mc/ssp)%vn1;
+                            v = (vc/ssp)%vn1;
+                            ssp *= vn1;
+                            variable = SymmetrizedGaussianInSinc(pi/f1.f.canon[space].particle[body].lattice,n,m,v );
+                        }
+                        streams(f1.f,eigenVectors,0,space)[vc] = variable;
+                    }
                 }
             }
-            f1.f.name[f1.f.user+i].Current[0] = 1;
+            if ( printExpectationValues(c1,f1.f, Ha, eigenVectors) < level ){
+                print(c1,f1,!counter,counter,counter+1 , eigenVectors);
+                counter++;
+            }
         }
-        print(c1,f1,1,0,f1.i.qFloor , f1.f.user);
-        fModel(&f1.f);
     }
-    return EV;
+    fModel(&f1.f);
+    }
+    return counter;
 }
 
 #if 0

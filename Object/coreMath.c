@@ -177,4 +177,22 @@ double momentumIntegralInTrain ( double beta, double kl , double d,   genusType 
     }
     return 0.;
 }
-    
+  
+/*
+ *Bill's Magic
+ */
+double SymmetrizedGaussianInSinc( double K, inta n , inta m , double X ){
+    double spi = sqrt(pi);
+    return creal(-sqrt(spi)*I/2. * cexp(-(1./4.)* I *n *(pi + 2. *spi * (m *spi + X)))*
+                 (
+                  cexp(0.5*I*(1.+2.*m)) *(
+                                         +expErf((- K +  I *m *spi + 0.5*n *spi - I* X))
+                                         -expErf((  K +  I *m *spi + 0.5*n *spi - I* X))
+                                         )
+                  +cexp(I * n * spi)*(
+                                           -expErf(( - K -  I *m *spi + 0.5*n *spi  + I* X))
+                                           +expErf((   K -  I *m *spi + 0.5*n *spi  + I* X))
+                                           )
+                  )
+                 );
+}
