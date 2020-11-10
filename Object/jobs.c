@@ -97,12 +97,13 @@ inta foundationB(  calculation *c1,   field f1){
                             v = (vc/ssp)%vn1;
                             ssp *= vn1;
                             variable = SymmetrizedGaussianInSinc(pi/f1.f.canon[space].particle[body].lattice,n,m-(mx-1)/2,v-(mx-1)/2 );
+                            variable /= sqrt( 2 * pi );
                         }
                         streams(f1.f,eigenVectors,0,space)[vc] = variable;
                     }
                 }
             }
-         printf ( "%f\n", pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0) );
+         if ( pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0) > 0.8 );
             if ( printExpectationValues(c1,f1.f, Ha, eigenVectors) < level ){
                 print(c1,f1,!counter,counter,counter+1 , eigenVectors-counter);
                 counter++;
