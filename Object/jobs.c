@@ -61,7 +61,7 @@ inta foundationB(  calculation *c1,   field f1){
     
     ///Variables
     floata level = -0.5;
-    inta nx=4;
+    inta nx=4,mx = 10;
     
     
     f1.i.Iterations = 1;
@@ -74,7 +74,7 @@ inta foundationB(  calculation *c1,   field f1){
     bodyType body   ;
     for ( space = 0 ;space < SPACE ; space++)
         if ( f1.f.canon[space].body != nada)
-            stars *= vectorLen(f1.f, space);
+            stars *= pow(mx,f1.f.canon[space].body);
     
     ///spatial lattice is sqrt-pi grid,
     ///n = 1/2 occupies 2 sincs, 3/2 occupies 3 sincs, 5/2 occupies 4 sincs
@@ -87,8 +87,8 @@ inta foundationB(  calculation *c1,   field f1){
             zero(f1.f, eigenVectors, 0);
             for  ( space =0; space < SPACE ; space++){
                 if ( f1.f.canon[space].body != nada){
-                    vn1 = vectorLen(f1.f, space) ;
-                    for ( vc = 0; vc < vectorLen(f1.f, space) ; vc++){
+                    vn1 =mx ;
+                    for ( vc = 0; vc <  pow(mx,f1.f.canon[space].body) ; vc++){
                         ssp = 1;
                         ssp2 = 1;
                         variable = 1.;
@@ -96,7 +96,7 @@ inta foundationB(  calculation *c1,   field f1){
                             m = (mc/ssp)%vn1;
                             v = (vc/ssp)%vn1;
                             ssp *= vn1;
-                            variable = SymmetrizedGaussianInSinc(pi/f1.f.canon[space].particle[body].lattice,n,m,v );
+                            variable = SymmetrizedGaussianInSinc(pi/f1.f.canon[space].particle[body].lattice,n,m-(mx-1)/2,v-(mx-1)/2 );
                         }
                         streams(f1.f,eigenVectors,0,space)[vc] = variable;
                     }
