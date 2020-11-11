@@ -112,9 +112,9 @@ inta foundationB(  calculation *c1,   field f1){
                 }
             }
             if (pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0)> 1)
-            printf("%f\n",pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0));
-            if ( 0&&printExpectationValues(c1,f1.f, Ha, eigenVectors) < level ){
+            if ( printExpectationValues(c1,f1.f, Ha, eigenVectors) < level ){
                 print(c1,f1,!counter,counter,counter+1 , eigenVectors-counter);
+                fflush(stdout);
                 counter++;
             }
         
