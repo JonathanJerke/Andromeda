@@ -181,8 +181,11 @@ double momentumIntegralInTrain ( double beta, double kl , double d,   genusType 
 /*
  *Bill's Magic
  */
-double SymmetrizedGaussianInSinc( double K, inta n , inta m , double X ){
+double SymmetrizedGaussianInSinc( double K, inta n0 , inta m , double X ){
+    floata n = n0+0.5;
     double spi = sqrt(pi);
+    if ( fabs(X-m*spi)> 5*spi )
+        return 0.;
     return creal(-sqrt(spi)*I/2. * cexp(-(1./4.)* I *n *(pi + 2. *spi * (m *spi + X)))*
                  (
                   cexp(0.5*I*(1.+2.*m)) *(

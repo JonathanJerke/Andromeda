@@ -60,16 +60,19 @@ inta foundationS(  calculation *c1,   field f1){
 inta foundationB(  calculation *c1,   field f1){
     
     ///Variables
+    ///Assume we have a uniform lattice across all dimensions
+    floata lattice = f1.f.canon[0].particle[one].lattice;
+    inta L = f1.f.canon[0].count1Basis ;
     floata level = -0.05;
-    inta nx=4,mx = 5;
-    
-    floata spi = sqrt(pi);
+    inta nx=floor(sqrt(pi)/lattice);
+    floata aspectLattice = lattice/(nx+2);
+    inta mx = ceil(L/sqrt(pi)/(nx+2) );
     f1.i.Iterations = 1;
     inta space,m,n,mc,v ;
     f1.i.qFloor = 0 ;
     f1.i.nStates = 1;
     inta counter = 0;
-    inta msp,vsp,vc,mpp,mn1,vn1,vx,stars = 1 , basis = 0;
+    inta msp,vsp,vc,mpp,vn1,stars = 1 , basis = 0;
     floata variable;
     bodyType body;
     for ( space = 0 ;space < SPACE ; space++)
@@ -82,42 +85,35 @@ inta foundationB(  calculation *c1,   field f1){
     ///spatial lattice is sqrt-pi grid,
     ///n = 1/2 occupies 2 sincs, 3/2 occupies 3 sincs, 5/2 occupies 4 sincs
     if ( 1 ){
-        iModel(c1,&f1);
+         iModel(c1,&f1);
     for ( n = 0 ;n < nx ; n++)
         for ( mc = 0; mc < stars ; mc++){
-
             f1.f.name[eigenVectors].Current[0] = 1;
             zero(f1.f, eigenVectors, 0);
             msp = 1;
-
             for  ( space =0; space < SPACE ; space++){
                 if ( f1.f.canon[space].body != nada){
                     for ( vc = 0; vc < vectorLen(f1.f, space) ; vc++){
                         vsp = 1;
                         mpp = 1;
-
                         variable = 1;
-                        vn1 = vector1Len(f1.f,space) ;
+                        vn1 = vector1Len(f1.f,space);
                         for ( body = one ; body <= f1.f.canon[space].body ; body++){
-                        
                             v = (vc/vsp)%vn1-(vn1-1)/2;
                             vsp *= vn1;
                             m = (mc/(msp*mpp))%mx-(mx-1)/2;
                             mpp *= mx;
-                            if ( vc == 0)
-                            printf("%d %d %d\n",space, body,m);
-                            variable *= SymmetrizedGaussianInSinc(pi/f1.f.canon[space].particle[body].lattice,n,m,f1.f.canon[space].particle[body].lattice * v );
-                            variable *= f1.f.canon[space].particle[body].lattice/2.3152;
+                            variable *= SymmetrizedGaussianInSinc(pi/lattice,n,m,aspectLattice * v );
+                            variable *= aspectLattice;
                         }
                         streams(f1.f,eigenVectors,0,space)[vc] = variable;
                     }
-                    mn1 = pow(mx,f1.f.canon[space].body);
-                    msp *= mn1;
-
+                    msp *= pow(mx,f1.f.canon[space].body);
                 }
             }
-         if ( pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0) > 0.9 )
-            if ( printExpectationValues(c1,f1.f, Ha, eigenVectors) < level ){
+            if (pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0)> 1)
+            printf("%f\n",pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0));
+            if ( 0&&printExpectationValues(c1,f1.f, Ha, eigenVectors) < level ){
                 print(c1,f1,!counter,counter,counter+1 , eigenVectors-counter);
                 counter++;
             }
