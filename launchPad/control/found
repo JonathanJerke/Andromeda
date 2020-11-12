@@ -6,4 +6,8 @@
 		control foundPhase
 		read two
 	.InputOutput
+	
+	*Parameters
+		spam -1
+	.Parameters
 .Body
