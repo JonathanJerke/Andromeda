@@ -112,7 +112,9 @@ inta foundationB(  calculation *c1,   field f1){
                     msp *= pow(mx,f1.f.canon[space].body);
                 }
             }
-            if ( printExpectationValues(c1,f1.f, Ha, eigenVectors) < level ){
+            if (1)
+             //|| printExpectationValues(c1,f1.f, Ha, eigenVectors) < level )
+            {
                 print(c1,f1,!counter,counter,counter+1 , eigenVectors-counter);
                 fflush(stdout);
                 counter++;
