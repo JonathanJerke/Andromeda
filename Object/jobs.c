@@ -65,9 +65,7 @@ inta foundationB(  calculation *c1,   field f1){
     floata level = -0.05;
     
     inta mx = f1.i.qFloor,nx = f1.i.qFloor;
-        
-    floata aspectLattice = lattice * 5;
-    
+            
     f1.i.Iterations = 1;
     inta space,m,n,mc,v ;
     f1.i.qFloor = 0 ;
@@ -106,8 +104,8 @@ inta foundationB(  calculation *c1,   field f1){
                             m = (mc/(msp*mpp))%mx-(mx-1)/2;
                             mpp *= mx;
                             ///n = 1 --> 1/2 internally, which is the lowest level...
-                            variable *= SymmetrizedGaussianInSinc(pi/lattice,2*n+1,m,aspectLattice * v );
-                            variable *= aspectLattice/s2pi;
+                            variable *= SymmetrizedGaussianInSinc(pi/lattice,2*n+1,m,lattice * v );
+                            variable *= lattice/s2pi;
                         }
                         streams(f1.f,eigenVectors,0,space)[vc] = variable;
                     }
