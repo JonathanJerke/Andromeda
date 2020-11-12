@@ -52,7 +52,7 @@ inta readFast ( sinc_label f1,char * filename, inta command ,inta space, divisio
 
 
 void tFilename (char * cycleName, inta count, inta body ,inta IRREP, inta cmpl, char * filename);
-inta print(  calculation *c,  field f1, inta reset,inta mv,inta lv,  division eigenVectors );
+inta print(  calculation *c,  field f1, inta reset,inta lv,  division eigenVectors );
 inta printVector (  calculation *c,  sinc_label f1,char * name,char * vectorName,inta iv, inta irrep, mea * vector);
 double evaluateDensityBracket( double x [], size_t dim , void * params );
 double evaluateVectorBracket( double x [], size_t dim , void * params );

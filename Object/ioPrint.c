@@ -58,9 +58,9 @@ inta printVector (  calculation *c,  sinc_label f1, char * name,char * vectorNam
     return 0;
 }
 
-inta print(  calculation *c ,   field f1,inta reset,inta mv, inta lv,  division eigenVectors){
+inta print(  calculation *c ,   field f1,inta reset, inta lv,  division eigenVectors){
     inta irrep;
-    inta iii,jjj=1,cmpl;
+    inta jjj=1,cmpl;
     char str [SUPERMAXSTRING];
 #ifndef APPLE
     mea one = 1.;
@@ -70,17 +70,15 @@ inta print(  calculation *c ,   field f1,inta reset,inta mv, inta lv,  division 
         outf = fopen (str,"w");
         fclose(outf);
     }
-        for ( iii = mv; iii < lv  ; iii++)
-          //  if( (! c->i.irrep || f1->sinc.name[eigenVectors+iii].value.symmetry  == irrep)&& irrep == c->i.irrep)
         {
                 
-                    printf("State%d: %1.15f, body%d, irrep%d, %1.15f\n", iii+1,f1.f.name[eigenVectors+iii].value.value,bodies(f1.f,eigenVectors+iii),f1.f.name[eigenVectors+iii].value.symmetry, f1.f.name[eigenVectors+iii].value.value2);
+                    printf("State%d: %1.15f, body%d, irrep%d, %1.15f\n", lv+1,f1.f.name[eigenVectors].value.value,bodies(f1.f,eigenVectors),f1.f.name[eigenVectors].value.symmetry, f1.f.name[eigenVectors].value.value2);
             
-                    printVector(c,f1.f, c->name,c->name, iii,irrep, &one);
-                    for ( cmpl = 0 ; cmpl < spins(f1.f, eigenVectors+iii) ; cmpl++)
+                    printVector(c,f1.f, c->name,c->name, lv,irrep, &one);
+                    for ( cmpl = 0 ; cmpl < spins(f1.f, eigenVectors) ; cmpl++)
                     {
 #ifndef APPLE
-                        tFilename(c->name,iii+1,bodies(f1.f, eigenVectors+iii) ,irrep, cmpl,str);
+                        tFilename(c->name,lv+1,bodies(f1.f, eigenVectors) ,irrep, cmpl,str);
                         
                         
 #ifdef writeHDF5
@@ -88,13 +86,13 @@ inta print(  calculation *c ,   field f1,inta reset,inta mv, inta lv,  division 
                             inta space;
                         for ( space = 0; space < SPACE ; space++)
                             if ( f1.f.canon[space].body != nada)
-                                writeFast(f1.f, str, space, eigenVectors+iii,cmpl);
+                                writeFast(f1.f, str, space, eigenVectors,cmpl);
                         }
 #else
                         FILE * out = NULL;
                         out = fopen ( str,"w" );
                         if ( out != NULL ){
-                            outputFormat(f1.f, out, eigenVectors+iii,cmpl  );
+                            outputFormat(f1.f, out, eigenVectors,cmpl  );
                             fclose(out);
                         }
 #endif
@@ -111,7 +109,7 @@ inta print(  calculation *c ,   field f1,inta reset,inta mv, inta lv,  division 
 
 
 
-void outputFormat(  sinc_label f1, FILE * out,   division output ,inta spin){
+void outputFormat(  sinc_label f1, FILE * out, division output ,inta spin){
     inta  dims,parts,p1,flag2,flag3,flag4,r,l,space, M[SPACE],prev;
     length(f1, output, M);
 

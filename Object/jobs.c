@@ -46,7 +46,7 @@ inta foundationS(  calculation *c1,   field f1){
         printExpectationValues(c1, f1.f, Iterator, totalVector);
         printf("irrep%d\n",tClassify(f1.f, totalVector));
 
-        print(c1,f1,1,0,f1.i.qFloor , f1.f.user);
+     //   print(c1,f1,1,0,f1.i.qFloor , f1.f.user);
         fModel(&f1.f);
     }
     return EV;
@@ -61,11 +61,7 @@ inta foundationB(  calculation *c1,   field f1){
     floata s2pi = sqrt(2*pi);
     ///Variables
     ///Assume we have a uniform lattice across all dimensions
-    floata lattice = f1.f.canon[0].particle[one].lattice;
-    floata level = -0.05;
-    
     inta mx = f1.i.qFloor,nx = f1.i.qFloor;
-            
     f1.i.Iterations = 1;
     inta space,m,n,mc,v ;
     f1.i.qFloor = 0 ;
@@ -104,8 +100,8 @@ inta foundationB(  calculation *c1,   field f1){
                             m = (mc/(msp*mpp))%mx-(mx-1)/2;
                             mpp *= mx;
                             ///n = 1 --> 1/2 internally, which is the lowest level...
-                            variable *= SymmetrizedGaussianInSinc(pi/lattice,2*n+1,m,lattice * v );
-                            variable *= lattice/s2pi;
+                            variable *= SymmetrizedGaussianInSinc(pi/f1.f.canon[space].particle[body].lattice,2*n+1,m,f1.f.canon[space].particle[body].lattice * v );
+                            variable *= f1.f.canon[space].particle[body].lattice/s2pi;
                         }
                         streams(f1.f,eigenVectors,0,space)[vc] = variable;
                     }
@@ -115,7 +111,7 @@ inta foundationB(  calculation *c1,   field f1){
             if (1)
              //|| printExpectationValues(c1,f1.f, Ha, eigenVectors) < level )
             {
-                print(c1,f1,!counter,counter,counter+1 , eigenVectors-counter);
+                print(c1,f1,!counter,counter , eigenVectors);
                 fflush(stdout);
                 counter++;
             }
@@ -370,7 +366,7 @@ double singlekrylov (   calculation *c1,   field f1){
         }
     }
     printExpectationValues(c1, f1.f, Iterator, eigenVectors);
-    print(c1,f1,1,0,1,eigenVectors);
+    print(c1,f1,1,0,eigenVectors);
     fModel(&f1.f);
     return 0;
 }
