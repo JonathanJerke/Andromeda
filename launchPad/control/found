@@ -8,6 +8,7 @@
 	.InputOutput
 	
 	*Parameters
+		foundation 2
 		spam -1
 	.Parameters
 .Body
