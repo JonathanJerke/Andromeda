@@ -58,15 +58,16 @@ inta foundationS(  calculation *c1,   field f1){
  *One vector per vector element
  */
 inta foundationB(  calculation *c1,   field f1){
-    
+    floata s2pi = sqrt(2*pi);
     ///Variables
     ///Assume we have a uniform lattice across all dimensions
     floata lattice = f1.f.canon[0].particle[one].lattice;
-    inta L = f1.f.canon[0].count1Basis ;
     floata level = -0.05;
-    inta nx=floor(sqrt(pi)/lattice);
-    floata aspectLattice = lattice/(nx+2);
-    inta mx = ceil(L/sqrt(pi)/(nx+2) );
+    
+    inta mx = f1.i.qFloor,nx = f1.i.qFloor;
+        
+    floata aspectLattice = lattice * 5;
+    
     f1.i.Iterations = 1;
     inta space,m,n,mc,v ;
     f1.i.qFloor = 0 ;
@@ -86,6 +87,7 @@ inta foundationB(  calculation *c1,   field f1){
     ///n = 1/2 occupies 2 sincs, 3/2 occupies 3 sincs, 5/2 occupies 4 sincs
     if ( 1 ){
          iModel(c1,&f1);
+        fflush(stdout);
     for ( n = 0 ;n < nx ; n++)
         for ( mc = 0; mc < stars ; mc++){
             f1.f.name[eigenVectors].Current[0] = 1;
@@ -103,15 +105,15 @@ inta foundationB(  calculation *c1,   field f1){
                             vsp *= vn1;
                             m = (mc/(msp*mpp))%mx-(mx-1)/2;
                             mpp *= mx;
-                            variable *= SymmetrizedGaussianInSinc(pi/lattice,n,m,aspectLattice * v );
-                            variable *= aspectLattice;
+                            ///n = 1 --> 1/2 internally, which is the lowest level...
+                            variable *= SymmetrizedGaussianInSinc(pi/lattice,2*n+1,m,aspectLattice * v );
+                            variable *= aspectLattice/s2pi;
                         }
                         streams(f1.f,eigenVectors,0,space)[vc] = variable;
                     }
                     msp *= pow(mx,f1.f.canon[space].body);
                 }
             }
-            if (pMatrixElement( f1.f, eigenVectors, 0, nullOverlap, 0, eigenVectors, 0)> 1)
             if ( printExpectationValues(c1,f1.f, Ha, eigenVectors) < level ){
                 print(c1,f1,!counter,counter,counter+1 , eigenVectors-counter);
                 fflush(stdout);
