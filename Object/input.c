@@ -146,7 +146,7 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
     double value;
 
     
-    inta NINT_TYPE = 27;
+    inta NINT_TYPE = 28;
     char *list_INT_TYPE []= {"#",
         "lambda",
         "initRank",
@@ -175,6 +175,7 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
         "eikons",
         "body",
         "iterations",
+        "dynamic"
     };
     inta NDOUBLE = 7;
     char *list_DOUBLE []= {"#",
@@ -293,6 +294,9 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
                     return i;
                 case 27:
                     f1->Iterations = ivalue;
+                    return i;
+                case 28:
+                    c->rt.dynamic = ivalue;
                     return i;
 
             }

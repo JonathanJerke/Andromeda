@@ -40,7 +40,7 @@
  *@param threshold the smallest number
  *@param maxCycle the maxmium number of cycles in this routine
 */
-double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division origin,inta os,  division alloy,inta spin, double tolerance, double relativeTolerance, double condition,double threshold, inta maxCycle ,double maxCondition, inta canon ){
+double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division origin,inta os,  division alloy,inta spin, double tolerance, double relativeTolerance, double condition,double threshold, inta maxCycle ,double maxCondition, inta canon ,inta X1){
     inta rank;
     division G = nullName;
     inta ii,n,m,c,g,G1 = CanonicalRank(f0, origin, os);
@@ -54,7 +54,7 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
         printf("CanonicalRankDecomposition, Origin is empty\n");
         return 0;
     }
-    if ( G1 <= L1 ){
+    if ( G1 <= L1-X1 ){
         tEqua(f0, alloy, spin, origin, os);
         return 0;
     }
@@ -192,6 +192,8 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
            me[ii]  = pMatrixElement( F1.f, G+ii, 0, nullOverlap, 0, G+ii, 0);
        }
     
+        
+        ///first determine a matrix-rank.
     inta iv = 0;
     for (ii= 0; ii < G1 ; ii++)
         if ( me[ii] > f0.rt->THRESHOLD ){
@@ -206,6 +208,8 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
         GG1 = G1;
         G1 = iv;
 
+        
+        ///now determine a overlap of terms
     for ( ii= 0; ii < G1*G1 ; ii++){
 
         m = ii%G1;
@@ -217,89 +221,118 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
         }
     }
 
-    
-    
-    iii[0][0] = malloc(L1 * sizeof( inta ));
-    iii[0][1] = malloc(L1 * sizeof( inta ));
-    iii[1][0] = malloc(L1 * sizeof( inta ));
-    iii[1][1] = malloc(L1 * sizeof( inta ));
-
-    iiii[0][0] = malloc(L1 * sizeof( inta ));
-    iiii[0][1] = malloc(L1 * sizeof( inta ));
-    iiii[1][0] = malloc(L1 * sizeof( inta ));
-    iiii[1][1] = malloc(L1 * sizeof( inta ));
-    
-    
-    for ( ii = 0; ii < L1 ; ii++)
-    {
-        iii[0][0][ii] = ii;
-        iii[0][1][ii] = ii+1;
-        iii[1][0][ii] = ii*( G1/L1 );
-        iii[1][1][ii] = (ii+1)*(G1/L1);
-    }
-    iii[1][1][L1-1] = G1;
-
-        F1.f.name[origin].Current[os] = G1;
-        F1.f.name[alloy].Current[spin] = L1;
-        inta nRun = L1;
+        if ( X1 == 0 ){
         
-        inta run,r2;
+            iii[0][0] = malloc(L1 * sizeof( inta ));
+            iii[0][1] = malloc(L1 * sizeof( inta ));
+            iii[1][0] = malloc(L1 * sizeof( inta ));
+            iii[1][1] = malloc(L1 * sizeof( inta ));
+
+            iiii[0][0] = malloc(L1 * sizeof( inta ));
+            iiii[0][1] = malloc(L1 * sizeof( inta ));
+            iiii[1][0] = malloc(L1 * sizeof( inta ));
+            iiii[1][1] = malloc(L1 * sizeof( inta ));
         
-        while ( nRun > 0 ){
-            {
-                for ( r2 = 0; r2 < nRun; r2++ ){
-                    canonicalRankDecomposition(F1.f, coeff, G1,me, origin,iii[1][0][r2],iii[1][1][r2], os,nRun == L1,alloy, iii[0][0][r2],iii[0][1][r2],spin,tolerance, relativeTolerance,condition,maxCondition,maxCycle);
-                }
-            }
-            //merge
-            r2 = 0;
-            if ( nRun % 2 == 0 ){
-                for ( run = 0; run < nRun ; run+=2){
-                    iiii[1][0][r2] = iii[1][0][run];
-                    iiii[1][1][r2] = iii[1][1][run+1];
-                    iiii[0][0][r2] = iii[0][0][run];
-                    iiii[0][1][r2] = iii[0][1][run+1];
-                    r2++;
-                }
-            }
-            else
-            {
-                for ( run = 0; run < nRun-1 ; run+=2){
-                    iiii[1][0][r2] = iii[1][0][run];
-                    iiii[1][1][r2] = iii[1][1][run+1];
-                    iiii[0][0][r2] = iii[0][0][run];
-                    iiii[0][1][r2] = iii[0][1][run+1];
-                    r2++;
-                }
-                if ( r2 ) {
-                    iiii[1][1][r2-1] = iii[1][1][nRun-1];
-                    iiii[0][1][r2-1] = iii[0][1][nRun-1];
-                }
                 
-            }
-            if ( nRun == 1 )
-                nRun= 0;
-            else
-                nRun = r2;
+                for ( ii = 0; ii < L1 ; ii++)
+                {
+                    iii[0][0][ii] = ii;
+                    iii[0][1][ii] = ii+1;
+                    iii[1][0][ii] = ii*( G1/L1 );
+                    iii[1][1][ii] = (ii+1)*(G1/L1);
+                }
+                iii[1][1][L1-1] = G1;
+
+                    F1.f.name[origin].Current[os] = G1;
+                    F1.f.name[alloy].Current[spin] = L1;
+                    inta nRun = L1;
+                    
+                    inta run,r2;
+                    
+                    while ( nRun > 0 ){
+                        {
+                            for ( r2 = 0; r2 < nRun; r2++ ){
+                                canonicalRankDecomposition(F1.f, coeff, G1,me, origin,iii[1][0][r2],iii[1][1][r2], os,nRun == L1,alloy, iii[0][0][r2],iii[0][1][r2],spin,tolerance, relativeTolerance,condition,maxCondition,maxCycle);
+                            }
+                        }
+                        //merge
+                        r2 = 0;
+                        if ( nRun % 2 == 0 ){
+                            for ( run = 0; run < nRun ; run+=2){
+                                iiii[1][0][r2] = iii[1][0][run];
+                                iiii[1][1][r2] = iii[1][1][run+1];
+                                iiii[0][0][r2] = iii[0][0][run];
+                                iiii[0][1][r2] = iii[0][1][run+1];
+                                r2++;
+                            }
+                        }
+                        else
+                        {
+                            for ( run = 0; run < nRun-1 ; run+=2){
+                                iiii[1][0][r2] = iii[1][0][run];
+                                iiii[1][1][r2] = iii[1][1][run+1];
+                                iiii[0][0][r2] = iii[0][0][run];
+                                iiii[0][1][r2] = iii[0][1][run+1];
+                                r2++;
+                            }
+                            if ( r2 ) {
+                                iiii[1][1][r2-1] = iii[1][1][nRun-1];
+                                iiii[0][1][r2-1] = iii[0][1][nRun-1];
+                            }
+                            
+                        }
+                        if ( nRun == 1 )
+                            nRun= 0;
+                        else
+                            nRun = r2;
+                        
+                        for ( run = 0; run < nRun ; run++){
+                            iii[1][0][run] = iiii[1][0][run];
+                            iii[1][1][run] = iiii[1][1][run];
+                            iii[0][0][run] = iiii[0][0][run];
+                            iii[0][1][run] = iiii[0][1][run];
+                        }
+                        
+                    }
+                
+            free(iiii[0][0]);
+            free(iiii[0][1]);
+            free(iiii[1][0]);
+            free(iiii[1][1]);
+            free(iii[0][0]);
+            free(iii[0][1]);
+            free(iii[1][0]);
+            free(iii[1][1]);
+        }else {
+            ///assume you have already worked out decent solutions, now try to decompose them further...
+            F1.f.name[origin].Current[os] = G1;
+            F1.f.name[alloy].Current[spin] = canon;
+
+            tEqua(F1.f, alloy, spin, origin, os);
+
+            inta i,x1;
+            floata target,Glen = 0.,curr;
+            for ( i = 0; i < G1*G1 ; i++)
+                Glen += me[i];
             
-            for ( run = 0; run < nRun ; run++){
-                iii[1][0][run] = iiii[1][0][run];
-                iii[1][1][run] = iiii[1][1][run];
-                iii[0][0][run] = iiii[0][0][run];
-                iii[0][1][run] = iiii[0][1][run];
+            for ( x1 = 1 ; x1 <= X1 ; x1++){
+                F1.f.name[alloy].Current[spin] = canon-x1;
+                printf("attempting to decompose to %d \n", canon-x1);
+
+                curr = canonicalRankDecomposition(F1.f, coeff, G1, me, origin, 0, canon, os, 0, alloy, 0, canon-x1, spin, tolerance, relativeTolerance, condition, maxCondition, maxCycle);
+                target = max( tolerance , Glen*relativeTolerance );
+                if ( curr > target){
+                    L1 -=x1+1;
+                    printf("stop decomposing at %d above %f\n", canon-x1+1, target);
+                    F1.f.name[alloy].Current[spin] = canon-x1+1;
+
+                    canonicalRankDecomposition(F1.f, coeff, G1, me, origin, 0, canon, os, 0, alloy, 0, canon-x1+1, spin, tolerance, relativeTolerance, condition, maxCondition, maxCycle);
+                    break;
+                }
+                printf("decomposed to %d \t %f \t %f\n", canon-x1,curr,Glen);
             }
-            
         }
     }
-    free(iiii[0][0]);
-    free(iiii[0][1]);
-    free(iiii[1][0]);
-    free(iiii[1][1]);
-    free(iii[0][0]);
-    free(iii[0][1]);
-    free(iii[1][0]);
-    free(iii[1][1]);
-
     ///ADDITION BEGIN
     #ifdef OMP
     #pragma omp parallel for private (space) schedule(dynamic,1)

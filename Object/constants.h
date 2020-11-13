@@ -753,6 +753,8 @@ struct term_label {
 };
 
 struct runTime {
+    ///maxiumum swing in canonical rank
+    inta dynamic;
     ///scripting level changes to memory allocations, mostly inert
     blockMemoryType memBlock[BLOCK_COUNT];
     ///number of memory allocated processing lanes for OMP
@@ -765,16 +767,16 @@ struct runTime {
     ///number of cores per lane
     inta NParallel;
 #endif
-    ///standard tolerance for canonical decomposition
+    ///standard tolerance for canonical decomposition, has units
     double TOLERANCE ;
+    ///relative Tolerance for canonical decomposition, does not have units
+    double relativeTOLERANCE;
     ///how small vectors can get
     double THRESHOLD;
     ///COLLECT MAX CONDITION number
     double XCONDITION;
     ///Beylkin's condition parameter
     double ALPHA ;
-    ///relative Tolerance for canonical decomposition
-    double relativeTOLERANCE;
     ///controlled by 'maxCycle'
     inta MAX_CYCLE;
     ///inert

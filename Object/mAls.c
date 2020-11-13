@@ -50,7 +50,7 @@
  *@param maxCondition the smallest number
  *@param maxCycle the maxmium number of cycles in this routine
  */
-inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,floata *GG,   division origin,inta l1,inta l2,inta os, inta neo,division alloy ,inta l3 , inta l4,  inta spin ,double tolerance,double relativeTolerance, double condition,double maxCondition, inta maxCycle){
+floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,floata *GG,   division origin,inta l1,inta l2,inta os, inta neo,division alloy ,inta l3 , inta l4,  inta spin ,double tolerance,double relativeTolerance, double condition,double maxCondition, inta maxCycle){
     if (l2 < l1 || l4 < l3 )
     {
         printf("indices out of order!\n");
@@ -300,7 +300,9 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,floata 
                     free(originStream);
                     free(originIndex);
                     ///automatically did the explicit summation.
-                    return 1;
+                    
+                    return 0.;
+                    //return 1;
                     
                 }
                 ///separate output ..which means first rank is done...
@@ -323,7 +325,8 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,floata 
             free(alloyStream);
             free(originStream);
             free(originIndex);
-            return G1;
+            return 0.;
+            //return G1;
         }
 //        if ( iGG < tolerance ){
 //#if VERBOSE
@@ -626,7 +629,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,floata 
 #if 1
                 printf("Beylkin's condition number %f\n", sum2/iGG);
 
-                printf("cycles %d\n distance %1.15f \t magnitude (%f) \t %d->%d\n", count,sqrt(curr),sqrt(iGG),G1,L1);
+                printf("cycles %d\n distance-2 %1.15f \t magnitude-2 (%f) \t %d->%d\n", count,(curr),(iGG),G1,L1);
 #endif
                 if ( flipSignFlag )
                     tScaleOne(f1, alloy,spin, -1);
@@ -639,13 +642,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,floata 
                   free(alloyStream);
                   free(originStream);
                   free(originIndex);
-                
-                
-                
-                
-                
-                
-                return L1;
+                return (curr);
             }
                 
             if ( count > maxCycle )
@@ -653,7 +650,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,floata 
 #if 1
                     printf("Beylkin's condition number %f\n", sum2/iGG);
 
-                    printf("Failed in maxCycles %d\n distance %1.15f \t magnitude (%f) \t %d->%d\n", count,sqrt(curr),sqrt(iGG),G1,L1);
+                    printf("Failed in maxCycles %d\n distance-2 %1.15f \t magnitude-2 (%f) \t %d->%d\n", count,(curr),(iGG),G1,L1);
 #endif
                     if ( flipSignFlag )
                         tScaleOne(f1, alloy,spin, -1);
@@ -667,7 +664,7 @@ inta canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,floata 
                       free(alloyStream);
                       free(originStream);
                       free(originIndex);
-                    return L1;
+                    return (curr);
                 }
             }
             }
@@ -1587,7 +1584,7 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
     double prod;
     inta rank0 = 0 ,rank;
     mea co2,coi;
-    inta ilr,Ll,sp2,Rr,im,l , k,targSpin;
+    inta bc,ilr,Ll,sp2,Rr,im,l , k,targSpin;
     division pt,Mat;
     
     if ( ! allowQ(f1.rt,blockTotalVectorBlock)){
@@ -1672,8 +1669,10 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
         };
         
         if (  bra != totalVector){
-            CanonicalRankDecomposition( f1,  NULL,totalVector, rank0, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle,maxCondition, canon);
-        }
+            CanonicalRankDecomposition( f1,  NULL,totalVector, rank0, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle,maxCondition, canon,0);
+            tEqua(f1, totalVector, rank0, bra, targSpin);
+            CanonicalRankDecomposition( f1,  NULL,totalVector, rank0, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle,maxCondition, canon,X1);
+            }
     }
     return;
 }

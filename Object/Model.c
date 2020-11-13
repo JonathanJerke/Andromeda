@@ -53,47 +53,49 @@
         i.f.canon[space].label = 0;
     }
 #ifdef APPLE
+      floata lattice = 0.3;
+      inta basis = 25;
     space =0;
     i.f.canon[space].basis = SincBasisElement;
     i.f.canon[space].body = two;
     i.f.canon[space].component = 1;
-    i.f.canon[space].count1Basis = 9;
+    i.f.canon[space].count1Basis = basis;
     i.f.canon[space].space = 0;
     i.f.canon[space].label = 1;
     i.f.canon[space].particle[one].attack = 0.5;
-    i.f.canon[space].particle[one].lattice = 2;
-    i.f.canon[space].particle[one].origin = -4*2 ;
+    i.f.canon[space].particle[one].lattice = lattice;
+    i.f.canon[space].particle[one].origin = -basis/2*lattice ;
     i.f.canon[space].particle[two].attack = 0.5;
-    i.f.canon[space].particle[two].lattice = 2;
-    i.f.canon[space].particle[two].origin = -4*2 ;
+    i.f.canon[space].particle[two].lattice = lattice;
+    i.f.canon[space].particle[two].origin = -basis/2*lattice ;
 
     space =1;
     i.f.canon[space].basis = SincBasisElement;
     i.f.canon[space].body = two;
     i.f.canon[space].component = 1;
-    i.f.canon[space].count1Basis = 9;
+    i.f.canon[space].count1Basis = basis;
     i.f.canon[space].space = 0;
     i.f.canon[space].label = 1;
     i.f.canon[space].particle[one].attack = 0.5;
-    i.f.canon[space].particle[one].lattice = 2;
-    i.f.canon[space].particle[one].origin = -4*2 ;
+    i.f.canon[space].particle[one].lattice = lattice;
+    i.f.canon[space].particle[one].origin = -basis/2*lattice ;
     i.f.canon[space].particle[two].attack = 0.5;
-    i.f.canon[space].particle[two].lattice = 2;
-    i.f.canon[space].particle[two].origin = -4*2 ;
+    i.f.canon[space].particle[two].lattice = lattice;
+    i.f.canon[space].particle[two].origin = -basis/2*lattice ;
     
       space =2;
       i.f.canon[space].basis = SincBasisElement;
       i.f.canon[space].body = two;
       i.f.canon[space].component = 1;
-      i.f.canon[space].count1Basis = 9;
+      i.f.canon[space].count1Basis = basis;
       i.f.canon[space].space = 0;
       i.f.canon[space].label = 1;
       i.f.canon[space].particle[one].attack = 0.5;
-      i.f.canon[space].particle[one].lattice = 2;
-      i.f.canon[space].particle[one].origin = -4*2 ;
+      i.f.canon[space].particle[one].lattice = lattice;
+      i.f.canon[space].particle[one].origin = -4*lattice ;
       i.f.canon[space].particle[two].attack = 0.5;
-      i.f.canon[space].particle[two].lattice = 2;
-      i.f.canon[space].particle[two].origin = -4*2 ;
+      i.f.canon[space].particle[two].lattice = lattice;
+      i.f.canon[space].particle[two].origin = -4*lattice ;
 
 #endif
 //
@@ -139,7 +141,7 @@
     i.i.canonRank = 35;
     i.i.iRank = 1;
     i.i.nStates = 1;
-    i.i.qFloor = 1;
+    i.i.qFloor = 2;
     i.f.boot  = fullMatrices;
     i.i.irrep = 2;
 #endif
@@ -162,6 +164,7 @@ calculation initCal (void ) {
     i.rt.THRESHOLD = 1e-12; 
     i.i.numNames = 1000;
     i.i.numVectors = 100;
+    i.rt.dynamic = 1;
 #ifdef APPLE
     resetA(&i.rt);
     blockA(&i.rt, 3);
@@ -170,7 +173,9 @@ calculation initCal (void ) {
     i.i.RAMmax = 6;
     i.i.Angstroms = 0;
     i.rt.ALPHA = 1e-9;
-    i.rt.TOLERANCE = 1e-7;
+    i.rt.TOLERANCE = 1e-1;
+    i.rt.relativeTOLERANCE = 1e-1;
+
     i.rt.XCONDITION = 1e5;
     i.i.lambda = 2;
     
