@@ -41,6 +41,9 @@
  *@param maxCycle the maxmium number of cycles in this routine
 */
 double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division origin,inta os,  division alloy,inta spin, double tolerance, double relativeTolerance, double condition,double threshold, inta maxCycle ,double maxCondition, inta canon ,inta X1){
+    if ( canon - X1 <= 0 ){
+        X1 = canon-1;
+    }
     inta rank;
     division G = nullName;
     inta ii,n,m,c,g,G1 = CanonicalRank(f0, origin, os);
