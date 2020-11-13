@@ -43,7 +43,7 @@
  *@param threshold the smallest number
  *@param maxCycle the maxmium number of cycles in this routine
 */
-double CanonicalRankDecomposition ( sinc_label  f1 ,double * coeff,   division origin,inta os,  division alloy,inta spin, double tolerance, double relativeTolerance, double condition,double threshold, inta maxCycle ,double maxCondition, inta canon ){
+double CanonicalRankDecomposition ( sinc_label  f1 ,double * coeff,   division origin,inta os,  division alloy,inta spin, double tolerance, double relativeTolerance, double condition,double threshold, inta maxCycle ,double maxCondition, inta canon,inta X1 ){
     
     inta L1 = canon;
         
