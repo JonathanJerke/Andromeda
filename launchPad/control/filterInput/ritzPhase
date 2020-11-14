@@ -6,7 +6,6 @@
 		blockReset 
 		filter 3
 #!CHERRY_PICKER	blockMemory 1
-		blockMemory 2
 		blockMemory 3
                 blockMemory 4
                 blockMemory 6
