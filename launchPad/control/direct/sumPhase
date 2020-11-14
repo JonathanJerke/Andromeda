@@ -3,7 +3,6 @@
 		spam 0
 		phase 1
 		blockReset 
-		blockMemory 2
 		blockMemory 3
 		blockMemory 4
                 blockMemory 5
