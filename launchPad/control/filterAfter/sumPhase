@@ -4,7 +4,6 @@
 		phase 1
 		filter 4
 		blockReset 
-		blockMemory 2
 		blockMemory 3
 		blockMemory 4
                 blockMemory 5
