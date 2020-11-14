@@ -83,7 +83,11 @@ inta foundationB(  calculation *c1,   field f1){
          iModel(c1,&f1);
         fflush(stdout);
     for ( n = 0 ;n < nx ; n++)
-        for ( mc = 0; mc < stars ; mc++){
+        for ( mc = 0; mc < stars ; mc++)
+#ifdef RAND_FOUNDATION
+            if ( rand()*1./RAND_MAX < 100./stars )
+#endif
+        {
             f1.f.name[eigenVectors].Current[0] = 1;
             zero(f1.f, eigenVectors, 0);
             msp = 1;
@@ -335,7 +339,7 @@ double singlekrylov (   calculation *c1,   field f1){
             }
         } else {
             for ( cmpl = 0 ; cmpl < 1 ; cmpl++)
-                tEqua(f1.f, eigenVectors, cmpl, f1.f.user, cmpl);
+                tEqua(f1.f1, eigenVectors, cmpl, f1.f.user, cmpl);
         }
         tClear(f1.f, totalVector);
     }
