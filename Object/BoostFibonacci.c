@@ -45,7 +45,13 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
     division G = nullName;
     inta ii,n,m,c,g,G1 = CanonicalRank(f0, origin, os);
     
-    inta L1 = CanonicalRank(f0, alloy, spin),GG1;
+    inta L1;
+    if ( X1 == 0 )
+      L1 = canon;
+    else
+      L1  = CanonicalRank(f0, alloy, spin);
+    
+    inta GG1;
     if ( L1 - X1 <= 0 ){
         X1 = L1-1;
     }
