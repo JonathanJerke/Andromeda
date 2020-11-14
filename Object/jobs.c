@@ -85,7 +85,7 @@ inta foundationB(  calculation *c1,   field f1){
     for ( n = 0 ;n < nx ; n++)
         for ( mc = 0; mc < stars ; mc++)
 #ifdef RAND_FOUNDATION
-            if ( rand()*1./RAND_MAX < 100./stars )
+            if ( rand()*1./RAND_MAX < 100./stars/nx )
 #endif
         {
             f1.f.name[eigenVectors].Current[0] = 1;
