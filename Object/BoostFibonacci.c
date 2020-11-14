@@ -321,18 +321,17 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
             for ( x1 = 1 ; x1 <= X1 ; x1++){
                 F1.f.name[alloy].Current[spin] = canon-x1;
                 printf("attempting to decompose to %d \n", canon-x1);
-
                 curr = canonicalRankDecomposition(F1.f, coeff, G1, me, origin, 0, canon, os, 0, alloy, 0, canon-x1, spin, tolerance, relativeTolerance, condition, maxCondition, maxCycle);
                 target = max( tolerance , Glen*relativeTolerance );
                 if ( curr > target){
-                    L1 -=x1+1;
-                    printf("stop decomposing at %d above %f\n", canon-x1+1, target);
+                    L1 += 1;
+                    printf("stop decomposing at %d above %f\n", L1, target);
                     F1.f.name[alloy].Current[spin] = canon-x1+1;
-
                     canonicalRankDecomposition(F1.f, coeff, G1, me, origin, 0, canon, os, 0, alloy, 0, canon-x1+1, spin, tolerance, relativeTolerance, condition, maxCondition, maxCycle);
                     break;
                 }
-                printf("decomposed to %d \t %f \t %f\n", canon-x1,curr,Glen);
+                L1--;
+                printf("decomposed to %d \t %f \t %f\n", L1,curr,Glen);
             }
         }
     }

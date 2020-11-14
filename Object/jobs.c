@@ -42,7 +42,7 @@ inta foundationS(  calculation *c1,   field f1){
         tId(f1.f, f1.f.user, 0);
 
         printf("irrep%d\n",tClassify(f1.f, f1.f.user));
-        tHXpY( f1.f, f1.f.user+1, f1.f.name[defSpiralMatrix(&f1.f,Iterator)].name, 0, f1.f.user, 1e-3, 1e-2, 1e-8, 1e-15, 100,1000, 5, f1.f.rt->dynamic);
+        tHXpY( f1.f, f1.f.user+1, f1.f.name[defSpiralMatrix(&f1.f,Iterator)].name, 0, f1.f.user, 1e-3, 1e-2, 1e-8, 1e-15, 100,1000, 5,f1.f.rt->dynamic);
         printExpectationValues(c1, f1.f, Iterator, totalVector);
         printf("irrep%d\n",tClassify(f1.f, totalVector));
 

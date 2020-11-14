@@ -622,7 +622,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                                 for ( sp = 0; sp < spins(f1, eigenVectors);sp++){
                                     f2.f.name[totalVector].Current[0] = 0;
                                     tBuildIrr(0, f2.f, f.f.irrep, eigenVectors, sp, totalVector, 0);
-                                    CanonicalRankDecomposition( f2.f, NULL,totalVector, 0,eigenVectors,sp, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE,f1.rt->XCONDITION, part(f2.f,eigenVectors),0);
+                                    CanonicalRankDecomposition( f2.f, NULL,totalVector, 0,eigenVectors,sp, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE,f1.rt->XCONDITION, part(f2.f,eigenVectors),f2.f.rt->dynamic);
                                 }
                             }
                         }

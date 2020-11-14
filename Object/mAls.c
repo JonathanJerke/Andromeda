@@ -1670,8 +1670,10 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
         
         if (  bra != totalVector){
             CanonicalRankDecomposition( f1,  NULL,totalVector, rank0, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle,maxCondition, canon,0);
-            tEqua(f1, totalVector, rank0, bra, targSpin);
-            CanonicalRankDecomposition( f1,  NULL,totalVector, rank0, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle,maxCondition, canon,X1);
+            if ( X1 > 0 ){
+                tEqua(f1, totalVector, rank0, bra, targSpin);
+                CanonicalRankDecomposition( f1,  NULL,totalVector, rank0, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle,maxCondition, canon,X1);
+            }
             }
     }
     return;
