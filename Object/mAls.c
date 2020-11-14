@@ -1674,7 +1674,7 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
                 tEqua(f1, totalVector, rank0, bra, targSpin);
                 CanonicalRankDecomposition( f1,  NULL,totalVector, rank0, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle,maxCondition, canon,X1);
             }
-            }
+        }
     }
     return;
 }

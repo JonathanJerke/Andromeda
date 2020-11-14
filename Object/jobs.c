@@ -321,12 +321,21 @@ double singlekrylov (   calculation *c1,   field f1){
         for ( fi = 0 ; fi < f1.i.files ; fi++){
             tLoadEigenWeights (c1,f1, f1.i.fileList[fi], &EV,f1.f.user , f1.i.collect);
         }
-        for ( cmpl = 0 ; cmpl < 1 ; cmpl++){
-            tClear(f1.f, totalVector);
-            for( g = 0; g < EV ; g++){
-                tAddTw(f1.f, totalVector, 0, f1.f.user+g, cmpl);
+        if ( EV > 1 ){
+            for ( cmpl = 0 ; cmpl < 1 ; cmpl++){
+                tClear(f1.f, totalVector);
+                for( g = 0; g < EV ; g++){
+                    tAddTw(f1.f, totalVector, 0, f1.f.user+g, cmpl);
+                }
+                CanonicalRankDecomposition( f1.f, NULL, totalVector, 0, eigenVectors, cmpl, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, c1->rt.ALPHA, c1->rt.THRESHOLD, c1->rt.MAX_CYCLE,c1->rt.XCONDITION, part(f1.f,eigenVectors),0 );
+                if ( f1.f.rt->dynamic > 0 ){
+                    tEqua(f1.f, totalVector, 0, eigenVectors, cmpl);
+                    CanonicalRankDecomposition( f1.f, NULL, totalVector, 0, eigenVectors, cmpl, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, c1->rt.ALPHA, c1->rt.THRESHOLD, c1->rt.MAX_CYCLE,c1->rt.XCONDITION, part(f1.f,eigenVectors),f1.f.rt->dynamic);
+                }
             }
-            CanonicalRankDecomposition( f1.f, NULL, totalVector, 0, eigenVectors, cmpl, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, c1->rt.ALPHA, c1->rt.THRESHOLD, c1->rt.MAX_CYCLE,c1->rt.XCONDITION, part(f1.f,eigenVectors),f1.f.rt->dynamic);
+        } else {
+            for ( cmpl = 0 ; cmpl < 1 ; cmpl++)
+                tEqua(f1.f1, eigenVectors, cmpl, f1.f.user, cmpl);
         }
         tClear(f1.f, totalVector);
     }

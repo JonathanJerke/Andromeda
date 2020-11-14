@@ -47,7 +47,11 @@ inta tFilter(  sinc_label f1, inta Ve, inta irrep,   division usr){
                 
                 f1.name[totalVector].Current[rank] = 0;
                 tBuildIrr(rank, f1, irrep, usr+ii, cmpl, totalVector, rank);
-                CanonicalRankDecomposition( f1, NULL,totalVector, rank,  usr+ii, cmpl, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE,f1.rt->XCONDITION, part(f1,usr+ii),f1.rt->dynamic);
+                CanonicalRankDecomposition( f1, NULL,totalVector, rank,  usr+ii, cmpl, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE,f1.rt->XCONDITION, part(f1,usr+ii),0);
+                if ( f1.rt->dynamic > 0 ){
+                    tEqua(f1, totalVector, rank, usr+ii, cmpl);
+                    CanonicalRankDecomposition( f1, NULL, totalVector, rank, usr+ii, cmpl, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE,f1.rt->XCONDITION, part(f1,usr+ii),f1.rt->dynamic);
+                }
             }
         }
     }
@@ -87,7 +91,7 @@ inta tSelect(  sinc_label  f1, inta Ve, inta irrep,   division usr, inta testFla
         for ( sp = 0; sp < spins(f1, usr+Ve);sp++){
             f1.name[totalVector].Current[rank] = 0;
             tBuildIrr(rank, f1, irrep, usr+Ve, sp, totalVector, rank);
-            CanonicalRankDecomposition( f1, NULL,totalVector, rank,usr+Ve,sp, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE,f1.rt->XCONDITION, part(f1,name(f1,usr+Ve)),f1.rt->dynamic);
+            CanonicalRankDecomposition( f1, NULL,totalVector, rank,usr+Ve,sp, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE,f1.rt->XCONDITION, part(f1,name(f1,usr+Ve)),0);
         }
 
     }
