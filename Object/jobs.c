@@ -335,7 +335,7 @@ double singlekrylov (   calculation *c1,   field f1){
             }
         } else {
             for ( cmpl = 0 ; cmpl < 1 ; cmpl++)
-                tEqua(f1.f1, eigenVectors, cmpl, f1.f.user, cmpl);
+                tEqua(f1.f, eigenVectors, cmpl, f1.f.user, cmpl);
         }
         tClear(f1.f, totalVector);
     }
