@@ -2,7 +2,6 @@
 	*Parameters
 		spam 0
 		phase 1
-		filter 4
 		blockReset 
 		blockMemory 2
 		blockMemory 3
