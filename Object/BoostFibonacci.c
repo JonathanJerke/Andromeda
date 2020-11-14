@@ -48,7 +48,7 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
     division G = nullName;
     inta ii,n,m,c,g,G1 = CanonicalRank(f0, origin, os);
     
-    inta L1 = canon,GG1;
+    inta L1 = CanonicalRank(f0, alloy, spin),GG1;
         
     inta *iiii[2][2];
     inta *iii[2][2];
