@@ -310,7 +310,7 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
             
             ///assume you have already worked out decent solutions, now try to decompose them further...
             F1.f.name[origin].Current[os] = G1;
-            F1.f.name[alloy].Current[spin] = canon;
+            F1.f.name[alloy].Current[spin] = L1;
 
             tEqua(F1.f, alloy, spin, origin, os);
 
@@ -321,11 +321,11 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
             
             for ( x1 = 1 ; x1 <= X1 ; x1++){
                 printf("attempting to decompose to %d \n", L1-1);
-                curr = canonicalRankDecomposition(F1.f, coeff, G1, me, origin, 0, canon, os, 0, alloy, 0, L1-1, spin, tolerance, relativeTolerance, condition, maxCondition, maxCycle);
+                curr = canonicalRankDecomposition(F1.f, coeff, G1, me, origin, 0, G1, os, 0, alloy, 0, L1-1, spin, tolerance, relativeTolerance, condition, maxCondition, maxCycle);
                 target = max( tolerance , Glen*relativeTolerance );
                 if ( curr > target){
                     printf("stop decomposing at %d above %f\n", L1, target);
-                    canonicalRankDecomposition(F1.f, coeff, G1, me, origin, 0, canon, os, 0, alloy, 0, L1, spin, tolerance, relativeTolerance, condition, maxCondition, maxCycle);
+                    canonicalRankDecomposition(F1.f, coeff, G1, me, origin, 0, G1, os, 0, alloy, 0, L1, spin, tolerance, relativeTolerance, condition, maxCondition, maxCycle);
                     break;
                 }
                 L1--;
