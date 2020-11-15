@@ -61,13 +61,15 @@ inta foundationB(  calculation *c1,   field f1){
     floata s2pi = sqrt(2*pi);
     ///Variables
     ///Assume we have a uniform lattice across all dimensions
-    inta mx = 10,nx = c1->i.SymmetrizedGaussianLevel;
+    inta mx = 7,nx = c1->i.SymmetrizedGaussianLevel;
     f1.i.Iterations = 1;
     inta space,m,n,mc,v ;
+    inta tot = f1.i.qFloor;
     f1.i.qFloor = 0 ;
     f1.i.nStates = 1;
     inta counter = 0;
-    inta msp,vsp,vc,mpp,vn1,stars = 1 , basis = 0;
+    inta msp,vsp,vc,mpp,vn1, basis = 0;
+    long long int stars = 1;
     floata variable;
     bodyType body;
     for ( space = 0 ;space < SPACE ; space++)
@@ -97,7 +99,7 @@ inta foundationB(  calculation *c1,   field f1){
                 }
             }
             
-            if ( rand()*1./RAND_MAX < f1.i.qFloor/stars*exp(-ex2/c1->i.SymmetrizedGaussianWidth)*pow(pi*c1->i.SymmetrizedGaussianWidth,dim/2.) )
+            if ( rand()*1./RAND_MAX < tot*1./stars*exp(-ex2/c1->i.SymmetrizedGaussianWidth)/pow(pi*c1->i.SymmetrizedGaussianWidth,dim/2.) )
 #endif
         {
             f1.f.name[eigenVectors].Current[0] = 1;

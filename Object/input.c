@@ -146,7 +146,7 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
     double value;
 
     
-    inta NINT_TYPE = 29;
+    inta NINT_TYPE = 30;
     char *list_INT_TYPE []= {"#",
         "lambda",
         "initRank",
@@ -176,7 +176,8 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
         "body",
         "iterations",
         "dynamic",
-        "levelFoundation"
+        "levelFoundation",
+        "seed"
     };
     inta NDOUBLE = 8;
     char *list_DOUBLE []= {"#",
@@ -303,7 +304,9 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
                 case 29:
                     c->i.SymmetrizedGaussianLevel = ivalue;
                     return i;
-
+                case 30:
+                    srand(ivalue);
+                    return i;
             }
         
         }
