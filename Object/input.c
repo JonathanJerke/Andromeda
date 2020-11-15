@@ -146,7 +146,7 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
     double value;
 
     
-    inta NINT_TYPE = 28;
+    inta NINT_TYPE = 29;
     char *list_INT_TYPE []= {"#",
         "lambda",
         "initRank",
@@ -175,9 +175,10 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
         "eikons",
         "body",
         "iterations",
-        "dynamic"
+        "dynamic",
+        "levelFoundation"
     };
-    inta NDOUBLE = 7;
+    inta NDOUBLE = 8;
     char *list_DOUBLE []= {"#",
         "maxCondition",
         "tolerance",
@@ -185,7 +186,8 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
         "shift",
         "condition",
         "power",
-        "threshold"
+        "threshold",
+        "widthFoundation"
     };
     
     for ( i = 1 ; i <= NINT_TYPE ; i++){
@@ -298,6 +300,9 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
                 case 28:
                     c->rt.dynamic = ivalue;
                     return i;
+                case 29:
+                    c->i.SymmetrizedGaussianLevel = ivalue;
+                    return i;
 
             }
         
@@ -344,7 +349,9 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
                     c->rt.THRESHOLD = pow(0.1,value);
                     return d;
                 }
-
+                case 8:
+                    c->i.SymmetrizedGaussianWidth = value;
+                    return d;
             }
 
         }

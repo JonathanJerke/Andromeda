@@ -316,7 +316,6 @@ enum metricType {
 
 
 
-
 /**
  *Enumerate memory controls
  *
@@ -454,6 +453,7 @@ enum blockMemoryType{
 ///D
 ///filter 3
 ///block 3,4,5,7,9
+
 
 
 
@@ -958,6 +958,10 @@ struct input {
 #ifdef MKL
     inta mkl;
 #endif
+    ///wave-let momentum domain ,  counts from 0,1,2,3,...
+    inta SymmetrizedGaussianLevel;
+    ///length scale of cloud
+    floata SymmetrizedGaussianWidth;
     ///for krylov, max rank per term
     inta lambda;
     ///Gb of of total allocated ram cap

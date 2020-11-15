@@ -54,14 +54,14 @@ inta foundationS(  calculation *c1,   field f1){
 
 /**
  *Build a complete digital foundation
- *
+ *Needs to be updated for Molecules...
  *One vector per vector element
  */
 inta foundationB(  calculation *c1,   field f1){
     floata s2pi = sqrt(2*pi);
     ///Variables
     ///Assume we have a uniform lattice across all dimensions
-    inta mx = f1.i.qFloor,nx = f1.i.qFloor;
+    inta mx = 10,nx = c1->i.SymmetrizedGaussianLevel;
     f1.i.Iterations = 1;
     inta space,m,n,mc,v ;
     f1.i.qFloor = 0 ;
@@ -71,21 +71,33 @@ inta foundationB(  calculation *c1,   field f1){
     floata variable;
     bodyType body;
     for ( space = 0 ;space < SPACE ; space++)
-        if ( f1.f.canon[space].body != nada)
-            stars *= pow(mx,f1.f.canon[space].body);
-    for ( space = 0 ;space < SPACE ; space++)
-        if ( f1.f.canon[space].body != nada)
+        if ( f1.f.canon[space].body != nada){
             basis += vectorLen(f1.f, space);
-
+            stars *= pow(mx,f1.f.canon[space].body);
+        }
     ///spatial lattice is sqrt-pi grid,
     ///n = 1/2 occupies 2 sincs, 3/2 occupies 3 sincs, 5/2 occupies 4 sincs
     if ( 1 ){
          iModel(c1,&f1);
         fflush(stdout);
-    for ( n = 0 ;n < nx ; n++)
-        for ( mc = 0; mc < stars ; mc++)
+        n = nx;
+        for ( mc = 0; mc < stars ; mc++){
 #ifdef RAND_FOUNDATION
-            if ( rand()*1./RAND_MAX < 100./stars/nx )
+            mpp = 1;
+            inta dim = 0;
+            floata ex2 = 0;
+            for  ( space =0; space < SPACE ; space++){
+                if ( f1.f.canon[space].body != nada){
+                    for ( body = one ; body <= f1.f.canon[space].body ; body++){
+                        m = (mc/(mpp))%mx-(mx-1)/2;
+                        mpp *= mx;
+                        ex2 += m*m;
+                        dim++;
+                    }
+                }
+            }
+            
+            if ( rand()*1./RAND_MAX < f1.i.qFloor/stars*exp(-ex2/c1->i.SymmetrizedGaussianWidth)*pow(pi*c1->i.SymmetrizedGaussianWidth,dim/2.) )
 #endif
         {
             f1.f.name[eigenVectors].Current[0] = 1;
@@ -119,7 +131,7 @@ inta foundationB(  calculation *c1,   field f1){
                 fflush(stdout);
                 counter++;
             }
-        
+        }
     
     }
     fModel(&f1.f);
