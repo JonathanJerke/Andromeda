@@ -61,7 +61,7 @@ inta foundationB(  calculation *c1,   field f1){
     floata s2pi = sqrt(2*pi);
     ///Variables
     ///Assume we have a uniform lattice across all dimensions
-    inta mx = 7,nx = c1->i.SymmetrizedGaussianLevel;
+    inta mx = 9,nx = c1->i.SymmetrizedGaussianLevel;
     f1.i.Iterations = 1;
     inta space,m,n,mc,v ;
     inta tot = f1.i.qFloor;
@@ -77,6 +77,27 @@ inta foundationB(  calculation *c1,   field f1){
             basis += vectorLen(f1.f, space);
             stars *= pow(mx,f1.f.canon[space].body);
         }
+    floata su = 0.;
+    for ( mc = 0 ; mc < stars ; mc++){
+        mpp = 1;
+        inta dim = 0;
+        floata ex2 = 0;
+        for  ( space =0; space < SPACE ; space++){
+            if ( f1.f.canon[space].body != nada){
+                for ( body = one ; body <= f1.f.canon[space].body ; body++){
+                    m = (mc/(mpp))%mx-(mx-1)/2;
+                    mpp *= mx;
+                    ex2 += m*m;
+                    dim++;
+                }
+            }
+        }
+        su += exp(-ex2/c1->i.SymmetrizedGaussianWidth);
+    }
+    su *= stars*1./tot;
+    
+    
+    
     ///spatial lattice is sqrt-pi grid,
     ///n = 1/2 occupies 2 sincs, 3/2 occupies 3 sincs, 5/2 occupies 4 sincs
     if ( 1 ){
@@ -99,7 +120,7 @@ inta foundationB(  calculation *c1,   field f1){
                 }
             }
             
-            if ( rand()*1./RAND_MAX < tot*1./stars*exp(-ex2/c1->i.SymmetrizedGaussianWidth)/pow(pi*c1->i.SymmetrizedGaussianWidth,dim/2.) )
+            if ( rand()*1./RAND_MAX < exp(-ex2/c1->i.SymmetrizedGaussianWidth)/su )
 #endif
         {
             f1.f.name[eigenVectors].Current[0] = 1;
