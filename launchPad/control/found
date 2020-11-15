@@ -8,7 +8,8 @@
 	.InputOutput
 	
 	*Parameters
-		foundation 2
-		spam -1
+		foundation 100
+		levelFoundation 0
+		widthFoundation 3
 	.Parameters
 .Body
