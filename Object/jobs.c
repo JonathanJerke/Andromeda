@@ -94,7 +94,7 @@ inta foundationB(  calculation *c1,   field f1){
         }
         su += exp(-ex2/c1->i.SymmetrizedGaussianWidth);
     }
-    su *= stars*1./tot;
+    su /= tot;
     
     
     
