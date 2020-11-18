@@ -41,7 +41,7 @@
 #define writeHDF5
 #define readHDF5
 //#define READ_FAST
-
+#define RAND_FOUNDATION
 //#define CHERRY_PICKER
 ///to compile with acceleration in APPLE, not for distribution
 //#define APPLE
