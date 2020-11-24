@@ -188,11 +188,11 @@ double SymmetrizedGaussianInSinc( double K, inta n , inta m , double X ){
         return 0.;
     return creal(-sqrt(spi)*I/2. * cexp(-(1./4.)* I *n *(pi + 2. *spi * (m *spi + X)))*
                  (
-                  cexp(0.5*I*(1.+2.*m)) *(
+                  cexp(0.5*I*(1.+2.*m)* pi * n ) *(
                                          +expErf((- K +  I *m *spi + 0.5*n *spi - I* X))
                                          -expErf((  K +  I *m *spi + 0.5*n *spi - I* X))
                                          )
-                  +cexp(I * n * spi)*(
+                  +cexp(I * n * spi * X )*(
                                            -expErf(( - K -  I *m *spi + 0.5*n *spi  + I* X))
                                            +expErf((   K -  I *m *spi + 0.5*n *spi  + I* X))
                                            )
