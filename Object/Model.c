@@ -32,7 +32,7 @@
 */
   field initField (void ) {
     inta space;
-      field i;
+    field i;
     i.i.body = nada;
     i.i.nStates = 0;
     i.i.qFloor = 0;
@@ -53,11 +53,11 @@
         i.f.canon[space].label = 0;
     }
 #ifdef APPLE
-      floata lattice = 0.3;
-      inta basis = 25;
-    space =0;
+    floata lattice = 4;
+    inta basis = 10;
+    space = 0;
     i.f.canon[space].basis = SincBasisElement;
-    i.f.canon[space].body = two;
+    i.f.canon[space].body = three;
     i.f.canon[space].component = 1;
     i.f.canon[space].count1Basis = basis;
     i.f.canon[space].space = 0;
@@ -68,13 +68,16 @@
     i.f.canon[space].particle[two].attack = 0.5;
     i.f.canon[space].particle[two].lattice = lattice;
     i.f.canon[space].particle[two].origin = -basis/2*lattice ;
+      i.f.canon[space].particle[three].attack = 0.5;
+      i.f.canon[space].particle[three].lattice = lattice;
+      i.f.canon[space].particle[three].origin = -basis/2*lattice ;
 
-    space =1;
+    space = 1;
     i.f.canon[space].basis = SincBasisElement;
-    i.f.canon[space].body = two;
+    i.f.canon[space].body = three;
     i.f.canon[space].component = 1;
     i.f.canon[space].count1Basis = basis;
-    i.f.canon[space].space = 0;
+    i.f.canon[space].space = 1;
     i.f.canon[space].label = 1;
     i.f.canon[space].particle[one].attack = 0.5;
     i.f.canon[space].particle[one].lattice = lattice;
@@ -82,20 +85,26 @@
     i.f.canon[space].particle[two].attack = 0.5;
     i.f.canon[space].particle[two].lattice = lattice;
     i.f.canon[space].particle[two].origin = -basis/2*lattice ;
-    
-      space =2;
-      i.f.canon[space].basis = SincBasisElement;
-      i.f.canon[space].body = two;
-      i.f.canon[space].component = 1;
-      i.f.canon[space].count1Basis = basis;
-      i.f.canon[space].space = 0;
-      i.f.canon[space].label = 1;
-      i.f.canon[space].particle[one].attack = 0.5;
-      i.f.canon[space].particle[one].lattice = lattice;
-      i.f.canon[space].particle[one].origin = -4*lattice ;
-      i.f.canon[space].particle[two].attack = 0.5;
-      i.f.canon[space].particle[two].lattice = lattice;
-      i.f.canon[space].particle[two].origin = -4*lattice ;
+      i.f.canon[space].particle[three].attack = 0.5;
+      i.f.canon[space].particle[three].lattice = lattice;
+      i.f.canon[space].particle[three].origin = -basis/2*lattice ;
+
+    space = 2;
+    i.f.canon[space].basis = SincBasisElement;
+    i.f.canon[space].body = three;
+    i.f.canon[space].component = 1;
+    i.f.canon[space].count1Basis = basis;
+    i.f.canon[space].space = 2;
+    i.f.canon[space].label = 1;
+    i.f.canon[space].particle[one].attack = 0.5;
+    i.f.canon[space].particle[one].lattice = lattice;
+    i.f.canon[space].particle[one].origin = -basis/2*lattice ;
+    i.f.canon[space].particle[two].attack = 0.5;
+    i.f.canon[space].particle[two].lattice = lattice;
+    i.f.canon[space].particle[two].origin = -basis/2*lattice;
+      i.f.canon[space].particle[three].attack = 0.5;
+      i.f.canon[space].particle[three].lattice = lattice;
+      i.f.canon[space].particle[three].origin = -basis/2*lattice ;
 
 #endif
 //
@@ -138,10 +147,10 @@
 #else
     i.i.OpIndex =-1;
     i.i.cmpl = real;
-    i.i.canonRank = 35;
+    i.i.canonRank = 4;
     i.i.iRank = 1;
     i.i.nStates = 1;
-    i.i.qFloor = 2;
+    i.i.qFloor = 
     i.f.boot  = fullMatrices;
     i.i.irrep = 2;
 #endif
@@ -164,27 +173,64 @@ calculation initCal (void ) {
     i.rt.THRESHOLD = 1e-12; 
     i.i.numNames = 1000;
     i.i.numVectors = 100;
-    i.rt.dynamic = 1;
+    i.rt.dynamic = 0;
+    i.i.iocsb = 0;
+    i.i.nocsb = 1;
 #ifdef APPLE
+    i.i.Na = 3;
+    i.i.atoms[1].position[1] = 4;
+    i.i.atoms[1].position[2] = 0.;
+    i.i.atoms[1].position[3] = 0.;
+    i.i.atoms[1].Z = 1;
+    i.i.atoms[2].position[1] = -4;
+    i.i.atoms[2].position[2] = 0.;
+    i.i.atoms[2].position[3] = 0.;
+    i.i.atoms[2].Z = 1;
+
     resetA(&i.rt);
     blockA(&i.rt, 3);
     blockA(&i.rt, 4);
     blockA(&i.rt, 5);
     i.i.RAMmax = 6;
     i.i.Angstroms = 0;
-    i.rt.ALPHA = 1e-9;
-    i.rt.TOLERANCE = 1e-1;
-    i.rt.relativeTOLERANCE = 1e-1;
+    i.rt.TOLERANCE = 1e-3;
+    i.rt.relativeTOLERANCE = 1e-4;
+    i.rt.THRESHOLD = 1e-12;
 
+    i.rt.ALPHA = 1e-9;
     i.rt.XCONDITION = 1e5;
-    i.i.lambda = 2;
-    
     
     i.rt.calcType = electronicStuctureCalculation;
     i.rt.phaseType = buildFoundation;
-    i.i.Na = 0;
     i.rt.calcType = electronicStuctureCalculation;
     i.i.lambda = 200 ;
+    i.i.SymmetrizedGaussianLevel = 1;
+    i.i.SymmetrizedGaussianWidth = 1;
+    
+    i.i.termNumber = 3;
+    term_label t;
+    t.act = 1;
+    t.atom = 1;
+    t.bl = 1;
+    t.func.contr = 0;
+    t.func.fn = Coulomb;
+    t.func.interval = 7;
+    t.mu.beta[0] = 0;
+    t.mu.beta[1] = 3;
+    t.mu.metric = interval;
+    t.mu.fn  = t.func;
+    t.invert = 0;
+    t.label =1;
+    t.scalar = -1;
+    t.type = 8;
+    t.headFlag = 1;
+    i.i.terms[0] = t;
+    t.atom = 2;
+    i.i.terms[1] = t;
+    t.scalar = 1;
+    t.type = 9;
+    i.i.terms[2] = t;
+
 #else
     i.i.RAMmax = 1;
     i.i.Angstroms = 0;
@@ -373,7 +419,7 @@ inta iModel(   calculation * c1,   field *f){
                 }
                 
                 if ( f->i.OpIndex ){
-                inta terms = defineTerms(c1, f1,Iterator,0);
+                inta terms = defineTerms(c1, f,Iterator,0);
                 if ( terms)
                     printf("\n\n#spam %d\n\n",terms);
                 }
@@ -514,8 +560,19 @@ inta iModel(   calculation * c1,   field *f){
         f1->name[productVector].species = vector;
         f1->name[productVector].spinor = parallel;
 
+    fromBeginning(*f1,component,productVector);
+    f1->name[component].Partition =  maxVector*allowQ(f1->rt, blockComponentblock);
+    f1->name[component].species = vector;
+
+    fromBeginning(*f1,componentTotal,component);
+    f1->name[componentTotal].Partition =  maxVector*allowQ(f1->rt, blockComponentblock);
+    f1->name[componentTotal].species = vector;
     
-        fromBeginning(*f1,scalarTemp,productVector);
+    fromBeginning(*f1,vectorDiagonalMatrix,componentTotal);
+    f1->name[vectorDiagonalMatrix].Partition = allowQ(f1->rt, blockDiagonalMatrixblock);
+    f1->name[vectorDiagonalMatrix].species = vector;
+
+        fromBeginning(*f1,scalarTemp,vectorDiagonalMatrix);
         f1->name[scalarTemp].Partition =  ( f1->cmpl == 2 )*  maxVector*2;
         f1->name[scalarTemp].species = vector;
         f1->name[scalarTemp].spinor = real;
@@ -798,7 +855,7 @@ inta iModel(   calculation * c1,   field *f){
 
     
     if ( f1->boot==fullMatrices )
-        defineTerms(c1, f1,Iterator,f->i.OpIndex);
+        defineTerms(c1, f,Iterator,f->i.OpIndex);
 #if VERBOSE
     linkDetails(*f1, Iterator);
 #endif

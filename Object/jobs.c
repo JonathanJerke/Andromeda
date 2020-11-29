@@ -29,25 +29,18 @@
  * Built a spherical foundation of one vector
  */
 inta foundationS(  calculation *c1,   field f1){
-    inta EV;
+    inta EV,i;
     f1.i.Iterations = 2;
-    f1.i.qFloor = 2;
-    f1.i.iRank = 3;
-    f1.i.canonRank = 4;
+    f1.i.qFloor = 0;
+    f1.i.iRank = 0;
+    f1.i.canonRank = 1;
     EV = f1.i.qFloor ;
+    floata va[25];
     if ( 1 ){
         iModel(c1,&f1);
-        
-        tBoot(f1.f, f1.f.user, 0);
-        tId(f1.f, f1.f.user, 0);
-
-        printf("irrep%d\n",tClassify(f1.f, f1.f.user));
-        tHXpY( f1.f, f1.f.user+1, f1.f.name[defSpiralMatrix(&f1.f,Iterator)].name, 0, f1.f.user, 1e-3, 1e-2, 1e-8, 1e-15, 100,1000, 5,f1.f.rt->dynamic);
-        printExpectationValues(c1, f1.f, Iterator, totalVector);
-        printf("irrep%d\n",tClassify(f1.f, totalVector));
-
-     //   print(c1,f1,1,0,f1.i.qFloor , f1.f.user);
-        fModel(&f1.f);
+        for ( i = 0;i < 25 ; i++)
+            va[i] = tComponent(f1.f, Ha,1,i);
+         fModel(&f1.f);
     }
     return EV;
 }
@@ -94,8 +87,6 @@ inta foundationB(  calculation *c1,   field f1){
         }
         su += exp(-ex2/c1->i.SymmetrizedGaussianWidth);
     }
-    su /= tot;
-    
     
     
     ///spatial lattice is sqrt-pi grid,
@@ -120,7 +111,7 @@ inta foundationB(  calculation *c1,   field f1){
                 }
             }
             
-            if ( rand()*1./RAND_MAX < exp(-ex2/c1->i.SymmetrizedGaussianWidth)/su )
+            if ( rand()*1./RAND_MAX < tot/su*exp(-ex2/c1->i.SymmetrizedGaussianWidth) )
 #endif
         {
             f1.f.name[eigenVectors].Current[0] = 1;
@@ -160,6 +151,146 @@ inta foundationB(  calculation *c1,   field f1){
     fModel(&f1.f);
     }
     return counter;
+}
+
+
+/**
+ *OSCB basis build by partiion
+ *
+ *build a potential in the shape of a vector
+ *given a nocsb partitions, run the iocsb-th partition.
+ */
+inta formOcsb(  calculation *c1,   field f1){
+    inta ii,space;
+    f1.i.Iterations = 1;
+    f1.i.qFloor = 0;
+    f1.i.iRank = 0;
+    f1.i.nStates = 1;
+    f1.i.canonRank = 1;
+    iModel(c1,&f1);
+    zero(f1.f,eigenVectors,0);
+    
+    for ( space = 0 ; space < SPACE ; space++)
+        if ( f1.f.canon[space].body != nada ){
+            inta x = vectorLen(f1.f, space)/c1->i.nocsb;
+            inta i = x*c1->i.iocsb;
+            inta f = imin(vectorLen(f1.f, space),x*(c1->i.iocsb+1));
+
+            floata *va = streams(f1.f,eigenVectors,0,space);
+            for ( ii = i; ii < f ; ii++)
+                va[ii] = tComponent(f1.f,Ha,space,ii);
+        }
+    print(c1, f1, 1, c1->i.iocsb, eigenVectors);
+    fModel(&f1.f);
+    return 0;
+}
+
+/**
+ *OSCB basis transformation
+ *
+ */
+inta iterateOcsb(  calculation *c1,   field f1){
+    floata prev,curr=100,target;
+    inta fi,space,Ll,rank=0,l,Rr,r,g;
+    inta EV=0,OV=0,j,jj,e;
+    f1.i.nStates = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
+    f1.i.qFloor = countLinesFromFile(c1,f1,1,&f1.i.iRank, &f1.i.xRank);
+
+    iModel(c1,&f1);
+    for ( fi =0 ; fi < f1.i.files ; fi++){
+        tLoadEigenWeights (c1,f1, f1.i.fileList[fi],&EV, eigenVectors,0);
+    }
+    
+    for ( fi =0 ; fi < f1.i.filesVectorOperator ; fi++){
+        tLoadEigenWeights (c1,f1, f1.i.fileVectorOperator[fi],&OV, f1.f.user,0);
+    }
+
+    division op = defSpiralMatrix(&f1.f, Ha);
+    inta o;
+    inta id=0;
+    calculation cc = *c1;
+    field fc = f1;
+    for ( space = 0 ; space < SPACE ; space++)
+        if ( f1.f.canon[space].body != nada ){
+            fc.f.canon[space].count1Basis = OV;
+            fc.f.canon[space].count1Inc   = 0;
+            fc.f.canon[space].basis       = StateBasisElement;
+            fc.f.canon[space].body        = one;
+        }
+    cc.i.termNumber = 0;
+    fc.i.OpIndex = 0;
+    iModel(c1,&fc);
+    division li = Iterator;
+    for (o = 0; f1.f.name[op+o].species == matrix ; o++){
+        Ll = CanonicalOperator(f1.f, f1.f.name[op+o].name, 0);
+        for ( l = 0; l < Ll ; l++){
+            
+            while ( fc.f.name[li].chainNext != nullName )
+                li =fc.f.name[li].chainNext;
+            division headLabel;
+            headLabel = anotherLabel(&fc.f,0,nada);
+            fc.f.name[li].chainNext = headLabel;
+            fc.f.name[headLabel].species = matrix;
+            division memoryLabel = anotherLabel(&fc.f,all,two);
+            fc.f.name[headLabel].name = memoryLabel;
+            fc.f.name[headLabel].multId = id++;
+            fc.f.name[memoryLabel].Current[0] = 1;
+            
+            for ( j = 0; j < OV ; j++){
+                tHX(rank, f1.f, f1.f.name[op+o].name, l, 0, 1.,f1.f.user+j, 0, 0, copyVector, 0, 0);
+                for ( space = 0 ; space < SPACE ; space++)
+                    if ( f1.f.canon[space].body != nada ){
+                        floata * pt = streams(fc.f,memoryLabel,0,space);
+                        for ( jj = 0; jj < OV ; jj++)
+                            pt[j*OV+jj] = tDOT(rank, f1.f, space, CDT, copyVector, 0, 0, CDT, f1.f.user+jj, 0, 0);
+                    }
+            }
+        }
+    }
+    
+    for ( e = 0 ; e < EV ; e++){
+        Rr = CanonicalRank(f1.f, eigenVectors+e, 0);
+        for ( r = 0 ; r < Rr ; r++ ){
+            for ( space = 0 ; space < SPACE ; space++)
+                if ( f1.f.canon[space].body != nada ){
+                    floata * pt = streams(fc.f,eigenVectors+e,0,space);
+                    for ( jj = 0; jj < OV ; jj++)
+                        (pt+OV*r)[jj] = tDOT(rank, f1.f, space, CDT, eigenVectors+e, 0, 0, CDT, f1.f.user+jj, 0, 0);
+                }
+        }
+    }
+
+    
+    do {
+        division OpSpiral = defSpiralMatrix(&fc.f, Iterator);
+        tHXpY(fc.f,eigenVectors,fc.f.name[OpSpiral].name,cc.i.shiftFlag,eigenVectors,fc.f.rt->TOLERANCE,fc.f.rt->relativeTOLERANCE,fc.f.rt->ALPHA,fc.f.rt->THRESHOLD,fc.f.rt->MAX_CYCLE,fc.f.rt->XCONDITION,  fc.f.name[eigenVectors].Partition,fc.f.rt->dynamic);
+        tBuildMatrix(0 , fc.f,Ha, eigenVectors,EV);
+        tSolveMatrix(1 , fc.f,f1.i.nStates, eigenVectors, EV, twoBodyRitz);
+
+        prev = curr;
+        curr = 0;
+        for ( e = 0; e < EV ; e++)
+            curr += myStreams(fc.f, twoBodyRitz, 0)[e];
+        
+        ///agnostic to number or structure of inputs...
+        for ( e = 0 ; e < EV ;e++){
+            tClear(fc.f, totalVector);
+            for( g = 0; g < EV ; g++){
+                tEqua(fc.f, copyVector, 0, eigenVectors+g, 0);
+                tScaleOne(fc.f, copyVector, 0, myStreams(fc.f, matrixHbuild, 0)[e*OV+g]);
+                tAddTw(fc.f, totalVector, 0, copyVector, 0);
+            }
+            CanonicalRankDecomposition( fc.f, NULL, totalVector, 0, eigenVectors+e, 0, cc.rt.TOLERANCE, cc.rt.relativeTOLERANCE, cc.rt.ALPHA, cc.rt.THRESHOLD,cc.rt.MAX_CYCLE,cc.rt.XCONDITION, part(fc.f,eigenVectors),0 );
+            if ( fc.f.rt->dynamic > 0 ){
+                tEqua(fc.f, totalVector, 0, eigenVectors, 0);
+                CanonicalRankDecomposition( fc.f, NULL, totalVector, 0, eigenVectors, 0, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, cc.rt.ALPHA,  cc.rt.THRESHOLD,  cc.rt.MAX_CYCLE, cc.rt.XCONDITION, part(fc.f,eigenVectors),fc.f.rt->dynamic);
+            }
+        }
+        target = max(fc.f.rt->TOLERANCE, fc.f.rt->relativeTOLERANCE*curr);
+    } while(fabs(prev-curr)< target);
+
+    fModel(&f1.f);
+    return 0;
 }
 
 #if 0
@@ -388,8 +519,7 @@ double singlekrylov (   calculation *c1,   field f1){
         tId(f1.f,eigenVectors,0);
     EV = 1;
 #endif
-    division target,OpSpiral = defSpiralMatrix(&f1.f, Iterator);
-    target = f1.f.name[OpSpiral].name;
+    division OpSpiral = defSpiralMatrix(&f1.f, Iterator);
     
     if ( f1.i.Iterations == 2 ){
         {
@@ -400,7 +530,7 @@ double singlekrylov (   calculation *c1,   field f1){
                 tScaleOne(f1.f, eigenVectors, 0, 1./norm);
             }
         }
-        tHXpY( f1.f,  eigenVectors, target, c1->i.shiftFlag , eigenVectors, f1.f.rt->TOLERANCE,f1.f.rt->relativeTOLERANCE,f1.f.rt->ALPHA,f1.f.rt->THRESHOLD,f1.f.rt->MAX_CYCLE,f1.f.rt->XCONDITION,  f1.f.name[eigenVectors].Partition,f1.f.rt->dynamic);
+        tHXpY( f1.f,  eigenVectors, f1.f.name[OpSpiral].name, c1->i.shiftFlag , eigenVectors, f1.f.rt->TOLERANCE,f1.f.rt->relativeTOLERANCE,f1.f.rt->ALPHA,f1.f.rt->THRESHOLD,f1.f.rt->MAX_CYCLE,f1.f.rt->XCONDITION,  f1.f.name[eigenVectors].Partition,f1.f.rt->dynamic);
     }
     if ( ((((f1.i.filter/4)%2)==1) * f1.i.irrep) ){
         tFilter(f1.f, 1, (((f1.i.filter/4)%2)==1) * f1.i.irrep, eigenVectors);
@@ -528,7 +658,7 @@ int run (inta argc , char * argv[]){
 
             case 0 :
                 ///andromeda 0
-                printf("----\nv9.5\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\nv9.6\n\n%s\n\n",getenv("LAUNCH"));
                 printf("cat file |  andromeda 1 \n\t\t--> MEMORY AND TERM output without committing\n");
                 printf("cat file |  andromeda  \n");
                 printf("andromeda -1 file \n");
@@ -557,7 +687,12 @@ int run (inta argc , char * argv[]){
     else if ( c.rt.phaseType == buildTraces ){
         traces(&c,f);
     }
-
+    else if ( c.rt.phaseType == formOCSB ){
+        formOcsb(&c,f);
+    }
+    else if ( c.rt.phaseType == iterateOCSB ){
+        iterateOcsb(&c,f);
+    }
     ///Scripts look for this ...
     printf("\n\nFINIS.\n\n");
     return 0;

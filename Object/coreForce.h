@@ -46,4 +46,5 @@ inta buildClampKinetic(  calculation *c1,   sinc_label *f1,double scalar,inta in
 inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl);
 inta buildLinear(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl);
 inta buildElement(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl,inta bra, inta ket);
+inta assignDiagonalMatrix(calculation *c1,field *f, char * filename, division single );
 #endif /* coreForce_h */

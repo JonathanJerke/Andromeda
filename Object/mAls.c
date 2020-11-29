@@ -58,7 +58,6 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
         printf("%d %d\n", origin, alloy);
         exit(0);
     }
-    double iCondition;
     if ( ! allowQ(f1.rt,blockTrainVectorsblock)){
         printf("blockTrainVectorsblock allow!\n");
         fflush(stdout);
@@ -281,7 +280,7 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
     
     
             if(1){
-                inta ct = 0,ll;
+                inta ct = 0;
                 for ( space = 0; space < SPACE;space++)
                     if ( f1.canon[space].body != nada ){
                         ct++;
@@ -365,7 +364,16 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
         ///get norms
         for ( space = 0; space < dim0 ; space++)
             if ( f1.canon[space].body != nada){
+                inta kk=1;
                 for ( m = 0; m < L1; m++){
+                    norm[space][ m ] = cblas_dnrm2(M2[space], alloyStream[space][m],1);
+                    if ( norm[space][m] == 0. ){
+                        floata *pt =alloyStream[space][m];
+                        inta mm;
+                        for ( mm = 0 ; mm < M2[space] ; mm++)
+                            pt[mm] = cos(kk*2*pi*mm*1./M2[space]);
+                        kk++;
+                    }
                     norm[space][ m ] = cblas_dnrm2(M2[space], alloyStream[space][m],1);
                 }
             }
@@ -426,48 +434,48 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
             for ( l = 0 ; l < L1; l++)
                     track[ l*LS1 + l ] += condition ;
 
-            if(0){
-                double ev[LS1];
-
-                printf("\n{");
-                for ( l = 0; l < L1*L1 ; l++)
-                {
-                        printf("%f,",track[l]);
-                }
-                printf("}\n");
-
-                
-                tdsyev(0, f1, 'N', L1, track, LS1, ev);
-                
-                
-                
-//                cblas_dcopy(LS1*LS1, track+LS1*LS1, 1, track, 1);
-//                for ( l = 0 ; l < L1; l++)
-//                        track[ l*LS1 + l ] += condition ;
+//            if(0){
+//                double ev[LS1];
 //
-//                iCondition = tdpocon(0, f1, L1, track, LS1);
-//                printf("c %f %f\n", ev[L1-1]/ev[0],iCondition);
-                iCondition = 1;
-                if ( 1./maxCondition > ev[0]/ev[L1-1] || isnan(ev[0]/ev[L1-1])||isinf(ev[0]/ev[L1-1])  ){
-                    #if 1
-                    printf("Linear Dependence failure %f\n",1./iCondition);
-                                        fflush(stdout);
-                    #endif
-                                        for ( space = 0 ; space < SPACE ; space++)
-                                            if ( f1.canon[space].body != nada ){
-                                                free(alloyStream[space]);
-                                                free(originStream[space]);
-                                            }
-                                        free(alloyStream);
-                                        free(originStream);
-                                        free(originIndex);
-
-                                        return -1;
-                }
-                cblas_dcopy(LS1*LS1, track+LS1*LS1, 1, track, 1);
-                for ( l = 0 ; l < L1; l++ )
-                    track[ l*LS1 + l ] += condition ;
-            }
+//                printf("\n{");
+//                for ( l = 0; l < L1*L1 ; l++)
+//                {
+//                        printf("%f,",track[l]);
+//                }
+//                printf("}\n");
+//
+//                
+//                tdsyev(0, f1, 'N', L1, track, LS1, ev);
+//                
+//                
+//                
+////                cblas_dcopy(LS1*LS1, track+LS1*LS1, 1, track, 1);
+////                for ( l = 0 ; l < L1; l++)
+////                        track[ l*LS1 + l ] += condition ;
+////
+////                iCondition = tdpocon(0, f1, L1, track, LS1);
+////                printf("c %f %f\n", ev[L1-1]/ev[0],iCondition);
+//                iCondition = 1;
+//                if ( 1./maxCondition > ev[0]/ev[L1-1] || isnan(ev[0]/ev[L1-1])||isinf(ev[0]/ev[L1-1])  ){
+//                    #if 1
+//                    printf("Linear Dependence failure %f\n",1./iCondition);
+//                                        fflush(stdout);
+//                    #endif
+//                                        for ( space = 0 ; space < SPACE ; space++)
+//                                            if ( f1.canon[space].body != nada ){
+//                                                free(alloyStream[space]);
+//                                                free(originStream[space]);
+//                                            }
+//                                        free(alloyStream);
+//                                        free(originStream);
+//                                        free(originIndex);
+//
+//                                        return -1;
+//                }
+//                cblas_dcopy(LS1*LS1, track+LS1*LS1, 1, track, 1);
+//                for ( l = 0 ; l < L1; l++ )
+//                    track[ l*LS1 + l ] += condition ;
+//            }
             
             
             
@@ -493,7 +501,7 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
                 info = tdpotrf(L1, track,LS1);
                 if ( info != 0 ){
 #if 1
-                    printf("Linear Dependence failure %f\n",1./iCondition);
+//printf("Linear Dependence failure %f\n",1./iCondition);
                     fflush(stdout);
 
                     printf("potrf-Linear Dependence failure %d\n",info);
@@ -538,8 +546,8 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
                 
                 if ( info != 0 ){
     #if 1
-                    printf("Linear Dependence failure %f\n",1./iCondition);
-                    fflush(stdout);
+             //       printf("Linear Dependence failure %f\n",1./iCondition);
+             //       fflush(stdout);
 
                     printf("potrs-Linear Dependence failure %d\n",info);
                     fflush(stdout);
@@ -626,7 +634,7 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
             fflush(stdout);
 #endif
             if ( fabs(curr) < target ){
-#if 1
+#ifdef VERBOSE_ALS
                 printf("Beylkin's condition number %f\n", sum2/iGG);
 
                 printf("cycles %d\n distance-2 %1.15f \t magnitude-2 (%f) \t %d->%d\n", count,(curr),(iGG),G1,L1);
@@ -647,7 +655,7 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
                 
             if ( count > maxCycle )
                 {
-#if 1
+#ifdef VERBOSE_ALS
                     printf("Beylkin's condition number %f\n", sum2/iGG);
 
                     printf("Failed in maxCycles %d\n distance-2 %1.15f \t magnitude-2 (%f) \t %d->%d\n", count,(curr),(iGG),G1,L1);
@@ -1548,7 +1556,19 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
                     }
             }
 
-    }else if ( species(f1, left) == vector && species(f1,ket) == vector && species(f1,oket) == vector){
+    }    else if ( species(f1, left) == diagonalMatrix && species(f1,ket) == vector && species(f1,oket) == vector){
+        ///for diagonal potential matrices, where left points at a vector
+        {
+            inta space;
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1.canon[space].body != nada ){
+                    inta N2 = vectorLen(f1, space);
+                    cblas_dcopy(N2, streams(f1, ket,sp2,space)+k*N2, 1, streams( f1, oket, ospin,space)+o*N2, 1);
+                    cblas_dtbmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, N2, 0,streams( f1, left, im,space )+l*N2, 1,streams( f1, oket, ospin,space)+o*N2,1);
+            }
+        }
+    }
+    else if ( species(f1, left) == vector && species(f1,ket) == vector && species(f1,oket) == vector){
         ///specifically for geminals * transpose-geminals = geminal
         //if ( bodies(f1, left) == two && bodies(f1,in) == two && bodies(f1,out)== two )
         {
@@ -1584,7 +1604,7 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
     double prod;
     inta rank0 = 0 ,rank;
     mea co2,coi;
-    inta bc,ilr,Ll,sp2,Rr,im,l , k,targSpin;
+    inta ilr,Ll,sp2,Rr,im,l , k,targSpin;
     division pt,Mat;
     
     if ( ! allowQ(f1.rt,blockTotalVectorBlock)){
@@ -1670,7 +1690,7 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
         
         if (  bra != totalVector){
             CanonicalRankDecomposition( f1,  NULL,totalVector, rank0, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle,maxCondition, canon,0);
-            if ( X1 > 0 ){
+            if ( X1 > 0 && canon > 1 ){
                 tEqua(f1, totalVector, rank0, bra, targSpin);
                 CanonicalRankDecomposition( f1,  NULL,totalVector, rank0, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle,maxCondition, canon,X1);
             }

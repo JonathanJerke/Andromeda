@@ -30,7 +30,6 @@
 /**
  * Controls to initiate and run canonicalRankDecomposition
  *
- *@param rank      OMP rank
  *@param f1          container
  *@param coeff allows for rescaling the origin by each canonical rank
  *@param[in] origin the division with more canonical ranks
@@ -55,7 +54,8 @@ double CanonicalRankDecomposition ( sinc_label  f1 ,double * coeff,   division o
     inta ii,n,m,c,g,G1 = CanonicalRank(f1, origin, os);
     
     if ( ! G1 ){
-        printf("CanonicalRankDecomposition, Origin is empty\n");
+    //    printf("CanonicalRankDecomposition, Origin is empty\n");
+        f1.name[alloy].Current[spin] = 0;
         return 0;
     }
     if ( G1 <= L1 ){

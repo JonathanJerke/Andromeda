@@ -146,7 +146,7 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
     double value;
 
     
-    inta NINT_TYPE = 30;
+    inta NINT_TYPE = 32;
     char *list_INT_TYPE []= {"#",
         "lambda",
         "initRank",
@@ -177,7 +177,9 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
         "iterations",
         "dynamic",
         "levelFoundation",
-        "seed"
+        "seed",
+        "iocsb",
+        "nocsb",
     };
     inta NDOUBLE = 8;
     char *list_DOUBLE []= {"#",
@@ -306,6 +308,12 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
                     return i;
                 case 30:
                     srand(ivalue);
+                    return i;
+                case 31:
+                    c->i.iocsb = ivalue;
+                    return i;
+                case 32:
+                    c->i.nocsb = ivalue;
                     return i;
             }
         
@@ -584,10 +592,12 @@ inta getInputOutput(  calculation * c,  field * f, const char * input_line ){
 
 
 inta getTermDefinitions(  calculation * c, const char * input_line ){
+    static char filename[MAXSTRING];
+    strcpy(filename, "");
     static inta atom = 1;
     static inta embed = 0;
     static inta flagScalar = 0;
-    static   blockType bl = id0;
+    static blockType bl = id0;
     static inta act = 1;
     static inta newTerm = 1;
     static inta invert = 0;
@@ -609,29 +619,33 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
       metric_label metric;
     double value;    
         inta io;
-        inta Nio = 9;
+        inta Nio = 11;
         char *list_IO[] = {"#",
             "constant","linear","spring",
             "deriv","kinetic","clamp",
-            "element","oneBody","twoBody"
+            "element","oneBody","twoBody",
+            "diagonal",
+            
+            "filename"
         };
-        char filename[MAXSTRING];
+        char input[MAXSTRING];
         
         for( io = 1 ; io <= Nio ; io++){
             if ( strstr( input_line, list_IO [io])!=NULL){
-                sscanf(input_line,"%s %s", test_line,  filename);
+                if ( io <= 10 ){
+                sscanf(input_line,"%s %s", test_line,  input);
                     c->i.terms[c->i.termNumber].type = io;
                     c->i.terms[c->i.termNumber].act = act;
                     c->i.terms[c->i.termNumber].bl = bl;
                 c->i.terms[c->i.termNumber].embed = embed;
                     c->i.terms[c->i.termNumber].scalar = scalar;
                     c->i.terms[c->i.termNumber].invert = invert;
-                    strcpy(c->i.terms[c->i.termNumber].desc,filename);
+                    strcpy(c->i.terms[c->i.termNumber].desc,input);
                     c->i.terms[c->i.termNumber].headFlag = newTerm;
                     c->i.terms[c->i.termNumber].adjustOne = adjustOne;
                 c->i.terms[c->i.termNumber].bra = bra;
                 c->i.terms[c->i.termNumber].ket = ket;
-
+                sprintf( c->i.terms[c->i.termNumber].filename,"%s",filename);
                 c->i.terms[c->i.termNumber].atom     = atom;
                 c->i.terms[c->i.termNumber].label = particle;
                     newTerm = 0;
@@ -674,7 +688,11 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                 c->i.termNumber++;
                 return io;
                     
-    
+                } else switch(io){
+                    case 11:
+                        strcpy(filename, input);
+                        return io;
+                }
             }
                 
         }
@@ -818,7 +836,7 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
 //        "out","user"
 //    };
 //
-//    char filename[MAXSTRING];
+//    char input[MAXSTRING];
 //    for( io = 1 ; io <= Nio ; io++){
 //        if ( strstr( input_line, list_IO [io])!=NULL){
 //            switch(io){
@@ -827,8 +845,8 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
 //                    c->basis[index].mask = 1;
 //                    return io;
 //                case 2:
-//                    sprintf(parti.cle[component].file ,"%s", filename);
-//                    if (  strstr(filename,c->name) != NULL){
+//                    sprintf(parti.cle[component].file ,"%s", input);
+//                    if (  strstr(input,c->name) != NULL){
 //                        printf(" cannot name inputs same as outputs\n");
 //                        printf("%st %s\n", filename, c->name);
 //                        exit(1);

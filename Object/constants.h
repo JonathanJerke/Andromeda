@@ -26,7 +26,7 @@
 /**
  *Andromeda: a few-body plane wave calculator
  *
- *v9.5
+ *v9.6
  *quantumGalaxies.org
  *
  *Jonathan Jerke
@@ -156,7 +156,9 @@ enum phaseType{
     buildFoundation,
     productKrylov,
     solveRitz,
-    buildTraces
+    buildTraces,
+    formOCSB,
+    iterateOCSB
 };
 
 /**
@@ -212,6 +214,7 @@ enum genusType{
     vector,
     matrix,
     outerVector,
+    diagonalMatrix,
     eikon,
     eikonDiagonal,
     eikonOffDiagonal,
@@ -313,9 +316,6 @@ enum metricType {
 
 
 
-
-
-
 /**
  *Enumerate memory controls
  *
@@ -338,7 +338,9 @@ enum blockMemoryType{
     blockParallelMatrixElementblock,
     blockParallelPermuteblock,
     blockPrintStuffblock,
-    blockTotalVectorParallelBlock
+    blockTotalVectorParallelBlock,
+    blockComponentblock,
+    blockDiagonalMatrixblock
 };
 
 
@@ -488,10 +490,6 @@ enum blockMemoryType{
 
 
 
-
-
-
-
 /**
  *Divisions define and indicate data.
  *Lined up with 500 so a division number can be easily read.
@@ -519,7 +517,7 @@ enum division{
     copyTwo , 
     copyThree,
     copyFour,
-    copyFive,
+    vectorDiagonalMatrix,
     eigen,
     PauliX,
     PauliY,
@@ -528,7 +526,6 @@ enum division{
     cycleVector,
     cycleMatrix,
     cycleQuartic,
-    copySix,
     directBak, 
     oneBody,
     entropyVector,
@@ -585,7 +582,8 @@ enum division{
     canonicalme2Vector,
     canonicalme3Vector,
     multiplyVector,
-    eigenList,
+    component,
+    componentTotal,
     CanonicalBuffers,
     oneVector,
     twoVector,
@@ -720,6 +718,8 @@ struct metric_label {
 };
 
 struct term_label {
+    ///optional, loaded for diagonalMatrix
+    char filename[MAXSTRING];
     ///internal potential parameters
     function_label func;
     ///description of term
@@ -972,6 +972,10 @@ struct input {
     struct atom_label atoms[MAXATOM+1];
     ///number of atoms
     inta Na;
+    ///ocsb number of partitions
+    inta nocsb;
+    ///ocsb partition number
+    inta iocsb;
 };
 
 struct calculation {

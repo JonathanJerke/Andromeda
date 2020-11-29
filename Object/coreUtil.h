@@ -113,7 +113,7 @@ double xFourBand (  sinc_label f1,inta space,   division vector1 ,inta s1,   sin
   basisElement_label grabBasis (  sinc_label  f1, inta space, inta particle, inta elementIndex);
   basisElement_label transformBasis( inta flip,double scale,   basisElement_label ba );
 inta  countLinesFromFile(   calculation *c1,  field f1,inta location, inta * ir,inta *ix);
-inta defineTerms(  calculation * c,   sinc_label *f1,   division head, inta memory);
+inta defineTerms(  calculation * c,   field *f,   division head, inta memory);
 inta InvertOp(  bodyType bd,inta invert, inta N1,floata * vector, floata* vectorOut);
 inta balance (  sinc_label f1,    division alloy, inta spin);
 

@@ -123,7 +123,7 @@ void length1(  sinc_label f1, inta *len){
     return;
 }
 
-  division anotherLabel(  sinc_label *f1,   inta particle,  bodyType body){
+  division anotherLabel( sinc_label *f1,   inta particle,  bodyType body){
     switch(body){
         case nada:
             if ( f1->nullLabels.currLabel+1 > f1->nullLabels.maxLabel)
@@ -133,7 +133,7 @@ void length1(  sinc_label f1, inta *len){
                 exit(0);
             }
             else{
-                  division output = f1->nullLabels.head + f1->nullLabels.currLabel++;
+                division output = f1->nullLabels.head + f1->nullLabels.currLabel++;
                 f1->name[output].linkNext = nullName;
                 f1->name[output].chainNext = nullName;
                 f1->name[output].loopNext = nullName;
@@ -151,7 +151,7 @@ void length1(  sinc_label f1, inta *len){
                 exit(0);
             }
             else{
-                  division output = f1->eikonLabels.head + f1->eikonLabels.currLabel++;
+                division output = f1->eikonLabels.head + f1->eikonLabels.currLabel++;
                 f1->name[output].linkNext = nullName;
                 f1->name[output].chainNext = nullName;
                 f1->name[output].loopNext = nullName;
@@ -1910,48 +1910,10 @@ inta  countLinesFromFile(  calculation *c1,   field f1,inta location, inta *ir, 
     return lines;
 }
 
-inta defineTerms(  calculation * c,   sinc_label *f1,   division head, inta memory){
+inta defineTerms(  calculation * c,   field *f,   division head, inta memory){
+    sinc_label *f1 = &f->f;
     inta term=0,i;
     //tied to bra.
-#ifdef APPLE
-    {
-    f1->name[head].linkNext = anotherLabel(f1, all, nada);
-      division prevLink = f1->name[head].linkNext;
-    f1->name[prevLink].species = matrix;
-
-  //  buildExternalPotential(c, f1, 1., 0, -2, tv2, 1, head, electron, 0, real);
-    if ( memory ){
-      // buildPairWisePotential(c, f1, 1.,0,1,e12,1, head, electron, 0, real);
-     //     division pt = head;
-      //  compressReplaceEikon(*f1, f1->name[head].chainNext);
-        
-        
-       // buildKinetic(c, f1, 1., 0, 1, tv1, prevLink, 1, 0, real);
-    //    buildSpring(c, f1, 1., 0, 1, tv1, prevLink, 1, 0, real);
-       //buildLinear(c, f1, 1., 0, 1, tv1, head, 2, 0, real);
-
-        //buildLinear(c, f1, 1., 0, 1, tv1, head, 1, 0, real);
-          metric_label mu;
-        mu.beta[0] =3;
-        mu.beta[1] =10;
-        mu.metric = interval;
-        mu.fn.fn =  Coulomb;
-        mu.fn.interval = 7;
-        mu.fn.contr = 2;
-        buildPairWisePotential(c, f1, -1., 0, 1, e12, 1., prevLink, 1,0, 0, real,mu);
-        mu.beta[0] =3;
-        mu.beta[1] =10;
-        mu.metric = pureInterval;
-        mu.fn.interval = 7;
-        mu.fn.contr = 2;
-        buildPairWisePotential(c, f1, 1., 0, 1, e12, 1., prevLink, 2,0, 0, real,mu);
-
-     //   buildExternalPotential(c, f1, 1., 0, 1, tv2, 1., head, electron, 0, real);
-    }
-    }
-    return 1;
-#endif
-    
     division prevLink = head;
     
     for ( i = 0; i < c->i.termNumber ; i++)
@@ -1996,7 +1958,9 @@ inta defineTerms(  calculation * c,   sinc_label *f1,   division head, inta memo
                 case 9:
                     buildPairWisePotential(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl,c->i.terms[i].adjustOne,prevLink,  c->i.terms[i].label, c->i.terms[i].embed,0, real,c->i.terms[i].mu);
                     break;
-
+                case 10:
+                    assignDiagonalMatrix(c,f,c->i.terms[i].filename,prevLink);
+                    break;
             }
         }
     }

@@ -350,3 +350,100 @@ inta tSolveMatrix (inta typer,   sinc_label  f1,inta Ne,  division usz, inta qua
 
     return 0;
 }
+
+/**
+ *Solve one coordinate of an Optimal Separable Component Basis Hamiltonian
+ *
+ *
+ *See Bill's Papers for definition:  Minimize all but degree of freedom interested in.
+ *@param f1 container
+ *@param hamiltonian  ordered by spiral
+ *@param space to consider
+ *@param index of the basis element to project in space
+ */
+floata tComponent( sinc_label f1, division hamiltonian, inta space, inta index){
+    if ( ! allowQ(f1.rt, blockComponentblock)){
+        printf("blockComponentblock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
+    division A = defSpiralMatrix(&f1, hamiltonian);
+    floata value1,value2,curr ,prev,target;
+    inta dim ,N1,i,op;
+    f1.name[component].Current[0] = 1;
+    ///Initialize
+    for ( dim = 0 ; dim < SPACE ; dim++ )
+        if ( f1.canon[dim].body != nada )
+        {
+            floata *pt = streams(f1, component, 0, dim);
+            N1 = vectorLen(f1, dim);
+            if ( dim == space){
+                for ( i = 0 ; i < N1; i++ )
+                    pt[i] = 0;
+                pt[index] = 1;
+            } else {
+                for ( i = 0 ; i < N1; i++ )
+                    pt[i] = 1;
+                
+            }
+    }
+    curr = 100.;
+    do{
+        ///cycle...
+        f1.name[componentTotal].Current[0] = 0;
+        {
+            floata norm = sqrt(pMatrixElement(f1, component ,0,nullOverlap,0,component ,0));
+            tScaleOne(f1, component, 0, 1./norm);
+        }
+        for (op = 0; f1.name[A+op].species == matrix ; op++)
+            tHXpY(f1, componentTotal, f1.name[A+op].name, op, component, f1.rt->TOLERANCE, f1.rt->relativeTOLERANCE, f1.rt->ALPHA, f1.rt->THRESHOLD, f1.rt->MAX_CYCLE, f1.rt->XCONDITION, part(f1,componentTotal), 0);
+        prev = curr;
+        curr = pMatrixElement(f1, componentTotal, 0, nullOverlap, 0, component, 0);
+        tEqua(f1, component, 0, componentTotal, 0);
+
+        for ( dim = 0 ; dim < SPACE ; dim++ )
+            if ( f1.canon[dim].body != nada )
+            {
+                floata *pt = streams(f1, component, 0, dim);
+                N1 = vectorLen(f1, dim);
+                if ( dim == space){
+                    for ( i = 0 ; i < N1; i++ )
+                        pt[i] = 0;
+                    pt[index] = 1;
+                }
+            }
+
+        target = max(f1.rt->relativeTOLERANCE*curr,f1.rt->TOLERANCE);
+    } while( fabs(curr-prev) > target);
+    value1 = curr;
+    value2 = 100;
+    if ( fabs(value1) > f1.rt->THRESHOLD ){
+        curr = 100.;
+        do{
+            ///cycle...
+            {
+                floata norm = sqrt(pMatrixElement(f1, component ,0,nullOverlap,0,component ,0));
+                tScaleOne(f1, component, 0, 1./norm);
+                
+                tEqua(f1, componentTotal, 0, component, 0);
+                tScaleOne(f1, componentTotal, 0, -value1);
+
+            }
+            for (op = 0; f1.name[A+op].species == matrix ; op++)
+                tHXpY(f1, componentTotal, f1.name[A+op].name, 1, component, f1.rt->TOLERANCE, f1.rt->relativeTOLERANCE, f1.rt->ALPHA, f1.rt->THRESHOLD, f1.rt->MAX_CYCLE, f1.rt->XCONDITION, part(f1,componentTotal), f1.rt->dynamic);
+            
+            prev = curr;
+            curr = pMatrixElement(f1, componentTotal, 0, nullOverlap, 0, component, 0)+value1;
+            tEqua(f1, component, 0, componentTotal, 0);
+            floata *pt = streams(f1, component, 0, space);
+            N1 = vectorLen(f1, space);
+                for ( i = 0 ; i < N1; i++ )
+                    pt[i] = 0;
+            pt[index] = 1;
+            target = max(f1.rt->relativeTOLERANCE*curr,f1.rt->TOLERANCE);
+        } while( fabs(curr-prev) > target);
+    }
+    value2 = curr;
+    return min(value1,value2);
+        
+}

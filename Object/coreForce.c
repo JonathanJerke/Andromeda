@@ -1695,3 +1695,29 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
         }
     return ra;
 }
+
+
+/**
+ *Diagonal Matrix reference
+ *
+ *@param f field
+ *@param filename file to put into vectorDiagonalMatrix, be sure to switch it on!
+ *@param[in] single linked list
+ */
+inta assignDiagonalMatrix(calculation *c1,   field *f, char * filename, division single){
+    sinc_label * f1 = &f->f;
+    inta id=0,index = 0;
+    division li = single;
+    while ( f1->name[li].chainNext != nullName)
+        li =f1->name[li].chainNext;
+    printf("diagonalMatrix %s\n",filename);
+    division headLabel;
+    headLabel = anotherLabel(f1,0,nada);
+    f1->name[li].chainNext = headLabel;
+    f1->name[headLabel].species = diagonalMatrix;
+    division memoryLabel = vectorDiagonalMatrix;
+    f1->name[headLabel].name = memoryLabel;
+    f1->name[headLabel].multId = id++;
+    tLoadEigenWeights(c1,*f,filename, &index, vectorDiagonalMatrix, 0);
+    return 0;
+}
