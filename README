@@ -24,9 +24,6 @@ Andromeda is an advance of Quantum Dynamics technologies, i.e. Sums of Products,
 into an area of electronic structure using the Gaussian-Sinc method for development of
 interactions.  
 
-
-
-
 Added commands to build runtime in each species subdirectory.
 New distributed programming can effectively compute Lithum in normal super computer.
 v9.0 has been tested extensively and the code is much more readable.
@@ -34,9 +31,11 @@ v9.1 has cut the pork and now can easily allocate my systems of choice.
 v9.2 has implemented HDF5 because I had a huge IO issue.
 v9.3 has sped up and or avoided various slow procedures.
 v9.4 has sped up the core ALS routine by many orders and parallelized the Matrix-vector product.
-v9.5 has added an output procedure for the traces of geminals needed for a python linear programming package (to be released).
+v9.6-pre has been released with improvements to the foundation and scripts.
 
-See (Count Down) on WIKI.
+See quantumgalaxies.org for expert user advise.
+
+See (Count Down) on WIKI for the beginning.
 
 Please cite these two papers until a proper writeup of Andromeda is published.
 
