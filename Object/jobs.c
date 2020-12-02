@@ -238,6 +238,7 @@ inta iterateOcsb(  calculation *c1,   field f1){
             fc.f.name[li].chainNext = headLabel;
             fc.f.name[headLabel].species = matrix;
             division memoryLabel         = anotherLabel(&fc.f,all,two);
+            fc.f.name[headLabel].loopNext = memoryLabel;
             fc.f.name[memoryLabel].name  = memoryLabel;
             fc.f.name[headLabel].name    = memoryLabel;
             fc.f.name[headLabel].multId  = id++;
