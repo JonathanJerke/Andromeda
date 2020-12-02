@@ -668,7 +668,7 @@ inta CanonicalOperator( sinc_label f1, division label, inta spin ){
         while ( zz != ll ){
             if (f1.name[zz].multId == f1.name[ll].multId)
                 found = 1;
-            zz = f1.name[zz].chainNext;
+            zz = f1.name[name(f1,zz)].chainNext;
         }
         if ( ! found ){
             rr += CanonicalRank(f1, name(f1,ll), spin);//switch from product to addition!!!
