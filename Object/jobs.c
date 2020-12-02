@@ -235,10 +235,10 @@ inta iterateOcsb(  calculation *c1,   field f1){
                 li =fc.f.name[li].chainNext;
             division headLabel;
             headLabel = anotherLabel(&fc.f,0,nada);
-            fc.f.name[li].chainNext = headLabel;
+            fc.f.name[li].chainNext      = headLabel;
             fc.f.name[headLabel].species = matrix;
             division memoryLabel         = anotherLabel(&fc.f,all,two);
-            fc.f.name[headLabel].loopNext = memoryLabel;
+            fc.f.name[headLabel].loopNext= memoryLabel;
             fc.f.name[memoryLabel].name  = memoryLabel;
             fc.f.name[headLabel].name    = memoryLabel;
             fc.f.name[headLabel].multId  = id++;
@@ -256,9 +256,10 @@ inta iterateOcsb(  calculation *c1,   field f1){
                             pt[j*OV+jj] = tDOT(rank, f1.f, space, CDT, copyVector, 0, 0, CDT, f1.f.user+jj, 0, 0);
                     }
             }
-            fc.f.name[headLabel].linkNext = anotherLabel(&fc.f,0,nada);
-            li = fc.f.name[headLabel].linkNext;
         }
+        fc.f.name[li].linkNext = anotherLabel(&fc.f,0,nada);
+        fc.f.name[li].species = matrix;
+        li = fc.f.name[li].linkNext;
     }
     
     for ( e = 0 ; e < EV ; e++){
@@ -275,8 +276,9 @@ inta iterateOcsb(  calculation *c1,   field f1){
     }
 
     inta iteration = 1;
+    division OpSpiral = defSpiralMatrix(&fc.f, Ha);
+
     do {
-        division OpSpiral = defSpiralMatrix(&fc.f, Ha);
         for ( e = 0 ; e < EV ; e++)
             for (op = 0; fc.f.name[OpSpiral+op].species == matrix ; op++)        tHXpY(fc.f,eigenVectors+iteration*EV+e,fc.f.name[OpSpiral+op].name,op,eigenVectors+(iteration-1)*EV+e,fc.f.rt->TOLERANCE,fc.f.rt->relativeTOLERANCE,fc.f.rt->ALPHA,fc.f.rt->THRESHOLD,fc.f.rt->MAX_CYCLE,fc.f.rt->XCONDITION,  fc.f.name[eigenVectors].Partition,fc.f.rt->dynamic);
         tBuildMatrix(0 , fc.f,Ha, eigenVectors,iteration*EV);
