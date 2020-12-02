@@ -234,12 +234,15 @@ inta iterateOcsb(  calculation *c1,   field f1){
             while ( fc.f.name[li].chainNext != nullName )
                 li =fc.f.name[li].chainNext;
             division headLabel;
-            headLabel = anotherLabel(&fc.f,all,two);
+            headLabel = anotherLabel(&fc.f,0,nada);
             fc.f.name[li].chainNext = headLabel;
-            fc.f.name[headLabel].species = vector;
-            fc.f.name[headLabel].name = headLabel;
+            fc.f.name[headLabel].species = matrix;
+            division memoryLabel = anotherLabel(&fc.f,all,two);
+            fc.f.name[headLabel].name = memoryLabel;
             fc.f.name[headLabel].multId = id++;
             fc.f.name[headLabel].Current[0] = 1;
+            fc.f.name[memoryLabel].Current[0] = 1;
+            fc.f.name[memoryLabel].species = matrix;
 
 
             for ( j = 0; j < OV ; j++){
@@ -247,7 +250,7 @@ inta iterateOcsb(  calculation *c1,   field f1){
                 
                 for ( space = 0 ; space < SPACE ; space++)
                     if ( f1.f.canon[space].body != nada ){
-                        floata * pt = streams(fc.f,headLabel,0,space);
+                        floata * pt = streams(fc.f,memoryLabel,0,space);
                         for ( jj = 0; jj < OV ; jj++)
                             pt[j*OV+jj] = tDOT(rank, f1.f, space, CDT, copyVector, 0, 0, CDT, f1.f.user+jj, 0, 0);
                     }
