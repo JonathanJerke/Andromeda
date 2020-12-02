@@ -207,7 +207,6 @@ inta iterateOcsb(  calculation *c1,   field f1){
 
     division op = defSpiralMatrix(&f1.f, Ha);
     inta o;
-    inta id=0;
     field fc = f1;
     for ( space = 0 ; space < SPACE ; space++)
         if ( f1.f.canon[space].body != nada ){
@@ -227,24 +226,25 @@ inta iterateOcsb(  calculation *c1,   field f1){
     
     fc.i.filesVectorOperator = 0;
     iModel(c1,&fc);
-    division li = Ha;
+    
+    division li = Iterator;
     for (o = 0; f1.f.name[op+o].species == matrix ; o++){
-        Ll = CanonicalOperator(f1.f, f1.f.name[op+o].name, 0);
+        Ll = CanonicalOperator(f1.f, op+o, 0);
         for ( l = 0; l < Ll ; l++){
-            while ( fc.f.name[li].chainNext != nullName )
-                li =fc.f.name[li].chainNext;
-            division headLabel;
+            division headLabel,matrixLabel,memoryLabel;
             headLabel = anotherLabel(&fc.f,0,nada);
+            matrixLabel = anotherLabel(&fc.f,0,nada);
+            memoryLabel = anotherLabel(&fc.f,all,two);//flowing in outer space, linked by name to matrixLabel
+            
             fc.f.name[li].chainNext      = headLabel;
+            fc.f.name[headLabel].multId  = f1.f.name[f1.f.name[op+o].name].multId;
             fc.f.name[headLabel].species = matrix;
-            division memoryLabel         = anotherLabel(&fc.f,all,two);
-            fc.f.name[headLabel].loopNext= memoryLabel;
-            fc.f.name[memoryLabel].name  = memoryLabel;
-            fc.f.name[headLabel].name    = memoryLabel;
-            fc.f.name[headLabel].multId  = id++;
-            fc.f.name[memoryLabel].Current[0] = 1;
-            fc.f.name[memoryLabel].species = matrix;
 
+            fc.f.name[headLabel].loopNext = matrixLabel;
+            fc.f.name[matrixLabel].name   = memoryLabel;
+            fc.f.name[memoryLabel].name   = memoryLabel;
+            fc.f.name[memoryLabel].Current[0] = 1;
+            fc.f.name[matrixLabel].species = matrix;
 
             for ( j = 0; j < OV ; j++){
                 tHX(rank, f1.f, f1.f.name[op+o].name, l, 0, 1.,f1.f.user+j, 0, 0, copyVector, 0, 0);
@@ -258,8 +258,9 @@ inta iterateOcsb(  calculation *c1,   field f1){
             }
         }
         fc.f.name[li].linkNext = anotherLabel(&fc.f,0,nada);
-        fc.f.name[li].species = matrix;
         li = fc.f.name[li].linkNext;
+        fc.f.name[li].species = matrix;
+
     }
     
     for ( e = 0 ; e < EV ; e++){

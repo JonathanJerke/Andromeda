@@ -705,15 +705,6 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
         ///all equal-beta chained Ops will multiply on each beta index. i.e. H2+
         currChain = newLabel;
         currLoop = currChain;
-        for ( space = 0 ;space < SPACE  ; space++)
-            if ( f1.canon[space].body != nada ){
-                f1.name[newLabel].space[space].act = act;
-
-                if ( f1.canon[space].label == particle1 ){
-                f1.name[newLabel].space[space].body = body;
-                f1.name[newLabel].space[space].block = bl;
-            }
-        }
     for ( hidden = eikonDiagonal ; hidden <= eikonDiagonal + imin(body,metric.fn.contr);hidden++ )
             {
                 double oneOri,twoOri;
@@ -794,7 +785,17 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                     invertSign = 0;
 
                 }
+                
+                
                 newLabel = anotherLabel(f,particle1,body);
+                for ( space = 0 ;space < SPACE  ; space++)
+                    if ( f1.canon[space].body != nada ){
+                        f1.name[newLabel].space[space].act = act;
+                        if ( f1.canon[space].label == particle1 ){
+                            f1.name[newLabel].space[space].body = body;
+                            f1.name[newLabel].space[space].block = bl;
+                        }
+                }
                 f1.name[temp].Current[0]= 1;
                 tEqua(f1, newLabel, 0, temp, 0);
                 f1.name[currLoop].loopNext = newLabel;
@@ -1286,14 +1287,14 @@ inta buildKinetic( calculation *c1, sinc_label *f1,double scalar,inta invert,int
             
                     for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
                         if ( f1->canon[spacy].body != nada){
-                            f1->name[headLabel].space[spacy].act = act;
+                            f1->name[memoryLabel].space[spacy].act = act;
                             if ( f1->canon[spacy].label == label && spacy == dim)
                                 {
-                                    f1->name[headLabel].space[spacy].body = one;
-                                    f1->name[headLabel].space[spacy].block = bl;
+                                    f1->name[memoryLabel].space[spacy].body = one;
+                                    f1->name[memoryLabel].space[spacy].block = bl;
                                     streams(*f1, memoryLabel, 0, spacy)[0] = -0.500*scalar;
                                 }else{
-                                        f1->name[headLabel].space[spacy].block = id0;
+                                        f1->name[memoryLabel].space[spacy].block = id0;
                                 }
                     
                         }
@@ -1347,13 +1348,13 @@ inta buildConstant(  calculation *c1,   sinc_label *f1,double scalar,inta invert
         if ( f1->canon[space].body != nada){
             if ( f1->canon[space].label == label)
                 {
-                    f1->name[headLabel].space[space].block = bl;
-                    f1->name[headLabel].space[space].act = act;
+                    f1->name[memoryLabel].space[space].block = bl;
+                    f1->name[memoryLabel].space[space].act = act;
                     streams(*f1, memoryLabel, 0, space)[0] = scalar;//redundant and irrelevant.
                 }else
                 {
-                    f1->name[headLabel].space[space].block = id0;
-                    f1->name[headLabel].space[space].act = 1;
+                    f1->name[memoryLabel].space[space].block = id0;
+                    f1->name[memoryLabel].space[space].act = 1;
                 }
             }
     return 0;
@@ -1407,14 +1408,14 @@ inta buildLinear(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
                
                        for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
                            if ( f1->canon[spacy].body != nada){
-                               f1->name[headLabel].space[spacy].act = 1;//i think this is weak, but not concerning now...
+                               f1->name[memoryLabel].space[spacy].act = 1;//i think this is weak, but not concerning now...
                                if ( f1->canon[spacy].label == label && spacy == dim)
                                    {
-                                       f1->name[headLabel].space[spacy].body = one;
-                                       f1->name[headLabel].space[spacy].block = bl;
+                                       f1->name[memoryLabel].space[spacy].body = one;
+                                       f1->name[memoryLabel].space[spacy].block = bl;
                                        streams(*f1, memoryLabel, 0, spacy)[0] = scalar;
                                    }else{
-                                           f1->name[headLabel].space[spacy].block = id0;
+                                           f1->name[memoryLabel].space[spacy].block = id0;
                                    }
                        
                            }
@@ -1473,14 +1474,14 @@ inta buildDeriv(  calculation *c1,   sinc_label *f1,double scalar,inta invert,in
                        ///set term across basis
                        for (spacy = 0 ; spacy < SPACE ; spacy++)
                            if ( f1->canon[spacy].body != nada){
-                               f1->name[headLabel].space[spacy].act = 1;//i think this is weak, but not concerning now...
+                               f1->name[memoryLabel].space[spacy].act = 1;//i think this is weak, but not concerning now...
                                if ( f1->canon[spacy].label == label && spacy == dim)
                                    {
-                                       f1->name[headLabel].space[spacy].body = one;
-                                       f1->name[headLabel].space[spacy].block = bl;
+                                       f1->name[memoryLabel].space[spacy].body = one;
+                                       f1->name[memoryLabel].space[spacy].block = bl;
                                        streams(*f1, memoryLabel, 0, spacy)[0] = scalar;
                                    }else{
-                                           f1->name[headLabel].space[spacy].block = id0;
+                                           f1->name[memoryLabel].space[spacy].block = id0;
                                    }
                        
                            }
@@ -1536,15 +1537,15 @@ inta buildElement(  calculation *c1,   sinc_label *f1,double scalar,inta invert,
             f1->name[headLabel].space[space].act = act;
             if ( f1->canon[space].label == label)
                 {
-                    f1->name[headLabel].space[space].body = one;
+                    f1->name[memoryLabel].space[space].body = one;
 
                     streams(*f1, memoryLabel, 0, space)[0] = scalar;
-                    f1->name[headLabel].space[space].block = tv1;
-                    f1->name[headLabel].space[space].bra = bra;
-                    f1->name[headLabel].space[space].ket = ket;
+                    f1->name[memoryLabel].space[space].block = tv1;
+                    f1->name[memoryLabel].space[space].bra = bra;
+                    f1->name[memoryLabel].space[space].ket = ket;
                 }else
                 {
-                    f1->name[headLabel].space[space].block = id0;
+                    f1->name[memoryLabel].space[space].block = id0;
                 }
             }
 
@@ -1603,14 +1604,14 @@ inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
                
                        for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
                            if ( f1->canon[spacy].body != nada){
-                               f1->name[headLabel].space[spacy].act = act;
+                               f1->name[memoryLabel].space[spacy].act = act;
                                if ( f1->canon[spacy].label == label && spacy == dim)
                                    {
-                                       f1->name[headLabel].space[spacy].body = one;
-                                       f1->name[headLabel].space[spacy].block = bl;
+                                       f1->name[memoryLabel].space[spacy].body = one;
+                                       f1->name[memoryLabel].space[spacy].block = bl;
                                        streams(*f1, memoryLabel, 0, spacy)[0] = 0.500*scalar;
                                    }else{
-                                           f1->name[headLabel].space[spacy].block = id0;
+                                           f1->name[memoryLabel].space[spacy].block = id0;
                                    }
                        
                            }
@@ -1706,7 +1707,7 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
  */
 inta assignDiagonalMatrix(calculation *c1,   field *f, char * filename, division single){
     sinc_label * f1 = &f->f;
-    inta id=0,index = 0;
+    inta id=-10,index = 0;
     division li = single;
     while ( f1->name[li].chainNext != nullName)
         li =f1->name[li].chainNext;
@@ -1715,8 +1716,7 @@ inta assignDiagonalMatrix(calculation *c1,   field *f, char * filename, division
     headLabel = anotherLabel(f1,0,nada);
     f1->name[li].chainNext = headLabel;
     f1->name[headLabel].species = diagonalMatrix;
-    division memoryLabel = vectorDiagonalMatrix;
-    f1->name[headLabel].name = memoryLabel;
+    f1->name[headLabel].name = vectorDiagonalMatrix;
     f1->name[headLabel].multId = id++;
     tLoadEigenWeights(c1,*f,filename, &index, vectorDiagonalMatrix, 0);
     return 0;

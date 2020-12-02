@@ -582,7 +582,7 @@ inta alloc (   sinc_label f1 ,   division label ,inta space){
 //                return 1;
 //            }
             if (f1.name[name(f1,label)].space[space].body == one )
-                return outerVectorLen(f1, one, space);
+                return outerVectorLen(f1, two, space);
             else if (f1.name[name(f1,label)].space[space].body == two)
                 return outerVectorLen(f1, two, space);
         }
@@ -661,7 +661,7 @@ inta CanonicalRank(   sinc_label f1 ,   division label , inta spin ){
 inta CanonicalOperator( sinc_label f1, division label, inta spin ){
     inta rr = CanonicalRank(f1, name(f1,label), spin );
     inta found ;
-      division ll = f1.name[label].chainNext,zz;
+      division ll = f1.name[name(f1,label)].chainNext,zz;
     while ( ll != nullName ){
         zz = label;
         found = 0;
@@ -1259,7 +1259,7 @@ inta tAddTwo(   sinc_label f1 ,   division left ,   division right){
 }
 
 
-division defSpiralMatrix(   sinc_label *f1, division H){
+division defSpiralMatrix( sinc_label *f1, division H){
     
     division pt = H,buf,prev=0,spiral=0;
     inta term = 0;

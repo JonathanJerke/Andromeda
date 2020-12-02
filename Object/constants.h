@@ -149,6 +149,10 @@ enum particleType{
     all
 };
 
+
+
+
+
 /**
  *Command run by job
  */
@@ -316,6 +320,22 @@ enum metricType {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  *Enumerate memory controls
  *
@@ -455,24 +475,6 @@ enum blockMemoryType{
 ///D
 ///filter 3
 ///block 3,4,5,7,9
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -788,7 +790,7 @@ struct runTime {
 struct space_label{
     ///actual memory address of allocated named element, or buffer,
     ADDRESS_TYPE Address;
-    ///when not vector, it will allocate based on this parameter
+    ///when not vector, it will allocate based on this parameter, unless its an eikon
     bodyType body;
     ///the type/address of the interaction iff a matrix
     blockType block;

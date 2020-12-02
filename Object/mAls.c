@@ -829,7 +829,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
         }
         
         me = pMatrixElement( f1, vector, 0, op+o, 0, vector,0);
-        cr = CanonicalOperator(f1, f1.name[op+o].name, 0);
+        cr = CanonicalOperator(f1, op+o, 0);
         scr += cr;
         printf("\t(%d)\t%6.6f\n", cr,creal(me/ov));
         fflush(stdout);
@@ -882,7 +882,7 @@ double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin, 
     if (mat == nullOverlap  )
         ca = 1;
     else if ( f1.name[mat].species == matrix || f1.name[mat].species == vector )
-        ca = CanonicalOperator(f1,f1.name[mat].name, mspin);
+        ca = CanonicalOperator(f1,mat, mspin);
     else
         return 0.;
     
@@ -951,7 +951,7 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
     f1.name[canonicalmvVector].Current[rank] = 0;
     f1.name[canonicalmv2Vector].Current[rank] = 1;
     f1.name[canonicalmv3Vector].Current[rank] = 0;
-    if ( species(f1,left )== eikon && species(f1, right ) == vector ){
+    if ( species(f1,left ) >= eikon && species(f1, right ) == vector ){
         char  in,out;
             in = 1;
             out = 1;
@@ -963,30 +963,16 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
         outT = equals;
         outR = e;
         outS = espin;
-//        if ( in != 1 ){
-//           tPermuteOne(rank, f1, space, in, right, r, rspin, canonicalmvVector,0, rank);
-//           inT = canonicalmvVector;
-//           inR = 0;
-//           inS = rank;
-//        }
-//        if (out != 1 ){
-//            outT = canonicalmv2Vector;
-//            outR = 0;
-//            outS = rank;
-//        }
         
-          division midT = canonicalmv3Vector;
+        division midT = canonicalmv3Vector;
         inta midR = 0;
         inta midS = rank;
         
-          division laterT = canonicalmv3Vector;
+        division laterT = canonicalmv3Vector;
         inta laterR = 1;
         inta laterS = rank;
 
-        if ( species(f1,left) == eikon ){
-                //NOT id0
-                //only eikons show multiple SOP structures per output SOP canonical rank
-            
+        {
             
                 inta N1 = outerVectorLen(f1, one,space);
                 inta N2 = vectorLen(f1, space);
@@ -1003,52 +989,56 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
 #if VERBOSE
             printf("in %f %d\n", cblas_dnrm2(N2, inP, 1),N1);
 #endif
-                  division su = f1.name[left].loopNext;//direct summation per component!
+                division su = left;//direct summation per component!
                 inta timer = 0,xlxl=0;
                 while ( su != nullName ){
                     for ( i = 0 ; i < N2 ; i++){
                         laterP[i] = 0.;
                         midP[i] = 0.;
                     }
-                    switch(species(f1,su)){
-                        case eikonDiagonal:
-                        case eikonKinetic:
-                        case eikonConstant:
-                        case eikonDeriv:
-                        case eikonLinear:
-                        case eikonSpring:
-                        case eikonElement:
-                        case eikonOuter:
-                            xlxl = 1;
-                            break;
-                        case eikonSemiDiagonal:
-                            switch(Bodies(f1, left,space)){
-                                case one:
-                                    xlxl = 0;
+                    
+                    if ( f1.name[su].space[space].block == id0 )
+                        xlxl = 1;
+                    else
+                        switch(species(f1,su)){
+                            case eikonDiagonal:
+                            case eikonKinetic:
+                            case eikonConstant:
+                            case eikonDeriv:
+                            case eikonLinear:
+                            case eikonSpring:
+                            case eikonElement:
+                            case eikonOuter:
+                                xlxl = 1;
+                                break;
+                            case eikonSemiDiagonal:
+                                switch(Bodies(f1, su,space)){
+                                    case one:
+                                        xlxl = 0;
+                                        break;
+                                    case two:
+                                        xlxl = 4;
+                                        break;
+                                default:
                                     break;
-                                case two:
-                                    xlxl = 4;
-                                    break;
+
+                                }
+                                break;
+                            case eikonOffDiagonal:
+                                switch(Bodies(f1, su,space)){
+                                    case one:
+                                        xlxl = 2;
+                                        break;
+                                    case two:
+                                        xlxl = 4;
+                                        break;
+                                   default:
+                                       break;
+
+                                }
+                                break;
                             default:
                                 break;
-
-                            }
-                            break;
-                        case eikonOffDiagonal:
-                            switch(Bodies(f1, left,space)){
-                                case one:
-                                    xlxl = 2;
-                                    break;
-                                case two:
-                                    xlxl = 4;
-                                    break;
-                               default:
-                                   break;
-
-                            }
-                            break;
-                        default:
-                            break;
 
                     }
                     for ( timer = 0 ; timer < xlxl ; timer++){
@@ -1056,31 +1046,34 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                          ///the notion is to buffer on mid and accumlate on out
                         inta N3 = alloc(f1, su, space);
                         double * suP  = streams(f1, su , lspin, space)+l*N3;
-                    if ( Bodies ( f1,left,space) == one ){
-                         if ( species(f1,su) == eikonDeriv){
-                            flow *= *suP;
-                            topezOp(0,f1.canon[space].particle[f1.name[left].space[space].block].lattice, bd,f1.name[left].space[space].act,tv1, f1.name[left].space[space].block,N1,inP,1, laterP);
-                        } else
+                        if ( f1.name[su].space[space].block == id0 ){
+                            topezOp(0,0, bd,f1.name[su].space[space].act,tv1, tv1,N1,inP,0, laterP);
+                        }else
+                        if ( Bodies ( f1,su,space) == one ){
+                             if ( species(f1,su) == eikonDeriv){
+                                flow *= *suP;
+                                topezOp(0,f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,1, laterP);
+                            } else
                         if ( species(f1,su) == eikonKinetic ){
-                            flow *= *suP;
-                            topezOp(0, f1.canon[space].particle[f1.name[left].space[space].block].lattice, bd,f1.name[left].space[space].act,tv1, f1.name[left].space[space].block,N1,inP,2, laterP);
-                        }
+                                flow *= *suP;
+                                topezOp(0, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,2, laterP);
+                            }
                         else if ( species(f1,su) == eikonConstant){
                             ///action can happen!
                             flow *= *suP;
-                            topezOp(0,0, bd,f1.name[left].space[space].act,tv1, f1.name[left].space[space].block,N1,inP,0, laterP);
+                            topezOp(0,0, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,0, laterP);
                         }
                         else if ( species(f1,su) == eikonLinear){
                             flow *= *suP;
                             ///relative to grid only
-                            floata center = (f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[left].space[space].block].lattice;
-                            topezOp(center, f1.canon[space].particle[f1.name[left].space[space].block].lattice, bd,f1.name[left].space[space].act,tv1, f1.name[left].space[space].block,N1,inP,-1, laterP);
+                            floata center = (f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
+                            topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-1, laterP);
                         }
                         else if ( species(f1,su) == eikonSpring){
                             flow *= *suP;
                             ///relative to grid only
-                            floata center = 0.5* (f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[left].space[space].block].lattice;
-                            topezOp(center, f1.canon[space].particle[f1.name[left].space[space].block].lattice, bd,f1.name[left].space[space].act,tv1, f1.name[left].space[space].block,N1,inP,-2, laterP);
+                            floata center = 0.5* (f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
+                            topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-2, laterP);
 
                         }
                         else if ( species(f1,su) == eikonElement){
@@ -1090,13 +1083,13 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
 
                             ///not a spatial state, this is an electronic level... no permutations here...just dropout a vector.
 
-                            laterP[f1.name[left].space[space].bra] = inP[f1.name[left].space[space].ket];
+                            laterP[f1.name[su].space[space].bra] = inP[f1.name[su].space[space].ket];
 
                         }
                         else if ( species(f1,su) == eikonOuter){
                             inta n1[MAXBODY] ,ii,i;
-                            double su;
-                            switch(f1.name[left].space[space].block){
+                            double suX;
+                            switch(f1.name[su].space[space].block){
                                 case tv1:
                                     n1[0] = 1;
                                     n1[1] = N1;
@@ -1123,21 +1116,21 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                                     flow *= cblas_ddot(N1, inP, 1, suP, 1);
                                     break;
                                 case two:
-                                    su = 0.;
+                                    suX = 0.;
                                     for ( i = 0 ; i < N1 ; i++){
                                         cblas_dcopy(N1, suP, 1, laterP+i*n1[1], n1[0]);
-                                        su += cblas_ddot(N1, inP+i*n1[1], n1[0], suP, 1);
+                                        suX += cblas_ddot(N1, inP+i*n1[1], n1[0], suP, 1);
                                     }
-                                    flow *= su;
+                                    flow *= suX;
                                     break;
                                 case three:
-                                    su = 0.;
+                                    suX = 0.;
                                     for ( i = 0 ; i < N1 ; i++)
                                         for ( ii = 0 ; ii < N1 ; ii++){
                                             cblas_dcopy(N1, suP, 1, laterP+i*n1[1]+ii*n1[2], n1[0]);
-                                            su += cblas_ddot(N1, inP+i*n1[1]+ii*n1[2], n1[0], suP, 1);
+                                            suX += cblas_ddot(N1, inP+i*n1[1]+ii*n1[2], n1[0], suP, 1);
                                         }
-                                    flow *= su;
+                                    flow *= suX;
                                     break;
                                 default:
                                     break;
@@ -1148,45 +1141,45 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                         else
                         if ( species(f1,su) == eikonDiagonal ){
                             flow *= 1.;
-                            diagonalOp(bd,f1.name[left].space[space].act,tv1, f1.name[left].space[space].block,N1,inP, suP,laterP);
+                            diagonalOp(bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP, suP,laterP);
                         }else if ( species(f1,su) == eikonOffDiagonal ){
                             if ( timer == 0 ){
                                 flow *= -1;
-                                topezOp(0,1., bd,f1.name[left].space[space].act,tv1, f1.name[left].space[space].block,N1,inP,1, midP);
-                                diagonalOp(bd,f1.name[left].space[space].act,tv1, f1.name[left].space[space].block,N1,midP, suP,laterP);
+                                topezOp(0,1., bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,1, midP);
+                                diagonalOp(bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,midP, suP,laterP);
                             }
                             else if ( timer == 1 ){
                                 flow *= 1;
-                                diagonalOp(bd,f1.name[left].space[space].act,tv1, f1.name[left].space[space].block,N1,inP, suP,midP);
-                                topezOp(0,1., bd,f1.name[left].space[space].act,tv1, f1.name[left].space[space].block,N1,midP, 1,laterP);
+                                diagonalOp(bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP, suP,midP);
+                                topezOp(0,1., bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,midP, 1,laterP);
                             }
                     }
                 }
-                   else  if ( Bodies ( f1,left,space) == two ){
+                   else  if ( Bodies ( f1,su,space) == two ){
                        if ( species(f1,su) == eikonDiagonal ){
                             flow *= 1;
-                             diagonalOp(bd,f1.name[left].space[space].act,e12, f1.name[left].space[space].block,N1,inP, suP,laterP);
+                             diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,laterP);
                         }else if ( species(f1,su) == eikonSemiDiagonal ){
 
                             if ( timer == 0 ){
                                 flow *= -1;
 
-                                topezOp(0, 1, bd,f1.name[left].space[space].act,tv1, f1.name[left].space[space].block,N1,inP, 1,midP);
-                                diagonalOp(bd,f1.name[left].space[space].act,e12, f1.name[left].space[space].block,N1,midP, suP,laterP);
+                                topezOp(0, 1, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP, 1,midP);
+                                diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,midP, suP,laterP);
 
                            }
 
                             else if ( timer == 1 ){
                                 flow *= 1 ;
-                                topezOp(0,1, bd,f1.name[left].space[space].act,tv2, f1.name[left].space[space].block,N1,inP, 1,midP);
-                                diagonalOp(bd,f1.name[left].space[space].act,e12, f1.name[left].space[space].block,N1,midP, suP,laterP);
+                                topezOp(0,1, bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,inP, 1,midP);
+                                diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,midP, suP,laterP);
                                 
                             } else
                              if ( timer == 2 ){
                                 flow *= 1;
                                  
-                                 diagonalOp(bd,f1.name[left].space[space].act,e12, f1.name[left].space[space].block,N1,inP, suP,midP);
-                                 topezOp(0,1, bd,f1.name[left].space[space].act,tv1, f1.name[left].space[space].block,N1,midP, 1,laterP);
+                                 diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,midP);
+                                 topezOp(0,1, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,midP, 1,laterP);
 
                                  
                                  
@@ -1195,8 +1188,8 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                              else if ( timer == 3 ){
                                  flow *= -1 ;
                                  
-                                 diagonalOp(bd,f1.name[left].space[space].act,e12, f1.name[left].space[space].block,N1,inP, suP,midP);
-                                 topezOp(0,1, bd,f1.name[left].space[space].act,tv2, f1.name[left].space[space].block,N1,midP, 1,laterP);
+                                 diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,midP);
+                                 topezOp(0,1, bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,midP, 1,laterP);
 
                              }
                         }else
@@ -1204,39 +1197,39 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                             if ( timer == 0 ){
                             flow *= 1;
                             //A
-                                diagonalOp(bd,f1.name[left].space[space].act,e12, f1.name[left].space[space].block,N1,inP, suP,laterP);
-                                topezOp(0,1., bd,f1.name[left].space[space].act,tv1, f1.name[left].space[space].block,N1,laterP, 1,midP);
-                                topezOp(0,1., bd,f1.name[left].space[space].act,tv2, f1.name[left].space[space].block,N1,midP, 1,laterP);
+                                diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,laterP);
+                                topezOp(0,1., bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,laterP, 1,midP);
+                                topezOp(0,1., bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,midP, 1,laterP);
 
                             }
                         
                             else if ( timer == 1 ){
                                 flow *= 1 ;
-                                topezOp(0,1., bd,f1.name[left].space[space].act,tv1, f1.name[left].space[space].block,N1,inP, 1,laterP);
-                                topezOp(0,1., bd,f1.name[left].space[space].act,tv2, f1.name[left].space[space].block,N1,laterP, 1,midP);
-                                diagonalOp(bd,f1.name[left].space[space].act,e12, f1.name[left].space[space].block,N1,midP, suP,laterP);
+                                topezOp(0,1., bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP, 1,laterP);
+                                topezOp(0,1., bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,laterP, 1,midP);
+                                diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,midP, suP,laterP);
 
                             }
                             else if ( timer == 2){
                                 flow *= -1 ;
-                                topezOp(0,1., bd,f1.name[left].space[space].act       ,tv1, f1.name[left].space[space].block,N1,inP, 1,laterP);
-                                diagonalOp(bd,f1.name[left].space[space].act    ,e12, f1.name[left].space[space].block,N1,laterP, suP,midP);
-                                topezOp(0,1., bd         ,f1.name[left].space[space].act,tv2, f1.name[left].space[space].block,N1,midP, 1,laterP);
+                                topezOp(0,1., bd,f1.name[su].space[space].act       ,tv1, f1.name[su].space[space].block,N1,inP, 1,laterP);
+                                diagonalOp(bd,f1.name[su].space[space].act    ,e12, f1.name[su].space[space].block,N1,laterP, suP,midP);
+                                topezOp(0,1., bd         ,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,midP, 1,laterP);
 
                             } else if (timer ==3 ){
                                 flow *= -1;
-                                topezOp(0,1., bd,f1.name[left].space[space].act       ,tv2, f1.name[left].space[space].block,N1                                  ,inP,   1,laterP);
-                                diagonalOp(bd,f1.name[left].space[space].act    ,e12, f1.name[left].space[space].block,N1                                  ,laterP, suP,midP);
-                                topezOp(0,1., bd         ,f1.name[left].space[space].act,tv1, f1.name[left].space[space].block,N1  ,midP,  1,laterP);
+                                topezOp(0,1., bd,f1.name[su].space[space].act       ,tv2, f1.name[su].space[space].block,N1                                  ,inP,   1,laterP);
+                                diagonalOp(bd,f1.name[su].space[space].act    ,e12, f1.name[su].space[space].block,N1                                  ,laterP, suP,midP);
+                                topezOp(0,1., bd         ,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1  ,midP,  1,laterP);
 
                             }
                             }
                          }
-                        if ( f1.name[left].space[space].act < 0 ){
+                        if ( f1.name[su].space[space].act < 0 ){
 #if VERBOSE
                             printf("invert\n");
 #endif
-                            InvertOp(bd,-f1.name[left].space[space].act, N1, laterP, midP);
+                            InvertOp(bd,-f1.name[su].space[space].act, N1, laterP, midP);
                             cblas_daxpy(N2, flow, midP , 1, outP, 1);
                         }else {
                             cblas_daxpy(N2, flow, laterP, 1, outP, 1);
@@ -1248,24 +1241,24 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
         }
     }
         else{
+            if ( species(f1,left) == matrix && species(f1,right) == vector){
+                if ( bodies(f1,left) == bodies(f1,right))
+                {
+                    inta N1 = vectorLen(f1, space);
 
-        if ( bodies(f1,left) == bodies(f1,right))
-        {
-            inta N1 = vectorLen(f1, space);
+                        cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,
+                                streams(f1,left,lspin,space)+l*N1*N1, N1,
+                                streams(f1,right,rspin,space)+r*N1,1, 0.,
+                                streams(f1,equals,espin,space)+e*N1, 1  );
 
-                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,
-                        streams(f1,left,lspin,space)+l*N1*N1, N1,
-                        streams(f1,right,rspin,space)+r*N1,1, 0.,
-                        streams(f1,equals,espin,space)+e*N1, 1  );
-
-        }else if ( bodies(f1,left) < bodies(f1,right))
-        {
-            inta N1 = outerVectorLen(f1,bodies(f1,left),space);
-            inta N2 = vectorLen(f1, space);
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams(f1, left, lspin,space)+l*N1*N1,N1,streams(f1,right,rspin,space)+r*N2,N1,0.,streams(f1, equals, espin,space)+e*N2,N1);
-        }
+                }else if ( bodies(f1,left) < bodies(f1,right))
+                {
+                    inta N1 = outerVectorLen(f1,bodies(f1,left),space);
+                    inta N2 = vectorLen(f1, space);
+                        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams(f1, left, lspin,space)+l*N1*N1,N1,streams(f1,right,rspin,space)+r*N2,N1,0.,streams(f1, equals, espin,space)+e*N2,N1);
+                }
             
-            
+            }
         }
     
     return 0;
@@ -1507,12 +1500,7 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
                                         for ( dim = 0 ; dim < SPACE ; dim++)
                                             if ( f1.canon[dim].body != nada){
                                                 N2 = alloc(f1, out, dim);
-                                                if ( f1.name[xx].space[dim].block != id0 )
-                                                {
-                                                    tGEMV(rank, f1, dim,out,outRank,outSp, xx, lll, im,in, inRank,inSp);
-                                                }else{
-                                                    topezOp(0,0, Bodies(f1,in,dim),f1.name[xx].space[dim].act,tv1, tv1,outerVectorLen(f1, one,dim),streams(f1,in,inSp, dim)+inRank*N2,0, streams(f1,out,outSp, dim)+outRank*N2);
-                                                }
+                                                tGEMV(rank, f1, dim,out,outRank,outSp, f1.name[xx].loopNext, lll, im,in, inRank,inSp);
                                                 if ( flag ){
                                                     cblas_dscal(N2, prod, streams(f1,out,outSp, dim)+outRank*N2, 1);
                                                     flag = 0;
@@ -1605,7 +1593,6 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
     inta rank0 = 0 ,rank;
     mea co2,coi;
     inta ilr,Ll,sp2,Rr,im,l , k,targSpin;
-    division pt,Mat;
     
     if ( ! allowQ(f1.rt,blockTotalVectorBlock)){
         printf("blockTotalVectorBlock Allow!\n");
@@ -1618,7 +1605,6 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
         exit(0);
     }
     for ( targSpin = 0 ; targSpin < spins(f1, right ) ;targSpin++){
-        pt = left;
         zero(f1, totalVector, rank0);
         f1.name[totalVector].Current[rank0] =0;
 
@@ -1636,8 +1622,7 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
                 f1.name[totalVector].Current[rank0] = 0;
         }
          {
-            Mat = pt;
-            for ( im = 0; im < spins(f1, Mat ); im++)
+            for ( im = 0; im < spins(f1, left ); im++)
                 for ( sp2 = 0; sp2 < spins(f1,right); sp2++)
                 {
                     if (sp2 == 1)
@@ -1654,7 +1639,7 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
                         prod = cimag(co2 * coi ) ;
                     if ( fabs(prod) > f1.rt->THRESHOLD ){
                         Rr = CanonicalRank ( f1, right,sp2 );
-                        Ll = CanonicalOperator(f1, Mat, im);
+                        Ll = CanonicalOperator(f1, left, im);
                         inta su = f1.name[totalVector].Current[rank0];
                         
                         #ifdef OMP
@@ -1671,7 +1656,7 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
 
                                 l = ilr%Ll;
                                 k = ilr/Ll;
-                                tHX(rank, f1,Mat, l, im,prod, right, k, sp2,totalVector,ilr +su, rank0);
+                                tHX(rank, f1,left, l, im,prod, right, k, sp2,totalVector,ilr +su, rank0);
                             }
 #if VERBOSE
                         printf("'lambda' -> %d %d %d\n", su , su+Ll*Rr,part(f1, totalVector ));
