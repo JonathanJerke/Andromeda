@@ -208,7 +208,6 @@ inta iterateOcsb(  calculation *c1,   field f1){
     division op = defSpiralMatrix(&f1.f, Ha);
     inta o;
     inta id=0;
-    calculation cc = *c1;
     field fc = f1;
     for ( space = 0 ; space < SPACE ; space++)
         if ( f1.f.canon[space].body != nada ){
@@ -217,34 +216,44 @@ inta iterateOcsb(  calculation *c1,   field f1){
             fc.f.canon[space].basis       = StateBasisElement;
             fc.f.canon[space].body        = one;
         }
-    cc.i.termNumber = 0;
     fc.i.OpIndex = 0;
+    fc.i.files = 0;
+    fc.i.qFloor = EV*fc.i.Iterations;
+    fc.i.nStates = EV*fc.i.Iterations;
+    if ( OV < EV ){
+        printf("you need at least %d basis functions for %d functions\n",EV,EV);
+        exit(0);
+    }
+    
+    fc.i.filesVectorOperator = 0;
     iModel(c1,&fc);
     division li = Iterator;
     for (o = 0; f1.f.name[op+o].species == matrix ; o++){
         Ll = CanonicalOperator(f1.f, f1.f.name[op+o].name, 0);
         for ( l = 0; l < Ll ; l++){
-            
             while ( fc.f.name[li].chainNext != nullName )
                 li =fc.f.name[li].chainNext;
             division headLabel;
-            headLabel = anotherLabel(&fc.f,0,nada);
+            headLabel = anotherLabel(&fc.f,all,two);
             fc.f.name[li].chainNext = headLabel;
-            fc.f.name[headLabel].species = matrix;
-            division memoryLabel = anotherLabel(&fc.f,all,two);
-            fc.f.name[headLabel].name = memoryLabel;
+            fc.f.name[headLabel].species = vector;
+            fc.f.name[headLabel].name = headLabel;
             fc.f.name[headLabel].multId = id++;
-            fc.f.name[memoryLabel].Current[0] = 1;
-            
+            fc.f.name[headLabel].Current[0] = 1;
+
+
             for ( j = 0; j < OV ; j++){
                 tHX(rank, f1.f, f1.f.name[op+o].name, l, 0, 1.,f1.f.user+j, 0, 0, copyVector, 0, 0);
+                
                 for ( space = 0 ; space < SPACE ; space++)
                     if ( f1.f.canon[space].body != nada ){
-                        floata * pt = streams(fc.f,memoryLabel,0,space);
+                        floata * pt = streams(fc.f,headLabel,0,space);
                         for ( jj = 0; jj < OV ; jj++)
                             pt[j*OV+jj] = tDOT(rank, f1.f, space, CDT, copyVector, 0, 0, CDT, f1.f.user+jj, 0, 0);
                     }
             }
+            fc.f.name[headLabel].linkNext = anotherLabel(&fc.f,0,nada);
+            li = fc.f.name[headLabel].linkNext;
         }
     }
     
@@ -258,12 +267,14 @@ inta iterateOcsb(  calculation *c1,   field f1){
                         (pt+OV*r)[jj] = tDOT(rank, f1.f, space, CDT, eigenVectors+e, 0, 0, CDT, f1.f.user+jj, 0, 0);
                 }
         }
+        fc.f.name[eigenVectors+e].Current[0] = Rr;
     }
 
-    
+    inta iteration = 1;
     do {
         division OpSpiral = defSpiralMatrix(&fc.f, Iterator);
-        tHXpY(fc.f,eigenVectors,fc.f.name[OpSpiral].name,cc.i.shiftFlag,eigenVectors,fc.f.rt->TOLERANCE,fc.f.rt->relativeTOLERANCE,fc.f.rt->ALPHA,fc.f.rt->THRESHOLD,fc.f.rt->MAX_CYCLE,fc.f.rt->XCONDITION,  fc.f.name[eigenVectors].Partition,fc.f.rt->dynamic);
+        for ( e = 0 ; e < EV ; e++)
+            for (op = 0; fc.f.name[OpSpiral+op].species == matrix ; op++)        tHXpY(fc.f,eigenVectors+iteration*EV+e,fc.f.name[OpSpiral+op].name,op,eigenVectors+(iteration-1)*EV+e,fc.f.rt->TOLERANCE,fc.f.rt->relativeTOLERANCE,fc.f.rt->ALPHA,fc.f.rt->THRESHOLD,fc.f.rt->MAX_CYCLE,fc.f.rt->XCONDITION,  fc.f.name[eigenVectors].Partition,fc.f.rt->dynamic);
         tBuildMatrix(0 , fc.f,Ha, eigenVectors,EV);
         tSolveMatrix(1 , fc.f,f1.i.nStates, eigenVectors, EV, twoBodyRitz);
 
@@ -280,14 +291,15 @@ inta iterateOcsb(  calculation *c1,   field f1){
                 tScaleOne(fc.f, copyVector, 0, myStreams(fc.f, matrixHbuild, 0)[e*OV+g]);
                 tAddTw(fc.f, totalVector, 0, copyVector, 0);
             }
-            CanonicalRankDecomposition( fc.f, NULL, totalVector, 0, eigenVectors+e, 0, cc.rt.TOLERANCE, cc.rt.relativeTOLERANCE, cc.rt.ALPHA, cc.rt.THRESHOLD,cc.rt.MAX_CYCLE,cc.rt.XCONDITION, part(fc.f,eigenVectors),0 );
+            CanonicalRankDecomposition( fc.f, NULL, totalVector, 0, eigenVectors+e, 0, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, c1->rt.ALPHA, c1->rt.THRESHOLD,c1->rt.MAX_CYCLE,c1->rt.XCONDITION, part(fc.f,eigenVectors),0 );
             if ( fc.f.rt->dynamic > 0 ){
                 tEqua(fc.f, totalVector, 0, eigenVectors, 0);
-                CanonicalRankDecomposition( fc.f, NULL, totalVector, 0, eigenVectors, 0, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, cc.rt.ALPHA,  cc.rt.THRESHOLD,  cc.rt.MAX_CYCLE, cc.rt.XCONDITION, part(fc.f,eigenVectors),fc.f.rt->dynamic);
+                CanonicalRankDecomposition( fc.f, NULL, totalVector, 0, eigenVectors, 0, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, c1->rt.ALPHA,  c1->rt.THRESHOLD,  c1->rt.MAX_CYCLE, c1->rt.XCONDITION, part(fc.f,eigenVectors),fc.f.rt->dynamic);
             }
         }
         target = max(fc.f.rt->TOLERANCE, fc.f.rt->relativeTOLERANCE*curr);
-    } while(fabs(prev-curr)< target);
+        iteration++;
+    } while(fabs(prev-curr)< target && iteration < fc.i.Iterations );
 
     fModel(&f1.f);
     return 0;
