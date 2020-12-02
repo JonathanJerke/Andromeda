@@ -227,7 +227,7 @@ inta iterateOcsb(  calculation *c1,   field f1){
     
     fc.i.filesVectorOperator = 0;
     iModel(c1,&fc);
-    division li = Iterator;
+    division li = Ha;
     for (o = 0; f1.f.name[op+o].species == matrix ; o++){
         Ll = CanonicalOperator(f1.f, f1.f.name[op+o].name, 0);
         for ( l = 0; l < Ll ; l++){
@@ -237,10 +237,10 @@ inta iterateOcsb(  calculation *c1,   field f1){
             headLabel = anotherLabel(&fc.f,0,nada);
             fc.f.name[li].chainNext = headLabel;
             fc.f.name[headLabel].species = matrix;
-            division memoryLabel = anotherLabel(&fc.f,all,two);
-            fc.f.name[headLabel].name = memoryLabel;
-            fc.f.name[headLabel].multId = id++;
-            fc.f.name[headLabel].Current[0] = 1;
+            division memoryLabel         = anotherLabel(&fc.f,all,two);
+            fc.f.name[memoryLabel].name  = memoryLabel;
+            fc.f.name[headLabel].name    = memoryLabel;
+            fc.f.name[headLabel].multId  = id++;
             fc.f.name[memoryLabel].Current[0] = 1;
             fc.f.name[memoryLabel].species = matrix;
 
@@ -275,11 +275,11 @@ inta iterateOcsb(  calculation *c1,   field f1){
 
     inta iteration = 1;
     do {
-        division OpSpiral = defSpiralMatrix(&fc.f, Iterator);
+        division OpSpiral = defSpiralMatrix(&fc.f, Ha);
         for ( e = 0 ; e < EV ; e++)
             for (op = 0; fc.f.name[OpSpiral+op].species == matrix ; op++)        tHXpY(fc.f,eigenVectors+iteration*EV+e,fc.f.name[OpSpiral+op].name,op,eigenVectors+(iteration-1)*EV+e,fc.f.rt->TOLERANCE,fc.f.rt->relativeTOLERANCE,fc.f.rt->ALPHA,fc.f.rt->THRESHOLD,fc.f.rt->MAX_CYCLE,fc.f.rt->XCONDITION,  fc.f.name[eigenVectors].Partition,fc.f.rt->dynamic);
-        tBuildMatrix(0 , fc.f,Ha, eigenVectors,EV);
-        tSolveMatrix(1 , fc.f,f1.i.nStates, eigenVectors, EV, twoBodyRitz);
+        tBuildMatrix(0 , fc.f,Ha, eigenVectors,iteration*EV);
+        tSolveMatrix(1 , fc.f,f1.i.nStates, eigenVectors,iteration*EV, twoBodyRitz);
 
         prev = curr;
         curr = 0;
