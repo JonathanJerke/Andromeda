@@ -787,11 +787,11 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
                 f1.name[eik].species = eikon;
                 f1.name[mem].species = eikonOuter;
                 f1.name[mem].Current[0] = 1;
-                f1.name[eik].space[space].body = one;
+                f1.name[mem].space[space].body = one;
 
                 for ( spacer = 0; spacer < SPACE ;spacer++)
-                    f1.name[eik].space[spacer].block = id0;
-                f1.name[eik].space[space].block = (blockType)body;
+                    f1.name[mem].space[spacer].block = id0;
+                f1.name[mem].space[space].block = (blockType)body;
                 zero(f1 , mem,0);
             switch ( ed ){
                 case 0:
@@ -829,7 +829,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
         }
         
         me = pMatrixElement( f1, vector, 0, op+o, 0, vector,0);
-        cr = CanonicalOperator(f1, op+o, 0);
+        cr = CanonicalOperator( f1, op+o, 0);
         scr += cr;
         printf("\t(%d)\t%6.6f\n", cr,creal(me/ov));
         fflush(stdout);
