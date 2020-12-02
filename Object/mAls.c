@@ -1246,28 +1246,28 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                 }
                 
         }
-//        else{
-//
-//        if ( bodies(f1,left) == bodies(f1,right))
-//        {
-//            inta N1 = vectorLen(f1, space);
-//
-//                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,
-//                        streams( f1, left, lspin,space )+l*N1*N1, N1,
-//                        streams(f1, inT, inS,space)+inR*N1,1, 0.,
-//                        streams( f1, outT, outS,space2 )+outR*N1, 1  );
-//
-//        }else if ( bodies(f1,left) < bodies(f1,right))
-//        {
-//            inta N1 = outerVectorLen(f1,bodies(f1,left),space);
-//            inta N2 = vectorLen(f1, space);
-//                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams( f1, left, lspin,space )+l*N1*N1,N1,streams(f1, inT, inS,space)+inR*N2,N1, 0.,     streams( f1, outT, outS,space2)+outR*N2,N1);
-//        }
-//        }
-//        if (out != 1 ){
-//            tPermuteOne(rank, f1, space2, out, outT,outR,outS, equals, e,espin);
-//        }
     }
+        else{
+
+        if ( bodies(f1,left) == bodies(f1,right))
+        {
+            inta N1 = vectorLen(f1, space);
+
+                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,
+                        streams(f1,left,lspin,space)+l*N1*N1, N1,
+                        streams(f1,right,rspin,space)+r*N1,1, 0.,
+                        streams(f1,equals,espin,space)+e*N1, 1  );
+
+        }else if ( bodies(f1,left) < bodies(f1,right))
+        {
+            inta N1 = outerVectorLen(f1,bodies(f1,left),space);
+            inta N2 = vectorLen(f1, space);
+                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams(f1, left, lspin,space)+l*N1*N1,N1,streams(f1,right,rspin,space)+r*N2,N1,0.,streams(f1, equals, espin,space)+e*N2,N1);
+        }
+            
+            
+        }
+    
     return 0;
 }
 
