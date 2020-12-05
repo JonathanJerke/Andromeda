@@ -674,7 +674,7 @@ inta CanonicalOperator( sinc_label f1, division label, inta spin ){
             rr += CanonicalRank(f1, name(f1,ll), spin);//switch from product to addition!!!
         }
         
-        ll = f1.name[ll].chainNext;
+        ll = f1.name[name(f1,ll)].chainNext;
     }
     return rr;
 }

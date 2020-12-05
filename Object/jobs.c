@@ -38,9 +38,9 @@ inta foundationS(  calculation *c1,   field f1){
     floata va[25];
     if ( 1 ){
         iModel(c1,&f1);
-        for ( i = 0;i < 25 ; i++)
-            va[i] = tComponent(f1.f, Ha,1,i);
-         fModel(&f1.f);
+        tBoot(f1.f, eigenVectors, 0);
+        printExpectationValues(c1, f1.f, Ha, eigenVectors );
+        fModel(&f1.f);
     }
     return EV;
 }
@@ -193,6 +193,8 @@ inta iterateOcsb(  calculation *c1,   field f1){
     floata prev,curr=100,target;
     inta fi,space,Ll,rank=0,l,Rr,r,g;
     inta EV=0,OV=0,j,jj,e;
+    
+#ifndef APPLE
     f1.i.nStates = countLinesFromFile(c1,f1,0,&f1.i.iRank, &f1.i.xRank);
     f1.i.qFloor = countLinesFromFile(c1,f1,1,&f1.i.iRank, &f1.i.xRank);
 
@@ -204,7 +206,15 @@ inta iterateOcsb(  calculation *c1,   field f1){
     for ( fi =0 ; fi < f1.i.filesVectorOperator ; fi++){
         tLoadEigenWeights (c1,f1, f1.i.fileVectorOperator[fi],&OV, f1.f.user,0);
     }
-
+#else
+    f1.i.nStates = 1;
+    f1.i.qFloor = 1;
+    iModel(c1,&f1);
+    tBoot(f1.f, eigenVectors, 0);
+    tBoot(f1.f, f1.f.user, 0);
+    EV = 1;
+    OV = 1;
+#endif
     division op = defSpiralMatrix(&f1.f, Ha);
     inta o;
     field fc = f1;
@@ -217,6 +227,8 @@ inta iterateOcsb(  calculation *c1,   field f1){
         }
     fc.i.OpIndex = 0;
     fc.i.files = 0;
+    if ( fc.i.Iterations <= 0 )
+        exit(0);
     fc.i.qFloor = EV*fc.i.Iterations;
     fc.i.nStates = EV*fc.i.Iterations;
     if ( OV < EV ){
@@ -226,25 +238,29 @@ inta iterateOcsb(  calculation *c1,   field f1){
     
     fc.i.filesVectorOperator = 0;
     iModel(c1,&fc);
-    
-    division li = Iterator;
-    for (o = 0; f1.f.name[op+o].species == matrix ; o++){
-        Ll = CanonicalOperator(f1.f, op+o, 0);
-        for ( l = 0; l < Ll ; l++){
-            division headLabel,matrixLabel,memoryLabel;
-            headLabel = anotherLabel(&fc.f,0,nada);
-            matrixLabel = anotherLabel(&fc.f,0,nada);
-            memoryLabel = anotherLabel(&fc.f,all,two);//flowing in outer space, linked by name to matrixLabel
-            
-            fc.f.name[li].chainNext      = headLabel;
-            fc.f.name[headLabel].multId  = f1.f.name[f1.f.name[op+o].name].multId;
-            fc.f.name[headLabel].species = matrix;
+    division headLabel,matrixLabel,memoryLabel,rollingLabel,f1cp;
 
-            fc.f.name[headLabel].loopNext = matrixLabel;
-            fc.f.name[matrixLabel].name   = memoryLabel;
-            fc.f.name[memoryLabel].name   = memoryLabel;
-            fc.f.name[memoryLabel].Current[0] = 1;
+    division li = Iterator;
+    rollingLabel = li;
+    for (o = 0; f1.f.name[op+o].species == matrix ; o++){
+        headLabel = anotherLabel(&fc.f,0,nada);
+        fc.f.name[rollingLabel].linkNext = headLabel;
+        fc.f.name[headLabel].species = matrix;
+        rollingLabel = headLabel;
+        Ll = CanonicalOperator(f1.f, op+o, 0);
+        f1cp = f1.f.name[op+o].name;
+        for ( l = 0; l < Ll ; l++){
+            matrixLabel = anotherLabel(&fc.f,0,nada);
+            memoryLabel = anotherLabel(&fc.f,all,two);
+            
+            fc.f.name[rollingLabel].chainNext = matrixLabel;
+            fc.f.name[matrixLabel].multId  = f1.f.name[f1cp].multId;
+            f1cp = f1.f.name[f1cp].chainNext;
             fc.f.name[matrixLabel].species = matrix;
+            fc.f.name[matrixLabel].loopNext = memoryLabel;
+            
+            fc.f.name[matrixLabel].Current[0] = 1;
+            fc.f.name[memoryLabel].Current[0] = 1;
 
             for ( j = 0; j < OV ; j++){
                 tHX(rank, f1.f, f1.f.name[op+o].name, l, 0, 1.,f1.f.user+j, 0, 0, copyVector, 0, 0);
@@ -256,11 +272,8 @@ inta iterateOcsb(  calculation *c1,   field f1){
                             pt[j*OV+jj] = tDOT(rank, f1.f, space, CDT, copyVector, 0, 0, CDT, f1.f.user+jj, 0, 0);
                     }
             }
+            rollingLabel = matrixLabel;
         }
-        fc.f.name[li].linkNext = anotherLabel(&fc.f,0,nada);
-        li = fc.f.name[li].linkNext;
-        fc.f.name[li].species = matrix;
-
     }
     
     for ( e = 0 ; e < EV ; e++){
@@ -281,7 +294,8 @@ inta iterateOcsb(  calculation *c1,   field f1){
 
     do {
         for ( e = 0 ; e < EV ; e++)
-            for (op = 0; fc.f.name[OpSpiral+op].species == matrix ; op++)        tHXpY(fc.f,eigenVectors+iteration*EV+e,fc.f.name[OpSpiral+op].name,op,eigenVectors+(iteration-1)*EV+e,fc.f.rt->TOLERANCE,fc.f.rt->relativeTOLERANCE,fc.f.rt->ALPHA,fc.f.rt->THRESHOLD,fc.f.rt->MAX_CYCLE,fc.f.rt->XCONDITION,  fc.f.name[eigenVectors].Partition,fc.f.rt->dynamic);
+            for (op = 0; fc.f.name[OpSpiral+op].species == matrix ; op++)
+                tHXpY(fc.f,eigenVectors+iteration*EV+e,fc.f.name[OpSpiral+op].name,op,eigenVectors+(iteration-1)*EV+e,fc.f.rt->TOLERANCE,fc.f.rt->relativeTOLERANCE,fc.f.rt->ALPHA,fc.f.rt->THRESHOLD,fc.f.rt->MAX_CYCLE,fc.f.rt->XCONDITION,  fc.f.name[eigenVectors].Partition,fc.f.rt->dynamic);
         tBuildMatrix(0 , fc.f,Ha, eigenVectors,iteration*EV);
         tSolveMatrix(1 , fc.f,f1.i.nStates, eigenVectors,iteration*EV, twoBodyRitz);
 
