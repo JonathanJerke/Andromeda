@@ -359,11 +359,20 @@ inta iterateOcsb(  calculation *c1,   field f1){
                 tEqua(fc.f, totalVector, 0, eigenVectors, 0);
                 CanonicalRankDecomposition( fc.f, NULL, totalVector, 0, eigenVectors, 0, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, c1->rt.ALPHA,  c1->rt.THRESHOLD,  c1->rt.MAX_CYCLE, c1->rt.XCONDITION, part(fc.f,eigenVectors),fc.f.rt->dynamic);
             }
+            {
+                floata norm = sqrt(pMatrixElement(fc.f, eigenVectors +e,0,nullOverlap,0,eigenVectors +e,0));
+                if ( norm > c1->rt.THRESHOLD ){
+                    printf("for multiply, Normed from %f\n", norm );
+                    fflush(stdout);
+                    tScaleOne(fc.f, eigenVectors+e, 0, 1./norm);
+                }
+            }
         }
         target = max(fc.f.rt->TOLERANCE, fc.f.rt->relativeTOLERANCE*curr);
         iteration++;
     } while(fabs(prev-curr)>target && iteration < fc.i.Iterations );
 
+    //print(c1, f1, 1, 1, division eigenVectors)
     fModel(&f1.f);
     return 0;
 }
