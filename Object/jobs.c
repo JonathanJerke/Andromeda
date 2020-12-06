@@ -208,12 +208,15 @@ inta iterateOcsb(  calculation *c1,   field f1){
     }
 #else
     f1.i.nStates = 1;
-    f1.i.qFloor = 1;
+    f1.i.qFloor = 2;
     iModel(c1,&f1);
     tBoot(f1.f, eigenVectors, 0);
+
     tBoot(f1.f, f1.f.user, 0);
+    tId(f1.f, f1.f.user+1, 0);
+
     EV = 1;
-    OV = 1;
+    OV = 2;
 #endif
     division op = defSpiralMatrix(&f1.f, Ha);
     inta o;
@@ -225,11 +228,12 @@ inta iterateOcsb(  calculation *c1,   field f1){
             fc.f.canon[space].basis       = StateBasisElement;
             fc.f.canon[space].body        = one;
         }
+    fc.i.nStates = 6;
     fc.i.OpIndex = 0;
     fc.i.files = 0;
     if ( fc.i.Iterations <= 0 )
         exit(0);
-    fc.i.qFloor = EV*fc.i.Iterations;
+    fc.i.qFloor = 0;
     fc.i.nStates = EV*fc.i.Iterations;
     if ( OV < EV ){
         printf("you need at least %d basis functions for %d functions\n",EV,EV);
@@ -238,29 +242,32 @@ inta iterateOcsb(  calculation *c1,   field f1){
     
     fc.i.filesVectorOperator = 0;
     iModel(c1,&fc);
-    division headLabel,matrixLabel,memoryLabel,rollingLabel,f1cp;
-
-    division li = Iterator;
-    rollingLabel = li;
+    division headLabel,matrixLabel,memoryLabel,F1;
+    headLabel = Iterator;
     for (o = 0; f1.f.name[op+o].species == matrix ; o++){
-        headLabel = anotherLabel(&fc.f,0,nada);
-        fc.f.name[rollingLabel].linkNext = headLabel;
+        fc.f.name[headLabel].linkNext = anotherLabel(&fc.f,0,nada);
+        headLabel = fc.f.name[headLabel].linkNext;
+
         fc.f.name[headLabel].species = matrix;
-        rollingLabel = headLabel;
         Ll = CanonicalOperator(f1.f, op+o, 0);
-        f1cp = f1.f.name[op+o].name;
+        F1 = name(f1.f,op+o);
+        F1 = f1.f.name[F1].chainNext;///remove preamble
+        matrixLabel = headLabel;
         for ( l = 0; l < Ll ; l++){
-            matrixLabel = anotherLabel(&fc.f,0,nada);
+
+            fc.f.name[matrixLabel].chainNext = anotherLabel(&fc.f,0,nada);
+            matrixLabel = fc.f.name[matrixLabel].chainNext;
             memoryLabel = anotherLabel(&fc.f,all,two);
-            
-            fc.f.name[rollingLabel].chainNext = matrixLabel;
-            fc.f.name[matrixLabel].multId  = f1.f.name[f1cp].multId;
-            f1cp = f1.f.name[f1cp].chainNext;
+            fc.f.name[matrixLabel].multId  = f1.f.name[F1].multId;
+            F1 = f1.f.name[F1].chainNext;
             fc.f.name[matrixLabel].species = matrix;
             fc.f.name[matrixLabel].loopNext = memoryLabel;
-            
             fc.f.name[matrixLabel].Current[0] = 1;
             fc.f.name[memoryLabel].Current[0] = 1;
+            fc.f.name[memoryLabel].species = matrix;
+            for ( space = 0 ; space < SPACE ; space++)
+                if ( f1.f.canon[space].body != nada )
+                    fc.f.name[memoryLabel].space[space].body =one ;
 
             for ( j = 0; j < OV ; j++){
                 tHX(rank, f1.f, f1.f.name[op+o].name, l, 0, 1.,f1.f.user+j, 0, 0, copyVector, 0, 0);
@@ -268,13 +275,44 @@ inta iterateOcsb(  calculation *c1,   field f1){
                 for ( space = 0 ; space < SPACE ; space++)
                     if ( f1.f.canon[space].body != nada ){
                         floata * pt = streams(fc.f,memoryLabel,0,space);
-                        for ( jj = 0; jj < OV ; jj++)
+                        for ( jj = 0; jj < OV ; jj++){
                             pt[j*OV+jj] = tDOT(rank, f1.f, space, CDT, copyVector, 0, 0, CDT, f1.f.user+jj, 0, 0);
+                        }
                     }
-            }
-            rollingLabel = matrixLabel;
+            }            
         }
     }
+    headLabel = overlap;
+    {
+            fc.f.name[headLabel].species = matrix;
+            matrixLabel = headLabel;
+            {
+                fc.f.name[matrixLabel].chainNext = anotherLabel(&fc.f,0,nada);
+                matrixLabel = fc.f.name[matrixLabel].chainNext;
+                memoryLabel = anotherLabel(&fc.f,all,two);
+                fc.f.name[matrixLabel].multId  = 0;
+                fc.f.name[matrixLabel].species = matrix;
+                fc.f.name[matrixLabel].loopNext = memoryLabel;
+                fc.f.name[matrixLabel].Current[0] = 1;
+                fc.f.name[memoryLabel].Current[0] = 1;
+                fc.f.name[memoryLabel].species = matrix;
+                for ( space = 0 ; space < SPACE ; space++)
+                    if ( f1.f.canon[space].body != nada )
+                        fc.f.name[memoryLabel].space[space].body =one ;
+
+                for ( j = 0; j < OV ; j++){
+                    for ( space = 0 ; space < SPACE ; space++)
+                        if ( f1.f.canon[space].body != nada ){
+                            floata * pt = streams(fc.f,memoryLabel,0,space);
+                            for ( jj = 0; jj < OV ; jj++){
+                                pt[j*OV+jj] = tDOT(rank, f1.f, space, CDT, f1.f.user+j, 0, 0, CDT, f1.f.user+jj, 0, 0);
+                            }
+                        }
+                }
+            }
+    }
+    
+    
     
     for ( e = 0 ; e < EV ; e++){
         Rr = CanonicalRank(f1.f, eigenVectors+e, 0);
@@ -282,8 +320,9 @@ inta iterateOcsb(  calculation *c1,   field f1){
             for ( space = 0 ; space < SPACE ; space++)
                 if ( f1.f.canon[space].body != nada ){
                     floata * pt = streams(fc.f,eigenVectors+e,0,space);
-                    for ( jj = 0; jj < OV ; jj++)
+                    for ( jj = 0; jj < OV ; jj++){
                         (pt+OV*r)[jj] = tDOT(rank, f1.f, space, CDT, eigenVectors+e, 0, 0, CDT, f1.f.user+jj, 0, 0);
+                    }
                 }
         }
         fc.f.name[eigenVectors+e].Current[0] = Rr;
@@ -293,11 +332,14 @@ inta iterateOcsb(  calculation *c1,   field f1){
     division OpSpiral = defSpiralMatrix(&fc.f, Ha);
 
     do {
-        for ( e = 0 ; e < EV ; e++)
-            for (op = 0; fc.f.name[OpSpiral+op].species == matrix ; op++)
-                tHXpY(fc.f,eigenVectors+iteration*EV+e,fc.f.name[OpSpiral+op].name,op,eigenVectors+(iteration-1)*EV+e,fc.f.rt->TOLERANCE,fc.f.rt->relativeTOLERANCE,fc.f.rt->ALPHA,fc.f.rt->THRESHOLD,fc.f.rt->MAX_CYCLE,fc.f.rt->XCONDITION,  fc.f.name[eigenVectors].Partition,fc.f.rt->dynamic);
-        tBuildMatrix(0 , fc.f,Ha, eigenVectors,iteration*EV);
-        tSolveMatrix(1 , fc.f,f1.i.nStates, eigenVectors,iteration*EV, twoBodyRitz);
+        for ( e = 0 ; e < EV ; e++){
+            for (o = 0; fc.f.name[OpSpiral+o].species == matrix ; o++){
+                tHXpY(fc.f,eigenVectors+iteration*EV+e,OpSpiral+o,o,eigenVectors+(iteration-1)*EV+e,fc.f.rt->TOLERANCE,fc.f.rt->relativeTOLERANCE,fc.f.rt->ALPHA,fc.f.rt->THRESHOLD,fc.f.rt->MAX_CYCLE,fc.f.rt->XCONDITION,  fc.f.name[eigenVectors].Partition,fc.f.rt->dynamic);
+            }
+        }
+                
+        tBuildMatrix(0 , fc.f,Ha,overlap, eigenVectors,(iteration+1)*EV);
+        tSolveMatrix(1 , fc.f,f1.i.nStates, eigenVectors,(iteration+1)*EV, twoBodyRitz);
 
         prev = curr;
         curr = 0;
@@ -320,7 +362,7 @@ inta iterateOcsb(  calculation *c1,   field f1){
         }
         target = max(fc.f.rt->TOLERANCE, fc.f.rt->relativeTOLERANCE*curr);
         iteration++;
-    } while(fabs(prev-curr)< target && iteration < fc.i.Iterations );
+    } while(fabs(prev-curr)>target && iteration < fc.i.Iterations );
 
     fModel(&f1.f);
     return 0;
@@ -609,7 +651,7 @@ inta ritz(   calculation * c1,   field f1){
     }
     inta stride = f1.f.maxEV;
     if(c1->i.build){
-        tBuildMatrix(0 , f1.f,Ha, f1.f.user,EV);
+        tBuildMatrix(0 , f1.f,Ha,nullOverlap, f1.f.user,EV);
             
         if ( f1.i.OpIndex != -1 ){
         //WRITE OUT V

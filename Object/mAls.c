@@ -806,7 +806,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
                     break;
             }
                 edge = pMatrixElement(f1, vector, 0, header, 0, vector,0);
-                printf("\t%d\t%d\t%s \t%1.15f\n", space+1,body,desc[ed], edge/ov);
+                printf("\t%d\t%d\t%s \t%1.12f\n", space+1,body,desc[ed], edge/ov);
             }
     }
         
@@ -829,18 +829,18 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
         }
         
         me = pMatrixElement( f1, vector, 0, op+o, 0, vector,0);
-        cr = CanonicalOperator( f1, op+o, 0);
+        cr = CanonicalOperator(f1, op+o, 0);
         scr += cr;
-        printf("\t(%d)\t%6.6f\n", cr,creal(me/ov));
+        printf("\t(%d)\t%6.12f\n", cr,creal(me/ov));
         fflush(stdout);
         totx += me/ov;
     }
     f1.name[vector].value.value = totx;
    {
 #ifdef COMPLEXME
-            printf("sum\t(%d)\t%6.6f\tI %6.6f\n",scr,creal(totx),cimag(totx));
+            printf("sum\t(%d)\t%6.12f\tI %6.6f\n",scr,creal(totx),cimag(totx));
 #else
-            printf("sum\t(%d)\t%6.6f\n",scr,(totx));
+            printf("sum\t(%d)\t%6.12f\n",scr,(totx));
 #endif
     }
         
@@ -867,7 +867,7 @@ double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin, 
     inta k,l,e,space;
     double prod,ME=0;
     inta ca;
-    
+    ///outputFormat(f1, stdout, bra, 0);
     if ( rank )
         if ( ! allowQ(f1.rt, blockParallelMatrixElementblock)){
             printf("blockParallelMatrixElementblock Allow!\n");
@@ -1438,19 +1438,17 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
                 exit(0);
             }
         }
-
-        
-        
-          division ll = f1.name[left].chainNext,xx,zz;
+        name_label x = f1.name[left];
+          division ll = f1.name[name(f1,left)].chainNext,xx,zz;
                     inta mi = 0,xi=0;
                     while ( ll != nullName){
                         //chain will tie various separate terms into a single entity
-                        zz = f1.name[left].chainNext;
+                        zz = f1.name[name(f1,left)].chainNext;
                         found = 0;
                         while ( zz != ll ){
                             if (f1.name[zz].multId == f1.name[ll].multId)
                                 found = 1;
-                            zz = f1.name[zz].chainNext;
+                            zz = f1.name[name(f1,zz)].chainNext;
                         }
                         if ( ! found ){
 
@@ -1526,13 +1524,13 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
 //                                                }
 //                                            }
                                         }
-                                    xx = f1.name[xx].chainNext;
+                                    xx = f1.name[name(f1,xx)].chainNext;
                                 }
                             }
                             mi += CanonicalRank(f1, ll, im);
 
                         }
-                        ll = f1.name[ll].chainNext;
+                        ll = f1.name[name(f1,ll)].chainNext;
 
                 }
         
@@ -1672,7 +1670,6 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
                     }
                 }
         };
-        
         if (  bra != totalVector){
             CanonicalRankDecomposition( f1,  NULL,totalVector, rank0, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle,maxCondition, canon,0);
             if ( X1 > 0 && canon > 1 ){
@@ -1681,6 +1678,7 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
             }
         }
     }
+
     return;
 }
 

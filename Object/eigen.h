@@ -34,7 +34,7 @@
 
 inta tSelect(  sinc_label  f1, inta Ve, inta type,   division usr,  inta testFlag);
 inta tFilter(  sinc_label  f1, inta Ve, inta type,   division usr);
-inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,    division usz, inta quantumBasisSize);
+inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A , division S,   division usz, inta quantumBasisSize);
 inta tSolveMatrix (inta typer,   sinc_label  f1,inta Ne,  division usz, inta quantumBasisSize,   division outputValues);
 floata tComponent( sinc_label f1, division hamiltonian, inta space, inta index);
 #endif /* eigen_h */

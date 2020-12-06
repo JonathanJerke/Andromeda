@@ -105,7 +105,9 @@
       i.f.canon[space].particle[three].attack = 0.5;
       i.f.canon[space].particle[three].lattice = lattice;
       i.f.canon[space].particle[three].origin = -basis/2*lattice ;
-
+      
+      
+      i.i.Iterations = 6;
 #endif
 //
 //
@@ -147,7 +149,7 @@
 #else
     i.i.OpIndex =-1;
     i.i.cmpl = real;
-    i.i.canonRank = 4;
+    i.i.canonRank = 1;
     i.i.iRank = 1;
     i.i.nStates = 1;
     i.i.qFloor = 
@@ -188,9 +190,9 @@ calculation initCal (void ) {
     i.i.atoms[2].Z = 1;
 
     resetA(&i.rt);
-    blockA(&i.rt, 3);
+    //blockA(&i.rt, 3);
     blockA(&i.rt, 4);
-    blockA(&i.rt, 5);
+   // blockA(&i.rt, 5);
     i.i.RAMmax = 6;
     i.i.Angstroms = 0;
     i.rt.TOLERANCE = 1e-3;
@@ -201,7 +203,7 @@ calculation initCal (void ) {
     i.rt.XCONDITION = 1e5;
     
     i.rt.calcType = electronicStuctureCalculation;
-    i.rt.phaseType = buildFoundation;
+    i.rt.phaseType = iterateOCSB;
     i.rt.calcType = electronicStuctureCalculation;
     i.i.lambda = 200 ;
     i.i.SymmetrizedGaussianLevel = 1;
@@ -228,8 +230,8 @@ calculation initCal (void ) {
     t.atom = 2;
     i.i.terms[1] = t;
     t.scalar = 1;
-    t.type = 9;
-    i.i.terms[2] = t;
+   // t.type = 9;
+   // i.i.terms[2] = t;
 
 #else
     i.i.RAMmax = 1;
@@ -327,7 +329,7 @@ inta iModel(   calculation * c1,   field *f){
     
         maxArray = imax(f->i.nStates,EV);//slip Nb into spectra...
         
-        f1->maxEV = EV;
+        f1->maxEV = maxArray;
           division vectorOperator  = eigenVectors + 1 +  f->i.nStates+EV;
         f1->vectorOperator = vectorOperator;
     {

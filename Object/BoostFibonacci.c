@@ -154,31 +154,29 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
     
     ///ADDITION END
 
+    floata * me;
+    me = myStreams(F1.f, CanonicalBuffers, 0);
+    inta M2[SPACE];
+    length(F1.f, totalVector, M2);
 
     {
-        floata * me;
-        me = myStreams(F1.f, CanonicalBuffers, 0);
+
         if ( part(F1.f,CanonicalBuffers) < G1*G1 ){
             printf("CanonicalBuffers1 \n");
             exit(0);
         }
            ///RENAME
-           division origin = totalVector;
-            
-           division alloy = eigenVectors;
            inta spin = 0,os = 0;
-           zero(F1.f,alloy,spin);
+           zero(F1.f,eigenVectors,spin);
 
            ///RENAME END
-        inta M2[SPACE];
-        length(F1.f, origin, M2);
 
     for ( g = 0 ; g < G1 ; g++){
         if ( G== nullName )
             G = anotherLabel(&F1.f, 0, nada);
         else
             anotherLabel(&F1.f, 0, nada);///will be in place
-        F1.f.name[G+g].name = origin;
+        F1.f.name[G+g].name = totalVector;
         F1.f.name[G+g].Partition = 1;
         for ( c = 0 ; c < MAX_CORE; c++){
             F1.f.name[G+g].Begin[c] = 0;
@@ -192,8 +190,8 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
             F1.f.name[G+g].chainNext =nullName;
 
     }
-       
-
+    }
+    {
        for ( ii= 0; ii < G1 ; ii++){
            me[ii]  = pMatrixElement( F1.f, G+ii, 0, nullOverlap, 0, G+ii, 0);
        }
@@ -206,7 +204,7 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
             if ( ii > iv ){
                 for ( space = 0; space < SPACE ; space++)
                     if ( F1.f.canon[space].body != nada){
-                        cblas_dcopy(M2[space], streams(F1.f,origin,os,space)+ii*M2[space], 1, streams(F1.f,origin,os,space)+iv*M2[space], 1);
+                        cblas_dcopy(M2[space], streams(F1.f,totalVector,os,space)+ii*M2[space], 1, streams(F1.f,totalVector,os,space)+iv*M2[space], 1);
                     }
             }
             iv++;
@@ -214,7 +212,7 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
         GG1 = G1;
         G1 = iv;
         
-        F1.f.name[origin].Current[os] = G1;
+        F1.f.name[totalVector].Current[os] = G1;
         if ( (G1 <= L1) && !X1 ){
             L1 = G1;
             #ifdef OMP
@@ -270,8 +268,8 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
                 }
                 iii[1][1][L1-1] = G1;
 
-                    F1.f.name[origin].Current[os] = G1;
-                    F1.f.name[alloy].Current[spin] = L1;
+                    F1.f.name[totalVector].Current[os] = G1;
+                    F1.f.name[eigenVectors].Current[spin] = L1;
                     inta nRun = L1;
                     
                     inta run,r2;
@@ -279,7 +277,7 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
                     while ( nRun > 0 ){
                         {
                             for ( r2 = 0; r2 < nRun; r2++ ){
-                                canonicalRankDecomposition(F1.f, coeff, G1,me, origin,iii[1][0][r2],iii[1][1][r2], os,nRun == L1,alloy, iii[0][0][r2],iii[0][1][r2],spin,tolerance, relativeTolerance,condition,maxCondition,maxCycle);
+                                canonicalRankDecomposition(F1.f, coeff, G1,me, totalVector,iii[1][0][r2],iii[1][1][r2], os,nRun == L1,eigenVectors, iii[0][0][r2],iii[0][1][r2],spin,tolerance, relativeTolerance,condition,maxCondition,maxCycle);
                             }
                         }
                         //merge
@@ -333,10 +331,10 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
         }else {
             
             ///assume you have already worked out decent solutions, now try to decompose them further...
-            F1.f.name[origin].Current[os] = G1;
-            F1.f.name[alloy].Current[spin] = L1;
+            F1.f.name[totalVector].Current[os] = G1;
+            F1.f.name[eigenVectors].Current[spin] = L1;
 
-            tEqua(F1.f, alloy, spin, origin, os);
+            tEqua(F1.f, eigenVectors, spin, totalVector, os);
 
             inta i,x1;
             floata target,Glen = 0.,curr;
@@ -347,17 +345,17 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
 #ifdef VERBOSE_ALS
                 printf("attempting to decompose to %d \n", L1-1);
 #endif
-                curr = canonicalRankDecomposition(F1.f, coeff, G1, me, origin, 0, G1, os, 0, alloy, 0, L1-1, spin, tolerance, relativeTolerance, condition, maxCondition, maxCycle);
+                curr = canonicalRankDecomposition(F1.f, coeff, G1, me, totalVector, 0, G1, os, 0, eigenVectors, 0, L1-1, spin, tolerance, relativeTolerance, condition, maxCondition, maxCycle);
                 target = max( tolerance , Glen*relativeTolerance );
                 if ( curr > target){
 #ifdef VERBOSE_ALS
                     printf("stop decomposing at %d above %f\n", L1, target);
 #endif
-                    canonicalRankDecomposition(F1.f, coeff, G1, me, origin, 0, G1, os, 0, alloy, 0, L1, spin, tolerance, relativeTolerance, condition, maxCondition, maxCycle);
+                    canonicalRankDecomposition(F1.f, coeff, G1, me, totalVector, 0, G1, os, 0, eigenVectors, 0, L1, spin, tolerance, relativeTolerance, condition, maxCondition, maxCycle);
                     break;
                 }
                 L1--;
-                F1.f.name[alloy].Current[spin] = L1;
+                F1.f.name[eigenVectors].Current[spin] = L1;
 #ifdef VERBOSE_ALS
                 printf("decomposed to %d \t %f \t %f\n", L1,curr,Glen);
 #endif

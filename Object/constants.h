@@ -511,7 +511,7 @@ enum division{
     bra7,
     bra8,
     bra9,
-    bra10,
+    overlap,
     Ha, 
     Iterator,
     printOperator,
