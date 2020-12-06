@@ -593,7 +593,6 @@ inta getInputOutput(  calculation * c,  field * f, const char * input_line ){
 
 inta getTermDefinitions(  calculation * c, const char * input_line ){
     static char filename[MAXSTRING];
-    strcpy(filename, "");
     static inta atom = 1;
     static inta embed = 0;
     static inta flagScalar = 0;
@@ -632,8 +631,8 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
         
         for( io = 1 ; io <= Nio ; io++){
             if ( strstr( input_line, list_IO [io])!=NULL){
-                if ( io <= 10 ){
                 sscanf(input_line,"%s %s", test_line,  input);
+                if ( io <= 10 ){
                     c->i.terms[c->i.termNumber].type = io;
                     c->i.terms[c->i.termNumber].act = act;
                     c->i.terms[c->i.termNumber].bl = bl;
@@ -646,6 +645,7 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                 c->i.terms[c->i.termNumber].bra = bra;
                 c->i.terms[c->i.termNumber].ket = ket;
                 sprintf( c->i.terms[c->i.termNumber].filename,"%s",filename);
+                    strcpy(c->i.terms[c->i.termNumber].filename,filename);
                 c->i.terms[c->i.termNumber].atom     = atom;
                 c->i.terms[c->i.termNumber].label = particle;
                     newTerm = 0;
