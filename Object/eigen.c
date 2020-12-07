@@ -150,7 +150,7 @@ inta tSelect(  sinc_label  f1, inta Ve, inta irrep,   division usr, inta testFla
 /**
  *Build Ritz Matrix Elements
 */
-inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A , division s,   division usz, inta quantumBasisSize){
+inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,   division usz, inta quantumBasisSize){
     inta in,prevBuild;
     inta rank;
     inta i,stride = f1.maxEV;
@@ -206,7 +206,7 @@ inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A , division s, 
                 m = in % quantumBasisSize;
                 n = (in/quantumBasisSize) % quantumBasisSize;
                 if ( m<=n ){
-                    S[n*stride+m] = tMatrixElements(rank, f1, usz+n,0, s, 0, usz+m, 0);
+                    S[n*stride+m] = tMatrixElements(rank, f1, usz+n,0, overlap, 0, usz+m, 0);
                 }
             }
           

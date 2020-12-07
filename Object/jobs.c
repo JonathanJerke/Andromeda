@@ -338,7 +338,7 @@ inta iterateOcsb(  calculation *c1,   field f1){
             }
         }
                 
-        tBuildMatrix(0 , fc.f,Ha,overlap, eigenVectors,(iteration+1)*EV);
+        tBuildMatrix(0 , fc.f,Ha, eigenVectors,(iteration+1)*EV);
         tSolveMatrix(1 , fc.f,f1.i.nStates, eigenVectors,(iteration+1)*EV, twoBodyRitz);
 
         prev = curr;
@@ -360,7 +360,7 @@ inta iterateOcsb(  calculation *c1,   field f1){
                 CanonicalRankDecomposition( fc.f, NULL, totalVector, 0, eigenVectors, 0, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, c1->rt.ALPHA,  c1->rt.THRESHOLD,  c1->rt.MAX_CYCLE, c1->rt.XCONDITION, part(fc.f,eigenVectors),fc.f.rt->dynamic);
             }
             {
-                floata norm = sqrt(pMatrixElement(fc.f, eigenVectors +e,0,nullOverlap,0,eigenVectors +e,0));
+                floata norm = sqrt(pMatrixElement(fc.f, eigenVectors +e,0,overlap,0,eigenVectors +e,0));
                 if ( norm > c1->rt.THRESHOLD ){
                     printf("for multiply, Normed from %f\n", norm );
                     fflush(stdout);
@@ -667,7 +667,7 @@ inta ritz(   calculation * c1,   field f1){
     }
     inta stride = f1.f.maxEV;
     if(c1->i.build){
-        tBuildMatrix(0 , f1.f,Ha,nullOverlap, f1.f.user,EV);
+        tBuildMatrix(0 , f1.f,Ha, f1.f.user,EV);
             
         if ( f1.i.OpIndex != -1 ){
         //WRITE OUT V

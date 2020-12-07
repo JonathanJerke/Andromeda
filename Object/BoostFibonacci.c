@@ -229,7 +229,7 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
     }
     {
        for ( ii= 0; ii < G1 ; ii++){
-           me[ii]  = pMatrixElement( F1.f, G+ii, 0, nullOverlap, 0, G+ii, 0);
+           me[ii]  = pMatrixElement( F1.f, G+ii, 0, overlap, 0, G+ii, 0);
        }
     
         
@@ -277,7 +277,7 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
         n = (ii/G1)%G1;
                         
         if ( m <= n ){
-            me[G1*n+m]  = pMatrixElement(F1.f, G+n, 0, nullOverlap, 0, G+m, 0);
+            me[G1*n+m]  = pMatrixElement(F1.f, G+n, 0, overlap, 0, G+m, 0);
             me[G1*m+n]  = me[G1*n+m];
         }
     }

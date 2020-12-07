@@ -891,7 +891,10 @@ double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin, 
             fflush(stdout);
             exit(0);
         }
-    
+    if ( mat == overlap){
+        if (f1.name[f1.name[overlap].chainNext].loopNext == nullName)
+            mat = nullOverlap;
+    }
     
     if ( mat == nullName || f1.name[mat].name == nullName)
         return 0.;
