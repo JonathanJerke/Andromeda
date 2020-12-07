@@ -118,11 +118,47 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
     c1.i.minIterationPrint =0;
     c1.i.Na = 0;
     c1.i.numNames = G1+1000;
-    c1.i.numVectors = 0;
+    c1.i.numVectors = 1;
     c1.i.RAMmax = 10000;
     c1.i.shiftFlag = 0;
     c1.i.termNumber = 0;
     iModel(&c1, &F1);
+    
+    division overlap1  = f0.name[f0.name[overlap].chainNext].loopNext;
+    if ( overlap1 != nullName ){
+        division headLabel,matrixLabel,memoryLabel;
+
+        headLabel = overlap;
+        {
+                F1.f.name[headLabel].species = matrix;
+                matrixLabel = headLabel;
+                {
+                    F1.f.name[matrixLabel].chainNext = anotherLabel(&F1.f,0,nada);
+                    matrixLabel = F1.f.name[matrixLabel].chainNext;
+                    memoryLabel = anotherLabel(&F1.f,all,two);
+                    F1.f.name[matrixLabel].multId  = 0;
+                    F1.f.name[matrixLabel].species = matrix;
+                    F1.f.name[matrixLabel].loopNext = memoryLabel;
+                    F1.f.name[matrixLabel].Current[0] = 1;
+                    F1.f.name[memoryLabel].Current[0] = 1;
+                    F1.f.name[memoryLabel].species = matrix;
+                    for ( space = 0 ; space < SPACE ; space++)
+                    if ( F1.f.canon[space].body != nada ){
+                            F1.f.name[memoryLabel].space[space].body =one ;
+                            cblas_dcopy(vectorLen(F1.f,space)*vectorLen(F1.f,space), streams(f0,overlap1,0,space), 1, streams(F1.f,memoryLabel,0,space), 1);
+                    }
+                }
+        }
+        
+        
+        
+        
+        
+    }
+    
+    
+    
+    
     
     if ( ! allowQ(F1.f.rt,blockTotalVectorBlock)){
         printf("blockTotalVectorBlock Allow!\n");

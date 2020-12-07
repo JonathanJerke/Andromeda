@@ -225,7 +225,7 @@ inta iterateOcsb(  calculation *c1,   field f1){
         if ( f1.f.canon[space].body != nada ){
             fc.f.canon[space].count1Basis = OV;
             fc.f.canon[space].count1Inc   = 0;
-            fc.f.canon[space].basis       = StateBasisElement;
+            fc.f.canon[space].basis       = overlapBasisElement;
             fc.f.canon[space].body        = one;
         }
     fc.i.nStates = 6;
@@ -297,7 +297,7 @@ inta iterateOcsb(  calculation *c1,   field f1){
                 fc.f.name[memoryLabel].Current[0] = 1;
                 fc.f.name[memoryLabel].species = matrix;
                 for ( space = 0 ; space < SPACE ; space++)
-                    if ( f1.f.canon[space].body != nada )
+                    if ( fc.f.canon[space].body != nada )
                         fc.f.name[memoryLabel].space[space].body =one ;
 
                 for ( j = 0; j < OV ; j++){
@@ -371,8 +371,15 @@ inta iterateOcsb(  calculation *c1,   field f1){
         target = max(fc.f.rt->TOLERANCE, fc.f.rt->relativeTOLERANCE*curr);
         iteration++;
     } while(fabs(prev-curr)>target && iteration < fc.i.Iterations );
-
-    //print(c1, f1, 1, 1, division eigenVectors)
+//    for ( e = 0 ; e < EV ;e++){
+//        inta r;
+//        for ( r = 0 ; r < CanonicalRank(fc.f, eigenVectors+e, 0); r++){
+//            cblas_dgemv(CblasColMajor, CblasNoTrans, N2, L1, 1.,band,N2,streams( fc.f, eigenVectors+e, 0,space )+r*,1, 0.,streams( f1.f, eigenVectors+e, 0,space)+r*N2,1);
+//        }
+//        
+//        print(c1, f1, !e, e+1, eigenVectors+e);
+//        
+//    }
     fModel(&f1.f);
     return 0;
 }

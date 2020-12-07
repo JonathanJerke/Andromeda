@@ -151,6 +151,7 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
     }
     
     inta dim0 = 0;
+    division overlap1  = f1.name[f1.name[overlap].chainNext].loopNext;
     
     floata *** originStream = malloc(SPACE * sizeof(floata**));
     floata *** alloyStream = malloc(SPACE * sizeof(floata**));
@@ -200,7 +201,8 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
     
         
         {
-            alloyStream[space] = malloc(L1*sizeof(floata*));
+            alloyStream[space] = malloc((L1+1)*sizeof(floata*));
+            alloyStream[space][L1] = streams(f1,canonicalVector,rank,space);//
 
             inta n,ni,nc;
             division nIter;
@@ -386,28 +388,32 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
             
                 inta m,n;
                 for ( m = 0; m < L1; m++){
-#if VERBOSE
-                    for ( l= 0 ; l < M2[space] ; l++)
-                        if (isnan (alloyStream[space][m][l] ) || isinf(alloyStream[space][m][l]))
-                            printf("alloy error\n");
-#endif
+                    array[space][ m*LS1 + m ]  = 1.;
+                    if ( f1.canon[space].basis == overlapBasisElement )
+                        cblas_dgemv(CblasColMajor, CblasNoTrans,L1,L1,1.,streams(f1,overlap1,0,space),L1,alloyStream[space][m],1, 0., alloyStream[space][L1],1);
+                    
                     if ( norm[space][m] == 0. )
                         printf("oops %d %d",space,m);
                     cblas_dscal(M2[space], 1./(norm[space][m]),alloyStream[space][m], 1);
                     array[space][ m*LS1 + m ]  = 1.;
+
+                    
                     for ( n = 0; n < m ; n++){
-                        array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][m],1);
+                        ///ADD OVERLAP MATRIX WITH NON-TRIVAL HEADER
+                        if ( f1.canon[space].basis == overlapBasisElement )
+                            array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][L1],1);
+                        else
+                            array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][m],1);
                         array[space][ m*LS1 + n ] = array[space][ n*LS1 + m ];
                     }
                     for ( n = 0; n < G1 ; n++){
-#if VERBOSE
-                            for ( l= 0 ; l < M2[space] ; l++)
-                                if (isnan (originStream[space][n][l] ) || isinf(originStream[space][n][l]))
-                                    printf("origin error\n");
-#endif
-                        array2[space][ n*LS1 + m ] = cblas_ddot(M2[space],originStream[space][n],1,alloyStream[space][m],1);
-                        
-                    }
+                        ///ADD OVERLAP MATRIX WITH NON-TRIVAL HEADER
+
+                        if ( f1.canon[space].basis == overlapBasisElement )
+                            array2[space][ n*LS1 + m ] = cblas_ddot(M2[space], originStream[space][n],1,alloyStream[space][L1],1);
+                        else
+                            array2[space][ n*LS1 + m ] = cblas_ddot(M2[space], originStream[space][n],1,alloyStream[space][m],1);
+                   }
                 }
             }
         }
@@ -721,12 +727,23 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
 #endif
                 for ( m = 0; m < L1; m++){
                         array[space][ m*LS1 + m ]  = 1.;
+                        if ( f1.canon[space].basis == overlapBasisElement )
+                            cblas_dgemv(CblasColMajor, CblasNoTrans,L1,L1,1.,streams(f1,overlap1,0,space),L1,alloyStream[space][m],1, 0., alloyStream[space][L1],1);
                         for ( n = 0; n < m ; n++){
-                            array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][m],1);
+                            ///ADD OVERLAP MATRIX WITH NON-TRIVAL HEADER
+                            if ( f1.canon[space].basis == overlapBasisElement )
+                                array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][L1],1);
+                            else
+                                array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][m],1);
                             array[space][ m*LS1 + n ] = array[space][ n*LS1 + m ];
                         }
                         for ( n = 0; n < G1 ; n++){
-                            array2[space][ n*LS1 + m ] = cblas_ddot(M2[space],originStream[space][n],1,alloyStream[space][m],1);
+                            ///ADD OVERLAP MATRIX WITH NON-TRIVAL HEADER
+
+                            if ( f1.canon[space].basis == overlapBasisElement )
+                                array2[space][ n*LS1 + m ] = cblas_ddot(M2[space], originStream[space][n],1,alloyStream[space][L1],1);
+                            else
+                                array2[space][ n*LS1 + m ] = cblas_ddot(M2[space], originStream[space][n],1,alloyStream[space][m],1);
                        }
                     }
                 }else {

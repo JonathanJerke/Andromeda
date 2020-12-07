@@ -279,7 +279,8 @@ enum basisElementType {
     SincBasisElement,
     GaussianBasisElement,
     DiracDeltaElement,
-    StateBasisElement
+    StateBasisElement,
+    overlapBasisElement
 };
 
 /**
