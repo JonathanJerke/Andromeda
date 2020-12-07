@@ -389,7 +389,7 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
                 inta m,n;
                 for ( m = 0; m < L1; m++){
                     array[space][ m*LS1 + m ]  = 1.;
-                    if ( f1.canon[space].basis == overlapBasisElement )
+                    if ( f1.canon[space].basis == overlapBasisElement && overlap1 != nullName)
                         cblas_dgemv(CblasColMajor, CblasNoTrans,L1,L1,1.,streams(f1,overlap1,0,space),L1,alloyStream[space][m],1, 0., alloyStream[space][L1],1);
                     
                     if ( norm[space][m] == 0. )
@@ -400,7 +400,7 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
                     
                     for ( n = 0; n < m ; n++){
                         ///ADD OVERLAP MATRIX WITH NON-TRIVAL HEADER
-                        if ( f1.canon[space].basis == overlapBasisElement )
+                        if ( f1.canon[space].basis == overlapBasisElement && overlap1 != nullName)
                             array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][L1],1);
                         else
                             array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][m],1);
@@ -727,11 +727,11 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
 #endif
                 for ( m = 0; m < L1; m++){
                         array[space][ m*LS1 + m ]  = 1.;
-                        if ( f1.canon[space].basis == overlapBasisElement )
+                        if ( f1.canon[space].basis == overlapBasisElement && overlap1 != nullName)
                             cblas_dgemv(CblasColMajor, CblasNoTrans,L1,L1,1.,streams(f1,overlap1,0,space),L1,alloyStream[space][m],1, 0., alloyStream[space][L1],1);
                         for ( n = 0; n < m ; n++){
                             ///ADD OVERLAP MATRIX WITH NON-TRIVAL HEADER
-                            if ( f1.canon[space].basis == overlapBasisElement )
+                            if ( f1.canon[space].basis == overlapBasisElement && overlap1 != nullName)
                                 array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][L1],1);
                             else
                                 array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][m],1);
@@ -740,7 +740,7 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
                         for ( n = 0; n < G1 ; n++){
                             ///ADD OVERLAP MATRIX WITH NON-TRIVAL HEADER
 
-                            if ( f1.canon[space].basis == overlapBasisElement )
+                            if ( f1.canon[space].basis == overlapBasisElement && overlap1 != nullName)
                                 array2[space][ n*LS1 + m ] = cblas_ddot(M2[space], originStream[space][n],1,alloyStream[space][L1],1);
                             else
                                 array2[space][ n*LS1 + m ] = cblas_ddot(M2[space], originStream[space][n],1,alloyStream[space][m],1);
