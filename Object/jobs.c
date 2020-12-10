@@ -378,32 +378,35 @@ inta iterateOcsb(  calculation *c1,   field f1){
         for ( e = 0; e < EV ; e++)
             curr += myStreams(fc.f, twoBodyRitz, 0)[e];
         
-        ///agnostic to number or structure of inputs...
-        for ( e = 0 ; e < EV ;e++){
-            tClear(fc.f, totalVector);
-            for( g = 0; g < (iteration+1)*EV ; g++){
-                tEqua(fc.f, copyVector, 0, eigenVectors+g, 0);
-                tScaleOne(fc.f, copyVector, 0, myStreams(fc.f, matrixHbuild, 0)[e*(iteration+1)*EV+g]);
-                tAddTw(fc.f, totalVector, 0, copyVector, 0);
-            }
-            CanonicalRankDecomposition( fc.f, NULL, totalVector, 0, eigenVectors+e, 0, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, c1->rt.ALPHA, c1->rt.THRESHOLD,c1->rt.MAX_CYCLE,c1->rt.XCONDITION, part(fc.f,eigenVectors),0 );
-            if ( fc.f.rt->dynamic > 0 ){
-                tEqua(fc.f, totalVector, 0, eigenVectors, 0);
-                CanonicalRankDecomposition( fc.f, NULL, totalVector, 0, eigenVectors, 0, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, c1->rt.ALPHA,  c1->rt.THRESHOLD,  c1->rt.MAX_CYCLE, c1->rt.XCONDITION, part(fc.f,eigenVectors),fc.f.rt->dynamic);
-            }
-            {
-                floata norm = sqrt(pMatrixElement(fc.f, eigenVectors +e,0,nullOverlap,0,eigenVectors +e,0));
-                if ( norm > c1->rt.THRESHOLD ){
-                    printf("for multiply, Normed from %f\n", norm );
-                    fflush(stdout);
-                    tScaleOne(fc.f, eigenVectors+e, 0, 1./norm);
-                }
-            }
-        }
         target = max(fc.f.rt->TOLERANCE, fc.f.rt->relativeTOLERANCE*curr);
         iteration++;
     } while(fabs(prev-curr)>target && iteration < fc.i.Iterations );
     
+    
+    ///agnostic to number or structure of inputs...
+    for ( e = 0 ; e < EV ;e++){
+        tClear(fc.f, totalVector);
+        for( g = 0; g < (iteration+1)*EV ; g++){
+            tEqua(fc.f, copyVector, 0, eigenVectors+g, 0);
+            tScaleOne(fc.f, copyVector, 0, myStreams(fc.f, matrixHbuild, 0)[e*fc.f.maxEV+g]);
+            tAddTw(fc.f, totalVector, 0, copyVector, 0);
+        }
+        CanonicalRankDecomposition( fc.f, NULL, totalVector, 0, eigenVectors+e, 0, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, c1->rt.ALPHA, c1->rt.THRESHOLD,c1->rt.MAX_CYCLE,c1->rt.XCONDITION, part(fc.f,eigenVectors),0 );
+        if ( fc.f.rt->dynamic > 0 ){
+            tEqua(fc.f, totalVector, 0, eigenVectors, 0);
+            CanonicalRankDecomposition( fc.f, NULL, totalVector, 0, eigenVectors+e, 0, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, c1->rt.ALPHA,  c1->rt.THRESHOLD,  c1->rt.MAX_CYCLE, c1->rt.XCONDITION, part(fc.f,eigenVectors),fc.f.rt->dynamic);
+        }
+        {
+            floata norm = sqrt(pMatrixElement(fc.f, eigenVectors +e,0,nullOverlap,0,eigenVectors +e,0));
+            if ( norm > c1->rt.THRESHOLD ){
+                printf("for multiply, Normed from %f\n", norm );
+                fflush(stdout);
+                tScaleOne(fc.f, eigenVectors+e, 0, 1./norm);
+            }
+        }
+    }
+    char name0[MAXSTRING];
+    strcmp(c1->name, name0);
     bufferLabel = anotherLabel(&fc.f,all,two);
     for ( e = 0 ; e < EV ;e++){
         zero(f1.f, eigenVectors+e, 0);
@@ -416,7 +419,8 @@ inta iterateOcsb(  calculation *c1,   field f1){
                         cblas_daxpy(vectorLen(f1.f, space), (streams(fc.f,bufferLabel,0,space))[ii], streams(f1.f,f1.f.user+ii,0,space), 1, streams(f1.f,eigenVectors+e,0,space)+r*vectorLen(f1.f, space), 1);
                 }
         f1.f.name[eigenVectors+e].Current[0] = CanonicalRank(fc.f, eigenVectors+e, 0);
-        print(c1, f1, !e, e, eigenVectors+e);
+        sprintf(c1->name,"%s-%d", name0,e+1);
+        print(c1, f1, 1, 0, eigenVectors+e);
     }
     fModel(&f1.f);
     return 0;

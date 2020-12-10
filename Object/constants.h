@@ -492,7 +492,6 @@ enum blockMemoryType{
 
 
 
-
 /**
  *Divisions define and indicate data.
  *Lined up with 500 so a division number can be easily read.
