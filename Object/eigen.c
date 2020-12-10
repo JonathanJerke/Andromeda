@@ -128,7 +128,7 @@ inta tSelect(  sinc_label  f1, inta Ve, inta irrep,   division usr, inta testFla
 #ifdef COMPLEXME
     complete = tzheev(0, f1, 'N', Ve+1,S, stride, ov);
 #else
-    complete = tdsyev(0,f1,'N',Ve+1,S,stride,ov);
+    complete = tdsyev(0,'N',Ve+1,S,stride,ov);
 #endif
     if ( complete ){
         printf("eigensolve of overlap failed\n");
@@ -206,7 +206,7 @@ inta tBuildMatrix (inta minusFlag,   sinc_label  f1,   division A ,   division u
                 m = in % quantumBasisSize;
                 n = (in/quantumBasisSize) % quantumBasisSize;
                 if ( m<=n ){
-                    S[n*stride+m] = tMatrixElements(rank, f1, usz+n,0, overlap, 0, usz+m, 0);
+                    S[n*stride+m] = tMatrixElements(rank, f1, usz+n,0, nullOverlap, 0, usz+m, 0);
                 }
             }
           

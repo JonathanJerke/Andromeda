@@ -86,7 +86,7 @@ inta tEnd(  sinc_label f1 ,   division label, inta spin , inta space1,   bodyTyp
 inta tPauli (   sinc_label f1  );
 inta tId (   sinc_label f1 ,   division label,inta spin );
 inta pBoot (   sinc_label *f1 ,   division label,inta spin );
-inta tBoot (   sinc_label f1 ,   division label,inta spin );
+inta tBoot (   sinc_label f1 ,   division label,inta spin ,floata scale);
 double vectorElement (  sinc_label f1,   division state, inta l1,inta l2 , inta l3 );
 double matrixElement (  sinc_label  f1,   division label, inta i , inta i2, inta j,inta j2, inta k , inta k2 );
 inta assignCores(  sinc_label  f1, inta parallel );

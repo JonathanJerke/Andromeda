@@ -79,7 +79,7 @@ void transpose(inta N, inta M, floata * orig, floata* targ){
 
 }
 
-inta tdsyev( inta rank,   sinc_label f1, char job , inta n, double * ar, inta ns , double * w ){
+inta tdsyev( inta rank, char job , inta n, double * ar, inta ns , double * w ){
     
     if ( n == 0 ||ns == 0 )
     {
@@ -91,8 +91,11 @@ inta tdsyev( inta rank,   sinc_label f1, char job , inta n, double * ar, inta ns
 #ifdef APPLE
 
     char charU = 'U';
-    inta info,lbuffer = part(f1, dsyBuffers);
-    dsyev_ ( &job, &charU, &n , ar , &ns , w , myStreams(f1, dsyBuffers,rank ), &lbuffer, &info );
+    inta lwork = 5 * n;
+    floata work [lwork];
+    
+    inta info;
+    dsyev_ ( &job, &charU, &n , ar , &ns , w , &work[0], &lwork, &info );
     return info;
 #else
     return LAPACKE_dsyev(LAPACK_COL_MAJOR, job, 'U', n, ar, ns , w);
@@ -128,8 +131,9 @@ inta tdsygv( inta rank,   sinc_label f1, char job , inta n, double * sr, double 
     inta type = 1;
     char charU = 'U';
 #ifdef APPLE
-    inta lbuffer = part(f1, dsyBuffers);
-    dsygv_(&type, &job, &charU,&n,sr,&ns,ar,&ns, w,myStreams(f1, dsyBuffers,rank ),&lbuffer, &info );
+    inta lbuffer = n*5;
+    double buffer [lbuffer];
+    dsygv_(&type, &job, &charU,&n,sr,&ns,ar,&ns, w,&buffer[0],&lbuffer, &info );
 #else
     info =  LAPACKE_dsygv(LAPACK_COL_MAJOR,1, job, 'U', n,sr,ns, ar, ns , w );
 #endif
@@ -270,7 +274,14 @@ inta tInverse(   sinc_label f1, inta n, double * ar){
 #ifndef APPLE
     info = LAPACKE_dgetrf(LAPACK_COL_MAJOR,n,n,ar,n,(inta*)myStreams(f1,dsyBuffers,0));
     info2 = LAPACKE_dgetri(LAPACK_COL_MAJOR,n,ar,n,(inta*)myStreams(f1,dsyBuffers,0));
+#else
+    inta z[n];
+    inta lwork = part(f1,dsyBuffers);
+    dgetrf_(&n, &n, ar, &n, z, &info);
+    dgetri_(&n, ar, &n, z, (floata*)myStreams(f1,dsyBuffers,0), &lwork, &info2);
 #endif
+    
+    
     return info+1000*info2;
 }
 
@@ -282,4 +293,23 @@ inta tzInverse(   sinc_label f1, inta n, DCOMPLEX * ar){
     info2 = LAPACKE_zgetri(LAPACK_COL_MAJOR,n,(DCOMPLEX_PRIME *)ar,n,(inta*)myStreams(f1,dsyBuffers,0));
 #endif
     return info+1000*info2;
+}
+
+inta tLowdin( inta n , double *ar, double *lowdinVec, double * lowdinMatrix ){
+    inta i;
+    double w[n];
+    tdsyev(0, 'V', n, ar, n, &w[0]);
+    if ( w[0] <= 0. ){
+        printf("non invertable overlap\n");
+        exit(0);
+    }
+    for ( i = 0 ; i < n*n; i++){
+        lowdinVec[i] = 0.;
+        lowdinMatrix[i] = 0.;
+    }
+    for ( i = 0 ; i < n ; i++){
+        cblas_dger(CblasColMajor, n,n, sqrt(w[i]) , ar+i*n,1, ar+i*n,1, lowdinVec,n);
+        cblas_dger(CblasColMajor, n,n, 1./sqrt(w[i]) , ar+i*n,1, ar+i*n,1, lowdinMatrix,n);
+    }
+    return 0;
 }

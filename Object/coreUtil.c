@@ -1735,7 +1735,7 @@ inta tReplace(   sinc_label f1 ,   division label,inta spin,inta space,inta l ){
     return 0;
 }
 
-inta tBoot (   sinc_label f1 ,   division label,inta spin ){
+inta tBoot (   sinc_label f1 ,   division label,inta spin,floata scale ){
     
     inta I1,I2,I3,space;
     inta Current ;
@@ -1757,7 +1757,7 @@ inta tBoot (   sinc_label f1 ,   division label,inta spin ){
             {
                             floata  * stream = streams(f1,label,spin,space)+Current*B1[space];
                                 for ( I2 = 0 ; I2 < B1[space] ; I2++){
-                                    stream[I2] = exp(-(I2-(B1[space]-1)/2)*(I2-(B1[space]-1)/2)*0.5);
+                                    stream[I2] = exp(-(I2-(B1[space]-1)/2)*(I2-(B1[space]-1)/2)*scale);
                                 }
                         }
                     }else
@@ -1767,7 +1767,7 @@ inta tBoot (   sinc_label f1 ,   division label,inta spin ){
                 floata  * stream = streams(f1,label,spin,space)+Current*B1[space];
                 for ( I1 = 0 ; I1< B1[space] ; I1++)
                     for ( I2 = 0 ; I2 < B1[space] ; I2++){
-                        stream[I1*B1[space]+I2] = exp(-(I1-(B1[space]-1)/2)*(I1-(B1[space]-1)/2)*0.5)*exp(-(I2-(B1[space]-1)/2)*(I2-(B1[space]-1)/2)*0.5);
+                        stream[I1*B1[space]+I2] = exp(-(I1-(B1[space]-1)/2)*(I1-(B1[space]-1)/2)*scale)*exp(-(I2-(B1[space]-1)/2)*(I2-(B1[space]-1)/2)*scale);
 //              if ( I1 < I2 )
 //                  stream[I1*B1[space]+I2]  *= -1;
 //                if ( I1 == I2 )
@@ -1785,7 +1785,7 @@ inta tBoot (   sinc_label f1 ,   division label,inta spin ){
                 for ( I1 = 0 ; I1< B1[space] ; I1++)
                     for ( I2 = 0 ; I2 < B1[space] ; I2++)
                         for ( I3 = 0 ; I3 < B1[space] ; I3++){
-                            stream[I3*B1[space]*B1[space]+I1*B1[space]+I2] = exp(-(I1-(B1[space]-1)/2)*(I1-(B1[space]-1)/2)*0.5)*exp(-(I2-(B1[space]-1)/2)*(I2-(B1[space]-1)/2)*0.5)*exp(-(I3-(B1[space]-1)/2)*(I3-(B1[space]-1)/2)*0.5);
+                            stream[I3*B1[space]*B1[space]+I1*B1[space]+I2] = exp(-(I1-(B1[space]-1)/2)*(I1-(B1[space]-1)/2)*scale)*exp(-(I2-(B1[space]-1)/2)*(I2-(B1[space]-1)/2)*scale)*exp(-(I3-(B1[space]-1)/2)*(I3-(B1[space]-1)/2)*scale);
                 }
             }
         }

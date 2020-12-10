@@ -38,7 +38,7 @@ inta foundationS(  calculation *c1,   field f1){
     floata va[25];
     if ( 1 ){
         iModel(c1,&f1);
-        tBoot(f1.f, eigenVectors, 0);
+        tBoot(f1.f, eigenVectors, 0,1.);
         printExpectationValues(c1, f1.f, Ha, eigenVectors );
         fModel(&f1.f);
     }
@@ -210,10 +210,10 @@ inta iterateOcsb(  calculation *c1,   field f1){
     f1.i.nStates = 1;
     f1.i.qFloor = 2;
     iModel(c1,&f1);
-    tBoot(f1.f, eigenVectors, 0);
+    tBoot(f1.f, eigenVectors, 0,1);
 
-    tBoot(f1.f, f1.f.user, 0);
-    tId(f1.f, f1.f.user+1, 0);
+    tBoot(f1.f, f1.f.user, 0,0.5);
+    tBoot(f1.f, f1.f.user+1, 0,4);
 
     EV = 1;
     OV = 2;
@@ -242,7 +242,60 @@ inta iterateOcsb(  calculation *c1,   field f1){
     
     fc.i.filesVectorOperator = 0;
     iModel(c1,&fc);
-    division headLabel,matrixLabel,memoryLabel,F1;
+    division headLabel,matrixLabel,memoryLabel,F1,bufferLabel;
+    
+    {///init lowdin transforms
+        headLabel = overlap;
+        {
+                fc.f.name[headLabel].loopNext = anotherLabel(&fc.f,all,two);
+                memoryLabel = fc.f.name[headLabel].loopNext;
+                fc.f.name[memoryLabel].Current[0] = 1;
+                fc.f.name[memoryLabel].species = matrix;
+                for ( space = 0 ; space < SPACE ; space++)
+                    if ( fc.f.canon[space].body != nada )
+                        fc.f.name[memoryLabel].space[space].body =one ;
+                for ( j = 0; j < OV ; j++){
+                    for ( space = 0 ; space < SPACE ; space++)
+                        if ( fc.f.canon[space].body != nada ){
+                            floata * pt = streams(fc.f,memoryLabel,0,space);
+                            for ( jj = 0; jj < OV ; jj++){
+                                pt[j*OV+jj] = tDOT(rank, f1.f, space, CDT, f1.f.user+j, 0, 0, CDT, f1.f.user+jj, 0, 0);
+                            }
+                        }
+                }
+                
+        }
+        headLabel = lowdinVec;
+        {
+                fc.f.name[headLabel].loopNext = anotherLabel(&fc.f,all,two);
+                memoryLabel = fc.f.name[headLabel].loopNext;
+                fc.f.name[memoryLabel].Current[0] = 1;
+                fc.f.name[memoryLabel].species = matrix;
+                for ( space = 0 ; space < SPACE ; space++)
+                    if ( fc.f.canon[space].body != nada )
+                        fc.f.name[memoryLabel].space[space].body =one ;
+        }
+        headLabel = lowdinMatrix;
+        {
+                fc.f.name[headLabel].loopNext = anotherLabel(&fc.f,all,two);
+                memoryLabel = fc.f.name[headLabel].loopNext;
+                fc.f.name[memoryLabel].Current[0] = 1;
+                fc.f.name[memoryLabel].species = matrix;
+                for ( space = 0 ; space < SPACE ; space++)
+                    if ( fc.f.canon[space].body != nada )
+                        fc.f.name[memoryLabel].space[space].body =one ;
+        }
+        
+        for ( space = 0 ; space < SPACE ; space++)
+            if ( fc.f.canon[space].body != nada )
+                tLowdin(vectorLen(fc.f,space), streams(fc.f,fc.f.name[overlap].loopNext,0,space), streams(fc.f,fc.f.name[lowdinVec].loopNext,0,space), streams(fc.f,fc.f.name[lowdinMatrix].loopNext,0,space));
+
+    }///initied lowdin transforms
+    
+    
+    
+    bufferLabel = anotherLabel(&fc.f,all,two);
+
     headLabel = Iterator;
     for (o = 0; f1.f.name[op+o].species == matrix ; o++){
         fc.f.name[headLabel].linkNext = anotherLabel(&fc.f,0,nada);
@@ -279,40 +332,17 @@ inta iterateOcsb(  calculation *c1,   field f1){
                             pt[j*OV+jj] = tDOT(rank, f1.f, space, CDT, copyVector, 0, 0, CDT, f1.f.user+jj, 0, 0);
                         }
                     }
-            }            
+            }
+
+            for ( space = 0 ; space < SPACE ; space++)
+                if ( f1.f.canon[space].body != nada ){
+                    //band_ii' Vector_ij = Vector_i'j
+                    cblas_dgemm(CblasColMajor, CblasTrans, CblasTrans,OV,OV,OV,1.,streams(fc.f,fc.f.name[lowdinMatrix].loopNext,0,space),OV,streams(fc.f,memoryLabel,0,space),OV,0.,streams(fc.f,bufferLabel,0,space),OV);
+                    //Vector_i'j band_jj' = Vector_i'j'
+                    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans  ,OV,OV,OV,1.,streams(fc.f,bufferLabel,0,space)  ,OV,streams(fc.f,fc.f.name[lowdinMatrix].loopNext,0,space)  ,OV, 0.,  streams(fc.f,memoryLabel,0,space) , OV );
+                }
         }
     }
-    headLabel = overlap;
-    {
-            fc.f.name[headLabel].species = matrix;
-            matrixLabel = headLabel;
-            {
-                fc.f.name[matrixLabel].chainNext = anotherLabel(&fc.f,0,nada);
-                matrixLabel = fc.f.name[matrixLabel].chainNext;
-                memoryLabel = anotherLabel(&fc.f,all,two);
-                fc.f.name[matrixLabel].multId  = 0;
-                fc.f.name[matrixLabel].species = matrix;
-                fc.f.name[matrixLabel].loopNext = memoryLabel;
-                fc.f.name[matrixLabel].Current[0] = 1;
-                fc.f.name[memoryLabel].Current[0] = 1;
-                fc.f.name[memoryLabel].species = matrix;
-                for ( space = 0 ; space < SPACE ; space++)
-                    if ( fc.f.canon[space].body != nada )
-                        fc.f.name[memoryLabel].space[space].body =one ;
-
-                for ( j = 0; j < OV ; j++){
-                    for ( space = 0 ; space < SPACE ; space++)
-                        if ( f1.f.canon[space].body != nada ){
-                            floata * pt = streams(fc.f,memoryLabel,0,space);
-                            for ( jj = 0; jj < OV ; jj++){
-                                pt[j*OV+jj] = tDOT(rank, f1.f, space, CDT, f1.f.user+j, 0, 0, CDT, f1.f.user+jj, 0, 0);
-                            }
-                        }
-                }
-            }
-    }
-    
-    
     
     for ( e = 0 ; e < EV ; e++){
         Rr = CanonicalRank(f1.f, eigenVectors+e, 0);
@@ -323,6 +353,8 @@ inta iterateOcsb(  calculation *c1,   field f1){
                     for ( jj = 0; jj < OV ; jj++){
                         (pt+OV*r)[jj] = tDOT(rank, f1.f, space, CDT, eigenVectors+e, 0, 0, CDT, f1.f.user+jj, 0, 0);
                     }
+                    cblas_dgemv(CblasColMajor, CblasNoTrans, OV, OV, 1.,streams(fc.f,fc.f.name[lowdinVec].loopNext,0,space),OV,pt+r*OV,1, 0.,streams(fc.f,bufferLabel,0,space),1);
+                    cblas_dcopy(OV,streams(fc.f,bufferLabel,0,space),1,pt+r*OV,1);
                 }
         }
         fc.f.name[eigenVectors+e].Current[0] = Rr;
@@ -360,7 +392,7 @@ inta iterateOcsb(  calculation *c1,   field f1){
                 CanonicalRankDecomposition( fc.f, NULL, totalVector, 0, eigenVectors, 0, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, c1->rt.ALPHA,  c1->rt.THRESHOLD,  c1->rt.MAX_CYCLE, c1->rt.XCONDITION, part(fc.f,eigenVectors),fc.f.rt->dynamic);
             }
             {
-                floata norm = sqrt(pMatrixElement(fc.f, eigenVectors +e,0,overlap,0,eigenVectors +e,0));
+                floata norm = sqrt(pMatrixElement(fc.f, eigenVectors +e,0,nullOverlap,0,eigenVectors +e,0));
                 if ( norm > c1->rt.THRESHOLD ){
                     printf("for multiply, Normed from %f\n", norm );
                     fflush(stdout);
@@ -371,15 +403,18 @@ inta iterateOcsb(  calculation *c1,   field f1){
         target = max(fc.f.rt->TOLERANCE, fc.f.rt->relativeTOLERANCE*curr);
         iteration++;
     } while(fabs(prev-curr)>target && iteration < fc.i.Iterations );
-//    for ( e = 0 ; e < EV ;e++){
-//        inta r;
-//        for ( r = 0 ; r < CanonicalRank(fc.f, eigenVectors+e, 0); r++){
-//            cblas_dgemv(CblasColMajor, CblasNoTrans, N2, L1, 1.,band,N2,streams( fc.f, eigenVectors+e, 0,space )+r*,1, 0.,streams( f1.f, eigenVectors+e, 0,space)+r*N2,1);
-//        }
-//        
-//        print(c1, f1, !e, e+1, eigenVectors+e);
-//        
-//    }
+    
+    bufferLabel = anotherLabel(&fc.f,all,two);
+    for ( e = 0 ; e < EV ;e++){
+        zero(f1.f, eigenVectors+e, 0);
+        inta r,ii;
+        for ( r = 0 ; r < CanonicalRank(fc.f, eigenVectors+e, 0); r++){
+            cblas_dgemv(CblasColMajor, CblasNoTrans, OV, OV, 1.,streams(fc.f,fc.f.name[lowdinMatrix].loopNext,0,space),OV,streams( fc.f, eigenVectors+e, 0,space )+r*OV,1, 0.,streams(fc.f,bufferLabel,0,space),1);
+            for ( ii= 0 ; ii < OV ; ii++)
+                cblas_daxpy(vectorLen(f1.f, space), (streams(fc.f,bufferLabel,0,space))[ii], streams(f1.f,f1.f.user+ii,0,space), 1, streams(f1.f,eigenVectors+e,0,space)+r*vectorLen(f1.f, space), 1);
+        }
+        print(c1, f1, !e, e+1, eigenVectors+e);
+    }
     fModel(&f1.f);
     return 0;
 }

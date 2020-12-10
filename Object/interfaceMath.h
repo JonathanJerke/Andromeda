@@ -27,7 +27,7 @@
 #define interfaceMath_h
 #include "constants.h"
 #include "coreUtil.h"
-inta tdsyev( inta rank,   sinc_label f1, char job , inta n, double * ar, inta ns , double * w );
+inta tdsyev( inta rank,   char job , inta n, double * ar, inta ns , double * w );
 inta tdsygv( inta rank,   sinc_label f1, char job , inta n, double * sr, double * ar, inta ns , double * w );
 inta tdgeqr( inta rank,   sinc_label f1,inta len, inta n, double * ar, inta ns ,double *w, double *xr , inta xs );
 inta tzheev( inta rank,   sinc_label f1, char job , inta n,DCOMPLEX * ar, inta ns , double * w );
@@ -43,4 +43,5 @@ inta tdgels ( inta rank,  sinc_label f1 , inta L1, inta M2, double * array, doub
 inta tdgesvd ( inta rank,   sinc_label f1 ,  inta M1, inta M2, floata * ge, floata * m1, floata* m2 );
 inta tInverse(   sinc_label f1, inta n, double * ar);
 inta tzInverse(   sinc_label f1, inta n, DCOMPLEX * ar);
+inta tLowdin( inta n , double *ar, double *lowdinVec, double * lowdinMatrix );
 #endif /* interfaceMath_h */
