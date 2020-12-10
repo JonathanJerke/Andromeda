@@ -381,9 +381,9 @@ inta iterateOcsb(  calculation *c1,   field f1){
         ///agnostic to number or structure of inputs...
         for ( e = 0 ; e < EV ;e++){
             tClear(fc.f, totalVector);
-            for( g = 0; g < EV ; g++){
+            for( g = 0; g < (iteration+1)*EV ; g++){
                 tEqua(fc.f, copyVector, 0, eigenVectors+g, 0);
-                tScaleOne(fc.f, copyVector, 0, myStreams(fc.f, matrixHbuild, 0)[e*OV+g]);
+                tScaleOne(fc.f, copyVector, 0, myStreams(fc.f, matrixHbuild, 0)[e*(iteration+1)*EV+g]);
                 tAddTw(fc.f, totalVector, 0, copyVector, 0);
             }
             CanonicalRankDecomposition( fc.f, NULL, totalVector, 0, eigenVectors+e, 0, c1->rt.TOLERANCE, c1->rt.relativeTOLERANCE, c1->rt.ALPHA, c1->rt.THRESHOLD,c1->rt.MAX_CYCLE,c1->rt.XCONDITION, part(fc.f,eigenVectors),0 );
@@ -408,11 +408,14 @@ inta iterateOcsb(  calculation *c1,   field f1){
     for ( e = 0 ; e < EV ;e++){
         zero(f1.f, eigenVectors+e, 0);
         inta r,ii;
-        for ( r = 0 ; r < CanonicalRank(fc.f, eigenVectors+e, 0); r++){
-            cblas_dgemv(CblasColMajor, CblasNoTrans, OV, OV, 1.,streams(fc.f,fc.f.name[lowdinMatrix].loopNext,0,space),OV,streams( fc.f, eigenVectors+e, 0,space )+r*OV,1, 0.,streams(fc.f,bufferLabel,0,space),1);
-            for ( ii= 0 ; ii < OV ; ii++)
-                cblas_daxpy(vectorLen(f1.f, space), (streams(fc.f,bufferLabel,0,space))[ii], streams(f1.f,f1.f.user+ii,0,space), 1, streams(f1.f,eigenVectors+e,0,space)+r*vectorLen(f1.f, space), 1);
-        }
+        for ( r = 0 ; r < CanonicalRank(fc.f, eigenVectors+e, 0); r++)
+            for ( space = 0 ; space < SPACE ; space++)
+                if ( f1.f.canon[space].body != nada ){
+                    cblas_dgemv(CblasColMajor, CblasNoTrans, OV, OV, 1.,streams(fc.f,fc.f.name[lowdinMatrix].loopNext,0,space),OV,streams( fc.f, eigenVectors+e, 0,space )+r*OV,1, 0.,streams(fc.f,bufferLabel,0,space),1);
+                    for ( ii= 0 ; ii < OV ; ii++)
+                        cblas_daxpy(vectorLen(f1.f, space), (streams(fc.f,bufferLabel,0,space))[ii], streams(f1.f,f1.f.user+ii,0,space), 1, streams(f1.f,eigenVectors+e,0,space)+r*vectorLen(f1.f, space), 1);
+                }
+        f1.f.name[eigenVectors+e].Current[0] = CanonicalRank(fc.f, eigenVectors+e, 0);
         print(c1, f1, !e, e, eigenVectors+e);
     }
     fModel(&f1.f);
