@@ -406,7 +406,7 @@ inta iterateOcsb(  calculation *c1,   field f1){
         }
     }
     char name0[MAXSTRING];
-    strcmp(c1->name, name0);
+    strcpy(name0, c1->name);
     bufferLabel = anotherLabel(&fc.f,all,two);
     for ( e = 0 ; e < EV ;e++){
         zero(f1.f, eigenVectors+e, 0);
