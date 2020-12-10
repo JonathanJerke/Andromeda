@@ -413,7 +413,7 @@ inta iterateOcsb(  calculation *c1,   field f1){
             for ( ii= 0 ; ii < OV ; ii++)
                 cblas_daxpy(vectorLen(f1.f, space), (streams(fc.f,bufferLabel,0,space))[ii], streams(f1.f,f1.f.user+ii,0,space), 1, streams(f1.f,eigenVectors+e,0,space)+r*vectorLen(f1.f, space), 1);
         }
-        print(c1, f1, !e, e+1, eigenVectors+e);
+        print(c1, f1, !e, e, eigenVectors+e);
     }
     fModel(&f1.f);
     return 0;
