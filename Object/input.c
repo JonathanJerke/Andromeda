@@ -690,7 +690,7 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                     
                 } else switch(io){
                     case 11:
-                        strcpy(filename, input);
+                        sprintf(filename, "%s.vector",input);
                         return io;
                 }
             }
