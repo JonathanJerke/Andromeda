@@ -697,11 +697,12 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                 
         }
         
-    inta NINT_TYPE = 15;
+    inta NINT_TYPE = 16;
         char *list_INT_TYPE []= {"#",
             "invert","block","act","newTerm","buffer",
             "interval","offDiagonals","funcType","atom","axis",
-            "bra","ket","flags","embed","revise"
+            "bra","ket","flags","embed","revise",
+            "reset"
         };
         inta NDOUBLE = 10;
         char *list_DOUBLE []= {"#",
@@ -769,6 +770,10 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                     case 15:
                         c->i.terms[ivalue].scalar *= scalar;
                         return i;
+                    case 16:
+                        c->i.termNumber = 0;
+                        return i;
+
                 }
 //
             }
