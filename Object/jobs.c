@@ -157,7 +157,7 @@ inta foundationB(  calculation *c1,   field f1){
 /**
  *OSCB basis build by partiion
  *
- *build a potential in the shape of a vector
+ *build a potential in the shape of a vector (a diagonal matrix)
  *given a nocsb partitions, run the iocsb-th partition.
  */
 inta formOcsb(  calculation *c1,   field f1){
@@ -169,7 +169,7 @@ inta formOcsb(  calculation *c1,   field f1){
     f1.i.canonRank = 1;
     iModel(c1,&f1);
     zero(f1.f,eigenVectors,0);
-    
+
     for ( space = 0 ; space < SPACE ; space++)
         if ( f1.f.canon[space].body != nada ){
             inta x = vectorLen(f1.f, space)/c1->i.nocsb;
@@ -178,7 +178,11 @@ inta formOcsb(  calculation *c1,   field f1){
 
             floata *va = streams(f1.f,eigenVectors,0,space);
             for ( ii = i; ii < f ; ii++)
-                va[ii] = tComponent(f1.f,Ha,space,ii);
+#ifdef EXACTING_OCSB
+            va[ii] = tComponent(f1.f,Ha,space,ii);
+#else
+            va[ii] = tComponentPoint(c1,f1.f,Ha,space,ii);
+#endif
         }
     print(c1, f1, 1, c1->i.iocsb, eigenVectors);
     fModel(&f1.f);
@@ -399,7 +403,7 @@ inta iterateOcsb(  calculation *c1,   field f1){
         {
             floata norm = sqrt(pMatrixElement(fc.f, eigenVectors +e,0,nullOverlap,0,eigenVectors +e,0));
             if ( norm > c1->rt.THRESHOLD ){
-                printf("for multiply, Normed from %f\n", norm );
+                printf("\nfor multiply, Normed from %f\n", norm );
                 fflush(stdout);
                 tScaleOne(fc.f, eigenVectors+e, 0, 1./norm);
             }

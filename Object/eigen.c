@@ -446,3 +446,42 @@ floata tComponent( sinc_label f1, division hamiltonian, inta space, inta index){
     return min(value1,value2);
         
 }
+
+
+/**
+ *Report diagonal matrix element value of Hamiltonian
+ *
+ *Bill said, 'do the simple stuff first'
+ *All other dimensions will be occupied by an uncorrelated gaussian at origin
+ *@param f1 container
+ *@param hamiltonian  ordered by spiral
+ *@param space to consider
+ *@param index of the basis element to project in space
+ */
+floata tComponentPoint( calculation * c,sinc_label f1, division hamiltonian, inta space, inta index){
+    if ( ! allowQ(f1.rt, blockComponentblock)){
+        printf("blockComponentblock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
+    floata value;
+    inta dim ,N1,i;
+    ///Initialize
+    tBoot(f1, component, 0, 1);
+    for ( dim = 0 ; dim < SPACE ; dim++ )
+        if ( f1.canon[dim].body != nada )
+        {
+            floata *pt = streams(f1, component, 0, dim);
+            N1 = vectorLen(f1, dim);
+            if ( dim == space )
+            {
+                for ( i = 0 ; i < N1; i++ )
+                    pt[i] = 0;
+                
+                pt[index] = 1;
+            }
+        }
+    value = printExpectationValues(c, f1, hamiltonian, component);
+    return value;
+        
+}

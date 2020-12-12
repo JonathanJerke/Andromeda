@@ -203,7 +203,7 @@ calculation initCal (void ) {
     i.rt.XCONDITION = 1e5;
     
     i.rt.calcType = electronicStuctureCalculation;
-    i.rt.phaseType = iterateOCSB;
+    i.rt.phaseType = formOCSB;
     i.rt.calcType = electronicStuctureCalculation;
     i.i.lambda = 200 ;
     i.i.SymmetrizedGaussianLevel = 1;
@@ -793,10 +793,8 @@ inta iModel(   calculation * c1,   field *f){
         f1->name[matrixSbuild].memory = bufferAllocation;
 
         fromBeginning(*f1,dsyBuffers,matrixSbuild);
-#ifdef APPLE
         ///this count needs work
-        f1->name[dsyBuffers].Partition = 1000;
-#endif
+        f1->name[dsyBuffers].Partition = maxVector;
         f1->name[dsyBuffers].spinor = parallel;
         f1->name[dsyBuffers].memory = bufferAllocation;
 
