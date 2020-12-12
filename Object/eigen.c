@@ -467,6 +467,7 @@ floata tComponentPoint( calculation * c,sinc_label f1, division hamiltonian, int
     floata value;
     inta dim ,N1,i;
     ///Initialize
+    tClear(f1, component);
     tBoot(f1, component, 0, 1);
     for ( dim = 0 ; dim < SPACE ; dim++ )
         if ( f1.canon[dim].body != nada )
