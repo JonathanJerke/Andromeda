@@ -169,7 +169,7 @@ inta formOcsb(  calculation *c1,   field f1){
     f1.i.canonRank = 1;
     iModel(c1,&f1);
     zero(f1.f,eigenVectors,0);
-
+    f1.f.name[eigenVectors].Current[0] = 1;
     for ( space = 0 ; space < SPACE ; space++)
         if ( f1.f.canon[space].body != nada ){
             inta x = vectorLen(f1.f, space)/c1->i.nocsb;
@@ -183,7 +183,7 @@ inta formOcsb(  calculation *c1,   field f1){
             va[ii] = tComponentPoint(c1,f1.f,Ha,space,ii);
 #endif
         }
-    print(c1, f1, 1, c1->i.iocsb, eigenVectors);
+    print(c1, f1, 1, c1->i.iocsb-1, eigenVectors);
     fModel(&f1.f);
     return 0;
 }
