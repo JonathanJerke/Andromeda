@@ -173,9 +173,8 @@ inta formOcsb(  calculation *c1,   field f1){
     for ( space = 0 ; space < SPACE ; space++)
         if ( f1.f.canon[space].body != nada ){
             inta x = vectorLen(f1.f, space)/c1->i.nocsb;
-            inta i = x*c1->i.iocsb;
-            inta f = imin(vectorLen(f1.f, space),x*(c1->i.iocsb+1));
-
+            inta i = x*(c1->i.iocsb-1);
+            inta f = imin(vectorLen(f1.f, space),x*c1->i.iocsb);
             floata *va = streams(f1.f,eigenVectors,0,space);
             for ( ii = i; ii < f ; ii++)
 #ifdef EXACTING_OCSB
