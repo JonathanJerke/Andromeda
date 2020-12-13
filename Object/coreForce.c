@@ -1715,7 +1715,9 @@ inta assignDiagonalMatrix(calculation *c1,   field *f, char * filename, division
     division headLabel;
     headLabel = anotherLabel(f1,0,nada);
     f1->name[li].chainNext = headLabel;
-    f1->name[headLabel].species = diagonalMatrix;
+    f1->name[headLabel].Current[0] = 1;
+    f1->name[headLabel].species    = matrix;
+    f1->name[vectorDiagonalMatrix].species = diagonalMatrix;
     f1->name[headLabel].name = vectorDiagonalMatrix;
     f1->name[headLabel].multId = id++;
     tLoadEigenWeights(c1,*f,filename, &index, vectorDiagonalMatrix, 0);
