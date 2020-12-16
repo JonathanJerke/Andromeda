@@ -395,7 +395,7 @@ floata tComponent( sinc_label f1, division hamiltonian, inta space, inta index){
             tScaleOne(f1, component, 0, 1./norm);
         }
         for (op = 0; f1.name[A+op].species == matrix ; op++)
-            tHXpY(f1, componentTotal, f1.name[A+op].name, op, component, f1.rt->TOLERANCE, f1.rt->relativeTOLERANCE, f1.rt->ALPHA, f1.rt->THRESHOLD, f1.rt->MAX_CYCLE, f1.rt->XCONDITION, part(f1,componentTotal), 0);
+            tHXpY(f1, componentTotal, A+op, op, component, f1.rt->TOLERANCE, f1.rt->relativeTOLERANCE, f1.rt->ALPHA, f1.rt->THRESHOLD, f1.rt->MAX_CYCLE, f1.rt->XCONDITION, part(f1,componentTotal), 0);
         prev = curr;
         curr = pMatrixElement(f1, componentTotal, 0, nullOverlap, 0, component, 0);
         tEqua(f1, component, 0, componentTotal, 0);
@@ -429,7 +429,7 @@ floata tComponent( sinc_label f1, division hamiltonian, inta space, inta index){
 
             }
             for (op = 0; f1.name[A+op].species == matrix ; op++)
-                tHXpY(f1, componentTotal, f1.name[A+op].name, 1, component, f1.rt->TOLERANCE, f1.rt->relativeTOLERANCE, f1.rt->ALPHA, f1.rt->THRESHOLD, f1.rt->MAX_CYCLE, f1.rt->XCONDITION, part(f1,componentTotal), f1.rt->dynamic);
+                tHXpY(f1, componentTotal, A+op, 1, component, f1.rt->TOLERANCE, f1.rt->relativeTOLERANCE, f1.rt->ALPHA, f1.rt->THRESHOLD, f1.rt->MAX_CYCLE, f1.rt->XCONDITION, part(f1,componentTotal), f1.rt->dynamic);
             
             prev = curr;
             curr = pMatrixElement(f1, componentTotal, 0, nullOverlap, 0, component, 0)+value1;

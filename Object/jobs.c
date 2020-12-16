@@ -326,7 +326,7 @@ inta iterateOcsb(  calculation *c1,   field f1){
                     fc.f.name[memoryLabel].space[space].body =one ;
 
             for ( j = 0; j < OV ; j++){
-                tHX(rank, f1.f, f1.f.name[op+o].name, l, 0, 1.,f1.f.user+j, 0, 0, copyVector, 0, 0);
+                tHX(rank, f1.f, op+o, l, 0, 1.,f1.f.user+j, 0, 0, copyVector, 0, 0);
                 
                 for ( space = 0 ; space < SPACE ; space++)
                     if ( f1.f.canon[space].body != nada ){
@@ -666,7 +666,8 @@ double singlekrylov (   calculation *c1,   field f1){
                 tScaleOne(f1.f, eigenVectors, 0, 1./norm);
             }
         }
-        tHXpY( f1.f,  eigenVectors, f1.f.name[OpSpiral].name, c1->i.shiftFlag , eigenVectors, f1.f.rt->TOLERANCE,f1.f.rt->relativeTOLERANCE,f1.f.rt->ALPHA,f1.f.rt->THRESHOLD,f1.f.rt->MAX_CYCLE,f1.f.rt->XCONDITION,  f1.f.name[eigenVectors].Partition,f1.f.rt->dynamic);
+        ///may seem odd, but this produre is ment to only handle one term at a time.
+        tHXpY( f1.f,  eigenVectors, OpSpiral, c1->i.shiftFlag , eigenVectors, f1.f.rt->TOLERANCE,f1.f.rt->relativeTOLERANCE,f1.f.rt->ALPHA,f1.f.rt->THRESHOLD,f1.f.rt->MAX_CYCLE,f1.f.rt->XCONDITION,  f1.f.name[eigenVectors].Partition,f1.f.rt->dynamic);
     }
     if ( ((((f1.i.filter/4)%2)==1) * f1.i.irrep) ){
         tFilter(f1.f, 1, (((f1.i.filter/4)%2)==1) * f1.i.irrep, eigenVectors);

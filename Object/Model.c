@@ -176,7 +176,7 @@ calculation initCal (void ) {
     i.i.numNames = 1000;
     i.i.numVectors = 100;
     i.rt.dynamic = 0;
-    i.i.iocsb = 0;
+    i.i.iocsb = 1;
     i.i.nocsb = 1;
 #ifdef APPLE
     i.i.Na = 3;
@@ -209,7 +209,7 @@ calculation initCal (void ) {
     i.i.SymmetrizedGaussianLevel = 1;
     i.i.SymmetrizedGaussianWidth = 1;
     
-    i.i.termNumber = 3;
+    i.i.termNumber = 1;
     term_label t;
     t.act = 1;
     t.atom = 1;
@@ -226,12 +226,12 @@ calculation initCal (void ) {
     t.scalar = -1;
     t.type = 8;
     t.headFlag = 1;
+//    i.i.terms[0] = t;
+//    t.atom = 2;
+//    i.i.terms[1] = t;
+//    t.scalar = 1;
+    t.type = 10;
     i.i.terms[0] = t;
-    t.atom = 2;
-    i.i.terms[1] = t;
-    t.scalar = 1;
-   // t.type = 9;
-   // i.i.terms[2] = t;
 
 #else
     i.i.RAMmax = 1;

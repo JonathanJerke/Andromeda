@@ -1707,7 +1707,6 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
  */
 inta assignDiagonalMatrix(calculation *c1,   field *f, char * filename, division single){
     sinc_label * f1 = &f->f;
-    inta id=-10,index = 0;
     division li = single;
     while ( f1->name[li].chainNext != nullName)
         li =f1->name[li].chainNext;
@@ -1716,10 +1715,15 @@ inta assignDiagonalMatrix(calculation *c1,   field *f, char * filename, division
     headLabel = anotherLabel(f1,0,nada);
     f1->name[li].chainNext = headLabel;
     f1->name[headLabel].Current[0] = 1;
-    f1->name[headLabel].species    = matrix;
+ 
+    f1->name[headLabel].loopNext = vectorDiagonalMatrix;
+    f1->name[headLabel].multId = 101;
+    
     f1->name[vectorDiagonalMatrix].species = diagonalMatrix;
-    f1->name[headLabel].name = vectorDiagonalMatrix;
-    f1->name[headLabel].multId = id++;
+#ifndef APPLE
     tLoadEigenWeights(c1,*f,filename, &index, vectorDiagonalMatrix, 0);
+#else
+    tBoot(f->f, vectorDiagonalMatrix, 0, 1);
+#endif
     return 0;
 }

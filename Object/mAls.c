@@ -894,7 +894,7 @@ double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin, 
                             holderSpin = kspin;
                         }
                         else {
-                            tHX(rank, f1, f1.name[mat].name, l, mspin, 1., ket, k, kspin,canonicalmeVector, 0, rank);
+                            tHX(rank, f1, mat, l, mspin, 1., ket, k, kspin,canonicalmeVector, 0, rank);
                             
                             holder = canonicalmeVector;
                             holderRank = 0;
@@ -1240,7 +1240,7 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                 
         }
     }
-        else{
+        else
             if ( species(f1,left) == matrix && species(f1,right) == vector){
                 if ( bodies(f1,left) == bodies(f1,right))
                 {
@@ -1259,8 +1259,22 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                 }
             
             }
-        }
+        
+    else if ( species(f1, left) == diagonalMatrix && species(f1,right) == vector && species(f1,equals) == vector){
+    ///for diagonal potential matrices, where left points at a vector
     
+        inta N2 = vectorLen(f1, space);
+        cblas_dcopy(N2, streams(f1, right,rspin,space)+r*N2, 1, streams( f1, equals, espin,space)+e*N2, 1);
+        cblas_dtbmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, N2, 0,streams( f1, left, lspin,space )+l*N2, 1,streams( f1, equals, espin,space)+e*N2,1);
+    }
+    else if ( species(f1, left) == vector && species(f1,right) == vector && species(f1,equals) == vector){
+    ///specifically for geminals * transpose-geminals = geminal
+    //if ( bodies(f1, left) == two && bodies(f1,in) == two && bodies(f1,out)== two )
+    
+        inta N1 = vector1Len(f1, space);
+        inta N2 = N1*N1;
+        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,N1,N1,N1,1.,streams( f1, left, lspin,space )+l*N2,N1,streams(f1, right,rspin,space)+r*N2,N1, 0.,streams( f1, equals, espin,space)+e*N2,N1);
+    }
     return 0;
 }
 
@@ -1422,13 +1436,13 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
         printf("*");
         return 0;
     }
-    
+    name_label u = f1.name[left];
     division in=nullName,out=nullName;
     inta inSp,outSp,inRank,outRank;
     
     inta N2,flag,lll,found;
     inta dim,iter=0;
-    if ( species(f1, left) == matrix && species(f1,ket) == vector && species(f1,oket) == vector){
+    {
         
         if ( rank ){
             ///check for parallel allocations
@@ -1439,11 +1453,12 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
             }
         }
         name_label x = f1.name[left];
-          division ll = f1.name[name(f1,left)].chainNext,xx,zz;
-                    inta mi = 0,xi=0;
+        division ll = name(f1,left),xx,zz;
+        inta mi = 0,xi=0;
+                if (f1.name[ll].multId)
                     while ( ll != nullName){
                         //chain will tie various separate terms into a single entity
-                        zz = f1.name[name(f1,left)].chainNext;
+                        zz = name(f1,left);
                         found = 0;
                         while ( zz != ll ){
                             if (f1.name[zz].multId == f1.name[ll].multId)
@@ -1506,23 +1521,6 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
 
                                             }
                                     
-                                        
-                                        
-//                                    else if( species(f1, left) == outerVector){
-//
-//                                        flag = 1;
-//                                        for ( dim = 0 ; dim < SPACE ; dim++)
-//                                            if ( f1.canon[dim].body != nada){
-//                                                N2 = alloc(f1, ket, dim);
-//                                                {
-//                                                    tGEVV(rank, f1, dim,oket, o,ospin, xx, lll, im, ket, k, sp2);
-//                                                    if ( flag ){
-//                                                        cblas_dscal(N2, prod, streams(f1,oket,ospin, dim)+o*N2, 1);
-//                                                        flag = 0;
-//                                                        }
-//                                                    }
-//                                                }
-//                                            }
                                         }
                                     xx = f1.name[name(f1,xx)].chainNext;
                                 }
@@ -1542,30 +1540,6 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
                     }
             }
 
-    }    else if ( species(f1, left) == diagonalMatrix && species(f1,ket) == vector && species(f1,oket) == vector){
-        ///for diagonal potential matrices, where left points at a vector
-        {
-            inta space;
-            for ( space = 0; space < SPACE ; space++)
-                if ( f1.canon[space].body != nada ){
-                    inta N2 = vectorLen(f1, space);
-                    cblas_dcopy(N2, streams(f1, ket,sp2,space)+k*N2, 1, streams( f1, oket, ospin,space)+o*N2, 1);
-                    cblas_dtbmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, N2, 0,streams( f1, left, im,space )+l*N2, 1,streams( f1, oket, ospin,space)+o*N2,1);
-            }
-        }
-    }
-    else if ( species(f1, left) == vector && species(f1,ket) == vector && species(f1,oket) == vector){
-        ///specifically for geminals * transpose-geminals = geminal
-        //if ( bodies(f1, left) == two && bodies(f1,in) == two && bodies(f1,out)== two )
-        {
-            inta space;
-            for ( space = 0; space < SPACE ; space++)
-                if ( f1.canon[space].body != nada ){
-                    inta N1 = vector1Len(f1, space);
-                    inta N2 = N1*N1;
-                    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,N1,N1,N1,1.,streams( f1, left, im,space )+l*N2,N1,streams(f1, ket,sp2,space)+k*N2,N1, 0.,streams( f1, oket, ospin,space)+o*N2,N1);
-            }
-        }
     }
     
     return 1;

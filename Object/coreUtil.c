@@ -1753,7 +1753,7 @@ inta tBoot (   sinc_label f1 ,   division label,inta spin,floata scale ){
         if ( f1.canon[space].body != nada)
 
         {
-            if ( f1.name[label].species == vector && f1.canon[space].body == one){
+            if ( f1.canon[space].body == one){
             {
                             floata  * stream = streams(f1,label,spin,space)+Current*B1[space];
                                 for ( I2 = 0 ; I2 < B1[space] ; I2++){
@@ -1761,7 +1761,7 @@ inta tBoot (   sinc_label f1 ,   division label,inta spin,floata scale ){
                                 }
                         }
                     }else
-            if ( f1.name[label].species == vector && f1.canon[space].body == two){
+            if (f1.canon[space].body == two){
                     {
                 
                 floata  * stream = streams(f1,label,spin,space)+Current*B1[space];
@@ -1778,7 +1778,7 @@ inta tBoot (   sinc_label f1 ,   division label,inta spin,floata scale ){
             }
         }
         else
-            if ( f1.name[label].species == vector && f1.canon[space].body == three){
+            if ( f1.canon[space].body == three){
                     {
                 
                 floata  * stream = streams(f1,label,spin,space)+Current*B1[space];
