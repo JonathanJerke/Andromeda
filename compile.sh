@@ -1,4 +1,5 @@
 #!/bin/bash
+#source this file
 
 # apt-get update
 # apt-get install python3.6
