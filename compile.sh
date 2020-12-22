@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# apt-get update
+# apt-get install python3.6
+# pip3 install cython
+
+
+
 #run in Andromeda directory for best effect
 
 ##compile first
