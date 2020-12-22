@@ -2,7 +2,7 @@
  *  coreUtil.h
  *
  *
- *  Copyright 2020 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2021 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and the Army Research Office.
  *
@@ -11,8 +11,7 @@
  
  *   *   Andromeda is free software: you can redistribute it and/or modify
  *   *   it under the terms of the GNU General Public License as published by
- *   *   the Free Software Foundation, either version 3 of the License, or
- *   *   (at your option) any later version.
+ *   *   the Free Software Foundation, either version 3 of the License.
  
  *   *   Andromeda is distributed in the hope that it will be useful,
  *   *   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -66,12 +65,12 @@ floata* pMyStreams (   sinc_label *f1,   division label ,inta spin );
 floata* streams (   sinc_label f1,   division label ,inta spin, inta space );
 floata* pStreams (   sinc_label *f1,   division label ,inta spin, inta space );
 inta diagonalOp(  bodyType bd,  inta act,   blockType op,   blockType bl, inta N1,floata * vector, floata * toep, floata* vectorOut);
-  division anotherLabel(  sinc_label *f1,   inta particle,  bodyType body);
+division anotherLabel(  sinc_label *f1,   inta particle,  bodyType body);
 void assignSplit(   sinc_label f1,   division twoMat ,inta len,   division oneMat,   division bufcp );
 inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType tv,   blockType bl,  inta N1,floata * vector , inta pw, floata * vectorOut);
 void assignView(inta lane,   sinc_label  f1,   division A,inta part );
 void assignViewBlock(inta lane,   sinc_label  f1,    division A );
-  division ocean(inta lane,   sinc_label f1,  inta l, inta spin);
+division ocean(inta lane,   sinc_label f1,  inta l, inta spin);
 double tEqua (   sinc_label f1 ,   division targ ,inta tspin,   division orig,inta ospin );
 inta pScaleOne(   sinc_label *f1,   division label,inta spin, double scalar );
 inta tScaleOne(   sinc_label  f1,   division label,inta spin, double scalar );
@@ -99,7 +98,6 @@ void xsEqu (double scalar ,  inta dim ,  sinc_label  f1 ,   division targ ,inta 
 inta ready (   sinc_label f1 );
 inta bootedQ (   sinc_label f1);
 double traceOne(   sinc_label  f1 ,   division label , inta spin );
-
 division defSpiralVector(   sinc_label *f1, inta term,   division ket);
 division defSpiralMatrix(   sinc_label *f1,   division H);
 division defSpiralGrid(   sinc_label *f1,   division bra, inta term, double diagonalPreference);
@@ -116,7 +114,6 @@ inta  countLinesFromFile(   calculation *c1,  field f1,inta location, inta * ir,
 inta defineTerms(  calculation * c,   field *f,   division head, inta memory);
 inta InvertOp(  bodyType bd,inta invert, inta N1,floata * vector, floata* vectorOut);
 inta balance (  sinc_label f1,    division alloy, inta spin);
-
 void linkDetails(  sinc_label f1,   division linkHeader);
 void chainDetails(  sinc_label f1,   division chainHeader);
 void loopDetails(  sinc_label f1,   division loopHeader);

@@ -2,7 +2,7 @@
  *  ioPrint.h
  *
  *
- *  Copyright 2020 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2021 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and the Army Research Office.
  *
@@ -11,8 +11,7 @@
  
  *   *   Andromeda is free software: you can redistribute it and/or modify
  *   *   it under the terms of the GNU General Public License as published by
- *   *   the Free Software Foundation, either version 3 of the License, or
- *   *   (at your option) any later version.
+ *   *   the Free Software Foundation, either version 3 of the License.
  
  *   *   Andromeda is distributed in the hope that it will be useful,
  *   *   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -42,17 +41,10 @@
 #ifdef WRITE_FAST
 #include "hdf5.h"
 #endif
-
-
-
 inta writeFast( sinc_label f1,char * filename, inta space, division label ,inta spin);
-
 inta readFast ( sinc_label f1,char * filename, inta command ,inta space, division label ,inta spin, inta space2);
-
-
-
 void tFilename (char * cycleName, inta count, inta body ,inta IRREP, inta cmpl, char * filename);
-inta print(  calculation *c,  field f1, inta reset,inta lv,  division eigenVectors );
+inta printOut(  calculation *c,  field f1, inta reset,inta lv,  division vector );
 inta printVector (  calculation *c,  sinc_label f1,char * name,char * vectorName,inta iv, inta irrep, mea * vector);
 double evaluateDensityBracket( double x [], size_t dim , void * params );
 double evaluateVectorBracket( double x [], size_t dim , void * params );

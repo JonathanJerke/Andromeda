@@ -2,7 +2,7 @@
  *  coreForce.c
  *
  *
- *  Copyright 2020 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2021 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and the Army Research Office.
  *
@@ -11,8 +11,7 @@
  
  *   *   Andromeda is free software: you can redistribute it and/or modify
  *   *   it under the terms of the GNU General Public License as published by
- *   *   the Free Software Foundation, either version 3 of the License, or
- *   *   (at your option) any later version.
+ *   *   the Free Software Foundation, either version 3 of the License.
  
  *   *   Andromeda is distributed in the hope that it will be useful,
  *   *   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -1707,6 +1706,7 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
  */
 inta assignDiagonalMatrix(calculation *c1,   field *f, char * filename, division single){
     sinc_label * f1 = &f->f;
+    inta index = 0;
     division li = single;
     while ( f1->name[li].chainNext != nullName)
         li =f1->name[li].chainNext;

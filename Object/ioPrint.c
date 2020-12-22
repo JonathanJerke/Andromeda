@@ -2,7 +2,7 @@
  *  ioPrint.c
  *
  *
- *  Copyright 2020 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2021 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and the Army Research Office.
  *
@@ -11,8 +11,7 @@
  
  *   *   Andromeda is free software: you can redistribute it and/or modify
  *   *   it under the terms of the GNU General Public License as published by
- *   *   the Free Software Foundation, either version 3 of the License, or
- *   *   (at your option) any later version.
+ *   *   the Free Software Foundation, either version 3 of the License.
  
  *   *   Andromeda is distributed in the hope that it will be useful,
  *   *   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -58,7 +57,7 @@ inta printVector (  calculation *c,  sinc_label f1, char * name,char * vectorNam
     return 0;
 }
 
-inta print(  calculation *c ,   field f1,inta reset, inta lv,  division eigenVectors){
+inta printOut(  calculation *c ,   field f1,inta reset, inta lv,  division vector){
     inta irrep;
     inta jjj=1,cmpl;
     char str [SUPERMAXSTRING];
@@ -72,13 +71,13 @@ inta print(  calculation *c ,   field f1,inta reset, inta lv,  division eigenVec
     }
         {
                 
-                    printf("State%d: %1.15f, body%d, irrep%d, %1.15f\n", lv+1,f1.f.name[eigenVectors].value.value,bodies(f1.f,eigenVectors),f1.f.name[eigenVectors].value.symmetry, f1.f.name[eigenVectors].value.value2);
+                    printf("State%d: %1.15f, body%d, irrep%d, %1.15f\n", lv+1,f1.f.name[vector].value.value,bodies(f1.f,vector),f1.f.name[vector].value.symmetry, f1.f.name[vector].value.value2);
             
                     printVector(c,f1.f, c->name,c->name, lv,irrep, &one);
-                    for ( cmpl = 0 ; cmpl < spins(f1.f, eigenVectors) ; cmpl++)
+                    for ( cmpl = 0 ; cmpl < spins(f1.f, vector) ; cmpl++)
                     {
 #ifndef APPLE
-                        tFilename(c->name,lv+1,bodies(f1.f, eigenVectors) ,irrep, cmpl,str);
+                        tFilename(c->name,lv+1,bodies(f1.f, vector) ,irrep, cmpl,str);
                         
                         
 #ifdef writeHDF5
@@ -86,13 +85,13 @@ inta print(  calculation *c ,   field f1,inta reset, inta lv,  division eigenVec
                             inta space;
                         for ( space = 0; space < SPACE ; space++)
                             if ( f1.f.canon[space].body != nada)
-                                writeFast(f1.f, str, space, eigenVectors,cmpl);
+                                writeFast(f1.f, str, space, vector,cmpl);
                         }
 #else
                         FILE * out = NULL;
                         out = fopen ( str,"w" );
                         if ( out != NULL ){
-                            outputFormat(f1.f, out, eigenVectors,cmpl  );
+                            outputFormat(f1.f, out, vector,cmpl  );
                             fclose(out);
                         }
 #endif
@@ -235,7 +234,7 @@ inta ioArray(  calculation *c1,   field f,char * name,inta N1, floata * array, i
     f2.i = f.i;
     f2.i.iRank = 1;
     f2.i.xRank = 1;
-    c2.i.lambda = 0;
+    c2.i.Lambda = 0;
     f2.i.Iterations = 1;
     f2.i.files = 0;
     f2.i.filesVectorOperator = 0;
@@ -553,7 +552,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                             f2.i.files = 0;
                             f2.i.filesVectorOperator = 0;
                             f2.i.qFloor = 0;
-                            c2.i.lambda = 6;
+                            c2.i.Lambda = 6;
                             resetA(f2.f.rt);
                             if ( (f.i.filter/2)%2 == 0 ){
                                 blockA(f2.f.rt, blockTotalVectorBlock);

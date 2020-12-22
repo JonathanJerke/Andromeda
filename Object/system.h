@@ -2,7 +2,7 @@
  *  system.h
  *
  *
- *  Copyright 2020 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2021 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and the Army Research Office.
  *
@@ -11,8 +11,7 @@
  
  *   *   Andromeda is free software: you can redistribute it and/or modify
  *   *   it under the terms of the GNU General Public License as published by
- *   *   the Free Software Foundation, either version 3 of the License, or
- *   *   (at your option) any later version.
+ *   *   the Free Software Foundation, either version 3 of the License.
  
  *   *   Andromeda is distributed in the hope that it will be useful,
  *   *   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -26,7 +25,7 @@
 /**
  *Andromeda: a few-body plane wave calculator
  *
- *v9.5
+ *v9.6
  *quantumGalaxies.org
  *
  *Jonathan Jerke
@@ -37,9 +36,9 @@
 
 #ifndef system_h
 #define system_h
-
-#define writeHDF5
-#define readHDF5
+//#define VERBOSE_ALS
+//#define writeHDF5
+//#define readHDF5
 //#define READ_FAST
 #define RAND_FOUNDATION
 //#define CHERRY_PICKER
@@ -58,6 +57,8 @@
 #define CDT 1
 ///switch
 #define VERBOSE 0
+///print info on ALS decomposition
+//#define VERBOSE_ALS
 ///Maximum number of input terms at prompt, at minor cost to increase
 #define MAXTERM 1000
 ///Maximum bodies per component currently supported
@@ -74,7 +75,7 @@
 #ifdef APPLE
     #define SPHERE
     #define BIT_INT
-    #define MAXSTRING 1
+    #define MAXSTRING 4
     #define SUPERMAXSTRING 10
     #define MAX_FILE 1
     #define MAX_CORE 2
@@ -90,9 +91,9 @@
     #define BIT_INT
 #endif
 ///Probably too much, but dont care,
-    #define MAXSTRING 88
+    #define MAXSTRING 176
 ///Probably too much, but dont care,
-    #define SUPERMAXSTRING 200
+    #define SUPERMAXSTRING 400
 ///Maximum number of .mac files that are loadable,  (not vectors, rather files of .vector)
     #define MAX_FILE 1000
 ///Maybe necessary for integrating momentums in GaussianSinc-basis--otherwise, not used.

@@ -2,7 +2,7 @@
  *  Model.c
  *
  *
- *  Copyright 2020 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2021 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and the Army Research Office.
  *
@@ -11,8 +11,7 @@
  
  *   *   Andromeda is free software: you can redistribute it and/or modify
  *   *   it under the terms of the GNU General Public License as published by
- *   *   the Free Software Foundation, either version 3 of the License, or
- *   *   (at your option) any later version.
+ *   *   the Free Software Foundation, either version 3 of the License.
  
  *   *   Andromeda is distributed in the hope that it will be useful,
  *   *   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -205,7 +204,7 @@ calculation initCal (void ) {
     i.rt.calcType = electronicStuctureCalculation;
     i.rt.phaseType = formOCSB;
     i.rt.calcType = electronicStuctureCalculation;
-    i.i.lambda = 200 ;
+    i.i.Lambda = 200 ;
     i.i.SymmetrizedGaussianLevel = 1;
     i.i.SymmetrizedGaussianWidth = 1;
     
@@ -694,7 +693,7 @@ inta iModel(   calculation * c1,   field *f){
     
     
     if ( allowQ(f1->rt,blockTotalVectorBlock) ){
-            f1->name[totalVector].Partition =  imax( imax(f->i.xRank, c1->i.lambda * maxVector), ra * maxVector) ;
+            f1->name[totalVector].Partition =  imax( imax(f->i.xRank, c1->i.Lambda * maxVector), ra * maxVector) ;
     }
     }
     if ( allowQ(f1->rt, blockTotalVectorParallelBlock)){

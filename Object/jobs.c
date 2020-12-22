@@ -2,7 +2,7 @@
  *  jobs.c
  *
  *
- *  Copyright 2020 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2021 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and the Army Research Office.
  *
@@ -11,8 +11,7 @@
  
  *   *   Andromeda is free software: you can redistribute it and/or modify
  *   *   it under the terms of the GNU General Public License as published by
- *   *   the Free Software Foundation, either version 3 of the License, or
- *   *   (at your option) any later version.
+ *   *   the Free Software Foundation, either version 3 of the License.
  
  *   *   Andromeda is distributed in the hope that it will be useful,
  *   *   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -141,7 +140,7 @@ inta foundationB(  calculation *c1,   field f1){
             if (1)
              //|| printExpectationValues(c1,f1.f, Ha, eigenVectors) < level )
             {
-                print(c1,f1,!counter,counter , eigenVectors);
+                printOut(c1,f1,!counter,counter , eigenVectors);
                 fflush(stdout);
                 counter++;
             }
@@ -183,7 +182,7 @@ inta formOcsb(  calculation *c1,   field f1){
             va[ii] = tComponentPoint(c1,f1.f,Ha,space,ii);
 #endif
         }
-    print(c1, f1, 1, c1->i.iocsb-1, eigenVectors);
+    printOut(c1, f1, 1, c1->i.iocsb-1, eigenVectors);
     fModel(&f1.f);
     return 0;
 }
@@ -423,7 +422,7 @@ inta iterateOcsb(  calculation *c1,   field f1){
                 }
         f1.f.name[eigenVectors+e].Current[0] = CanonicalRank(fc.f, eigenVectors+e, 0);
         sprintf(c1->name,"%s-%d", name0,e+1);
-        print(c1, f1, 1, 0, eigenVectors+e);
+        printOut(c1, f1, 1, 0, eigenVectors+e);
     }
     fModel(&f1.f);
     return 0;
@@ -449,7 +448,7 @@ double testPermutations (){
     f2.i.files = 0;
     f2.i.filesVectorOperator = 0;
     f2.i.qFloor = 0;
-    c2.i.lambda = 6;
+    c2.i.Lambda = 6;
     resetA(f2.f.rt);
     blockA(f2.f.rt, blockTrainVectorsblock);
     blockA(f2.f.rt, blockCopyBlock);
@@ -681,7 +680,7 @@ double singlekrylov (   calculation *c1,   field f1){
         }
     }
     printExpectationValues(c1, f1.f, Iterator, eigenVectors);
-    print(c1,f1,1,0,eigenVectors);
+    printOut(c1,f1,1,0,eigenVectors);
     fModel(&f1.f);
     return 0;
 }
