@@ -16,7 +16,7 @@ cp olympics andromeda
 
 make libandromeda.so
 export LDFLAGS=-L`pwd`
-export LD_LIBRARY_PATH=`pwd`
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`pwd`
 cd ..
 
 cd andromedaPy
