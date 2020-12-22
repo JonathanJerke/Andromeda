@@ -8,7 +8,7 @@ make olympics
 cp olympics andromeda
 
 make libandromeda.so
-export LDFLAGS=`pwd`
+export LDFLAGS=-L`pwd`
 export LD_LIBRARY_PATH=`pwd`
 cd ..
 
