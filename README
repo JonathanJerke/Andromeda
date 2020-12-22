@@ -2,7 +2,7 @@
  *  README
  *  
  *
- *  Copyright 2020 Jonathan Jerke and Bill Poirier.
+ *  Copyright 2021 Jonathan Jerke and Bill Poirier.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and the Army Research Office.
  *
@@ -31,7 +31,7 @@ v9.1 has cut the pork and now can easily allocate my systems of choice.
 v9.2 has implemented HDF5 because I had a huge IO issue.
 v9.3 has sped up and or avoided various slow procedures.
 v9.4 has sped up the core ALS routine by many orders and parallelized the Matrix-vector product.
-v9.6-pre has been released with improvements to the foundation and scripts.
+v9.6 has added Python via cythonization routines which are in andromedaPy.
 
 See quantumgalaxies.org for expert user advise.
 
