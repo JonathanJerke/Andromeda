@@ -37,6 +37,7 @@ from Model cimport fModel
 
 from constants cimport dimensions_label
 from constants cimport metric_label
+from constants cimport func_label
 
 from constants cimport basisElementType
 from constants cimport componentType
@@ -192,7 +193,6 @@ cdef class galaxy:
 		
 		
 		zs = np.zeros(SPACE)
-		print(funcNames[funcDesc])
-		return metric_label(pow = zs,powB = zs,deriv = zs,fn =(functionType)funcNames[funcDesc] ,
-								metric = (metricType)intervalName[intervalDesc],beta = betas)
+		return metric_label(pow = zs,powB = zs,deriv = zs,fn =func_label(interval = interval, contr = contr,funcNames[funcDesc],np.zeros(MAX_PARAM_FUNC)) ,
+								metric = intervalName[intervalDesc],beta = betas)
 		
