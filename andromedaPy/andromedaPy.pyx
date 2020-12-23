@@ -190,36 +190,7 @@ cdef class galaxy:
 		)
 		
 		
+		zs = np.zeros(SPACE)
 		
-		metric = metric_label()
-		for space in range(SPACE):
-			metric.pow[space] = 0
-			metric.powB[space] = 0
-			metric.deriv[space] = 0
+		return metric_label(zs,zs,zs,funcNames[funcDesc],intervalName[intervalDesc],betas)
 		
-		if len(betas)==1:
-			if intervalName[intervalDesc] in [metricType.dirac,metricType.separateDirac,
-							metricType.semiIndefinite,metricType.pureSemiIndefinite]:
-							
-				"""Define
-				"""				
-				metric.fn = funcNames[funcDesc]
-				metric.metric = intervalName[intervalDesc]
-				metric.beta[0] = betas
-				metric.beta[1] = -1
-		elif len(betas) == 2:
-			if intervalName[intervalDesc] in [metricType.pureInterval
-													,metricType.semiIndefinite]:
-					
-				"""Define
-				"""			
-				metric.fn = funcNames[funcDesc]
-				metric.metric = intervalName[intervalDesc]
-				metric.beta[0] = betas[0]
-				metric.beta[1] = betas[1]
-		else:
-			print('betas: len')
-		
-		return metric
-					
-					
