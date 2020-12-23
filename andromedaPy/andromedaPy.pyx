@@ -83,23 +83,15 @@ cdef class galaxy:
 		return [0,inc,componentType.nullComponent]
 
 
-	def bases(self, i = 1 ):
+	def bases(self, desc ):
 		"""Returns enumeration of basis types
 		"""
-		if i <= 0 :
-			return basisElementType.nullBasisElement
-		if i == 1 :
-			return basisElementType.SincBasisElement
-		elif i == 2 :
-			return basisElementType.GaussianBasisElement
-		elif i == 3 :
-			return basisElementType.DiracDeltaElement
-		elif i == 4 :
-			return basisElementType.StateBasisElement
-		elif i == 5 :
-			return basisElementType.overlapBasisElement
-		return basisElementType.nullBasisElement
-
+		names = dict({'Sinc':basisElementType.SincBasisElement,
+					'Gaussian':basisElementType.GaussianBasisElement,
+					'Dirac':basisElementType.DiracDeltaElement,
+					'State':basisElementType.StateBasisElement,
+					'overlap':basisElementType.overlapBasisElement})
+		return names[desc]
 
 	def spaces(self,labels, comps, dims, bases ):
 		"""Absolute definition of space
