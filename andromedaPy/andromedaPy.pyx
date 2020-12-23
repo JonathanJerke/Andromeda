@@ -193,6 +193,6 @@ cdef class galaxy:
 		
 		zs = np.zeros(SPACE)
 		print(funcNames[funcDesc])
-		return metric_label(pow = zs,powB = zs,deriv = zs,fn =funcNames[funcDesc] ,
-								metric = intervalName[intervalDesc],beta = betas)
+		return metric_label(pow = zs,powB = zs,deriv = zs,fn =(functionType)funcNames[funcDesc] ,
+								metric = (metricType)intervalName[intervalDesc],beta = betas)
 		
