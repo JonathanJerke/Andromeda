@@ -56,10 +56,12 @@ cdef class galaxy:
 	def __dealloc__(self):
 		fModel(&self.field.f)
     
-	def dims(self, floata lattice, floata attack=0.5, floata origin =0.0,floata anchor =0.5 ):
+	def dims(self, floata lattice, floata attack=0.5, floata origin =0.0,
+													floata anchor =0.5 ):
 		"""Returns new floata parameters for a linear dimension.
 		"""
-		return dimensions_label(lattice = lattice , attack = attack, origin = origin, anchor = anchor )
+		return dimensions_label(lattice = lattice , attack = attack, 
+									origin = origin, anchor = anchor )
 
 	def comps(self, N , inc=1, i=1,periodic = False):
 		"""Returns new component enum for a linear dimension.
@@ -131,8 +133,8 @@ cdef class galaxy:
 							if labelish == labels[space]:
 								count += 1
 						self.field.f.canon[space].component = count				
-						self.field.f.canon[space].space = comp[0]
-						self.field.f.canon[space].count1Basis = comp[1]
+						self.field.f.canon[space].space = comp[2]
+						self.field.f.canon[space].count1Basis = comp[0]
 						self.field.f.canon[space].count1Inc = comp[2]
 					for (space,label) in enumerate(labels):
 						self.field.f.canon[space].label = label
@@ -159,9 +161,10 @@ cdef class galaxy:
 			print("warning, already booted")
 			return self
 		iModel(&self.calculation, &self.field)
-		return self			
+		return self
 					
-	def metric(self, funcDesc = 'Coulomb', intervalDesc = 'interval', betas =[0,1],interval = 7, contr = 2):
+	def metric(self, funcDesc = 'Coulomb', intervalDesc = 'interval'
+										 betas =[0,1],interval = 7, contr = 2):
 		"""Metric definition by description
 		
 		Parameters
@@ -169,11 +172,15 @@ cdef class galaxy:
 		funcDesc : str
 		intervalDesc : str
 		betas : [floata,floata]
-		
+			interval span or first float only
+		interval : int
+			CanonRank of operator
+		contr : int
+			Off diagonal measure
+			
 		Returns
 		-------
 		metric_label
-		
 		"""
 		funcNames = dict(
 			{'null':functionType.nullFunction,'Pseudo':functionType.Pseudo,
@@ -191,8 +198,9 @@ cdef class galaxy:
 							'pureSemiIndefinite':metricType.pureSemiIndefinite}
 		)
 		
-		
 		zs = np.zeros(SPACE)
-		return metric_label(pow = zs,powB = zs,deriv = zs,fn =function_label(interval = interval, contr = contr,fn = funcNames[funcDesc],param = np.zeros(MAX_PARAM_FUNC)) ,
-								metric = intervalName[intervalDesc],beta = betas)
+		return metric_label(pow = zs,powB = zs,deriv = zs,
+			fn =function_label(interval = interval, contr = contr,
+						fn = funcNames[funcDesc],param = np.zeros(MAX_PARAM_FUNC)) ,
+			metric = intervalName[intervalDesc],beta = betas)
 		
