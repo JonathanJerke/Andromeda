@@ -161,7 +161,7 @@ cdef class galaxy:
 		iModel(&self.calculation, &self.field)
 		return self			
 					
-	def metric(self, funcDesc, intervalDesc, betas ):
+	def metric(self, funcDesc, interval = 7, contr = 2,intervalDesc, betas ):
 		"""Metric definition by description
 		
 		Parameters
