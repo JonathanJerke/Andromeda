@@ -712,7 +712,7 @@ struct metric_label {
     ///future
     inta deriv[SPACE];
     ///a potential and inner parameters
-    struct function_label fn;
+    function_label fn;
     ///metric type, i.e. point, interval, or indefinite interval
     metricType metric;
     ///lower and upper bounds,  where -1 => infinity
