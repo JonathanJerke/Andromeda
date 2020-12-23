@@ -41,67 +41,66 @@ from constants cimport functionType
 from constants cimport metricType
 
 cdef class galaxy:
-    cdef calculation calculation
-    cdef field field
+	cdef calculation calculation
+	cdef field field
 
-    def __cinit__(self):
-        self.calculation = initCal()
-        self.field = initField()
+	def __cinit__(self):
+		self.calculation = initCal()
+		self.field = initField()
 
-    def __dealloc__(self):
-        fModel(&self.field.f)
+	def __dealloc__(self):
+		fModel(&self.field.f)
     
-    def dims(self, floata lattice, floata attack=0.5, floata origin =0.0,floata anchor =0.5 ):
-        """Returns new floata parameters for a linear dimension.
-        """
-        return dimensions_label(lattice = lattice , attack = attack, origin = origin, anchor = anchor )
+	def dims(self, floata lattice, floata attack=0.5, floata origin =0.0,floata anchor =0.5 ):
+		"""Returns new floata parameters for a linear dimension.
+		"""
+		return dimensions_label(lattice = lattice , attack = attack, origin = origin, anchor = anchor )
 
-    def comps(self, N , inc=1, i=1,periodic = False):
-        """Returns new component enum for a linear dimension.
-        """
-        if i <= 0 :
-            return [N,inc,componentType.nullComponent]
-        if not periodic:
-            if i == 1 :
-                return [N,inc,componentType.spatialComponent1]
-            elif i == 2 :
-                return [N,inc,componentType.spatialComponent2]
-            elif i == 3 :
-                return [N,inc,componentType.spatialComponent3]
+	def comps(self, N , inc=1, i=1,periodic = False):
+		"""Returns new component enum for a linear dimension.
+		"""
+		if i <= 0 :
+			return [N,inc,componentType.nullComponent]
+		if not periodic:
+			if i == 1 :
+				return [N,inc,componentType.spatialComponent1]
+			elif i == 2 :
+				return [N,inc,componentType.spatialComponent2]
+			elif i == 3 :
+				return [N,inc,componentType.spatialComponent3]
                 
-        if periodic:
-            if i == 1 :
-                return [N,inc,componentType.periodicComponent1]
-            elif i == 2 :
-                return [N,inc,componentType.periodicComponent2]
-            elif i == 3 :
-                return [N,inc,componentType.periodicComponent3]
+		if periodic:
+			if i == 1 :
+				return [N,inc,componentType.periodicComponent1]
+			elif i == 2 :
+				return [N,inc,componentType.periodicComponent2]
+			elif i == 3 :
+				return [N,inc,componentType.periodicComponent3]
 
-    	return [0,inc,componentType.nullComponent]
+		return [0,inc,componentType.nullComponent]
 
 
 	def bases(self, i = 1 ):
 		"""Returns enumeration of basis types
 		"""
 		if i <= 0 :
-            return basisElementType.nullBasisElement
-        if not periodic:
-            if i == 1 :
-                return basisElementType.SincBasisElement
-            elif i == 2 :
-                return basisElementType.GaussianBasisElement
-            elif i == 3 :
-                return basisElementType.DiracDeltaElement
-            elif i == 4 :
-                return basisElementType.StateBasisElement
-            elif i == 5 :
-                return basisElementType.overlapBasisElement
-            
-    	return basisElementType.nullBasisElement
+			return basisElementType.nullBasisElement
+		if not periodic:
+			if i == 1 :
+				return basisElementType.SincBasisElement
+			elif i == 2 :
+				return basisElementType.GaussianBasisElement
+			elif i == 3 :
+				return basisElementType.DiracDeltaElement
+			elif i == 4 :
+				return basisElementType.StateBasisElement
+			elif i == 5 :
+				return basisElementType.overlapBasisElement
+		return basisElementType.nullBasisElement
 
 
-    def spaces(self,labels, comps, dims, bases ):
-        """Absolute definition of space
+	def spaces(self,labels, comps, dims, bases ):
+		"""Absolute definition of space
         Three equal length vectors are conjoined.
         
         Parameters
@@ -119,7 +118,7 @@ cdef class galaxy:
         Returns 
         -------
         self
-    	"""
+		"""
 		if len(comps) == len(dims) :
 			if len(comps) == len(bases):
 				if len(comps) <= SPACE:
