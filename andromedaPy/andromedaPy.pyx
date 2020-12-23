@@ -161,7 +161,7 @@ cdef class galaxy:
 		iModel(&self.calculation, &self.field)
 		return self			
 					
-	def metric(self, funcDesc, interval = 7, contr = 2,intervalDesc, betas ):
+	def metric(self, funcDesc = 'Coulomb', ntervalDesc = 'interval', betas =[0,1],interval = 7, contr = 2):
 		"""Metric definition by description
 		
 		Parameters
@@ -193,6 +193,6 @@ cdef class galaxy:
 		
 		
 		zs = np.zeros(SPACE)
-		return metric_label(pow = zs,powB = zs,deriv = zs,fn =func_label(interval = interval, contr = contr,funcNames[funcDesc],np.zeros(MAX_PARAM_FUNC)) ,
+		return metric_label(pow = zs,powB = zs,deriv = zs,fn =func_label(interval = interval, contr = contr,fn = funcNames[funcDesc],params = np.zeros(MAX_PARAM_FUNC)) ,
 								metric = intervalName[intervalDesc],beta = betas)
 		
