@@ -23,6 +23,8 @@
 #*   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 
 cimport andromedaPy
+include "system.pxi"
+
 from constants cimport floata
 from constants cimport field
 from constants cimport calculation
@@ -39,6 +41,7 @@ from constants cimport basisElementType
 from constants cimport componentType
 from constants cimport functionType
 from constants cimport metricType
+from constants cimport bodyType
 
 cdef class galaxy:
 	cdef calculation calculation
@@ -142,7 +145,14 @@ cdef class galaxy:
 					for (space,dim) in enumerate(dims):
 						for (body, particle) in enumerate(dim):
 							self.field.f.canon[space].particle[body+1] = particle
-						self.field.f.canon[space].body = len(dim)
+						if len(dim)==1:
+							self.field.f.canon[space].body = bodyType.one
+						elif len(dim)==2:
+							self.field.f.canon[space].body = bodyType.two
+						elif len(dim)==3:
+							self.field.f.canon[space].body = bodyType.three
+						
+						
 					for (space,base) in enumerate(bases):
 						self.field.f.canon[space].basis = base
 						
@@ -154,7 +164,7 @@ cdef class galaxy:
 		if self.field.f.bootedMemory == 1 :
 			print("warning, already booted")
 			return self
-		iModel(&self.calculations, &self.field)
+		iModel(&self.calculation, &self.field)
 		return self			
 					
 	def metric(self, funcDesc, intervalDesc, betas ):
