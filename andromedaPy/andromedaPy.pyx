@@ -85,17 +85,16 @@ cdef class galaxy:
 		"""
 		if i <= 0 :
 			return basisElementType.nullBasisElement
-		if not periodic:
-			if i == 1 :
-				return basisElementType.SincBasisElement
-			elif i == 2 :
-				return basisElementType.GaussianBasisElement
-			elif i == 3 :
-				return basisElementType.DiracDeltaElement
-			elif i == 4 :
-				return basisElementType.StateBasisElement
-			elif i == 5 :
-				return basisElementType.overlapBasisElement
+		if i == 1 :
+			return basisElementType.SincBasisElement
+		elif i == 2 :
+			return basisElementType.GaussianBasisElement
+		elif i == 3 :
+			return basisElementType.DiracDeltaElement
+		elif i == 4 :
+			return basisElementType.StateBasisElement
+		elif i == 5 :
+			return basisElementType.overlapBasisElement
 		return basisElementType.nullBasisElement
 
 
