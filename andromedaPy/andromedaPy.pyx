@@ -141,6 +141,8 @@ cdef class galaxy:
 					for (space,dim) in enumerate(dims):
 						for (body, particle) in enumerate(dim):
 							self.field.f.canon[space].particle[body+1] = particle
+							self.field.f.canon[space].particle[body+1].origin -=
+	particle.lattice *(self.field.f.canon[space].count1Basis-1)*particle.anchor					
 						if len(dim)==1:
 							self.field.f.canon[space].body = bodyType.one
 						elif len(dim)==2:
