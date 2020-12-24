@@ -314,7 +314,7 @@ cdef class galaxy:
 		else:
 			return division.nullName
 		
-	def read_file ( self, filename : str ,vector = division.eigenVectors: division, 
+	def read_file ( self, filename : str ,vector : division = division.eigenVectors, 
 	collect : inta = 0 ):
 		"""Standard Input procedure
 		
