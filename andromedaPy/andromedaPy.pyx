@@ -359,7 +359,7 @@ cdef class galaxy:
 		return self
 		
 	def gaussian ( self, vector : division = division.eigenVectors, spin : inta = 0, 
-	width : inta = 1.0):
+	width : floata = 1.0):
 		"""Places a correctly band-limited gaussian.
 		
 		Parameters
