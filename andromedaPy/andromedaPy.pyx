@@ -65,8 +65,8 @@ cdef class galaxy:
 	def __dealloc__(self):
 		fModel(&self.field.f)
     
-	def dims(self, floata lattice, floata attack=0.5, floata origin =0.0,
-													floata anchor =0.5 ):
+	def dims(self, lattice:floata, attack:floata =0.5, origin:floata =0.0,
+												 anchor:floata =0.5 ):
 		"""Returns new floata parameters for a linear dimension.
 		"""
 		return dimensions_label(lattice = lattice , attack = attack, 
@@ -96,7 +96,7 @@ cdef class galaxy:
 		return [0,inc,componentType.nullComponent]
 
 
-	def bases(self, desc ):
+	def bases(self, desc : str ):
 		"""Returns enumeration of basis types
 		"""
 		names = dict({'Sinc':basisElementType.SincBasisElement,
@@ -106,7 +106,7 @@ cdef class galaxy:
 					'overlap':basisElementType.overlapBasisElement})
 		return names[desc]
 
-	def spaces(self,labels, comps, dims, bases ):
+	def spaces(self,labels:[inta], comps, dims, bases ):
 		"""Absolute definition of space
         Three equal length vectors are conjoined.
         
@@ -164,7 +164,7 @@ cdef class galaxy:
 						
 		return self	
 			
-	def block(self, blockDescs):
+	def block(self, blockDescs:str):
 		"""block memory allocations and some controls
 		
 		Parameters
@@ -204,7 +204,8 @@ cdef class galaxy:
 		iModel(&self.calculation, &self.field)
 		return self
 						
-	def calculationInputs ( self, numNames=-1, numVectors=-1, shiftFlag=-1,Lambda=-1
+	def calculationInputs ( self, numNames:inta=-1, numVectors:inta=-1, shiftFlag:inta=-1,
+	Lambda:inta=-1
 		,RAMmax=-1 ):
 		"""Relevant calculation.input 's
 		
@@ -236,8 +237,10 @@ cdef class galaxy:
 			self.calculation.i.numNames = numNames
 		return self
 		
-	def fieldInputs( self, flex = -1, OpIndex = -2 , body =-1,irrep = -1, Iterations = -1
-	,nStates = -1,iRank = -1,canonRank= -1,xRank = -1,qFloor = -1,filter = -1,collect=-1):
+	def fieldInputs( self, flex :inta = -1, OpIndex:inta  = -2 , body:inta  =-1,
+		irrep:inta = -1, Iterations:inta = -1
+	,nStates:inta = -1,iRank:inta = -1,canonRank:inta= -1,xRank:inta = -1,
+	qFloor:inta = -1,filter:inta = -1,collect:inta=-1):
 		"""Relevant field.input 's
 		
 		Parameters
@@ -287,7 +290,7 @@ cdef class galaxy:
 		if collect >= 0:
 			self.field.i.collect = collect
 		
-	def vectors( self ):
+	def vectors(self):
 		"""Vectors are addressed via these enumations.
 		
 		The number of them is by nStates.
@@ -335,7 +338,7 @@ cdef class galaxy:
 		return count
 		
 		
-	def to_file ( self, vector = division.eigenVectors, reset = 1, index = 1 ):
+	def to_file ( self, vector : division = division.eigenVectors, reset : inta = 1, index : inta = 0 ):
 		"""Standard Input procedure
 		
 		Writes to calculation name.
@@ -355,7 +358,8 @@ cdef class galaxy:
 		printOut(  &self.calculation, self.field,reset, index, vector)
 		return self
 		
-	def gaussian ( self, vector = division.eigenVectors, spin = 0, width = 1.0):
+	def gaussian ( self, vector : division = division.eigenVectors, spin : inta = 0, 
+	width : inta = 1.0):
 		"""Places a correctly band-limited gaussian.
 		
 		Parameters
@@ -371,8 +375,9 @@ cdef class galaxy:
 		tBoot(self.field.f, vector, spin, width)
 		return self
 		
-	def metric(self, funcDesc = 'Coulomb', intervalDesc = 'interval',
-										 betas =[0,1],interval = 7, contr = 2):
+	def metric(self, funcDesc: str = 'Coulomb', intervalDesc : str = 'interval',
+										 betas : [inta,inta] =[0,1],interval : inta = 7,
+										  contr : inta = 2):
 		"""Metric definition by description
 		
 		Parameters
