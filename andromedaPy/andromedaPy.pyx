@@ -314,7 +314,8 @@ cdef class galaxy:
 		else:
 			return division.nullName
 		
-	def read_file ( self, filename,vector = division.eigenVectors, collect = 0 ):
+	def read_file ( self, filename : str ,vector = division.eigenVectors: division, 
+	collect : inta = 0 ):
 		"""Standard Input procedure
 		
 		Parameters
@@ -328,7 +329,7 @@ cdef class galaxy:
 		inta 
 			Number of vectors loaded
 		"""
-		count = inta(0)
+		cdef inta count = 0
 		tLoadEigenWeights (  &self.calculation, self.field ,filename.encode('utf-8'), 
 				&count,  vector, collect)
 		return count
