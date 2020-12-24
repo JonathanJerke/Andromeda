@@ -26,6 +26,7 @@ import numpy as np
 cimport andromedaPy
 include "system.pxi"
 
+from constants cimport inta
 from constants cimport floata
 from constants cimport field
 from constants cimport calculation
@@ -327,7 +328,7 @@ cdef class galaxy:
 		inta 
 			Number of vectors loaded
 		"""
-		inta count = 0
+	 	count = inta(0)
 		tLoadEigenWeights (  &self.calculation, self.field ,filename.encode('utf-8'), 
 				&count,  vector, collect)
 		return count
