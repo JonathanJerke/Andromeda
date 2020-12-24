@@ -20,5 +20,5 @@ olympics: BoostFibonacci.c BoostFibonacci.h system.h ioPrint.c ioPrint.h eigen.c
 #cp olympics andromeda
 
 libandromeda.so: BoostFibonacci.c BoostFibonacci.h system.h ioPrint.c ioPrint.h eigen.c eigen.h jobs.c input.c input.h constants.h  coreMath.c  coreUtil.h  mAls.c   Model.h coreForce.c  coreMath.h  interfaceMath.c  mAls.h  saUtil.c coreForce.h  input.c  coreUtil.c  interfaceMath.h  Model.c  saUtil.h
-	$(cc) $(flags) -fopenmp jobs.c input.c eigen.c coreMath.c mAls.c coreForce.c interfaceMath.c saUtil.c coreUtil.c Model.c ioPrint.c BoostFibonacci.c $(lib) -shared -Wall -fPIC -o libandromeda.so
+	$(cc) $(flags) -fopenmp jobs.c input.c eigen.c coreMath.c mAls.c coreForce.c interfaceMath.c saUtil.c coreUtil.c Model.c ioPrint.c BoostFibonacci.c $(lib) -shlib -shared -Wall -fPIC -o libandromeda.so
 
