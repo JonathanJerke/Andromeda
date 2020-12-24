@@ -168,19 +168,19 @@ cdef class galaxy:
 		self
 		"""
 		blockNames = dict({'total':blockMemoryType.blockTotalVectorBlock,
-    'train':blockMemoryType.blockTrainVectorsblock,
-    'copy':blockMemoryType.blockCopyBlock,
-    'transfer':blockMemoryType.blockTransferBasisblock,
-    'matrixElements':blockMemoryType.blockMatrixElementsblock,
-    'permute':blockMemoryType.blockPermutationsblock,
-    'multiply-parallel':blockMemoryType.blockParallelMultiplyblock,
-    'matrixElement-parallel':blockMemoryType.blockParallelMatrixElementblock,
-    'permute-parallel':blockMemoryType.blockParallelPermuteblock,
-    'print':blockMemoryType.blockPrintStuffblock,
-    'total-parallel':blockMemoryType.blockTotalVectorParallelBlock,
-    'component':blockMemoryType.blockComponentblock,
-    'diagonal':blockMemoryType.blockDiagonalMatrixblock})
-    	for bl in blockDescs:
+		'train':blockMemoryType.blockTrainVectorsblock,
+		'copy':blockMemoryType.blockCopyBlock,
+		'transfer':blockMemoryType.blockTransferBasisblock,
+		'matrixElements':blockMemoryType.blockMatrixElementsblock,
+		'permute':blockMemoryType.blockPermutationsblock,
+		'multiply-parallel':blockMemoryType.blockParallelMultiplyblock,
+		'matrixElement-parallel':blockMemoryType.blockParallelMatrixElementblock,
+		'permute-parallel':blockMemoryType.blockParallelPermuteblock,
+		'print':blockMemoryType.blockPrintStuffblock,
+		'total-parallel':blockMemoryType.blockTotalVectorParallelBlock,
+		'component':blockMemoryType.blockComponentblock,
+		'diagonal':blockMemoryType.blockDiagonalMatrixblock})
+		for bl in blockDescs:
 			blockA(&self.calculation.rt,bl)
 		return self
 			
