@@ -35,6 +35,7 @@ from Model cimport initField
 from Model cimport iModel
 from Model cimport fModel
 from input cimport blockA
+from input cimport resetA
 
 from constants cimport dimensions_label
 from constants cimport metric_label
@@ -181,6 +182,7 @@ cdef class galaxy:
 		'total-parallel':blockMemoryType.blockTotalVectorParallelBlock,
 		'component':blockMemoryType.blockComponentblock,
 		'diagonal':blockMemoryType.blockDiagonalMatrixblock})
+		resetA(&self.calculation.rt)
 		for bl in blockDescs:
 			blockA(&self.calculation.rt,blockNames[bl])
 		return self
