@@ -37,8 +37,8 @@
 #ifndef system_h
 #define system_h
 //#define VERBOSE_ALS
-//#define writeHDF5
-//#define readHDF5
+#define writeHDF5
+#define readHDF5
 //#define READ_FAST
 #define RAND_FOUNDATION
 //#define CHERRY_PICKER
