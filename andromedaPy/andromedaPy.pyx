@@ -44,6 +44,8 @@ from constants cimport componentType
 from constants cimport functionType
 from constants cimport metricType
 from constants cimport bodyType
+from constants cimport blockMemoryType
+
 
 cdef class galaxy:
 	cdef calculation calculation
@@ -123,7 +125,6 @@ cdef class galaxy:
 					if self.field.f.bootedMemory == 1 :
 						print("warning, already booted")
 						return self
-
 					"""Define 
 					"""		
 					
@@ -154,6 +155,36 @@ cdef class galaxy:
 						self.field.f.canon[space].basis = base
 						
 		return self	
+			
+	def block(self, blockDescs):
+		"""block memory allocations and some controls
+		
+		Parameters
+		----------
+		blockDesc : [str]
+		
+		Returns
+		-------
+		self
+		"""
+		blockNames = dict({'total':blockMemoryType.blockTotalVectorBlock,
+    'train':blockMemoryType.blockTrainVectorsblock,
+    'copy':blockMemoryType.blockCopyBlock,
+    'transfer':blockMemoryType.blockTransferBasisblock,
+    'matrixElements':blockMemoryType.blockMatrixElementsblock,
+    'permute':blockMemoryType.blockPermutationsblock,
+    'multiply-parallel':blockMemoryType.blockParallelMultiplyblock,
+    'matrixElement-parallel'blockMemoryType.blockParallelMatrixElementblock,
+    'permute-parallel':blockMemoryType.blockParallelPermuteblock,
+    'print':blockMemoryType.blockPrintStuffblock,
+    'total-parallel':blockMemoryType.blockTotalVectorParallelBlock,
+    'component':blockMemoryType.blockComponentblock,
+    'diagonal':blockMemoryType.blockDiagonalMatrixblock})
+    	for bl in blockDescs:
+			blockA(&self.calculation.rt,bl)
+		return self
+			
+			
 					
 	def i(self):
 		"""Initiate allocation, do not overwrite
@@ -204,4 +235,20 @@ cdef class galaxy:
 			fn =function_label(interval = interval, contr = contr,
 						fn = funcNames[funcDesc],param = np.zeros(MAX_PARAM_FUNC)) ,
 			metric = intervalName[intervalDesc],beta = betas)
+		
+		
+		
+	def maxRAM ( self, maxGB ):
+		"""Safety against crashing or worse.
+		
+		Parameters
+		----------
+		maxGB : float
+		
+		Returns
+		-------
+		self
+		"""
+		calculation.i.RAMmax = maxGB
+		return self
 		
