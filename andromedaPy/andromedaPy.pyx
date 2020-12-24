@@ -29,6 +29,7 @@ include "system.pxi"
 from constants cimport floata
 from constants cimport field
 from constants cimport calculation
+from constants cimport division
 
 from Model cimport initCal
 from Model cimport initField
@@ -36,6 +37,9 @@ from Model cimport iModel
 from Model cimport fModel
 from input cimport blockA
 from input cimport resetA
+from ioPrint cimport tLoadEigenWeights
+from ioPrint cimport printOut
+from eigen cimport tBoot
 
 from constants cimport dimensions_label
 from constants cimport metric_label
@@ -144,7 +148,8 @@ cdef class galaxy:
 					for (space,dim) in enumerate(dims):
 						for (body, particle) in enumerate(dim):
 							self.field.f.canon[space].particle[body+1] = particle
-							self.field.f.canon[space].particle[body+1].origin -= particle['lattice']*(self.field.f.canon[space].count1Basis-1)*particle['anchor']	
+							self.field.f.canon[space].particle[body+1].origin -= ( 
+		particle['lattice']*(self.field.f.canon[space].count1Basis-1)*particle['anchor'])	
 						if len(dim)==1:
 							self.field.f.canon[space].body = bodyType.one
 						elif len(dim)==2:
@@ -197,51 +202,9 @@ cdef class galaxy:
 			return self
 		iModel(&self.calculation, &self.field)
 		return self
-					
-	def metric(self, funcDesc = 'Coulomb', intervalDesc = 'interval',
-										 betas =[0,1],interval = 7, contr = 2):
-		"""Metric definition by description
-		
-		Parameters
-		----------
-		funcDesc : str
-		intervalDesc : str
-		betas : [floata,floata]
-			interval span or first float only
-		interval : int
-			CanonRank of operator
-		contr : int
-			Off diagonal measure
-			
-		Returns
-		-------
-		metric_label
-		"""
-		funcNames = dict(
-			{'null':functionType.nullFunction,'Pseudo':functionType.Pseudo,
-			'Yukawa':functionType.Yukawa,'Coulomb':functionType.Coulomb,
-			'Morse':functionType.Morse,'LennardJones':functionType.LennardJones,
-			'LDA':functionType.LDA,'BLYP':functionType.BLYP,
-			'Gaussian':functionType.Gaussian}
-		)
-		
-		intervalName = dict({'dirac':metricType.dirac,
-							'separateDirac':metricType.separateDirac,
-							'interval':metricType.separateDirac,
-							'semiDefinite':metricType.semiIndefinite,
-							'pureInterval':metricType.pureInterval,
-							'pureSemiIndefinite':metricType.pureSemiIndefinite}
-		)
-		
-		zs = np.zeros(SPACE)
-		return metric_label(pow = zs,powB = zs,deriv = zs,
-			fn =function_label(interval = interval, contr = contr,
-						fn = funcNames[funcDesc],param = np.zeros(MAX_PARAM_FUNC)) ,
-			metric = intervalName[intervalDesc],beta = betas)
-		
-		
-		
-	def calculationInputs ( self, numNames=-1, numVectors=-1, shiftFlag=-1,Lambda=-1,RAMmax=-1 ):
+						
+	def calculationInputs ( self, numNames=-1, numVectors=-1, shiftFlag=-1,Lambda=-1
+		,RAMmax=-1 ):
 		"""Relevant calculation.input 's
 		
 		Parameters
@@ -272,7 +235,8 @@ cdef class galaxy:
 			self.calculation.i.numNames = numNames
 		return self
 		
-	def fieldInputs( self, flex = -1, OpIndex = -2 , body =-1,irrep = -1, Iterations = -1,nStates = -1,iRank = -1,canonRank= -1,xRank = -1,qFloor = -1,filter = -1,collect=-1):
+	def fieldInputs( self, flex = -1, OpIndex = -2 , body =-1,irrep = -1, Iterations = -1
+	,nStates = -1,iRank = -1,canonRank= -1,xRank = -1,qFloor = -1,filter = -1,collect=-1):
 		"""Relevant field.input 's
 		
 		Parameters
@@ -322,4 +286,126 @@ cdef class galaxy:
 		if collect >= 0:
 			self.field.i.collect = collect
 		
+	def vectors( self ):
+		"""Vectors are addressed via these enumations.
+		
+		The number of them is by nStates.
+		
+		Returns
+		-------
+		division.eigenVectors
+		"""
+		return division.eigenVectors
+				
+	def auxVectors (self):
+		"""auxiliary Vectors are addressed via these enumations.
+		
+		Requires a booted galaxy.
+		The number of them is by qFloor.
+		
+		Returns
+		-------
+		division arrayed after allocated eigenVectors
+		"""
+
+		if self.field.f.bootedMemory == 1 :
+			return field.f.user	
+		else:
+			return division.nullName
+		
+	def read_file ( self, filename,vector = division.eigenVectors, collect = 0 ):
+		"""Standard Input procedure
+		
+		Parameters
+		----------
+		filename : str
+		vector : division
+		collect : inta
+		
+		Returns 
+		-------
+		self
+		"""
+		tLoadEigenWeights (  &self.calculation, self.field ,filename.encode('utf-8'), 
+				count,  vector, collect)
+		return self
+		
+		
+	def to_file ( self, vector = division.eigenVectors, reset = 1, index = 1 ):
+		"""Standard Input procedure
+		
+		Writes to calculation name.
+		
+		Parameters
+		----------
+		vector : division
+		reset : inta
+			Will overwrite the .vector file
+		index : inta
+			Meant for ease of indexing
+		
+		Returns 
+		-------
+		self
+		"""
+		printOut(  &self.calculation, self.field,reset, index, vector)
+		return self
+		
+	def gaussian ( self, vector = division.eigenVectors, spin = 0, width = 1.0):
+		"""Places a correctly band-limited gaussian.
+		
+		Parameters
+		----------
+		vector : division
+		spin : inta
+		width : floata
+		
+		Returns
+		-------
+		self
+		"""
+		tBoot(self.field.f, vector, spin, width)
+		return self
+		
+	def metric(self, funcDesc = 'Coulomb', intervalDesc = 'interval',
+										 betas =[0,1],interval = 7, contr = 2):
+		"""Metric definition by description
+		
+		Parameters
+		----------
+		funcDesc : str
+		intervalDesc : str
+			Type of interval or Dirac
+		betas : [floata,floata]
+			interval span or first float only
+		interval : int
+			CanonRank of operator
+		contr : int
+			Off diagonals
+			
+		Returns
+		-------
+		metric_label
+		"""
+		funcNames = dict(
+			{'null':functionType.nullFunction,'Pseudo':functionType.Pseudo,
+			'Yukawa':functionType.Yukawa,'Coulomb':functionType.Coulomb,
+			'Morse':functionType.Morse,'LennardJones':functionType.LennardJones,
+			'LDA':functionType.LDA,'BLYP':functionType.BLYP,
+			'Gaussian':functionType.Gaussian}
+		)
+		
+		intervalName = dict({'dirac':metricType.dirac,
+							'separateDirac':metricType.separateDirac,
+							'interval':metricType.separateDirac,
+							'semiDefinite':metricType.semiIndefinite,
+							'pureInterval':metricType.pureInterval,
+							'pureSemiIndefinite':metricType.pureSemiIndefinite}
+		)
+		
+		zs = np.zeros(SPACE)
+		return metric_label(pow = zs,powB = zs,deriv = zs,
+			fn =function_label(interval = interval, contr = contr,
+						fn = funcNames[funcDesc],param = np.zeros(MAX_PARAM_FUNC)) ,
+			metric = intervalName[intervalDesc],beta = betas)
 		
