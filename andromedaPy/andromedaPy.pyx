@@ -250,6 +250,6 @@ cdef class galaxy:
 		-------
 		self
 		"""
-		calculation.i.RAMmax = maxGB
+		self.calculation.i.RAMmax = maxGB
 		return self
 		
