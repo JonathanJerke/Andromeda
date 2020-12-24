@@ -37,8 +37,9 @@
 #ifndef system_h
 #define system_h
 //#define VERBOSE_ALS
-#define writeHDF5
-#define readHDF5
+//THE CANNED HDF5 is compiled incorreclty..cannot use this with Python...
+//#define writeHDF5
+//#define readHDF5
 //#define READ_FAST
 #define RAND_FOUNDATION
 //#define CHERRY_PICKER
