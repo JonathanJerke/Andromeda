@@ -174,7 +174,7 @@ cdef class galaxy:
     'matrixElements':blockMemoryType.blockMatrixElementsblock,
     'permute':blockMemoryType.blockPermutationsblock,
     'multiply-parallel':blockMemoryType.blockParallelMultiplyblock,
-    'matrixElement-parallel'blockMemoryType.blockParallelMatrixElementblock,
+    'matrixElement-parallel':blockMemoryType.blockParallelMatrixElementblock,
     'permute-parallel':blockMemoryType.blockParallelPermuteblock,
     'print':blockMemoryType.blockPrintStuffblock,
     'total-parallel':blockMemoryType.blockTotalVectorParallelBlock,
