@@ -182,7 +182,7 @@ cdef class galaxy:
 		'component':blockMemoryType.blockComponentblock,
 		'diagonal':blockMemoryType.blockDiagonalMatrixblock})
 		for bl in blockDescs:
-			blockA(&self.calculation.rt,bl)
+			blockA(&self.calculation.rt,blockNames[bl])
 		return self
 			
 			
