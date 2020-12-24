@@ -166,7 +166,7 @@ cdef class galaxy:
 						
 		return self	
 			
-	def block(self, blockDescs:str):
+	def block(self, blockDescs:[str]):
 		"""block memory allocations and some controls
 		
 		Parameters
