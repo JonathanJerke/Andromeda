@@ -34,6 +34,7 @@ from Model cimport initCal
 from Model cimport initField
 from Model cimport iModel
 from Model cimport fModel
+from input cimport blockA
 
 from constants cimport dimensions_label
 from constants cimport metric_label
