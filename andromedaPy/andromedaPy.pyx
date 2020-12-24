@@ -53,6 +53,8 @@ from constants cimport metricType
 from constants cimport bodyType
 from constants cimport blockMemoryType
 
+from libc.stdlib cimport strcpy
+
 
 cdef class galaxy:
 	cdef calculation calculation
@@ -337,7 +339,20 @@ cdef class galaxy:
 				&count,  vector, collect)
 		return count
 		
+	def rename(self , name:str ):
+		"""Name calculation.
 		
+		Parameters
+		----------
+		name : str
+		
+		Returns 
+		-------
+		self
+		"""
+		strcpy(self.calculation.name , name.encode('utf-8'))
+		return self
+				
 	def to_file ( self, vector : division = division.eigenVectors, reset : inta = 1, index : inta = 0 ):
 		"""Standard Input procedure
 		
