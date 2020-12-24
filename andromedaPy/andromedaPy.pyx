@@ -328,7 +328,7 @@ cdef class galaxy:
 		inta 
 			Number of vectors loaded
 		"""
-	 	count = inta(0)
+		count = inta(0)
 		tLoadEigenWeights (  &self.calculation, self.field ,filename.encode('utf-8'), 
 				&count,  vector, collect)
 		return count
