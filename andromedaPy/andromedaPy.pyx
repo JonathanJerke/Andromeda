@@ -241,17 +241,85 @@ cdef class galaxy:
 		
 		
 		
-	def maxRAM ( self, maxGB ):
-		"""Safety against crashing or worse.
+	def calculationInputs ( self, numNames=-1, numVectors=-1, shiftFlag=-1,Lambda=-1,RAMmax=-1 ):
+		"""Relevant calculation.input 's
 		
 		Parameters
 		----------
-		maxGB : float
+		numNames : int
+		numVectors : int
+		shiftFlag : int
+		Lambda : int
+		RAMmax : int
+		maxGB : int
 		
 		Returns
 		-------
 		self
 		"""
-		self.calculation.i.RAMmax = maxGB
+		if self.field.f.bootedMemory == 1 :
+			print("warning, already booted")
+			return self
+		if RAMmax >= 0 :
+			self.calculation.i.RAMmax = RAMmax
+		if Lambda >= 0 :
+			self.calculation.i.Lambda = Lambda
+		if shiftFlag >= 0 :
+			self.calculation.i.shiftFlag = shiftFlag
+		if numVectors >= 0 :
+			self.calculation.i.numVectors = numVectors
+		if numNames >= 0 :
+			self.calculation.i.numNames = numNames
 		return self
+		
+	def fieldInputs( self, flex = -1, OpIndex = -2 , body =-1,irrep = -1, Iterations = -1,nStates = -1,iRank = -1,canonRank= -1,xRank = -1,qFloor = -1,filter = -1,collect=-1):
+		"""Relevant field.input 's
+		
+		Parameters
+		----------
+		flex  : int
+		OpIndex  :int
+		body  : int
+		irrep : int
+		Iterations : int
+		nStates: int
+		iRank  : int
+		canonRank : int
+		xRank  : int
+		qFloor : int
+		filter :int
+		collect:int
+		
+		Returns
+		-------
+		self
+		"""
+		if self.field.f.bootedMemory == 1 :
+			print("warning, already booted")
+			return self
+		if flex >= 0 :
+			self.field.i.flex =flex
+		if OpIndex >= -1 :
+			self.field.i.OpIndex =OpIndex
+		if body >= 1:
+			self.field.i.body = body
+		if irrep >= 0 :
+			self.field.i.irrep = irrep
+		if Iterations >= 0 :
+			self.field.i.Iterations = Iterations
+		if nStates >= 0:
+			self.field.i.nStates = nStates
+		if iRank >=0:
+			self.field.i.iRank = iRank
+		if canonRank >= 0:
+			self.field.i.canonRank = canonRank
+		if xRank >= 0:
+			self.field.i.xRank = xRank
+		if qFloor >= 0:
+			self.field.i.qFloor = qFloor
+		if filter >= 0:
+			self.field.i.filter = filter
+		if collect >= 0:
+			self.field.i.collect = collect
+		
 		

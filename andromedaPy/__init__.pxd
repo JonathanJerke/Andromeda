@@ -31,5 +31,6 @@ from andromedaPy cimport coreMath
 from andromedaPy cimport coreUtil
 from andromedaPy cimport interfaceMath
 from andromedaPy cimport saUtil
+from andromedaPy cimport input
 from andromedaPy cimport ioPrint
 
