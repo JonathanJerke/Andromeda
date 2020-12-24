@@ -39,7 +39,7 @@ from input cimport blockA
 from input cimport resetA
 from ioPrint cimport tLoadEigenWeights
 from ioPrint cimport printOut
-from eigen cimport tBoot
+from coreUtil cimport tBoot
 
 from constants cimport dimensions_label
 from constants cimport metric_label
@@ -309,7 +309,7 @@ cdef class galaxy:
 		"""
 
 		if self.field.f.bootedMemory == 1 :
-			return field.f.user	
+			return self.field.f.user	
 		else:
 			return division.nullName
 		
@@ -324,11 +324,13 @@ cdef class galaxy:
 		
 		Returns 
 		-------
-		self
+		inta 
+			Number of vectors loaded
 		"""
+		inta count = 0
 		tLoadEigenWeights (  &self.calculation, self.field ,filename.encode('utf-8'), 
-				count,  vector, collect)
-		return self
+				&count,  vector, collect)
+		return count
 		
 		
 	def to_file ( self, vector = division.eigenVectors, reset = 1, index = 1 ):
