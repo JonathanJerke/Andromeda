@@ -53,7 +53,7 @@ from constants cimport metricType
 from constants cimport bodyType
 from constants cimport blockMemoryType
 
-from libc.stdlib cimport strcpy
+from libc.string cimport strcpy
 
 
 cdef class galaxy:
