@@ -210,29 +210,29 @@ double CanonicalRankDecomposition (  sinc_label  f0 ,double * coeff,   division 
             }
             iv++;
         }
-        GG1 = G1;
-        G1 = iv;
-        
-        F1.f.name[totalVector].Current[os] = G1;
-        if ( (G1 <= L1) && !X1 ){
-            L1 = G1;
-            #ifdef OMP
-            #pragma omp parallel for private (space) schedule(dynamic,1)
-            #endif
-            for ( space = 0; space < SPACE ; space++)
-                if ( f0.canon[space].body != nada){
-                    if ( GG1 < vectorLen(f0, space) ){
-                        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, vectorLen(f0, space), L1, vectorLen(F1.f, space), 1., streams(f0,origin,os,space), vectorLen(f0, space), streams(F1.f,eigenVectors,0,space), vectorLen(F1.f,space), 0., streams(f0,alloy,spin,space),vectorLen(f0, space) );
-                    } else {
-                        cblas_dcopy(L1*vectorLen(f0, space),streams(F1.f,eigenVectors,0,space),1,streams(f0,alloy,spin,space),1);
-                    }
+    GG1 = G1;
+    G1 = iv;
+    
+    F1.f.name[totalVector].Current[os] = G1;
+    if ( (G1 <= L1) && !X1 ){
+        L1 = G1;
+        #ifdef OMP
+        #pragma omp parallel for private (space) schedule(dynamic,1)
+        #endif
+        for ( space = 0; space < SPACE ; space++)
+            if ( f0.canon[space].body != nada){
+                if ( GG1 < vectorLen(f0, space) ){
+                    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, vectorLen(f0, space), L1, vectorLen(F1.f, space), 1., streams(f0,origin,os,space), vectorLen(f0, space), streams(F1.f,eigenVectors,0,space), vectorLen(F1.f,space), 0., streams(f0,alloy,spin,space),vectorLen(f0, space) );
+                } else {
+                    cblas_dcopy(L1*vectorLen(f0, space),streams(F1.f,eigenVectors,0,space),1,streams(f0,alloy,spin,space),1);
                 }
-            f0.name[alloy].Current[spin] = L1;
-            fModel( &F1.f);
-            return 0;
-        }else if ( (G1 < L1) && X1 ){
-            ///this alternative should never happen ,because origin is an output from the same procedure (w/ X1=0), now its just conditiionoing
-        }
+            }
+        f0.name[alloy].Current[spin] = L1;
+        fModel( &F1.f);
+        return 0;
+    }else if ( (G1 < L1) && X1 ){
+        ///this alternative should never happen ,because origin is an output from the same procedure (w/ X1=0), now its just conditiionoing
+    }
 
         
         ///now determine a overlap of terms
