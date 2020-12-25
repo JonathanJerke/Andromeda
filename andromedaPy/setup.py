@@ -28,5 +28,5 @@ from setuptools import Extension, setup
 from Cython.Build import cythonize
 
 setup(
-    ext_modules = cythonize([Extension("andromedaPy",[ "andromedaPy.pyx",],libraries = ["andromeda"])])
+    ext_modules = cythonize([Extension("andromedaPy",[ "andromedaPy.pyx",],libraries = ["andromeda"],include_dirs= ['/usr/include/hdf5/serial',])])
 )
