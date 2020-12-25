@@ -63,6 +63,7 @@ cdef class galaxy:
 	def __cinit__(self):
 		self.calculation = initCal()
 		self.field = initField()
+		self.calculation.rt.NLanes = 1
 
 	def __dealloc__(self):
 		fModel(&self.field.f)
