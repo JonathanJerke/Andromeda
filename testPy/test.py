@@ -8,7 +8,7 @@ ls = [1,1,1]
 bs = [g.bases('Sinc'),g.bases('Sinc'),g.bases('Sinc')]
 g.spaces(ls,cs,ds,bs)
 g.block(['total','train','copy','component','diagonal','total-parallel','matrixElement-parallel','multiply-parallel','permute','permute-parallel','transfer'])
-g.calculationInputs(RAMmax = 4,numVectors = 0,numNames = 10000)
+g.calculationInputs(RAMmax = 4,numVectors = 0,numNames = 0)
 g.fieldInputs(canonRank = 1,nStates = 1,OpIndex = 0)
 
 
