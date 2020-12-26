@@ -42,6 +42,9 @@ from input cimport bootShell
 from ioPrint cimport tLoadEigenWeights
 from ioPrint cimport printOut
 from coreUtil cimport tBoot
+from mAls cimport printExpectationValues
+
+
 
 from constants cimport dimensions_label
 from constants cimport metric_label
@@ -451,3 +454,17 @@ cdef class galaxy:
 						fn = funcNames[funcDesc],param = np.zeros(MAX_PARAM_FUNC)) ,
 			metric = intervalName[intervalDesc],beta = betas)
 		
+	def expectation(self, vector : division = division.eigenVectors):
+		"""Print Expectation values.
+		Resets blockMemory 10
+		
+		Returns
+		-------
+		self
+		"""
+		for b in range(BLOCK_COUNT):
+			if calculation.rt.memBlock[b] == blockMemoryType.blockPrintStuffblock:
+				calculation.rt.memBlock[b] = passBlock
+		
+		printExpectationValues (  &calculation,   field.f ,  division.Ha  , vector)
+		return self
