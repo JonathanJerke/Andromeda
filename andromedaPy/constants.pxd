@@ -437,8 +437,8 @@ cdef extern from "../Object/constants.h":
         char controlPath[MAXSTRING]
         double shiftVector[2]
         inta shiftFlag
-        inta omp
-        inta mkl
+#       inta omp
+#       inta mkl
         inta SymmetrizedGaussianLevel
         floata SymmetrizedGaussianWidth
         inta Lambda

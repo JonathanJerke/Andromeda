@@ -262,7 +262,7 @@ cdef class galaxy:
 			self.calculation.i.numVectors = numVectors
 		if numNames >= 0 :
 			self.calculation.i.numNames = numNames
-		print(self.calculation)
+		print(self.calculation.i)
 		return self
 		
 	def fieldInputs( self, flex :inta = -1, OpIndex:inta  = -2 , body:inta  =-1,
@@ -317,7 +317,7 @@ cdef class galaxy:
 			self.field.i.filter = filter
 		if collect >= 0:
 			self.field.i.collect = collect
-		print(self.field)
+		print(self.field.i)
 		return self
 		
 	def vectors(self):
