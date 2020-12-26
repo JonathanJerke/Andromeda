@@ -247,7 +247,7 @@ cdef class galaxy:
 		
 		Returns
 		-------
-		calculation
+		self
 		"""
 		if self.field.f.bootedMemory == 1 :
 			print("warning, already booted")
@@ -262,7 +262,8 @@ cdef class galaxy:
 			self.calculation.i.numVectors = numVectors
 		if numNames >= 0 :
 			self.calculation.i.numNames = numNames
-		return self.calculation
+		print(self.calculation)
+		return self
 		
 	def fieldInputs( self, flex :inta = -1, OpIndex:inta  = -2 , body:inta  =-1,
 		irrep:inta = -1, Iterations:inta = -1
@@ -287,7 +288,7 @@ cdef class galaxy:
 		
 		Returns
 		-------
-		field
+		self
 		"""
 		if self.field.f.bootedMemory == 1 :
 			print("warning, already booted")
@@ -316,7 +317,8 @@ cdef class galaxy:
 			self.field.i.filter = filter
 		if collect >= 0:
 			self.field.i.collect = collect
-		return self.field
+		print(self.field)
+		return self
 		
 	def vectors(self):
 		"""Vectors are addressed via these enumations.
