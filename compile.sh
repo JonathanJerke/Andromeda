@@ -20,7 +20,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`pwd`
 cd ..
 
 cd andromedaPy
-export PYTHONPATH=`pwd`
+export PYTHONPATH=$PYTHONPATH:`pwd`
 python3 setup.py build_ext -i
 cd ..
 
