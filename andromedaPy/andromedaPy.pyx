@@ -71,17 +71,17 @@ cdef class galaxy:
 		fModel(&self.field.f)
 	
 	def read_record(self,filepy):
-        """Give this member function a file in a directory structure of a linux computation,
-        it will load up the same initial state.
-        
-        Parameters
-        ----------
-        filepy : str
-        
-        Returns
-        -------
-        self
-        """
+		"""Give this member function a file in a directory structure of a linux computation,
+		it will load up the same initial state.
+		
+		Parameters
+		----------
+		filepy : str
+		
+		Returns
+		-------
+		self	
+		"""
 		bootShell(1, [str(filepy).encode('utf-8')],&self.calculation,&self.field)
 		return self
         
