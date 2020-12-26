@@ -38,6 +38,7 @@ from Model cimport iModel
 from Model cimport fModel
 from input cimport blockA
 from input cimport resetA
+from input cimport bootShell
 from ioPrint cimport tLoadEigenWeights
 from ioPrint cimport printOut
 from coreUtil cimport tBoot
@@ -64,10 +65,26 @@ cdef class galaxy:
 		self.calculation = initCal()
 		self.field = initField()
 		self.calculation.rt.NLanes = 1
+		self.calculation.rt.NSlot = 1
 
 	def __dealloc__(self):
 		fModel(&self.field.f)
-    
+	
+	def read_record(self,filepy):
+        """Give this member function a file in a directory structure of a linux computation,
+        it will load up the same initial state.
+        
+        Parameters
+        ----------
+        filepy : str
+        
+        Returns
+        -------
+        self
+        """
+		bootShell(1, [str(filepy).encode('utf-8')],&self.calculation,&self.field)
+		return self
+        
 	def dims(self, lattice:floata, attack:floata =0.5, origin:floata =0.0,
 												 anchor:floata =0.5 ):
 		"""Returns new floata parameters for a linear dimension.

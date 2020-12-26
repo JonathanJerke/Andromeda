@@ -28,8 +28,11 @@ from constants cimport inta
 from constants cimport floata
 from constants cimport blockMemoryType
 from constants cimport runTime
+from constants cimport calculation
+from constants cimport field
 
 cdef extern from "../Object/input.h":
 	inta resetA(   runTime *rt);
 	inta allowQ(   runTime *  f1,   blockMemoryType a );
 	inta blockA(   runTime *  f1,   blockMemoryType a );
+    inta bootShell (inta argc , char * argv[],  calculation * c1,   field *f)
