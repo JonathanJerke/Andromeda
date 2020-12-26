@@ -464,7 +464,7 @@ cdef class galaxy:
 		"""
 		for b in range(BLOCK_COUNT):
 			if self.calculation.rt.memBlock[b] == blockMemoryType.blockPrintStuffblock:
-				self.calculation.rt.memBlock[b] = passBlock
+				self.calculation.rt.memBlock[b] = blockMemoryType.passBlock
 		
 		printExpectationValues (  &self.calculation,   self.field.f ,  division.Ha  , vector)
 		return self
