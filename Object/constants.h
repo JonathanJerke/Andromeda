@@ -25,7 +25,7 @@
 /**
  *Andromeda: a few-body plane wave calculator
  *
- *v9.6
+ *v9.7
  *quantumGalaxies.org
  *
  *Jonathan Jerke
@@ -181,6 +181,18 @@ enum bootType{
     fullMatrices
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  *Interaction type labed, i.e. tv1 = act on particle 1 of component in question.
  */
@@ -209,6 +221,7 @@ enum blockType{
     e56
 };
 
+
 /**
  *Controling aspects of Hamiltonian Terms and more generally
  *the concept of a division.
@@ -231,6 +244,14 @@ enum genusType{
     eikonElement,
     eikonOuter
 };
+
+
+
+
+
+
+
+
 
 /**
  *The function type, defined in InverseLaplaceTransform
@@ -274,6 +295,7 @@ enum memoryType {
  *Printed at runtime, 'y'
  */
 
+
 enum basisElementType {
     nullBasisElement,
     SincBasisElement,
@@ -282,6 +304,14 @@ enum basisElementType {
     StateBasisElement,
     overlapBasisElement
 };
+
+
+
+
+
+
+
+
 
 /**
  *canon parameter, for labeling component
@@ -305,6 +335,12 @@ enum noteType {
     interactionCell
 };
 
+
+
+
+
+
+
 /**
  *The Lebequse metric of integration of beta integral
  *
@@ -318,22 +354,6 @@ enum metricType {
     pureInterval,
     pureSemiIndefinite
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /**
@@ -360,7 +380,8 @@ enum blockMemoryType{
     blockPrintStuffblock,
     blockTotalVectorParallelBlock,
     blockComponentblock,
-    blockDiagonalMatrixblock
+    blockDiagonalMatrixblock,
+    blockCompressionBlock
 };
 
 
@@ -491,7 +512,6 @@ enum blockMemoryType{
 
 
 
-
 /**
  *Divisions define and indicate data.
  *Lined up with 500 so a division number can be easily read.
@@ -587,7 +607,7 @@ enum division{
     component,
     componentTotal,
     CanonicalBuffers,
-    oneVector,
+    canonicalBuffersD,
     twoVector,
     twoBodyRitz,
     totalVector,

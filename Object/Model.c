@@ -546,6 +546,7 @@ inta iModel(   calculation * c1,   field *f){
         }
         inta len[SPACE];
         inta mxlen=0;
+    inta xM = 0;
         inta mx1len=0;
         length1(*f1, len);
         for ( space = 0 ; space < SPACE ; space++)
@@ -553,8 +554,14 @@ inta iModel(   calculation * c1,   field *f){
                 len[space]+=f1->canon[space].count1Inc;
                 if(len[space] > mx1len)
                     mx1len = len[space];
+                if ( xM < vectorLen(*f1, space))
+                    xM = vectorLen(*f1,space);
             }
         mxlen = Power(mx1len, bootBodies);
+    
+    
+    
+    
     
         fromBeginning(*f1,productVector,diagonalVectorB);
         f1->name[productVector].Partition =  0;
@@ -724,7 +731,7 @@ inta iModel(   calculation * c1,   field *f){
 
     
         fromBeginning(*f1,trackBuffer,CanonicalBuffers);
-        f1->name[trackBuffer].Partition = 2*flag*(maxTrainRank*maxTrainRank);
+        f1->name[trackBuffer].Partition = 2*flag*(maxTrainRank*maxTrainRank)+maxTrainRank;
         f1->name[trackBuffer].memory = bufferAllocation;
         f1->name[trackBuffer].species = scalar;
 
@@ -739,7 +746,13 @@ inta iModel(   calculation * c1,   field *f){
         f1->name[canonicalBuffersB].memory = bufferAllocation;
         f1->name[canonicalBuffersB].species = scalar;
 
-        fromBeginning(*f1,canonicalVector,canonicalBuffersB);
+    fromBeginning(*f1,canonicalBuffersD,canonicalBuffersB);
+    f1->name[canonicalBuffersD].Partition = (allowQ(f1->rt, blockCompressionBlock))* xM*3;
+    f1->name[canonicalBuffersD].spinor = parallel;
+    f1->name[canonicalBuffersD].memory = bufferAllocation;
+    f1->name[canonicalBuffersD].species = scalar;
+    
+        fromBeginning(*f1,canonicalVector,canonicalBuffersD);
         f1->name[canonicalVector].Partition = 1;
         f1->name[canonicalVector].spinor = parallel;
         if ( allowQ(f1->rt, blockTrainVectorsblock))
