@@ -42,7 +42,7 @@ from input cimport bootShell
 from ioPrint cimport tLoadEigenWeights
 from ioPrint cimport printOut
 from coreUtil cimport tBoot
-from mAls cimport printExpectationValues
+from coreUtil cimport printExpectationValues
 
 
 
