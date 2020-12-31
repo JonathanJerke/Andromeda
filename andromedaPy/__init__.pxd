@@ -25,7 +25,6 @@
 from andromedaPy cimport constants
 from andromedaPy cimport eigen
 from andromedaPy cimport Model
-from andromedaPy cimport mAls
 from andromedaPy cimport Decompose
 from andromedaPy cimport Compression
 from andromedaPy cimport coreMath
