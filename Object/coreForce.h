@@ -28,7 +28,6 @@
 #include "constants.h"
 #include "coreMath.h"
 #include "coreUtil.h"
-#include "mAls.h"
 #include "ioPrint.h"
 
 void getDescription (   function_label *fn ,double scalar,FILE * outString);

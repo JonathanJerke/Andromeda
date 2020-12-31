@@ -2530,3 +2530,1055 @@ double xFourBand (  sinc_label f1,inta space,   division vector1 ,inta s1,   sin
 }
 
 
+
+
+
+/**
+ *The printing output in D.kry
+ *
+ *@param c  The general parameters
+ *@param f1 The container
+ *@param Hamiltonian The all links will be printed
+ *@param vector division of the input vector
+ */
+double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Hamiltonian  ,   division vector){
+    mea totx,me,ov,edge;
+    inta space,ed,i,spacer;
+      bodyType body;
+    if ( !allowQ(f1.rt, blockPrintStuffblock))
+        return 0.;
+    
+
+    totx = 0.;
+    printf("\n======Expectation========\n");
+    if (CanonicalRank(f1, vector, 1))
+        printf("\t%d (%d + i%d)\n", vector, CanonicalRank(f1, vector, 0), CanonicalRank(f1, vector, 1));
+    else
+        printf("\t(%d)\t%d\n",  CanonicalRank(f1, vector, 0),vector-eigenVectors);
+    ov = pMatrixElement( f1, vector, 0, nullOverlap, 0, vector,0);
+    printf("------Edges------\n\n");
+    division header = anotherLabel(&f1, 0, nada);
+    division eik    = anotherLabel(&f1, 0, nada);
+    division mem    = anotherLabel(&f1, 0, one);
+    char* desc [] = {"fourier","negative","positive"};
+    for ( space = 0; space < SPACE ; space++){
+        for (body = one ; body <=  f1.canon[space].body ; body++ )
+            for ( ed = 0 ; ed < 3 ; ed++){
+                f1.name[header].species = matrix;
+                f1.name[header].chainNext = eik;
+                f1.name[eik].loopNext = mem;
+                f1.name[eik].species = eikon;
+                f1.name[mem].species = eikonOuter;
+                f1.name[mem].Current[0] = 1;
+                f1.name[mem].space[space].body = one;
+
+                for ( spacer = 0; spacer < SPACE ;spacer++)
+                    f1.name[mem].space[spacer].block = id0;
+                f1.name[mem].space[space].block = (blockType)body;
+                zero(f1 , mem,0);
+            switch ( ed ){
+                case 0:
+                    for ( i = 0; i < vector1Len(f1, space) ; i++)
+                        streams(f1,mem,0,space)[i] = sign(i)*1./vector1Len(f1, space);
+                    break;
+                case 1:
+                    streams(f1,mem,0,space)[0] = 1;
+                    break;
+                case 2:
+                    streams(f1,mem,0,space)[vector1Len(f1, space)-1] = 1;
+                    break;
+            }
+                edge = pMatrixElement(f1, vector, 0, header, 0, vector,0);
+                printf("\t%d\t%d\t%s \t%1.12f\n", space+1,body,desc[ed], edge/ov);
+            }
+    }
+        
+    printf("------Terms------\n");
+
+    division op = defSpiralMatrix(&f1, Hamiltonian);
+    inta o,scr=0,cr =0;;
+    inta terms = 0,oo=0;
+    
+    
+    for (o = 0; f1.name[op+o].species == matrix ; o++)
+    {
+        
+        while ( terms <= o && oo < c->i.termNumber ){
+            if ( c->i.terms[oo].headFlag ) {
+                terms++;
+            }
+            printf("%s ", c->i.terms[oo].desc);
+            oo++;
+        }
+        
+        me = pMatrixElement( f1, vector, 0, op+o, 0, vector,0);
+        cr = CanonicalOperator(f1, op+o, 0);
+        scr += cr;
+        printf("\t(%d)\t%6.12f\n", cr,creal(me/ov));
+        fflush(stdout);
+        totx += me/ov;
+    }
+    f1.name[vector].value.value = totx;
+   {
+#ifdef COMPLEXME
+            printf("sum\t(%d)\t%6.12f\tI %6.6f\n",scr,creal(totx),cimag(totx));
+#else
+            printf("sum\t(%d)\t%6.12f\n",scr,(totx));
+#endif
+    }
+        
+    return totx;
+}
+
+
+/**
+ *The matrix element calculator using multiply
+ *
+ *@param rank      OMP rank
+ *@param f1          container
+ *@param bra       division on left of operator
+ *@param bspin  bra's spin
+ *@param mat       A single link or Hamilonian Term
+ *@param mspin mat's spin
+ *@param ket        division on right of operator
+ *@param kspin  ket's spin
+ */
+double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin,  division mat, inta mspin,  division ket, inta kspin ){
+    
+      division holder ;
+    inta holderRank, holderSpin;
+    inta k,l,e,space;
+    double prod,ME=0;
+    inta ca;
+    ///outputFormat(f1, stdout, bra, 0);
+    if ( rank )
+        if ( ! allowQ(f1.rt, blockParallelMatrixElementblock)){
+            printf("blockParallelMatrixElementblock Allow!\n");
+            fflush(stdout);
+            exit(0);
+        }
+    
+    
+    if ( mat == nullName || f1.name[mat].name == nullName)
+        return 0.;
+    
+    if (mat == nullOverlap  )
+        ca = 1;
+    else if ( f1.name[mat].species == matrix || f1.name[mat].species == vector )
+        ca = CanonicalOperator(f1,mat, mspin);
+    else
+        return 0.;
+    
+                for ( k = 0 ; k < CanonicalRank(f1, ket, kspin);k++){
+                    for ( l = 0 ; l < ca;l++){
+                        if ( mat == nullOverlap ){
+                            holder = ket;
+                            holderRank = k;
+                            holderSpin = kspin;
+                        }
+                        else {
+                            tHX(rank, f1, mat, l, mspin, 1., ket, k, kspin,canonicalmeVector, 0, rank);
+                            
+                            holder = canonicalmeVector;
+                            holderRank = 0;
+                            holderSpin = rank;
+                            
+                        }
+                        for ( e = 0 ; e < CanonicalRank(f1, bra, bspin);e++){
+                            prod = 1;
+                            for ( space = 0 ; space < SPACE ; space++)
+                                if ( f1.canon[space].body != nada){
+                                    prod *= tDOT(rank, f1,space,CDT, bra, e, bspin,CDT, holder, holderRank, holderSpin);
+                                }
+                            ME += prod;
+                        }
+                    }
+                }
+        return ME;
+}
+            
+        
+
+
+/**
+ *general matrix - vector multiply per dimension
+ *
+ *@param rank      OMP rank
+ *@param f1          container
+ *@param space   in canon which has SPACE components
+ *@param equals output division
+ *@param espin  output spin
+ *@param left  matrix
+ *@param l  one of the matrices canonical ranks indexed
+ *@param lspin matrix spin
+ *@param right input division
+ *@param r one of the input canonical ranks indexed
+ *@param rspin input spin
+ */
+inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e, inta espin,  division left,inta l,inta lspin,   division right,inta r, inta rspin ){
+    if ( header(f1, left ) != header(f1, right ) ){
+        printf("Two Head types GEMV\n %d %d %d %d %d %d",equals,header(f1, equals ) ,left,header(f1, left ) ,right,header(f1, right ) );
+        exit(1);
+    }
+    if ( rank ) {
+        if ( ! allowQ(f1.rt, blockParallelMultiplyblock)){
+            printf("blockParallelMultiplyblock allow!\n");
+            fflush(stdout);
+            exit(0);
+        }
+    }
+    
+    bodyType bd = Bodies(f1, right,space);
+    division inT,outT;
+    inta inR,outR,inS,outS;
+    f1.name[canonicalmvVector].Current[rank] = 0;
+    f1.name[canonicalmv2Vector].Current[rank] = 1;
+    f1.name[canonicalmv3Vector].Current[rank] = 0;
+    if ( species(f1,left ) >= eikon && species(f1, right ) == vector ){
+        char  in,out;
+            in = 1;
+            out = 1;
+        
+        inT = right;
+        inR = r;
+        inS = rspin;
+        
+        outT = equals;
+        outR = e;
+        outS = espin;
+        
+        division midT = canonicalmv3Vector;
+        inta midR = 0;
+        inta midS = rank;
+        
+        division laterT = canonicalmv3Vector;
+        inta laterR = 1;
+        inta laterS = rank;
+
+        {
+            
+                inta N1 = outerVectorLen(f1, one,space);
+                inta N2 = vectorLen(f1, space);
+                
+                inta i;
+                double * midP = streams(f1, midT, midS,space)+midR*N2;
+                double * laterP = streams(f1, laterT, laterS,space)+laterR*N2;
+                double * inP  = streams(f1, inT, inS,space)+inR*N2;
+
+                double * outP = streams(f1, outT, outS,space)+outR*N2;
+            for ( i = 0 ; i < N2 ; i++)
+                outP[i] = 0.;
+
+#if VERBOSE
+            printf("in %f %d\n", cblas_dnrm2(N2, inP, 1),N1);
+#endif
+                division su = left;//direct summation per component!
+                inta timer = 0,xlxl=0;
+                while ( su != nullName ){
+                    for ( i = 0 ; i < N2 ; i++){
+                        laterP[i] = 0.;
+                        midP[i] = 0.;
+                    }
+                    
+                    if ( f1.name[su].space[space].block == id0 )
+                        xlxl = 1;
+                    else
+                        switch(species(f1,su)){
+                            case eikonDiagonal:
+                            case eikonKinetic:
+                            case eikonConstant:
+                            case eikonDeriv:
+                            case eikonLinear:
+                            case eikonSpring:
+                            case eikonElement:
+                            case eikonOuter:
+                                xlxl = 1;
+                                break;
+                            case eikonSemiDiagonal:
+                                switch(Bodies(f1, su,space)){
+                                    case one:
+                                        xlxl = 0;
+                                        break;
+                                    case two:
+                                        xlxl = 4;
+                                        break;
+                                default:
+                                    break;
+
+                                }
+                                break;
+                            case eikonOffDiagonal:
+                                switch(Bodies(f1, su,space)){
+                                    case one:
+                                        xlxl = 2;
+                                        break;
+                                    case two:
+                                        xlxl = 4;
+                                        break;
+                                   default:
+                                       break;
+
+                                }
+                                break;
+                            default:
+                                break;
+
+                    }
+                    for ( timer = 0 ; timer < xlxl ; timer++){
+                        double flow = 1.;
+                         ///the notion is to buffer on mid and accumlate on out
+                        inta N3 = alloc(f1, su, space);
+                        double * suP  = streams(f1, su , lspin, space)+l*N3;
+                        if ( f1.name[su].space[space].block == id0 ){
+                            topezOp(0,0, bd,f1.name[su].space[space].act,tv1, tv1,N1,inP,0, laterP);
+                        }else
+                        if ( Bodies ( f1,su,space) == one ){
+                             if ( species(f1,su) == eikonDeriv){
+                                flow *= *suP;
+                                topezOp(0,f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,1, laterP);
+                            } else
+                        if ( species(f1,su) == eikonKinetic ){
+                                flow *= *suP;
+                                topezOp(0, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,2, laterP);
+                            }
+                        else if ( species(f1,su) == eikonConstant){
+                            ///action can happen!
+                            flow *= *suP;
+                            topezOp(0,0, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,0, laterP);
+                        }
+                        else if ( species(f1,su) == eikonLinear){
+                            flow *= *suP;
+                            ///relative to grid only
+                            floata center = (f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
+                            topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-1, laterP);
+                        }
+                        else if ( species(f1,su) == eikonSpring){
+                            flow *= *suP;
+                            ///relative to grid only
+                            floata center = 0.5* (f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
+                            topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-2, laterP);
+
+                        }
+                        else if ( species(f1,su) == eikonElement){
+                            flow *= *suP;
+                            for ( i = 0 ;i < N2 ; i++)
+                                laterP[i] = 0.;
+
+                            ///not a spatial state, this is an electronic level... no permutations here...just dropout a vector.
+
+                            laterP[f1.name[su].space[space].bra] = inP[f1.name[su].space[space].ket];
+
+                        }
+                        else if ( species(f1,su) == eikonOuter){
+                            inta n1[MAXBODY] ,ii,i;
+                            double suX;
+                            switch(f1.name[su].space[space].block){
+                                case tv1:
+                                    n1[0] = 1;
+                                    n1[1] = N1;
+                                    n1[2] = N1*N1;
+                                    break;
+                                case tv2 :
+                                    n1[1] = 1;
+                                    n1[0] = N1;
+                                    n1[2] = N1*N1;
+                                    break;
+                                case tv3 :
+                                    n1[1] = 1;
+                                    n1[2] = N1;
+                                    n1[0] = N1*N1;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            for ( i = 0 ;i < N2 ; i++)
+                                laterP[i] = 0.;
+                            switch ( bd ){
+                                case one:
+                                    cblas_dcopy(N1, suP, 1, laterP, 1);
+                                    flow *= cblas_ddot(N1, inP, 1, suP, 1);
+                                    break;
+                                case two:
+                                    suX = 0.;
+                                    for ( i = 0 ; i < N1 ; i++){
+                                        cblas_dcopy(N1, suP, 1, laterP+i*n1[1], n1[0]);
+                                        suX += cblas_ddot(N1, inP+i*n1[1], n1[0], suP, 1);
+                                    }
+                                    flow *= suX;
+                                    break;
+                                case three:
+                                    suX = 0.;
+                                    for ( i = 0 ; i < N1 ; i++)
+                                        for ( ii = 0 ; ii < N1 ; ii++){
+                                            cblas_dcopy(N1, suP, 1, laterP+i*n1[1]+ii*n1[2], n1[0]);
+                                            suX += cblas_ddot(N1, inP+i*n1[1]+ii*n1[2], n1[0], suP, 1);
+                                        }
+                                    flow *= suX;
+                                    break;
+                                default:
+                                    break;
+
+                            }
+                        }
+
+                        else
+                        if ( species(f1,su) == eikonDiagonal ){
+                            flow *= 1.;
+                            diagonalOp(bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP, suP,laterP);
+                        }else if ( species(f1,su) == eikonOffDiagonal ){
+                            if ( timer == 0 ){
+                                flow *= -1;
+                                topezOp(0,1., bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,1, midP);
+                                diagonalOp(bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,midP, suP,laterP);
+                            }
+                            else if ( timer == 1 ){
+                                flow *= 1;
+                                diagonalOp(bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP, suP,midP);
+                                topezOp(0,1., bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,midP, 1,laterP);
+                            }
+                    }
+                }
+                   else  if ( Bodies ( f1,su,space) == two ){
+                       if ( species(f1,su) == eikonDiagonal ){
+                            flow *= 1;
+                             diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,laterP);
+                        }else if ( species(f1,su) == eikonSemiDiagonal ){
+
+                            if ( timer == 0 ){
+                                flow *= -1;
+
+                                topezOp(0, 1, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP, 1,midP);
+                                diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,midP, suP,laterP);
+
+                           }
+
+                            else if ( timer == 1 ){
+                                flow *= 1 ;
+                                topezOp(0,1, bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,inP, 1,midP);
+                                diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,midP, suP,laterP);
+                                
+                            } else
+                             if ( timer == 2 ){
+                                flow *= 1;
+                                 
+                                 diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,midP);
+                                 topezOp(0,1, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,midP, 1,laterP);
+
+                                 
+                                 
+                            }
+                        
+                             else if ( timer == 3 ){
+                                 flow *= -1 ;
+                                 
+                                 diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,midP);
+                                 topezOp(0,1, bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,midP, 1,laterP);
+
+                             }
+                        }else
+                        if ( species(f1,su) == eikonOffDiagonal ) {
+                            if ( timer == 0 ){
+                            flow *= 1;
+                            //A
+                                diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,laterP);
+                                topezOp(0,1., bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,laterP, 1,midP);
+                                topezOp(0,1., bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,midP, 1,laterP);
+
+                            }
+                        
+                            else if ( timer == 1 ){
+                                flow *= 1 ;
+                                topezOp(0,1., bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP, 1,laterP);
+                                topezOp(0,1., bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,laterP, 1,midP);
+                                diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,midP, suP,laterP);
+
+                            }
+                            else if ( timer == 2){
+                                flow *= -1 ;
+                                topezOp(0,1., bd,f1.name[su].space[space].act       ,tv1, f1.name[su].space[space].block,N1,inP, 1,laterP);
+                                diagonalOp(bd,f1.name[su].space[space].act    ,e12, f1.name[su].space[space].block,N1,laterP, suP,midP);
+                                topezOp(0,1., bd         ,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,midP, 1,laterP);
+
+                            } else if (timer ==3 ){
+                                flow *= -1;
+                                topezOp(0,1., bd,f1.name[su].space[space].act       ,tv2, f1.name[su].space[space].block,N1                                  ,inP,   1,laterP);
+                                diagonalOp(bd,f1.name[su].space[space].act    ,e12, f1.name[su].space[space].block,N1                                  ,laterP, suP,midP);
+                                topezOp(0,1., bd         ,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1  ,midP,  1,laterP);
+
+                            }
+                            }
+                         }
+                        if ( f1.name[su].space[space].act < 0 ){
+#if VERBOSE
+                            printf("invert\n");
+#endif
+                            InvertOp(bd,-f1.name[su].space[space].act, N1, laterP, midP);
+                            cblas_daxpy(N2, flow, midP , 1, outP, 1);
+                        }else {
+                            cblas_daxpy(N2, flow, laterP, 1, outP, 1);
+                       }
+                    }
+                    su = f1.name[su].loopNext;//sum channel
+                }
+                
+        }
+    }
+        else
+            if ( species(f1,left) == matrix && species(f1,right) == vector){
+                if ( bodies(f1,left) == bodies(f1,right))
+                {
+                    inta N1 = vectorLen(f1, space);
+
+                        cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,
+                                streams(f1,left,lspin,space)+l*N1*N1, N1,
+                                streams(f1,right,rspin,space)+r*N1,1, 0.,
+                                streams(f1,equals,espin,space)+e*N1, 1  );
+
+                }else if ( bodies(f1,left) < bodies(f1,right))
+                {
+                    inta N1 = outerVectorLen(f1,bodies(f1,left),space);
+                    inta N2 = vectorLen(f1, space);
+                        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams(f1, left, lspin,space)+l*N1*N1,N1,streams(f1,right,rspin,space)+r*N2,N1,0.,streams(f1, equals, espin,space)+e*N2,N1);
+                }
+            
+            }
+        
+    else if ( species(f1, left) == diagonalMatrix && species(f1,right) == vector && species(f1,equals) == vector){
+    ///for diagonal potential matrices, where left points at a vector
+    
+        inta N2 = vectorLen(f1, space);
+        cblas_dcopy(N2, streams(f1, right,rspin,space)+r*N2, 1, streams( f1, equals, espin,space)+e*N2, 1);
+        cblas_dtbmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, N2, 0,streams( f1, left, lspin,space )+l*N2, 1,streams( f1, equals, espin,space)+e*N2,1);
+    }
+    else if ( species(f1, left) == vector && species(f1,right) == vector && species(f1,equals) == vector){
+    ///specifically for geminals * transpose-geminals = geminal
+    //if ( bodies(f1, left) == two && bodies(f1,in) == two && bodies(f1,out)== two )
+    
+        inta N1 = vector1Len(f1, space);
+        inta N2 = N1*N1;
+        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,N1,N1,N1,1.,streams( f1, left, lspin,space )+l*N2,N1,streams(f1, right,rspin,space)+r*N2,N1, 0.,streams( f1, equals, espin,space)+e*N2,N1);
+    }
+    return 0;
+}
+
+//inta tGEVV (inta rank,    sinc_label  f1,  inta space,  division equals,inta e,  inta espin,   division left,inta l,inta lspin,    division right,inta r, inta rspin ){
+//    if ( header(f1, left ) != header(f1, right ) ){
+//        printf("Two Head types GEVVo\n");
+//        exit(0);
+//    }
+//    inta nl,nr,nm,space2 = space;
+//      genusType sl = species(f1,left);
+//      genusType sr = species(f1,right);
+//    inta cr = CanonicalRank(f1, left, lspin);
+//
+//    if (( sl == outerVector ) && ( sr == vector ) ){
+//          division inT,midT,outT;
+//        inta inR,midR,outR,inS,midS,outS;
+//        inT = right;
+//        inR = r;
+//        inS = rspin;
+//
+//        outT = equals;
+//        outR = e;
+//        outS = espin;
+//        if ( in != 1 ){
+//           tPermuteOne(rank, f1, space, in, right, r, rspin, canonicalvvVector,0, rank);
+//           inT = canonicalvvVector;
+//           inR = 0;
+//           inS = rank;
+//        }
+//        midT = canonicalvv2Vector;
+//        midR = 0;
+//        midS = rank;
+//
+//
+//        if (out != 1 ){
+//            outT = canonicalvv3Vector;
+//            outR = 0;
+//            outS = rank;
+//        }
+//        if (sl == outerVector)
+//            nl = outerVectorLen(f1, bodies(f1, left), space);
+//        else
+//            nl = vectorLen(f1, space);
+//
+//        if (sr == outerVector)
+//            nr = outerVectorLen(f1, bodies(f1, right), space);
+//        else
+//            nr = vectorLen(f1, space);
+//
+//        if ( nl == nr )
+//        {
+//            cblas_dcopy(nl,streams(f1,inT,inS,space)+inR*nl ,1,streams(f1,outT,outS,space)+outR*nl ,1  );
+//            cblas_dscal(nl,tDOT(rank, f1, space, 1, midT, midR,midS,1, outT, outR, outS),streams(f1,outT,outS,space)+outR*nl,1);
+//        }
+//            else if (nl < nr ) {
+//                inta l1 = l%cr, l2 = (l/cr)% cr;
+//                printf("%d**%d\n",l1,l2);
+//                        //dgemv on right * left -> reduced dimensional intermediate
+//                        nm = nr/nl;
+//                cblas_dgemv( CblasColMajor, CblasNoTrans,  nm,  nl,1.,
+//                        streams( f1, inT, inS,space )+inR*nr, nm,
+//                        streams(f1, left, lspin,space)+l1*nl,1, 0.,
+//                        streams( f1, midT, midS,space )+midR*nm, 1  );
+//                cblas_dger(CblasColMajor, nl,nm, 1. , streams(f1,left,lspin,space) + l2 * nl,1 , streams(f1, midT,midS,space)+midR*nm,1, streams(f1, outT,outS,space)+outR*nr,nl);
+//            }else {
+//                printf("dimensional error\n");
+//                exit(0);
+//            }
+//
+//        if (out != 1 ){
+//            tPermuteOne(rank, f1, space2, out, outT,outR,outS, equals, e,espin);
+//        }
+//
+//    }
+//    return 0;
+//}
+
+/**
+ *general vector - vector inner product per dimension
+ *
+ *@param rank      OMP rank
+ *@param f1          container
+ *@param leftChar  left input group action  defalult 1
+ *@param left  vector
+ *@param l  one of the matrices canonical ranks indexed
+ *@param lspin matrix spin
+ *@param rightChar right input group action
+ *@param right input division
+ *@param r one of the input canonical ranks indexed
+ *@param rspin input spin
+*/
+double tDOT (inta rank,    sinc_label  f1,inta dim,char leftChar,   division left,inta l,inta lspin, char rightChar,   division right,inta r, inta rspin ){
+    inta space = dim,brab,bspin ,ketk, kspin;
+    double prod = 0.;
+      division bra,ket;
+    f1.name[canonicaldotVector].Current[rank] = 0;
+    f1.name[canonicaldot2Vector].Current[rank] = 0;
+    if ( rank ){
+        ///check for parallel allocations
+        if ( ! allowQ(f1.rt, blockParallelPermuteblock)){
+            printf("blockParallelPermuteblock allow\n");
+            fflush(stdout);
+            exit(0);
+        }
+    }
+    
+    
+    if ( rightChar != CDT){
+        tPermuteOne(rank, f1, space, rightChar, right, r, rspin, canonicaldotVector,0, rank);
+        bra = canonicaldotVector;
+        brab = 0;
+        bspin = rank;
+    }else {
+        bra = right;
+        brab = r;
+        bspin = rspin;
+    }
+    if (leftChar != CDT ){
+        tPermuteOne(rank, f1, space, leftChar, left, l, lspin, canonicaldot2Vector,0, rank);
+        ket = canonicaldot2Vector;
+        ketk = 0;
+        kspin = rank;
+        
+    }else{
+        ket = left;
+        ketk = l;
+        kspin = lspin;
+    }
+    inta al = alloc(f1, right, space );
+    if ( alloc(f1, left, space ) == alloc(f1, right, space )){
+        inta N1 = al;
+        prod = cblas_ddot( N1 , streams(f1,bra,bspin,space)+brab*N1,1 , streams(f1,ket,kspin,space)+ketk*N1, 1);
+    } else {
+        printf("body count %d %d %d %d\n",left,alloc(f1, left, space ) , right,alloc(f1, right, space ) );
+        exit(1);
+    }
+    return prod;
+}
+
+
+/**
+ *Multiply by dimension
+ *
+ *@param rank      OMP rank
+ *@param f1          container
+ *@param left matrix
+ *@param l matrix index, across all chained elements
+ *@param im matrix spin
+ *@param prod scalar multiply
+ *@param[in] ket vector
+ *@param k ket index
+ *@param sp2 ket spin
+ *@param[out] oket vector
+ *@param o oket index
+ *@param ospin spin
+ */
+inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double prod,   division ket , inta k, inta sp2,   division oket, inta o,inta ospin ){
+    if ( left == nullName || species(f1, left ) == scalar){
+        printf("*");
+        return 0;
+    }
+    name_label u = f1.name[left];
+    division in=nullName,out=nullName;
+    inta inSp,outSp,inRank,outRank;
+    
+    inta N2,flag,lll,found;
+    inta dim,iter=0;
+    {
+        
+        if ( rank ){
+            ///check for parallel allocations
+            if ( ! allowQ(f1.rt, blockParallelMultiplyblock)){
+                printf("blockParallelMultiplyblock allow\n");
+                fflush(stdout);
+                exit(0);
+            }
+        }
+        name_label x = f1.name[left];
+        division ll = name(f1,left),xx,zz;
+        inta mi = 0,xi=0;
+                if (f1.name[ll].multId)
+                    while ( ll != nullName){
+                        //chain will tie various separate terms into a single entity
+                        zz = name(f1,left);
+                        found = 0;
+                        while ( zz != ll ){
+                            if (f1.name[zz].multId == f1.name[ll].multId)
+                                found = 1;
+                            zz = f1.name[name(f1,zz)].chainNext;
+                        }
+                        if ( ! found ){
+
+                        
+                        xi += CanonicalRank(f1, ll, im);
+                        lll =  l-mi;
+                        if ( mi <= l && l < xi )
+                            {
+                                
+                                xx = ll;
+                                while ( xx != nullName ){
+                                    if ( f1.name[ll].multId == f1.name[xx].multId){
+                                        iter++;
+                                        if ( iter == 1 ){
+                                            out =  oket;
+                                            outRank = o;
+                                            outSp = ospin;
+                                            
+                                            in = ket;
+                                            inRank = k;
+                                            inSp= sp2;
+                                            
+                                        }else if ( (iter%2) == 0 ){
+                                            //SWAPPED!!@!
+                                            out = multiplyVector;
+                                            outRank = 0;
+                                            outSp = rank;
+                                            
+                                            in = oket;
+                                            inRank = o;
+                                            inSp = ospin;
+                                            
+                                        }else {
+                                            
+                                            out = oket;
+                                            outRank = o;
+                                            outSp = ospin;
+                                            
+                                            in = multiplyVector;
+                                            inRank = 0;
+                                            inSp = rank;
+
+                                        }
+                                        
+                                        
+                                        flag = 1;
+                                        for ( dim = 0 ; dim < SPACE ; dim++)
+                                            if ( f1.canon[dim].body != nada){
+                                                N2 = alloc(f1, out, dim);
+                                                tGEMV(rank, f1, dim,out,outRank,outSp, f1.name[xx].loopNext, lll, im,in, inRank,inSp);
+                                                if ( flag ){
+                                                    cblas_dscal(N2, prod, streams(f1,out,outSp, dim)+outRank*N2, 1);
+                                                    flag = 0;
+                                                }
+
+                                            }
+                                    
+                                        }
+                                    xx = f1.name[name(f1,xx)].chainNext;
+                                }
+                            }
+                            mi += CanonicalRank(f1, ll, im);
+
+                        }
+                        ll = f1.name[name(f1,ll)].chainNext;
+
+                }
+        
+            if ( iter > 1 && (iter%2) == 0 ){
+                for ( dim = 0 ; dim < SPACE ; dim++)
+                    if ( f1.canon[dim].body != nada){
+                        N2 = alloc(f1, ket, dim);
+                        cblas_dcopy(N2, streams(f1,multiplyVector, rank, dim), 1, streams(f1,oket,ospin,dim)+o*N2, 1);
+                    }
+            }
+
+    }
+    
+    return 1;
+}
+
+/**
+ *Multiply in total
+ *
+ *@param f1          container
+ *@param[out] bra vector
+ *@param left matrix
+ *@param shiftFlag  for product * Hv +  sum v
+ *@param[in] right vector
+ *@param tolerance a number setting the absolute quality
+ *@param relativeTolerance a number seting quality relative to magnitude of origin
+ *@param condition Beylkin's condition (alpha)
+ *@param threshold the smallest number
+ *@param maxCycle the maxmium number of cycles in this routine
+ *@param canon rank of output vector
+*/
+void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, division right , double tolerance , double relativeTolerance, double condition, double threshold, inta maxCycle, double maxCondition, inta canon, inta X1){
+    double prod;
+    inta rank0 = 0 ,rank;
+    mea co2,coi;
+    inta ilr,Ll,sp2,Rr,im,l , k,targSpin;
+    
+    if ( ! allowQ(f1.rt,blockTotalVectorBlock)){
+        printf("blockTotalVectorBlock Allow!\n");
+        fflush(stdout);
+        exit(0);
+    }
+
+    if (  right == totalVector){
+        printf("you cannot feed totalVector into tHXpY\n");
+        exit(0);
+    }
+    for ( targSpin = 0 ; targSpin < spins(f1, right ) ;targSpin++){
+        zero(f1, totalVector, rank0);
+        f1.name[totalVector].Current[rank0] =0;
+
+        if (  bra != totalVector){
+            if ( shiftFlag  == 1){
+                tEqua(f1, totalVector, rank0, bra, targSpin);
+            }
+            else if ( shiftFlag  == -1){
+                tEqua(f1, totalVector, rank0, right, targSpin);
+                mea ME;
+                ME = tMatrixElements(rank0, f1, right, targSpin, left, 0, right, targSpin);
+                tScaleOne(f1, totalVector, rank0, -ME);
+            }
+            else
+                f1.name[totalVector].Current[rank0] = 0;
+        }
+         {
+            for ( im = 0; im < spins(f1, left ); im++)
+                for ( sp2 = 0; sp2 < spins(f1,right); sp2++)
+                {
+                    if (sp2 == 1)
+                        co2 = I;
+                    else
+                        co2 = 1;
+                    if (im == 1 )
+                        coi = I;
+                    else
+                        coi = 1;
+                    if ( targSpin == 0 )
+                        prod  = creal(co2 * coi );
+                    else
+                        prod = cimag(co2 * coi ) ;
+                    if ( fabs(prod) > f1.rt->THRESHOLD ){
+                        Rr = CanonicalRank ( f1, right,sp2 );
+                        Ll = CanonicalOperator(f1, left, im);
+                        inta su = f1.name[totalVector].Current[rank0];
+                        
+                        #ifdef OMP
+                        #pragma omp parallel for private (ilr,l,k,rank) schedule(dynamic,1)
+                        #endif
+                            for ( ilr = 0; ilr <  Ll*Rr ; ilr++)
+                            {
+
+                            #ifdef OMP
+                                    rank = omp_get_thread_num();
+                            #else
+                                    rank = 0;
+                            #endif
+
+                                l = ilr%Ll;
+                                k = ilr/Ll;
+                                tHX(rank, f1,left, l, im,prod, right, k, sp2,totalVector,ilr +su, rank0);
+                            }
+#if VERBOSE
+                        printf("'lambda' -> %d %d %d\n", su , su+Ll*Rr,part(f1, totalVector ));
+                        
+#endif
+                        f1.name[totalVector].Current[rank0]+= Ll*Rr;
+                        if (f1.name[totalVector].Current[rank0] > part(f1, totalVector ) )
+                        {
+                            printf("'lambda' is too small\n");
+                            fflush(stdout);
+                            exit(1);
+                        }
+                    }
+                }
+        };
+        if (  bra != totalVector){
+            CanonicalRankDecomposition( f1,  NULL,totalVector, rank0, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle,maxCondition, canon,0);
+            if ( X1 > 0 && canon > 1 ){
+                tEqua(f1, totalVector, rank0, bra, targSpin);
+                CanonicalRankDecomposition( f1,  NULL,totalVector, rank0, bra, targSpin, tolerance,relativeTolerance, condition,threshold,maxCycle,maxCondition, canon,X1);
+            }
+        }
+    }
+
+    return;
+}
+
+
+/**
+ *matrix element
+ *upgraded in v9.3 for parallel operation
+ *only one of these can run at a time.
+ *
+ *@param f1 container
+ *@param alloy1 vector
+ *@param spin1 vector's spin
+ *@param op operator
+ *@param ospin operator spin
+ *@param alloy2 vector
+ *@param spin2 vector's spin
+
+ */
+double pMatrixElement ( sinc_label  f1 ,   division alloy1 , inta spin1, division op, inta ospin, division alloy2 , inta spin2 ){
+    inta rank,i ,cl = CanonicalRank(f1, alloy1, spin1),cr = CanonicalRank(f1, alloy2, spin2);
+    mea OV, ov[f1.rt->NLanes];
+    
+    division left=0;
+    for ( rank = 0; rank < f1.rt->NLanes; rank++){
+        ov[rank] = 0.;
+        if ( ! rank )
+            left = anotherLabel(&f1, 0, nada);
+        else
+            anotherLabel(&f1, 0, nada);
+
+        f1.name[left+rank].Current[spin1] = 1;
+        f1.name[left+rank].name = alloy1;
+    }
+    ///need to be in order to make each rank-array contiguous.
+    division right=0 ;
+    for ( rank = 0; rank < f1.rt->NLanes; rank++){
+        if ( ! rank )
+            right = anotherLabel(&f1, 0, nada);
+        else
+            anotherLabel(&f1, 0, nada);
+        f1.name[right+rank].Current[spin2] = 1;
+        f1.name[right+rank].name = alloy2;
+    }
+
+    
+    #ifdef OMP
+    #pragma omp parallel for private (i,rank) schedule(dynamic,1)
+    #endif
+                for ( i = 0 ;i < cl*cr; i++)
+                {
+    #ifdef OMP
+                    rank = omp_get_thread_num();
+    #else
+                    rank = 0;
+    #endif
+                    f1.name[left+rank].Begin[spin1] = (i)%cl+f1.name[alloy1].Begin[spin1];
+                    f1.name[right+rank].Begin[spin2] = (i/cl)+f1.name[alloy2].Begin[spin2];
+                    ov[rank] += (tMatrixElements(rank, f1, left+rank, spin1, op, ospin, right+rank, spin2));
+                }
+    OV = 0.;
+    for ( rank = 0; rank < f1.rt->NLanes; rank++)
+        OV += ov[rank];
+
+#ifdef COMPLEXME
+    return (creal(OV));
+#else
+    return (OV);
+#endif
+}
+
+/**
+ *outer product of two vectors
+ *
+ *for building operators from vectors
+ *
+ *@param f1 container
+ *@param space   in canon which has SPACE components
+ *@param[in] vector any content
+ *@param a vector1 spin
+ *@param[in] vector2 any content
+ *@param b vector's spin
+ *@param[out] proj outer product matrix
+ *@param c proj spin
+*/
+inta tOuterProductSuOne(   sinc_label  f1,inta space,  division vector , inta a,   division vector2,inta b,   division proj, inta c){
+    inta ma = CanonicalRank(f1, vector,a), mb = CanonicalRank(f1, vector,b), zc = CanonicalRank(f1, proj, c),l,r,i;
+    inta Np = alloc(f1, proj, space), n1 = alloc(f1, vector,space),n2 = alloc(f1, vector2,space);
+
+    if ( species(f1, vector ) == matrix || species(f1, vector2) == matrix){
+        printf("input arguments to Outer product need to be vectors\n");
+        exit(0);
+    }
+    if ( zc + ma*mb > part(f1, proj) && proj < eigenVectors){
+        printf("outerProductSu:  \n");
+        exit(0);
+    }
+    if ( Np != n1 * n2 ){
+        printf("suspect...");
+        exit(1);
+    }
+    
+    for ( l = 0 ; l < ma; l++)
+        for ( r = 0; r < mb; r++)
+                for ( i = 0; i < Np ; i++)
+                    (streams(f1, proj,c,space)+(l*mb+r+zc)*Np)[i] = 0.;
+    
+    for ( l = 0 ; l < ma; l++)
+        for ( r = 0; r < mb; r++)
+                cblas_dger(CblasColMajor, n1,n2, 1. , streams(f1, vector,a,space)+l*n1,1, streams(f1, vector2,b,space)+r*n2,1, streams(f1, proj,c,space)+(l*mb+r+zc)*Np,n1);
+    f1.name[proj].Current[c] += ma*mb;
+    return 0;
+}
+
+//inta compressReplaceEikon(  sinc_label f1 ,   division eik ){
+//    if ( species(f1, eik) != eikon){
+//        return 1;
+//    }
+//    inta i = 0,ii;
+//
+//      division looper,chainer;
+//      genus hidden;
+//
+//    for ( hidden = eikonDiagonal ; hidden <= eikonSemiDiagonal ; hidden++){
+//        i = 0;
+//        tClear(f1,copyVector);
+//        tClear(f1,copyTwoVector);
+//
+//        for ( chainer = eik; chainer != nullName ; chainer= f1.name[chainer].chainNext){
+//
+//        for ( looper = chainer; looper != nullName ; looper= f1.name[looper].loopNext)
+//            if ( f1.name[looper].species == hidden ){
+//
+//            tAddTw(f1, copyVector,  0, looper, 0);
+//            i++;
+//        }
+//    }
+//
+//        for ( ii = 1 ; ii < 30 ; ii++){
+//            tId(f1,copyTwoVector,0);
+//            CanonicalRankDecomposition(0, f1, NULL, copyVector, 0, copyTwoVector, 0,  f1.rt->TOLERANCE,  f1.rt->relativeTOLERANCE,  f1.rt->ALPHA, f1.rt->THRESHOLD, f1.rt->MAX_CYCLE, <#inta canon#>)
+//        }
+//    }
+//
+//    return 0;
+//}
+

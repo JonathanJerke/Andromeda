@@ -28,7 +28,6 @@
 
 #include "constants.h"
 #include "coreUtil.h"
-#include "mAls.h"
 #define sr7 0.3779644730092272272
 #define sr6 0.4082482904638630164
 #define sr5 0.4472135954999579393

@@ -29,7 +29,6 @@
 #include "coreUtil.h"
 #include "coreMath.h"
 #include "interfaceMath.h"
-#include "mAls.h"
 #include "coreForce.h"
 
 calculation initCal (void);

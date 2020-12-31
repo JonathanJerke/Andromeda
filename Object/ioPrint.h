@@ -24,10 +24,11 @@
 
 #ifndef ioPrint_h
 #define ioPrint_h
-#include "mAls.h"
 #include"input.h"
 #include"Model.h"
-
+#include"coreUtil.h"
+#include"saUtil.h"
+#include"eigen.h"
 
 #ifdef writeHDF5
 #include "hdf5.h"

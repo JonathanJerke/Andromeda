@@ -117,4 +117,21 @@ inta balance (  sinc_label f1,    division alloy, inta spin);
 void linkDetails(  sinc_label f1,   division linkHeader);
 void chainDetails(  sinc_label f1,   division chainHeader);
 void loopDetails(  sinc_label f1,   division loopHeader);
+
+
+double CanonicalRankDecomposition ( sinc_label  f1 , double * cofact, division origin,inta os, division alloy,inta spin,  double tolerance ,  double relativeTolerance, double condition,double threshold, inta maxCycle ,double maxCondition, inta canon,inta X1 );
+
+
+double printExpectationValues ( calculation *c,   sinc_label  f1 , division ha  , division vector);
+double tMatrixElements ( inta rank,  sinc_label  f1 ,   division bra, inta bspin,  division mat, inta mspin,  division ket, inta kspin );
+inta tOuterProductSu( sinc_label  f1,  division vector , inta a, division vector2,inta b, division proj, inta c);
+double pMatrixElement (   sinc_label  f1 ,   division alloy1 , inta spin1,division op, inta ospin, division alloy2 , inta spin2);
+inta tOuterProductSuOne( sinc_label  f1,inta space, division vector , inta a,   division vector2,inta b,   division proj, inta c);
+inta tGEMV (inta rank, sinc_label  f1,inta dim, division equals,inta e, inta espin, division left,inta l,inta lspin, division right, inta r,inta rspin );
+inta tGEVV (inta rank,  sinc_label  f1,inta dim, division equals,inta e, inta espin, division left,inta l,inta lspin, division right, inta r,inta rspin );
+double tDOT (inta rank, sinc_label  f1,inta dim,char leftChar, division left,inta l,inta lspin, char rightChar, division right, inta r,inta rspin );
+inta tHX(  inta rank, sinc_label f1 ,division left, inta l, inta im, double prod, division ket , inta k, inta sp2,   division oket, inta o,inta ospin );
+void tHXpY (   sinc_label f1 ,  division bra,   division left,inta shiftFlag,  division right ,  double tolerance ,double relativeTolerance,double condition,double threshold, inta maxCycle, double maxCondition, inta canon,inta X1);
+
+
 #endif /* coreUtil_h */

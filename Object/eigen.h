@@ -26,7 +26,6 @@
 #ifndef eigen_h
 #define eigen_h
 #include "constants.h"
-#include "mAls.h"
 #include "coreUtil.h"
 #include "saUtil.h"
 #include "interfaceMath.h"
