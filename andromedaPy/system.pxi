@@ -23,12 +23,6 @@
 #*   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 
 
-DEF APPLE = 0
-DEF OMP =0
-DEF MKL =0
-DEF RAND_FOUNDATION =1
-DEF BIT_INT =1
-
 DEF SPACE = 12
 DEF MAXATOM = 16
 DEF a0 = 0.52917721

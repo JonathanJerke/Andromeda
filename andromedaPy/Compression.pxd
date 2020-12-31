@@ -1,5 +1,5 @@
 ###-------------###
-####__init__.pxd###
+#Decompose.pxd#####
 ###-------------###
 
 
@@ -22,16 +22,17 @@
 #*   *   You should have received a copy of the GNU General Public License
 #*   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 
-from andromedaPy cimport constants
-from andromedaPy cimport eigen
-from andromedaPy cimport Model
-from andromedaPy cimport mAls
-from andromedaPy cimport Decompose
-from andromedaPy cimport Compression
-from andromedaPy cimport coreMath
-from andromedaPy cimport coreUtil
-from andromedaPy cimport interfaceMath
-from andromedaPy cimport saUtil
-from andromedaPy cimport input
-from andromedaPy cimport ioPrint
+include "system.pxi"
 
+
+from constants cimport inta
+from constants cimport floata
+from constants cimport division
+from constants cimport sinc_label
+from constants cimport field
+from constants cimport calculation
+
+cdef extern from "../Object/Compression.h":
+    floata canonicalRankCompression( inta ** spatial, floata * cofact,sinc_label  f1 ,inta G,floata *GG, division origin,inta l1,inta l2,inta os, sinc_label  f2 ,inta neo,division alloy ,inta l3 , inta l4, inta spin ,floata tolerance,floata relativeTolerance, floata condition,floata maxCondition, inta maxCycle);
+
+    floata CanonicalRankCompression ( inta ** spatial,  floata * cofact, sinc_label  f1 , division origin,inta os, sinc_label  f2 , division alloy,inta spin,  floata tolerance ,  floata relativeTolerance, floata condition,floata threshold, inta maxCycle ,floata maxCondition, inta canon,inta X1 );

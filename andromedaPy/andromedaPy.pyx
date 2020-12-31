@@ -475,3 +475,7 @@ cdef class galaxy:
 		
 		printExpectationValues (  &self.calculation,   self.field.f ,  division.Ha  , vector)
 		return self
+
+	
+
+

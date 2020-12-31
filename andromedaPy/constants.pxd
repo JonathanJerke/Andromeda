@@ -167,7 +167,8 @@ cdef extern from "../Object/constants.h":
         blockPrintStuffblock,
         blockTotalVectorParallelBlock,
         blockComponentblock,
-        blockDiagonalMatrixblock
+        blockDiagonalMatrixblock,
+        blockCompressionBlock
 
     cdef enum division:
         nullName,
@@ -260,7 +261,7 @@ cdef extern from "../Object/constants.h":
         component,
         componentTotal,
         CanonicalBuffers,
-        oneVector,
+        canonicalBuffersD,
         twoVector,
         twoBodyRitz,
         totalVector,
