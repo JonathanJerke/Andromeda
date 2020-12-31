@@ -14,11 +14,11 @@ LAPACKinc       = /usr/include/x86_64-linux-gnu
 flags           =-I${LAPACKinc}   -L${LAPACKlib}
 lib             = -lm -lgfortran -latlas -llapack_atlas  -llapacke -lcblas
 
-olympics: Decompose.c Decompose.h Compression.c Compression.h system.h ioPrint.c ioPrint.h eigen.c eigen.h jobs.c input.c input.h constants.h  coreMath.c  coreUtil.h  mAls.c   Model.h coreForce.c  coreMath.h  interfaceMath.c  mAls.h  saUtil.c coreForce.h  input.c  coreUtil.c  interfaceMath.h  Model.c  saUtil.h
-	$(cc) $(flags) -fopenmp jobs.c input.c eigen.c coreMath.c mAls.c coreForce.c interfaceMath.c saUtil.c coreUtil.c Model.c ioPrint.c Decompose.c Compression.c $(lib) -o olympics
+olympics: Decompose.c Decompose.h Compression.c Compression.h system.h ioPrint.c ioPrint.h eigen.c eigen.h jobs.c input.c input.h constants.h  coreMath.c  coreUtil.h   Model.h coreForce.c  coreMath.h  interfaceMath.c saUtil.c coreForce.h  input.c  coreUtil.c  interfaceMath.h  Model.c  saUtil.h
+	$(cc) $(flags) -fopenmp jobs.c input.c eigen.c coreMath.c coreForce.c interfaceMath.c saUtil.c coreUtil.c Model.c ioPrint.c Decompose.c Compression.c $(lib) -o olympics
 
 #cp olympics andromeda
 
-libandromeda.so: Decompose.c Decompose.h Compression.c Compression.h system.h ioPrint.c ioPrint.h eigen.c eigen.h jobs.c input.c input.h constants.h  coreMath.c  coreUtil.h  mAls.c   Model.h coreForce.c  coreMath.h  interfaceMath.c  mAls.h  saUtil.c coreForce.h  input.c  coreUtil.c  interfaceMath.h  Model.c  saUtil.h
-	$(cc) $(flags) -fopenmp jobs.c input.c eigen.c coreMath.c mAls.c coreForce.c interfaceMath.c saUtil.c coreUtil.c Model.c ioPrint.c  Decompose.c Compression.c $(lib) -shlib -shared -Wall -fPIC -o libandromeda.so
+libandromeda.so: Decompose.c Decompose.h Compression.c Compression.h system.h ioPrint.c ioPrint.h eigen.c eigen.h jobs.c input.c input.h constants.h  coreMath.c  coreUtil.h  Model.h coreForce.c  coreMath.h  interfaceMath.c  saUtil.c coreForce.h  input.c  coreUtil.c  interfaceMath.h  Model.c  saUtil.h
+	$(cc) $(flags) -fopenmp jobs.c input.c eigen.c coreMath.c coreForce.c interfaceMath.c saUtil.c coreUtil.c Model.c ioPrint.c  Decompose.c Compression.c $(lib) -shlib -shared -Wall -fPIC -o libandromeda.so
 
