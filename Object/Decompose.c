@@ -634,13 +634,13 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
                     tScaleOne(f1, alloy,spin, -1);
                 
                 for ( space = 0; space < SPACE;space++)
-                  if ( f1.canon[space].body != nada ){
-                      free(alloyStream[space]);
-                      free(originStream[space]);
-                  }
-                  free(alloyStream);
-                  free(originStream);
-                  free(originIndex);
+                    if ( f1.canon[space].body != nada ){
+                        free(alloyStream[space]);
+                        free(originStream[space]);
+                    }
+                free(alloyStream);
+                free(originStream);
+                free(originIndex);
                 return (curr);
             }
                 
@@ -656,13 +656,13 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
 
                     
                     for ( space = 0; space < SPACE;space++)
-                      if ( f1.canon[space].body != nada ){
-                          free(alloyStream[space]);
-                          free(originStream[space]);
+                        if ( f1.canon[space].body != nada ){
+                            free(alloyStream[space]);
+                            free(originStream[space]);
                       }
-                      free(alloyStream);
-                      free(originStream);
-                      free(originIndex);
+                    free(alloyStream);
+                    free(originStream);
+                    free(originIndex);
                     return (curr);
                 }
             }

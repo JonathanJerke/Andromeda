@@ -28,6 +28,7 @@
 #include "Model.h"
 #include "input.h"
 #include "eigen.h"
+#include "coreUtil.h"
 #ifdef APPLE
 #else
 #include "ioPrint.h"

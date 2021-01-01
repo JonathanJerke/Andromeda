@@ -704,7 +704,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
         ///all equal-beta chained Ops will multiply on each beta index. i.e. H2+
         currChain = newLabel;
         currLoop = currChain;
-    for ( hidden = eikonDiagonal ; hidden <= eikonDiagonal + imin(body,metric.fn.contr);hidden++ )
+        for ( hidden = eikonDiagonal ; hidden <= eikonDiagonal + imin(body,metric.fn.contr);hidden++ )
             {
                 double oneOri,twoOri;
                 invertSign = 1;
@@ -786,21 +786,21 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                 }
                 
                 
-                newLabel = anotherLabel(f,particle1,body);
-                for ( space = 0 ;space < SPACE  ; space++)
-                    if ( f1.canon[space].body != nada ){
-                        f1.name[newLabel].space[space].act = act;
-                        if ( f1.canon[space].label == particle1 ){
-                            f1.name[newLabel].space[space].body = body;
-                            f1.name[newLabel].space[space].block = bl;
-                        }
-                }
-                f1.name[temp].Current[0]= 1;
-                tEqua(f1, newLabel, 0, temp, 0);
-                f1.name[currLoop].loopNext = newLabel;
-                f1.name[newLabel].species = hidden;
-                currLoop = newLabel;
+            newLabel = anotherLabel(f,particle1,body);
+            for ( space = 0 ;space < SPACE  ; space++)
+                if ( f1.canon[space].body != nada ){
+                    f1.name[newLabel].space[space].act = act;
+                    if ( f1.canon[space].label == particle1 ){
+                        f1.name[newLabel].space[space].body = body;
+                        f1.name[newLabel].space[space].block = bl;
+                    }
             }
+            f1.name[temp].Current[0]= 1;
+            tEqua(f1, newLabel, 0, temp, 0);
+            f1.name[currLoop].loopNext = newLabel;
+            f1.name[newLabel].species = hidden;
+            currLoop = newLabel;
+        }
     }
     
     return 0;

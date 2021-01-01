@@ -491,27 +491,7 @@ enum blockMemoryType{
 ///c
 ///filter 3
 ///collect 1
-///block 3,4,7,9
-
-///D
-///filter 3
-///block 3,4,5,7,9
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+///bloc
 /**
  *Divisions define and indicate data.
  *Lined up with 500 so a division number can be easily read.

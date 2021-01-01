@@ -31,8 +31,8 @@
 
 
 
-floata canonicalRankCompression( inta ** spatial, floata * cofact,sinc_label f1, inta G,floata *GG, division origin,inta l1,inta l2,inta os, sinc_label  f2 ,inta neo,division alloy ,inta l3 , inta l4, inta spin ,double tolerance,double relativeTolerance, double condition,double maxCondition, inta maxCycle);
+floata canonicalRankCompression( inta spatial[SPACE][SPACE], floata * cofact,sinc_label f1, inta G,floata *GG, division origin,inta l1,inta l2,inta os, sinc_label  f2 ,inta neo,division alloy ,inta l3 , inta l4, inta spin ,double tolerance,double relativeTolerance, double condition,double maxCondition, inta maxCycle);
 
-double CanonicalRankCompression ( inta ** spatial, double * cofact, sinc_label f1, division origin,inta os, sinc_label  f2 , division alloy,inta spin, double tolerance ,  double relativeTolerance, double condition,double threshold, inta maxCycle ,double maxCondition, inta canon,inta X1 );
+double CanonicalRankCompression ( inta spatial[SPACE][SPACE], double * cofact, sinc_label f1, division origin,inta os, sinc_label  f2 , division alloy,inta spin, double tolerance ,  double relativeTolerance, double condition,double threshold, inta maxCycle ,double maxCondition, inta canon,inta X1 );
 
 #endif /* Compression_h */

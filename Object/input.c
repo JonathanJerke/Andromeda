@@ -591,7 +591,7 @@ inta getInputOutput(  calculation * c,  field * f, const char * input_line ){
 
 
 inta getTermDefinitions(  calculation * c, const char * input_line ){
-    static char filename[MAXSTRING];
+    static char filename[SUPERMAXSTRING];
     static inta atom = 1;
     static inta embed = 0;
     static inta flagScalar = 0;
@@ -614,22 +614,22 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
     static inta funcType = 3;
     char test_line [MAXSTRING];
     inta i,d,ivalue,space;
-      metric_label metric;
+    metric_label metric;
     double value;    
-        inta io;
-        inta Nio = 11;
-        char *list_IO[] = {"#",
-            "constant","linear","spring",
-            "deriv","kinetic","clamp",
-            "element","oneBody","twoBody",
-            "diagonal",
-            
-            "filename"
-        };
-        char input[MAXSTRING];
+    inta io;
+    inta Nio = 11;
+    char *list_IO[] = {"#",
+        "constant","linear","spring",
+        "deriv","kinetic","clamp",
+        "element","oneBody","twoBody",
+        "diagonal",
         
-        for( io = 1 ; io <= Nio ; io++){
-            if ( strstr( input_line, list_IO [io])!=NULL){
+        "filename"
+    };
+    char input[MAXSTRING];
+    
+    for( io = 1 ; io <= Nio ; io++){
+        if ( strstr( input_line, list_IO [io])!=NULL){
                 sscanf(input_line,"%s %s", test_line,  input);
                 if ( io <= 10 ){
                     c->i.terms[c->i.termNumber].type = io;
@@ -697,32 +697,31 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
         }
         
     inta NINT_TYPE = 16;
-        char *list_INT_TYPE []= {"#",
-            "invert","block","act","newTerm","buffer",
-            "interval","offDiagonals","funcType","atom","axis",
-            "bra","ket","flags","embed","revise",
-            "reset"
-        };
-        inta NDOUBLE = 10;
-        char *list_DOUBLE []= {"#",
-            "placeholder","scalar","funcTurn","funcParam1","funcParam2",
-            "adjustOne","minBeta","maxBeta","infBeta","soloBeta"
-        };
-        
-        for ( i = 1 ; i <= NINT_TYPE ; i++){
-            
-            if ( strstr( input_line, list_INT_TYPE[i])!= NULL){
-    #ifdef BIT_INT
+    char *list_INT_TYPE []= {"#",
+        "invert","block","act","newTerm","buffer",
+        "interval","offDiagonals","funcType","atom","axis",
+        "bra","ket","flags","embed","revise",
+        "reset"
+    };
+    inta NDOUBLE = 10;
+    char *list_DOUBLE []= {"#",
+        "placeholder","scalar","funcTurn","funcParam1","funcParam2",
+        "adjustOne","minBeta","maxBeta","infBeta","soloBeta"
+    };
+    
+    for ( i = 1 ; i <= NINT_TYPE ; i++){
+        if ( strstr( input_line, list_INT_TYPE[i])!= NULL){
+#ifdef BIT_INT
                 sscanf(input_line,"%s %d", test_line,&ivalue);
-    #endif
+#endif
                 
-    #ifdef BIT_LONG
+#ifdef BIT_LONG
                 sscanf(input_line,"%s %ld", test_line,&ivalue);
-    #endif
+#endif
 
-    #ifdef MKL
+#ifdef MKL
                 sscanf(input_line,"%s %lld", test_line,&ivalue);
-    #endif
+#endif
                 
                 switch ( i ){
                     case 1:
@@ -818,7 +817,6 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                         Interval = 1;
                         funcType = 8;
                         return d;
-
                 }
             }
         }

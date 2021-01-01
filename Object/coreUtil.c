@@ -1863,7 +1863,7 @@ inta  countLinesFromFile(  calculation *c1,   field f1,inta location, inta *ir, 
     else
         exit(1);
     
-        for ( fi =0 ; fi < FIT; fi++){
+    for ( fi =0 ; fi < FIT; fi++){
             if ( location == 0 )
                 strcpy(name,f1.i.fileList[fi] );
             else if ( location == 1)

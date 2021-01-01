@@ -798,8 +798,8 @@ inta iModel(   calculation * c1,   field *f){
 
         fromBeginning(*f1,matrixSbuild,vectorHbuild);
         f1->name[matrixSbuild].Partition =  allowQ(f1->rt, blockMatrixElementsblock) * (maxArray*maxArray);
-    if ( f->i.cmpl == cmpl )
-        f1->name[matrixSbuild].Partition *= 4;
+        if ( f->i.cmpl == cmpl )
+            f1->name[matrixSbuild].Partition *= 4;
 
         f1->name[matrixSbuild].spinor = real;
         f1->name[matrixSbuild].memory = bufferAllocation;
