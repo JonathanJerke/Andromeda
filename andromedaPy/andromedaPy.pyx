@@ -503,7 +503,7 @@ cdef class galaxy:
 		cdef floata *pt
 		
 		
-		blocks = ['total','train','copy','component','diagonal','total-parallel',
+		blocks = ['total','copy','component','diagonal','total-parallel',
 		'matrixElement-parallel','multiply-parallel','permute','permute-parallel',
 		'transfer']
 		if allowQ(&self.calculation.rt,blockMemoryType.blockCopyBlock)==0:
