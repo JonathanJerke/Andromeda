@@ -286,20 +286,23 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
     printf("target %f\n",target);
 
     
-            if(1){
+            if(neo){
                 inta space2,space,ii,i,stride;
                 for ( space = 0; space < SPACE;space++)
                     if ( f1.canon[space].body != nada ){
                         stride = 1;
                         ///insert simplistic component separation here
                         for ( space2 = 0; space2 < SPACE;space2++)
-                            if ( f2.canon[space2].body != nada ){
+                            if ( f2.canon[space2].body != nada )
+                            
+                            if ( spatial[space][space2])
+                            {
                                 for ( i = 0 ; i < M2[space2]; i++)
                                     alloyStream[space2][0][i] = 0.;
                                 for ( ii = 0 ; ii < M1[space]/M2[space2] ; ii++ ){
-                                    cblas_daxpy(M2[space2], 1., originStream[space][G1],stride,alloyStream[space2][0],1);
-                                    stride *= M2[space2];
+                                    cblas_daxpy(M2[space2], 1., originStream[space][G1]+ii,stride,alloyStream[space2][0],1);
                                 }
+                                stride *= M2[space2];
                             }
                     }
                 ///separate output ..which means first rank is done...
