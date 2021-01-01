@@ -564,12 +564,11 @@ cdef class galaxy:
 		spatial[0][2] = 1
 
 
-		canonicalRankCompression(spatial,NULL,self.field.f,0,NULL,division.eigenVectors,0,1,0,g.field.f,1,vector,0,0,1,
+		canonicalRankCompression(spatial,NULL,self.field.f,0,NULL,division.eigenVectors,0,1,0,g.field.f,1,vector,0,1,0,
 		self.calculation.rt.TOLERANCE,
 		self.calculation.rt.relativeTOLERANCE,
 		self.calculation.rt.ALPHA,
 		self.calculation.rt.THRESHOLD,
 		self.calculation.rt.MAX_CYCLE,
-		self.calculation.rt.XCONDITION,
-		1,0)
+		self.calculation.rt.XCONDITION)
 		return self
