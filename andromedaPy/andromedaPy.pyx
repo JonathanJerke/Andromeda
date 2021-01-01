@@ -517,13 +517,13 @@ cdef class galaxy:
 			iv = 1
 			for space in range(SPACE):
 				if self.field.canon[space].body != bodyType.nada:
-					cdef floata * cp = streams(self.field.f,division.copy,0,space)
+					cdef floata * cp = streams(self.field.f,division.copyVector,0,space)
 					c1 = self.field.canon[space].count1Basis
 					for c in range(c1):
 						if c == (int(ii/iv)%c1):
 							cp[c] = 1
 						else:
 							cp[c] = 0
-			pt[ii] = tMatrixElements(0,self.field.f,division.copy,0,division.nullName,vector,0)
+			pt[ii] = tMatrixElements(0,self.field.f,division.copyVector,0,division.nullName,vector,0)
 			
 		return g
