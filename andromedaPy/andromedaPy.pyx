@@ -533,7 +533,8 @@ cdef class galaxy:
 		g.calculationInputs(Lambda = 3,RAMmax = 4,numVectors = 0,numNames = 0)
 		g.fieldInputs(canonRank = 1,nStates = 1,OpIndex = 0)
 		g.i()
-		pt = streams(self.field.f,division.eigenVectors,0,0)
+		pt = streams(g.field.f,division.eigenVectors,0,0)
+		g.field.f.name[division.eigenVectors].Current[0] = 1
 		self.field.f.name[int(division.copyVector)].Current[0] = 1
 		for ii in range(spaces):
 			iv = 1
