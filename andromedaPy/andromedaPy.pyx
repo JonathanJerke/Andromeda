@@ -497,8 +497,11 @@ cdef class galaxy:
 		
 		spaces = 1
 		dims = 0
+		cdef floata *cp[SPACE] 
+
 		for space in range(SPACE):
 			if self.field.canon[space].body != bodyType.nada:
+				cp[space]= streams(self.field.f,division.copyVector,0,space)
 				spaces *= self.field.canon[space].count1Basis	
 				dims += 1
 		g = galaxy()
@@ -517,7 +520,6 @@ cdef class galaxy:
 			iv = 1
 			for space in range(SPACE):
 				if self.field.canon[space].body != bodyType.nada:
-					cdef floata * cp = streams(self.field.f,division.copyVector,0,space)
 					c1 = self.field.canon[space].count1Basis
 					for c in range(c1):
 						if c == (int(ii/iv)%c1):
