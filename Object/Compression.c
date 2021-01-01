@@ -50,12 +50,12 @@
  *@param maxCycle the maxmium number of cycles in this routine
  */
 floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,sinc_label  f1 ,inta G,floata *GG, division origin,inta l1,inta l2,inta os, sinc_label  f2 ,inta neo,division alloy ,inta l3 , inta l4, inta spin ,double tolerance,double relativeTolerance, double condition,double maxCondition, inta maxCycle){
-    if (l2 < l1 || l4 < l3 || VERBOSE )
+    if (l2 < l1 || l4 < l3 )
     {
         printf("indices out of order!\n");
         printf("%d %d %d %d\n", l1,l2,l3,l4);
         printf("%d %d\n", origin, alloy);
-   //     exit(0);
+        exit(0);
     }
     if ( ! allowQ(f1.rt,blockTrainVectorsblock)){
         printf("blockTrainVectorsblock allow!\n");
@@ -309,7 +309,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             }
     
     inta dim[SPACE];
-    printf("here\n");
+    printf("here0\n");
     
         
         space0 = 0;
@@ -320,27 +320,30 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 dim[(space0+space)%(spaces2)] = dim0++;
 
         {
-            inta m;
+            inta m,space2;
 
         
         ///get norms
-        for ( space = 0; space < dim0 ; space++)
-            if ( f1.canon[space].body != nada){
+        for ( space2 = 0; space2 < dim0 ; space2++)
+            if ( f2.canon[space2].body != nada){
                 inta kk=1;
                 for ( m = 0; m < L1; m++){
-                    norm[space][ m ] = cblas_dnrm2(M2[space], alloyStream[space][m],1);
-                    if ( norm[space][m] == 0. ){
-                        floata *pt =alloyStream[space][m];
+                    norm[space2][ m ] = cblas_dnrm2(M2[space2], alloyStream[space2][m],1);
+                    if ( norm[space2][ m ] == 0. ){
+                        floata *pt =alloyStream[space2][m];
                         inta mm;
-                        for ( mm = 0 ; mm < M2[space] ; mm++)
-                            pt[mm] = cos(kk*2*pi*mm*1./M2[space]);
+                        for ( mm = 0 ; mm < M2[space2] ; mm++)
+                            pt[mm] = cos(kk*2*pi*mm*1./M2[space2]);
                         kk++;
                     }
-                    norm[space][ m ] = cblas_dnrm2(M2[space], alloyStream[space][m],1);
+                    norm[space][ m ] = cblas_dnrm2(M2[space2], alloyStream[space2][m],1);
+                    printf("%d %d %f\n",space2,m, norm[space2][ m ] );
                 }
             }
             
         }
+    printf("here1\n");
+
         {                inta m,n,space2,bufferDim;
 
         ///get inners
