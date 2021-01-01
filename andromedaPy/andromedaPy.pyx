@@ -489,6 +489,11 @@ cdef class galaxy:
 		-------
 		galaxy
 		"""
+		cdef floata *cp[SPACE] 
+		cdef floata * pt
+		cdef galaxy g
+		
+		
 		blocks = ['total','train','copy','component','diagonal','total-parallel',
 		'matrixElement-parallel','multiply-parallel','permute','permute-parallel',
 		'transfer']
@@ -498,14 +503,12 @@ cdef class galaxy:
 		
 		spaces = 1
 		dims = 0
-		cdef floata *cp[SPACE] 
-		cdef floata * pt
 		for space in range(SPACE):
 			if self.field.f.canon[space].body != bodyType.nada:
 				cp[space]= streams(self.field.f,division.copyVector,0,space)
 				spaces *= self.field.f.canon[space].count1Basis	
 				dims += 1
-		g = galaxy()
+
 		cs = [g.comps(spaces)]
 		ds = []
 		for d in range(dims):
