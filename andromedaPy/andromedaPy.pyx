@@ -519,6 +519,7 @@ cdef class galaxy:
 		ds = []
 		for d in range(dims):
 			ds += [g.dims(lattice = 1)]
+		ds = [ds]
 		ls = [1]
 		bs = [g.bases('Sinc')]
 		g.spaces(ls,cs,ds,bs).block(blocks)
@@ -538,6 +539,6 @@ cdef class galaxy:
 						else:
 							cp[space][c] = 0.0
 					iv *= c1
-			pt[ii] = tMatrixElements(0,self.field.f,division.copyVector,0,division.nullName,0,vector,0)
+			pt[ii] = tMatrixElements(0,self.field.f,division.copyVector,0,division.nullOverlap,0,vector,0)
 			print(ii,pt[ii])
 		return g
