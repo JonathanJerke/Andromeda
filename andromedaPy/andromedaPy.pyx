@@ -480,6 +480,8 @@ cdef class galaxy:
 	def full( self, vector : division  = division.eigenVectors ):
 		"""Create a new galaxy with all elements explicitly written down.
 		
+		Limitations currently allow for 3D data Cubes (not rectangles).
+		
 		Parameters
 		----------
 		vector : division 
@@ -503,13 +505,17 @@ cdef class galaxy:
 		
 		spaces = 1
 		dims = 0
+		cs = []
+		xc = 0
 		for space in range(SPACE):
 			if self.field.f.canon[space].body != bodyType.nada:
 				cp[space]= streams(self.field.f,division.copyVector,0,space)
-				spaces *= self.field.f.canon[space].count1Basis	
+				c1 = self.field.f.canon[space].count1Basis
+				spaces *= c1	
+				if xc < c1 :
+					xc = c1
 				dims += 1
-
-		cs = [g.comps(spaces)]
+		cs = [g.comps(xc)]
 		ds = []
 		for d in range(dims):
 			ds += [g.dims(lattice = 1)]
@@ -531,6 +537,7 @@ cdef class galaxy:
 							cp[space][c] = 1.0
 						else:
 							cp[space][c] = 0.0
+					iv *= c1
 			pt[ii] = tMatrixElements(0,self.field.f,division.copyVector,0,division.nullName,0,vector,0)
 			print(ii,pt[ii])
 		return g
