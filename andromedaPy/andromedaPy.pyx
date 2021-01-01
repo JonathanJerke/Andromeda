@@ -74,6 +74,9 @@ cdef class galaxy:
 	def __dealloc__(self):
 		fModel(&self.field.f)
 	
+	def isbooted(self):
+		return self.field.f.bootedMemory == 1
+	
 	def read_record(self,filepy):
 		"""Give this member function a file in a directory structure of a linux computation,
 		it will load up the same initial state.
