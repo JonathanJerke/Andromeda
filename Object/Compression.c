@@ -55,7 +55,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
         printf("indices out of order!\n");
         printf("%d %d %d %d\n", l1,l2,l3,l4);
         printf("%d %d\n", origin, alloy);
-        exit(0);
+   //     exit(0);
     }
     if ( ! allowQ(f1.rt,blockTrainVectorsblock)){
         printf("blockTrainVectorsblock allow!\n");
