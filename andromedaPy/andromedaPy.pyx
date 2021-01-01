@@ -503,7 +503,7 @@ cdef class galaxy:
 		cdef floata *pt
 		
 		
-		blocks = ['total','copy','component','diagonal','total-parallel',
+		blocks = ['copy','component','diagonal','total-parallel',
 		'matrixElement-parallel','multiply-parallel','permute','permute-parallel',
 		'transfer']
 		if allowQ(&self.calculation.rt,blockMemoryType.blockCopyBlock)==0:
@@ -518,7 +518,7 @@ cdef class galaxy:
 			if self.field.f.canon[space].body != bodyType.nada:
 				cp[space]= streams(self.field.f,division.copyVector,0,space)
 				c1 = self.field.f.canon[space].count1Basis
-				spaces *= c1	
+				spaces *= c1
 				if xc < c1 :
 					xc = c1
 				dims += 1
