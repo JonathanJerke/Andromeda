@@ -151,7 +151,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
         {///CHANGED FROM LENGTH L1 to G1
             pt[r] = myStreams(f1,canonicalStore , r);
             ot[r] = myStreams(f1,canonicalStore , r)+xM;
-            qt[r] = myStreams(f1,canonicalStore , r)+xM;
+            qt[r] = myStreams(f1,canonicalStore , r)+xM*2;
         }
     }
     
