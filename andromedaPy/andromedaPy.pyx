@@ -271,7 +271,7 @@ cdef class galaxy:
 			self.calculation.i.numVectors = numVectors
 		if numNames >= 0 :
 			self.calculation.i.numNames = numNames
-		print(self.calculation.i)
+		#print(self.calculation.i)
 		return self
 		
 	def fieldInputs( self, flex :inta = -1, OpIndex:inta  = -2 , body:inta  =-1,
@@ -326,7 +326,7 @@ cdef class galaxy:
 			self.field.i.filter = filter
 		if collect >= 0:
 			self.field.i.collect = collect
-		print(self.field.i)
+		#print(self.field.i)
 		return self
 		
 	def vectors(self):
@@ -530,7 +530,7 @@ cdef class galaxy:
 		ls = [1]
 		bs = [g.bases('Sinc')]
 		g.spaces(ls,cs,ds,bs).block(blocks)
-		g.calculationInputs(RAMmax = 4,numVectors = 0,numNames = 0)
+		g.calculationInputs(Lambda = 3,RAMmax = 4,numVectors = 0,numNames = 0)
 		g.fieldInputs(canonRank = 1,nStates = 1,OpIndex = 0)
 		g.i()
 		pt = streams(self.field.f,division.eigenVectors,0,0)
