@@ -61,7 +61,7 @@ from constants cimport metricType
 from constants cimport bodyType
 from constants cimport blockMemoryType
 
-from Compression cimport CanonicalRankCompression
+from Compression cimport canonicalRankCompression
 
 from libc.string cimport strcpy
 
