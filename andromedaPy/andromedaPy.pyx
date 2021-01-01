@@ -492,16 +492,16 @@ cdef class galaxy:
 		blocks = ['total','train','copy','component','diagonal','total-parallel',
 		'matrixElement-parallel','multiply-parallel','permute','permute-parallel',
 		'transfer']
-		if allowQ(&self.rt,blockMemoryType.blockCopyBlock)==0:
+		if allowQ(&self.calculation.rt,blockMemoryType.blockCopyBlock)==0:
 			print('need copy block')
 			return self
 		
 		spaces = 1
 		dims = 0
 		cdef floata *cp[SPACE] 
-
+		cdef floata * pt
 		for space in range(SPACE):
-			if self.field.canon[space].body != bodyType.nada:
+			if self.field.f.canon[space].body != bodyType.nada:
 				cp[space]= streams(self.field.f,division.copyVector,0,space)
 				spaces *= self.field.f.canon[space].count1Basis	
 				dims += 1
@@ -515,7 +515,7 @@ cdef class galaxy:
 		g.calculationInputs(RAMmax = 4,numVectors = 0,numNames = 0)
 		g.fieldInputs(canonRank = 1,nStates = 1,OpIndex = 0)
 		g.i()
-		cdef floata * pt = streams(self.field.f,division.eigenVectors,0,0)
+		pt = streams(self.field.f,division.eigenVectors,0,0)
 		self.field.f.name[division.copy].Current[0] = 1
 		for ii in range(spaces):
 			iv = 1
@@ -524,9 +524,9 @@ cdef class galaxy:
 					c1 = self.field.f.canon[space].count1Basis
 					for c in range(c1):
 						if c == (int(ii/iv)%c1):
-							cp[c] = 1
+							cp[space][c] = 1.0
 						else:
-							cp[c] = 0
+							cp[space][c] = 0.0
 			pt[ii] = tMatrixElements(0,self.field.f,division.copyVector,0,division.nullName,vector,0)
 			
 		return g
