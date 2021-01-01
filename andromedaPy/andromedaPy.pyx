@@ -477,7 +477,7 @@ cdef class galaxy:
 		printExpectationValues (  &self.calculation,   self.field.f ,  division.Ha  , vector)
 		return self
 
-	def full( self, vector : division  = division.eigenVectors ):
+	def full( self, g: galaxy ,  vector : division  = division.eigenVectors ):
 		"""Create a new galaxy with all elements explicitly written down.
 		
 		Limitations currently allow for 3D data Cubes (not rectangles).
@@ -493,7 +493,6 @@ cdef class galaxy:
 		"""
 		cdef floata *cp[SPACE] 
 		cdef floata * pt
-		cdef galaxy g = galaxy()
 		
 		
 		blocks = ['total','train','copy','component','diagonal','total-parallel',
