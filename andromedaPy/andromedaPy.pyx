@@ -507,6 +507,7 @@ cdef class galaxy:
 				dims += 1
 		g = galaxy()
 		cs = [g.comps(spaces)]
+		ds = []
 		for d in range(dims):
 			ds += [g.dims(lattice = 1)]
 		ls = [1]
