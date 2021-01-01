@@ -228,7 +228,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 if ( n >= l3){
                     alloyStream[space][n-l3] = streams(f2, nIter, spin, space) +(n - ni)*M2[space] ;
 #if VERBOSE
-                    printf("%d<>%ld\n", n-l3, (alloyStream[space][n-l3]-streams(f2, alloy, spin, space)));
+                    printf("%d<%d>%ld\n", n-l3,space, (alloyStream[space][n-l3]-streams(f2, alloy, spin, space)));
                     fflush(stdout);
 #endif
                 }
@@ -283,7 +283,8 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
         iGG = sum;
     }
     target = max( iGG*relativeTolerance , tolerance );
-    
+    printf("target %f\n",target);
+
     
             if(1){
                 inta ct = 0,space2,space,ii,i,stride;
