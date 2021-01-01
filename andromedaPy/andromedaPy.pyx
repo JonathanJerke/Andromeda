@@ -549,10 +549,17 @@ cdef class galaxy:
 			pt[ii] = tMatrixElements(0,self.field.f,division.copyVector,0,division.nullOverlap,0,vector,0)		
 		return g
 		
-	def compress ( self ,spatial : inta2, g : galaxy , vector : division = division.eigenVectors):
+	def compress ( self, g : galaxy , vector : division = division.eigenVectors):
 		"""self-> g
+		
+		testing...
 		"""
-		CanonicalRankCompression(spatial,np.null,self.field.f,division.eigenVectors,0,g.field.f,vector,0,
+		spatial = np.zeros([SPACE,SPACE])
+		spatial[0][0] = 1
+		spatial[0][1] = 1
+		spatial[0][2] = 1
+
+		CanonicalRankCompression(spatial,NULL,self.field.f,division.eigenVectors,0,g.field.f,vector,0,
 		self.calculation.rt.TOLERANCE,
 		self.calculation.rt.relativeTOLERANCE,
 		self.calculation.rt.ALPHA,
