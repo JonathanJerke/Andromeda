@@ -58,11 +58,16 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
         exit(0);
     }
     if ( ! allowQ(f1.rt,blockTrainVectorsblock)){
-        printf("blockTrainVectorsblock allow!\n");
+        printf("blockTrainVectorsblock allow 1!\n");
         fflush(stdout);
         exit(0);
     }
-    
+    if ( ! allowQ(f2.rt,blockTrainVectorsblock)){
+        printf("blockTrainVectorsblock allow 2!\n");
+        fflush(stdout);
+        exit(0);
+    }
+
     inta xM = 0;
     {inta space;
     for ( space = 0; space < SPACE ; space++)
@@ -98,22 +103,22 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
     
     length(f1,alloy,M1);
     length(f2,alloy,M2);
-    inta info;
+    inta info,space2;
     division canonicalStore;
     inta LS1 = L1;
     {
-        for ( space = 0; space < SPACE ; space++)
-        if( f1.canon[space].body != nada )
-        {
-            ///MAY WANT TO SEPARATE OWNERSHIP OF BUFFERS BETWEEN f1 and f2
-            array[space] =  streams(f1, canonicalBuffers, rank , space);
-            array2[space] =  array[space] + L1*L1;
-            norm[space] = array2[space] + G1*L1;
-        }else {
-            array[space] = NULL;
-            array2[space] = NULL;
-            norm[space] =NULL;
-        }
+        for ( space2 = 0; space2 < SPACE ; space2++)
+            if( f2.canon[space2].body != nada )
+            {
+                ///MAY WANT TO SEPARATE OWNERSHIP OF BUFFERS BETWEEN f1 and f2
+                array[space2] =  streams(f2, canonicalBuffers, rank , space2);
+                array2[space2] =  array[space2] + L1*L1;
+                norm[space2] = array2[space2] + G1*L1;
+            }else{
+                array[space2] = NULL;
+                array2[space2] = NULL;
+                norm[space2] = NULL;
+            }
         guide =  myStreams(f1, guideBuffer, rank );
         track =  myStreams(f1, trackBuffer, rank );
         tracker =  myStreams(f1, trackBuffer, rank )+L1*L1*2;
@@ -311,38 +316,37 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
     inta dim[SPACE];
     printf("here0\n");
     
-        
+    {
+        inta space2;
         space0 = 0;
         
         dim0=0;
-        for ( space = 0; space < SPACE ; space++)
-            if ( f2.canon[space].body != nada)
-                dim[(space0+space)%(spaces2)] = dim0++;
-
+        for ( space2 = 0; space2 < SPACE ; space2++)
+            if ( f2.canon[space2].body != nada)
+                dim[(space0+space2)%(spaces2)] = dim0++;
+    }
         {
             inta m,space2;
-
-        
-        ///get norms
-        for ( space2 = 0; space2 < dim0 ; space2++)
-            if ( f2.canon[space2].body != nada){
-                inta kk=1;
-                for ( m = 0; m < L1; m++){
-                    norm[space2][ m ] = cblas_dnrm2(M2[space2], alloyStream[space2][m],1);
-                    if ( norm[space2][ m ] == 0. ){
-                        floata *pt =alloyStream[space2][m];
-                        inta mm;
-                        for ( mm = 0 ; mm < M2[space2] ; mm++)
-                            pt[mm] = cos(kk*2*pi*mm*1./M2[space2]);
-                        kk++;
+            ///get norms
+            for ( space2 = 0; space2 < dim0 ; space2++)
+                if ( f2.canon[space2].body != nada){
+                    inta kk=1;
+                    for ( m = 0; m < L1; m++){
+                        norm[space2][ m ] = cblas_dnrm2(M2[space2], alloyStream[space2][m],1);
+                        if ( norm[space2][ m ] == 0. ){
+                            floata *pt =alloyStream[space2][m];
+                            inta mm;
+                            for ( mm = 0 ; mm < M2[space2] ; mm++)
+                                pt[mm] = cos(kk*2*pi*mm*1./M2[space2]);
+                            kk++;
+                        }
+                        norm[space][ m ] = cblas_dnrm2(M2[space2], alloyStream[space2][m],1);
+                        printf("%d %d %f\n",space2,m, norm[space2][ m ] );
                     }
-                    norm[space][ m ] = cblas_dnrm2(M2[space2], alloyStream[space2][m],1);
-                    printf("%d %d %f\n",space2,m, norm[space2][ m ] );
                 }
-            }
-            
+                
         }
-    printf("here1\n");
+        printf("here1\n");
 
         {                inta m,n,space2,bufferDim;
 
