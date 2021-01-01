@@ -44,7 +44,7 @@ from ioPrint cimport printOut
 from coreUtil cimport tBoot
 from coreUtil cimport printExpectationValues
 from coreUtil cimport streams
-form coreUtil cimport tMatrixElements
+from coreUtil cimport tMatrixElements
 
 from constants cimport dimensions_label
 from constants cimport metric_label
