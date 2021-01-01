@@ -491,7 +491,7 @@ cdef class galaxy:
 		"""
 		cdef floata *cp[SPACE] 
 		cdef floata * pt
-		cdef galaxy g
+		cdef galaxy g = galaxy()
 		
 		
 		blocks = ['total','train','copy','component','diagonal','total-parallel',
@@ -532,5 +532,5 @@ cdef class galaxy:
 						else:
 							cp[space][c] = 0.0
 			pt[ii] = tMatrixElements(0,self.field.f,division.copyVector,0,division.nullName,0,vector,0)
-			
+			print(ii,pt[ii])
 		return g
