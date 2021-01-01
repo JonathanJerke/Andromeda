@@ -122,6 +122,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
         if (  L1*G1 + L1*L1+L1 >  part(f1,canonicalBuffers)|| G1*L1 > part(f1,guideBuffer) || L1*L1*2+L1 > part(f1,trackBuffer)){
 #if 1
             printf("canonicalRankDecomposition, mem prob with canonicalBuffers, guideBuffer, or trackBuffer\n %d %d \n", L1, G1);
+            printf("canonicalBuffers %d\n guideBuffer %d\n trackBuffer %d\n",part(f1,canonicalBuffers),part(f1,guideBuffer),part(f1,trackBuffer) );
             fflush(stdout);
 #endif
             exit(0);
