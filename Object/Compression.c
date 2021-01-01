@@ -287,7 +287,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
 
     
             if(1){
-                inta ct = 0,space2,space,ii,i,stride;
+                inta space2,space,ii,i,stride;
                 for ( space = 0; space < SPACE;space++)
                     if ( f1.canon[space].body != nada ){
                         stride = 1;
@@ -295,9 +295,9 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                         for ( space2 = 0; space2 < SPACE;space2++)
                             if ( f2.canon[space2].body != nada ){
                                 for ( i = 0 ; i < M2[space2]; i++)
-                                    alloyStream[space][0][i] = 0.;
+                                    alloyStream[space2][0][i] = 0.;
                                 for ( ii = 0 ; ii < M1[space]/M2[space2] ; ii++ ){
-                                    cblas_daxpy(M2[space2], 1., originStream[space][G1],stride,alloyStream[space][0],1);
+                                    cblas_daxpy(M2[space2], 1., originStream[space][G1],stride,alloyStream[space2][0],1);
                                     stride *= M2[space2];
                                 }
                             }
