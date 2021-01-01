@@ -33,6 +33,6 @@ from constants cimport field
 from constants cimport calculation
 
 cdef extern from "../Object/Compression.h":
-    floata canonicalRankCompression( inta ** spatial, floata * cofact,sinc_label  f1 ,inta G,floata *GG, division origin,inta l1,inta l2,inta os, sinc_label  f2 ,inta neo,division alloy ,inta l3 , inta l4, inta spin ,floata tolerance,floata relativeTolerance, floata condition,floata maxCondition, inta maxCycle);
+    floata canonicalRankCompression( inta spatial[SPACE][SPACE], floata * cofact,sinc_label  f1 ,inta G,floata *GG, division origin,inta l1,inta l2,inta os, sinc_label  f2 ,inta neo,division alloy ,inta l3 , inta l4, inta spin ,floata tolerance,floata relativeTolerance, floata condition,floata maxCondition, inta maxCycle);
 
-    floata CanonicalRankCompression ( inta ** spatial,  floata * cofact, sinc_label  f1 , division origin,inta os, sinc_label  f2 , division alloy,inta spin,  floata tolerance ,  floata relativeTolerance, floata condition,floata threshold, inta maxCycle ,floata maxCondition, inta canon,inta X1 );
+    floata CanonicalRankCompression ( inta spatial[SPACE][SPACE],  floata * cofact, sinc_label  f1 , division origin,inta os, sinc_label  f2 , division alloy,inta spin,  floata tolerance ,  floata relativeTolerance, floata condition,floata threshold, inta maxCycle ,floata maxCondition, inta canon,inta X1 );
