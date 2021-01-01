@@ -290,7 +290,6 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 inta ct = 0,space2,space,ii,i,stride;
                 for ( space = 0; space < SPACE;space++)
                     if ( f1.canon[space].body != nada ){
-                        ct++;
                         stride = 1;
                         ///insert simplistic component separation here
                         for ( space2 = 0; space2 < SPACE;space2++)
@@ -303,30 +302,11 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                 }
                             }
                     }
-                if ( ct == 1 ){
-                    //NO SOP!
-                    for ( space = 0; space < SPACE;space++){
-                        if ( f1.canon[space].body != nada ){
-                            free(originStream[space]);
-                        }
-                        if ( f2.canon[space].body != nada ){
-                            free(alloyStream[space]);
-                        }
-                    }
-                    free(alloyStream);
-                    free(originStream);
-                    free(originIndex);
-                    ///automatically did the explicit summation.
-                    
-                    return 0.;
-                    //return 1;
-                    
-                }
                 ///separate output ..which means first rank is done...
             }
     
     inta dim[SPACE];
-
+    printf("here\n");
     
         
         space0 = 0;
