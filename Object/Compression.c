@@ -322,31 +322,6 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 }
                 ///separate output ..which means first rank is done...
             }
-    {
-        
-        if ( L1 >= G1 ){
-            for ( l = 0; l < G1 ; l++)
-                for ( space = 0 ; space < SPACE ; space++)
-                   if ( f1.canon[space].body != nada )
-                    cblas_dcopy(M1[space], originStream[space][l],1,alloyStream[space][l],1);
-#if VERBOSE
-            printf("short");
-#endif
-            for ( space = 0; space < SPACE;space++){
-                if ( f1.canon[space].body != nada ){
-                    free(originStream[space]);
-                }
-                if ( f2.canon[space].body != nada ){
-                    free(alloyStream[space]);
-                }
-            }
-            free(alloyStream);
-            free(originStream);
-            free(originIndex);
-            return 0.;
-            //return G1;
-        }
-    }
     
     inta dim[SPACE];
 
