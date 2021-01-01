@@ -554,10 +554,17 @@ cdef class galaxy:
 		
 		testing...
 		"""
-		spatial = np.zeros([SPACE,SPACE])
+		cdef spatial[SPACE,SPACE]
+		for s in range(SPACE):
+			for s2 in range(SPACE):
+				spatial[s][s2] = 0
+	
 		spatial[0][0] = 1
 		spatial[0][1] = 1
 		spatial[0][2] = 1
+
+
+
 
 		CanonicalRankCompression(spatial,NULL,self.field.f,division.eigenVectors,0,g.field.f,vector,0,
 		self.calculation.rt.TOLERANCE,
