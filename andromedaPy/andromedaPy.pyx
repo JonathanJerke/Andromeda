@@ -516,7 +516,7 @@ cdef class galaxy:
 		g.fieldInputs(canonRank = 1,nStates = 1,OpIndex = 0)
 		g.i()
 		pt = streams(self.field.f,division.eigenVectors,0,0)
-		self.field.f.name[division.copy].Current[0] = 1
+		self.field.f.name[division.copyVector].Current[0] = 1
 		for ii in range(spaces):
 			iv = 1
 			for space in range(SPACE):
@@ -527,6 +527,6 @@ cdef class galaxy:
 							cp[space][c] = 1.0
 						else:
 							cp[space][c] = 0.0
-			pt[ii] = tMatrixElements(0,self.field.f,division.copyVector,0,division.nullName,vector,0)
+			pt[ii] = tMatrixElements(0,self.field.f,division.copyVector,0,division.nullName,0,vector,0)
 			
 		return g
