@@ -50,7 +50,7 @@
  *@param maxCycle the maxmium number of cycles in this routine
  */
 floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,sinc_label  f1 ,inta G,floata *GG, division origin,inta l1,inta l2,inta os, sinc_label  f2 ,inta neo,division alloy ,inta l3 , inta l4, inta spin ,double tolerance,double relativeTolerance, double condition,double maxCondition, inta maxCycle){
-    if (l2 < l1 || l4 < l3 )
+    if (l2 < l1 || l4 < l3 || VERBOSE )
     {
         printf("indices out of order!\n");
         printf("%d %d %d %d\n", l1,l2,l3,l4);
@@ -169,7 +169,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
         originStream[space][G1] = streams(f1,canonicalVector,rank,space);//
 
         division nIter;
-        inta n,ni,nc ;
+        inta n,ni,nc;
         nIter = origin;
         ni = 0;
         nc = f1.name[nIter].Current[os];
@@ -196,7 +196,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                     cblas_daxpy(M1[space],1. , originStream[space][n-l1], 1, originStream[space][G1], 1);
 
 #if VERBOSE
-                printf("%d><%ld\n", n-l1, (originStream[space][n-l1]-streams(f1,origin,os,space)));
+                printf("%d>%d<%ld\n", n-l1,space, (originStream[space][n-l1]-streams(f1,origin,os,space)));
                 fflush(stdout);
 #endif
             }
