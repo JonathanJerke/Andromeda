@@ -58,6 +58,8 @@ from constants cimport metricType
 from constants cimport bodyType
 from constants cimport blockMemoryType
 
+from Compression cimport CanonicalRankCompression
+
 from libc.string cimport strcpy
 
 
@@ -495,7 +497,7 @@ cdef class galaxy:
 		galaxy
 		"""
 		cdef floata *cp[SPACE] 
-		cdef floata * pt
+		cdef floata *pt
 		
 		
 		blocks = ['total','train','copy','component','diagonal','total-parallel',
@@ -541,6 +543,18 @@ cdef class galaxy:
 						else:
 							cp[space][c] = 0.0
 					iv *= c1
-			pt[ii] = tMatrixElements(0,self.field.f,division.copyVector,0,division.nullOverlap,0,vector,0)
-			print(ii,pt[ii])
+			pt[ii] = tMatrixElements(0,self.field.f,division.copyVector,0,division.nullOverlap,0,vector,0)		
 		return g
+		
+	def compress ( self , g : galaxy , vector : division = division.eigenVectors):
+		"""self-> g
+		"""
+		spatial = np.zeros([SPACE,SPACE])
+		CanonicalRankCompression(spatial,null,self.field.f,division.eigenVectors,0,g.field.f,vector,0,
+		self.calculation.rt.TOLERANCE,
+		self.calculation.rt.relativeTOLERANCE,
+		self.calculation.rt.ALPHA,
+		self.calculation.rt.THRESHOLD,
+		self.calculation.rt.XCONDITION,
+		1,0)
+		return self
