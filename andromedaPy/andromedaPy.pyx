@@ -43,8 +43,8 @@ from ioPrint cimport tLoadEigenWeights
 from ioPrint cimport printOut
 from coreUtil cimport tBoot
 from coreUtil cimport printExpectationValues
-
-
+from coreUtil cimport streams
+form coreUtil cimport tMatrixElements
 
 from constants cimport dimensions_label
 from constants cimport metric_label
@@ -476,6 +476,54 @@ cdef class galaxy:
 		printExpectationValues (  &self.calculation,   self.field.f ,  division.Ha  , vector)
 		return self
 
-	
-
-
+	def full( self, vector : division  = division.eigenVectors ):
+		"""Create a new galaxy with all elements explicitly written down.
+		
+		Parameters
+		----------
+		vector : division 
+			The vector in self to analyze
+			
+		Returns
+		-------
+		galaxy
+		"""
+		blocks = ['total','train','copy','component','diagonal','total-parallel',
+		'matrixElement-parallel','multiply-parallel','permute','permute-parallel',
+		'transfer']
+		if allowQ(&self.rt,blockMemoryType.blockCopyBlock)==0:
+			print('need copy block')
+			return self
+		
+		spaces = 1
+		dims = 0
+		for space in range(SPACE):
+			if self.field.canon[space].body != bodyType.nada:
+				spaces *= self.field.canon[space].count1Basis	
+				dims += 1
+		g = galaxy()
+		cs = [g.comps(spaces)]
+		for d in range(dims):
+			ds += [g.dims(lattice = 1)]
+		ls = [1]
+		bs = [g.bases('Sinc')]
+		g.spaces(ls,cs,ds,bs).block(blocks)
+		g.calculationInputs(RAMmax = 4,numVectors = 0,numNames = 0)
+		g.fieldInputs(canonRank = 1,nStates = 1,OpIndex = 0)
+		g.i()
+		cdef floata * pt = streams(self.field.f,division.eigenVectors,0,0)
+		self.field.f.name[division.copy].Current[0] = 1
+		for ii in range(spaces):
+			iv = 1
+			for space in range(SPACE):
+				if self.field.canon[space].body != bodyType.nada:
+					cdef floata * cp = streams(self.field.f,division.copy,0,space)
+					c1 = self.field.canon[space].count1Basis
+					for c in range(c1):
+						if c == (int(ii/iv)%c1):
+							cp[c] = 1
+						else:
+							cp[c] = 0
+			pt[ii] = tMatrixElements(0,self.field.f,division.copy,0,division.nullName,vector,0)
+			
+		return g
