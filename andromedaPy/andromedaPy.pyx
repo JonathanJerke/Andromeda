@@ -502,7 +502,7 @@ cdef class galaxy:
 		for space in range(SPACE):
 			if self.field.canon[space].body != bodyType.nada:
 				cp[space]= streams(self.field.f,division.copyVector,0,space)
-				spaces *= self.field.canon[space].count1Basis	
+				spaces *= self.field.f.canon[space].count1Basis	
 				dims += 1
 		g = galaxy()
 		cs = [g.comps(spaces)]
@@ -519,8 +519,8 @@ cdef class galaxy:
 		for ii in range(spaces):
 			iv = 1
 			for space in range(SPACE):
-				if self.field.canon[space].body != bodyType.nada:
-					c1 = self.field.canon[space].count1Basis
+				if self.field.f.canon[space].body != bodyType.nada:
+					c1 = self.field.f.canon[space].count1Basis
 					for c in range(c1):
 						if c == (int(ii/iv)%c1):
 							cp[c] = 1
