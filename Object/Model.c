@@ -731,7 +731,7 @@ inta iModel(   calculation * c1,   field *f){
 
     
         fromBeginning(*f1,trackBuffer,CanonicalBuffers);
-        f1->name[trackBuffer].Partition = 2*flag*(maxTrainRank*maxTrainRank)+maxTrainRank;
+        f1->name[trackBuffer].Partition = flag*(2*maxTrainRank*maxTrainRank+maxTrainRank);
         f1->name[trackBuffer].memory = bufferAllocation;
         f1->name[trackBuffer].species = scalar;
 
