@@ -37,6 +37,7 @@ from Model cimport initField
 from Model cimport iModel
 from Model cimport fModel
 from input cimport blockA
+from input cimport allowQ
 from input cimport resetA
 from input cimport bootShell
 from ioPrint cimport tLoadEigenWeights
