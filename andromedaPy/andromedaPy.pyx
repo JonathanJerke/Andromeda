@@ -563,10 +563,11 @@ cdef class galaxy:
 		spatial[0][1] = 1
 		spatial[0][2] = 1
 
+##floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,sinc_label  f1 ,inta G,floata *GG, division origin,inta l1,inta l2,inta os, sinc_label  f2 ,inta neo,division alloy ,inta l3 , inta l4, inta spin ,double tolerance,double relativeTolerance, double condition,double maxCondition, inta maxCycle){
 
 
 
-		CanonicalRankCompression(spatial,NULL,self.field.f,division.eigenVectors,0,g.field.f,vector,0,
+		canonicalRankCompression(spatial,NULL,self.field.f,0,NULL,division.eigenVectors,0,1,0,g.field.f,1,vector,0,
 		self.calculation.rt.TOLERANCE,
 		self.calculation.rt.relativeTOLERANCE,
 		self.calculation.rt.ALPHA,
