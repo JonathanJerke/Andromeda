@@ -554,6 +554,7 @@ cdef class galaxy:
 		self.calculation.rt.relativeTOLERANCE,
 		self.calculation.rt.ALPHA,
 		self.calculation.rt.THRESHOLD,
+		self.calculation.rt.MAX_CYCLE,
 		self.calculation.rt.XCONDITION,
 		1,0)
 		return self
