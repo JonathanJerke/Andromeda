@@ -554,7 +554,7 @@ cdef class galaxy:
 		
 		testing...
 		"""
-		cdef spatial[SPACE,SPACE]
+		cdef inta spatial[SPACE,SPACE]
 		for s in range(SPACE):
 			for s2 in range(SPACE):
 				spatial[s][s2] = 0
