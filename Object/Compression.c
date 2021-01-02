@@ -396,7 +396,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                     if ( f2.canon[space2].body != nada)
                                         if ( spatial[space][space2] ){
                                             if ( bufferDim == M2[space2] ){
-                                                array2[space2][ n*LS1 + m ] = cblas_ddot(M2[space],bufferPointer,1,alloyStream[space2][m],1);
+                                                array2[space2][ n*LS1 + m ] = cblas_ddot(M2[space2],bufferPointer,1,alloyStream[space2][m],1);
                                             } else {
                                                 bufferDim /= M2[space2];
                                                 cblas_dgemv(CblasColMajor, CblasNoTrans, bufferDim, M2[space2], 1.,bufferPointer,bufferDim,alloyStream[space2][m],1,0.,bufferResource,1);
