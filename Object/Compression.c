@@ -314,7 +314,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             }
     
     inta dim[SPACE];
-    printf("here0\n");
+
     
     {
         inta space2;
@@ -346,8 +346,6 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 }
                 
         }
-        printf("here1\n");
-
         {                inta m,n,space2,bufferDim;
 
         ///get inners
@@ -372,8 +370,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                     
                 }
             }
-            printf("here2\n");
-
+                
             { inta rank = 0;
                 for ( space = 0; space < SPACE ; space++)
                     if ( f1.canon[space].body != nada){
@@ -391,10 +388,10 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                 ///! buffer in f1
                                 ///! buffer2 in f1
                                 ///! buffer-dim
-                                bufferDim = M1[space];
                                 floata* bufferPointer = originStream[space][n];
                                 floata* bufferResource = pt[rank];
-                                
+                                bufferDim = M1[space];
+
                                 for ( space2 = 0 ; space2 < SPACE ; space2++)
                                     if ( f2.canon[space2].body != nada)
                                         if ( spatial[space][space2] ){
@@ -415,7 +412,6 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             }
         }
         ///end inners
-    printf("here3\n");
 
         
             
@@ -538,8 +534,9 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                              bufferResource = pt[rank];
                              for ( m = 0; m < L1 ; m++)
                                 tracker[m] = 0.;
-                             bufferDim = M1[space];
                              for ( m = 0; m < L1 ; m++){
+                                 bufferDim = M1[space];
+
                                     for ( space2 = 0; space2 < SPACE ; space2++)
                                         if ( f2.canon[space2].body != nada )
                                             if ( spatial[space][space2] ){
