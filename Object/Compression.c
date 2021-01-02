@@ -510,17 +510,16 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
 //#endif
                 for ( ii = 0; ii < M2[dim[0]] ; ii++){
                     #ifdef OMP
-                    rank = 0;//omp_get_thread_num();
+                        rank = 0;//omp_get_thread_num();
                     #else
-                            rank = 0;
+                        rank = 0;
                     #endif
                     ///guide * ot ::  like   (L1,G1) * (G1) => L1
                                   
                     for ( m = 0; m < L1 ; m++)
                        tracker[m] = 0.;
-
                         
-                        for ( n = 0; n < G1 ; n++)
+                    for ( n = 0; n < G1 ; n++)
                          {///recipe for awesomeness...
                             ///!buffer
 
@@ -665,6 +664,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 printf("iGF %f\n",iGF);
                 fflush(stdout);
 #endif
+                
                 prev =curr;
                 if (fabs(iGG+iFF - 2 * iGF) < fabs(iGG+iFF + 2 * iGF) ){
                     curr = fabs(iGG+iFF - 2 * iGF);
@@ -674,6 +674,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                     curr = fabs(iGG+iFF + 2 * iGF);
                     flipSignFlag = 1;
                 }
+                printf("%f %f %f = %f\n", iGG,2*iGF,iFF,curr);
 
                 {
                 
