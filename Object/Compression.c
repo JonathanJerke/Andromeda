@@ -613,27 +613,34 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             
 
             if ( dim[0] == spaces2-1 ){
+                inta space0;
+                ///space0 is specially fixed in this bracket
+                for ( space0 = 0; space0 < SPACE ; space0++)
+                    if ( f1.canon[space0].body != nada )
+                        if ( spatial[space0][dim[0]] ){
+                            break;
+                        }
+
                 
-                        
                 
                 
                 double prod;
-                                  inta ll;
-                                  sum2 = 0.;
-                                  for ( ll = 0; ll < LS1 ; ll++){
-                                      prod = 1.;
-                                      for ( space = 0 ; space < SPACE ; space++)
-                                          if ( f2.canon[space].body != nada )
-                                              prod *= norm[space][ll] * norm[space][ll];
-                                      sum2 += prod;
-                                  }
-                
+                inta ll,space2;
+                sum2 = 0.;
+                for ( ll = 0; ll < LS1 ; ll++){
+                    prod = 1.;
+                    for ( space2 = 0 ; space2 < SPACE ; space2++)
+                        if ( f2.canon[space2].body != nada )
+                            prod *= norm[space2][ll] * norm[space2][ll];
+                    sum2 += prod;
+                }
                 
                 for ( l = 0; l < G1 ; l++){
                     for ( space = 0; space < SPACE ; space++)
-                        if ( f1.canon[space].body != nada)
-                            if ( spatial[space][dim[0]])
-                                cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[space]+l*LS1,1, guide+l*L1,1 );
+                        if ( f1.canon[space].body != nada )
+                            if ( spatial[space][dim[0]] )
+                                if ( space != space0 )
+                                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[space]+l*LS1,1, guide+l*L1,1 );
                 }
                 for ( l =0  ; l < L1 ; l++)
                     cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array[dim[0]]+l*LS1,1, track+LS1*LS1+l*LS1,1 );
@@ -642,7 +649,10 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 
                 for ( l = 0; l < L1 ; l++)
                     for ( ll = 0 ; ll < L1 ; ll++)
-                            iFF += (norm[0][l]*(track+LS1*LS1)[ l*LS1+ll]*norm[0][ll]);
+                        for ( space2 = 0 ; space2 < SPACE ; space2++)
+                            if ( f2.canon[space2].body != nada )
+                                if ( spatial[space0][space2] )
+                                  iFF += (norm[space2][l]*(track+LS1*LS1)[ l*LS1+ll]*norm[space2][ll]);
 
 
 
@@ -655,10 +665,10 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                         prod = 1.;
                         if ( cofact != NULL )
                             prod *= (cofact)[originIndex[l]];
-
-                        iGF += prod * (guide)[ l*L1+ll] * norm[0][ll] ;
-
-        
+                        for ( space2 = 0 ; space2 < SPACE ; space2++)
+                            if ( f2.canon[space2].body != nada )
+                                if ( spatial[space0][space2] )
+                                    iGF += prod * (guide)[ l*L1+ll] * norm[space2][ll] ;
                     }
 #if VERBOSE
                 printf("iGF %f\n",iGF);
@@ -753,7 +763,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 inta space2 ;
                 ///HERE...SPACE mixture
                 for ( space2 = 0 ; space2 < SPACE ; space2++)
-                    if( f2.canon[space].body != nada ){
+                    if( f2.canon[space2].body != nada ){
 
                     if ( flagAllDim == 1 || space2 == dim[0])
                 {
