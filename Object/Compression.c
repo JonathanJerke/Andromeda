@@ -516,7 +516,9 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                     #endif
                     ///guide * ot ::  like   (L1,G1) * (G1) => L1
                                   
-                    
+                    for ( m = 0; m < L1 ; m++)
+                       tracker[m] = 0.;
+
                         
                         for ( n = 0; n < G1 ; n++)
                          {///recipe for awesomeness...
@@ -551,8 +553,6 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
 
                              bufferPointer = qt[rank];
                              bufferResource = pt[rank];
-                             for ( m = 0; m < L1 ; m++)
-                                tracker[m] = 0.;
                              for ( m = 0; m < L1 ; m++){
                                  bufferDim = M1[space];
 
