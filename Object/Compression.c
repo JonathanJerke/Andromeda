@@ -395,6 +395,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                 for ( space2 = 0 ; space2 < SPACE ; space2++)
                                     if ( f2.canon[space2].body != nada)
                                         if ( spatial[space][space2] ){
+                                            printf("* %d %d\n", bufferDim, M2[space2]);
                                             if ( bufferDim == M2[space2] ){
                                                 array2[space2][ n*LS1 + m ] = cblas_ddot(M2[space2],bufferPointer,1,alloyStream[space2][m],1);
                                                 printf("%d %d %d %f\n", n,m, space2, array2[space2][ n*LS1 + m ]);
