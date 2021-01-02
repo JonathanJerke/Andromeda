@@ -112,22 +112,27 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             {
                 ///MAY WANT TO SEPARATE OWNERSHIP OF BUFFERS BETWEEN f1 and f2
                 array[space2] =  streams(f2, canonicalBuffers, rank , space2);
-                array2[space2] =  array[space2] + L1*L1;
-                norm[space2] = array2[space2] + G1*L1;
+                norm[space2] = array[space2] + L1*L1;
             }else{
                 array[space2] = NULL;
-                array2[space2] = NULL;
                 norm[space2] = NULL;
             }
+        
+        for ( space = 0; space < SPACE ; space++){
+            if( f1.canon[space].body != nada )
+                array2[space] =  streams(f1, canonicalBuffers, rank , space);
+            else
+                array2[space] = NULL;
+        }
         guide =  myStreams(f1, guideBuffer, rank );
         track =  myStreams(f1, trackBuffer, rank );
         tracker =  myStreams(f1, trackBuffer, rank )+L1*L1*2;
 
         
-        if (  L1*G1 + L1*L1+L1 >  part(f2,canonicalBuffers)|| G1*L1 > part(f1,guideBuffer) || L1*L1*2+L1 > part(f1,trackBuffer)){
+        if (   L1*L1+L1 >  part(f2,canonicalBuffers) || L1*G1 > part(f1,canonicalBuffers)|| G1*L1 > part(f1,guideBuffer) || L1*L1*2+L1 > part(f1,trackBuffer)){
 #if 1
             printf("canonicalRankDecomposition, mem prob with canonicalBuffers, guideBuffer, or trackBuffer\n %d %d \n", L1, G1);
-            printf("canonicalBuffers %d\n guideBuffer %d\n trackBuffer %d\n",part(f2,canonicalBuffers),part(f1,guideBuffer),part(f1,trackBuffer) );
+            printf("canonicalBuffers %d %d \n guideBuffer %d\n trackBuffer %d\n",part(f1,canonicalBuffers),part(f2,canonicalBuffers),part(f1,guideBuffer),part(f1,trackBuffer) );
             fflush(stdout);
 #endif
             exit(0);
@@ -395,10 +400,8 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                 for ( space2 = 0 ; space2 < SPACE ; space2++)
                                     if ( f2.canon[space2].body != nada)
                                         if ( spatial[space][space2] ){
-                                            printf("* %d %d\n", bufferDim, M2[space2]);
                                             if ( bufferDim == M2[space2] ){
-                                                array2[space2][ n*LS1 + m ] = cblas_ddot(M2[space2],bufferPointer,1,alloyStream[space2][m],1);
-                                                printf("%d %d %d %f\n", n,m, space2, array2[space2][ n*LS1 + m ]);
+                                                array2[space][ n*LS1 + m ] = cblas_ddot(M2[space2],bufferPointer,1,alloyStream[space2][m],1);
                                             } else {
                                                 bufferDim /= M2[space2];
                                                 cblas_dgemv(CblasColMajor, CblasNoTrans, bufferDim, M2[space2], 1.,bufferPointer,bufferDim,alloyStream[space2][m],1,0.,bufferResource,1);
@@ -439,14 +442,20 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                     track[ l*LS1 + l ] += condition ;
 
             
+            
             for ( l = 0; l < G1 ; l++)
-                cblas_dcopy(L1, array2[dim[1]]+l*LS1,1,guide+l*L1,1);
+                for ( space = 0; space < SPACE ; space++)
+                    if ( f1.canon[space].body != nada)
+                        if ( spatial[space][dim[1]])
+                            cblas_dcopy(L1, array2[space]+l*LS1,1,guide+l*L1,1);
             for ( space2 = 2; space2 < dim0 ; space2++)
-                if ( f2.canon[dim[space2]].body != nada){
-                    for ( l = 0; l < G1 ; l++)
-                        cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[dim[space2]]+l*LS1,1, guide+l*L1,1 );
-                    
-                }
+                if ( f2.canon[dim[space2]].body != nada)
+                    for ( space = 0; space < SPACE ; space++)
+                        if ( f1.canon[space].body != nada)
+                            if ( spatial[space][dim[space2]])
+                                for ( l = 0; l < G1 ; l++)
+                                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[space]+l*LS1,1, guide+l*L1,1 );
+            
             
 
             if ( cofact != NULL )
@@ -613,7 +622,10 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 
                 
                 for ( l = 0; l < G1 ; l++){
-                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[dim[0]]+l*LS1,1, guide+l*L1,1 );
+                    for ( space = 0; space < SPACE ; space++)
+                        if ( f1.canon[space].body != nada)
+                            if ( spatial[space][dim[0]])
+                                cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[space]+l*LS1,1, guide+l*L1,1 );
                 }
                 for ( l =0  ; l < L1 ; l++)
                     cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array[dim[0]]+l*LS1,1, track+LS1*LS1+l*LS1,1 );
@@ -737,7 +749,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 {
                     
                 
-                    inta m,n;
+                    inta m;
                     
                     
     #ifdef OMP
@@ -749,27 +761,51 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                         else
                             cblas_dscal(M2[space2], 1./(norm[space2][m]),alloyStream[space2][m], 1);
                     }
-                    
-#ifdef OMP
-#pragma omp parallel for private (m,n)
-#endif
-                for ( m = 0; m < L1; m++){
-                        array[space2][ m*LS1 + m ]  = 1.;
-                        for ( n = 0; n < m ; n++){
-                            array[space2][ n*LS1 + m ] = cblas_ddot(M2[space2], alloyStream[space2][n],1,alloyStream[space2][m],1);
-                            array[space2][ m*LS1 + n ] = array[space2][ n*LS1 + m ];
-                        }
-                        for ( n = 0; n < G1 ; n++){
-                            array2[space2][ n*LS1 + m ] = cblas_ddot(M2[space2],originStream[space2][n],1,alloyStream[space2][m],1);
-                       }
-                    }
-                }else {
-                    inta m;
-                    for ( m = 0; m < L1; m++){
-                        norm[space2][m] = 1.;
-                    }
                 }
                     }
+            
+                { inta rank = 0,bufferDim,n,m;
+                    for ( space = 0; space < SPACE ; space++)
+                        if ( f1.canon[space].body != nada){
+                            
+                            for ( m = 0; m < L1; m++)
+                                
+                                for ( n = 0; n < G1 ; n++){
+    #if VERBOSE
+                                for ( l= 0 ; l < M1[space] ; l++)
+                                    if (isnan (originStream[space][n][l] ) || isinf(originStream[space][n][l]))
+                                        printf("origin error\n");
+    #endif
+                                    ///COULD COMPOSE dimensions into higher array here
+                                    ///COULD dgemv the dam thing down to size... RIGHT!
+                                    ///! buffer in f1
+                                    ///! buffer2 in f1
+                                    ///! buffer-dim
+                                    floata* bufferPointer = originStream[space][n];
+                                    floata* bufferResource = pt[rank];
+                                    bufferDim = M1[space];
+
+                                    for ( space2 = 0 ; space2 < SPACE ; space2++)
+                                        if ( f2.canon[space2].body != nada)
+                                            if ( spatial[space][space2] ){
+                                                if ( bufferDim == M2[space2] ){
+                                                    array2[space][ n*LS1 + m ] = cblas_ddot(M2[space2],bufferPointer,1,alloyStream[space2][m],1);
+                                                } else {
+                                                    bufferDim /= M2[space2];
+                                                    cblas_dgemv(CblasColMajor, CblasNoTrans, bufferDim, M2[space2], 1.,bufferPointer,bufferDim,alloyStream[space2][m],1,0.,bufferResource,1);
+                                                    bufferPointer = bufferResource;
+                                                    if ( bufferPointer == pt[rank])
+                                                        bufferResource = ot[rank];
+                                                    else
+                                                        bufferResource = pt[rank];
+                                                    }
+                                            }
+                                }
+                        }
+                }
+            
+            
+            
                 flipSignFlag = 0;
 
             }
