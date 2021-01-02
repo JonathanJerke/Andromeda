@@ -352,27 +352,28 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
 
         ///get inners
         ///HERE...SPACE mixture
-        for ( space = 0; space < dim0 ; space++)
-            if ( f2.canon[space].body != nada){
+        for ( space2 = 0; space2 < dim0 ; space2++)
+            if ( f2.canon[space2].body != nada){
             
                 for ( m = 0; m < L1; m++){
 #if VERBOSE
-                    for ( l= 0 ; l < M2[space] ; l++)
-                        if (isnan (alloyStream[space][m][l] ) || isinf(alloyStream[space][m][l]))
+                    for ( l= 0 ; l < M2[space2] ; l++)
+                        if (isnan (alloyStream[space2][m][l] ) || isinf(alloyStream[space2][m][l]))
                             printf("alloy error\n");
 #endif
-                    if ( norm[space][m] == 0. )
-                        printf("oops %d %d",space,m);
-                    cblas_dscal(M2[space], 1./(norm[space][m]),alloyStream[space][m], 1);
-                    array[space][ m*LS1 + m ]  = 1.;
+                    if ( norm[space2][m] == 0. )
+                        printf("oops %d %d",space2,m);
+                    cblas_dscal(M2[space2], 1./(norm[space2][m]),alloyStream[space2][m], 1);
+                    array[space2][ m*LS1 + m ]  = 1.;
                     for ( n = 0; n < m ; n++){
-                        array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][m],1);
-                        array[space][ m*LS1 + n ] = array[space][ n*LS1 + m ];
+                        array[space2][ n*LS1 + m ] = cblas_ddot(M2[space2], alloyStream[space2][n],1,alloyStream[space2][m],1);
+                        array[space2][ m*LS1 + n ] = array[space2][ n*LS1 + m ];
                     }
                     
                 }
             }
-                
+            printf("here2\n");
+
             { inta rank = 0;
                 for ( space = 0; space < SPACE ; space++)
                     if ( f1.canon[space].body != nada){
@@ -414,6 +415,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             }
         }
         ///end inners
+    printf("here3\n");
 
         
             
