@@ -340,7 +340,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                 pt[mm] = cos(kk*2*pi*mm*1./M2[space2]);
                             kk++;
                         }
-                        norm[space][ m ] = cblas_dnrm2(M2[space2], alloyStream[space2][m],1);
+                        norm[space2][ m ] = cblas_dnrm2(M2[space2], alloyStream[space2][m],1);
                         printf("%d %d %f\n",space2,m, norm[space2][ m ] );
                     }
                 }
