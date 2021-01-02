@@ -566,11 +566,12 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                                     }
                                             }
                                 }
+                         }
                     if ( ! info )
                         if (tdpotrs(L1,  1, track,LS1,  tracker ,LS1 )){
                             info = 1;
                         }
-                    }
+                    
                     for ( lll = 0 ;lll < L1 ; lll++){
                         alloyStream[dim[0]][lll][ii] = pt[rank][lll];
                     }
