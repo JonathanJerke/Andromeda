@@ -424,17 +424,17 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             ///all computed inner products
             ///            printf("dim[0]=%d\n", dim[0]);
             dim0 = 0;
-            for ( space = 0; space < SPACE ; space++)
-                if ( f2.canon[space].body != nada)
-                    dim[(space0+space)%(spaces2)] = dim0++;
+            for ( space2 = 0; space2 < SPACE ; space2++)
+                if ( f2.canon[space2].body != nada)
+                    dim[(space0+space2)%(spaces2)] = dim0++;
                        
                        
             for ( l =0  ; l < L1 ; l++)
                 cblas_dcopy(L1, array[dim[1]]+l*LS1,1,track+l*LS1,1);
-            for ( space = 2; space < dim0 ; space++)
-                if ( f2.canon[dim[space]].body != nada)
+            for ( space2 = 2; space2 < dim0 ; space2++)
+                if ( f2.canon[dim[space2]].body != nada)
                     for ( l =0  ; l < L1 ; l++)
-                        cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array[dim[space]]+l*LS1,1, track+l*LS1,1 );
+                        cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array[dim[space2]]+l*LS1,1, track+l*LS1,1 );
            
             cblas_dcopy(LS1*LS1, track, 1, track+LS1*LS1, 1);
             for ( l = 0 ; l < L1; l++)
@@ -443,10 +443,10 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             
             for ( l = 0; l < G1 ; l++)
                 cblas_dcopy(L1, array2[dim[1]]+l*LS1,1,guide+l*L1,1);
-            for ( space = 2; space < dim0 ; space++)
-                if ( f2.canon[dim[space]].body != nada){
+            for ( space2 = 2; space2 < dim0 ; space2++)
+                if ( f2.canon[dim[space2]].body != nada){
                     for ( l = 0; l < G1 ; l++)
-                        cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[dim[space]]+l*LS1,1, guide+l*L1,1 );
+                        cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[dim[space2]]+l*LS1,1, guide+l*L1,1 );
                     
                 }
             
@@ -547,7 +547,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                                 } else {
                                                     bufferDim /= M2[space2] ;
                                                     if ( bufferDim > M2[space2] )
-                                                        cblas_dgemv(CblasColMajor, CblasNoTrans, bufferDim, M2[space2],     1.,bufferPointer,M2[space],alloyStream[space2][m],1,0.,bufferResource,1) ;
+                                                        cblas_dgemv(CblasColMajor, CblasNoTrans, bufferDim, M2[space2],     1.,bufferPointer,bufferDim,alloyStream[space2][m],1,0.,bufferResource,1) ;
                                                     else
                                                         tracker[m] += cblas_ddot(M2[space2], bufferPointer, 1, alloyStream[space2][m], 1)*(guide)[m+L1*n];
                                                     bufferPointer = bufferResource ;
@@ -719,22 +719,22 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 {
                     inta m,space;
                     
-                    for ( space = 0; space < dim0 ; space++)
-                        if ( f2.canon[space].body != nada){
+                    for ( space2 = 0; space2 < dim0 ; space2++)
+                        if ( f2.canon[space2].body != nada){
                             for ( m = 0; m < L1; m++){
-                                norm[space][ m ] = cblas_dnrm2(M2[space], alloyStream[space][m],1);
+                                norm[space2][ m ] = cblas_dnrm2(M2[space2], alloyStream[space2][m],1);
                             }
                         }
                 }
                 
                 
                             
-                inta space ;
+                inta space2 ;
                 ///HERE...SPACE mixture
-                for ( space = 0 ; space < SPACE ; space++)
-                    if( f1.canon[space].body != nada ){
+                for ( space2 = 0 ; space2 < SPACE ; space2++)
+                    if( f2.canon[space].body != nada ){
 
-                    if ( flagAllDim == 1 || space == dim[0])
+                    if ( flagAllDim == 1 || space2 == dim[0])
                 {
                     
                 
@@ -745,29 +745,29 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
         #pragma omp parallel for private (m)
                     #endif
                     for ( m = 0; m < L1; m++){
-                        if ( flipSignFlag && space == dim[0] )
-                            cblas_dscal(M2[space], -1./(norm[space][m]),alloyStream[space][m], 1);
+                        if ( flipSignFlag && space2 == dim[0] )
+                            cblas_dscal(M2[space2], -1./(norm[space2][m]),alloyStream[space2][m], 1);
                         else
-                            cblas_dscal(M2[space], 1./(norm[space][m]),alloyStream[space][m], 1);
+                            cblas_dscal(M2[space2], 1./(norm[space2][m]),alloyStream[space2][m], 1);
                     }
                     
 #ifdef OMP
 #pragma omp parallel for private (m,n)
 #endif
                 for ( m = 0; m < L1; m++){
-                        array[space][ m*LS1 + m ]  = 1.;
+                        array[space2][ m*LS1 + m ]  = 1.;
                         for ( n = 0; n < m ; n++){
-                            array[space][ n*LS1 + m ] = cblas_ddot(M2[space], alloyStream[space][n],1,alloyStream[space][m],1);
-                            array[space][ m*LS1 + n ] = array[space][ n*LS1 + m ];
+                            array[space2][ n*LS1 + m ] = cblas_ddot(M2[space2], alloyStream[space2][n],1,alloyStream[space2][m],1);
+                            array[space2][ m*LS1 + n ] = array[space2][ n*LS1 + m ];
                         }
                         for ( n = 0; n < G1 ; n++){
-                            array2[space][ n*LS1 + m ] = cblas_ddot(M2[space],originStream[space][n],1,alloyStream[space][m],1);
+                            array2[space2][ n*LS1 + m ] = cblas_ddot(M2[space2],originStream[space2][n],1,alloyStream[space2][m],1);
                        }
                     }
                 }else {
                     inta m;
                     for ( m = 0; m < L1; m++){
-                        norm[space][m] = 1.;
+                        norm[space2][m] = 1.;
                     }
                 }
                     }
