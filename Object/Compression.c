@@ -329,27 +329,32 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
         inta dim[SPACE];
         
             
-        while ( 1 ){
-            
-            ///orders
-            { inta space,dim2;
-                dim0=0;
-                for ( dim2 = 0; dim2 < SPACE ; dim2++)
-                    if ( f2.canon[dim2].body != nada)
-                        dim[(dim2+spaceX)%(spaces2)] = dim0++;
-            
-                for ( space = 0; space < SPACE ; space++)
-                    if ( f1.canon[space].body != nada)
-                        if ( spatial[space][dim[0]] ){
-                            space0 = space;
-                            break;
-                        }
-            }///orders
+        ///orders
+        { inta space,dim2;
+            dim0=0;
+            for ( dim2 = 0; dim2 < SPACE ; dim2++)
+                if ( f2.canon[dim2].body != nada)
+                    dim[(dim2+spaceX)%(spaces2)] = dim0++;
         
+            for ( space = 0; space < SPACE ; space++)
+                if ( f1.canon[space].body != nada)
+                    if ( spatial[space][dim[0]] ){
+                        space0 = space;
+                        break;
+                    }
+        }///orders
+
+        flagAllDim = 1;
+
+    
+        while ( 1 ){
+                        
             ///get norms
             { inta m,space2;
                 for ( space2 = 0; space2 < dim0 ; space2++)
-                    if ( f2.canon[space2].body != nada){
+                    if ( f2.canon[space2].body != nada)
+                        if ( flagAllDim == 1 || space2 == dim[0])
+                        {
                         inta kk=1;
                         for ( m = 0; m < L1; m++){
                             norm[space2][ m ] = cblas_dnrm2(M2[space2], alloyStream[space2][m],1);
@@ -363,14 +368,16 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                             }
                             norm[space2][ m ] = cblas_dnrm2(M2[space2], alloyStream[space2][m],1);
                         }
-                    }
+                        }
                     
             }///end norms
         
             ///get arrays
             { inta m,n,space2,bufferDim;
                 for ( space2 = 0; space2 < dim0 ; space2++)
-                    if ( f2.canon[space2].body != nada){
+                    if ( f2.canon[space2].body != nada)
+                        if ( flagAllDim == 1 || space2 == dim[0])
+                        {
                         for ( m = 0; m < L1; m++){
                             if ( norm[space2][m] == 0. )
                                 printf("oops %d %d",space2,m);
@@ -387,7 +394,9 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 ///all  array2
                 { inta rank = 0;
                     for ( space = 0; space < SPACE ; space++)
-                        if ( f1.canon[space].body != nada){
+                        if ( f1.canon[space].body != nada)
+                            if ( flagAllDim == 1 || space == space0)
+                            {
                             for ( m = 0; m < L1; m++)
                                 for ( n = 0; n < G1 ; n++){
                                     floata* bufferPointer = originStream[space][n];
@@ -396,7 +405,8 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
 
                                     for ( space2 = 0 ; space2 < SPACE ; space2++)
                                         if ( f2.canon[space2].body != nada)
-                                            if ( spatial[space][space2] ){
+                                            if ( spatial[space][space2] )
+                                                {
                                                 if ( bufferDim == M2[space2] ){
                                                     array2[space][ n*LS1 + m ] = cblas_ddot(M2[space2],bufferPointer,1,alloyStream[space2][m],1);
                                                 } else {
@@ -414,7 +424,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 }///end array2
             }
             ///end arrays
-            
+        
             for ( space2 = 0 ; space2 < SPACE ; space2++)
                 if ( f2.canon[space2].body != nada)
                     if ( space2 != dim[0]){
@@ -423,7 +433,22 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                             norm[space2][m] = 1.;
                         }
                     }
+            ///orders
+            { inta space,dim2;
+                dim0=0;
+                for ( dim2 = 0; dim2 < SPACE ; dim2++)
+                    if ( f2.canon[dim2].body != nada)
+                        dim[(dim2+spaceX)%(spaces2)] = dim0++;
+            
+                for ( space = 0; space < SPACE ; space++)
+                    if ( f1.canon[space].body != nada)
+                        if ( spatial[space][dim[0]] ){
+                            space0 = space;
+                            break;
+                        }
+            }///orders
 
+            flagAllDim = 0;
             
             
             ///APPLY ARRAYS BELOW...TO DEFINE OPERATIVE TERMS
@@ -463,6 +488,9 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                         for ( l = 0; l < L1 ; l++)
                             guide[g*L1+l] *= (cofact)[originIndex[g]];
             }///all guide
+            
+            
+            
             
             
             
