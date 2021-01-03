@@ -121,7 +121,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 norm[space2] = NULL;
             }
             for ( space = 0; space < SPACE ; space++){
-                if( f1.canon[space].body != nada && spaces > 1)
+                if( f1.canon[space].body != nada )
                     array2[space] =  streams(f1, canonicalBuffers, rank , space);
                 else
                     array2[space] = NULL;
@@ -301,11 +301,12 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 fflush(stdout);
 #endif
 
-    target = max( iGG*relativeTolerance , tolerance );
-    printf("target %f\n",target);
+            target = max( iGG*relativeTolerance , tolerance );
+            printf("target %f\n",target);
 
     
-            if(neo){
+            if(neo)
+            { printf("neo");
                 inta space2,space,ii,i,stride;
                 for ( space = 0; space < SPACE;space++)
                     if ( f1.canon[space].body != nada ){
@@ -344,9 +345,8 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                     }
         }///orders
     
-        {
-            inta m,space2;
-            ///get norms
+        ///get norms
+        { inta m,space2;
             for ( space2 = 0; space2 < dim0 ; space2++)
                 if ( f2.canon[space2].body != nada){
                     inta kk=1;
@@ -363,24 +363,23 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                     }
                 }
                 
-        }
-    printf("end norms");
+        }///end norms
+        printf("end norms");
     
         ///get arrays
         { inta m,n,space2,bufferDim;
-        ///ALL array
-        for ( space2 = 0; space2 < dim0 ; space2++)
-            if ( f2.canon[space2].body != nada){
-                for ( m = 0; m < L1; m++){
-                    if ( norm[space2][m] == 0. )
-                        printf("oops %d %d",space2,m);
-                    cblas_dscal(M2[space2], 1./(norm[space2][m]),alloyStream[space2][m], 1);
-                    array[space2][ m*LS1 + m ]  = 1.;
-                    for ( n = 0; n < m ; n++){
-                        array[space2][ n*LS1 + m ] = cblas_ddot(M2[space2], alloyStream[space2][n],1,alloyStream[space2][m],1);
-                        array[space2][ m*LS1 + n ] = array[space2][ n*LS1 + m ];
+            for ( space2 = 0; space2 < dim0 ; space2++)
+                if ( f2.canon[space2].body != nada){
+                    for ( m = 0; m < L1; m++){
+                        if ( norm[space2][m] == 0. )
+                            printf("oops %d %d",space2,m);
+                        cblas_dscal(M2[space2], 1./(norm[space2][m]),alloyStream[space2][m], 1);
+                        array[space2][ m*LS1 + m ]  = 1.;
+                        for ( n = 0; n < m ; n++){
+                            array[space2][ n*LS1 + m ] = cblas_ddot(M2[space2], alloyStream[space2][n],1,alloyStream[space2][m],1);
+                            array[space2][ m*LS1 + n ] = array[space2][ n*LS1 + m ];
+                        }
                     }
-                }
             }///end all array
                 
             
