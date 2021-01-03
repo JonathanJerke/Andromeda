@@ -509,11 +509,11 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 
                 for ( ii = 0; ii < M2[dim[0]] ; ii++)
                 {
-                    #ifdef OMP
+#ifdef OMP
                         rank = 0;//omp_get_thread_num();
-                    #else
+#else
                         rank = 0;
-                    #endif
+#endif
                     ///guide * ot ::  like   (L1,G1) * (G1) => L1
                                   
                     for ( m = 0; m < L1 ; m++)
@@ -534,11 +534,20 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                         }
                                     }
                             ///needs to know its only occuring ii..
-                            for ( i = 0 ; i < M1[space0]; i+= stride*M2[dim[0]] ){
-                                cblas_dcopy(stride, originStream[space0][n]+ii*stride+i, M1[space0]/stride/M2[dim[0]], qt[rank]+i/M2[dim[0]], 1);
-                            }
-                             printf("%f %f %f %f %f\n", qt[rank][0],qt[rank][1],qt[rank][2],qt[rank][3],qt[rank][4]);
+                             ///M1[space0] = N^3
+                             ///----
+                             ///first dimension, stride = 1
+                             ///ii + N * a + N * N * b  =>  a + N * b
+                             ///
+                             ///second dimension, stride = N
+                             ///a + N * ii + N * N * b  =>  a + N * b
+                             ///
+                             ///third dimension, stride = N*N
+                             ///a + N * b + N * N * ii  =>  a + N * b
 
+                            for ( i = 0 ; i < M1[space0]; i += stride*M2[dim[0]] ){
+                                cblas_dcopy( stride , originStream[space0][n]+ii*stride+i, stride*M2[dim[0]], qt[rank]+i/M2[dim[0]], 1 );
+                            }
 
                              bufferPointer = qt[rank];
                              bufferResource = pt[rank];
@@ -568,8 +577,6 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                             }
                                 }
                          }
-                    printf("%f \n", track[0]);
-                    printf("%f \n", tracker[0]);
                     if ( ! info )
                         if (tdpotrs(L1,  1, track,LS1,  tracker ,LS1 )){
                             info = 1;
