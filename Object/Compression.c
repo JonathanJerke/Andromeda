@@ -580,7 +580,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                                 if ( dim[0] != space2 ){
                                                     if ( bufferDim == M2[space2] ){
                                                         tracker[m] += cblas_ddot(M2[space2], bufferPointer, 1, alloyStream[space2][m], 1)*(guide)[m+L1*n];
-                                                        printf("%d %f\n",space2,tracker[m])
+                                                        printf("%d %f\n",space2,tracker[m]);
                                                     } else {
                                                         bufferDim /= M2[space2] ;
                                                         cblas_dgemv(CblasColMajor, CblasNoTrans, bufferDim, M2[space2],     1.,bufferPointer,bufferDim,alloyStream[space2][m],1,0.,bufferResource,1) ;
