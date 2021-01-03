@@ -168,7 +168,8 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
     }
     
     inta dim0 = 0;
-    
+    inta dim[SPACE];
+
     floata *** originStream = malloc(SPACE * sizeof(floata**));
     floata *** alloyStream = malloc(SPACE * sizeof(floata**));
     inta * originIndex = malloc( G1* sizeof(inta));
@@ -217,88 +218,88 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
     }
         for ( space = 0; space < SPACE;space++)
             if ( f2.canon[space].body != nada )
-        {
-            alloyStream[space] = malloc(L1*sizeof(floata*));
+            {
+                alloyStream[space] = malloc(L1*sizeof(floata*));
 
-            inta n,ni,nc;
-            division nIter;
-            nIter = alloy;
-            nc = f2.name[nIter].Current[spin];
-            ni = 0;
-            for ( n = 0; n < L1+l3 ; n++){
-                
-                while ( n >= ni+nc ){
-                    ni += nc;
-                        nIter = f2.name[nIter].chainNext;
-                    nc = f2.name[nIter].Current[spin];
+                inta n,ni,nc;
+                division nIter;
+                nIter = alloy;
+                nc = f2.name[nIter].Current[spin];
+                ni = 0;
+                for ( n = 0; n < L1+l3 ; n++){
+                    
+                    while ( n >= ni+nc ){
+                        ni += nc;
+                            nIter = f2.name[nIter].chainNext;
+                        nc = f2.name[nIter].Current[spin];
 
-                        if ( nIter == nullName){
-                            printf("somehow the pointers in Alloy lost track, you probably have too many canonical ranks\n");
-                            exit(0);
-                            }
-                }
-                if ( n >= l3){
-                    alloyStream[space][n-l3] = streams(f2, nIter, spin, space) +(n - ni)*M2[space] ;
+                            if ( nIter == nullName){
+                                printf("somehow the pointers in Alloy lost track, you probably have too many canonical ranks\n");
+                                exit(0);
+                                }
+                    }
+                    if ( n >= l3){
+                        alloyStream[space][n-l3] = streams(f2, nIter, spin, space) +(n - ni)*M2[space] ;
 #if VERBOSE
-                    printf("%d<%d>%ld\n", n-l3,space, (alloyStream[space][n-l3]-streams(f2, alloy, spin, space)));
-                    fflush(stdout);
+                        printf("%d<%d>%ld\n", n-l3,space, (alloyStream[space][n-l3]-streams(f2, alloy, spin, space)));
+                        fflush(stdout);
 #endif
-                }
+                    }
 
-            }
-        }
-    
-    
-        
-    
-    
-    if ( GG == NULL ){
-        ///intended for single continuous origin, even if pointers are all messy.  Tied to ASTER PROCEDURE.
-        ///to avoid redundancy of computation.
-        floata product,sum=0. ;
-        inta l,ll,space;
-        for ( l = 0 ; l < G1 ; l++)
-            for ( ll = 0; ll< G1 ; ll++){
-                product = 1.;
-                for (space = 0; space < SPACE ; space++)
-                    if ( f1.canon[space].body != nada )
-                    product *= cblas_ddot(M1[space], originStream[space][l], 1, originStream[space][ll], 1);
-                if ( cofact != NULL ){
-                    product *= (cofact)[originIndex[l]]*(cofact)[originIndex[ll]];
                 }
-                if ( product > xprod){
-                    xprod = product;
-                    xOriginIndex = ll;
-                }
-                sum += product;
             }
-        iGG = sum;
+    
+    
         
+    
         
-        
-        ///here one could argue for iGG begin too small.
-        
-    } else {
-        floata product,sum=0. ;
-        inta l,ll;
-        for ( l = 0 ; l < G1 ; l++)
-            for ( ll = 0; ll< G1 ; ll++){
-                    product = GG[originIndex[l]*G+originIndex[ll]];
+        if ( GG == NULL ){
+            ///intended for single continuous origin, even if pointers are all messy.  Tied to ASTER PROCEDURE.
+            ///to avoid redundancy of computation.
+            floata product,sum=0. ;
+            inta l,ll,space;
+            for ( l = 0 ; l < G1 ; l++)
+                for ( ll = 0; ll< G1 ; ll++){
+                    product = 1.;
+                    for (space = 0; space < SPACE ; space++)
+                        if ( f1.canon[space].body != nada )
+                        product *= cblas_ddot(M1[space], originStream[space][l], 1, originStream[space][ll], 1);
                     if ( cofact != NULL ){
                         product *= (cofact)[originIndex[l]]*(cofact)[originIndex[ll]];
                     }
-                if ( product > xprod){
-                    xprod = product;
-                    xOriginIndex = ll;
-                }
-
+                    if ( product > xprod){
+                        xprod = product;
+                        xOriginIndex = ll;
+                    }
                     sum += product;
+                }
+            iGG = sum;
+            
+            
+            
+            ///here one could argue for iGG begin too small.
+            
+            } else {
+                floata product,sum=0. ;
+                inta l,ll;
+                for ( l = 0 ; l < G1 ; l++)
+                    for ( ll = 0; ll< G1 ; ll++){
+                            product = GG[originIndex[l]*G+originIndex[ll]];
+                            if ( cofact != NULL ){
+                                product *= (cofact)[originIndex[l]]*(cofact)[originIndex[ll]];
+                            }
+                        if ( product > xprod){
+                            xprod = product;
+                            xOriginIndex = ll;
+                        }
+
+                            sum += product;
+                    }
+                iGG = sum;
             }
-        iGG = sum;
-    }
 #if VERBOSE
-                printf("iGG %f\n",iGG);
-                fflush(stdout);
+            printf("iGG %f\n",iGG);
+            fflush(stdout);
 #endif
 
             target = max( iGG*relativeTolerance , tolerance );
@@ -326,7 +327,6 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 ///separate output ..which means first rank is done...
             }
     
-        inta dim[SPACE];
         
             
         ///orders
@@ -345,7 +345,6 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
         }///orders
 
         flagAllDim = 1;
-
     
         while ( 1 ){
                         
@@ -576,7 +575,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                              bufferPointer = qt[rank];
                              bufferResource = pt[rank];
                              for ( m = 0; m < L1 ; m++){
-                                bufferDim = M1[space0]/M2[space2];
+                                bufferDim = M1[space0]/M2[dim[0]];
                                 for ( space2 = 0; space2 < SPACE ; space2++)
                                         if ( f2.canon[space2].body != nada )
                                             if ( spatial[space0][space2] ){
@@ -645,11 +644,11 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 }///end sum-sqr
                 
                 
-                ///all inner guide
+                ///all inner track
                 for ( l =0  ; l < L1 ; l++)
                     cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array[dim[0]]+l*LS1,1, track+LS1*LS1+l*LS1,1 );
 
-                
+                ///all inner guide
                 if ( spaces == 1) {
                         for ( l = 0; l < G1 ; l++)
                             for ( space = 0; space < SPACE ; space++)
@@ -657,13 +656,13 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                     cblas_dcopy( L1, array2[space]+l*LS1,1,guide+l*L1,1);
                                 }
                     
-                    if ( cofact != NULL )
-                        for ( g = 0; g < G1 ; g++)
-                            for ( l = 0; l < L1 ; l++)
-                                guide[g*L1+l] *= (cofact)[originIndex[g]];
-                    ///cofact taken into account in other if
+                        if ( cofact != NULL )
+                            for ( g = 0; g < G1 ; g++)
+                                for ( l = 0; l < L1 ; l++)
+                                    guide[g*L1+l] *= (cofact)[originIndex[g]];
+                        ///cofact taken into account in other if
 
-                }else {
+                }else{
                     ///all other SPACE have already been accounted for...
                     for ( l = 0; l < G1 ; l++ ){
                         for ( space = 0; space < SPACE ; space++)
@@ -721,7 +720,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             }///get inners
                 
                 
-                {
+            {
                 
 #if VERBOSE
             printf("%d %f %d %d\n", count, curr,G1,L1);
