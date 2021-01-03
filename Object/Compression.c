@@ -636,10 +636,15 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 { inta m,space2;
                     for ( space2 = 0; space2 < dim0 ; space2++)
                         if ( f2.canon[space2].body != nada)
-                            if ( flagAllDim == 1 || space2 == dim[0])
+                           // if ( flagAllDim == 1 || space2 == dim[0])
                             {
                                 for ( m = 0; m < L1; m++){
+                                    
                                     norm[space2][ m ] = cblas_dnrm2(M2[space2], alloyStream[space2][m],1);
+#if VERBOSE
+                                    printf("norm %f\n", norm[space2][m]);
+#endif
+
                                 }
                             }
                         
