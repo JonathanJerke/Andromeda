@@ -443,7 +443,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                             cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array[dim[space2]]+l*LS1,1, track+l*LS1,1 );
                 cblas_dcopy(LS1*LS1, track, 1, track+LS1*LS1, 1);
                 for ( l = 0 ; l < L1; l++){
-                    printf("%d %f\n"< track[l*LS1+l]);
+                    printf("%d %f\n", track[l*LS1+l]);
                     track[ l*LS1 + l ] += condition ;
                 }
              }///end all track
