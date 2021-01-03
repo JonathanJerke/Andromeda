@@ -327,12 +327,10 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 ///separate output ..which means first rank is done...
             }
     
-    inta dim[SPACE];
+        inta dim[SPACE];
 
-    
-        {
-            
-            inta space,space2;
+        ///orders
+        { inta space,space2;
             dim0=0;
             for ( space2 = 0; space2 < SPACE ; space2++)
                 if ( f2.canon[space2].body != nada)
@@ -344,7 +342,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                         space0 = space;
                         break;
                     }
-        }
+        }///orders
     
         {
             inta m,space2;
@@ -366,19 +364,14 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 }
                 
         }
+    printf("end norms");
     
-        ///get inners
+        ///get arrays
         { inta m,n,space2,bufferDim;
-
+        ///ALL array
         for ( space2 = 0; space2 < dim0 ; space2++)
             if ( f2.canon[space2].body != nada){
-                ///ALL array
                 for ( m = 0; m < L1; m++){
-#if VERBOSE
-                    for ( l= 0 ; l < M2[space2] ; l++)
-                        if (isnan (alloyStream[space2][m][l] ) || isinf(alloyStream[space2][m][l]))
-                            printf("alloy error\n");
-#endif
                     if ( norm[space2][m] == 0. )
                         printf("oops %d %d",space2,m);
                     cblas_dscal(M2[space2], 1./(norm[space2][m]),alloyStream[space2][m], 1);
@@ -397,11 +390,6 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                     if ( f1.canon[space].body != nada){
                         for ( m = 0; m < L1; m++)
                             for ( n = 0; n < G1 ; n++){
-                                ///COULD COMPOSE dimensions into higher array here
-                                ///COULD dgemv the dam thing down to size... RIGHT!
-                                ///! buffer in f1
-                                ///! buffer2 in f1
-                                ///! buffer-dim
                                 floata* bufferPointer = originStream[space][n];
                                 floata* bufferResource = pt[rank];
                                 bufferDim = M1[space];
@@ -424,10 +412,10 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                         }
                             }
                     }
-            }
+            }///end array2
         }
-        ///end inners
-
+        ///end arrays
+    printf("end arrays");
         
             
         while ( 1 ){
