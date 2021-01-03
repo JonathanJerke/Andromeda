@@ -567,7 +567,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                              ///a + N * b + N * N * ii  =>  a + N * b
 
                             for ( i = 0 ; i < M1[space0]; i += stride*M2[dim[0]] ){
-                                cblas_dcopy( stride , originStream[space0][n]+ii*stride+i, stride*M2[dim[0]], qt[rank]+i/M2[dim[0]], 1 );
+                                cblas_dcopy( stride , originStream[space0][n]+ii*stride+i, 1, qt[rank]+i/M2[dim[0]], 1 );
                             }
 
                              bufferPointer = qt[rank];
@@ -630,24 +630,18 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             
             
             ///at end of loop,,,
-            if ( dim[0] == spaces2-1 ){
+            if ( dim[0] == 0){
                 
                 ///get norms
-                { inta m,space2;
-                    for ( space2 = 0; space2 < dim0 ; space2++)
-                        if ( f2.canon[space2].body != nada)
-                           // if ( flagAllDim == 1 || space2 == dim[0])
-                            {
-                                for ( m = 0; m < L1; m++){
+                { inta m;
+                    for ( m = 0; m < L1; m++){
                                     
-                                    norm[space2][ m ] = cblas_dnrm2(M2[space2], alloyStream[space2][m],1);
+                        norm[0][ m ] = cblas_dnrm2(M2[0], alloyStream[0][m],1);
 #if VERBOSE
-                                    printf("norm %f\n", norm[space2][m]);
+                        printf("normx %f\n", norm[0][m]);
 #endif
 
-                                }
-                            }
-                        
+                        }
                 }///end norms
                 
                 
@@ -702,7 +696,6 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                     
                     prev =curr;
                     curr = fabs(iGG + iFF - 2 * iGF);
-                    printf("%f + %f + %f = %f\n", iGG,iFF,-2*iGF,curr);
 
             }///get inners
                 
@@ -710,6 +703,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             {
                 
 #if VERBOSE
+            printf("%f + %f + %f = %f\n", iGG,iFF,-2*iGF,curr);
             printf("%d %f %d %d\n", count, curr,G1,L1);
             fflush(stdout);
 #endif
