@@ -537,6 +537,8 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                             for ( i = 0 ; i < M1[space0]; i+= stride*M2[dim[0]] ){
                                 cblas_dcopy(stride, originStream[space0][n]+ii*stride+i, M1[space0]/stride/M2[dim[0]], qt[rank]+i/M2[dim[0]], 1);
                             }
+                             printf("%f %f %f %f %f\n", qt[rank][0],qt[rank][1],qt[rank][2],qt[rank][3],qt[rank][4]);
+
 
                              bufferPointer = qt[rank];
                              bufferResource = pt[rank];
@@ -567,7 +569,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                 }
                          }
                     printf("%f \n", track[0]);
-                    printf("%f %f %f %f %f\n", tracker[0],tracker[1],tracker[2],tracker[3],tracker[4]);
+                    printf("%f \n", tracker[0]);
                     if ( ! info )
                         if (tdpotrs(L1,  1, track,LS1,  tracker ,LS1 )){
                             info = 1;
