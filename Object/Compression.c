@@ -808,7 +808,16 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                     }
                             }
                 }///all GF
-                        
+                 
+                for ( space2 = 0 ; space2 < SPACE ; space2++)
+                    if ( f2.canon[space2].body != nada)
+                        if ( space2 != dim[0]){
+                            inta m;
+                            for ( m = 0; m < L1; m++){
+                                norm[space2][m] = 1.;
+                            }
+                        }
+                
             }///MODIFY SAME SPACE0 and dim[0]
             
             flipSignFlag = 0;
