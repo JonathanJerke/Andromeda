@@ -305,7 +305,8 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             target = max( iGG*relativeTolerance , tolerance );
     
             if(neo)
-            { inta space2,space,ii,i,stride;
+            { inta space2,space,m,stride;
+                for ( m = 0; m < L1 ; m++)
                 for ( space = 0; space < SPACE;space++)
                     if ( f1.canon[space].body != nada ){
                         stride = 1;
@@ -314,7 +315,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                             if ( f2.canon[space2].body != nada )
                             
                             if ( spatial[space][space2])
-                            { floata *pt =alloyStream[space2][0];
+                            { floata *pt =alloyStream[space2][m];
                                 inta mm,kk = 1;
                                 for ( mm = 0 ; mm < M2[space2] ; mm++)
                                     pt[mm] = cos(kk*2*pi*mm*1./M2[space2]);
