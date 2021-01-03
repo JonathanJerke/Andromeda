@@ -302,8 +302,6 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
 #endif
 
             target = max( iGG*relativeTolerance , tolerance );
-            printf("target %f\n",target);
-
     
             if(neo)
             { printf("neo");
@@ -613,6 +611,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             ///at end of loop,,,
             if ( dim[0] == spaces2-1 ){
                 ///get sum-sqr
+                ///HERE
                 { floata prod;
                 inta ll;
                 sum2 = 0.;
@@ -640,7 +639,6 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                         cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[space]+l*LS1,1, guide+l*L1,1 );
                     }
                 } else {
-                    
                         for ( l = 0; l < G1 ; l++)
                             for ( space = 0; space < SPACE ; space++)
                                 if ( f1.canon[space].body != nada){
@@ -773,9 +771,8 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 { inta n,m;
                         for ( m = 0; m < L1; m++){
                                 norm[dim[0]][ m ] = cblas_dnrm2(M2[dim[0]], alloyStream[dim[0]][m],1);
-                                printf("norm %f\n", norm[dim[0]][m]);
                             }
-                        
+                
                         for ( m = 0; m < L1; m++){
                             if ( flipSignFlag )
                                 cblas_dscal(M2[dim[0]], -1./(norm[dim[0]][m]),alloyStream[dim[0]][m], 1);
@@ -828,6 +825,12 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                 norm[space2][m] = 1.;
                             }
                         }
+                
+                for ( space2 = 0 ; space2 < SPACE ; space2++)
+                    if ( f2.canon[space2].body != nada)
+                        printf("n %d %f\n", space2,norm[space2][0]);
+                
+                
                 
             }///MODIFY SAME SPACE0 and dim[0]
             
