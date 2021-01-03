@@ -305,8 +305,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             target = max( iGG*relativeTolerance , tolerance );
     
             if(neo)
-            { printf("neo");
-                inta space2,space,ii,i,stride;
+            { inta space2,space,ii,i,stride;
                 for ( space = 0; space < SPACE;space++)
                     if ( f1.canon[space].body != nada ){
                         stride = 1;
@@ -315,13 +314,11 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                             if ( f2.canon[space2].body != nada )
                             
                             if ( spatial[space][space2])
-                            {
-                                for ( i = 0 ; i < M2[space2]; i++)
-                                    alloyStream[space2][0][i] = 0.;
-                                for ( ii = 0 ; ii < M1[space]/M2[space2] ; ii++ ){
-                                    cblas_daxpy(M2[space2], 1., originStream[space][G1]+ii,stride,alloyStream[space2][0],1);
-                                }
-                                stride *= M2[space2];
+                            { floata *pt =alloyStream[space2][0];
+                                inta mm,kk = 1;
+                                for ( mm = 0 ; mm < M2[space2] ; mm++)
+                                    pt[mm] = cos(kk*2*pi*mm*1./M2[space2]);
+                                kk++;
                             }
                     }
                 ///separate output ..which means first rank is done...
@@ -357,7 +354,9 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                         inta kk=1;
                         for ( m = 0; m < L1; m++){
                             norm[space2][ m ] = cblas_dnrm2(M2[space2], alloyStream[space2][m],1);
+#if VERBOSE
                             printf("norm %f\n", norm[space2][m]);
+#endif
                             if ( norm[space2][ m ] == 0. ){
                                 floata *pt =alloyStream[space2][m];
                                 inta mm;
@@ -580,7 +579,9 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                                 if ( dim[0] != space2 ){
                                                     if ( bufferDim == M2[space2] ){
                                                         tracker[m] += cblas_ddot(M2[space2], bufferPointer, 1, alloyStream[space2][m], 1)*(guide)[m+L1*n];
+#if VERBOSE
                                                         printf("%d %d %f\n",ii,space2,tracker[m]);
+#endif
                                                     } else {
                                                         bufferDim /= M2[space2] ;
                                                         cblas_dgemv(CblasColMajor, CblasNoTrans, bufferDim, M2[space2],     1.,bufferPointer,bufferDim,alloyStream[space2][m],1,0.,bufferResource,1) ;
