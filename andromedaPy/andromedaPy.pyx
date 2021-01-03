@@ -546,7 +546,7 @@ cdef class galaxy:
 		"""
 		cdef floata *cp[SPACE] 
 		cdef floata *pt
-		
+				
 		for space in range(SPACE):
 			if self.field.f.canon[space].body != bodyType.nada:
 				cp[space] = streams(self.field.f,division.copyVector,0,space)
@@ -586,7 +586,7 @@ cdef class galaxy:
 			iv = 1
 			for space in range(SPACE):
 				if self.field.f.canon[space].body != bodyType.nada:
-					c1 = comps[space][0]
+					c1 = pow(comps[space][0],len(dims[space]))
 					for c in range(c1):
 						if c == (int(ii/iv)%c1):
 							cp[space][c] = 1.0
@@ -597,7 +597,7 @@ cdef class galaxy:
 			division.nullOverlap,0,vector,0)
 		return g
 		
-	def compress ( self, g : galaxy , vector : division = division.eigenVectors):
+	def compress ( self, g : galaxy , vector : division = division.eigenVectors,canonRank :inta = 1):
 		"""self-> g
 		testing...
 		"""
@@ -608,11 +608,11 @@ cdef class galaxy:
 	
 		spatial[0][0] = 1
 		spatial[0][1] = 1
-		spatial[0][2] = 1
+		#spatial[0][2] = 1
 
 
 		canonicalRankCompression(spatial,NULL,self.field.f,0,NULL,(division.eigenVectors),0,
-		1,0,g.field.f,1,vector,0,g.field.f.name[int(vector)].Current[0],0,
+		1,0,g.field.f,1,vector,0,canonRank,0,
 		self.calculation.rt.TOLERANCE,
 		self.calculation.rt.relativeTOLERANCE,
 		self.calculation.rt.ALPHA,
