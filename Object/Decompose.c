@@ -586,7 +586,7 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
                 
                 for ( l = 0; l < L1 ; l++)
                     for ( ll = 0 ; ll < L1 ; ll++)
-                            iFF += (norm[0][l]*(track+LS1*LS1)[ l*LS1+ll]*norm[0][ll]);
+                            iFF += (norm[0][l]*(track+LS1*LS1)[ l*LS1+ll ]*norm[0][ll]);
 
 
 
@@ -596,13 +596,7 @@ floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,float
 #endif
                 for ( l = 0 ; l < G1 ; l++)
                     for ( ll = 0; ll < L1 ; ll++){
-                        prod = 1.;
-                        if ( cofact != NULL )
-                            prod *= (cofact)[originIndex[l]];
-
-                        iGF += prod * (guide)[ l*L1+ll] * norm[0][ll] ;
-
-        
+                        iGF += (guide)[ l*L1+ll] * norm[0][ll] ;
                     }
 #if VERBOSE
                 printf("iGF %f\n",iGF);
