@@ -374,7 +374,7 @@ cdef class galaxy:
 		#print(self.field.i)
 		return self
 		
-	def vectors(self):
+	def vectors(self, index :inta = 0):
 		"""Vectors are addressed via these enumations.
 		
 		The number of them is by nStates.
@@ -383,9 +383,9 @@ cdef class galaxy:
 		-------
 		division.eigenVectors
 		"""
-		return division.eigenVectors
+		return (int(division.eigenVectors)+index)
 				
-	def auxVectors (self):
+	def auxVectors (self,index : inta = 0):
 		"""auxiliary Vectors are addressed via these enumations.
 		
 		Requires a booted galaxy.
@@ -397,9 +397,9 @@ cdef class galaxy:
 		"""
 
 		if self.field.f.bootedMemory == 1 :
-			return self.field.f.user	
+			return (int(self.field.f.user)+index)
 		else:
-			return division.nullName
+			return 0
 		
 	def read_file ( self, filename : str ,vector : division = division.eigenVectors, 
 	collect : inta = 0 ):
@@ -547,6 +547,9 @@ cdef class galaxy:
 		cdef floata *cp[SPACE] 
 		cdef floata *pt
 		
+		for space in range(SPACE):
+			if self.field.f.canon[space].body != bodyType.nada:
+				cp[space] = streams(self.field.f,division.copyVector,0,space)
 		
 		blocks = ['copy','component','diagonal','total-parallel',
 		'matrixElement-parallel','multiply-parallel','permute','permute-parallel',
@@ -555,44 +558,43 @@ cdef class galaxy:
 			print('need copy block')
 			return self
 		
+		comps = self.comps()
 		spaces = 1
-		dims = 0
 		cs = []
 		xc = 0
-		for space in range(SPACE):
-			if self.field.f.canon[space].body != bodyType.nada:
-				cp[space]= streams(self.field.f,division.copyVector,0,space)
-				c1 = self.field.f.canon[space].count1Basis
-				spaces *= c1
+		for comp in comps:
+				c1 = comp[0]
 				if xc < c1 :
 					xc = c1
-				dims += 1
 		cs = [g.comps(xc)]
 		ds = []
-		for d in range(dims):
-			ds += [g.dims(lattice = 1)]
+		dims = self.dims()
+		for dim in dims:
+			for d in dim:
+				ds += [d]
 		ds = [ds]
 		ls = [1]
 		bs = [g.bases('Sinc')]
 		g.spaces(ls,cs,ds,bs).block(blocks)
-		g.calculationInputs(Lambda = 3,RAMmax = 4,numVectors = 0,numNames = 0)
+		g.calculationInputs(Lambda = 4,RAMmax = 1,numVectors = 0,numNames = 0)
 		g.fieldInputs(canonRank = 1,nStates = 1,OpIndex = 0)
 		g.i()
 		pt = streams(g.field.f,division.eigenVectors,0,0)
 		g.field.f.name[int(division.eigenVectors)].Current[0] = 1
 		self.field.f.name[int(division.copyVector)].Current[0] = 1
-		for ii in range(spaces):
+		for ii in range(pow(cs[0][0],len(ds[0]))):
 			iv = 1
 			for space in range(SPACE):
 				if self.field.f.canon[space].body != bodyType.nada:
-					c1 = self.field.f.canon[space].count1Basis
+					c1 = comps[space][0]
 					for c in range(c1):
 						if c == (int(ii/iv)%c1):
 							cp[space][c] = 1.0
 						else:
 							cp[space][c] = 0.0
 					iv *= c1
-			pt[ii] = tMatrixElements(0,self.field.f,division.copyVector,0,division.nullOverlap,0,vector,0)		
+			pt[ii] = tMatrixElements(0,self.field.f,division.copyVector,0,
+			division.nullOverlap,0,vector,0)
 		return g
 		
 	def compress ( self, g : galaxy , vector : division = division.eigenVectors):
@@ -609,7 +611,8 @@ cdef class galaxy:
 		spatial[0][2] = 1
 
 
-		canonicalRankCompression(spatial,NULL,self.field.f,0,NULL,division.eigenVectors,0,1,0,g.field.f,1,vector,0,g.field.f.name[int(division.eigenVectors)].Current[0],0,
+		canonicalRankCompression(spatial,NULL,self.field.f,0,NULL,(division.eigenVectors),0,
+		1,0,g.field.f,1,vector,0,g.field.f.name[int(vector)].Current[0],0,
 		self.calculation.rt.TOLERANCE,
 		self.calculation.rt.relativeTOLERANCE,
 		self.calculation.rt.ALPHA,
