@@ -522,21 +522,10 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                          {///recipe for awesomeness...
                             ///!buffer
 
-                            space = -1;
-                            ///needs to know its only occuring once...
-                            for ( space = 0; space < SPACE ; space++)
-                            if ( spatial[space][dim[0]] ){
-                                space = space;
-                                break;
-                            }
-                            if ( space < 0 ){
-                                printf("bad mapping compression");
-                                exit(0);
-                            }
                             stride = 1;
                             for ( space2 = 0 ; space2 < SPACE ; space2++)
                                 if ( f2.canon[space2].body != nada )
-                                    if ( spatial[space2][space]){
+                                    if ( spatial[space0][space2]){
                                         if ( space2 == dim[0] ){
                                             break;
                                         }else {
@@ -544,18 +533,18 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                         }
                                     }
                             ///needs to know its only occuring ii..
-                            for ( i = 0 ; i < M1[space]; i+= stride*M2[dim[0]] ){
-                                cblas_dcopy(stride, originStream[space][n]+ii*stride+i, M1[space]/stride/M2[dim[0]], qt[rank]+i/M2[dim[0]], 1);
+                            for ( i = 0 ; i < M1[space0]; i+= stride*M2[dim[0]] ){
+                                cblas_dcopy(stride, originStream[space0][n]+ii*stride+i, M1[space0]/stride/M2[dim[0]], qt[rank]+i/M2[dim[0]], 1);
                             }
 
                              bufferPointer = qt[rank];
                              bufferResource = pt[rank];
                              for ( m = 0; m < L1 ; m++){
-                                 bufferDim = M1[space];
+                                 bufferDim = M1[space0];
 
                                     for ( space2 = 0; space2 < SPACE ; space2++)
                                         if ( f2.canon[space2].body != nada )
-                                            if ( spatial[space][space2] ){
+                                            if ( spatial[space0][space2] ){
                                                 if ( dim[0] == space2 ){
                                                 } else {
                                                     bufferDim /= M2[space2] ;
@@ -610,7 +599,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             
             ///at end of loop,,,
             if ( dim[0] == spaces2-1 ){
-                ///get inners
+                ///get sum-sqr
                 { floata prod;
                 inta ll;
                 sum2 = 0.;
@@ -620,7 +609,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                         if ( f2.canon[space2].body != nada )
                             prod *= norm[space2][ll] * norm[space2][ll];
                     sum2 += prod;
-                }
+                }///end sum-sqr
                 
                 
                 ///all inner guide
@@ -670,7 +659,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                         }
                 
 #if VERBOSE
-                printf("iFF %f\n",iFF);
+                printf("iFF %1.15f\n",iFF);
                 fflush(stdout);
 #endif
                 }
@@ -691,7 +680,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
 
                         }
 #if VERBOSE
-                printf("iGF %f\n",iGF);
+                printf("iGF %1.15f\n",iGF);
                 fflush(stdout);
 #endif
                 }
