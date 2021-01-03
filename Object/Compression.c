@@ -467,25 +467,27 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
              }///end all track
             
             
-            ///all guide
-            {inta first;
-                for ( l = 0; l < G1 ; l++){
-                    first = 1;
-                    for ( space = 0; space < SPACE ; space++)
-                        if ( f1.canon[space].body != nada){
-                            if ( space != space0 ){
-                                if ( first ){
-                                    cblas_dcopy( L1, array2[space]+l*LS1,1,guide+l*L1,1);
-                                    first = 0;
-                                }else
-                                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[space]+l*LS1,1, guide+l*L1,1 );
-                            }
-                        }
-                }
+            { inta n ;
+                for ( n = 0; n < G1*L1 ; n++)
+                    guide[n] = 1;
+                
                 if ( cofact != NULL )
                     for ( g = 0; g < G1 ; g++)
                         for ( l = 0; l < L1 ; l++)
                             guide[g*L1+l] *= (cofact)[originIndex[g]];
+            }
+            
+            
+            ///all guide
+            { inta n;
+                for ( n = 0; n < G1 ; n++){
+                    for ( space = 0; space < SPACE ; space++)
+                        if ( f1.canon[space].body != nada){
+                            if ( space != space0 ){
+                                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[space]+n*LS1,1, guide+n*L1,1 );
+                            }
+                        }
+                }
             }///all guide
             
             
@@ -582,14 +584,11 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                                 if ( dim[0] == space2 ){
                                                 
                                                 } else {
-                                                    if ( bufferDim > M2[space2] ){
+                                                    if ( bufferDim == M2[space2] ){
+                                                        tracker[m] += cblas_ddot(M2[space2], bufferPointer, 1, alloyStream[space2][m], 1)*(guide)[m+L1*n];
+                                                    } else {
                                                         bufferDim /= M2[space2] ;
                                                         cblas_dgemv(CblasColMajor, CblasNoTrans, bufferDim, M2[space2],     1.,bufferPointer,bufferDim,alloyStream[space2][m],1,0.,bufferResource,1) ;
-                                                    }
-                                                    else if ( spaces > 1 )
-                                                        tracker[m] += cblas_ddot(M2[space2], bufferPointer, 1, alloyStream[space2][m], 1)*(guide)[m+L1*n];
-                                                    else {
-                                                        tracker[m] += cblas_ddot(M2[space2], bufferPointer, 1, alloyStream[space2][m], 1);
                                                     }
                                                     bufferPointer = bufferResource ;
                                                     if ( bufferPointer == pt[rank] )
@@ -649,31 +648,10 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                     cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array[dim[0]]+l*LS1,1, track+LS1*LS1+l*LS1,1 );
 
                 ///all inner guide
-                if ( spaces == 1) {
-                        for ( l = 0; l < G1 ; l++)
-                            for ( space = 0; space < SPACE ; space++)
-                                if ( f1.canon[space].body != nada){
-                                    cblas_dcopy( L1, array2[space]+l*LS1,1,guide+l*L1,1);
-                                }
-                    
-                        if ( cofact != NULL )
-                            for ( g = 0; g < G1 ; g++)
-                                for ( l = 0; l < L1 ; l++)
-                                    guide[g*L1+l] *= (cofact)[originIndex[g]];
-                        ///cofact taken into account in other if
-
-                }else{
-                    ///all other SPACE have already been accounted for...
-                    for ( l = 0; l < G1 ; l++ ){
-                        for ( space = 0; space < SPACE ; space++)
-                            if ( f1.canon[space].body != nada )
-                                if ( spatial[space][dim[0]] )
-                                    if ( space == space0 )
-                                        ///once by design
-                                        cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[space]+l*LS1,1, guide+l*L1,1 );
-                    }
+                for ( l = 0; l < G1 ; l++ ){
+                    cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array2[space0]+l*LS1,1, guide+l*L1,1 );
                 }
-                    
+                
                 ///all inner guide
                 ///FF
                 { inta l,ll; floata prod;
@@ -698,7 +676,6 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                         for ( ll = 0; ll < L1 ; ll++ ){
                             prod = (guide)[ l*L1+ll ]*norm[0][ll];
                             iGF += prod;
-
                         }
 #if VERBOSE
                 printf("iGF %1.15f\n",iGF);
@@ -715,7 +692,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                             curr = fabs(iGG+iFF + 2 * iGF);
                             flipSignFlag = 1;
                         }
-                    printf("%f %f %f = %f\n", iGG,2*iGF,iFF,curr);
+                    printf("%f + %f + %f = %f\n", iGG,iFF,-2*iGF,curr);
 
             }///get inners
                 
