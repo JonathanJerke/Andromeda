@@ -507,7 +507,8 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
 //#pragma omp parallel for private (ii,m,n,rank)
 //#endif
                 
-                for ( ii = 0; ii < M2[dim[0]] ; ii++){
+                for ( ii = 0; ii < M2[dim[0]] ; ii++)
+                {
                     #ifdef OMP
                         rank = 0;//omp_get_thread_num();
                     #else
@@ -546,6 +547,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                         if ( f2.canon[space2].body != nada )
                                             if ( spatial[space0][space2] ){
                                                 if ( dim[0] == space2 ){
+                                                
                                                 } else {
                                                     bufferDim /= M2[space2] ;
                                                     if ( bufferDim > M2[space2] )
@@ -564,6 +566,8 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                             }
                                 }
                          }
+                    printf("%f \n", track[0]);
+                    printf("%f %f %f %f %f\n", tracker[0],tracker[1],tracker[2],tracker[3],tracker[4]);
                     if ( ! info )
                         if (tdpotrs(L1,  1, track,LS1,  tracker ,LS1 )){
                             info = 1;
@@ -756,13 +760,11 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             }
             count++;
             {///MODIFY SAME SPACE0 and dim[0]
-                {///ALL FF
-                    inta n,m;
-                    
+                ///ALL FF
+                { inta n,m;
                         for ( m = 0; m < L1; m++){
                                 norm[dim[0]][ m ] = cblas_dnrm2(M2[dim[0]], alloyStream[dim[0]][m],1);
                                 printf("norm %f\n", norm[dim[0]][m]);
-
                             }
                         
                         for ( m = 0; m < L1; m++){
