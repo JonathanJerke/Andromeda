@@ -531,7 +531,7 @@ cdef class galaxy:
 		bs = [g.bases('Sinc')]
 		g.spaces(ls,cs,ds,bs).block(blocks)
 		g.calculationInputs(Lambda = 3,RAMmax = 4,numVectors = 0,numNames = 0)
-		g.fieldInputs(canonRank = 1,nStates = 1,OpIndex = 0)
+		g.fieldInputs(canonRank = 2,nStates = 1,OpIndex = 0)
 		g.i()
 		pt = streams(g.field.f,division.eigenVectors,0,0)
 		g.field.f.name[int(division.eigenVectors)].Current[0] = 1
@@ -566,7 +566,7 @@ cdef class galaxy:
 		spatial[0][2] = 1
 
 
-		canonicalRankCompression(spatial,NULL,self.field.f,0,NULL,division.eigenVectors,0,1,0,g.field.f,1,vector,0,1,0,
+		canonicalRankCompression(spatial,NULL,self.field.f,0,NULL,division.eigenVectors,0,1,0,g.field.f,1,vector,0,2,0,
 		self.calculation.rt.TOLERANCE,
 		self.calculation.rt.relativeTOLERANCE,
 		self.calculation.rt.ALPHA,
