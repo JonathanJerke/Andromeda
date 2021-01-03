@@ -397,7 +397,6 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                         if ( spatial[space][space2] ){
                                             if ( bufferDim == M2[space2] ){
                                                 array2[space][ n*LS1 + m ] = cblas_ddot(M2[space2],bufferPointer,1,alloyStream[space2][m],1);
-                                                printf("%d %d %d %d %f\n", n,m,space,space2,array2[space][ n*LS1 + m ]);
                                             } else {
                                                 bufferDim /= M2[space2];
                                                 cblas_dgemv(CblasColMajor, CblasNoTrans, bufferDim, M2[space2], 1.,bufferPointer,bufferDim,alloyStream[space2][m],1,0.,bufferResource,1);
@@ -587,12 +586,8 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                 
                 if ( info != 0 ){
     #if 1
-             //       printf("Linear Dependence failure %f\n",1./iCondition);
-             //       fflush(stdout);
-
                     printf("potrs-Linear Dependence failure %d\n",info);
                     fflush(stdout);
-
     #endif
                     for ( space = 0; space < SPACE;space++){
                         if ( f1.canon[space].body != nada ){
@@ -662,15 +657,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                     for ( l = 0; l < L1 ; l++)
                         for ( ll = 0 ; ll < L1 ; ll++)
                         {
-                            prod = (track+LS1*LS1)[ l*LS1+ll ];
-                            for ( space = 0 ; space < SPACE ; space++ )
-                                if ( f1.canon[space].body != nada ){
-                                    for ( space2 = 0 ; space2 < SPACE ; space2++ )
-                                        if ( f2.canon[space2].body != nada )
-                                            if ( spatial[space][space2] )
-                                                prod *=  norm[space2][l]*norm[space2][ll];
-                                }
-                            iFF += prod;
+                            iFF += (norm[0][l]*(track+LS1*LS1)[ l*LS1+ll ]*norm[0][ll]);
                         }
                 
 #if VERBOSE
@@ -809,7 +796,6 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                                 if ( spatial[space][space2] ){
                                                     if ( bufferDim == M2[space2] ){
                                                         array2[space][ n*LS1 + m ] = cblas_ddot(M2[space2],bufferPointer,1,alloyStream[space2][m],1);
-                                                        printf("%d %d %d %d %f\n", n,m,space,space2,array2[space][ n*LS1 + m ]);
                                                     } else {
                                                         bufferDim /= M2[space2];
                                                         cblas_dgemv(CblasColMajor, CblasNoTrans, bufferDim, M2[space2], 1.,bufferPointer,bufferDim,alloyStream[space2][m],1,0.,bufferResource,1);
