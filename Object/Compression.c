@@ -657,7 +657,14 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                     for ( l = 0; l < L1 ; l++)
                         for ( ll = 0 ; ll < L1 ; ll++)
                         {
-                            iFF += (norm[0][l]*(track+LS1*LS1)[ l*LS1+ll ]*norm[0][ll]);
+                            prod = (track+LS1*LS1)[ l*LS1+ll ];
+                            {
+                                for ( space2 = 0 ; space2 < SPACE ; space2++ )
+                                        if ( f2.canon[space2].body != nada )
+                                            if ( spatial[space0][space2] )
+                                                prod *=  norm[space2][l]*norm[space2][ll];
+                                }
+                            iFF += prod;
                         }
                 
 #if VERBOSE
@@ -672,13 +679,12 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                     for ( l = 0 ; l < G1 ; l++ )
                         for ( ll = 0; ll < L1 ; ll++ ){
                             prod = (guide)[ l*L1+ll ];
-                            for ( space = 0 ; space < SPACE ; space++ )
-                                if ( f1.canon[space].body != nada ){
-                                    for ( space2 = 0 ; space2 < SPACE ; space2++ )
+                            {
+                                for ( space2 = 0 ; space2 < SPACE ; space2++ )
                                         if ( f2.canon[space2].body != nada )
-                                            if ( spatial[space][space2] )
+                                            if ( spatial[space0][space2] )
                                                 prod *=  norm[space2][ll] ;
-                                }
+                            }
                             iGF += prod;
 
                         }
