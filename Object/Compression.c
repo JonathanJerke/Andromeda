@@ -550,9 +550,8 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                              bufferPointer = qt[rank];
                              bufferResource = pt[rank];
                              for ( m = 0; m < L1 ; m++){
-                                 bufferDim = M1[space0];
-
-                                    for ( space2 = 0; space2 < SPACE ; space2++)
+                                bufferDim = M1[space0]/M2[space2];
+                                for ( space2 = 0; space2 < SPACE ; space2++)
                                         if ( f2.canon[space2].body != nada )
                                             if ( spatial[space0][space2] ){
                                                 if ( dim[0] == space2 ){
@@ -652,8 +651,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                     
             
                 ///all inner guide
-
-                    ///FF
+                ///FF
                 { inta l,ll; floata prod;
                     iFF = 0.;
                     for ( l = 0; l < L1 ; l++)
@@ -669,7 +667,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
 #endif
                 }
                   
-                    ///GF
+                ///GF
                 { inta l,ll; floata prod;
                     iGF = 0.;
                     for ( l = 0 ; l < G1 ; l++ )
@@ -813,13 +811,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                 norm[space2][m] = 1.;
                             }
                         }
-                
-                for ( space2 = 0 ; space2 < SPACE ; space2++)
-                    if ( f2.canon[space2].body != nada)
-                        printf("n %d %f\n", space2,norm[space2][0]);
-                
-                
-                
+                    
             }///MODIFY SAME SPACE0 and dim[0]
             
             flipSignFlag = 0;
