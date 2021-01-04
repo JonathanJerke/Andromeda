@@ -1763,7 +1763,7 @@ inta tBoot (   sinc_label f1 ,   division label,inta spin,floata scale ){
             if (f1.canon[space].body == two){
                     {
                 
-                floata  * stream = streams(f1,label,spin,space)+Current*B1[space];
+                floata  * stream = streams(f1,label,spin,space)+Current*B1[space]*B1[space];
                 for ( I1 = 0 ; I1< B1[space] ; I1++)
                     for ( I2 = 0 ; I2 < B1[space] ; I2++){
                         stream[I1*B1[space]+I2] = exp(-(I1-(B1[space]-1)/2)*(I1-(B1[space]-1)/2)*scale)*exp(-(I2-(B1[space]-1)/2)*(I2-(B1[space]-1)/2)*scale);
@@ -1780,7 +1780,7 @@ inta tBoot (   sinc_label f1 ,   division label,inta spin,floata scale ){
             if ( f1.canon[space].body == three){
                     {
                 
-                floata  * stream = streams(f1,label,spin,space)+Current*B1[space];
+                floata  * stream = streams(f1,label,spin,space)+Current*B1[space]*B1[space]*B1[space];
                 for ( I1 = 0 ; I1< B1[space] ; I1++)
                     for ( I2 = 0 ; I2 < B1[space] ; I2++)
                         for ( I3 = 0 ; I3 < B1[space] ; I3++){
@@ -2645,10 +2645,10 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
  */
 double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin,  division mat, inta mspin,  division ket, inta kspin ){
     
-      division holder ;
+    division holder ;
     inta holderRank, holderSpin;
     inta k,l,e,space;
-    double prod,ME=0;
+    double prod,ME=0.;
     inta ca;
     ///outputFormat(f1, stdout, bra, 0);
     if ( rank )
@@ -3156,14 +3156,20 @@ double tDOT (inta rank,    sinc_label  f1,inta dim,char leftChar,   division lef
     f1.name[canonicaldotVector].Current[rank] = 0;
     f1.name[canonicaldot2Vector].Current[rank] = 0;
     if ( rank ){
-        ///check for parallel allocations
+        if ( rightChar != CDT || leftChar != CDT )
         if ( ! allowQ(f1.rt, blockParallelPermuteblock)){
             printf("blockParallelPermuteblock allow\n");
             fflush(stdout);
             exit(0);
         }
     }
-    
+    if ( rightChar != CDT || leftChar != CDT )
+        if ( ! allowQ(f1.rt, blockPermutationsblock)){
+            printf("blockPermutationsblock allow\n");
+            fflush(stdout);
+            exit(0);
+        }
+
     
     if ( rightChar != CDT){
         tPermuteOne(rank, f1, space, rightChar, right, r, rspin, canonicaldotVector,0, rank);
