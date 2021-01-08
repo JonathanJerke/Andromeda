@@ -47,6 +47,7 @@ from coreUtil cimport tBoot
 from coreUtil cimport printExpectationValues
 from coreUtil cimport streams
 from coreUtil cimport tMatrixElements
+from coreUtil cimport SG
 
 from constants cimport dimensions_label
 from constants cimport metric_label
@@ -468,6 +469,31 @@ cdef class galaxy:
 		self
 		"""
 		tBoot(self.field.f, vector, spin, width)
+		return self
+		
+	def SG ( self, gammaPy : [[[int]]] , vector : division = division.eigenVectors, spin : inta = 0):
+		"""Places a correctly band-limited Symmetrized Gaussian.
+		
+		Parameters
+		----------
+		vector : division
+		spin : inta
+		gammaPy : [[[int]]]
+		
+		Returns
+		-------
+		self
+		"""
+		cdef inta gamma[SPACE*MAXBODY*2]
+		index : inta  = 0
+		for space in range(SPACE):
+			if self.field.f.canon[space].body != bodyType.nada:
+				for b in gammaPy[space]:	
+					gamma[index] = b[0]
+					gamma[index+1] = b[1]
+					index += 2		
+		
+		SG(self.field.f, vector, spin, gamma)
 		return self
 	
 	def Current ( self, vector : division = division.eigenVectors , spin : inta = 0):

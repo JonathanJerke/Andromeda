@@ -128,6 +128,8 @@ cdef extern from "../Object/coreUtil.h":
     void loopDetails(  sinc_label f1,   division loopHeader)
 
 
+    void SG( sinc_label f1, division vector , inta spin,inta * gamma)
+
     floata CanonicalRankDecomposition ( sinc_label  f1 , floata * cofact, division origin,inta os, division alloy,inta spin,  floata tolerance ,  floata relativeTolerance, floata condition,floata threshold, inta maxCycle ,floata maxCondition, inta canon,inta X1 )
     floata printExpectationValues ( calculation *c,   sinc_label  f1 , division ha  , division vector)
     floata tMatrixElements ( inta rank,  sinc_label  f1 ,   division bra, inta bspin,  division mat, inta mspin,  division ket, inta kspin )
