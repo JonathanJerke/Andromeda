@@ -42,6 +42,7 @@ from input cimport resetA
 from input cimport bootShell
 from ioPrint cimport tLoadEigenWeights
 from ioPrint cimport printOut
+from coreUtil cimport vectorLen
 from coreUtil cimport tBoot
 from coreUtil cimport printExpectationValues
 from coreUtil cimport streams
@@ -469,15 +470,15 @@ cdef class galaxy:
 		tBoot(self.field.f, vector, spin, width)
 		return self
 	
-	def Current ( self vector : division = division.eigenVectors , spin : inta = 0):
+	def Current ( self, vector : division = division.eigenVectors , spin : inta = 0):
 		return self.field.f.name[int(vector)].Current[spin]		
 	
-	def setCurrent ( self vector : division = division.eigenVectors , spin : inta = 0, Current : inta = 0):
+	def setCurrent ( self, vector : division = division.eigenVectors , spin : inta = 0, Current : inta = 0):
 		self.field.f.name[int(vector)].Current[spin] = Current
 		return self.field.f.name[int(vector)].Current[spin]			
 	
-	def streams( self, vector : division = division.eigenVectors, space : inta,
-	 index : inta , spin : inta = 0, inputStream : [floata]= [] ):
+	def streams( self, space : inta =0,vector: division = division.eigenVectors, 
+	 index : inta = 0, spin : inta = 0, inputStream : [floata]= [] ):
 		"""Streams will input/output the Andromeda structures.
 		inputStream empty will lead to accessing Andromeda structures,
 		otherwise Andromeda structures will be written to...in either case, Relevant
@@ -496,15 +497,14 @@ cdef class galaxy:
 		-------
 		[floata]
 		"""
-		cv = vectorLen(self.field.f,space)
-		cdef floata * pt = streams(self.field.f, vector, spin , space ) + index * cv
+		cdef double * pt = streams(self.field.f, vector, spin , space ) + vectorLen(self.field.f,space)*index
 		if inputStream == []:
 			outStream = []
-			for c in range(cv):
+			for c in range(vectorLen(self.field.f,space)):
 				outStream += [pt[c]]
 			return outStream
 		else:
-			for c in range(cv):
+			for c in range(vectorLen(self.field.f,space)):
 				pt[c] = inputStream[c]
 			return inputStream
 		
@@ -634,19 +634,15 @@ cdef class galaxy:
 			division.nullOverlap,0,vector,0)
 		return g
 
-	def compress ( self, spatial, g : galaxy , vector : division = division.eigenVectors,canonRank :inta = 1):
+	def compress ( self, spat: [[int]], g : galaxy , vector : division = division.eigenVectors,canonRank :inta = 1):
 		"""self-> g
 		testing...
 		"""
-		#cdef inta spatial[SPACE][SPACE]
-		#for s in range(SPACE):
-		#	for s2 in range(SPACE):
-		#		spatial[s][s2] = 0
+		cdef inta spatial[SPACE][SPACE]
+		for (ss,s) in enumerate(spat):
+			for s2 in s:
+				spatial[ss][s2] = 1
 	
-		#spatial[0][0] = 1
-		#spatial[0][1] = 1
-		#spatial[0][2] = 1
-
 
 		canonicalRankCompression(spatial,NULL,self.field.f,0,NULL,(division.eigenVectors),0,
 		1,0,g.field.f,1,vector,0,canonRank,0,
