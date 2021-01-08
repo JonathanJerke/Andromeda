@@ -32,9 +32,6 @@ from constants cimport field
 from constants cimport calculation
 from constants cimport division
 
-ctypedef inta** inta2
-
-
 from Model cimport initCal
 from Model cimport initField
 from Model cimport iModel
@@ -384,7 +381,7 @@ cdef class galaxy:
 		division.eigenVectors
 		"""
 		return (int(division.eigenVectors)+index)
-				
+		
 	def auxVectors (self,index : inta = 0):
 		"""auxiliary Vectors are addressed via these enumations.
 		
@@ -471,6 +468,45 @@ cdef class galaxy:
 		"""
 		tBoot(self.field.f, vector, spin, width)
 		return self
+	
+	def Current ( self vector : division = division.eigenVectors , spin : inta = 0):
+		return self.field.f.name[int(vector)].Current[spin]		
+	
+	def setCurrent ( self vector : division = division.eigenVectors , spin : inta = 0, Current : inta = 0):
+		self.field.f.name[int(vector)].Current[spin] = Current
+		return self.field.f.name[int(vector)].Current[spin]			
+	
+	def streams( self, vector : division = division.eigenVectors, space : inta,
+	 index : inta , spin : inta = 0, inputStream : [floata]= [] ):
+		"""Streams will input/output the Andromeda structures.
+		inputStream empty will lead to accessing Andromeda structures,
+		otherwise Andromeda structures will be written to...in either case, Relevant
+		[floata] will be outputted.	
+		
+		Parameters
+		----------
+		vector : division
+		space  : inta
+		index  : inta
+		spin   : inta
+		write  : inta
+		inputStream : [floata]
+		
+		Returns
+		-------
+		[floata]
+		"""
+		cv = vectorLen(self.field.f,space)
+		cdef * pt = streams(self.field.f, vector, spin , space ) + index * cv
+		if inputStream == []:
+			outStream = []
+			for c in range(cv):
+				outStream += [pt[c]]
+			return outStream
+		else:
+			for c in range(cv):
+				pt[c] = inputStream[c]
+			return inputStream
 		
 	def metric(self, funcDesc: str = 'Coulomb', intervalDesc : str = 'interval',
 										 betas : [inta,inta] =[0,1],interval : inta = 7,
@@ -546,12 +582,13 @@ cdef class galaxy:
 		"""
 		cdef floata *cp[SPACE] 
 		cdef floata *pt
-				
+		print(tMatrixElements(0,self.field.f,vector,0,
+			division.nullOverlap,0,vector,0))
 		for space in range(SPACE):
 			if self.field.f.canon[space].body != bodyType.nada:
 				cp[space] = streams(self.field.f,division.copyVector,0,space)
 		
-		blocks = ['copy','component','diagonal','total-parallel',
+		blocks = ['component','diagonal','total-parallel',
 		'matrixElement-parallel','multiply-parallel','permute','permute-parallel',
 		'transfer']
 		if allowQ(&self.calculation.rt,blockMemoryType.blockCopyBlock)==0:
@@ -580,7 +617,7 @@ cdef class galaxy:
 		g.fieldInputs(canonRank = 1,nStates = 1,OpIndex = 0)
 		g.i()
 		pt = streams(g.field.f,division.eigenVectors,0,0)
-		g.field.f.name[int(division.eigenVectors)].Current[0] = 1
+		g.field.f.name[int(division.eigenVectors)].Current[0] = 2
 		self.field.f.name[int(division.copyVector)].Current[0] = 1
 		for ii in range(pow(cs[0][0],len(ds[0]))):
 			iv = 1
@@ -596,18 +633,18 @@ cdef class galaxy:
 			pt[ii] = tMatrixElements(0,self.field.f,division.copyVector,0,
 			division.nullOverlap,0,vector,0)
 		return g
-		
-	def compress ( self, g : galaxy , vector : division = division.eigenVectors,canonRank :inta = 1):
+
+	def compress ( self, spatial, g : galaxy , vector : division = division.eigenVectors,canonRank :inta = 1):
 		"""self-> g
 		testing...
 		"""
-		cdef inta spatial[SPACE][SPACE]
-		for s in range(SPACE):
-			for s2 in range(SPACE):
-				spatial[s][s2] = 0
+		#cdef inta spatial[SPACE][SPACE]
+		#for s in range(SPACE):
+		#	for s2 in range(SPACE):
+		#		spatial[s][s2] = 0
 	
-		spatial[0][0] = 1
-		spatial[0][1] = 1
+		#spatial[0][0] = 1
+		#spatial[0][1] = 1
 		#spatial[0][2] = 1
 
 
