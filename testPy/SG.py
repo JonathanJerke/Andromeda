@@ -3,7 +3,7 @@
 import andromedaPy as apy
 import numpy as np
 
-l =   list(map( lambda x : int(2*(float(x))), open('lithium','r').read().split() ) )
+l =   list(map( lambda x : int(np.ceil(float(x))), open('lithium','r').read().split() ) )
 A = np.reshape(l,(913,3,3,2))
 
 g = apy.galaxy()
