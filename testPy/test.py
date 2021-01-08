@@ -1,10 +1,10 @@
 import andromedaPy as apy
-import h5py 
+import h5py
 
 g = apy.galaxy()
+ls = [1,1,1]
 cs = [g.comps(40),g.comps(40),g.comps(40)]
 ds = [[g.dims(lattice = 0.333),g.dims(lattice = 0.333)],[g.dims(lattice = 0.333),g.dims(lattice = 0.333)],[g.dims(lattice = 0.333),g.dims(lattice = 0.333)]]
-ls = [1,1,1]
 bs = [g.bases('Sinc'),g.bases('Sinc'),g.bases('Sinc')]
 g.spaces(ls,cs,ds,bs)
 g.block(['total','train','copy','component','diagonal','total-parallel','matrixElement-parallel','multiply-parallel','permute','permute-parallel','transfer'])
