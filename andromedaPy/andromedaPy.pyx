@@ -684,13 +684,22 @@ cdef class galaxy:
 	def decompose ( self, origin : division , ospin : inta = 0, alloy : division = division.eigenVectors , spin = 0, canonRank : inta = 1 , swag : inta = 0):
 		"""origin -> alloy
 		"""
-		CanonicalRankDecomposition( self.field.f, NULL, origin, ospin , alloy, spin , 
+		
+		canonicalRankDecomposition( self.field.f , NULL,0,NULL, origin,0,canonicalRank(self.field.f,origin,ospin),ospin, 1,alloy,0 , canonRank,  spin ,
 		self.calculation.rt.TOLERANCE,
 		self.calculation.rt.relativeTOLERANCE,
 		self.calculation.rt.ALPHA,
-		self.calculation.rt.THRESHOLD,
-		self.calculation.rt.MAX_CYCLE,
 		self.calculation.rt.XCONDITION,
-		canonRank,
-		swag )
+		self.calculation.rt.MAX_CYCLE)
+		
+		
+		#CanonicalRankDecomposition( self.field.f, NULL, origin, ospin , alloy, spin , 
+		#self.calculation.rt.TOLERANCE,
+		#self.calculation.rt.relativeTOLERANCE,
+		#self.calculation.rt.ALPHA,
+		#self.calculation.rt.THRESHOLD,
+		#self.calculation.rt.MAX_CYCLE,
+		#self.calculation.rt.XCONDITION,
+		#canonRank,
+		#swag )
 		return self
