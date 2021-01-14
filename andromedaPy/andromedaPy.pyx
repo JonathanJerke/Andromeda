@@ -679,7 +679,7 @@ cdef class galaxy:
 		self.calculation.rt.MAX_CYCLE)
 		return self
 
-	def decompose ( self, g : galaxy , origin : division , ospin : inta = 0, alloy : division = division.eigenVectors , spin = 0, canonRank : inta = 1 , swag : inta = 0):
+	def decompose ( self, origin : division , ospin : inta = 0, alloy : division = division.eigenVectors , spin = 0, canonRank : inta = 1 , swag : inta = 0):
 		"""origin -> alloy
 		"""
 		CanonicalRankDecomposition( self.field.f, NULL, origin, ospin , alloy, spin , 
