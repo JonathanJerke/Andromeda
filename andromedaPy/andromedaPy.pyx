@@ -691,6 +691,6 @@ cdef class galaxy:
 		self.calculation.rt.THRESHOLD,
 		self.calculation.rt.MAX_CYCLE,
 		self.calculation.rt.XCONDITION,
-		canonRank = canonRank,
-		X1 = swag )
+		canonRank,
+		swag )
 		return self
