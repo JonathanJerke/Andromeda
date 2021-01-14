@@ -50,6 +50,7 @@ from coreUtil cimport tMatrixElements
 from coreUtil cimport SG
 
 from Decompose cimport CanonicalRankDecomposition
+from Decompose cimport canonicalRankDecomposition
 
 from constants cimport dimensions_label
 from constants cimport metric_label
