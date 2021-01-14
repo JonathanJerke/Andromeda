@@ -48,6 +48,7 @@ from coreUtil cimport printExpectationValues
 from coreUtil cimport streams
 from coreUtil cimport tMatrixElements
 from coreUtil cimport SG
+from coreUtil cimport CanonicalRank
 
 from Decompose cimport CanonicalRankDecomposition
 from Decompose cimport canonicalRankDecomposition
@@ -686,7 +687,7 @@ cdef class galaxy:
 		"""origin -> alloy
 		"""
 		
-		canonicalRankDecomposition( self.field.f , NULL,0,NULL, origin,0,canonicalRank(self.field.f,origin,ospin),ospin, 1,alloy,0 , canonRank,  spin ,
+		canonicalRankDecomposition( self.field.f , NULL,0,NULL, origin,0,CanonicalRank(self.field.f,origin,ospin),ospin, 1,alloy,0 , canonRank,  spin ,
 		self.calculation.rt.TOLERANCE,
 		self.calculation.rt.relativeTOLERANCE,
 		self.calculation.rt.ALPHA,
