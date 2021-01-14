@@ -13,4 +13,4 @@ olympics: Decompose.c Decompose.h Compression.c Compression.h ioPrint.c ioPrint.
 	$(gcc) $(flags)  -fopenmp jobs.c input.c eigen.c coreMath.c coreForce.c interfaceMath.c saUtil.c coreUtil.c Model.c ioPrint.c Decompose.c Compression.c $(lib) -o olympics
 
 libandromeda.so: Decompose.c Decompose.h Compression.c Compression.c ioPrint.c ioPrint.h eigen.c eigen.h input.c input.h constants.h  coreMath.c  coreUtil.h Model.h coreForce.c  coreMath.h  interfaceMath.c saUtil.c coreForce.h  coreUtil.c  interfaceMath.h  Model.c  saUtil.h
-	$(gcc) $(flags)  -fopenmp jobs.c input.c eigen.c coreMath.c coreForce.c interfaceMath.c saUtil.c coreUtil.c Model.c ioPrint.c Decompose.c Compression.c c $(lib) -shared -Wall -fPIC -o libandromeda.so
+	$(gcc) $(flags)  -fopenmp jobs.c input.c eigen.c coreMath.c coreForce.c interfaceMath.c saUtil.c coreUtil.c Model.c ioPrint.c Decompose.c Compression.c $(lib) -shared -Wall -fPIC -o libandromeda.so
