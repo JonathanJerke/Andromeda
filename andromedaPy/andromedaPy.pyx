@@ -23,7 +23,7 @@
 #*   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
-cimport andromedaPy
+#cimport andromedaPy
 include "system.pxi"
 
 from constants cimport inta
