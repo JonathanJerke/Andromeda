@@ -491,7 +491,7 @@ cdef class galaxy:
 				for b in gammaPy[space]:	
 					gamma[index] = b[0]
 					gamma[index+1] = b[1]
-					index += 2		
+					index += 2
 		
 		SG(self.field.f, vector, spin, gamma)
 		return self
@@ -677,4 +677,18 @@ cdef class galaxy:
 		self.calculation.rt.ALPHA,
 		self.calculation.rt.XCONDITION,
 		self.calculation.rt.MAX_CYCLE)
+		return self
+
+	def decompose ( self, g : galaxy , origin : division , ospin : inta = 0, alloy : division = division.eigenVectors , spin = 0, canonRank : inta = 1 , swag : inta = 0):
+		"""origin -> alloy
+		"""
+		CanonicalRankDecomposition( self.field.f, NULL, origin, ospin , alloy, spin , 
+		self.calculation.rt.TOLERANCE,
+		self.calculation.rt.relativeTOLERANCE,
+		self.calculation.rt.ALPHA,
+		self.calculation.rt.THRESHOLD,
+		self.calculation.rt.MAX_CYCLE,
+		self.calculation.rt.XCONDITION,
+		canonRank = canonRank,
+		X1 = swag )
 		return self
