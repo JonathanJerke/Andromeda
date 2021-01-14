@@ -49,6 +49,8 @@ from coreUtil cimport streams
 from coreUtil cimport tMatrixElements
 from coreUtil cimport SG
 
+from Decompose cimport CanonicalRankDecomposition
+
 from constants cimport dimensions_label
 from constants cimport metric_label
 from constants cimport function_label
