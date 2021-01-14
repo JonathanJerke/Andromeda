@@ -4,7 +4,7 @@ import andromedaPy as apy
 import numpy as np
 
 l =   list(map( lambda x : int(np.ceil(float(x))), open('lithium','r').read().split() ) )
-A = np.reshape(l,len(l)/18,3,3,2))
+A = np.reshape(l,(int(len(l)/18),3,3,2))
 
 g = apy.galaxy()
 ls = [1,1,1]
