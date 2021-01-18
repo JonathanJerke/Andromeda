@@ -602,7 +602,7 @@ cdef class galaxy:
 		-------
 		floata
 		"""
-		return tMatrixElements ( 0, &self.calculation,   self.field.f ,  vector, 0 , division.nullOverlap, 0,vector2,0)
+		return tMatrixElements ( 0, self.field.f ,  vector, 0 , division.nullOverlap, 0,vector2,0)
 
 
 	def full( self, g: galaxy ,  vector : division  = division.eigenVectors ):
