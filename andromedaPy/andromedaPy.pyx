@@ -503,7 +503,7 @@ cdef class galaxy:
 		return self
 	
 	
-	def GTO ( self, gammaPy : [[[int]]], deltaPy : [[[float]]] , 
+	def GTO ( self, gammaPy : [[[float]]] , 
 	vector : division = division.eigenVectors, spin : inta = 0):
 		"""Places a correctly band-limited Gaussian Type Orbital.
 		
@@ -511,8 +511,7 @@ cdef class galaxy:
 		----------
 		vector : division
 		spin : inta
-		gammaPy : [[[int]]]
-		deltaPy : [[[float]]]
+		gammaPy : [[[float]]]
 		
 		Returns
 		-------
@@ -523,17 +522,11 @@ cdef class galaxy:
 		index : inta  = 0
 		for space in range(SPACE):
 			if self.field.f.canon[space].body != bodyType.nada:
-				for b in gammaPy[space]:	
-					gamma[index] = b[0]
+				for b in gammaPy[space]:
+					gamma[index] = int(b[0])
+					delta[2*index] = b[1]
+					delta[2*index+1] = b[2]
 					index += 1
-
-		index = 0
-		for space in range(SPACE):
-			if self.field.f.canon[space].body != bodyType.nada:
-				for b in deltaPy[space]:
-					delta[index] = b[0]
-					delta[index+1] = b[1]
-					index += 2
 		
 		GTO(self.field.f, vector, spin, gamma,delta)
 		return self
