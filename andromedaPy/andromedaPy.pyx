@@ -278,8 +278,6 @@ cdef class galaxy:
 			blockA(&self.calculation.rt,blockNames[bl])
 		return self
 			
-			
-					
 	def i(self):
 		"""Initiate allocation, do not overwrite
 		"""
@@ -321,6 +319,41 @@ cdef class galaxy:
 		if numNames >= 0 :
 			self.calculation.i.numNames = numNames
 		#print(self.calculation.i)
+		return self
+		
+	def runTimeInputs ( self, dynamic:inta=-1, tolerance:floata=-1.0,relativeTolerance : inta=-1.0,
+	threshold:floata =-1.0, Xcondition : floata = -1.0, alpha : floata = -1.0 , 
+	maxCycle : inta = -1 ):
+		"""Relevant calculation.input 's
+		
+		Parameters
+		----------
+		dynamic : inta
+		tolerance : floata
+		relativeTolerance : floata
+		threshold : floata
+		Xcondition : floata
+		alpha : floata
+		maxCycle : inta
+				
+		Returns
+		-------
+		self
+		"""
+		if dynamic >= 0 :
+			self.calculation.rt.dynamic = dynamic
+		if tolerance >= 0 :
+			self.calculation.rt.TOLERANCE = tolerance
+		if relativeTolerance >= 0 :
+			self.calculation.rt.relativeTOLERANCE = relativeTolerance
+		if threshold >= 0 :
+			self.calculation.rt.THRESHOLD = threshold
+		if Xcondition >= 0 :
+			self.calculation.rt.XCONDITION = Xcondition
+		if alpha >= 0 :
+			self.calculation.rt.ALPHA = alpha
+		if maxCycle >= 0 :
+			self.calculation.rt.MAX_CYCLE = maxCycle
 		return self
 		
 	def fieldInputs( self, flex :inta = -1, OpIndex:inta  = -2 , body:inta  =-1,
@@ -552,7 +585,6 @@ cdef class galaxy:
 		space  : inta
 		index  : inta
 		spin   : inta
-		write  : inta
 		inputStream : [floata]
 		
 		Returns
@@ -569,50 +601,7 @@ cdef class galaxy:
 			for c in range(vectorLen(self.field.f,space)):
 				pt[c] = inputStream[c]
 			return inputStream
-		
-	def metric(self, funcDesc: str = 'Coulomb', intervalDesc : str = 'interval',
-										 betas : [inta,inta] =[0,1],interval : inta = 7,
-										  contr : inta = 2):
-		"""Metric definition by description
-		
-		Parameters
-		----------
-		funcDesc : str
-		intervalDesc : str
-			Type of interval or Dirac
-		betas : [floata,floata]
-			interval span or first float only
-		interval : int
-			CanonRank of operator
-		contr : int
-			Off diagonals
-			
-		Returns
-		-------
-		metric_label
-		"""
-		funcNames = dict(
-			{'null':functionType.nullFunction,'Pseudo':functionType.Pseudo,
-			'Yukawa':functionType.Yukawa,'Coulomb':functionType.Coulomb,
-			'Morse':functionType.Morse,'LennardJones':functionType.LennardJones,
-			'LDA':functionType.LDA,'BLYP':functionType.BLYP,
-			'Gaussian':functionType.Gaussian}
-		)
-		
-		intervalName = dict({'dirac':metricType.dirac,
-							'separateDirac':metricType.separateDirac,
-							'interval':metricType.separateDirac,
-							'semiDefinite':metricType.semiIndefinite,
-							'pureInterval':metricType.pureInterval,
-							'pureSemiIndefinite':metricType.pureSemiIndefinite}
-		)
-		
-		zs = np.zeros(SPACE)
-		return metric_label(pow = zs,powB = zs,deriv = zs,
-			fn =function_label(interval = interval, contr = contr,
-						fn = funcNames[funcDesc],param = np.zeros(MAX_PARAM_FUNC)) ,
-			metric = intervalName[intervalDesc],beta = betas)
-		
+				
 	def expectation(self, vector : division = division.eigenVectors):
 		"""Print Expectation values.
 		Resets blockMemory 10
@@ -724,12 +713,14 @@ cdef class galaxy:
 		self.calculation.rt.MAX_CYCLE)
 		return self
 
-	def decompose ( self, origin : division , ospin : inta = 0, alloy : division = division.eigenVectors , spin = 0, canonRank : inta = 1 , swag : inta = 0):
+	def decompose ( self, origin : division , ospin : inta = 0, 
+	alloy : division = division.eigenVectors , spin = 0, canonRank : inta = 1 ):
 		"""origin -> alloy
 		"""
 		
 		if False:
-			canonicalRankDecomposition( self.field.f , NULL,0,NULL, origin,0,CanonicalRank(self.field.f,origin,ospin),ospin, 1,alloy,0 , canonRank,  spin ,
+			canonicalRankDecomposition( self.field.f , NULL,0,NULL, origin,0,
+			CanonicalRank(self.field.f,origin,ospin),ospin, 1,alloy,0 , canonRank,  spin ,
 		self.calculation.rt.TOLERANCE,
 		self.calculation.rt.relativeTOLERANCE,
 		self.calculation.rt.ALPHA,
@@ -745,4 +736,4 @@ cdef class galaxy:
 		self.calculation.rt.MAX_CYCLE,
 		self.calculation.rt.XCONDITION,
 		canonRank,
-		swag )
+		self.calculation.rt.dynamic )
