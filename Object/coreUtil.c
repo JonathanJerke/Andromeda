@@ -1797,7 +1797,6 @@ inta tBoot (   sinc_label f1 ,   division label,inta spin,floata scale ){
 }
 
 void SG( sinc_label f1, division vector ,inta spin, inta *gamma ){
-    floata s2pi = sqrt(2*pi);
     inta space,vc,vsp,msp,mss=0,vn1,v,m,n;
     floata variable ;
     bodyType body ;
@@ -1817,9 +1816,10 @@ void SG( sinc_label f1, division vector ,inta spin, inta *gamma ){
                     m = (gamma[mss]);
                     n = (gamma[mss+1]);
                     mss += 2;
-                    ///n = 1 --> 1/2 internally, which is the lowest level...
+                    ///n = 1 --> 1/2 which is the lowest level...
+                    ///n = 3 -> 3/2
+                    ///even n's are NOT to be used.
                     variable *= SymmetrizedGaussianInSinc(pi/f1.canon[space].particle[body].lattice,n,m,f1.canon[space].particle[body].lattice * v );
-                    variable *= f1.canon[space].particle[body].lattice/s2pi;
                 }
                 streams(f1,vector,0,space)[vc] = variable;
             }
@@ -1828,6 +1828,35 @@ void SG( sinc_label f1, division vector ,inta spin, inta *gamma ){
     }
 }
 
+void GTO( sinc_label f1, division vector ,inta spin, inta *gamma, floata *delta ){
+    inta space,vc,vsp,msp,mss=0,vn1,v,n;
+    floata variable,alpha,y ;
+    bodyType body ;
+    f1.name[vector].Current[0] = 1;
+    zero(f1, vector, 0);
+    msp = 0;
+    for  ( space =0; space < SPACE ; space++){
+        if ( f1.canon[space].body != nada){
+            for ( vc = 0; vc < vectorLen(f1, space) ; vc++){
+                vsp = 1;
+                variable = 1.0;
+                vn1 = vector1Len(f1,space);
+                mss = msp ;
+                for ( body = one ; body <= f1.canon[space].body ; body++){
+                    v = (vc/vsp)%vn1-(vn1-1)/2;
+                    vsp *= vn1;
+                    n = (gamma[mss]);
+                    alpha = delta[2*mss];
+                    y = delta[2*mss+1];
+                    mss += 1;
+                    variable *= GaussianInSinc(pi/f1.canon[space].particle[body].lattice,n,alpha,y,f1.canon[space].particle[body].lattice * v );
+                }
+                streams(f1,vector,0,space)[vc] = variable;
+            }
+            msp = mss;
+        }
+    }
+}
 
 
 void loopDetails(  sinc_label f1,   division loopHeader){

@@ -118,6 +118,7 @@ void linkDetails(  sinc_label f1,   division linkHeader);
 void chainDetails(  sinc_label f1,   division chainHeader);
 void loopDetails(  sinc_label f1,   division loopHeader);
 void SG( sinc_label f1, division vector ,inta spin, inta * gamma);
+void GTO( sinc_label f1, division vector ,inta spin, inta *gamma, floata *delta );
 double CanonicalRankDecomposition ( sinc_label  f1 , double * cofact, division origin,inta os, division alloy,inta spin,  double tolerance ,  double relativeTolerance, double condition,double threshold, inta maxCycle ,double maxCondition, inta canon,inta X1 );
 double printExpectationValues ( calculation *c,   sinc_label  f1 , division ha  , division vector);
 double tMatrixElements ( inta rank,  sinc_label  f1 ,   division bra, inta bspin,  division mat, inta mspin,  division ket, inta kspin );

@@ -28,7 +28,8 @@
 #include "coreUtil.h"
 #include "interfaceMath.h"
 
-double SymmetrizedGaussianInSinc( double K, inta n , inta m , double X );
+floata SymmetrizedGaussianInSinc( floata K, inta n , inta m , floata X );
+floata GaussianInSinc( floata K, inta n, floata alpha, floata y, floata X );
 double Power ( double b, inta n );
 extern double complex Faddeeva_erfcx(double complex z, double relerr);
 DCOMPLEX expErf ( DCOMPLEX z );
