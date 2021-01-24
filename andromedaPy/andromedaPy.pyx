@@ -48,6 +48,7 @@ from coreUtil cimport printExpectationValues
 from coreUtil cimport streams
 from coreUtil cimport tMatrixElements
 from coreUtil cimport SG
+from coreUtil cimport GTO
 from coreUtil cimport CanonicalRank
 
 from Decompose cimport CanonicalRankDecomposition
@@ -475,7 +476,8 @@ cdef class galaxy:
 		tBoot(self.field.f, vector, spin, width)
 		return self
 		
-	def SG ( self, gammaPy : [[[int]]] , vector : division = division.eigenVectors, spin : inta = 0):
+	def SG ( self, gammaPy : [[[int]]] , vector : division = division.eigenVectors, 
+	spin : inta = 0):
 		"""Places a correctly band-limited Symmetrized Gaussian.
 		
 		Parameters
@@ -499,6 +501,43 @@ cdef class galaxy:
 		
 		SG(self.field.f, vector, spin, gamma)
 		return self
+	
+	
+	def GTO ( self, gammaPy : [[[int]]], deltaPy : [[[float]]] , 
+	vector : division = division.eigenVectors, spin : inta = 0):
+		"""Places a correctly band-limited Gaussian Type Orbital.
+		
+		Parameters
+		----------
+		vector : division
+		spin : inta
+		gammaPy : [[[int]]]
+		deltaPy : [[[float]]]
+		
+		Returns
+		-------
+		self
+		"""
+		cdef inta   gamma[SPACE*MAXBODY]
+		cdef floata delta[SPACE*MAXBODY*2]
+		index : inta  = 0
+		for space in range(SPACE):
+			if self.field.f.canon[space].body != bodyType.nada:
+				for b in gammaPy[space]:	
+					gamma[index] = b[0]
+					index += 1
+
+		index = 0
+		for space in range(SPACE):
+			if self.field.f.canon[space].body != bodyType.nada:
+				for b in deltaPy[space]:
+					delta[index] = b[0]
+					delta[index+1] = b[1]
+					index += 2
+		
+		GTO(self.field.f, vector, spin, gamma,delta)
+		return self
+	
 	
 	def Current ( self, vector : division = division.eigenVectors , spin : inta = 0):
 		return self.field.f.name[int(vector)].Current[spin]		

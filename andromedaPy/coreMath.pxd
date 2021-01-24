@@ -35,6 +35,7 @@ from constants cimport field
 from constants cimport calculation
 
 cdef extern from "../Object/coreMath.h":
+    floata GaussianInSinc( floata K, inta n, floata alpha, floata y, floata X )
     floata SymmetrizedGaussianInSinc( floata K, inta n , inta m , floata X )
     floata Power ( floata b, inta n )
     #extern floata complex Faddeeva_erfcx(floata complex z, floata relerr)
