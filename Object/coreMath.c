@@ -196,7 +196,7 @@ floata SymmetrizedGaussianInSinc( floata K, inta n , inta m , floata X ){
                                            +expErf((   K -  I *m *spi + 0.5*n *spi  + I* X))
                                            )
                   )
-                 )* K / 2.;///MODIFIED BY K/2
+                 ) /(K* 2.);///MODIFIED BY/2/K
 }
 
 
@@ -215,13 +215,13 @@ floata GaussianInSinc( floata K, inta n, floata alpha, floata y, floata X ){
     floata erfBase = sa * ( expErf(( K - 2. * I * X * alpha )/(2.*sa))+expErf(( K + 2. * I * X * alpha )/(2.*sa)) );
     if ( n == 0 )
         ///S
-        return (erfBase)*sspi* K / 2.;
+        return (erfBase)*sspi* /(K* 2.);
     else if ( n == 1 ){
         ///P
         floata func = (
                                 -sin(K*X)
                                 );
-        return (4.*exp(-K*K/alpha/4.)*func/spi + erfBase * 2. * X * sa)*sspi * K / 2.;
+        return (4.*exp(-K*K/alpha/4.)*func/spi + erfBase * 2. * X * sa)*sspi /(K* 2.);
     }
     else if ( n == 2 ){
         ///D
@@ -229,7 +229,7 @@ floata GaussianInSinc( floata K, inta n, floata alpha, floata y, floata X ){
                                       cos(K*X) * K
                                - 2. * sin(K*X) * X * alpha
                                )/sqrt(3.*alpha);
-        return (4.*exp(-K*K/alpha/4.)*func/spi + erfBase * 4. * X * X * alpha / sqrt(3.))*sspi* K / 2.;
+        return (4.*exp(-K*K/alpha/4.)*func/spi + erfBase * 4. * X * X * alpha / sqrt(3.))*sspi/(K* 2.);
     }
     else if ( n == 3 ){
         ///F
@@ -238,7 +238,7 @@ floata GaussianInSinc( floata K, inta n, floata alpha, floata y, floata X ){
                             + 2.*cos(K*X) * K * X *alpha
                             - 2.*sin(K*X) * alpha* (1. + 2. * X*X*alpha)
                                )/sqrt(15.*alpha*alpha);
-        return (4.*exp(-K*K/alpha/4.)*func/spi + erfBase * 8. * X * X * X * alpha / sqrt(15.))*sspi* K / 2.;
+        return (4.*exp(-K*K/alpha/4.)*func/spi + erfBase * 8. * X * X * X * alpha / sqrt(15.))*sspi /(K* 2.);
     }
     else if ( n == 4 ){
         ///G
@@ -248,7 +248,7 @@ floata GaussianInSinc( floata K, inta n, floata alpha, floata y, floata X ){
                                + 2.*cos(K*X) * K * alpha * (3.+2.*X*X*alpha)
                                - 4.*sin(K*X) * X * alpha * alpha *(1.+2.*X*X*alpha)
                           )/sqrt(105.*alpha*alpha*alpha);
-        return (4.*exp(-K*K/alpha/4.)*func/spi + erfBase * 16. * X * X * X * X * alpha * sa / sqrt(105.))*sspi* K / 2.;
+        return (4.*exp(-K*K/alpha/4.)*func/spi + erfBase * 16. * X * X * X * X * alpha * sa / sqrt(105.))*sspi/(K* 2.);
     }
     else if ( n == 5 ){
         ///H
@@ -259,7 +259,7 @@ floata GaussianInSinc( floata K, inta n, floata alpha, floata y, floata X ){
                                 + 4.*cos(K*X) * K * X * alpha * alpha*(3.+2.*X*X*alpha)
                                 - 4.*sin(K*X) * alpha * alpha * (3.+2*X*X*alpha+4.*alpha*alpha*X*X*X*X)
                                )/3./sqrt(105.*alpha*alpha*alpha*alpha);
-        return (4.*exp(-K*K/alpha/4.)*func/spi + erfBase * 32. * X * X * X * X * X * alpha*alpha /3./ sqrt(105.))*sspi* K / 2.;
+        return (4.*exp(-K*K/alpha/4.)*func/spi + erfBase * 32. * X * X * X * X * X * alpha*alpha /3./ sqrt(105.))*sspi /(K* 2.);
     }
     else if ( n == 6 ){
         ///I
@@ -271,7 +271,7 @@ floata GaussianInSinc( floata K, inta n, floata alpha, floata y, floata X ){
                                + 4.*cos(K*X) * K * alpha * alpha * alpha *(15.+6.*X*X*alpha+4.*X*X*alpha*alpha)
                                - 8.*sin(K*X) * X * alpha * alpha * alpha * alpha*(3.+2*X*X*alpha+4.*alpha*alpha*X*X*X*X)
                           )/3./sqrt(1155.*alpha*alpha*alpha*alpha*alpha);
-        return (4.*exp(-K*K/alpha/4.)*func/spi + erfBase * 64. * X * X * X * X * X * X * alpha * alpha /3./ sqrt(1155./alpha))*sspi* K / 2.;
+        return (4.*exp(-K*K/alpha/4.)*func/spi + erfBase * 64. * X * X * X * X * X * X * alpha * alpha /3./ sqrt(1155./alpha))*sspi/(K* 2.);
     }
 
     return 0;
