@@ -215,7 +215,7 @@ floata GaussianInSinc( floata K, inta n, floata alpha, floata y, floata X ){
     floata erfBase = sa * ( expErf(( K - 2. * I * X * alpha )/(2.*sa))+expErf(( K + 2. * I * X * alpha )/(2.*sa)) );
     if ( n == 0 )
         ///S
-        return (erfBase)*sspi* /(K* 2.);
+        return (erfBase)*sspi/(K* 2.);
     else if ( n == 1 ){
         ///P
         floata func = (
