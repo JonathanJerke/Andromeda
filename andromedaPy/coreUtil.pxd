@@ -128,8 +128,8 @@ cdef extern from "../Object/coreUtil.h":
     void loopDetails(  sinc_label f1,   division loopHeader)
 
 
-    void SG ( sinc_label f1, division vector , inta spin, inta * gamma )
-    void GTO( sinc_label f1, division vector , inta spin, inta * gamma, floata *delta )
+    void SG ( sinc_label f1, division vector , inta spin, floata amplitude, inta * gamma )
+    void GTO( sinc_label f1, division vector , inta spin, floata amplitude, inta * gamma, floata *delta )
 
 
 
