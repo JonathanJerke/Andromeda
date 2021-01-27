@@ -3534,7 +3534,7 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
 
  */
 double pMatrixElement ( sinc_label  f1 ,   division alloy1 , inta spin1, division op, inta ospin, division alloy2 , inta spin2 ){
-#ifndef OMP
+#ifndef CHERRY_PICKER
     return tMatrixElements(0, f1, alloy1, spin1, op, ospin, alloy2, spin2);
 #else
 
