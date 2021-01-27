@@ -1796,7 +1796,7 @@ inta tBoot (   sinc_label f1 ,   division label,inta spin,floata scale ){
     return 0;
 }
 
-void SG( sinc_label f1, division vector ,inta spin, inta *gamma ){
+void SG( sinc_label f1, division vector ,inta spin,floata amplitude,  inta *gamma ){
     inta space,vc,vsp,msp,mss=0,vn1,v,m,n,Current,v0;
     floata variable ;
     bodyType body ;
@@ -1823,6 +1823,8 @@ void SG( sinc_label f1, division vector ,inta spin, inta *gamma ){
                     ///even n's are NOT to be used.
                     variable *= SymmetrizedGaussianInSinc(pi/f1.canon[space].particle[body].lattice,n,m,f1.canon[space].particle[body].lattice * v );
                 }
+                if ( ! space )
+                    variable *= amplitude;
                 streams(f1,vector,0,space)[vc+Current*v0] = variable;
             }
             msp = mss;
@@ -1830,7 +1832,7 @@ void SG( sinc_label f1, division vector ,inta spin, inta *gamma ){
     }
 }
 
-void GTO( sinc_label f1, division vector ,inta spin, inta *gamma, floata *delta ){
+void GTO( sinc_label f1, division vector ,inta spin,floata amplitude, inta *gamma, floata *delta ){
     inta space,vc,vsp,msp,mss=0,vn1,v,n,Current,v0;
     floata variable,alpha,y ;
     bodyType body ;
@@ -1856,6 +1858,9 @@ void GTO( sinc_label f1, division vector ,inta spin, inta *gamma, floata *delta 
                     mss += 1;
                     variable *= GaussianInSinc(pi/f1.canon[space].particle[body].lattice,n,alpha,y,f1.canon[space].particle[body].lattice * v );
                 }
+                if ( ! space )
+                    variable *= amplitude;
+
                 streams(f1,vector,spin,space)[vc+Current*v0] = variable;
             }
             msp = mss;
