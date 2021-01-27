@@ -46,5 +46,7 @@ inta getInputOutput(  calculation * c,  field *f1,const char * input_line );
 inta finalizeInit(  calculation * c );
 inta modifyGeometry(  calculation * c,const char * input_line );
 inta getBuildParameters(  calculation * c,const char * input_line );
-inta bootShell (inta argc , char * argv[],  calculation * c1,   field *f);
+inta bootShell (inta argc , char * argv[], calculation * c1, field *f);
+inta readShell (inta argc , char * argv[], calculation * c1, field *f);
+
 #endif /* input_h */

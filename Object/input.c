@@ -1308,7 +1308,7 @@ inta finalizeInit(struct calculation * c ){
 }
 
 
-inta bootShell (inta argc , char * argv[],struct calculation * c1, struct field *f){
+inta bootShell (inta argc , char * argv[], calculation * c1,  field *f){
 #ifndef APPLE
     FILE * in ;
 
@@ -1345,4 +1345,24 @@ inta bootShell (inta argc , char * argv[],struct calculation * c1, struct field 
 #endif
         
         return 1;
+}
+
+
+inta readShell (inta argc , char * argv[], calculation * c1,  field *f){
+    FILE * in ;
+    inta broke;
+    if ( argc >= 1 ){
+        in = fopen(argv[0],"r");
+    } else {
+        in = stdin;
+    }
+    
+    {
+        broke = readInput(c1,f,in);
+        if ( broke )
+            exit(1);
+    }
+    
+    fclose(in);
+    return 1;
 }
