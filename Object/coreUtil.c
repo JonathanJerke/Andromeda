@@ -1797,15 +1797,18 @@ inta tBoot (   sinc_label f1 ,   division label,inta spin,floata scale ){
 }
 
 void SG( sinc_label f1, division vector ,inta spin, inta *gamma ){
-    inta space,vc,vsp,msp,mss=0,vn1,v,m,n;
+    inta space,vc,vsp,msp,mss=0,vn1,v,m,n,Current,v0;
     floata variable ;
     bodyType body ;
-    f1.name[vector].Current[0] = 1;
-    zero(f1, vector, 0);
+    if ( f1.name[vector].Current[spin] >= f1.name[vector].Partition )
+        return;
+    Current =  f1.name[vector].Current[spin]++;
+    zero(f1, vector, spin);
     msp = 0;
     for  ( space =0; space < SPACE ; space++){
         if ( f1.canon[space].body != nada){
-            for ( vc = 0; vc < vectorLen(f1, space) ; vc++){
+            v0 = vectorLen(f1, space);
+            for ( vc = 0; vc < v0 ; vc++){
                 vsp = 1;
                 variable = 1.0;
                 vn1 = vector1Len(f1,space);
@@ -1821,7 +1824,7 @@ void SG( sinc_label f1, division vector ,inta spin, inta *gamma ){
                     ///even n's are NOT to be used.
                     variable *= SymmetrizedGaussianInSinc(pi/f1.canon[space].particle[body].lattice,n,m,f1.canon[space].particle[body].lattice * v );
                 }
-                streams(f1,vector,0,space)[vc] = variable;
+                streams(f1,vector,0,space)[vc+Current*v0] = variable;
             }
             msp = mss;
         }
@@ -1829,15 +1832,19 @@ void SG( sinc_label f1, division vector ,inta spin, inta *gamma ){
 }
 
 void GTO( sinc_label f1, division vector ,inta spin, inta *gamma, floata *delta ){
-    inta space,vc,vsp,msp,mss=0,vn1,v,n;
+    inta space,vc,vsp,msp,mss=0,vn1,v,n,Current,v0;
     floata variable,alpha,y ;
     bodyType body ;
-    f1.name[vector].Current[0] = 1;
-    zero(f1, vector, 0);
+    if ( f1.name[vector].Current[spin] >= f1.name[vector].Partition )
+        return;
+    Current =  f1.name[vector].Current[spin]++;
+
+    zero(f1, vector, spin);
     msp = 0;
     for  ( space =0; space < SPACE ; space++){
         if ( f1.canon[space].body != nada){
-            for ( vc = 0; vc < vectorLen(f1, space) ; vc++){
+            v0 = vectorLen(f1, space);
+            for ( vc = 0; vc < v0 ; vc++){
                 vsp = 1;
                 variable = 1.0;
                 vn1 = vector1Len(f1,space);
@@ -1851,7 +1858,7 @@ void GTO( sinc_label f1, division vector ,inta spin, inta *gamma, floata *delta 
                     mss += 1;
                     variable *= GaussianInSinc(pi/f1.canon[space].particle[body].lattice,n,alpha,y,f1.canon[space].particle[body].lattice * v );
                 }
-                streams(f1,vector,0,space)[vc] = variable;
+                streams(f1,vector,spin,space)[vc+Current*v0] = variable;
             }
             msp = mss;
         }
