@@ -509,7 +509,7 @@ cdef class galaxy:
 		tBoot(self.field.f, vector, spin, width)
 		return self
 		
-	def SG ( self, gammaPy : [[[int]]] , vector : division = division.eigenVectors, 
+	def SG ( self, gammaPy : [[[int]]] ,amplitude :floata = 1.0, vector : division = division.eigenVectors, 
 	spin : inta = 0):
 		"""Places a correctly band-limited Symmetrized Gaussian.
 		
@@ -532,11 +532,11 @@ cdef class galaxy:
 					gamma[index+1] = b[1]
 					index += 2
 		
-		SG(self.field.f, vector, spin, gamma)
+		SG(self.field.f, vector, spin,amplitude, gamma)
 		return self
 	
 	
-	def GTO ( self, gammaPy : [[[float]]] , 
+	def GTO ( self, gammaPy : [[[float]]] , amplitude :floata = 1.0,
 	vector : division = division.eigenVectors, spin : inta = 0):
 		"""Places a correctly band-limited Gaussian Type Orbital.
 		
@@ -561,7 +561,7 @@ cdef class galaxy:
 					delta[2*index+1] = b[2]
 					index += 1
 		
-		GTO(self.field.f, vector, spin, gamma,delta)
+		GTO(self.field.f, vector, spin,amplitude, gamma,delta)
 		return self
 	
 	
