@@ -39,7 +39,7 @@ from Model cimport fModel
 from input cimport blockA
 from input cimport allowQ
 from input cimport resetA
-from input cimport bootShell
+from input cimport readShell
 from ioPrint cimport tLoadEigenWeights
 from ioPrint cimport printOut
 from coreUtil cimport vectorLen
@@ -98,11 +98,11 @@ cdef class galaxy:
 		-------
 		self	
 		"""
-		if self.field.f.bootedMemory == 1 :
+		if self.isbooted() :
 			print("warning, already booted")
 			return self
 
-		bootShell(1, [str(filepy).encode('utf-8')],&self.calculation,&self.field)
+		readShell(1, [str(filepy).encode('utf-8')],&self.calculation,&self.field)
 		return self
         
 	def dims(self, lattice:floata = 1, attack:floata =0.5, origin:floata =0.0,
@@ -281,7 +281,7 @@ cdef class galaxy:
 	def i(self):
 		"""Initiate allocation, do not overwrite
 		"""
-		if self.field.f.bootedMemory == 1 :
+		if self.isbooted() :
 			print("warning, already booted")
 			return self
 		iModel(&self.calculation, &self.field)
@@ -305,7 +305,7 @@ cdef class galaxy:
 		-------
 		self
 		"""
-		if self.field.f.bootedMemory == 1 :
+		if self.isbooted() :
 			print("warning, already booted")
 			return self
 		if RAMmax >= 0 :
@@ -384,7 +384,7 @@ cdef class galaxy:
 		-------
 		self
 		"""
-		if self.field.f.bootedMemory == 1 :
+		if self.isbooted() :
 			print("warning, already booted")
 			return self
 		if flex >= 0 :
@@ -436,7 +436,7 @@ cdef class galaxy:
 		division arrayed after allocated eigenVectors
 		"""
 
-		if self.field.f.bootedMemory == 1 :
+		if self.isbooted() :
 			return (int(self.field.f.user)+index)
 		else:
 			return 0

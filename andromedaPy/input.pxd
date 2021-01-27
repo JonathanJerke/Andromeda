@@ -36,3 +36,4 @@ cdef extern from "../Object/input.h":
     inta allowQ(   runTime *  f1,   blockMemoryType a );
     inta blockA(   runTime *  f1,   blockMemoryType a );
     inta bootShell (inta argc , char * argv[],  calculation * c1,   field *f)
+    inta readShell (inta argc , char * argv[],  calculation * c1,   field *f)
