@@ -337,7 +337,7 @@ cdef extern from "../Object/constants.h":
         metric_label mu
 
     cdef struct runTime:
-    	inta boost
+        inta boost
         inta dynamic
         blockMemoryType memBlock[16]
         inta NLanes
