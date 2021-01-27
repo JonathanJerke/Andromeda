@@ -755,6 +755,8 @@ struct term_label {
 };
 
 struct runTime {
+    ///decomposition scheme
+    inta boost;
     ///maxiumum swing in canonical rank
     inta dynamic;
     ///scripting level changes to memory allocations, mostly inert
