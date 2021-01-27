@@ -321,13 +321,14 @@ cdef class galaxy:
 		#print(self.calculation.i)
 		return self
 		
-	def runTimeInputs ( self, dynamic:inta=-1, tolerance:floata=-1.0,relativeTolerance : floata=-1.0,
+	def runTimeInputs ( self,boost : inta = -1, dynamic:inta=-1, tolerance:floata=-1.0,relativeTolerance : floata=-1.0,
 	threshold:floata =-1.0, Xcondition : floata = -1.0, alpha : floata = -1.0 , 
 	maxCycle : inta = -1 ):
 		"""Relevant calculation.input 's
 		
 		Parameters
 		----------
+		boost : inta
 		dynamic : inta
 		tolerance : floata
 		relativeTolerance : floata
@@ -340,6 +341,8 @@ cdef class galaxy:
 		-------
 		self
 		"""
+		if boost >= 0 :
+			self.calculation.rt.boost = boost
 		if dynamic >= 0 :
 			self.calculation.rt.dynamic = dynamic
 		if tolerance >= 0 :
