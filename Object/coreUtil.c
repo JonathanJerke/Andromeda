@@ -1803,7 +1803,6 @@ void SG( sinc_label f1, division vector ,inta spin, inta *gamma ){
     if ( f1.name[vector].Current[spin] >= f1.name[vector].Partition )
         return;
     Current =  f1.name[vector].Current[spin]++;
-    zero(f1, vector, spin);
     msp = 0;
     for  ( space =0; space < SPACE ; space++){
         if ( f1.canon[space].body != nada){
@@ -1839,7 +1838,6 @@ void GTO( sinc_label f1, division vector ,inta spin, inta *gamma, floata *delta 
         return;
     Current =  f1.name[vector].Current[spin]++;
 
-    zero(f1, vector, spin);
     msp = 0;
     for  ( space =0; space < SPACE ; space++){
         if ( f1.canon[space].body != nada){
