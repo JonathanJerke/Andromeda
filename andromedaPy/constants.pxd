@@ -82,7 +82,8 @@ cdef extern from "../Object/constants.h":
         e26,
         e36,
         e46,
-        e56
+        e56,
+        d12
 
     cdef enum genusType:
         scalar,
