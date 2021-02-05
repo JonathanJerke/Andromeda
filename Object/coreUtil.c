@@ -3014,73 +3014,169 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                    else  if ( Bodies ( f1,su,space) == two ){
                        if ( species(f1,su) == eikonDiagonal ){
                             flow *= 1;
-                             diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,laterP);
-                        }else if ( species(f1,su) == eikonSemiDiagonal ){
-
-                            if ( timer == 0 ){
-                                flow *= -1;
-
-                                topezOp(0, 1, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP, 1,midP);
-                                diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,midP, suP,laterP);
-
-                           }
-
-                            else if ( timer == 1 ){
-                                flow *= 1 ;
-                                topezOp(0,1, bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,inP, 1,midP);
-                                diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,midP, suP,laterP);
-                                
-                            } else
-                             if ( timer == 2 ){
-                                flow *= 1;
-                                 
-                                 diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,midP);
-                                 topezOp(0,1, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,midP, 1,laterP);
-
-                                 
-                                 
+                           if ( f1.name[su].space[space].block == d12 )
+                            {
+                               ///intended for direct multiply
+                               ///bd = two; act = 1; block = d12  ##ALL DIRECTS## SAME way
+                                cblas_dgemv(CblasColMajor, CblasNoTrans, N1, N1, 1.,suP,N1,inP,N1+1, 0.,laterP,N1+1);
+                               
+                           }else
+                            {
+                               ///intended for exchange multiply
+                               diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,laterP);
                             }
-                        
-                             else if ( timer == 3 ){
-                                 flow *= -1 ;
-                                 
-                                 diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,midP);
-                                 topezOp(0,1, bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,midP, 1,laterP);
+                        }else if ( species(f1,su) == eikonSemiDiagonal ){
+                            if ( f1.name[su].space[space].block == d12 )
+                                {
+                                ///intended for direct multiply
+                                    ///bd = two; act = 1; block = d12  ##ALL DIRECTS## SAME way
 
-                             }
+                                    if ( timer == 0 ){
+                                        flow *= -1;
+
+                                        topezOp(0, 1, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP, 1,midP);
+                                        cblas_dgemv(CblasColMajor, CblasNoTrans, N1, N1, 1.,suP,N1,midP,N1+1, 0.,laterP,N1+1);
+
+                                   }
+
+                                    else if ( timer == 1 ){
+                                        flow *= 1 ;
+                                        topezOp(0,1, bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,inP, 1,midP);
+                                        cblas_dgemv(CblasColMajor, CblasNoTrans, N1, N1, 1.,suP,N1,midP,N1+1, 0.,laterP,N1+1);
+
+                                    } else
+                                     if ( timer == 2 ){
+                                        flow *= 1;
+                                         
+                                         cblas_dgemv(CblasColMajor, CblasNoTrans, N1, N1, 1.,suP,N1,inP,N1+1, 0.,midP,N1+1);
+                                         topezOp(0,1, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,midP, 1,laterP);
+
+                                         
+                                         
+                                    }
+                                
+                                     else if ( timer == 3 ){
+                                         flow *= -1 ;
+                                         
+                                         cblas_dgemv(CblasColMajor, CblasNoTrans, N1, N1, 1.,suP,N1,inP,N1+1, 0.,midP,N1+1);
+                                         topezOp(0,1, bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,midP, 1,laterP);
+
+                                     }
+
+                                
+                                
+                            }else
+                                {
+                                ///intended for exchange multiply
+
+                                if ( timer == 0 ){
+                                    flow *= -1;
+
+                                    topezOp(0, 1, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP, 1,midP);
+                                    diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,midP, suP,laterP);
+
+                               }
+
+                                else if ( timer == 1 ){
+                                    flow *= 1 ;
+                                    topezOp(0,1, bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,inP, 1,midP);
+                                    diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,midP, suP,laterP);
+                                    
+                                } else
+                                 if ( timer == 2 ){
+                                    flow *= 1;
+                                     
+                                     diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,midP);
+                                     topezOp(0,1, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,midP, 1,laterP);
+
+                                     
+                                     
+                                }
+                            
+                                 else if ( timer == 3 ){
+                                     flow *= -1 ;
+                                     
+                                     diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,midP);
+                                     topezOp(0,1, bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,midP, 1,laterP);
+
+                                 }
+                            }
                         }else
                         if ( species(f1,su) == eikonOffDiagonal ) {
-                            if ( timer == 0 ){
-                            flow *= 1;
-                            //A
-                                diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,laterP);
-                                topezOp(0,1., bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,laterP, 1,midP);
-                                topezOp(0,1., bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,midP, 1,laterP);
+                            
+                            if ( f1.name[su].space[space].block == d12 )
+                            {
+                                ///intended for direct multiply
+                                ///bd = two; act = 1; block = d12  ##ALL DIRECTS## SAME way
 
-                            }
-                        
-                            else if ( timer == 1 ){
-                                flow *= 1 ;
-                                topezOp(0,1., bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP, 1,laterP);
-                                topezOp(0,1., bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,laterP, 1,midP);
-                                diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,midP, suP,laterP);
+                                if ( timer == 0 ){
+                                flow *= 1;
+                                //A
+                                    cblas_dgemv(CblasColMajor, CblasNoTrans, N1, N1, 1.,suP,N1,inP,N1+1, 0.,laterP,N1+1);
+                                    topezOp(0,1., bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,laterP, 1,midP);
+                                    topezOp(0,1., bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,midP, 1,laterP);
 
-                            }
-                            else if ( timer == 2){
-                                flow *= -1 ;
-                                topezOp(0,1., bd,f1.name[su].space[space].act       ,tv1, f1.name[su].space[space].block,N1,inP, 1,laterP);
-                                diagonalOp(bd,f1.name[su].space[space].act    ,e12, f1.name[su].space[space].block,N1,laterP, suP,midP);
-                                topezOp(0,1., bd         ,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,midP, 1,laterP);
+                                }
+                            
+                                else if ( timer == 1 ){
+                                    flow *= 1 ;
+                                    topezOp(0,1., bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP, 1,laterP);
+                                    topezOp(0,1., bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,laterP, 1,midP);
+                                    cblas_dgemv(CblasColMajor, CblasNoTrans, N1, N1, 1.,suP,N1,midP,N1+1, 0.,laterP,N1+1);
 
-                            } else if (timer ==3 ){
-                                flow *= -1;
-                                topezOp(0,1., bd,f1.name[su].space[space].act       ,tv2, f1.name[su].space[space].block,N1                                  ,inP,   1,laterP);
-                                diagonalOp(bd,f1.name[su].space[space].act    ,e12, f1.name[su].space[space].block,N1                                  ,laterP, suP,midP);
-                                topezOp(0,1., bd         ,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1  ,midP,  1,laterP);
+                                }
+                                else if ( timer == 2){
+                                    flow *= -1 ;
+                                    topezOp(0,1., bd,f1.name[su].space[space].act       ,tv1, f1.name[su].space[space].block,N1,inP, 1,laterP);
+                                    cblas_dgemv(CblasColMajor, CblasNoTrans, N1, N1, 1.,suP,N1,laterP,N1+1, 0.,midP,N1+1);
+                                    topezOp(0,1., bd         ,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,midP, 1,laterP);
 
+                                } else if (timer ==3 ){
+                                    flow *= -1;
+                                    topezOp(0,1., bd,f1.name[su].space[space].act       ,tv2, f1.name[su].space[space].block,N1                                  ,inP,   1,laterP);
+                                    cblas_dgemv(CblasColMajor, CblasNoTrans, N1, N1, 1.,suP,N1,laterP,N1+1, 0.,midP,N1+1);
+                                    topezOp(0,1., bd         ,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1  ,midP,  1,laterP);
+
+                                }
+
+                                
+                                
+                            }else
+                                {
+                                ///intended for exchange multiply
+
+                                if ( timer == 0 ){
+                                flow *= 1;
+                                //A
+                                    diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,inP, suP,laterP);
+                                    topezOp(0,1., bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,laterP, 1,midP);
+                                    topezOp(0,1., bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,midP, 1,laterP);
+
+                                }
+                            
+                                else if ( timer == 1 ){
+                                    flow *= 1 ;
+                                    topezOp(0,1., bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP, 1,laterP);
+                                    topezOp(0,1., bd,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,laterP, 1,midP);
+                                    diagonalOp(bd,f1.name[su].space[space].act,e12, f1.name[su].space[space].block,N1,midP, suP,laterP);
+
+                                }
+                                else if ( timer == 2){
+                                    flow *= -1 ;
+                                    topezOp(0,1., bd,f1.name[su].space[space].act       ,tv1, f1.name[su].space[space].block,N1,inP, 1,laterP);
+                                    diagonalOp(bd,f1.name[su].space[space].act    ,e12, f1.name[su].space[space].block,N1,laterP, suP,midP);
+                                    topezOp(0,1., bd         ,f1.name[su].space[space].act,tv2, f1.name[su].space[space].block,N1,midP, 1,laterP);
+
+                                } else if (timer ==3 ){
+                                    flow *= -1;
+                                    topezOp(0,1., bd,f1.name[su].space[space].act       ,tv2, f1.name[su].space[space].block,N1                                  ,inP,   1,laterP);
+                                    diagonalOp(bd,f1.name[su].space[space].act    ,e12, f1.name[su].space[space].block,N1                                  ,laterP, suP,midP);
+                                    topezOp(0,1., bd         ,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1  ,midP,  1,laterP);
+
+                                }
                             }
-                            }
-                         }
+                        }
+                    }
                         if ( f1.name[su].space[space].act < 0 ){
 #if VERBOSE
                             printf("invert\n");

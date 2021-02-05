@@ -218,9 +218,9 @@ enum blockType{
     e26,
     e36,
     e46,
-    e56
+    e56,
+    d12
 };
-
 
 /**
  *Controling aspects of Hamiltonian Terms and more generally
