@@ -624,18 +624,22 @@ cdef class galaxy:
 	def dot(self, vector : division = division.eigenVectors, term : int = 0,
 	 vector2: division = division.eigenVectors):
 		"""Print dot.
+		
+		Parameters
+		----------
 		vector : division
 		term : int
 		vector2 : division
+		
 		Returns
 		-------
-		floata
-		"""
+		floata"""
+		f1 = self.field.f
+		
 		if term == 0 :
 			matrix = division.nullOverlap
 		else :
 			##isolate deSpiral Changes to field
-			f1 = self.field.f
 			matrix = defSpiralMatrix(&f1, division.Iterator)+term-1
 		return tMatrixElements ( 0, f1 ,  vector, 0 , matrix, 0,vector2,0)
 
@@ -651,8 +655,7 @@ cdef class galaxy:
 				 
 		Returns
 		-------
-		self
-		"""
+		self"""
 		f1 = self.field.f
 		tHXpY(f1, vectorOut, defSpiralMatrix(&f1, division.Iterator)+term, 
 		self.calculation.i.shiftFlag, vectorIn, 
