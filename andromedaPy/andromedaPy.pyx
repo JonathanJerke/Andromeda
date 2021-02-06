@@ -653,7 +653,7 @@ cdef class galaxy:
 		self.calculation.rt.THRESHOLD,
 		self.calculation.rt.MAX_CYCLE,
 		self.calculation.rt.XCONDITION,
-		canonRank = canonRank,
+		canonRank,
 		self.calculation.rt.dynamic )
 		return self
 
