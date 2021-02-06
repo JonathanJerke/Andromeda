@@ -644,7 +644,7 @@ cdef class galaxy:
 		-------
 		self
 		"""
-		tHXpY(self.field.f, vectorOut, defSpiralMatrix(&self.field.f, Iterator)+term, 
+		tHXpY(self.field.f, vectorOut, defSpiralMatrix(&self.field.f, division.Iterator)+term, 
 		self.calculation.i.shiftFlag, vectorIn, 
 		self.calculation.rt.TOLERANCE,
 		self.calculation.rt.relativeTOLERANCE,
