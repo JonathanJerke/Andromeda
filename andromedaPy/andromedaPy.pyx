@@ -50,6 +50,7 @@ from coreUtil cimport SG
 from coreUtil cimport GTO
 from coreUtil cimport CanonicalRank
 from coreUtil cimport defSpiralMatrix
+from coreUtil cimport tHXpY
 
 from Decompose cimport CanonicalRankDecomposition
 from Decompose cimport canonicalRankDecomposition
@@ -289,7 +290,7 @@ cdef class galaxy:
 						
 	def calculationInputs ( self, numNames:inta=-1, numVectors:inta=-1, shiftFlag:inta=-1,
 	Lambda:inta=-1
-		,RAMmax=-1 , shiftFlag : inta = -1):
+		,RAMmax=-1 ):
 		"""Relevant calculation.input 's
 		
 		Parameters
@@ -318,8 +319,6 @@ cdef class galaxy:
 			self.calculation.i.numVectors = numVectors
 		if numNames >= 0 :
 			self.calculation.i.numNames = numNames
-		if shiftFlag >= 0 :
-			self.calculation.i.shiftFlag = shiftFlag
 		#print(self.calculation.i)
 		return self
 		
@@ -335,8 +334,8 @@ cdef class galaxy:
 		tolerance : floata
 		relativeTolerance : floata
 		threshold : floata
-		Xcondition : floata
-		alpha : floata
+		maxCondition : floata
+		condition : floata
 		maxCycle : inta
 				
 		Returns
@@ -353,9 +352,9 @@ cdef class galaxy:
 			self.calculation.rt.relativeTOLERANCE = relativeTolerance
 		if threshold >= 0 :
 			self.calculation.rt.THRESHOLD = threshold
-		if Xcondition >= 0 :
+		if maxCondition >= 0 :
 			self.calculation.rt.XCONDITION = maxCondition
-		if alpha >= 0 :
+		if condition >= 0 :
 			self.calculation.rt.ALPHA = condition
 		if maxCycle >= 0 :
 			self.calculation.rt.MAX_CYCLE = maxCycle
