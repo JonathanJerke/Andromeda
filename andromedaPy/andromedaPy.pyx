@@ -49,6 +49,7 @@ from coreUtil cimport tMatrixElements
 from coreUtil cimport SG
 from coreUtil cimport GTO
 from coreUtil cimport CanonicalRank
+from coreUtil cimport defSpiralMatrix
 
 from Decompose cimport CanonicalRankDecomposition
 from Decompose cimport canonicalRankDecomposition
@@ -288,7 +289,7 @@ cdef class galaxy:
 						
 	def calculationInputs ( self, numNames:inta=-1, numVectors:inta=-1, shiftFlag:inta=-1,
 	Lambda:inta=-1
-		,RAMmax=-1 ):
+		,RAMmax=-1 , shiftFlag : inta = -1):
 		"""Relevant calculation.input 's
 		
 		Parameters
@@ -317,11 +318,13 @@ cdef class galaxy:
 			self.calculation.i.numVectors = numVectors
 		if numNames >= 0 :
 			self.calculation.i.numNames = numNames
+		if shiftFlag >= 0 :
+			self.calculation.i.shiftFlag = shiftFlag
 		#print(self.calculation.i)
 		return self
 		
 	def runTimeInputs ( self,boost : inta = -1, dynamic:inta=-1, tolerance:floata=-1.0,relativeTolerance : floata=-1.0,
-	threshold:floata =-1.0, Xcondition : floata = -1.0, alpha : floata = -1.0 , 
+	threshold:floata =-1.0, maxCondition : floata = -1.0, condition : floata = -1.0 , 
 	maxCycle : inta = -1 ):
 		"""Relevant calculation.input 's
 		
@@ -351,9 +354,9 @@ cdef class galaxy:
 		if threshold >= 0 :
 			self.calculation.rt.THRESHOLD = threshold
 		if Xcondition >= 0 :
-			self.calculation.rt.XCONDITION = Xcondition
+			self.calculation.rt.XCONDITION = maxCondition
 		if alpha >= 0 :
-			self.calculation.rt.ALPHA = alpha
+			self.calculation.rt.ALPHA = condition
 		if maxCycle >= 0 :
 			self.calculation.rt.MAX_CYCLE = maxCycle
 		return self
@@ -619,14 +622,40 @@ cdef class galaxy:
 		printExpectationValues (  &self.calculation,   self.field.f ,  division.Ha  , vector)
 		return self
 
-	def dot(self, vector : division = division.eigenVectors, vector2: division = division.eigenVectors):
+	def dot(self, vector : division = division.eigenVectors, matrix = division.nullOverlap,
+	 vector2: division = division.eigenVectors):
 		"""Print dot.
 		Returns
 		-------
 		floata
 		"""
-		return tMatrixElements ( 0, self.field.f ,  vector, 0 , division.nullOverlap, 0,vector2,0)
+		return tMatrixElements ( 0, self.field.f ,  vector, 0 , matrix, 0,vector2,0)
 
+	def matmul(self, vectorIn : division = division.eigenVectors, matrix = division.Iterator,
+	 vectorOut: division = division.eigenVectors, canonRank : inta):
+		"""
+		Parameters
+		----------
+		vectorIn : division
+		matrix : division
+		vectorOut : division
+		canonRank :inta
+				 
+		Returns
+		-------
+		self
+		"""
+		tHXpY(self.field.f, vectorOut, defSpiralMatrix(&f1.f, matrix), 
+		self.calculation.i.shiftFlag, vectorIn, 
+		self.calculation.rt.TOLERANCE,
+		self.calculation.rt.relativeTOLERANCE,
+		self.calculation.rt.ALPHA,
+		self.calculation.rt.THRESHOLD,
+		self.calculation.rt.MAX_CYCLE,
+		self.calculation.rt.XCONDITION,
+		canonRank = canonRank,
+		self.calculation.rt.dynamic )
+		return self
 
 	def full( self, g: galaxy ,  vector : division  = division.eigenVectors ):
 		"""Create a new galaxy with all elements explicitly written down.
