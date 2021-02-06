@@ -630,13 +630,13 @@ cdef class galaxy:
 		"""
 		return tMatrixElements ( 0, self.field.f ,  vector, 0 , matrix, 0,vector2,0)
 
-	def matmul(self, vectorIn : division = division.eigenVectors, term : inta = 0,
+	def matmul(self, vectorIn : division = division.eigenVectors, term : int = 0,
 	 vectorOut: division = division.eigenVectors, canonRank : inta = 1):
 		"""
 		Parameters
 		----------
 		vectorIn : division
-		term : inta
+		term : int
 		vectorOut : division
 		canonRank :inta
 				 
