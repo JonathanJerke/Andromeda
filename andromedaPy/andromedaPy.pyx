@@ -621,14 +621,23 @@ cdef class galaxy:
 		printExpectationValues (  &self.calculation,   self.field.f ,  division.Ha  , vector)
 		return self
 
-	def dot(self, vector : division = division.eigenVectors, matrix = division.nullOverlap,
+	def dot(self, vector : division = division.eigenVectors, term : int = 0,
 	 vector2: division = division.eigenVectors):
 		"""Print dot.
+		vector : division
+		term : int
+		vector2 : division
 		Returns
 		-------
 		floata
 		"""
-		return tMatrixElements ( 0, self.field.f ,  vector, 0 , matrix, 0,vector2,0)
+		if term == 0 :
+			matrix = division.nullOverlap
+		else :
+			##isolate deSpiral Changes to field
+			f1 = self.field.f
+			matrix = defSpiralMatrix(&f1, division.Iterator)+term-1
+		return tMatrixElements ( 0, f1 ,  vector, 0 , matrix, 0,vector2,0)
 
 	def matmul(self, vectorIn : division = division.eigenVectors, term : int = 0,
 	 vectorOut: division = division.eigenVectors, canonRank : inta = 1):
@@ -644,7 +653,8 @@ cdef class galaxy:
 		-------
 		self
 		"""
-		tHXpY(self.field.f, vectorOut, defSpiralMatrix(&self.field.f, division.Iterator)+term, 
+		f1 = self.field.f
+		tHXpY(f1, vectorOut, defSpiralMatrix(&f1, division.Iterator)+term, 
 		self.calculation.i.shiftFlag, vectorIn, 
 		self.calculation.rt.TOLERANCE,
 		self.calculation.rt.relativeTOLERANCE,
