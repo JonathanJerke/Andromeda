@@ -630,13 +630,13 @@ cdef class galaxy:
 		"""
 		return tMatrixElements ( 0, self.field.f ,  vector, 0 , matrix, 0,vector2,0)
 
-	def matmul(self, vectorIn : division = division.eigenVectors, matrix = division.Iterator,
+	def matmul(self, vectorIn : division = division.eigenVectors, term : inta = 0,
 	 vectorOut: division = division.eigenVectors, canonRank : inta = 1):
 		"""
 		Parameters
 		----------
 		vectorIn : division
-		matrix : division
+		term : inta
 		vectorOut : division
 		canonRank :inta
 				 
@@ -644,7 +644,7 @@ cdef class galaxy:
 		-------
 		self
 		"""
-		tHXpY(self.field.f, vectorOut, defSpiralMatrix(&self.field.f, matrix), 
+		tHXpY(self.field.f, vectorOut, defSpiralMatrix(&self.field.f, Iterator)+term, 
 		self.calculation.i.shiftFlag, vectorIn, 
 		self.calculation.rt.TOLERANCE,
 		self.calculation.rt.relativeTOLERANCE,
