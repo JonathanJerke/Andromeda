@@ -980,7 +980,7 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                         f->f.canon[dim].body = body;
                         f->f.canon[dim].count1Basis = count1Basis;
                         f->f.canon[dim].count1Inc = count1Inc;
-                        f->f.canon[dim].component = components;
+                    //    f->f.canon[dim].component = components;
                         f->f.canon[dim].space = dim - space;
                         f->f.canon[dim].particle[one].anchor = anchor1;
                         f->f.canon[dim].particle[two].anchor = anchor2;
@@ -1060,16 +1060,18 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                                  else if ( ivalue == 1 )
                                       basisType  = SincBasisElement;
                                  else if ( ivalue == 2 )
-                                      basisType  = GaussianBasisElement;
+                                      basisType  = PeriodicSincBasisElement;
                                  else if ( ivalue == 3 )
-                                      basisType  = DiracDeltaElement;
+                                      basisType  = GaussianBasisElement;
                                  else if ( ivalue == 4 )
+                                      basisType  = DiracDeltaElement;
+                                 else if ( ivalue == 5 )
                                       basisType  = StateBasisElement;
                             return i;
                         case 4:
                             for ( dim = 0; dim < SPACE ; dim++)
                                 if ( f->f.canon[dim].body != nada)
-                                    if ( f->f.canon[dim].basis == SincBasisElement){
+                                    if ( f->f.canon[dim].basis == SincBasisElement || f->f.canon[dim].basis == PeriodicSincBasisElement){
                                         ///Use count1Inc to update step increments
                                         ///this has been done to reduce memory in basis-transfers
                                         if (ivalue > 1 )

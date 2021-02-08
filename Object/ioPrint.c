@@ -147,7 +147,7 @@ void outputFormat(  sinc_label f1, FILE * out, division output ,inta spin){
                     else if ( species(f1, output)  == matrix || species(f1,output) == outerVector )
                         fprintf(out,"%cbody = %d\n", 'A'+p1,f1.name[output].space[space].body);
                     fprintf(out,"%ccount1Basis = %d\n", 'A'+p1, f1.canon[space].count1Basis);
-                    fprintf(out,"%caxes = %d\n", 'A'+p1, f1.canon[space].component);
+                   // fprintf(out,"%caxes = %d\n", 'A'+p1, f1.canon[space].component);
                     break;
                 }
     fprintf (out,"Tensor = {\n");
@@ -265,7 +265,7 @@ inta ioArray(  calculation *c1,   field f,char * name,inta N1, floata * array, i
     f2.f.canon[0].body = one;
     f2.f.canon[0].count1Basis = N1;
     f2.f.canon[0].basis = 4;
-    f2.f.canon[0].component = 1;
+    //f2.f.canon[0].component = 1;
     f2.f.canon[0].label = 1;
 
     iModel(&c2,&f2);

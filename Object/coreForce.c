@@ -584,7 +584,6 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
     spaces = 0;
     for ( space = 0 ;space < SPACE  ; space++)
         if ( f1.canon[space].body != nada )
-            if ( f1.canon[space].component != nullComponent )
                         spaces++;
     
     double constant,x,g;
