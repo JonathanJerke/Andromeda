@@ -279,7 +279,6 @@ cdef extern from "../Object/constants.h":
 
     cdef struct basisElement_label:
         basisElementType basis
-        componentType component
         noteType note
         inta index
         inta index2
