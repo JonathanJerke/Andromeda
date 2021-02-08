@@ -55,9 +55,9 @@
     floata lattice = 4;
     inta basis = 10;
     space = 0;
-    i.f.canon[space].basis = SincBasisElement;
+    i.f.canon[space].basis = PeriodicSincBasisElement;
     i.f.canon[space].body = three;
-    i.f.canon[space].component = 1;
+    //i.f.canon[space].component = 1;
     i.f.canon[space].count1Basis = basis;
     i.f.canon[space].space = 0;
     i.f.canon[space].label = 1;
@@ -72,9 +72,9 @@
       i.f.canon[space].particle[three].origin = -basis/2*lattice ;
 
     space = 1;
-    i.f.canon[space].basis = SincBasisElement;
+    i.f.canon[space].basis = PeriodicSincBasisElement;
     i.f.canon[space].body = three;
-    i.f.canon[space].component = 1;
+    //i.f.canon[space].component = 1;
     i.f.canon[space].count1Basis = basis;
     i.f.canon[space].space = 1;
     i.f.canon[space].label = 1;
@@ -89,9 +89,9 @@
       i.f.canon[space].particle[three].origin = -basis/2*lattice ;
 
     space = 2;
-    i.f.canon[space].basis = SincBasisElement;
+    i.f.canon[space].basis = PeriodicSincBasisElement;
     i.f.canon[space].body = three;
-    i.f.canon[space].component = 1;
+    //i.f.canon[space].component = 1;
     i.f.canon[space].count1Basis = basis;
     i.f.canon[space].space = 2;
     i.f.canon[space].label = 1;
@@ -173,7 +173,7 @@ calculation initCal (void ) {
     i.rt.relativeTOLERANCE = 0.000000000000001;
     i.rt.THRESHOLD = 1e-12; 
     i.i.numNames = 1000;
-    i.i.numVectors = 100;
+    i.i.numVectors = 1000;
     i.rt.dynamic = 0;
     i.i.iocsb = 1;
     i.i.nocsb = 1;
@@ -203,7 +203,7 @@ calculation initCal (void ) {
     i.rt.XCONDITION = 1e5;
     
     i.rt.calcType = electronicStuctureCalculation;
-    i.rt.phaseType = formOCSB;
+    i.rt.phaseType = buildFoundation;
     i.rt.calcType = electronicStuctureCalculation;
     i.i.Lambda = 200 ;
     i.i.SymmetrizedGaussianLevel = 1;
@@ -217,20 +217,21 @@ calculation initCal (void ) {
     t.func.contr = 0;
     t.func.fn = Coulomb;
     t.func.interval = 7;
-    t.mu.beta[0] = 0;
-    t.mu.beta[1] = 3;
-    t.mu.metric = interval;
+    t.adjustOne = 1.;
+    t.mu.beta[0] = 30;
+    t.mu.beta[1] = 10;
+    t.mu.metric = dirac;
     t.mu.fn  = t.func;
     t.invert = 0;
     t.label =1;
-    t.scalar = -1;
-    t.type = 8;
+    t.scalar = 1;
+    t.type = 9;
     t.headFlag = 1;
 //    i.i.terms[0] = t;
 //    t.atom = 2;
 //    i.i.terms[1] = t;
 //    t.scalar = 1;
-    t.type = 10;
+    t.type = 5;
     i.i.terms[0] = t;
 
 #else

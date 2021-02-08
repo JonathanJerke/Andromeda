@@ -176,8 +176,26 @@ double momentumIntegralInTrain ( double beta, double kl , double d,   genusType 
     }
     return 0.;
 }
+
+/**
+ * Periodic Boundary Conditions
+ * its interesting, without boundary conditions, the operator looks like Derivatives on non-diagonal terms with a vector core
+ * for PBC, each body gets an operator, this forms a split operator for 2-bodies.
+ */
+double momentumSumInPeriodicTrain ( double k, double l , inta N1, inta Q ){
+    double su = 0.;
+    inta n,m;
+    for ( n = -N1; n <= N1 ; n++){
+        for ( m = -N1 ; m <= N1 ;m++){
+            if ( n + m == Q ){
+                su += cos( 2.0 * pi * ( n * k + m * l ) );
+            }
+        }
+    }
+    return 2.0*pi*su/(2*N1+1);
+}
   
-/*
+/**
  *Bill's Magic
  * n=1 -> 1/2, n = 3 -> 3/2 ...
  */

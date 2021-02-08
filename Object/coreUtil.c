@@ -187,7 +187,7 @@ inta matrixLen(  sinc_label f1,   bodyType body, inta space){
 
 inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType cl,   blockType bl,  inta N1,floata * vector , inta pw, floata * vectorOut){
     ///COULD ALWAYS TRANSLATE WITH TRANSLATION OPERATOR
-    inta n,m,m2;
+    inta n,m,m2,m3;
     double sign = 1.,mult,sign1 =1.;
     if ( pw == 1 )
         sign1 = -1.;
@@ -215,6 +215,15 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
             for ( n = 0 ; n < N1*N1*N1; n++)
                 vectorOut[n] = 0.;
             break;
+        case four:
+            n1[0] = 1;
+            n1[1] = N1;
+            n1[2] = N1*N1;
+            n1[3] = N1*N1*N1;
+            for ( n = 0 ; n < N1*N1*N1*N1; n++)
+                vectorOut[n] = 0.;
+            break;
+
         default:
             break;
 
@@ -240,19 +249,30 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                 if (pw == 2 ){
                     cblas_dcopy(N1, vector, 1, vectorOut, 1);
                     cblas_dscal(N1, -pi*pi/3./lattice/lattice, vectorOut, 1);
+                }else if ( pw == 1002 ){
+                    cblas_dcopy(N1, vector, 1, vectorOut, 1);
+                    cblas_dscal(N1, -16.*pi*pi/lattice/lattice, vectorOut, 1);
                 }
 
                 for (n = 1 ; n < N1 ; n++){
+                    mult = 0;
                     if (pw == 1 ){
                         mult = 1./n/lattice/lattice;
-                    }else {
+                    }else if ( pw == 2){
                         mult = 2*1./(n*n)/lattice/lattice;
+                    }else if ( pw == 1002 ){
+                        inta m ;
+                        mult = 0.;
+                        for ( m = -N1; m <= N1; m++ )
+                            mult += m*m*cos( m * 2. * pi * ( n *1./ N1 ) ) ;
+                        mult /= -lattice*lattice*(2*N1+1)/(2.0*pi)/(2.0*pi);
                     }
                     cblas_daxpy(N1-n, sign*mult, vector+n, 1, vectorOut, 1);
 
                     
                     cblas_daxpy(N1-n, sign1*sign*mult, vector, 1, vectorOut+n,1);
-                    sign *= -1;
+                    if ( pw < 1000 )
+                        sign *= -1;
 
                 }
             }
@@ -274,24 +294,37 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                         if (pw == 2) {
                             cblas_dcopy(N1, vector+n1[perm[op[1]]]*m, n1[perm[op[0]]], vectorOut+n1[op[1]]*m, n1[op[0]]);
                              cblas_dscal(N1, -pi*pi/3./lattice/lattice, vectorOut+n1[op[1]]*m, n1[op[0]]);
-                         }
+                        }else if ( pw == 1002 ){
+                            cblas_dcopy(N1, vector+n1[perm[op[1]]]*m, n1[perm[op[0]]], vectorOut+n1[op[1]]*m, n1[op[0]]);
+                             cblas_dscal(N1, -16.0*pi*pi/lattice/lattice, vectorOut+n1[op[1]]*m, n1[op[0]]);
+
+                        }
                 }
             }
             
             
-            if (pw == 2 || pw == 1) {
+            if (pw == 2 || pw == 1 || pw == 1002) {
                 for ( m = 0; m < N1 ; m++)
                 {
                     sign = 1.;
                     mult = 0;
                     for (n = 1 ; n < N1 ; n++){
+                        mult = 0;
                         if (pw == 1 ){
                             mult = 1./n/lattice/lattice;
-                        }else if ( pw == 2 ){
+                        }else if ( pw == 2){
                             mult = 2*1./(n*n)/lattice/lattice;
+                        }else if ( pw == 1002 ){
+                            inta m ;
+                            mult = 0.;
+                            for ( m = -N1; m <= N1; m++ )
+                                mult += m*m*cos( m * 2. * pi * ( n *1./ N1 ) ) ;
+                            mult /= -lattice*lattice*(2*N1+1)/(2.0*pi)/(2.0*pi);
                         }
                         cblas_daxpy(N1-n, sign*mult, vector+n1[perm[op[0]]]*n+n1[perm[op[1]]]*m ,n1[perm[op[0]]], vectorOut+n1[op[1]]*m ,n1[op[0]]);
                         cblas_daxpy(N1-n, sign1*sign*mult, vector+n1[perm[op[1]]]*m , n1[perm[op[0]]], vectorOut+n1[op[0]]*n+n1[op[1]]*m ,n1[op[0]]);
+                        if ( pw < 1000 )
+
                         sign *= -1;
                     }
                 }
@@ -317,11 +350,14 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                         if (pw == 2) {
                              cblas_dcopy(N1, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2, n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
                              cblas_dscal(N1, -pi*pi/3./lattice/lattice, vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
+                         }else {
+                             cblas_dcopy(N1, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2, n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
+                             cblas_dscal(N1, -16.0*pi*pi/lattice/lattice, vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
                          }
                      }
                 }
             
-            if (pw == 2 || pw == 1) {
+            if (pw == 2 || pw == 1 || pw == 1002 ) {
                 for ( m = 0; m < N1 ; m++)
                     for ( m2 = 0; m2 < N1 ; m2++)
                     {
@@ -329,20 +365,87 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                         mult = 0;
 
                             for (n = 1 ; n < N1 ; n++){
-                                       if (pw == 1 ){
-                                           mult = 1./n/lattice/lattice;
-                                       }else if ( pw == 2 ){
-                                           mult = 2*1./(n*n)/lattice/lattice;
-                                       }
+                                mult = 0;
+                                if (pw == 1 ){
+                                    mult = 1./n/lattice/lattice;
+                                }else if ( pw == 2){
+                                    mult = 2*1./(n*n)/lattice/lattice;
+                                }else if ( pw == 1002 ){
+                                    inta m ;
+                                    mult = 0.;
+                                    for ( m = -N1; m <= N1; m++ )
+                                        mult += m*m*cos( m * 2. * pi * ( n *1./ N1 ) ) ;
+                                    mult /= -lattice*lattice*(2*N1+1)/(2.0*pi)/(2.0*pi);
+                                }
+
                                        cblas_daxpy(N1-n, sign*mult, vector+n1[perm[op[0]]]*n+n1[perm[op[1]]]*m +n1[perm[op[2]]]*m2 ,n1[perm[op[0]]], vectorOut+n1[op[1]]*m +n1[op[2]]*m2,n1[op[0]]);
                                        cblas_daxpy(N1-n, sign1*sign*mult, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2 ,n1[perm[op[0]]], vectorOut+n1[op[0]]*n +n1[op[1]]*m+n1[op[2]]*m2 ,n1[op[0]]);
-                                       sign *= -1;
+                                if ( pw < 1000 )
+
+                                    sign *= -1;
 
                                    }
                     }
             }
             break;
         case four:
+            for ( m = 0; m < N1 ; m++)
+                for ( m2 = 0; m2 < N1 ; m2++)
+                    for ( m3 = 0; m3 < N1 ; m3++)
+
+                {
+                    if ( pw == 0 ){
+                        cblas_dcopy(N1, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2+n1[op[3]]*m3, n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2+n1[op[3]]*m3, n1[op[0]]);
+                    }else if ( pw == -1 ){
+                        for ( n = 0 ; n < N1 ; n++)
+                            vectorOut[n*n1[op[0]]+n1[op[1]]*m+n1[op[2]]*m2+n1[op[3]]*m3] = (n*lattice-origin) * vector[n*n1[perm[op[0]]]+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2+n1[op[3]]*m3] ;
+                    }
+                    else if ( pw == -2 ){
+                        for ( n = 0 ; n < N1 ; n++)
+                            vectorOut[n*n1[op[0]]+n1[op[1]]*m+n1[op[2]]*m2+n1[op[3]]*m3] = (n*lattice-origin) * (n*lattice-origin) * vector[n*n1[perm[op[0]]]+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2+n1[op[3]]*m3] ;
+                    }
+                    else {
+                        if (pw == 2) {
+                             cblas_dcopy(N1, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2+n1[op[3]]*m3, n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2+n1[op[3]]*m3, n1[op[0]]);
+                             cblas_dscal(N1, -pi*pi/3./lattice/lattice, vectorOut+n1[op[1]]*m+n1[op[2]]*m2+n1[op[3]]*m3, n1[op[0]]);
+                         }else {
+                             cblas_dcopy(N1, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2+n1[op[3]]*m3, n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2+n1[op[3]]*m3, n1[op[0]]);
+                             cblas_dscal(N1, -16.0*pi*pi/lattice/lattice, vectorOut+n1[op[1]]*m+n1[op[2]]*m2+n1[op[3]]*m3, n1[op[0]]);
+                         }
+                     }
+                }
+            
+            if (pw == 2 || pw == 1 || pw == 1002) {
+                for ( m = 0; m < N1 ; m++)
+                    for ( m2 = 0; m2 < N1 ; m2++)
+                        for ( m3 = 0; m3 < N1 ; m3++)
+                {
+                        sign = 1.;
+                        mult = 0;
+
+                            for (n = 1 ; n < N1 ; n++){
+                                mult = 0;
+                                if (pw == 1 ){
+                                    mult = 1./n/lattice/lattice;
+                                }else if ( pw == 2){
+                                    mult = 2*1./(n*n)/lattice/lattice;
+                                }else if ( pw == 1002 ){
+                                    inta m ;
+                                    mult = 0.;
+                                    for ( m = -N1; m <= N1; m++ )
+                                        mult += m*m*cos( m * 2. * pi * ( n *1./ N1 ) ) ;
+                                    mult /= -lattice*lattice*(2*N1+1)/(2.0*pi)/(2.0*pi);
+                                }
+
+                                       cblas_daxpy(N1-n, sign*mult, vector+n1[perm[op[0]]]*n+n1[perm[op[1]]]*m +n1[perm[op[2]]]*m2+n1[op[3]]*m3 ,n1[perm[op[0]]], vectorOut+n1[op[1]]*m +n1[op[2]]*m2+n1[op[3]]*m3,n1[op[0]]);
+                                       cblas_daxpy(N1-n, sign1*sign*mult, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2+n1[op[3]]*m3 ,n1[perm[op[0]]], vectorOut+n1[op[0]]*n +n1[op[1]]*m+n1[op[2]]*m2 +n1[op[3]]*m3,n1[op[0]]);
+                                if ( pw < 1000 )
+
+                                    sign *= -1;
+
+                                   }
+                    }
+            }
             break;
         default:
             break;
@@ -2390,7 +2493,7 @@ inta assignCores(  sinc_label f1, inta parallel ){
       basisElement_label x;
     double length=0;
     length = f1.canon[space].particle[particle].lattice;
-    x.component = f1.canon[space].space +1;
+    //x.component = f1.canon[space].space +1;
     x.basis = f1.canon[space].basis;
     x.grid = f1.canon[space].count1Basis;
     if ( x.grid %2 == 1 )
@@ -2644,6 +2747,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
                 f1.name[mem].species = eikonOuter;
                 f1.name[mem].Current[0] = 1;
                 f1.name[mem].space[space].body = one;
+                f1.name[mem].multId = 0;
 
                 for ( spacer = 0; spacer < SPACE ;spacer++)
                     f1.name[mem].space[spacer].block = id0;
@@ -2849,10 +2953,10 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                 inta timer = 0,xlxl=0;
                 while ( su != nullName ){
                     for ( i = 0 ; i < N2 ; i++){
-                        laterP[i] = 0.;
                         midP[i] = 0.;
+                        laterP[i] = 0.;
                     }
-                    
+
                     if ( f1.name[su].space[space].block == id0 )
                         xlxl = 1;
                     else
@@ -2865,6 +2969,7 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                             case eikonSpring:
                             case eikonElement:
                             case eikonOuter:
+                            case eikonSplit:
                                 xlxl = 1;
                                 break;
                             case eikonSemiDiagonal:
@@ -2908,11 +3013,11 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                         if ( Bodies ( f1,su,space) == one ){
                              if ( species(f1,su) == eikonDeriv){
                                 flow *= *suP;
-                                topezOp(0,f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,1, laterP);
+                                topezOp(0,f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,1+1000*(f1.canon[space].basis == PeriodicSincBasisElement), laterP);
                             } else
                         if ( species(f1,su) == eikonKinetic ){
                                 flow *= *suP;
-                                topezOp(0, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,2, laterP);
+                                topezOp(0, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,2+1000*(f1.canon[space].basis == PeriodicSincBasisElement), laterP);
                             }
                         else if ( species(f1,su) == eikonConstant){
                             ///action can happen!
@@ -2923,13 +3028,13 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                             flow *= *suP;
                             ///relative to grid only
                             floata center = (f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
-                            topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-1, laterP);
+                            topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-1+1000*(f1.canon[space].basis == PeriodicSincBasisElement), laterP);
                         }
                         else if ( species(f1,su) == eikonSpring){
                             flow *= *suP;
                             ///relative to grid only
                             floata center = 0.5* (f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
-                            topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-2, laterP);
+                            topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-2+1000*(f1.canon[space].basis == PeriodicSincBasisElement), laterP);
 
                         }
                         else if ( species(f1,su) == eikonElement){
@@ -3009,6 +3114,75 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                                 diagonalOp(bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP, suP,midP);
                                 topezOp(0,1., bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,midP, 1,laterP);
                             }
+                    }else if ( species(f1,su) == eikonSplit ){
+                        
+                        if ( bd == one )
+                            cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP,1, 0.,laterP, 1  );
+                        else if ( bd == two ){
+                            inta i;
+                            switch (f1.name[su].space[space].block){
+                                case tv1:
+                                    for ( i = 0 ; i < N1 ; i++)
+                                        cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP+N1*i,1, 0.,laterP+N1*i, 1  );
+                                    break;
+                                case tv2:
+                                    for ( i = 0 ; i < N1 ; i++)
+                                        cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP+i,N1, 0.,laterP+i, N1  );
+                                    break;
+                                    
+                            }
+                        }
+                        else if ( bd == three ){
+                            inta i,i2;
+                            switch (f1.name[su].space[space].block){
+                                case tv1:
+                                    for ( i = 0 ; i < N1 ; i++)
+                                        for ( i2 = 0 ; i2 < N1 ; i2++)
+                                            cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP+N1*i+N1*N1*i2,1, 0.,laterP+N1*i+N1*N1*i2, 1  );
+                                    break;
+                                case tv2:
+                                    for ( i = 0 ; i < N1 ; i++)
+                                        for ( i2 = 0 ; i2 < N1 ; i2++)
+                                            cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP+i+i2*N1*N1,N1, 0.,laterP+i+i2*N1*N1, N1  );
+                                    break;
+                                case tv3:
+                                    for ( i = 0 ; i < N1 ; i++)
+                                        for ( i2 = 0 ; i2 < N1 ; i2++)
+                                            cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP+i+i2*N1,N1*N1, 0.,laterP+i+i2*N1,N1*N1  );
+                                    break;
+
+                            }
+                        }
+                        else if ( bd == four ){
+                            inta i,i2,i3;
+                            switch (f1.name[su].space[space].block){
+                                case tv1:
+                                    for ( i = 0 ; i < N1 ; i++)
+                                        for ( i2 = 0 ; i2 < N1 ; i2++)
+                                            for ( i3 = 0 ; i3 < N1 ; i3++)
+                                                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP+N1*i+N1*N1*i2+N1*N1*N1*i3,1, 0.,laterP+N1*i+N1*N1*i2+N1*N1*N1*i3, 1  );
+                                    break;
+                                case tv2:
+                                    for ( i = 0 ; i < N1 ; i++)
+                                        for ( i2 = 0 ; i2 < N1 ; i2++)
+                                            for ( i3 = 0 ; i3 < N1 ; i3++)
+                                                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP+i+i2*N1*N1+N1*N1*N1*i3,N1, 0.,laterP+i+i2*N1*N1+N1*N1*N1*i3, N1  );
+                                    break;
+                                case tv3:
+                                    for ( i = 0 ; i < N1 ; i++)
+                                        for ( i2 = 0 ; i2 < N1 ; i2++)
+                                            for ( i3 = 0 ; i3 < N1 ; i3++)
+                                                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP+i+i2*N1+N1*N1*N1*i3,N1*N1, 0.,laterP+i+i2*N1+N1*N1*N1*i3, N1*N1  );
+                                    break;
+                                case tv4:
+                                    for ( i = 0 ; i < N1 ; i++)
+                                        for ( i2 = 0 ; i2 < N1 ; i2++)
+                                            for ( i3 = 0 ; i3 < N1 ; i3++)
+                                                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP+i+i2*N1+N1*N1*i3,N1*N1*N1, 0.,laterP+i+i2*N1+N1*N1*i3, N1*N1*N1  );
+                                    break;
+
+                            }
+                        }
                     }
                 }
                    else  if ( Bodies ( f1,su,space) == two ){
@@ -3177,15 +3351,25 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                             }
                         }
                     }
-                        if ( f1.name[su].space[space].act < 0 ){
-#if VERBOSE
-                            printf("invert\n");
-#endif
-                            InvertOp(bd,-f1.name[su].space[space].act, N1, laterP, midP);
-                            cblas_daxpy(N2, flow, midP , 1, outP, 1);
+                        
+                        
+                        if ( f1.name[su].multId == 0 ){
+                        
+                        inP  = streams(f1, inT, inS,space)+inR*N2;
+                            if ( f1.name[su].space[space].act < 0 ){
+    #if VERBOSE
+                                printf("invert\n");
+    #endif
+                                InvertOp(bd,-f1.name[su].space[space].act, N1, laterP, midP);
+                                cblas_daxpy(N2, flow, midP , 1, outP, 1);
+                                }else {
+                                    cblas_daxpy(N2, flow, laterP, 1, outP, 1);
+                               }
                         }else {
                             cblas_daxpy(N2, flow, laterP, 1, outP, 1);
-                       }
+
+                            inP  = outP;
+                        }
                     }
                     su = f1.name[su].loopNext;//sum channel
                 }

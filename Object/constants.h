@@ -242,7 +242,8 @@ enum genusType{
     eikonLinear,
     eikonSpring,
     eikonElement,
-    eikonOuter
+    eikonOuter,
+    eikonSplit
 };
 
 
@@ -299,6 +300,7 @@ enum memoryType {
 enum basisElementType {
     nullBasisElement,
     SincBasisElement,
+    PeriodicSincBasisElement,
     GaussianBasisElement,
     DiracDeltaElement,
     StateBasisElement,

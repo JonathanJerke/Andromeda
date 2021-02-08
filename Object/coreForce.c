@@ -86,20 +86,12 @@ void getMetric (   metric_label mu,FILE * outString){
  *Basis overlap Basis
  */
 mea BoB (  basisElement_label b1,   basisElement_label b2 ){
-    if ( b1.component == nullComponent || b2.component == nullComponent    )
-    {
-        printf("null o\n");
-        exit(0);
-    }
-    if ( b1.basis == StateBasisElement && b2.basis == StateBasisElement ){
-        return ( b1.index == b2.index );
-    }else
     if ( b1.basis == SincBasisElement && b2.basis == SincBasisElement ){
-        if ( b2.component <= 3 ){
-            ///origin is the left edge
-           return SS ( b1.length,b1.length*(b1.index) + b1.origin, b2.length, b2.length*( b2.index ) + b2.origin);
-        }
+        return SS ( b1.length,b1.length*(b1.index) + b1.origin, b2.length, b2.length*( b2.index ) + b2.origin);
+    }else     if ( b1.basis == PeriodicSincBasisElement && b2.basis == PeriodicSincBasisElement ){
+        return pSS ( b1.length,b1.length*(b1.index) + b1.origin,b1.grid, b2.length, b2.length*( b2.index ) + b2.origin,b2.grid);
     }
+
     return 0;
 }
 
@@ -704,17 +696,32 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
         ///all equal-beta chained Ops will multiply on each beta index. i.e. H2+
         currChain = newLabel;
         currLoop = currChain;
+        
+        
         for ( hidden = eikonDiagonal ; hidden <= eikonDiagonal + imin(body,metric.fn.contr);hidden++ )
             {
-                double oneOri,twoOri;
+                //here
+                inta pbc,nk = 2*f1.canon[0].count1Basis;
+                inta pbc2,pbb = body;
+                if ( f1.canon[0].basis == SincBasisElement ){
+                    nk = 0;
+                    pbb = 1;
+                }
+
+                    for ( pbc = -nk ; pbc <= nk ; pbc++)
+                        for ( pbc2 = 0 ; pbc2 < pbb ; pbc2++)
+                        {
+
+                
+                
+                double iL,oneOri,twoOri,grpL,iO;
                 invertSign = 1;
 
             for ( space = 0 ;space < SPACE  ; space++)
                 if ( f1.canon[space].body != nada )
                     if ( f1.canon[space].label == particle1 )
                 {
-                    //printf("space-%d position %f\n",space,position[f1.canon[space].space]);
-                    if ( body == one ){
+                    if ( body == one && f1.canon[space].basis== SincBasisElement){
                         commandSA(f1.canon[space].body, f1.name[newLabel].space[space].act,tv1 , bl, perm, op);
 
                             oneL = f1.canon[space].particle[op[0]+1].lattice;
@@ -744,36 +751,69 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                         
                     }else
                     ///conditional body 2
-                    if ( body == two ){
+                        if ( body == two || f1.canon[space].basis== PeriodicSincBasisElement)
+                    {
                         commandSA(f1.canon[space].body, f1.name[newLabel].space[space].act,e12 , bl, perm, op);
                         oneL = f1.canon[space].particle[op[0]+1].lattice*adjustOne;
                         oneOri = f1.canon[space].particle[op[0]+1].origin*adjustOne;
-                        twoL = f1.canon[space].particle[op[1]+1].lattice;
-                        twoOri = f1.canon[space].particle[op[1]+1].origin;
                         
+                        if ( body == two) {
+                            twoL = f1.canon[space].particle[op[1]+1].lattice;
+                            twoOri = f1.canon[space].particle[op[1]+1].origin;
+                        }else {
+                            twoL= 0.;
+                            twoOri = 0.;
+                        }
+                        if ( oneL > twoL ){
+                            grpL = fabs(oneL);
+                        }else {
+                            grpL = fabs(twoL);
+
+                        }
                         N1 = n1[space];
 
 
                             
-                    double * te = streams(f1, temp, 0, space);
+                        double * te = streams(f1, temp, 0, space);
 
                                 si = 0;
                                 for ( I2 = 0; I2 < N1; I2++){
                                     for ( I1 = 0 ; I1 < N1; I1++)
                                      {
-                                        te[si] = momentumIntegralInTrain(x*max(fabs(oneL),twoL), ((oneL*I1+oneOri)-(twoL*I2+twoOri))/max(fabs(oneL),twoL),1, hidden, body);
+                                         if ( f1.canon[space].basis == SincBasisElement ){
+                                             te[si] = momentumIntegralInTrain(x*grpL, ((oneL*I1+oneOri)-(twoL*I2+twoOri))/grpL,1, hidden, body);
                                          if ( invertSign ){
                                              te[si] *= constant;
                                              for ( spacy = 0 ; spacy < embed ; spacy++)
-                                                 te[si] *= momentumIntegralInTrain(x*max(fabs(oneL),twoL), 0,1, hidden, body);
-                                         }
+                                                 te[si] *= momentumIntegralInTrain(x*grpL, 0,1, hidden, body);
+                                           }
+                                         } else {
                                              
+                                             if ( pbc2 == 0){
+                                                 iL = oneL;
+                                                 iO = oneOri;
+                                             }
+                                             else{
+                                                 iL = twoL;
+                                                 iO = twoOri;
+                                             }
+                                             te[si] = momentumSumInPeriodicTrain( (I1*iL+iO)/iL/(N1),
+                                                                                  (I2*iL+iO)/iL/(N1),  N1,  (1-2*pbc2)*pbc);
+                                            if ( invertSign ){
+                                                te[si] *= constant;
+                                                ///multiply of Gaussian here one first particle.
+                                                if ( pbc2 == 0 ){
+                                                    te[si] *= exp(-pow(pi*pbc/x*iL,2.))/2./sqrt(pi)/x;
+                                                }
+                                            }
+                                         }
+                                         if ( isnan(te[si]))
+                                             printf("%f\n",te[si]);
                                          si++;
                                          if ( alloc(f1, temp, space) < si ){
                                              printf("creation of twoBody, somehow allocations of vectors are too small. %d\n",newLabel);
                                              exit(0);
                                          }
-
                                      }
                                 }
                                     if ( alloc(f1, temp, space) < si ){
@@ -782,27 +822,82 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                                     }
                             }
                     invertSign = 0;
-
                 }
                 
-                
             newLabel = anotherLabel(f,particle1,body);
+        ///if this is the first of two entries
+            if ( pbc2 == 0 && nk > 0 && pbb == 2)
+                f1.name[newLabel].multId = 1;
+            else
+                f1.name[newLabel].multId = 0;
+
             for ( space = 0 ;space < SPACE  ; space++)
                 if ( f1.canon[space].body != nada ){
                     f1.name[newLabel].space[space].act = act;
                     if ( f1.canon[space].label == particle1 ){
-                        f1.name[newLabel].space[space].body = body;
-                        f1.name[newLabel].space[space].block = bl;
+                        if ( f1.canon[space].basis == SincBasisElement )
+                            f1.name[newLabel].space[space].body = body;
+                        else
+                            f1.name[newLabel].space[space].body = one;
+                        if ( f1.canon[space].basis == SincBasisElement )
+                            f1.name[newLabel].space[space].block = bl;
+                        else if ( f1.canon[space].basis == PeriodicSincBasisElement ){
+                            switch( bl ){
+                                case e12:
+                                    if ( pbc2 == 0 )
+                                        f1.name[newLabel].space[space].block= tv1;
+                                    else
+                                        f1.name[newLabel].space[space].block= tv2;
+                                break;
+                                case e13:
+                                    if ( pbc2 == 0 )
+                                        f1.name[newLabel].space[space].block= tv1;
+                                    else
+                                        f1.name[newLabel].space[space].block= tv3;
+                                    break;
+                                case e23:
+                                    if ( pbc2 == 0 )
+                                        f1.name[newLabel].space[space].block= tv2;
+                                    else
+                                        f1.name[newLabel].space[space].block= tv3;
+                                    break;
+                                case e14:
+                                    if ( pbc2 == 0 )
+                                        f1.name[newLabel].space[space].block= tv1;
+                                    else
+                                        f1.name[newLabel].space[space].block= tv4;
+                                    break;
+                                case e24:
+                                    if ( pbc2 == 0 )
+                                        f1.name[newLabel].space[space].block= tv2;
+                                    else
+                                        f1.name[newLabel].space[space].block= tv4;
+                                    break;
+                                case e34:
+                                    if ( pbc2 == 0 )
+                                        f1.name[newLabel].space[space].block= tv3;
+                                    else
+                                        f1.name[newLabel].space[space].block= tv4;
+                                    break;
+
+                                ///distribute bl commands
+                            }
+                        }
                     }
             }
+               
             f1.name[temp].Current[0]= 1;
             tEqua(f1, newLabel, 0, temp, 0);
             f1.name[currLoop].loopNext = newLabel;
             f1.name[newLabel].species = hidden;
+            if( f1.canon[0].basis == PeriodicSincBasisElement )
+                f1.name[newLabel].species = eikonSplit;
             currLoop = newLabel;
+            }
+            if( f1.canon[0].basis == PeriodicSincBasisElement )
+                break;
+            }
         }
-    }
-    
     return 0;
 }
 

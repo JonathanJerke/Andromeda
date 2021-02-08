@@ -36,18 +36,13 @@ double Sinc( double d , double x){
     return dimless;
 }
 
-//DCOMPLEX periodicSinc ( double d , double x, double momentum, inta N1 ){
-//    double dimless =1., arg = pi*(x/d);
-//    
-//    
-//    if ( arg != 0.0 )
-//        dimless = sin( arg )/2./N1 *(1./tan(arg/2./N1)+tan(arg/2./N1));
-////    if (  isnan(dimless) ||  isinf(dimless))
-////        return 1.;
-//    
-//    
-//    return dimless * ei( momentum * d * x );
-//}
+double pSinc( double d , double x, inta N1){
+    inta i;
+    double su=0.;
+    for ( i = -N1; i < N1 ; i++)
+        su += cos( 2.*pi/d*i * x );
+    return 1./(2*N1+1)*su;
+}
 
 double SS( double d1 , double x , double d2, double y )    {
     if ( d1 > d2 ){
@@ -62,6 +57,21 @@ double SS( double d1 , double x , double d2, double y )    {
         return Sinc(d2,x-y) * sqrt(d1/d2);
     return 0;
 }
+
+double pSS( double d1 , double x , inta N1, double d2, double y, inta N2 )    {
+    if ( d1 > d2 ){
+        if ( x == y )
+            return sqrt(d2/d1);
+        else
+            return pSinc(d1,x-y,N1) * sqrt(d2/d1);
+    }
+    if ( x == y )
+        return sqrt(d1/d2);
+    else
+        return pSinc(d2,x-y,N2) * sqrt(d1/d2);
+    return 0;
+}
+
 
 
 void transpose(inta N, inta M, floata * orig, floata* targ){

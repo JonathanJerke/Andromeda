@@ -33,11 +33,12 @@ floata GaussianInSinc( floata K, inta n, floata alpha, floata y, floata X );
 double Power ( double b, inta n );
 extern double complex Faddeeva_erfcx(double complex z, double relerr);
 DCOMPLEX expErf ( DCOMPLEX z );
-double momentumIntegralInTrain ( double beta, double kl , double d,  genusType hidden,   bodyType body );
 double delta ( inta n );
 inta sign( inta n );
 inta imax( inta x1, inta x2 );
 inta imin( inta x1, inta x2 );
 double max( double x1, double x2 );
 double min( double x1, double x2 );
+double momentumIntegralInTrain ( double beta, double kl , double d,  genusType hidden,   bodyType body );
+double momentumSumInPeriodicTrain ( double k , double l ,inta N1, inta Q );
 #endif /* coreMath_h */
