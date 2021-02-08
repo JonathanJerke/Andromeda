@@ -171,6 +171,7 @@ cdef class galaxy:
 		"""
 		if not self.isbooted():
 			names = dict({'Sinc':basisElementType.SincBasisElement,
+					'Periodic':basisElementType.PeriodicSincBasisElement
 					'Gaussian':basisElementType.GaussianBasisElement,
 					'Dirac':basisElementType.DiracDeltaElement,
 					'State':basisElementType.StateBasisElement,
