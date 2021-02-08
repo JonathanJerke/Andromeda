@@ -313,22 +313,6 @@ enum basisElementType {
 
 
 
-
-
-/**
- *canon parameter, for labeling component
- */
-enum componentType {
-    nullComponent,
-    spatialComponent1,
-    spatialComponent2,
-    spatialComponent3,
-    periodicComponent1,
-    periodicComponent2,
-    periodicComponent3,
-};
-
-
 /**
  *For periodic boundary conditions
  */
@@ -613,7 +597,6 @@ typedef enum functionType functionType;
 typedef enum spinType spinType;
 typedef enum memoryType memoryType;
 typedef enum basisElementType basisElementType;
-typedef enum componentType componentType;
 typedef enum noteType noteType;
 typedef enum metricType metricType;
 typedef enum blockMemoryType blockMemoryType;
@@ -659,8 +642,6 @@ struct atom_label {
 struct basisElement_label {
     ///the type of of basis in component
     basisElementType basis;
-    ///the type of a particular component
-    componentType component;
     ///for periodic systems
     noteType note;
     ///lattice index
@@ -690,8 +671,6 @@ struct canon_label {
     floata *stream ;
     ///type of basis element
     basisElementType basis;
-    ///the size of the component group
-    componentType component;
     ///particle count on component, nada for null components throughout
     bodyType body;
     ///an ID allowing for grouping of components
