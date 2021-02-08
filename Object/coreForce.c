@@ -803,6 +803,9 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                                                 ///multiply of Gaussian here one first particle.
                                                 if ( pbc2 == 0 ){
                                                     te[si] *= exp(-pow(pi*pbc/x*iL,2.))/2./sqrt(pi)/x;
+                                                    if ( body == one )
+                                                        te[si] *= momentumSumInPeriodicTrain( 0,
+                                                                                             0,  N1,  -pbc);
                                                 }
                                             }
                                          }
