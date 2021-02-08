@@ -62,7 +62,7 @@
 ///Maximum number of input terms at prompt, at minor cost to increase
 #define MAXTERM 1000
 ///Maximum bodies per component currently supported
-#define MAXBODY 3
+#define MAXBODY 4
 ///Switch to make stuff complex at compiler level,not working yet
 //#define COMPLEXME
 ///really just vistidual, but some places still use it
