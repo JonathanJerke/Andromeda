@@ -45,7 +45,8 @@ cdef extern from "../Object/interfaceMath.h":
     #inta tzhegv( inta rank,   sinc_label f1, char job , inta n,DCOMPLEX * sr, DCOMPLEX * ar, inta ns , floata * w )
     void transpose(inta N, inta M, floata * orig, floata* targ)
     floata Sinc( floata d , floata x)
-    #DCOMPLEX periodicSinc ( floata d , floata x, floata momentum, inta N1 )
+    floata pSinc( floata d , floata x, inta N1)
+    floata pSS( floata d1 , floata x ,inta N1, floata d2, floata y ,inta N2 )
     floata SS( floata d1 , floata x , floata d2, floata y )
     inta tdpotrf ( inta L1, floata * array ,inta LS1) ;
     inta tdpotrs ( inta L1, inta M2, floata * array,inta LS1, floata * arrayo,inta inc)

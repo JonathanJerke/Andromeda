@@ -22,7 +22,6 @@
 #*   *   You should have received a copy of the GNU General Public License
 #*   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 
-import numpy as np
 include "system.pxi"
 
 from constants cimport inta
@@ -60,7 +59,6 @@ from constants cimport metric_label
 from constants cimport function_label
 
 from constants cimport basisElementType
-from constants cimport componentType
 from constants cimport functionType
 from constants cimport metricType
 from constants cimport bodyType
@@ -143,30 +141,30 @@ cdef class galaxy:
 		"""
 		if not self.isbooted():
 			if i <= 0 :
-				return [N,inc,componentType.nullComponent]
+				return [N,inc]
 			if not periodic:
 				if i == 1 :
-					return [N,inc,componentType.spatialComponent1]
+					return [N,inc]
 				elif i == 2 :
-					return [N,inc,componentType.spatialComponent2]
+					return [N,inc]
 				elif i == 3 :
-					return [N,inc,componentType.spatialComponent3]
+					return [N,inc]
 			if periodic:
 				if i == 1 :
-					return [N,inc,componentType.periodicComponent1]
+					return [N,inc]
 				elif i == 2 :
-					return [N,inc,componentType.periodicComponent2]
+					return [N,inc]
 				elif i == 3 :
-					return [N,inc,componentType.periodicComponent3]
+					return [N,inc]
 		else:
 			all = []
 			for space in range(SPACE):
 				if self.field.f.canon[space].body != bodyType.nada:
-					all += [[self.field.f.canon[space].count1Basis,self.field.f.canon[space].count1Inc,self.field.f.canon[space].component]]
+					all += [[self.field.f.canon[space].count1Basis,self.field.f.canon[space].count1Inc]]
 			if len ( all ) > 0 :
 				return all
 			else :
-				return [0,inc,componentType.nullComponent]
+				return [0,inc]
 
 	def bases(self, desc : str = 'Sinc' ):
 		"""Returns enumeration of basis types
@@ -225,14 +223,8 @@ cdef class galaxy:
 						"""		
 					
 						for (space,comp) in enumerate(comps):
-							count = 0
-							for labelish in labels:
-								if labelish == labels[space]:
-									count += 1
-							self.field.f.canon[space].component = count				
-							self.field.f.canon[space].space = comp[2]
 							self.field.f.canon[space].count1Basis = comp[0]
-							self.field.f.canon[space].count1Inc = comp[2]
+							self.field.f.canon[space].count1Inc = comp[1]
 						for (space,label) in enumerate(labels):
 							self.field.f.canon[space].label = label
 						for (space,dim) in enumerate(dims):
