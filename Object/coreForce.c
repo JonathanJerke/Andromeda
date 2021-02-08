@@ -882,8 +882,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                                         f1.name[newLabel].space[space].block= tv4;
                                     break;
                                 default:
-                                    printf("wrong block\n");
-                                    exit(0);
+                                    f1.name[newLabel].space[space].block= bl;
                                 ///distribute bl commands
                             }
                         }
