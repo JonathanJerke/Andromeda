@@ -101,7 +101,8 @@ cdef extern from "../Object/constants.h":
         eikonLinear,
         eikonSpring,
         eikonElement,
-        eikonOuter
+        eikonOuter,
+        eikonSplit
 
     cdef enum functionType:
         nullFunction,
@@ -128,20 +129,12 @@ cdef extern from "../Object/constants.h":
     cdef enum basisElementType:
         nullBasisElement,
         SincBasisElement,
+        PeriodicSincBasisElement,
         GaussianBasisElement,
         DiracDeltaElement,
         StateBasisElement,
         overlapBasisElement
-
-    cdef enum componentType:
-        nullComponent,
-        spatialComponent1,
-        spatialComponent2,
-        spatialComponent3,
-        periodicComponent1,
-        periodicComponent2,
-        periodicComponent3,
-
+        
     cdef enum noteType:
         nullNote,
         interactionCell
@@ -303,7 +296,6 @@ cdef extern from "../Object/constants.h":
     cdef struct canon_label:
         floata *stream
         basisElementType basis
-        componentType component
         bodyType body
         inta label
         inta count1Basis
