@@ -184,15 +184,15 @@ double momentumIntegralInTrain ( double beta, double kl , double d,   genusType 
  */
 double momentumSumInPeriodicTrain ( double k, double l , inta N1, inta Q ){
     double su = 0.;
-    inta n,m;
-    for ( n = -N1; n <= N1 ; n++){
-        for ( m = -N1 ; m <= N1 ;m++){
+    inta n,m, N12 = (N1-1)/2;
+    for ( n = -N12; n <= N12 ; n++){
+        for ( m = -N12 ; m <= N12 ;m++){
             if ( n + m == Q ){
                 su += cos( 2.0 * pi * ( n * k + m * l ) );
             }
         }
     }
-    return 2.0*pi*su/(2*N1+1);
+    return 2.0*pi*su/(N1);
 }
   
 /**

@@ -37,11 +37,11 @@ double Sinc( double d , double x){
 }
 
 double pSinc( double d , double x, inta N1){
-    inta i;
+    inta i,N12 = (N1-1)/2;
     double su=0.;
-    for ( i = -N1; i < N1 ; i++)
+    for ( i = -N12; i <= N12 ; i++)
         su += cos( 2.*pi/d*i * x );
-    return 1./(2*N1+1)*su;
+    return 1./(N1)*su;
 }
 
 double SS( double d1 , double x , double d2, double y )    {
