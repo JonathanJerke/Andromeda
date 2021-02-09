@@ -315,11 +315,11 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                         }else if ( pw == 2){
                             mult = 2*1./(n*n)/lattice/lattice;
                         }else if ( pw == 1002 ){
-                            inta m ;
+                            inta m,N12 = (N1-1)/2 ;
                             mult = 0.;
-                            for ( m = -N1; m <= N1; m++ )
+                            for ( m = -N12; m <= N12; m++ )
                                 mult += m*m*cos( m * 2. * pi * ( n *1./ N1 ) ) ;
-                            mult /= -lattice*lattice*(2*N1+1)/(2.0*pi)/(2.0*pi);
+                            mult /= -lattice*lattice*(N1)/(2.0*pi)/(2.0*pi);
                         }
                         cblas_daxpy(N1-n, sign*mult, vector+n1[perm[op[0]]]*n+n1[perm[op[1]]]*m ,n1[perm[op[0]]], vectorOut+n1[op[1]]*m ,n1[op[0]]);
                         cblas_daxpy(N1-n, sign1*sign*mult, vector+n1[perm[op[1]]]*m , n1[perm[op[0]]], vectorOut+n1[op[0]]*n+n1[op[1]]*m ,n1[op[0]]);
