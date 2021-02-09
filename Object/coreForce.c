@@ -710,7 +710,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                     for ( pbc = -nk ; pbc <= nk ; pbc++)
                         for ( pbc2 = 0 ; pbc2 < pbb ; pbc2++)
                     
-                            if ( (pbc2 == 1  && body == one && pbc == 0) || (body == two) ){
+                            if ( (((pbc2 == 1  && pbc == 0 ) || ( pbc2 == 0 ) ) && body == one) || (body == two) ){
                 
                 
                 double iL,oneOri,twoOri,grpL,iO;
