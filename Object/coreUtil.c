@@ -251,7 +251,7 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                     cblas_dscal(N1, -pi*pi/3./lattice/lattice, vectorOut, 1);
                 }else if ( pw == 1002 ){
                     cblas_dcopy(N1, vector, 1, vectorOut, 1);
-                    cblas_dscal(N1, -16.*pi*pi/lattice/lattice, vectorOut, 1);
+                    cblas_dscal(N1, -1./3.*(N1-1)*(N1+1)*pi*pi/lattice/lattice, vectorOut, 1);
                 }
 
                 for (n = 1 ; n < N1 ; n++){
@@ -296,7 +296,7 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                              cblas_dscal(N1, -pi*pi/3./lattice/lattice, vectorOut+n1[op[1]]*m, n1[op[0]]);
                         }else if ( pw == 1002 ){
                             cblas_dcopy(N1, vector+n1[perm[op[1]]]*m, n1[perm[op[0]]], vectorOut+n1[op[1]]*m, n1[op[0]]);
-                             cblas_dscal(N1, -16.0*pi*pi/lattice/lattice, vectorOut+n1[op[1]]*m, n1[op[0]]);
+                             cblas_dscal(N1, -pi*pi/3./lattice/lattice*(N1-1)*(N1+1), vectorOut+n1[op[1]]*m, n1[op[0]]);
 
                         }
                 }
@@ -352,7 +352,7 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                              cblas_dscal(N1, -pi*pi/3./lattice/lattice, vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
                          }else {
                              cblas_dcopy(N1, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2, n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
-                             cblas_dscal(N1, -16.0*pi*pi/lattice/lattice, vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
+                             cblas_dscal(N1, -pi*pi/3./lattice/lattice*(N1-1)*(N1+1), vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
                          }
                      }
                 }
@@ -410,7 +410,7 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                              cblas_dscal(N1, -pi*pi/3./lattice/lattice, vectorOut+n1[op[1]]*m+n1[op[2]]*m2+n1[op[3]]*m3, n1[op[0]]);
                          }else {
                              cblas_dcopy(N1, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2+n1[op[3]]*m3, n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2+n1[op[3]]*m3, n1[op[0]]);
-                             cblas_dscal(N1, -16.0*pi*pi/lattice/lattice, vectorOut+n1[op[1]]*m+n1[op[2]]*m2+n1[op[3]]*m3, n1[op[0]]);
+                             cblas_dscal(N1,-pi*pi/3./lattice/lattice*(N1-1)*(N1+1), vectorOut+n1[op[1]]*m+n1[op[2]]*m2+n1[op[3]]*m3, n1[op[0]]);
                          }
                      }
                 }
