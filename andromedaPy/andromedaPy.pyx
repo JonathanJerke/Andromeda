@@ -589,7 +589,7 @@ cdef class galaxy:
 		[floata]
 		"""
 		cdef double * pt = streams(self.field.f, vector, spin , space ) + vectorLen(self.field.f,space)*index
-		if inputStream == []:
+		if len(inputStream) == 0:
 			outStream = []
 			for c in range(vectorLen(self.field.f,space)):
 				outStream += [pt[c]]
