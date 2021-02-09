@@ -264,7 +264,7 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                         inta m ,N12=(N1-1)/2;
                         mult = 0.;
                         for ( m = -N12; m <= N12; m++ )
-                            mult += m*m*cos( m * 2. * pi * ( n *1./ N1 ) ) ;
+                            mult += m*m*cos( m * 2. * pi * ( n *1./ N12 ) ) ;
                         mult /= -lattice*lattice*(N1)/(2.0*pi)/(2.0*pi);
                     }
                     cblas_daxpy(N1-n, sign*mult, vector+n, 1, vectorOut, 1);
@@ -318,7 +318,7 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                             inta m ,N12=(N1-1)/2;
                             mult = 0.;
                             for ( m = -N12; m <= N12; m++ )
-                                mult += m*m*cos( m * 2. * pi * ( n *1./ N1 ) ) ;
+                                mult += m*m*cos( m * 2. * pi * ( n *1./ N12 ) ) ;
                             mult /= -lattice*lattice*(N1)/(2.0*pi)/(2.0*pi);
                         }
                         cblas_daxpy(N1-n, sign*mult, vector+n1[perm[op[0]]]*n+n1[perm[op[1]]]*m ,n1[perm[op[0]]], vectorOut+n1[op[1]]*m ,n1[op[0]]);
@@ -374,7 +374,7 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                                     inta m ,N12=(N1-1)/2;
                                     mult = 0.;
                                     for ( m = -N12; m <= N12; m++ )
-                                        mult += m*m*cos( m * 2. * pi * ( n *1./ N1 ) ) ;
+                                        mult += m*m*cos( m * 2. * pi * ( n *1./ N12 ) ) ;
                                     mult /= -lattice*lattice*(N1)/(2.0*pi)/(2.0*pi);
                                 }
 
@@ -433,7 +433,7 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                                     inta m ,N12=(N1-1)/2;
                                     mult = 0.;
                                     for ( m = -N12; m <= N12; m++ )
-                                        mult += m*m*cos( m * 2. * pi * ( n *1./ N1 ) ) ;
+                                        mult += m*m*cos( m * 2. * pi * ( n *1./ N12 ) ) ;
                                     mult /= -lattice*lattice*(N1)/(2.0*pi)/(2.0*pi);
                                 }
 
