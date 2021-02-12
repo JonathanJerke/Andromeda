@@ -188,7 +188,7 @@ double momentumSumInPeriodicTrain ( double k, double l , inta N1, inta Q ){
     for ( n = -N12; n <= N12 ; n++){
         for ( m = -N12 ; m <= N12 ;m++){
             if ( n + m == Q ){
-                su += cos( 2.0 * pi * ( n * k + m * l ) );
+                su += cos( 2.0/N1 * pi * ( n * k + m * l ) );
             }
         }
     }
