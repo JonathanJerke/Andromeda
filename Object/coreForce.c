@@ -796,7 +796,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                                                  iO = twoOri;
                                              }
                                              te[si] = momentumSumInPeriodicTrain( (I1*iL+iO-(body==one)*position[f1.canon[space].space])/iL/(N1),
-                                                                                  (I2*iL+iO)/iL/(N1),  N1,  (1-2*pbc2)*pbc);
+                                                                                  (I2*iL+iO-(body==one)*position[f1.canon[space].space])/iL/(N1),  N1,  (1-2*pbc2)*pbc);
                                             if ( invertSign ){
                                                 te[si] *= constant;
                                                 ///multiply of Gaussian here one first particle.
