@@ -931,16 +931,23 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
     static double attack1 = 0.5;
     static double attack2 = 0.5;
     static double attack3 = 0.5;
+    static double attack4 = 0.5;
+
     static   basisElementType basisType = SincBasisElement;
     static double lattice1 = 1.0;
     static double lattice2 = 1.0;
     static double lattice3 = 1.0;
+    static double lattice4 = 1.0;
+
     static double origin1 = 0.;
     static double origin2 = 0.;
     static double origin3 = 0.;
+    static double origin4 = 0.;
+
     static double anchor1 = 0.5;
     static double anchor2 = 0.5;
     static double anchor3 = 0.5;
+    static double anchor4 = 0.5;
 
         char test_line [MAXSTRING];
         inta i,d,ivalue,dim,components = 0;
@@ -985,16 +992,23 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                         f->f.canon[dim].particle[one].anchor = anchor1;
                         f->f.canon[dim].particle[two].anchor = anchor2;
                         f->f.canon[dim].particle[three].anchor = anchor3;
+                        f->f.canon[dim].particle[four].anchor = anchor4;
+
                         f->f.canon[dim].particle[one].lattice = lattice1;
                         f->f.canon[dim].particle[two].lattice = lattice2;
                         f->f.canon[dim].particle[three].lattice = lattice3;
+                        f->f.canon[dim].particle[four].lattice = lattice4;
+
                         f->f.canon[dim].label = label;
                         f->f.canon[dim].particle[one].attack = attack1;
                         f->f.canon[dim].particle[two].attack = attack2;
                         f->f.canon[dim].particle[three].attack = attack3;
+                        f->f.canon[dim].particle[four].attack = attack4;
+
                         f->f.canon[dim].particle[one].origin =   origin1-lattice1*(count1Basis-1)*anchor1;
                         f->f.canon[dim].particle[two].origin =   origin2-lattice2*(count1Basis-1)*anchor2;
                         f->f.canon[dim].particle[three].origin = origin3-lattice3*(count1Basis-1)*anchor3;
+                        f->f.canon[dim].particle[four].origin = origin4-lattice4*(count1Basis-1)*anchor4;
 
                         if ( dim >= SPACE ){
                             printf("add space\n");
@@ -1015,12 +1029,13 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                 "count1Basis","body","basis",
                 "count1Stage","revise","count1Inc"
             };
-            inta NDOUBLE = 16;
+            inta NDOUBLE = 20;
             char *list_DOUBLE []= {"#",
                "latticeAll","latticeOne","latticeTwo","latticeThree"
                 ,"attackAll","attackOne","attackTwo","attackThree"
                 ,"originAll","originOne","originTwo","originThree"
                 ,"anchorAll","anchorOne","anchorTwo","anchorThree"
+                ,"latticeFour","attackFour","originFour","anchorFour"
             };
             
             for ( i = 1 ; i <= NINT_TYPE ; i++){
@@ -1097,13 +1112,17 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                         case 5:
                             for ( dim = 0 ; dim < space ; dim++)
                                 if ( ivalue == f->f.canon[dim].label ){
-                                f->f.canon[dim].particle[one].origin   += origin1;
-                                f->f.canon[dim].particle[two].origin   += origin2;
-                                f->f.canon[dim].particle[three].origin += origin3;
-                                f->f.canon[dim].count1Inc = count1Inc;
-                                f->f.canon[dim].particle[one].attack = attack1;
-                                f->f.canon[dim].particle[two].attack = attack2;
-                                f->f.canon[dim].particle[three].attack = attack3;
+                                    f->f.canon[dim].particle[one].origin   += origin1;
+                                    f->f.canon[dim].particle[two].origin   += origin2;
+                                    f->f.canon[dim].particle[three].origin += origin3;
+                                    f->f.canon[dim].particle[four].origin += origin4;
+
+                                    f->f.canon[dim].count1Inc = count1Inc;
+                                    f->f.canon[dim].particle[one].attack = attack1;
+                                    f->f.canon[dim].particle[two].attack = attack2;
+                                    f->f.canon[dim].particle[three].attack = attack3;
+                                    f->f.canon[dim].particle[four].attack = attack4;
+
                             }
                             return i;
                         case 6:
@@ -1124,6 +1143,7 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                             lattice1 = value;
                             lattice2 = value;
                             lattice3 = value;
+                            lattice4 = value;
                             return d;
                         case 2:
                             lattice1 = value;
@@ -1138,6 +1158,7 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                             attack1 = value;
                             attack2 = value;
                             attack3 = value;
+                            attack4 = value;
                             return d;
                         case 6:
                             attack1 = value;
@@ -1152,6 +1173,7 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                             origin1 = value;
                             origin2 = value;
                             origin3 = value;
+                            origin4 = value;
                             return d;
                         case 10:
                             origin1 = value;
@@ -1166,6 +1188,7 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                             anchor1 = value;
                             anchor2 = value;
                             anchor3 = value;
+                            anchor4 = value;
                             return d;
                         case 14:
                             anchor1 = value;
@@ -1175,6 +1198,18 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                             return d;
                         case 16:
                             anchor3 = value;
+                            return d;
+                        case 17:
+                            lattice4 = value;
+                            return d;
+                        case 18:
+                            attack4 = value;
+                            return d;
+                        case 19:
+                            origin4 = value;
+                            return d;
+                        case 20:
+                            anchor4 = value;
                             return d;
                     }
                 }
