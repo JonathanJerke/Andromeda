@@ -506,7 +506,7 @@ cdef class galaxy:
 		tBoot(self.field.f, vector, spin, width)
 		return self
 		
-	def SG ( self, gammaPy : [[[int]]] ,amplitude :floata = 1.0, vector : division = division.eigenVectors, 
+	def SG ( self, gammaPy : [[[float]]] ,amplitude :floata = 1.0, vector : division = division.eigenVectors, 
 	spin : inta = 0):
 		"""Places a correctly band-limited Symmetrized Gaussian.
 		
@@ -514,7 +514,7 @@ cdef class galaxy:
 		----------
 		vector : division
 		spin : inta
-		gammaPy : [[[int]]]
+		gammaPy : [[[float]]]
 		
 		Returns
 		-------
@@ -525,8 +525,8 @@ cdef class galaxy:
 		for space in range(SPACE):
 			if self.field.f.canon[space].body != bodyType.nada:
 				for b in gammaPy[space]:	
-					gamma[index] = b[0]
-					gamma[index+1] = b[1]
+					gamma[index] = int(b[0])
+					gamma[index+1] = int(2*b[1])
 					index += 2
 		
 		SG(self.field.f, vector, spin,amplitude, gamma)
