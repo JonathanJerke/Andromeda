@@ -250,7 +250,9 @@ inta ioArray(  calculation *c1,   field f,char * name,inta N1, floata * array, i
     blockA(f2.f.rt, blockParallelMatrixElementblock);
     blockA(f2.f.rt, blockParallelPermuteblock);
     blockA(f2.f.rt, blockTotalVectorParallelBlock);
-
+    blockA(f2.f.rt, blockComponentblock);
+    blockA(f2.f.rt, blockDiagonalMatrixblock);
+    blockA(f2.f.rt, blockCompressionBlock);
 
     f2.i.body = one;
 

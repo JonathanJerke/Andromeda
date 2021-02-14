@@ -52,11 +52,11 @@
         i.f.canon[space].label = 0;
     }
 #ifdef APPLE
-    floata lattice = 4;
-    inta basis = 10;
+    floata lattice = 100;
+    inta basis = 5;
     space = 0;
     i.f.canon[space].basis = PeriodicSincBasisElement;
-    i.f.canon[space].body = three;
+    i.f.canon[space].body = four;
     //i.f.canon[space].component = 1;
     i.f.canon[space].count1Basis = basis;
     i.f.canon[space].space = 0;
@@ -71,6 +71,7 @@
       i.f.canon[space].particle[three].lattice = lattice;
       i.f.canon[space].particle[three].origin = -basis/2*lattice ;
 
+      if (0){
     space = 1;
     i.f.canon[space].basis = PeriodicSincBasisElement;
     i.f.canon[space].body = three;
@@ -105,7 +106,7 @@
       i.f.canon[space].particle[three].lattice = lattice;
       i.f.canon[space].particle[three].origin = -basis/2*lattice ;
       
-      
+      }
       i.i.Iterations = 6;
 #endif
 //
@@ -213,7 +214,7 @@ calculation initCal (void ) {
     term_label t;
     t.act = 1;
     t.atom = 1;
-    t.bl = 1;
+    t.bl = 7;
     t.func.contr = 0;
     t.func.fn = Coulomb;
     t.func.interval = 7;
@@ -232,6 +233,7 @@ calculation initCal (void ) {
 //    i.i.terms[1] = t;
 //    t.scalar = 1;
     t.type = 5;
+    t.type = 9;
     i.i.terms[0] = t;
 
 #else
@@ -328,7 +330,7 @@ inta iModel(   calculation * c1,   field *f){
     inta FloorV = f->i.qFloor;
         inta maxArray,EV = FloorV,NV=0 ;
     
-        maxArray = imax(f->i.nStates,EV);//slip Nb into spectra...
+        maxArray = EV;//slip Nb into spectra...
         
         f1->maxEV = maxArray;
           division vectorOperator  = eigenVectors + 1 +  f->i.nStates+EV;
