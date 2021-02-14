@@ -11,6 +11,9 @@
  #               blockMemory 9
 		blockMemory 10
 		blockMemory 11
+		blockMemory 12
+		blockMemory 13
+		blockMemory 14
 	.Parameters
 
 	*InputOutput
