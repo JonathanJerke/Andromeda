@@ -1,7 +1,6 @@
 *Body print
 	*Parameters
 		spam -1
-		states 1
 		phase 2
 		blockReset 
 #!CHERRY_PICKER	blockMemory 1
