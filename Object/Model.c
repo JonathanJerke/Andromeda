@@ -41,6 +41,7 @@
     i.i.iRank = 0;
     i.i.xRank = 0;
     i.i.filter = 0;
+    i.i.cmpl = real;
     i.i.irrep = 0;
     i.i.collect = 0;
     i.i.body = one;
