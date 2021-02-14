@@ -709,8 +709,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
 
                     for ( pbc = -nk ; pbc <= nk ; pbc++)
                         for ( pbc2 = 0 ; pbc2 < pbb ; pbc2++)
-                        if ( pbc != 0 )
-                {
+                    {
                 
                 
                 double iL,oneOri,twoOri,grpL,iO;
@@ -798,12 +797,9 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                                              }
                                              te[si] = momentumSumInPeriodicTrain( (I1*iL+iO-(body==one)*position[f1.canon[space].space])/iL/(N1),
                                                                                   (I2*iL+iO-(body==one)*position[f1.canon[space].space])/iL/(N1),  N1,  (1-2*pbc2)*pbc);
-                                            if ( invertSign ){
-                                                te[si] *= constant;
+                                            if ( invertSign && pbc2 == 0 ){
                                                 ///multiply of Gaussian here one first particle.
-                                                if ( pbc2 == 0 ){
-                                                    te[si] *= exp(-pow(pi*pbc/(x*iL),2.))/2./sqrt(pi)/(x*iL);
-                                                }
+                                                te[si] *= constant*exp(-pow(pi*pbc/(x*iL),2.))/2./sqrt(pi)/(x*iL);
                                             }
                                          }
                                          if ( isnan(te[si]))
