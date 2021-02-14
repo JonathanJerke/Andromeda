@@ -709,7 +709,8 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
 
                     for ( pbc = -nk ; pbc <= nk ; pbc++)
                         for ( pbc2 = 0 ; pbc2 < pbb ; pbc2++)
-                    {
+                        if ( pbc != 0 )
+                {
                 
                 
                 double iL,oneOri,twoOri,grpL,iO;
