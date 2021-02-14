@@ -331,7 +331,7 @@ inta iModel(   calculation * c1,   field *f){
     inta FloorV = f->i.qFloor;
         inta maxArray,EV = FloorV,NV=0 ;
     
-        maxArray = imax(f->i.nStates,EV);//slip Nb into spectra...
+        maxArray = EV;//slip Nb into spectra...
         
         f1->maxEV = maxArray;
         division vectorOperator  = eigenVectors + 1 +  f->i.nStates+EV;
