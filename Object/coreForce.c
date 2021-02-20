@@ -974,7 +974,7 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                                          tec[si] = cimag(tc);
 
                                          
-                                            if ( isnan(tc)){
+                                            if ( isnan(creal(tc)) || isnan(cimag(tc))){
                                                 printf("periodicInteraction error\n");
                                                 exit(0);
                                             }
