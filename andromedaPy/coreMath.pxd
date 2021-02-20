@@ -45,4 +45,4 @@ cdef extern from "../Object/coreMath.h":
     floata max( floata x1, floata x2 )
     floata min( floata x1, floata x2 )
     floata momentumIntegralInTrain ( floata beta, floata kl , floata d,  genusType hidden,   bodyType body )
-    floata momentumSumInPeriodicTrain ( double l , double d ,inta N1, inta Q );
+    floata periodicSincfourierIntegralInTrain ( double l , double d ,inta N1, inta momentumIndex );

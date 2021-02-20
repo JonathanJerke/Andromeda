@@ -22,6 +22,9 @@
 #*   *   You should have received a copy of the GNU General Public License
 #*   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 
+import numpy
+
+
 include "system.pxi"
 
 from constants cimport inta
@@ -122,7 +125,7 @@ cdef class galaxy:
 		"""
 		if not self.isbooted():
 			return dimensions_label(lattice = lattice , attack = attack, 
-									origin = origin, anchor = anchor )
+									origin = lattice*numpy.floor(origin/lattice), anchor = anchor )
 		else :
 			all = []
 			for space in range(SPACE):
@@ -131,7 +134,7 @@ cdef class galaxy:
 					for body in range(1,self.field.f.canon[space].body+1):
 						particle = self.field.f.canon[space].particle[body]
 						particle.origin += ( 
-		particle.lattice*(self.field.f.canon[space].count1Basis-1)*particle.anchor)	
+		particle.lattice*numpy.floor((self.field.f.canon[space].count1Basis-1)*particle.anchor))
 						some += [particle]
 					all += [some]
 			return all
@@ -232,7 +235,7 @@ cdef class galaxy:
 							for (body, particle) in enumerate(dim):
 								self.field.f.canon[space].particle[body+1] = particle
 								self.field.f.canon[space].particle[body+1].origin -= ( 
-		particle['lattice']*(self.field.f.canon[space].count1Basis-1)*particle['anchor'])	
+		particle['lattice']*numpy.floor((self.field.f.canon[space].count1Basis-1)*particle['anchor']))
 							if len(dim)==1:
 								self.field.f.canon[space].body = bodyType.one
 							elif len(dim)==2:

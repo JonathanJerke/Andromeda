@@ -164,6 +164,11 @@ cdef extern from "../Object/constants.h":
         blockDiagonalMatrixblock,
         blockCompressionBlock
 
+    cdef enum momentumType:
+        zeroMomentum,
+        discreteMomentum,
+        continousMomentum
+        
     cdef enum division:
         nullName,
         nullOverlap,
@@ -276,6 +281,12 @@ cdef extern from "../Object/constants.h":
     cdef struct atom_label:
         double position[3+1]
         inta Z
+        
+    cdef momentumIntegralSpecs:
+        momentumType metric
+        inta opQ
+        floata maxMomentum
+        inta interval
 
     cdef struct basisElement_label:
         basisElementType basis
@@ -313,6 +324,7 @@ cdef extern from "../Object/constants.h":
     cdef struct term_label:
         char filename[MAXSTRING]
         function_label func
+        momentumIntegralSpecs spec[MAX_SPLIT];
         char desc[16]
         double scalar
         inta type
