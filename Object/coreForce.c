@@ -723,7 +723,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                         twoL = f1.canon[space].particle[op[1]+1].lattice;
                         twoOri = f1.canon[space].particle[op[1]+1].origin;
                         
-                        if ( oneL > twoL ){
+                        if ( fabs(oneL) > fabs(twoL) ){
                             grpL = fabs(oneL);
                         }else {
                             grpL = fabs(twoL);
