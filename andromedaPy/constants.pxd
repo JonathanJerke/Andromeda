@@ -282,7 +282,7 @@ cdef extern from "../Object/constants.h":
         double position[3+1]
         inta Z
         
-    cdef momentumIntegralSpecs:
+    cdef struct momentumIntegralSpecs:
         momentumType metric
         inta opQ
         floata maxMomentum
