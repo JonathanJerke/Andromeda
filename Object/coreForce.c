@@ -766,9 +766,10 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
             for ( space = 0 ;space < SPACE  ; space++)
                 if ( f1.canon[space].body != nada ){
                     f1.name[newLabel].space[space].act = act;
-                    if ( f1.canon[space].label == particle1 )
+                    if ( f1.canon[space].label == particle1 ){
                             f1.name[newLabel].space[space].body = body;
-                    
+                        f1.name[newLabel].space[space].block = bl;
+                    }
             }
             
             tEqua(f1, newLabel, 0, temp, 0);
@@ -988,13 +989,8 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                 if ( f1.canon[space].body != nada ){
                     f1.name[newLabel].space[space].act = act;
                     if ( f1.canon[space].label == particle1 ){
-                        if ( f1.canon[space].basis == SincBasisElement )
-                            f1.name[newLabel].space[space].body = body;
-                        else
-                            f1.name[newLabel].space[space].body = one;
-                        if ( f1.canon[space].basis == SincBasisElement )
-                            f1.name[newLabel].space[space].block = bl;
-                        else if ( f1.canon[space].basis == PeriodicSincBasisElement ){
+                        f1.name[newLabel].space[space].body = one;
+                        {
                             switch( bl ){
                                 case e12:
                                     if ( bodyIndex == 0 )
