@@ -42,7 +42,6 @@
 #define readHDF5
 #define writeHDF5
 #define MKL
-#define ASTER_FLAT
 ///to compile with acceleration in APPLE, not for distribution
 //#define APPLE
 ///Number of components, no limit
@@ -70,6 +69,10 @@
 #define MAX_PARAM_FUNC 4
 ///The block-memory commands act to negate memory allocations,  this is the maximum number of blocks.  Leave this alone, unless you add blocks.
 #define BLOCK_COUNT 16
+
+///basically a fundamental on ## bodies in interaction
+#define MAX_SPLIT 2
+
 
 #ifdef APPLE
     #define SPHERE
