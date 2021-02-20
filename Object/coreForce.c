@@ -766,27 +766,15 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
             for ( space = 0 ;space < SPACE  ; space++)
                 if ( f1.canon[space].body != nada ){
                     f1.name[newLabel].space[space].act = act;
-                    if ( f1.canon[space].label == particle1 ){
-                        if ( f1.canon[space].basis == SincBasisElement )
+                    if ( f1.canon[space].label == particle1 )
                             f1.name[newLabel].space[space].body = body;
-                        else
-                            f1.name[newLabel].space[space].body = one;
-                        if ( f1.canon[space].basis == SincBasisElement )
-                            f1.name[newLabel].space[space].block = bl;
-                        }
-                    }
+                    
             }
             {
-            inta n;
-                        for ( n = 0 ; n < spin ; n++){
-                            f1.name[temp].Current[n]= 1;
-                            tEqua(f1, newLabel, n, temp, n);
-                        }
+                tEqua(f1, newLabel, 0, temp, 0);
             }
             f1.name[currLoop].loopNext = newLabel;
             f1.name[newLabel].species = hidden;
-            if( f1.canon[space1].basis == PeriodicSincBasisElement )
-                f1.name[newLabel].species = eikonSplit;
             currLoop = newLabel;
             }
     return 0;
