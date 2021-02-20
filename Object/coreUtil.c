@@ -1924,7 +1924,7 @@ void SG( sinc_label f1, division vector ,inta spin,floata amplitude,  inta *gamm
                     ///n = 1 --> 1/2 which is the lowest level...
                     ///n = 3 -> 3/2
                     ///even n's are NOT to be used.
-                    variable *= SymmetrizedGaussianInSinc(pi/f1.canon[space].particle[body].lattice,n,m,f1.canon[space].particle[body].lattice * v +f1.canon[space].particle[body].origin);
+                    variable *= SymmetrizedGaussianInSinc(pi/f1.canon[space].particle[body].lattice,n,m,f1.canon[space].particle[body].lattice * v);
                 }
                 if ( ! space )
                     variable *= amplitude;
