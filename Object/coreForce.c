@@ -743,7 +743,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                                              for ( spacy = 0 ; spacy < embed ; spacy++)
                                                  te[si] *= momentumIntegralInTrain(x*grpL, 0,1, hidden, body);
                                            }
-                                         }
+                                         
                                          if ( isnan(te[si])){
                                              printf("error in matrix coreForce.c");
                                              exit(0);
@@ -756,6 +756,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                                              exit(0);
                                          }
                             }
+                    }
                     invertSign = 0;
                 }
                 
@@ -767,7 +768,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                 if ( f1.canon[space].body != nada ){
                     f1.name[newLabel].space[space].act = act;
                     if ( f1.canon[space].label == particle1 ){
-                            f1.name[newLabel].space[space].body = body;
+                        f1.name[newLabel].space[space].body = body;
                         f1.name[newLabel].space[space].block = bl;
                     }
             }
