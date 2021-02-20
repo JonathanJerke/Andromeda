@@ -770,13 +770,14 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                             f1.name[newLabel].space[space].body = body;
                     
             }
-            {
-                tEqua(f1, newLabel, 0, temp, 0);
-            }
+            
+            tEqua(f1, newLabel, 0, temp, 0);
+            
             f1.name[currLoop].loopNext = newLabel;
             f1.name[newLabel].species = hidden;
             currLoop = newLabel;
             }
+    }
     return 0;
 }
 
