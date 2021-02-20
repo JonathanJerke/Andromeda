@@ -177,18 +177,100 @@ double momentumIntegralInTrain ( double beta, double kl , double d,   genusType 
     return 0.;
 }
 
+
+
+/**
+ *Center of the magic Gaussian-Sinc novelity, the implementation of the GaussianSinc integrals
+ */
+DCOMPLEX gaussianSincfourierIntegralInTrain (double d, double gammax, double x, double gammay, double y, double kl, double momentum, genusType hidden ){
+    if (hidden == eikonDiagonal){
+            double gg = ( gammax + gammay);
+
+            DCOMPLEX exp1 = -(
+                            (1./(4.*d*d*(gg)))*
+                            (d*d*(4.*gammax*gammay*x*x
+                                  - 4.*gammax*x*(2.*gammay*y + I*momentum)
+                                  + 4.*gammax*gammay*y*y
+                                  + momentum*momentum
+                                  - 4*I*gammay*y*momentum) +
+                           4*pi*d*(2*I*d*kl*(gg) - 2*I*gammax*x -
+                                   2*I*gammay*y + momentum) + 4*pi*pi));
+            DCOMPLEX exp2 = -((1./(4.*d*d)*(gg)))*(4*pi*pi -
+                                                              4*d*pi*(-2*I*x*gammax - 2*I*y*gammay +
+                                                                       2*I*d*kl*(gg) + momentum) +
+                                                              d*d*(4*x*x*gammax*gammay + 4*y*y*gammax*gammay -
+                                                                       4*x*gammax*(2*y*gammay + I*momentum) -
+                                                                   4*I*y*gammay*momentum + momentum*momentum));
+            DCOMPLEX exp3 = -((4*x*x*gammax*gammay + 4*y*y*gammax*gammay -
+                             4*x*gammax*(2*y*gammay + I*momentum) -
+                                 4*I*
+                             y*gammay*momentum + momentum*momentum)/(4*gg));
+            
+            DCOMPLEX expterm = 1./4*sqrt(gg/pi)/pi*d * (2* exp1 + 2*exp2 - 4 * exp3);
+            
+            DCOMPLEX preamble = 1./4./pi*exp(-gammax*gammay * ( x-y)/gg)*cexp(I *kl*momentum*d );
+            
+            DCOMPLEX experf1 = preamble * I*expErf((-((2*pi)/d) - momentum - 2*I*d*kl*(gg) +
+                              2*I*(x*gammax + y*gammay))/(2*sqrt(gg)));
+            DCOMPLEX experf2 = preamble * I*expErf((((2*pi)/d) - momentum - 2*I*d*kl*(gg) +
+                                       2*I*(x*gammax + y*gammay))/(2*sqrt(gg)));
+            DCOMPLEX experf3 = preamble * I*expErf(( - momentum - 2*I*d*kl*(gg) +
+                                       2*I*(x*gammax + y*gammay))/(2*sqrt(gg)));
+
+            DCOMPLEX term1 = -pi*experf1;
+            DCOMPLEX term2 = pi*experf2;
+            DCOMPLEX term3 = (I*pi + d*(2*x*gammax + 2*y*gammay - 2*d*kl*(gg) +
+                                        I*momentum))*experf1;
+            DCOMPLEX term4 = -2*d*d*kl*gammax*experf2;
+            DCOMPLEX term5 = 2*x*d*gammax*experf2;
+            DCOMPLEX term6 =- 2 * kl* d * d* gammay *experf2;
+            DCOMPLEX term7 = 2* y * gammay*d * experf2;
+            DCOMPLEX term8 = momentum * d * I * experf2;
+            DCOMPLEX term9 = -pi * I * experf2;
+            DCOMPLEX term10 =-pi * I * experf3 ;
+            DCOMPLEX term11 = 4 * gammax*kl*d*d* experf3;
+            DCOMPLEX term12 = -4 *x * d * gammax *experf3;
+            DCOMPLEX term13 = 4 * gammay * kl*d*d*experf3;
+            DCOMPLEX term14 = -4 *gammay*d*y*experf3;
+            DCOMPLEX term15 = - 2*momentum*I*d*experf3;
+            DCOMPLEX term16 = I * pi * experf3 ;
+            return expterm+ term1+term2+term3+term4+term5+term6+term7+term8+term9+term10+term11+term12+term13+term14+term15+term16;
+            
+    } else if ( hidden == eikonOffDiagonal) {
+        double gg = ( gammax + gammay);
+        DCOMPLEX preamble = 1./4./pi*exp(-gammax*gammay * ( x-y)/gg)*cexp(I *kl*momentum*d );
+        DCOMPLEX experf1 = preamble * I*expErf((-((2*pi)/d) - momentum - 2*I*d*kl*(gg) +
+                          2*I*(x*gammax + y*gammay))/(2*sqrt(gg)));
+        DCOMPLEX experf2 = preamble * I*expErf((((2*pi)/d) - momentum - 2*I*d*kl*(gg) +
+                                   2*I*(x*gammax + y*gammay))/(2*sqrt(gg)));
+        DCOMPLEX experf3 = preamble * I*expErf(( - momentum - 2*I*d*kl*(gg) +
+                                   2*I*(x*gammax + y*gammay))/(2*sqrt(gg)));
+
+        return experf1 + experf2 - 2*experf3;
+            
+    }
+    return 0.;
+}
+
+
+
+
+
+
 /**
  * Periodic Boundary Conditions
  * its interesting, without boundary conditions, the operator looks like Derivatives on non-diagonal terms with a vector core
  * for PBC, each body gets an operator, this forms a split operator for 2-bodies.
+ *
+ * MAY NEED A BLOCH K
  */
-double momentumSumInPeriodicTrain ( double k, double l , inta N1, inta Q ){
-    double su = 0.;
+DCOMPLEX periodicSincfourierIntegralInTrain ( double k, double l , inta N1, inta momentumIndex ){
+    DCOMPLEX su = 0.;
     inta n,m, N12 = (N1-1)/2;
     for ( n = -N12; n <= N12 ; n++){
         for ( m = -N12 ; m <= N12 ;m++){
-            if ( n + m == Q ){
-                su += cos( 2.0/N1 * pi * ( n * k + m * l ) );
+            if ( n + m == momentumIndex ){
+                su += cexp( 2.0/N1 * pi * ( n * k + m * l ) );
             }
         }
     }

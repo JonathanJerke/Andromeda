@@ -2839,8 +2839,9 @@ double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin, 
     if ( mat == nullName || f1.name[mat].name == nullName)
         return 0.;
     
-    if (mat == nullOverlap  )
-        ca = 1;
+    if (mat == nullOverlap  ){
+        ca = imax(1, f1.name[overlap].Current[mspin]);
+    }
     else if ( f1.name[mat].species == matrix || f1.name[mat].species == vector )
         ca = CanonicalOperator(f1,mat, mspin);
     else
@@ -2849,9 +2850,17 @@ double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin, 
                 for ( k = 0 ; k < CanonicalRank(f1, ket, kspin);k++){
                     for ( l = 0 ; l < ca;l++){
                         if ( mat == nullOverlap ){
-                            holder = ket;
-                            holderRank = k;
-                            holderSpin = kspin;
+                            if ( f1.name[overlap].Current[mspin] == 0 ){
+                                holder = ket;
+                                holderRank = k;
+                                holderSpin = kspin;
+                            }else {
+                                tHX(rank, f1, overlap, l, mspin, 1., ket, k, kspin,canonicalmeVector, 0, rank);
+                                
+                                holder = canonicalmeVector;
+                                holderRank = 0;
+                                holderSpin = rank;
+                            }
                         }
                         else {
                             tHX(rank, f1, mat, l, mspin, 1., ket, k, kspin,canonicalmeVector, 0, rank);

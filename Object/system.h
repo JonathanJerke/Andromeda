@@ -25,7 +25,7 @@
 /**
  *Andromeda: a few-body plane wave calculator
  *
- *v9.7
+ *v9.8
  *quantumGalaxies.org
  *
  *Jonathan Jerke
@@ -36,14 +36,14 @@
 
 #ifndef system_h
 #define system_h
-#define VERBOSE_ALS
+//#define VERBOSE_ALS
 #define writeHDF5
 #define readHDF5
 //#define READ_FAST
 #define RAND_FOUNDATION
 //#define CHERRY_PICKER
 ///to compile with acceleration in APPLE, not for distribution
-//#define APPLE
+///#define APPLE
 ///Number of components, no limit
 #define SPACE 12
 ///Number of 'atoms' under geometry,  really no reason to to keep this big
@@ -61,8 +61,14 @@
 //#define VERBOSE_ALS
 ///Maximum number of input terms at prompt, at minor cost to increase
 #define MAXTERM 1000
+
 ///Maximum bodies per component currently supported
+///only coded for 4bodies with PBC
 #define MAXBODY 4
+
+///basically a fundamental on ## bodies in interaction
+#define MAX_SPLIT 2
+
 ///Switch to make stuff complex at compiler level,not working yet
 //#define COMPLEXME
 ///really just vistidual, but some places still use it

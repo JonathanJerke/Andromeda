@@ -40,5 +40,6 @@ inta imin( inta x1, inta x2 );
 double max( double x1, double x2 );
 double min( double x1, double x2 );
 double momentumIntegralInTrain ( double beta, double kl , double d,  genusType hidden,   bodyType body );
-double momentumSumInPeriodicTrain ( double k , double l ,inta N1, inta Q );
+DCOMPLEX gaussianSincfourierIntegralInTrain (double d, double gammax, double x, double gammay, double y, double kl, double momentum, genusType hidden );
+DCOMPLEX periodicSincfourierIntegralInTrain ( double k , double l ,inta N1, inta momentumIndex );
 #endif /* coreMath_h */

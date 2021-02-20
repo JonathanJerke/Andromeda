@@ -773,11 +773,14 @@ inta iModel(   calculation * c1,   field *f){
     
     {
         inta ii;
-          division prev = eikonBuffer;
+        division prev = eikonBuffer;
         for ( ii = 0 ; ii < f1->eikonLabels.maxLabel ; ii++)
             {
-                  division label1 = f1->eikonLabels.head+ii;
+                division label1 = f1->eikonLabels.head+ii;
                 f1->name[label1].Partition = 1;
+                f1->name[label1].spinor = real;
+                if ( f->i.cmpl == cmpl )
+                    f1->name[label1].spinor = cmpl;
                 assignParticle(*f1, label1, 0, two);
                 f1->name[label1].species = eikon;
                 fromBeginning(*f1,label1,prev);
@@ -832,7 +835,7 @@ inta iModel(   calculation * c1,   field *f){
                     if ( f1->canon[space].body != nada ){
                         for ( body = one ; body <= f1->canon[space].body ; body++){
                             printf(" %d\t%d\t%d\t%d",body,f1->canon[space].label, f1->canon[space].basis, f1->canon[space].count1Basis);
-                        if ( f1->canon[space].basis == 1 )
+                        if ( f1->canon[space].basis <= GaussianSincBasisElement )
                             printf("\t%1.1f\t%1.1f\t\n",f1->canon[space].particle[body].origin, f1->canon[space].particle[body].origin+(f1->canon[space].particle[body].lattice *(f1->canon[space].count1Basis-1)));
                         else  if ( f1->canon[space].basis == 4 )
                             printf("\t0\t%d\n",f1->canon[space].count1Basis-1);

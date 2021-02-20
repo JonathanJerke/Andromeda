@@ -25,7 +25,7 @@
 /**
  *Andromeda: a few-body plane wave calculator
  *
- *v9.7
+ *v9.8
  *quantumGalaxies.org
  *
  *Jonathan Jerke
@@ -296,11 +296,11 @@ enum memoryType {
  *Printed at runtime, 'y'
  */
 
-
 enum basisElementType {
     nullBasisElement,
     SincBasisElement,
     PeriodicSincBasisElement,
+    GaussianSincBasisElement,
     GaussianBasisElement,
     DiracDeltaElement,
     StateBasisElement,
@@ -375,117 +375,27 @@ enum blockMemoryType{
 };
 
 
-/**
- *Direct
-*/
 
-///B
-///block: 3,4, 5, 6,7, 9
-
-///b
-///block: 3, 4, 5, 6, 7,  9
-
-///C
-///block 1,2,3,4,6,7,9
-
-///c
-///block 1,2,3,4,6,7,8,9
-
-///D
-///block 3,4,5,6,7,9
+enum momentumType{
+    zeroMomentum,
+    discreteMomentum,
+    continousMomentum
+};
 
 
-/**
- *Collect
-*/
-
-///B
-///block: 3, 4,5, 7,  9
-
-///b
-///block: 3, 4, 5, 7, 9
-
-///C
-///collect 1
-///block 3,4, 6,7,9
-
-///c
-///collect 1
-///block 3,4,6,7,8,9
-
-///D
-///block 3,4,5,6,7,9
-
-/**
- *CollectFilter at output
-*/
-
-///B
-///block: 3, 4,5, 7, 9
-
-///b
-///filter 4
-///block: 3, 4, 5, 7, 9
-
-///C
-///collect 1
-///block 3,4, 6,7,9
-
-///c
-///collect 1
-///block 3,4,6,7,8,9
-
-///D
-///filter 4
-///block 3,4,5,6,7,9
 
 
-/**
- *Filter post creation of vector
-*/
-
-///B
-///block: 3,4, 5, 6,7,  9
-
-///b
-///block: 3, 4, 5, 7,  9
-///filter 4
-
-///C
-///block 1,2,3,4,6,7,9
-
-///c
-///block 1,2,3,4,6,7,9
-
-///D
-///block 3,4,5,7,9
-///filter 4
 
 
-/**
- *InputFilter
- *Collect and filter at input
-*/
 
-///B
-///block: 3,4,5,7,9
 
-///b
-///block: 3,4,5,7,9
 
-///C
-///filter 3
-///collect 1
-///block 3,4,7,9
 
-///c
-///filter 3
-///collect 1
-///bloc
-/**
- *Divisions define and indicate data.
- *Lined up with 500 so a division number can be easily read.
- */
+
+
+
+
+
 enum division{
     nullName,
     nullOverlap,
@@ -604,10 +514,12 @@ typedef enum basisElementType basisElementType;
 typedef enum noteType noteType;
 typedef enum metricType metricType;
 typedef enum blockMemoryType blockMemoryType;
+typedef enum momentumType momentumType;
 typedef enum division division;
 
 typedef struct function_label function_label;
 typedef struct atom_label atom_label;
+typedef struct momentumIntegralSpecs momentumIntegralSpecs;
 typedef struct basisElement_label basisElement_label;
 typedef struct canon_label canon_label;
 typedef struct metric_label metric_label;
@@ -641,6 +553,17 @@ struct atom_label {
     double position[3+1];
     ///ion charge
     inta Z;
+};
+
+struct momentumIntegralSpecs{
+    ///mathematically descrete sum or continuous integral
+    momentumType metric;
+    ///is this an operating factor?
+    inta opQ;
+    ///maximum momentum
+    floata maxMomentum;
+    ///quadrature size
+    inta interval;
 };
 
 struct basisElement_label {
@@ -709,6 +632,8 @@ struct term_label {
     char filename[MAXSTRING];
     ///internal potential parameters
     function_label func;
+    ///momentum integral specs
+    momentumIntegralSpecs spec[MAX_SPLIT];
     ///description of term
     char desc[16];
     ///external multiplication of term
