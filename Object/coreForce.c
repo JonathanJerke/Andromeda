@@ -566,19 +566,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
     
     double oneL,twoL;
     inta perm[7],op[7];
-    
-    inta space1 = 0;
-    {
-        inta space;
-        for ( space = 0 ;space < SPACE  ; space++)
-            if ( f1.canon[space].body != nada )
-                if ( particle1 == f1.canon[space].label ){
-                    space1 = space;
-                    break;
-                }
         
-    }
-    
     {
           division li = load;
         while ( f1.name[li].chainNext != nullName)
@@ -593,7 +581,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
     inta spacy, n1[SPACE];
     length1(f1,n1);
     
-    inta i,beta,I1,space,I2,N1;
+    inta beta,I1,space,I2,N1;
     
     double constant,x,g;
         
@@ -656,9 +644,6 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
             constant = scalar;
         }
         //printf("x %f \n const %f\n",x,constant);
-        tClear(f1,temp);
-        tId(f1,temp,0);
-        
         //x is beta.
         tClear(f1,temp);
         zero(f1,temp,0);
@@ -697,7 +682,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
 
                                 for ( si = 0 ; si < N1; si++){
                                         I1 = si;//
-                                    te[si] = momentumIntegralInTrain(x*oneL, ((I1*oneL+oneOri)-position[f1.canon[space].space])/oneL,1, hidden, body);
+                                        te[si] = momentumIntegralInTrain(x*oneL, ((I1*oneL+oneOri)-position[f1.canon[space].space])/oneL,1, hidden, body);
                                     if ( invertSign  ){
                                             te[si] *= constant;
                                             for ( spacy = 0 ; spacy < embed ; spacy++)
@@ -770,7 +755,9 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                     if ( f1.canon[space].label == particle1 ){
                         f1.name[newLabel].space[space].body = body;
                         f1.name[newLabel].space[space].block = bl;
-                    }
+                    }else{
+                        f1.name[newLabel].space[space].block = id0;
+                }
             }
             
             tEqua(f1, newLabel, 0, temp, 0);
@@ -1812,6 +1799,7 @@ inta buildKinetic( calculation *c1, sinc_label *f1,double scalar,inta invert,int
                     f1->name[memoryLabel].species = eikonKinetic;
                     f1->name[memoryLabel].Current[0] = 1;
                     f1->name[headLabel].multId = id++;//aloways unique
+                    f1->name[memoryLabel].multId = 0;
 
             
                     for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
@@ -1872,6 +1860,7 @@ inta buildConstant(  calculation *c1,   sinc_label *f1,double scalar,inta invert
     f1->name[memoryLabel].Current[0] = 1;
     f1->name[memoryLabel].Partition = 1;
     f1->name[headLabel].multId = id++;
+    f1->name[memoryLabel].multId = 0;
 
     for ( space = 0 ; space < SPACE ; space++)
         if ( f1->canon[space].body != nada){
@@ -1928,11 +1917,13 @@ inta buildLinear(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
                        f1->name[currLabel].chainNext = headLabel;
                        f1->name[headLabel].species = eikon;
                        f1->name[headLabel].multId = id++;
+                       
                        //new term
                          division memoryLabel = anotherLabel(f1,all,one);
                        f1->name[headLabel].loopNext = memoryLabel;
                        f1->name[memoryLabel].species = eikonLinear;
                        f1->name[memoryLabel].Current[0] = 1;
+                       f1->name[memoryLabel].multId = 0;
 
                
                        for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
@@ -1999,6 +1990,7 @@ inta buildDeriv(  calculation *c1,   sinc_label *f1,double scalar,inta invert,in
                        f1->name[headLabel].loopNext = memoryLabel;
                        f1->name[memoryLabel].species = eikonDeriv;
                        f1->name[memoryLabel].Current[0] = 1;
+                       f1->name[memoryLabel].multId = 0;
 
                        ///set term across basis
                        for (spacy = 0 ; spacy < SPACE ; spacy++)
@@ -2060,6 +2052,7 @@ inta buildElement(  calculation *c1,   sinc_label *f1,double scalar,inta invert,
 
     f1->name[memoryLabel].species = eikonElement;
     f1->name[memoryLabel].Current[0] = 1;
+    f1->name[memoryLabel].multId = 0;
 
     for ( space = 0 ; space < SPACE ; space++)
         if ( f1->canon[space].body != nada){
@@ -2129,6 +2122,7 @@ inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
                        f1->name[headLabel].loopNext = memoryLabel;
                        f1->name[memoryLabel].species = eikonSpring;
                        f1->name[memoryLabel].Current[0] = 1;
+                       f1->name[memoryLabel].multId = 0;
 
                
                        for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
