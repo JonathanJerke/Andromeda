@@ -1964,7 +1964,7 @@ void GTO( sinc_label f1, division vector ,inta spin,floata amplitude, inta *gamm
                     alpha = delta[2*mss];
                     y = delta[2*mss+1];
                     mss += 1;
-                    variable *= GaussianInSinc(pi/f1.canon[space].particle[body].lattice,n,alpha,y,f1.canon[space].particle[body].lattice * v +f1.canon[space].particle[body].origin);
+                    variable *= GaussianInSinc(pi/f1.canon[space].particle[body].lattice,n,alpha,y,f1.canon[space].particle[body].lattice * v );
                 }
                 if ( ! space )
                     variable *= amplitude;
