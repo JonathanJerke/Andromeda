@@ -278,6 +278,7 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
             }
             break;
         case two:
+            if ( pw != 1 && pw != 1001 )
             for ( m = 0; m < N1 ; m++)
             {
                 if ( pw == 0 ){
@@ -321,7 +322,7 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                                 mult += m*m*cos( m * 2. * pi * ( n *1./ N1 ) ) ;
                             mult /= -lattice*lattice*(N1)/(2.0*pi)/(2.0*pi);
                         }
-                        cblas_daxpy(N1-n, sign*mult, vector+n1[perm[op[0]]]*n+n1[perm[op[1]]]*m ,n1[perm[op[0]]], vectorOut+n1[op[1]]*m ,n1[op[0]]);
+                        cblas_daxpy(N1-n, sign*mult      , vector+n1[perm[op[0]]]*n+n1[perm[op[1]]]*m ,n1[perm[op[0]]], vectorOut+n1[op[1]]*m ,n1[op[0]]);
                         cblas_daxpy(N1-n, sign1*sign*mult, vector+n1[perm[op[1]]]*m , n1[perm[op[0]]], vectorOut+n1[op[0]]*n+n1[op[1]]*m ,n1[op[0]]);
                         if ( pw < 1000 )
 
@@ -333,6 +334,8 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
             
             break;
         case three:
+            if ( pw != 1 && pw != 1001 )
+
             for ( m = 0; m < N1 ; m++)
                 for ( m2 = 0; m2 < N1 ; m2++)
                 {
@@ -389,6 +392,8 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
             }
             break;
         case four:
+            if ( pw != 1 && pw != 1001 )
+
             for ( m = 0; m < N1 ; m++)
                 for ( m2 = 0; m2 < N1 ; m2++)
                     for ( m3 = 0; m3 < N1 ; m3++)
