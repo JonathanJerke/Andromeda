@@ -659,7 +659,6 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
         currChain = newLabel;
         currLoop = currChain;
         
-        f1.name[temp].Current[0]= 1;
 
         for ( hidden = eikonDiagonal ; hidden <= eikonDiagonal + imin(body,metric.fn.contr);hidden++ )
             {
@@ -708,13 +707,9 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                         oneOri = f1.canon[space].particle[op[0]+1].origin*adjustOne;
                         twoL = f1.canon[space].particle[op[1]+1].lattice;
                         twoOri = f1.canon[space].particle[op[1]+1].origin;
+                        grpL = max(f1.canon[space].particle[op[0]+1].lattice,f1.canon[space].particle[op[1]+1].lattice);
                         
-                        if ( fabs(oneL) > fabs(twoL) ){
-                            grpL = fabs(oneL);
-                        }else {
-                            grpL = fabs(twoL);
-
-                        }
+                 
                         N1 = n1[space];
 
                         double * te = streams(f1, temp, 0, space);
@@ -760,6 +755,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                         f1.name[newLabel].space[space].block = id0;
                 }
             }
+            f1.name[temp].Current[0]= 1;
             tEqua(f1, newLabel, 0, temp, 0);
             
             f1.name[currLoop].loopNext = newLabel;
