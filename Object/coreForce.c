@@ -659,7 +659,8 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
         currChain = newLabel;
         currLoop = currChain;
         
-        
+        f1.name[temp].Current[0]= 1;
+
         for ( hidden = eikonDiagonal ; hidden <= eikonDiagonal + imin(body,metric.fn.contr);hidden++ )
             {
                 
@@ -759,7 +760,6 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                         f1.name[newLabel].space[space].block = id0;
                 }
             }
-            
             tEqua(f1, newLabel, 0, temp, 0);
             
             f1.name[currLoop].loopNext = newLabel;
