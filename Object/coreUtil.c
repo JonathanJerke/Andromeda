@@ -235,6 +235,7 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
         case one:
             //  vector -> vectorOut
             sign = 1.;
+            mult = 0.;
             if ( pw == 0 ){
                 cblas_dcopy(N1, vector, 1, vectorOut, 1);
             }else if ( pw == -1 ){
@@ -255,9 +256,8 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                 }
 
                 for (n = 1 ; n < N1 ; n++){
-                    mult = 0;
                     if (pw == 1 ){
-                        mult = 1./n/lattice/lattice;
+                        mult = 1./n/lattice;
                     }else if ( pw == 2){
                         mult = 2*1./(n*n)/lattice/lattice;
                     }else if ( pw == 1002 ){
@@ -310,9 +310,8 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                     sign = 1.;
                     mult = 0;
                     for (n = 1 ; n < N1 ; n++){
-                        mult = 0;
                         if (pw == 1 ){
-                            mult = 1./n/lattice/lattice;
+                            mult = 1./n/lattice;
                         }else if ( pw == 2){
                             mult = 2*1./(n*n)/lattice/lattice;
                         }else if ( pw == 1002 ){
@@ -368,9 +367,8 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                         mult = 0;
 
                             for (n = 1 ; n < N1 ; n++){
-                                mult = 0;
                                 if (pw == 1 ){
-                                    mult = 1./n/lattice/lattice;
+                                    mult = 1./n/lattice;
                                 }else if ( pw == 2){
                                     mult = 2*1./(n*n)/lattice/lattice;
                                 }else if ( pw == 1002 ){
@@ -429,9 +427,8 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                         mult = 0;
 
                             for (n = 1 ; n < N1 ; n++){
-                                mult = 0;
                                 if (pw == 1 ){
-                                    mult = 1./n/lattice/lattice;
+                                    mult = 1./n/lattice;
                                 }else if ( pw == 2){
                                     mult = 2*1./(n*n)/lattice/lattice;
                                 }else if ( pw == 1002 ){
@@ -3204,6 +3201,7 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                             flow *= 1;
                            if ( f1.name[su].space[space].block == d12 )
                             {
+                                ///WHAT WAS I DOING?  THIS CHANGES THE DIMENSIONALITY OF OUTPUTS????!!
                                ///intended for direct multiply
                                ///bd = two; act = 1; block = d12  ##ALL DIRECTS## SAME way
                                 cblas_dgemv(CblasColMajor, CblasNoTrans, N1, N1, 1.,suP,N1,inP,N1+1, 0.,laterP,N1+1);
@@ -3296,7 +3294,7 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                             {
                                 ///intended for direct multiply
                                 ///bd = two; act = 1; block = d12  ##ALL DIRECTS## SAME way
-
+                                
                                 if ( timer == 0 ){
                                 flow *= 1;
                                 //A

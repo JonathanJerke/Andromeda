@@ -718,8 +718,8 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                                 for ( I2 = 0; I2 < N1; I2++)
                                     for ( I1 = 0 ; I1 < N1; I1++)
                                          {
-                                             te[si] = momentumIntegralInTrain(x*grpL, ((oneL*I1+oneOri)-(twoL*I2+twoOri))/grpL,1, hidden, body);
-                                         if ( invertSign ){
+                                             te[si] = momentumIntegralInTrain(x*grpL, ((oneL*I1+oneOri)-(twoL*I2+twoOri))/grpL,1, hidden, body);                                             
+                                             if ( invertSign ){
                                              te[si] *= constant;
                                              for ( spacy = 0 ; spacy < embed ; spacy++)
                                                  te[si] *= momentumIntegralInTrain(x*grpL, 0,1, hidden, body);
