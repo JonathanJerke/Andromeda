@@ -3317,6 +3317,8 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                     }
                         
                         
+                       
+                    }
                         if ( f1.name[su].multId == 0 ){
                         
                         inP  = streams(f1, inT, inS,space)+inR*N2;
@@ -3334,7 +3336,6 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
 
                             inP  = outP;
                         }
-                    }
                 }
                 su = f1.name[su].loopNext;//sum channel
                 }
