@@ -2152,8 +2152,8 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
             specs[1].metric = discreteMomentum;
             specs[0].opQ = 1;
             specs[1].opQ = 1;
-            specs[0].interval = f1->canon[0].count1Basis*2;
-            specs[1].interval = f1->canon[0].count1Basis*2;
+            specs[0].interval = f1->canon[0].count1Basis;
+            specs[1].interval = f1->canon[0].count1Basis;
             periodicInteraction(f1, scalar,zero,invert,act,bl, pair , mu, cmpl,specs, 0, particle1,two);
             
         }

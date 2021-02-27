@@ -92,7 +92,7 @@ bodyType commandSA(  bodyType bd, inta act,   blockType cl,   blockType bl,inta 
                 op[1] = 1;
                 return two;
             }
-            case three:
+        case three:
 //            1, 2, 3,//1///tv1//e12
 //            1, 3, 2,//2///e13
 //            2, 1, 3,//3///tv2

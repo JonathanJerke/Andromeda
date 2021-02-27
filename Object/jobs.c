@@ -28,13 +28,12 @@
  * Built a spherical foundation of one vector
  */
 inta foundationS(  calculation *c1,   field f1){
-    inta EV,i;
+    inta EV;
     f1.i.Iterations = 2;
     f1.i.qFloor = 0;
     f1.i.iRank = 0;
     f1.i.canonRank = 1;
     EV = f1.i.qFloor ;
-    floata va[25];
     if ( 1 ){
         iModel(c1,&f1);
         tBoot(f1.f, eigenVectors, 0,1.);
