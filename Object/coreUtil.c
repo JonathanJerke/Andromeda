@@ -2775,7 +2775,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
     printf("------Terms------\n");
 
     division op = defSpiralMatrix(&f1, Hamiltonian);
-    inta o,scr=0,cr =0;;
+    inta sp,o,scr=0,cr =0;;
     inta terms = 0,oo=0;
     
     
@@ -2789,8 +2789,9 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
             printf("%s ", c->i.terms[oo].desc);
             oo++;
         }
-        
-        me = pMatrixElement( f1, vector, 0, op+o, 0, vector,0);
+        me = 0.0;
+        for ( sp = 0 ; sp < spins(f1,vector); sp++)
+            me += pMatrixElement( f1, vector, sp, op+o, 0, vector,sp);
         cr = CanonicalOperator(f1, op+o, 0);
         scr += cr;
         printf("\t(%d)\t%6.12f\n", cr,creal(me/ov));

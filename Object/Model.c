@@ -54,9 +54,9 @@
     }
 #ifdef APPLE
     floata lattice = 0.5;
-    inta basis = 11;
+    inta basis = 7;
     space = 0;
-    i.f.canon[space].basis = SincBasisElement;
+    i.f.canon[space].basis = PeriodicSincBasisElement;
     i.f.canon[space].body = two;
     //i.f.canon[space].component = 1;
     i.f.canon[space].count1Basis = basis;
@@ -216,13 +216,13 @@ calculation initCal (void ) {
     t.act = 1;
     t.atom = 1;
     t.bl = 1;
-    t.func.contr = 1;
+    t.func.contr = 0;
     t.func.fn = Coulomb;
     t.func.interval = 7;
     t.adjustOne = 1.;
-    t.mu.beta[0] = 0;
+    t.mu.beta[0] = 1;
     t.mu.beta[1] = 10;
-    t.mu.metric = interval;
+    t.mu.metric = dirac;
     t.mu.fn  = t.func;
     t.invert = 0;
     t.label =1;
@@ -234,7 +234,7 @@ calculation initCal (void ) {
 //    i.i.terms[1] = t;
 //    t.scalar = 1;
     t.type = 5;
-    t.type = 8;
+    t.type = 9;
     i.i.terms[0] = t;
 
     
