@@ -242,6 +242,9 @@ cdef class galaxy:
 								self.field.f.canon[space].body = bodyType.two
 							elif len(dim)==3:
 								self.field.f.canon[space].body = bodyType.three
+							elif len(dim)==3:
+								self.field.f.canon[space].body = bodyType.four
+
 						for (space,base) in enumerate(bases):
 							self.field.f.canon[space].basis = base
 		return self
