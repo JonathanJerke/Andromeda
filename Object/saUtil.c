@@ -224,7 +224,58 @@ bodyType commandSA(  bodyType bd, inta act,   blockType cl,   blockType bl,inta 
 
                     }
                 }
+        case four:
+            perm[0] = 0;
+            perm[1] = 1;
+            perm[2] = 2;
+            perm[3] = 3;
+            if ( cl == e12){
+                switch(bl){
+                    case e12:
+                        op[0] = 0;
+                        op[1] = 1;
+                        op[2] = 2;
+                        op[3] = 3;
+                        return two;
+                    case e13:
+                        op[0] = 0;
+                        op[1] = 2;
+                        op[2] = 1;
+                        op[3] = 3;
+                        return two;
+                    case e23:
+                        op[0] = 1;
+                        op[1] = 2;
+                        op[2] = 0;
+                        op[3] = 3;
+                        return two;
+                    case e14:
+                        op[0] = 0;
+                        op[1] = 2;
+                        op[2] = 3;
+                        op[3] = 1;
+                        return two;
+                    case e24:
+                        op[0] = 2;
+                        op[1] = 0;
+                        op[2] = 3;
+                        op[3] = 1;
+                        return two;
+                    case e34:
+                        op[0] = 2;
+                        op[1] = 3;
+                        op[2] = 0;
+                        op[3] = 1;
+                        return two;
+                    default:
+                        printf("code!");
+                        exit(0);
+                        break;
+                }
+            }
+            break;
             default:
+            exit(0);
                 break;
 
     }

@@ -57,7 +57,7 @@
     inta basis = 7;
     space = 0;
     i.f.canon[space].basis = PeriodicSincBasisElement;
-    i.f.canon[space].body = two;
+    i.f.canon[space].body = four;
     //i.f.canon[space].component = 1;
     i.f.canon[space].count1Basis = basis;
     i.f.canon[space].space = 0;
@@ -71,6 +71,9 @@
       i.f.canon[space].particle[three].attack = 0.5;
       i.f.canon[space].particle[three].lattice = lattice;
       i.f.canon[space].particle[three].origin = -basis/2*lattice ;
+      i.f.canon[space].particle[four].attack = 0.5;
+      i.f.canon[space].particle[four].lattice = lattice;
+      i.f.canon[space].particle[four].origin = -basis/2*lattice ;
 
       if (0){
     space = 1;
@@ -215,7 +218,7 @@ calculation initCal (void ) {
     term_label t;
     t.act = 1;
     t.atom = 1;
-    t.bl = 1;
+    t.bl = 7;
     t.func.contr = 0;
     t.func.fn = Coulomb;
     t.func.interval = 7;

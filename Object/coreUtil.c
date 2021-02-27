@@ -1841,7 +1841,7 @@ inta tReplace(   sinc_label f1 ,   division label,inta spin,inta space,inta l ){
 
 inta tBoot (   sinc_label f1 ,   division label,inta spin,floata scale ){
     
-    inta I1,I2,I3,space;
+    inta I1,I2,I3,I4,space;
     inta Current ;
     inta B1[SPACE];
 
@@ -1893,6 +1893,21 @@ inta tBoot (   sinc_label f1 ,   division label,inta spin,floata scale ){
                 }
             }
         }
+            else
+                if ( f1.canon[space].body == four){
+                        {
+                    
+                    floata  * stream = streams(f1,label,spin,space)+Current*B1[space]*B1[space]*B1[space]*B1[space];
+                    for ( I1 = 0 ; I1< B1[space] ; I1++)
+                        for ( I2 = 0 ; I2 < B1[space] ; I2++)
+                            for ( I3 = 0 ; I3 < B1[space] ; I3++)
+                                for ( I4 = 0 ; I4 < B1[space] ; I4++)
+                            {
+                                stream[I4*B1[space]*B1[space]*B1[space]+I3*B1[space]*B1[space]+I1*B1[space]+I2] = exp(-(I1-(B1[space]-1)/2)*(I1-(B1[space]-1)/2)*scale)*exp(-(I2-(B1[space]-1)/2)*(I2-(B1[space]-1)/2)*scale)*exp(-(I3-(B1[space]-1)/2)*(I3-(B1[space]-1)/2)*scale)*exp(-(I4-(B1[space]-1)/2)*(I4-(B1[space]-1)/2));
+                    }
+                }
+            }
+
 
 
       
@@ -3060,30 +3075,44 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
 
                         }
                         else if ( species(f1,su) == eikonOuter){
-                            inta n1[MAXBODY] ,ii,i;
+                            inta n1[MAXBODY] ,iii,ii,i;
                             double suX;
                             switch(f1.name[su].space[space].block){
                                 case tv1:
                                     n1[0] = 1;
                                     n1[1] = N1;
                                     n1[2] = N1*N1;
+                                    n1[3] = N1*N1*N1;
+
                                     break;
                                 case tv2 :
                                     n1[1] = 1;
                                     n1[0] = N1;
                                     n1[2] = N1*N1;
+                                    n1[3] = N1*N1*N1;
+
                                     break;
                                 case tv3 :
                                     n1[1] = 1;
                                     n1[2] = N1;
                                     n1[0] = N1*N1;
+                                    n1[3] = N1*N1*N1;
+
                                     break;
+                                case tv4 :
+                                    n1[3] = 1;
+                                    n1[1] = N1;
+                                    n1[2] = N1*N1;
+                                    n1[0] = N1*N1*N1;
+                                    break;
+
                                 default:
                                     break;
                             }
                             for ( i = 0 ;i < N2 ; i++)
                                 laterP[i] = 0.;
                             switch ( bd ){
+
                                 case one:
                                     cblas_dcopy(N1, suP, 1, laterP, 1);
                                     flow *= cblas_ddot(N1, inP, 1, suP, 1);
@@ -3102,6 +3131,16 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                                         for ( ii = 0 ; ii < N1 ; ii++){
                                             cblas_dcopy(N1, suP, 1, laterP+i*n1[1]+ii*n1[2], n1[0]);
                                             suX += cblas_ddot(N1, inP+i*n1[1]+ii*n1[2], n1[0], suP, 1);
+                                        }
+                                    flow *= suX;
+                                    break;
+                                case four:
+                                    suX = 0.;
+                                    for ( i = 0 ; i < N1 ; i++)
+                                        for ( ii = 0 ; ii < N1 ; ii++)
+                                            for ( iii = 0 ; iii < N1 ; iii++){
+                                                cblas_dcopy(N1, suP, 1, laterP+i*n1[1]+ii*n1[2]+iii*n1[3], n1[0]);
+                                                suX += cblas_ddot(N1, inP+i*n1[1]+ii*n1[2]+iii*n1[3], n1[0], suP, 1);
                                         }
                                     flow *= suX;
                                     break;
