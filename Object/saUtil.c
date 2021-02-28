@@ -230,26 +230,6 @@ bodyType commandSA(  bodyType bd, inta act,   blockType cl,   blockType bl,inta 
                             op[2] = 3;
                             op[3] = 0;
                             return one;
-
-                    //1-body
-                        case e12://if 2-body --on first like tv1
-                            op[0] = 0;
-                            op[1] = 1;
-                            op[2] = 2;
-                            op[3] = 3;
-                            return two;
-                        case e13:
-                            op[0] = 0;
-                            op[1] = 2;
-                            op[2] = 1;
-                            op[3] = 3;
-                            return two;
-                        case e23:
-                            op[0] = 1;
-                            op[1] = 2;
-                            op[2] = 0;
-                            op[3] = 3;
-                            return two;
                         default:
                             break;
 
@@ -271,9 +251,9 @@ bodyType commandSA(  bodyType bd, inta act,   blockType cl,   blockType bl,inta 
                         op[3] = 3;
                         return two;
                     case e23:
-                        op[0] = 1;
-                        op[1] = 2;
-                        op[2] = 0;
+                        op[0] = 2;
+                        op[1] = 0;
+                        op[2] = 1;
                         op[3] = 3;
                         return two;
                     case e14:
