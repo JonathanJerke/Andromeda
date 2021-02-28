@@ -187,7 +187,7 @@ inta matrixLen(  sinc_label f1,   bodyType body, inta space){
 
 inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType cl,   blockType bl,  inta N1,floata * vector , inta pw, floata * vectorOut){
     ///COULD ALWAYS TRANSLATE WITH TRANSLATION OPERATOR
-    inta n,m,m2,m3;
+    inta n,m,m1,m2,m3;
     double sign = 1.,mult,sign1 =1.;
     if ( pw == 1 )
         sign1 = -1.;
@@ -419,7 +419,7 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                 }
             
             if (pw == 2 || pw == 1 || pw == 1002) {
-                for ( m = 0; m < N1 ; m++)
+                for ( m1 = 0; m1 < N1 ; m1++)
                     for ( m2 = 0; m2 < N1 ; m2++)
                         for ( m3 = 0; m3 < N1 ; m3++)
                 {
@@ -439,8 +439,8 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                                     mult /= -lattice*lattice*(N1)/(2.0*pi)/(2.0*pi);
                                 }
 
-                                       cblas_daxpy(N1-n, sign*mult, vector+n1[perm[op[0]]]*n+n1[perm[op[1]]]*m +n1[perm[op[2]]]*m2+n1[op[3]]*m3 ,n1[perm[op[0]]], vectorOut+n1[op[1]]*m +n1[op[2]]*m2+n1[op[3]]*m3,n1[op[0]]);
-                                       cblas_daxpy(N1-n, sign1*sign*mult, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2+n1[op[3]]*m3 ,n1[perm[op[0]]], vectorOut+n1[op[0]]*n +n1[op[1]]*m+n1[op[2]]*m2 +n1[op[3]]*m3,n1[op[0]]);
+                                       cblas_daxpy(N1-n, sign*mult, vector+n1[perm[op[0]]]*n+n1[perm[op[1]]]*m1 +n1[perm[op[2]]]*m2+n1[op[3]]*m3 ,n1[perm[op[0]]], vectorOut+n1[op[1]]*m1 +n1[op[2]]*m2+n1[op[3]]*m3,n1[op[0]]);
+                                       cblas_daxpy(N1-n, sign1*sign*mult, vector+n1[perm[op[1]]]*m1+n1[perm[op[2]]]*m2+n1[op[3]]*m3 ,n1[perm[op[0]]], vectorOut+n1[op[0]]*n +n1[op[1]]*m1+n1[op[2]]*m2 +n1[op[3]]*m3,n1[op[0]]);
                                 if ( pw < 1000 )
 
                                     sign *= -1;
