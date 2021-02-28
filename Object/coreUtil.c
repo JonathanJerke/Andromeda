@@ -2933,8 +2933,8 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
     }
     
     bodyType bd = Bodies(f1, right,space);
-    division inT,outT,initT;
-    inta inR,outR,inS,outS,initR,initS;
+    division inT,outT,initT,midT,laterT;
+    inta inR,outR,inS,outS,initR,initS,midR,midS,laterR,laterS;
     f1.name[canonicalmvVector].Current[rank] = 0;
     f1.name[canonicalmv2Vector].Current[rank] = 1;
     f1.name[canonicalmv3Vector].Current[rank] = 0;
@@ -2951,18 +2951,18 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
         outR = e;
         outS = espin;
         
-        division midT = canonicalmv3Vector;
-        inta midR = 0;
-        inta midS = rank;
+        midT = canonicalmv3Vector;
+        midR = 0;
+        midS = rank;
         
-        division laterT = canonicalmv3Vector;
-        inta laterR = 1;
-        inta laterS = rank;
+        laterT = canonicalmv3Vector;
+        laterR = 1;
+        laterS = rank;
 
         
-        division inT = canonicalmv3Vector;
-        inta inR = 2;
-        inta inS = rank;
+        inT = canonicalmv3Vector;
+        inR = 2;
+        inS = rank;
 
         {
             
@@ -2985,9 +2985,7 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                 inta timer = 0,xlxl=0;
                 while ( su != nullName ){
                     
-#if VERBOSE
             printf("in %f %d\n", cblas_dnrm2(N2, inP, 1),N1);
-#endif
 
                     for ( i = 0 ; i < N2 ; i++){
                         midP[i] = 0.;
@@ -3216,30 +3214,39 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                         }
                         else if ( bd == four ){
                             inta i,i2,i3;
+                            for ( i = 0 ; i < N1 ; i++)
+                            printf("%f\n",suP[i]);
+                            
+                            
+                            
                             switch (f1.name[su].space[space].block){
                                 case tv1:
                                     for ( i = 0 ; i < N1 ; i++)
                                         for ( i2 = 0 ; i2 < N1 ; i2++)
                                             for ( i3 = 0 ; i3 < N1 ; i3++)
-                                                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP+N1*i+N1*N1*i2+N1*N1*N1*i3,1, 0.,laterP+N1*i+N1*N1*i2+N1*N1*N1*i3, 1  );
+                                                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1,
+                                                            inP +i*N1 +i2*N1*N1 +i3*N1*N1*N1,1, 0.,laterP +i*N1 +i2*N1*N1 +i3*N1*N1*N1, 1  );
                                     break;
                                 case tv2:
                                     for ( i = 0 ; i < N1 ; i++)
                                         for ( i2 = 0 ; i2 < N1 ; i2++)
                                             for ( i3 = 0 ; i3 < N1 ; i3++)
-                                                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP+i+i2*N1*N1+N1*N1*N1*i3,N1, 0.,laterP+i+i2*N1*N1+N1*N1*N1*i3, N1  );
+                                                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1,
+                                                            inP +i +i2*N1*N1 +i3*N1*N1*N1,N1, 0.,laterP +i +i2*N1*N1 +i3*N1*N1*N1, N1  );
                                     break;
                                 case tv3:
                                     for ( i = 0 ; i < N1 ; i++)
                                         for ( i2 = 0 ; i2 < N1 ; i2++)
                                             for ( i3 = 0 ; i3 < N1 ; i3++)
-                                                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP+i+i2*N1+N1*N1*N1*i3,N1*N1, 0.,laterP+i+i2*N1+N1*N1*N1*i3, N1*N1  );
+                                                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1,
+                                                            inP +i +i2*N1 +N1*N1*N1*i3,N1*N1, 0.,laterP +i +i2*N1 +i3*N1*N1*N1, N1*N1  );
                                     break;
                                 case tv4:
                                     for ( i = 0 ; i < N1 ; i++)
                                         for ( i2 = 0 ; i2 < N1 ; i2++)
                                             for ( i3 = 0 ; i3 < N1 ; i3++)
-                                                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP+i+i2*N1+N1*N1*i3,N1*N1*N1, 0.,laterP+i+i2*N1+N1*N1*i3, N1*N1*N1  );
+                                                cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1,
+                                                            inP +i +i2*N1 +i3*N1*N1,N1*N1*N1, 0.,laterP +i+ i2*N1+ i3*N1*N1, N1*N1*N1  );
                                     break;
 
                             }
@@ -3382,7 +3389,7 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                             cblas_dcopy(N2, initP, 1, inP, 1);
 
                         }else {
-                            cblas_daxpy(N2, flow, laterP, 1, inP, 1);
+                            cblas_dcopy(N2, laterP, 1, inP, 1);
                         }
                 }
                 su = f1.name[su].loopNext;//sum channel

@@ -619,7 +619,7 @@ inta quadrature( metric_label metric, floata *X, floata* W){
 
         } else {
             x = metric.beta[0];// value;
-            constant = scalar;
+            constant = 1;
         }
         X[beta] = x;
         W[beta] = constant;
@@ -804,17 +804,20 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
         ///all equal-beta chained Ops will multiply on each beta index. i.e. H2+
         currChain = newLabel;
         currLoop = currChain;
-        
+        floata gaussianKernel;
+
             
         inta momentumIndex,momentumLength=0, bodyIndex ;
-                
+        inta flagger=0;
         bodyIndex = 0;
         if ( specs[bodyIndex].metric == zeroMomentum )
             momentumLength = 0;
         else if ( specs[bodyIndex].metric == discreteMomentum )
             momentumLength = specs[bodyIndex].interval;
     
-        for ( momentumIndex = -momentumLength ;  momentumIndex <= momentumLength ; momentumIndex++)
+        for ( momentumIndex = -momentumLength ;  momentumIndex <= momentumLength ; momentumIndex++){
+            gaussianKernel = exp(-pow(pi*momentumIndex/(Xbeta[beta]*f1.canon[0].particle[one].lattice),2.))/(2.*sqrt(pi)*Xbeta[beta]);
+            if ( gaussianKernel > 1e-12 )
             for ( bodyIndex = 0 ; bodyIndex < body ; bodyIndex++)
         {
 
@@ -843,13 +846,8 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
 
                         DCOMPLEX tc;
                         double * te = streams(f1, temp, 0, space);
-                        f1.name[eikonBuffer].Current[0] = 1;
-                        f1.name[eikonBuffer].Current[1] = 1;
+                        double * tec = streams(f1, temp, 1, space);
 
-                        double * tec;
-#ifdef COMPLEXME
-                        tec = streams(f1, temp, 1, space);
-#endif
                         si = 0;
                         for ( I2 = 0; I2 < N1; I2++)
                             for ( I1 = 0 ; I1 < N1; I1++)
@@ -868,20 +866,16 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                                                                                   (I2*iL+iO)/iL/(N1),  N1,  (1-2*bodyIndex)*momentumIndex);
                                          else
                                              tc = 0.0;
-                                         
+                                         //printf("%f %f\n", creal(tc),cimag(tc));
                                             if ( invertSign && bodyIndex == 0 ){
-                                                double gaussianKernel = exp(-pow(pi*momentumIndex/(Xbeta[beta]*iL),2.))/(2.*sqrt(pi)*Xbeta[beta]);
                                                 ///multiply of Gaussian here one first particle.
                                                 tc *= Wbeta[beta]*gaussianKernel;
-                                                
                                                 ///for periodic-dirac located external fields
 //                                                if ( body == one && specs[1].opQ == 0 )
 //                                                    tc *= cexp(-I*position[f1.canon[space].space]*momentumIndex/iL);
                                             }
                                          te[si] = creal(tc);
-#ifdef COMPLEXME
                                          tec[si] = cimag(tc);
-#endif
                                          
                                             if ( isnan(creal(tc)) || isnan(cimag(tc))){
                                                 printf("periodicInteraction error\n");
@@ -955,15 +949,20 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                     }
             }
             {
+                f1.name[temp].Current[0] = 1;
+                f1.name[temp].Current[1] = 1;
+
                 tEqua(f1, newLabel, 0, temp, 0);
 #ifdef COMPLEXME
                 tEqua(f1, newLabel, 1, temp, 1);
 #endif
+                f1.name[newLabel].species = eikonSplit;
+
             }
             f1.name[currLoop].loopNext = newLabel;
-            f1.name[newLabel].species = eikonSplit;
             currLoop = newLabel;
         }
+    }
     }
     return 0;
 }
@@ -2153,8 +2152,8 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
             specs[1].metric = discreteMomentum;
             specs[0].opQ = 1;
             specs[1].opQ = 1;
-            specs[0].interval = f1->canon[0].count1Basis;
-            specs[1].interval = f1->canon[0].count1Basis;
+            specs[0].interval = f1->canon[0].count1Basis-1;
+            specs[1].interval = f1->canon[0].count1Basis-1;
             periodicInteraction(f1, scalar,zero,invert,act,bl, pair , mu, cmpl,specs, 0, particle1,two);
             
         }

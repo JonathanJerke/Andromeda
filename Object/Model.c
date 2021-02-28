@@ -54,11 +54,10 @@
     }
 #ifdef APPLE
     floata lattice = 0.5;
-    inta basis = 7;
+    inta basis = 9;
     space = 0;
     i.f.canon[space].basis = PeriodicSincBasisElement;
     i.f.canon[space].body = four;
-    //i.f.canon[space].component = 1;
     i.f.canon[space].count1Basis = basis;
     i.f.canon[space].space = 0;
     i.f.canon[space].label = 1;
@@ -218,7 +217,7 @@ calculation initCal (void ) {
     term_label t;
     t.act = 1;
     t.atom = 1;
-    t.bl = 7;
+    t.bl = 8;
     t.func.contr = 0;
     t.func.fn = Coulomb;
     t.func.interval = 7;
@@ -228,16 +227,10 @@ calculation initCal (void ) {
     t.mu.metric = dirac;
     t.mu.fn  = t.func;
     t.invert = 0;
-    t.label =1;
+    t.label  = 1;
     t.scalar = 1;
-    t.type = 9;
     t.headFlag = 1;
-//    i.i.terms[0] = t;
-//    t.atom = 2;
-//    i.i.terms[1] = t;
-//    t.scalar = 1;
-    t.type = 5;
-    t.type = 9;
+    t.type   = 9;
     i.i.terms[0] = t;
 
     
@@ -774,6 +767,7 @@ inta iModel(   calculation * c1,   field *f){
     fromBeginning(*f1,eikonBuffer,canonicalVector);
     f1->name[eikonBuffer].Partition = !(!f1->eikonLabels.maxLabel);
     f1->name[eikonBuffer].species = eikon;
+    f1->name[eikonBuffer].spinor = cmpl;
     assignParticle(*f1, eikonBuffer, all, two);
         
     
