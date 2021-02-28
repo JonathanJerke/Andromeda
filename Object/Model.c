@@ -626,7 +626,7 @@ inta iModel(   calculation * c1,   field *f){
         f1->name[canonicalmv2Vector].species = vector;
 
         fromBeginning(*f1,canonicalmv3Vector,canonicalmv2Vector);
-        f1->name[canonicalmv3Vector].Partition = 2;
+        f1->name[canonicalmv3Vector].Partition = 3;
         f1->name[canonicalmv3Vector].species = vector;
         if ( allowQ(f1->rt, blockParallelMultiplyblock) )
             f1->name[canonicalmv3Vector].spinor = parallel;

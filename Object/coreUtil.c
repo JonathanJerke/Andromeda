@@ -2933,8 +2933,8 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
     }
     
     bodyType bd = Bodies(f1, right,space);
-    division inT,outT;
-    inta inR,outR,inS,outS;
+    division inT,outT,initT;
+    inta inR,outR,inS,outS,initR,initS;
     f1.name[canonicalmvVector].Current[rank] = 0;
     f1.name[canonicalmv2Vector].Current[rank] = 1;
     f1.name[canonicalmv3Vector].Current[rank] = 0;
@@ -2943,9 +2943,9 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
             in = 1;
             out = 1;
         
-        inT = right;
-        inR = r;
-        inS = rspin;
+        initT = right;
+        initR = r;
+        initS = rspin;
         
         outT = equals;
         outR = e;
@@ -2959,26 +2959,36 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
         inta laterR = 1;
         inta laterS = rank;
 
+        
+        division inT = canonicalmv3Vector;
+        inta inR = 2;
+        inta inS = rank;
+
         {
             
                 inta N1 = outerVectorLen(f1, one,space);
                 inta N2 = vectorLen(f1, space);
                 
                 inta i;
-                double * midP = streams(f1, midT, midS,space)+midR*N2;
-                double * laterP = streams(f1, laterT, laterS,space)+laterR*N2;
-                double * inP  = streams(f1, inT, inS,space)+inR*N2;
-
-                double * outP = streams(f1, outT, outS,space)+outR*N2;
+            double * midP = streams(f1, midT, midS,space)+midR*N2;
+            double * laterP = streams(f1, laterT, laterS,space)+laterR*N2;
+            double * initP  = streams(f1, initT, initS,space)+initR*N2;
+            double * inP  = streams(f1, inT, inS,space)+inR*N2;
+            double * outP = streams(f1, outT, outS,space)+outR*N2;
             for ( i = 0 ; i < N2 ; i++)
                 outP[i] = 0.;
-
+            cblas_dcopy(N2, initP, 1, inP, 1);
 #if VERBOSE
             printf("in %f %d\n", cblas_dnrm2(N2, inP, 1),N1);
 #endif
                 division su = left;//direct summation per component!
                 inta timer = 0,xlxl=0;
                 while ( su != nullName ){
+                    
+#if VERBOSE
+            printf("in %f %d\n", cblas_dnrm2(N2, inP, 1),N1);
+#endif
+
                     for ( i = 0 ; i < N2 ; i++){
                         midP[i] = 0.;
                         laterP[i] = 0.;
@@ -3360,8 +3370,6 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                        
                     }
                         if ( f1.name[su].multId == 0 ){
-                        
-                        inP  = streams(f1, inT, inS,space)+inR*N2;
                             if ( f1.name[su].space[space].act < 0 ){
     #if VERBOSE
                                 printf("invert\n");
@@ -3371,10 +3379,10 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                                 }else {
                                     cblas_daxpy(N2, flow, laterP, 1, outP, 1);
                                }
-                        }else {
-                            cblas_daxpy(N2, flow, laterP, 1, outP, 1);
+                            cblas_dcopy(N2, initP, 1, inP, 1);
 
-                            inP  = outP;
+                        }else {
+                            cblas_daxpy(N2, flow, laterP, 1, inP, 1);
                         }
                 }
                 su = f1.name[su].loopNext;//sum channel

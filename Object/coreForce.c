@@ -843,6 +843,9 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
 
                         DCOMPLEX tc;
                         double * te = streams(f1, temp, 0, space);
+                        f1.name[eikonBuffer].Current[0] = 1;
+                        f1.name[eikonBuffer].Current[1] = 1;
+
                         double * tec;
 #ifdef COMPLEXME
                         tec = streams(f1, temp, 1, space);
@@ -1068,8 +1071,6 @@ inta factoredInteraction(   sinc_label *f,double scalar, double * position,inta 
         }
         
         //x is beta.
-        tClear(f1,temp);
-        zero(f1,temp,0);
         inta invertSign;
     
         newLabel = anotherLabel(f,0,nada);
@@ -1124,7 +1125,8 @@ inta factoredInteraction(   sinc_label *f,double scalar, double * position,inta 
                             DCOMPLEX tc;
                             double * te = streams(f1, temp, 0, space);
                             double * tec = streams(f1, temp, 1, space);
-
+                            f1.name[eikonBuffer].Current[0] = 1;
+                            f1.name[eikonBuffer].Current[1] = 1;
                             si = 0;
                             for ( I1 = 0 ; I1 < N1; I1++)
                                 {
