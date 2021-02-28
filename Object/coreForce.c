@@ -872,8 +872,8 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                                                 tc *= Wbeta[beta]*gaussianKernel;
                                                 
                                                 ///for periodic-dirac located external fields
-                                                if ( body == one && specs[1].opQ == 0 )
-                                                    tc *= cexp(-I*position[f1.canon[space].space]*momentumIndex/iL);
+//                                                if ( body == one && specs[1].opQ == 0 )
+//                                                    tc *= cexp(-I*position[f1.canon[space].space]*momentumIndex/iL);
                                             }
                                          te[si] = creal(tc);
 #ifdef COMPLEXME
