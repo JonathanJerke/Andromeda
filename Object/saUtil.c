@@ -175,32 +175,6 @@ bodyType commandSA(  bodyType bd, inta act,   blockType cl,   blockType bl,inta 
                             break;
 
                     }
-                }else if ( cl == tv2 ){//2-body--on second like tv2
-                    switch(bl){
-                        case id0:
-                        case tv1:
-                            return one;
-                        case tv2:
-                            return one;
-                        case e12:
-                            op[0] = 1;
-                            op[1] = 0;
-                            op[2] = 2;
-                            return two;
-                        case e13:
-                            op[0] = 2;
-                            op[1] = 0;
-                            op[2] = 1;
-                            return two;
-                        case e23:
-                            op[0] = 2;
-                            op[1] = 1;
-                            op[2] = 0;
-                            return two;
-                        default:
-                            break;
-
-                    }
                 }else if ( cl == e12){
                     switch(bl){
                         case e12:
@@ -220,8 +194,6 @@ bodyType commandSA(  bodyType bd, inta act,   blockType cl,   blockType bl,inta 
                             return two;
                         default:
                             break;
-
-
                     }
                 }
         case four:
@@ -229,6 +201,61 @@ bodyType commandSA(  bodyType bd, inta act,   blockType cl,   blockType bl,inta 
             perm[1] = 1;
             perm[2] = 2;
             perm[3] = 3;
+            
+            if ( cl == tv1){
+                    switch(bl){
+                        case id0:
+                    //1-body
+                        case tv1:
+                            op[0] = 0;
+                            op[1] = 1;
+                            op[2] = 2;
+                            op[3] = 3;
+                            return one;
+                        case tv2:
+                            op[0] = 1;
+                            op[1] = 0;
+                            op[2] = 2;
+                            op[3] = 3;
+                            return one;
+                        case tv3:
+                            op[0] = 2;
+                            op[1] = 1;
+                            op[2] = 0;
+                            op[3] = 3;
+                            return one;
+                        case tv4:
+                            op[0] = 2;
+                            op[1] = 1;
+                            op[2] = 3;
+                            op[3] = 0;
+                            return one;
+
+                    //1-body
+                        case e12://if 2-body --on first like tv1
+                            op[0] = 0;
+                            op[1] = 1;
+                            op[2] = 2;
+                            op[3] = 3;
+                            return two;
+                        case e13:
+                            op[0] = 0;
+                            op[1] = 2;
+                            op[2] = 1;
+                            op[3] = 3;
+                            return two;
+                        case e23:
+                            op[0] = 1;
+                            op[1] = 2;
+                            op[2] = 0;
+                            op[3] = 3;
+                            return two;
+                        default:
+                            break;
+
+                    }
+                }
+            
             if ( cl == e12){
                 switch(bl){
                     case e12:
