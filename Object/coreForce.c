@@ -808,15 +808,15 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
             
         inta momentumIndex,momentumLength=0, bodyIndex ;
                 
-        
-        for ( bodyIndex = 0 ; bodyIndex < body ; bodyIndex++){
-            if ( specs[bodyIndex].metric == zeroMomentum )
-                momentumLength = 0;
-            else if ( specs[bodyIndex].metric == discreteMomentum )
-                momentumLength = specs[bodyIndex].interval;
+        bodyIndex = 0;
+        if ( specs[bodyIndex].metric == zeroMomentum )
+            momentumLength = 0;
+        else if ( specs[bodyIndex].metric == discreteMomentum )
+            momentumLength = specs[bodyIndex].interval;
     
-            for ( momentumIndex = -momentumLength ;  momentumIndex <= momentumLength ; momentumIndex++)
-            {
+        for ( momentumIndex = -momentumLength ;  momentumIndex <= momentumLength ; momentumIndex++)
+            for ( bodyIndex = 0 ; bodyIndex < body ; bodyIndex++)
+        {
 
                 
                 double iL,oneOri,twoOri,iO;
@@ -960,7 +960,6 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
             f1.name[currLoop].loopNext = newLabel;
             f1.name[newLabel].species = eikonSplit;
             currLoop = newLabel;
-            }
         }
     }
     return 0;
