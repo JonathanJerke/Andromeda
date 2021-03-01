@@ -2984,9 +2984,9 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                 division su = left;//direct summation per component!
                 inta timer = 0,xlxl=0;
                 while ( su != nullName ){
-                    
+#if VERBOSE
             printf("in %f %d\n", cblas_dnrm2(N2, inP, 1),N1);
-
+#endif
                     for ( i = 0 ; i < N2 ; i++){
                         midP[i] = 0.;
                         laterP[i] = 0.;
@@ -3214,9 +3214,7 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                         }
                         else if ( bd == four ){
                             inta i,i2,i3;
-                            for ( i = 0 ; i < N1 ; i++)
-                            printf("%f\n",suP[i]);
-                            
+                    
                             
                             
                             switch (f1.name[su].space[space].block){
