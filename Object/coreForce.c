@@ -627,11 +627,12 @@ inta quadrature( metric_label metric, floata *X, floata* W){
     return ngk;
 }
 
+
 /**
  *building quantum operators for oneBody and twoBody interactions
  *
  */
-inta separateInteraction(   sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, double adjustOne,    division load,  metric_label metric,  spinType spin,  division basis ,inta particle1,  bodyType body,inta embed){
+inta splitInteraction(   sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, double adjustOne,    division load,  metric_label metric,  spinType spin,  division basis ,inta particle1,  bodyType body,inta embed){
       genusType hidden;
       sinc_label f1 = *f;
       division temp , currLoop, currChain,newLabel;
@@ -750,6 +751,246 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
     free(Wbeta);
     return 0;
 }
+
+/**
+ *building quantum operators for oneBody and twoBody interactions
+ */
+inta separateInteraction(   sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, double adjustOne,    division load,  metric_label metric,  spinType cmpl,inta overline,   division basis ,inta particle1,  bodyType body,inta embed){
+      genusType hidden;
+      sinc_label f1 = *f;
+      division temp , currLoop, currChain,newLabel;
+    
+    double oneL,twoL;
+    inta perm[7],op[7];
+    
+    
+    {
+          division li = load;
+        while ( f1.name[li].chainNext != nullName)
+            li =f1.name[li].chainNext;
+        currChain = li;
+        temp = eikonBuffer;
+    }
+    if ( metric.fn.fn == nullFunction){
+        printf("null func\n");
+        return 0;
+    }
+    inta spaces,spacy, n1[SPACE];
+    length1(f1,n1);
+    
+    inta i,beta,I1,space,I2,N1;
+    spaces = 0;
+    double constant,x,g;
+    floata  *stream[SPACE];
+    for ( i = 0; i < SPACE ; i++)
+        if ( f1.canon[i].body != nada )
+            stream[i] =  streams( f1, temp,0,i  );
+    
+    
+    /////IGNORE TRAIN COMMAND
+    if ( basis ){
+       // f1.name[load].header = 0;
+//        f1.name[temp].header = Cube;
+    }
+    else {
+//        f1.name[temp].header = Cube;
+//        f1.name[load].header = Cube;
+    }
+    
+    inta section=2,si,ngk, intv = metric.fn.interval,flagConstants=0;
+    
+    if ( metric.metric == interval )
+        section = 0;
+    if ( metric.metric == semiIndefinite)
+        section = 1;
+    if ( metric.metric == dirac)
+        section = 2;
+    
+    if ( metric.metric == pureSemiIndefinite){
+        section = 1;
+        flagConstants = 1;
+    }
+    if ( metric.metric == pureInterval){
+        flagConstants = 1;
+        section = 0;
+    }
+    if ( section < 2 ){
+        ngk = intv;
+//        if ( intv  == 0 ) {
+//            ngk = 3;
+//        }else if ( intv == 1 ){
+//            ngk = 7;
+//        }else if ( intv == 2 ){
+//            ngk = 15;
+//        }else if ( intv == 3 ){
+//            ngk = 35;
+//        }else if ( intv == 4 ){
+//            ngk = 99;
+//        }else {
+//            printf("unknown interval\n");
+//            exit(1);
+//        }
+    }
+    else {
+        ngk = 1;
+    }
+
+    for ( beta = 0; beta < ngk ; beta++){//beta is an index.
+        if ( section == 1 ){
+            g = gaussQuad(ngk,beta,1);// [1, inf)
+            constant = gaussQuad(ngk, beta, 0);
+            
+            x = ( g ) / (1. - g)+1 ;
+            constant /= (1.-g)*(1.-g);
+            
+            
+            x *=  metric.beta[0];
+            constant *= metric.beta[0];
+            if ( ! flagConstants )
+                constant *= inverseLaplaceTransform(x,&metric.fn)*scalar;
+            else
+                constant = 1;
+        }else if ( section == 0 ) {
+            g = gaussQuad(ngk,beta,1);//interval [0,1]
+            constant = gaussQuad(ngk, beta, 0);
+            
+            x = g;
+            
+            
+            x *=  (metric.beta[1]-metric.beta[0]);
+            constant *= (metric.beta[1]-metric.beta[0]);
+            x += metric.beta[0];
+            if ( ! flagConstants )
+                constant *= inverseLaplaceTransform(x,&metric.fn)*scalar;
+            else
+                constant = 1;
+
+        } else {
+            x = metric.beta[0];// value;
+            constant = scalar;
+        }
+        //printf("x %f \n const %f\n",x,constant);
+        tClear(f1,temp);
+        tId(f1,temp,0);
+        
+        //x is beta.
+        if ( overline ){
+            printf("periodic boundaries not implemented yet!");
+            exit(0);
+        }
+        tClear(f1,temp);
+        zero(f1,temp,0);
+        inta invertSign;
+    
+        newLabel = anotherLabel(f,0,nada);
+        f1.name[currChain].chainNext = newLabel;
+        f1.name[newLabel].species = eikon;
+        f1.name[newLabel].multId = beta;
+        ///all equal-beta chained Ops will multiply on each beta index. i.e. H2+
+        currChain = newLabel;
+        currLoop = currChain;
+        for ( hidden = eikonDiagonal ; hidden <= eikonDiagonal + imin(body,metric.fn.contr);hidden++ )
+            {
+                double oneOri,twoOri;
+                invertSign = 1;
+
+            for ( space = 0 ;space < SPACE  ; space++)
+                if ( f1.canon[space].body != nada )
+                    if ( f1.canon[space].label == particle1 )
+                {
+                    //printf("space-%d position %f\n",space,position[f1.canon[space].space]);
+                    if ( body == one ){
+                        commandSA(f1.canon[space].body, f1.name[newLabel].space[space].act,tv1 , bl, perm, op);
+
+                            oneL = f1.canon[space].particle[op[0]+1].lattice;
+                            oneOri = f1.canon[space].particle[op[0]+1].origin;
+                            ///position of left edge...
+
+                            double * te = streams(f1, temp, 0, space);
+                            N1 = n1[space];
+
+                                for ( si = 0 ; si < N1; si++){
+                                        I1 = si;//
+                                    te[si] = momentumIntegralInTrain(x*oneL, ((I1*oneL+oneOri)-position[f1.canon[space].space])/oneL,1, hidden, body);
+                                    if ( invertSign  ){
+                                            te[si] *= constant;
+                                            for ( spacy = 0 ; spacy < embed ; spacy++)
+                                                te[si] *= momentumIntegralInTrain(x*oneL, 0,1, hidden, body);
+                                    }
+                                    if ( alloc(f1, temp, space) < si ){
+                                        printf("creation of oneBody, somehow allocations of vectors are too small. %d\n",newLabel);
+                                        exit(0);
+                                    }
+
+                                }
+
+                        
+                        
+                        
+                    }else
+                    ///conditional body 2
+                    if ( body == two ){
+                        commandSA(f1.canon[space].body, f1.name[newLabel].space[space].act,e12 , bl, perm, op);
+                        oneL = f1.canon[space].particle[op[0]+1].lattice*adjustOne;
+                        oneOri = f1.canon[space].particle[op[0]+1].origin*adjustOne;
+                        twoL = f1.canon[space].particle[op[1]+1].lattice;
+                        twoOri = f1.canon[space].particle[op[1]+1].origin;
+                        
+                        N1 = n1[space];
+
+
+                            
+                    double * te = streams(f1, temp, 0, space);
+
+                                si = 0;
+                                for ( I2 = 0; I2 < N1; I2++){
+                                    for ( I1 = 0 ; I1 < N1; I1++)
+                                     {
+                                        te[si] = momentumIntegralInTrain(x*max(fabs(oneL),twoL), ((oneL*I1+oneOri)-(twoL*I2+twoOri))/max(fabs(oneL),twoL),1, hidden, body);
+                                         if ( invertSign ){
+                                             te[si] *= constant;
+                                             for ( spacy = 0 ; spacy < embed ; spacy++)
+                                                 te[si] *= momentumIntegralInTrain(x*max(fabs(oneL),twoL), 0,1, hidden, body);
+                                         }
+                                             
+                                         si++;
+                                         if ( alloc(f1, temp, space) < si ){
+                                             printf("creation of twoBody, somehow allocations of vectors are too small. %d\n",newLabel);
+                                             exit(0);
+                                         }
+
+                                     }
+                                }
+                                    if ( alloc(f1, temp, space) < si ){
+                                        printf("creation of twoBody, somehow allocations of vectors are too small. %d\n",newLabel);
+                                        exit(0);
+                                    }
+                            }
+                    invertSign = 0;
+
+                }
+                
+                
+            newLabel = anotherLabel(f,particle1,body);
+            for ( space = 0 ;space < SPACE  ; space++)
+                if ( f1.canon[space].body != nada ){
+                    f1.name[newLabel].space[space].act = act;
+                    if ( f1.canon[space].label == particle1 ){
+                        f1.name[newLabel].space[space].body = body;
+                        f1.name[newLabel].space[space].block = bl;
+                    }
+            }
+            f1.name[temp].Current[0]= 1;
+            tEqua(f1, newLabel, 0, temp, 0);
+            f1.name[currLoop].loopNext = newLabel;
+            f1.name[newLabel].species = hidden;
+            currLoop = newLabel;
+        }
+    }
+    
+    return 0;
+}
+
 
 /**
  *building quantum operators for oneBody and twoBody interactions
@@ -2101,8 +2342,8 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
             else if ( mu.metric == dirac )
                 ra++;
         if ( bootedQ(*f1) ){
-                    separateInteraction(f1,scalar*c1->i.atoms[a].Z, c1->i.atoms[a].position+1,invert,act,bl, adjustOne, single, mu, cmpl,  0, particle1,one,embed);
-                }
+                    separateInteraction(f1,scalar*c1->i.atoms[a].Z, c1->i.atoms[a].position+1,invert,act,bl, adjustOne, single, mu, cmpl, 0, 0, particle1,one,embed);
+        }
         
     if ( bootedQ(*f1) ){
     }
@@ -2145,7 +2386,7 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
             zero[4] = 0.;
             zero[5] = 0.;
         if ( f1->canon[0].basis == SincBasisElement )
-            separateInteraction(f1, scalar,zero,invert,act,bl, adjustOne, pair , mu, cmpl, 0, particle1,two,embed);
+            separateInteraction(f1, scalar,zero,invert,act,bl, adjustOne, pair , mu, cmpl,0, 0, particle1,two,embed);
         else{
             momentumIntegralSpecs specs[2];
             specs[0].metric = discreteMomentum;
