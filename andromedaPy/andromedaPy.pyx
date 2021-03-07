@@ -134,7 +134,7 @@ cdef class galaxy:
 					for body in range(1,self.field.f.canon[space].body+1):
 						particle = self.field.f.canon[space].particle[body]
 						particle.origin += ( 
-		particle.lattice*numpy.floor((self.field.f.canon[space].count1Basis-1)*particle.anchor))
+		particle.lattice*numpy.floor(self.field.f.canon[space].count1Basis*particle.anchor))
 						some += [particle]
 					all += [some]
 			return all
@@ -235,7 +235,7 @@ cdef class galaxy:
 							for (body, particle) in enumerate(dim):
 								self.field.f.canon[space].particle[body+1] = particle
 								self.field.f.canon[space].particle[body+1].origin -= ( 
-		particle['lattice']*numpy.floor((self.field.f.canon[space].count1Basis-1)*particle['anchor']))
+		particle['lattice']*numpy.floor(self.field.f.canon[space].count1Basis*particle['anchor']))
 							if len(dim)==1:
 								self.field.f.canon[space].body = bodyType.one
 							elif len(dim)==2:

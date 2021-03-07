@@ -378,8 +378,8 @@ cdef extern from "../Object/constants.h":
         spinType spinor
         division linkNext
         division chainNext
-        inta multId
         division loopNext
+        division multNext
         inta Partition
         memoryType memory
         value_label value
