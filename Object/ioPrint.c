@@ -594,14 +594,14 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                                     
                                     for (body = one ; body <= f2.f.canon[space].body; body++)
                                         {
-                                            f2.f.canon[space].particle[body].origin +=  +f1.canon[space].particle[body].lattice*floor((f1.canon[space].count1Basis-1)*f1.canon[space].particle[body].anchor);
+                                            f2.f.canon[space].particle[body].origin +=  +f1.canon[space].particle[body].lattice*floor(f1.canon[space].count1Basis*f1.canon[space].particle[body].anchor);
                                             ///remove previous origin
                                             
                                             
-                                            f2.f.canon[space].particle[body].lattice  = f1.canon[space].particle[body].lattice * pow( (f1.canon[space].count1Basis-1)*1./(f2.f.canon[space].count1Basis-1),f1.canon[space].particle[body].attack);
+                                            f2.f.canon[space].particle[body].lattice  = f1.canon[space].particle[body].lattice * pow( f1.canon[space].count1Basis*1./f2.f.canon[space].count1Basis,f1.canon[space].particle[body].attack);
                                             ///attack lattice
                                             
-                                            f2.f.canon[space].particle[body].origin -= +f2.f.canon[space].particle[body].lattice*floor((f2.f.canon[space].count1Basis-1)*f2.f.canon[space].particle[body].anchor);
+                                            f2.f.canon[space].particle[body].origin -= +f2.f.canon[space].particle[body].lattice*floor(f2.f.canon[space].count1Basis*f2.f.canon[space].particle[body].anchor);
                                             ///reintroduce origin
                                         }
                                     ///new stage..

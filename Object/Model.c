@@ -386,8 +386,8 @@ inta iModel(   calculation * c1,   field *f){
                     f1->name[label1].species = scalar;
                     f1->name[label1].linkNext = nullName;
                     f1->name[label1].chainNext = nullName;
-                    f1->name[label1].multId = -label1;//unique entries do not multiply up.
                     f1->name[label1].loopNext = nullName;
+                    f1->name[label1].multNext = nullName;//unique entries do not multiply up.
                     f1->name[label1].memory = objectAllocation;
                    // f1->name[label1].operatorSignFlag = 0;
                     for ( space = 0; space <= SPACE ; space++)

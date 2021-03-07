@@ -136,7 +136,10 @@ void length1(  sinc_label f1, inta *len){
                 f1->name[output].linkNext = nullName;
                 f1->name[output].chainNext = nullName;
                 f1->name[output].loopNext = nullName;
+                f1->name[output].multNext = nullName;
+
                 f1->name[output].Current[0] = 0;
+                f1->name[output].Current[1] = 0;
                 f1->name[output].name = output;
                 return output;
             }
@@ -154,7 +157,9 @@ void length1(  sinc_label f1, inta *len){
                 f1->name[output].linkNext = nullName;
                 f1->name[output].chainNext = nullName;
                 f1->name[output].loopNext = nullName;
+                f1->name[output].multNext = nullName;
                 f1->name[output].Current[0] = 0;
+                f1->name[output].Current[1] = 0;
                 f1->name[output].name = output;
                 return output;
             }
@@ -764,20 +769,9 @@ inta CanonicalRank(   sinc_label f1 ,   division label , inta spin ){
 
 inta CanonicalOperator( sinc_label f1, division label, inta spin ){
     inta rr = CanonicalRank(f1, name(f1,label), spin );
-    inta found ;
-      division ll = f1.name[name(f1,label)].chainNext,zz;
+    division ll = f1.name[name(f1,label)].chainNext;
     while ( ll != nullName ){
-        zz = label;
-        found = 0;
-        while ( zz != ll ){
-            if (f1.name[zz].multId == f1.name[ll].multId)
-                found = 1;
-            zz = f1.name[name(f1,zz)].chainNext;
-        }
-        if ( ! found ){
-            rr += CanonicalRank(f1, name(f1,ll), spin);//switch from product to addition!!!
-        }
-        
+        rr += CanonicalRank(f1, name(f1,ll), spin);
         ll = f1.name[name(f1,ll)].chainNext;
     }
     return rr;
@@ -2764,7 +2758,6 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
                 f1.name[mem].species = eikonOuter;
                 f1.name[mem].Current[0] = 1;
                 f1.name[mem].space[space].body = one;
-                f1.name[mem].multId = 0;
 
                 for ( spacer = 0; spacer < SPACE ;spacer++)
                     f1.name[mem].space[spacer].block = id0;
@@ -2919,7 +2912,7 @@ double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin, 
  *@param r one of the input canonical ranks indexed
  *@param rspin input spin
  */
-inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e, inta espin,  division left,inta l,inta lspin,   division right,inta r, inta rspin ){
+inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,  division left,inta l,inta lspin,   division right,inta r, inta rspin ){
     if ( header(f1, left ) != header(f1, right ) ){
         printf("Two Head types GEMV\n %d %d %d %d %d %d",equals,header(f1, equals ) ,left,header(f1, left ) ,right,header(f1, right ) );
         exit(1);
@@ -2932,9 +2925,8 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
         }
     }
     
-    bodyType bd = Bodies(f1, right,space);
-    division inT,outT,initT,midT,laterT;
-    inta inR,outR,inS,outS,initR,initS,midR,midS,laterR,laterS;
+    division inT,outT,midT,laterT,initT;
+    inta space,inR,outR,inS,outS,midR,midS,laterR,laterS,initR,initS;
     f1.name[canonicalmvVector].Current[rank] = 0;
     f1.name[canonicalmv2Vector].Current[rank] = 1;
     f1.name[canonicalmv3Vector].Current[rank] = 0;
@@ -2964,33 +2956,54 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
         inR = 2;
         inS = rank;
 
-        {
+        
             
-                inta N1 = outerVectorLen(f1, one,space);
-                inta N2 = vectorLen(f1, space);
                 
                 inta i;
-            double * midP = streams(f1, midT, midS,space)+midR*N2;
-            double * laterP = streams(f1, laterT, laterS,space)+laterR*N2;
-            double * initP  = streams(f1, initT, initS,space)+initR*N2;
-            double * inP  = streams(f1, inT, inS,space)+inR*N2;
-            double * outP = streams(f1, outT, outS,space)+outR*N2;
-            for ( i = 0 ; i < N2 ; i++)
-                outP[i] = 0.;
-            cblas_dcopy(N2, initP, 1, inP, 1);
-#if VERBOSE
-            printf("in %f %d\n", cblas_dnrm2(N2, inP, 1),N1);
-#endif
-                division su = left;//direct summation per component!
+        double * midP ;
+        double * laterP ;
+        double * initP  ;
+        double * inP;
+        double * outP ;
+                inta firstFlag = 1;
+                division su = left;
                 inta timer = 0,xlxl=0;
+                ///PRODUCT!
                 while ( su != nullName ){
 #if VERBOSE
-            printf("in %f %d\n", cblas_dnrm2(N2, inP, 1),N1);
+                    printf("in %f %d\n", cblas_dnrm2(N2, inP, 1),N1);
 #endif
-                    for ( i = 0 ; i < N2 ; i++){
-                        midP[i] = 0.;
-                        laterP[i] = 0.;
-                    }
+                    
+                    for ( space = 0; space < SPACE ; space++)
+                    if ( f1.canon[space].body != nada ){
+                    
+                    
+                        bodyType bd = Bodies(f1, right,space);
+                        inta N1 = outerVectorLen(f1, one,space);
+                        inta N2 = vectorLen(f1, space);
+
+                    
+                    
+                    
+                        
+                        midP = streams(f1, midT, midS,space)+midR*N2;
+                        laterP = streams(f1, laterT, laterS,space)+laterR*N2;
+                        initP  = streams(f1, initT, initS,space)+initR*N2;
+                        inP = NULL;
+                        outP = streams(f1, outT, outS,space)+outR*N2;
+
+                        if ( firstFlag ){
+                            inP = initP;
+                            for ( i = 0 ; i < N2 ; i++)
+                                outP[i] = 0.;
+                            firstFlag = 0;
+                        }
+                        else {
+                            inP = streams(f1, inT, inS,space)+inR*N2;
+                            
+                            ///product by copying collected state back to input.
+                            cblas_dcopy(N2, outP,1, inP,1);
+                        }
 
                     if ( f1.name[su].space[space].block == id0 )
                         xlxl = 1;
@@ -3038,6 +3051,11 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
 
                     }
                     for ( timer = 0 ; timer < xlxl ; timer++){
+                        for ( i = 0 ; i < N2 ; i++){
+                            midP[i] = 0.;
+                            laterP[i] = 0.;
+                        }
+                        
                         double flow = 1.;
                          ///the notion is to buffer on mid and accumlate on out
                         inta N3 = alloc(f1, su, space);
@@ -3366,38 +3384,23 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
                                     diagonalOp(bd,f1.name[su].space[space].act    ,e12, f1.name[su].space[space].block,N1                                  ,laterP, suP,midP);
                                     topezOp(0,1., bd         ,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1  ,midP,  1,laterP);
 
+                                    }
                                 }
-                            
+                            }
                         }
+                        cblas_daxpy(N2, flow, laterP, 1, outP, 1);
+                        ///sum collect to outP.
                     }
-                        
-                        
-                       
                     }
-                        if ( f1.name[su].multId == 0 ){
-                            if ( f1.name[su].space[space].act < 0 ){
-    #if VERBOSE
-                                printf("invert\n");
-    #endif
-                                InvertOp(bd,-f1.name[su].space[space].act, N1, laterP, midP);
-                                cblas_daxpy(N2, flow, midP , 1, outP, 1);
-                                }else {
-                                    cblas_daxpy(N2, flow, laterP, 1, outP, 1);
-                               }
-                            cblas_dcopy(N2, initP, 1, inP, 1);
-
-                        }else {
-                            cblas_dcopy(N2, laterP, 1, inP, 1);
-                        }
+                    su = f1.name[su].multNext;//sum channel
                 }
-                su = f1.name[su].loopNext;//sum channel
-                }
+            
         }
-        
-    }
-        else
-            if ( species(f1,left) == matrix && species(f1,right) == vector){
-                if ( bodies(f1,left) == bodies(f1,right))
+    else{ inta space;
+        for ( space = 0 ; space < SPACE ; space++)
+            if ( f1.canon[space].body != nada )
+                    if ( species(f1,left) == matrix && species(f1,right) == vector){
+                        if ( bodies(f1,left) == bodies(f1,right))
                 {
                     inta N1 = vectorLen(f1, space);
 
@@ -3429,6 +3432,8 @@ inta tGEMV (inta rank,    sinc_label  f1, inta space,   division equals, inta e,
         inta N1 = vector1Len(f1, space);
         inta N2 = N1*N1;
         cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,N1,N1,N1,1.,streams( f1, left, lspin,space )+l*N2,N1,streams(f1, right,rspin,space)+r*N2,N1, 0.,streams( f1, equals, espin,space)+e*N2,N1);
+    }
+        
     }
     return 0;
 }
@@ -3597,13 +3602,12 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
         printf("*");
         return 0;
     }
-    name_label u = f1.name[left];
     division in=nullName,out=nullName;
     inta inSp,outSp,inRank,outRank;
     
-    inta N2,flag,lll,found;
-    inta dim,iter=0;
-    {
+    inta N2,flag,lll;
+    inta dim;
+    
         
         if ( rank ){
             ///check for parallel allocations
@@ -3613,95 +3617,30 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
                 exit(0);
             }
         }
-        name_label x = f1.name[left];
-        division ll = name(f1,left),xx,zz;
+        division ll = name(f1,left);
         inta mi = 0,xi=0;
-                if (f1.name[ll].multId)
-                    while ( ll != nullName){
-                        //chain will tie various separate terms into a single entity
-                        zz = name(f1,left);
-                        found = 0;
-                        while ( zz != ll ){
-                            if (f1.name[zz].multId == f1.name[ll].multId)
-                                found = 1;
-                            zz = f1.name[name(f1,zz)].chainNext;
-                        }
-                        if ( ! found ){
-
+            while ( ll != nullName){
+                xi += CanonicalRank(f1, ll, im);
+                lll =  l-mi;
+                
+                if ( mi <= l && l < xi ){
+                        out =  oket;
+                        outRank = o;
+                        outSp = ospin;
                         
-                        xi += CanonicalRank(f1, ll, im);
-                        lll =  l-mi;
-                        if ( mi <= l && l < xi )
-                            {
-                                
-                                xx = ll;
-                                while ( xx != nullName ){
-                                    if ( f1.name[ll].multId == f1.name[xx].multId){
-                                        iter++;
-                                        if ( iter == 1 ){
-                                            out =  oket;
-                                            outRank = o;
-                                            outSp = ospin;
-                                            
-                                            in = ket;
-                                            inRank = k;
-                                            inSp= sp2;
-                                            
-                                        }else if ( (iter%2) == 0 ){
-                                            //SWAPPED!!@!
-                                            out = multiplyVector;
-                                            outRank = 0;
-                                            outSp = rank;
-                                            
-                                            in = oket;
-                                            inRank = o;
-                                            inSp = ospin;
-                                            
-                                        }else {
-                                            
-                                            out = oket;
-                                            outRank = o;
-                                            outSp = ospin;
-                                            
-                                            in = multiplyVector;
-                                            inRank = 0;
-                                            inSp = rank;
-
-                                        }
+                        in = ket;
+                        inRank = k;
+                        inSp= sp2;
                                         
-                                        
-                                        flag = 1;
-                                        for ( dim = 0 ; dim < SPACE ; dim++)
-                                            if ( f1.canon[dim].body != nada){
-                                                N2 = alloc(f1, out, dim);
-                                                tGEMV(rank, f1, dim,out,outRank,outSp, f1.name[xx].loopNext, lll, im,in, inRank,inSp);
-                                                if ( flag ){
-                                                    cblas_dscal(N2, prod, streams(f1,out,outSp, dim)+outRank*N2, 1);
-                                                    flag = 0;
-                                                }
+                        flag = 1;
+                        tGEMV(rank, f1,out,outRank,outSp, f1.name[ll].loopNext, lll, im,in, inRank,inSp);
+                        N2 = alloc(f1, out, dim);
 
-                                            }
-                                    
-                                        }
-                                    xx = f1.name[name(f1,xx)].chainNext;
-                                }
-                            }
-                            mi += CanonicalRank(f1, ll, im);
-
+                        cblas_dscal(N2, prod, streams(f1,out,outSp, dim)+outRank*N2, 1);
                         }
-                        ll = f1.name[name(f1,ll)].chainNext;
-
-                }
-        
-            if ( iter > 1 && (iter%2) == 0 ){
-                for ( dim = 0 ; dim < SPACE ; dim++)
-                    if ( f1.canon[dim].body != nada){
-                        N2 = alloc(f1, ket, dim);
-                        cblas_dcopy(N2, streams(f1,multiplyVector, rank, dim), 1, streams(f1,oket,ospin,dim)+o*N2, 1);
-                    }
+                        mi += CanonicalRank(f1, ll, im);
+                    ll = f1.name[name(f1,ll)].chainNext;
             }
-
-    }
     
     return 1;
 }

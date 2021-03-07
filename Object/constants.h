@@ -740,10 +740,10 @@ struct name_label {
     division linkNext;
     ///lump into a term, defined like link, in so far that it adds
     division chainNext;
-    ///equal lineups in chain will multiply together
-    inta multId;
     ///within an SOP collective...direct sum
     division loopNext;
+    ///for multi-body operators, chain across them
+    division multNext;
     ///Allocated number of elements of type defined wherein
     inta Partition;
     ///extra level of protection of memory types

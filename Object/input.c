@@ -1005,10 +1005,10 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                         f->f.canon[dim].particle[three].attack = attack3;
                         f->f.canon[dim].particle[four].attack = attack4;
 
-                        f->f.canon[dim].particle[one].origin =   lattice1*floor(origin1/lattice1)-lattice1*floor((count1Basis-1)*anchor1);
-                        f->f.canon[dim].particle[two].origin =   lattice2*floor(origin2/lattice2)-lattice2*floor((count1Basis-1)*anchor2);
-                        f->f.canon[dim].particle[three].origin = lattice3*floor(origin3/lattice3)-lattice3*floor((count1Basis-1)*anchor3);
-                        f->f.canon[dim].particle[four].origin  = lattice4*floor(origin4/lattice4)-lattice4*floor((count1Basis-1)*anchor4);
+                        f->f.canon[dim].particle[one].origin =   lattice1*floor(origin1/lattice1)-lattice1*floor(count1Basis*anchor1);
+                        f->f.canon[dim].particle[two].origin =   lattice2*floor(origin2/lattice2)-lattice2*floor(count1Basis*anchor2);
+                        f->f.canon[dim].particle[three].origin = lattice3*floor(origin3/lattice3)-lattice3*floor(count1Basis*anchor3);
+                        f->f.canon[dim].particle[four].origin  = lattice4*floor(origin4/lattice4)-lattice4*floor(count1Basis*anchor4);
 
                         if ( dim >= SPACE ){
                             printf("add space\n");
@@ -1094,13 +1094,13 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                                         
                                         
                                         for (body1 = one ; body1 <= f->f.canon[dim].body; body1++){
-                                            f->f.canon[dim].particle[body1].origin += +f->f.canon[dim].particle[body1].lattice*floor((f->f.canon[dim].count1Basis-1)*f->f.canon[dim].particle[body1].anchor);
+                                            f->f.canon[dim].particle[body1].origin += +f->f.canon[dim].particle[body1].lattice*floor(f->f.canon[dim].count1Basis*f->f.canon[dim].particle[body1].anchor);
                                             ///remove previous origin
 
                                             f->f.canon[dim].particle[body1].lattice *= pow( (f->f.canon[dim].count1Basis-1)*1./(f->f.canon[dim].count1Basis + ivalue*f->f.canon[dim].count1Inc -1),f->f.canon[dim].particle[body1].attack );
                                             ///attack lattice
                                             
-                                            f->f.canon[dim].particle[body1].origin -= +f->f.canon[dim].particle[body1].lattice*floor((f->f.canon[dim].count1Basis+ivalue*f->f.canon[dim].count1Inc-1)*f->f.canon[dim].particle[body1].anchor);
+                                            f->f.canon[dim].particle[body1].origin -= +f->f.canon[dim].particle[body1].lattice*floor((f->f.canon[dim].count1Basis+ivalue*f->f.canon[dim].count1Inc)*f->f.canon[dim].particle[body1].anchor);
                                             ///reintroduce previous origin
 
                                         }

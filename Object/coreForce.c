@@ -676,7 +676,6 @@ inta splitInteraction(   sinc_label *f,double scalar, double * position,inta inv
         newLabel = anotherLabel(f,0,nada);
         f1.name[currChain].chainNext = newLabel;
         f1.name[newLabel].species = eikon;
-        f1.name[newLabel].multId = beta;
         f1.name[newLabel].spinor = spin;
 
         ///all equal-beta chained Ops will multiply on each beta index. i.e. H2+
@@ -711,8 +710,6 @@ inta splitInteraction(   sinc_label *f,double scalar, double * position,inta inv
                                         tc = cexp( I * m * (Xbeta[beta] + pi/oneL));
                                         if ( invertSign ){
                                                 tc *= Wbeta[beta];
-//                                            for ( spacy = 0 ; spacy < embed ; spacy++)
-//                                                te[si] *= momentumIntegralInTrain(x*oneL, 0,1, hidden, body);
                                         }
                                         if ( alloc(f1, temp, space) < si ){
                                             printf("creation of oneBody, somehow allocations of vectors are too small. %d\n",newLabel);
@@ -727,7 +724,6 @@ inta splitInteraction(   sinc_label *f,double scalar, double * position,inta inv
                 }
                 
             newLabel = anotherLabel(f,particle1,body);
-            f1.name[newLabel].multId = 0;
             f1.name[newLabel].spinor = spin;
             for ( space = 0 ;space < SPACE  ; space++)
                 if ( f1.canon[space].body != nada ){
@@ -885,7 +881,6 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
         newLabel = anotherLabel(f,0,nada);
         f1.name[currChain].chainNext = newLabel;
         f1.name[newLabel].species = eikon;
-        f1.name[newLabel].multId = beta;
         ///all equal-beta chained Ops will multiply on each beta index. i.e. H2+
         currChain = newLabel;
         currLoop = currChain;
@@ -1000,11 +995,11 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
  *---basically a split operator has all kinds of degrees of internal freedom, specifiy
  *
  */
-inta periodicInteraction( sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, division load,  metric_label metric,  spinType spin, momentumIntegralSpecs *specs, division basis ,inta particle1,  bodyType body){
+inta periodicInteraction( sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, division load,  metric_label metric,  spinType spin, momentumIntegralSpecs *specs,floata cellLength, division basis ,inta particle1,  bodyType body){
     
     
     sinc_label f1 = *f;
-      division temp , currLoop, currChain,newLabel;
+    division currLoop, currChain,currMult;
     
     double oneL,twoL;
     inta perm[7],op[7];
@@ -1012,12 +1007,13 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
     
     
     {
-          division li = load;
+        division li = load;
         while ( f1.name[li].chainNext != nullName)
             li =f1.name[li].chainNext;
         currChain = li;
-        temp = eikonBuffer;
     }
+    name_label n = f1.name[currChain];
+    
     if ( metric.fn.fn == nullFunction){
         printf("null func\n");
         return 0;
@@ -1033,23 +1029,23 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
     inta space,N1,si,I1,I2;
     
     for ( beta = 0; beta < nbeta ; beta++){//beta is an index.
+        ///
+        ///new canonRank and header
+        f1.name[currChain].chainNext = anotherLabel(f,all,nada);
+        currChain = f1.name[currChain].chainNext;
+
+        ///header
+        f1.name[currChain].species = eikon;
+        f1.name[currChain].spinor = spin;
+        
+        ///
+        currLoop = currChain;
+        ///
+        
         
         inta invertSign;
-    
-        newLabel = anotherLabel(f,0,nada);
-        f1.name[currChain].chainNext = newLabel;
-        f1.name[newLabel].species = eikon;
-        f1.name[newLabel].multId = beta;
-        f1.name[newLabel].spinor = spin;
-
-        ///all equal-beta chained Ops will multiply on each beta index. i.e. H2+
-        currChain = newLabel;
-        currLoop = currChain;
-        floata gaussianKernel;
-
-            
+        floata gaussianKernel,momentum,momentumStep = 2. * pi / cellLength;
         inta momentumIndex,momentumLength=0, bodyIndex ;
-        inta flagger=0;
         bodyIndex = 0;
         if ( specs[bodyIndex].metric == zeroMomentum )
             momentumLength = 0;
@@ -1057,10 +1053,31 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
             momentumLength = specs[bodyIndex].interval;
     
         for ( momentumIndex = -momentumLength ;  momentumIndex <= momentumLength ; momentumIndex++){
-            gaussianKernel = exp(-pow(pi*momentumIndex/(Xbeta[beta]*f1.canon[0].particle[one].lattice),2.))/(2.*sqrt(pi)*Xbeta[beta]);
-            if ( gaussianKernel > 1e-12 )
+            momentum = momentumIndex*momentumStep;
+            ///
+            
+            ///
+            
+            gaussianKernel = exp(-pow(momentum/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
+            if ( gaussianKernel > f1.rt->THRESHOLD ){
+                ///new canonRank and header
+                ///tGEMV will take first loop as content...
+                f1.name[currLoop].loopNext = anotherLabel(f,all,two);
+                currLoop = f1.name[currLoop].loopNext;
+                
+                f1.name[currLoop].species = eikonSplit;
+                f1.name[currLoop].spinor = spin;
+                
+                currMult = currLoop;
+
+            
             for ( bodyIndex = 0 ; bodyIndex < body ; bodyIndex++)
-        {
+            {
+            
+
+
+            
+            
 
                 
                 double iL,oneOri,twoOri,iO;
@@ -1071,7 +1088,7 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                     if ( f1.canon[space].label == particle1 )
                     {
 
-                        commandSA(f1.canon[space].body, f1.name[newLabel].space[space].act,e12 , bl, perm, op);
+                        commandSA(f1.canon[space].body, act,e12 , bl, perm, op);
                         oneL = f1.canon[space].particle[op[0]+1].lattice;
                         oneOri = f1.canon[space].particle[op[0]+1].origin;
                             
@@ -1086,8 +1103,8 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
 
 
                         DCOMPLEX tc;
-                        double * te = streams(f1, temp, 0, space);
-                        double * tec = streams(f1, temp, 1, space);
+                        double * te = streams(f1, eikonBuffer, 0, space);
+                        double * tec = streams(f1, eikonBuffer, 1, space);
 
                         si = 0;
                         for ( I2 = 0; I2 < N1; I2++)
@@ -1123,8 +1140,8 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                                                 exit(0);
                                             }
                                          si++;
-                                         if ( alloc(f1, temp, space) < si ){
-                                             printf("creation of twoBody, somehow allocations of vectors are too small. %d\n",newLabel);
+                                         if ( alloc(f1, eikonBuffer, space) < si ){
+                                             printf("creation of twoBody, somehow allocations of vectors are too small. %d\n",currMult);
                                              exit(0);
                                          
                                      }
@@ -1132,78 +1149,74 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                             }
                     invertSign = 0;
                 
-                
-            newLabel = anotherLabel(f,particle1,body);
             ///if this is the first of two entries
-            f1.name[newLabel].multId = 0;
-            if ( bodyIndex == 0 && body == two)
-                f1.name[newLabel].multId = 1;
-            f1.name[newLabel].spinor = spin;
             for ( space = 0 ;space < SPACE  ; space++)
                 if ( f1.canon[space].body != nada ){
-                    f1.name[newLabel].space[space].act = act;
+                    f1.name[currMult].space[space].act = act;
                     if ( f1.canon[space].label == particle1 ){
-                        f1.name[newLabel].space[space].body = one;
+                        f1.name[currMult].space[space].body = one;
                         {
                             switch( bl ){
                                 case e12:
                                     if ( bodyIndex == 0 )
-                                        f1.name[newLabel].space[space].block= tv1;
+                                        f1.name[currMult].space[space].block= tv1;
                                     else
-                                        f1.name[newLabel].space[space].block= tv2;
+                                        f1.name[currMult].space[space].block= tv2;
                                 break;
                                 case e13:
                                     if ( bodyIndex == 0 )
-                                        f1.name[newLabel].space[space].block= tv1;
+                                        f1.name[currMult].space[space].block= tv1;
                                     else
-                                        f1.name[newLabel].space[space].block= tv3;
+                                        f1.name[currMult].space[space].block= tv3;
                                     break;
                                 case e23:
                                     if ( bodyIndex == 0 )
-                                        f1.name[newLabel].space[space].block= tv2;
+                                        f1.name[currMult].space[space].block= tv2;
                                     else
-                                        f1.name[newLabel].space[space].block= tv3;
+                                        f1.name[currMult].space[space].block= tv3;
                                     break;
                                 case e14:
                                     if ( bodyIndex == 0 )
-                                        f1.name[newLabel].space[space].block= tv1;
+                                        f1.name[currMult].space[space].block= tv1;
                                     else
-                                        f1.name[newLabel].space[space].block= tv4;
+                                        f1.name[currMult].space[space].block= tv4;
                                     break;
                                 case e24:
                                     if ( bodyIndex == 0 )
-                                        f1.name[newLabel].space[space].block= tv2;
+                                        f1.name[currMult].space[space].block= tv2;
                                     else
-                                        f1.name[newLabel].space[space].block= tv4;
+                                        f1.name[currMult].space[space].block= tv4;
                                     break;
                                 case e34:
                                     if ( bodyIndex == 0 )
-                                        f1.name[newLabel].space[space].block= tv3;
+                                        f1.name[currMult].space[space].block= tv3;
                                     else
-                                        f1.name[newLabel].space[space].block= tv4;
+                                        f1.name[currMult].space[space].block= tv4;
                                     break;
                                 default:
-                                    f1.name[newLabel].space[space].block= bl;
+                                    f1.name[currMult].space[space].block= bl;
                                 ///distribute bl commands
                             }
                         }
                     }
             }
-            {
-                f1.name[temp].Current[0] = 1;
-                f1.name[temp].Current[1] = 1;
+                {
+                f1.name[eikonBuffer].Current[0] = 1;
+                f1.name[eikonBuffer].Current[1] = 1;
 
-                tEqua(f1, newLabel, 0, temp, 0);
-#ifdef COMPLEXME
-                tEqua(f1, newLabel, 1, temp, 1);
-#endif
-                f1.name[newLabel].species = eikonSplit;
+                tEqua(f1, currMult, 0, eikonBuffer, 0);
+                if ( spin == cmpl)
+                    tEqua(f1, currMult, 1, eikonBuffer, 1);
+                f1.name[currMult].species = eikonSplit;
 
+                }
+                if ( body == two && bodyIndex == 0){
+                    f1.name[currMult].multNext = anotherLabel(f,all,two);
+                    currMult = f1.name[currMult].multNext;
+                }
             }
-            f1.name[currLoop].loopNext = newLabel;
-            currLoop = newLabel;
+            }
         }
-    }
     }
     return 0;
 }
@@ -1213,283 +1226,281 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
  *building quantum operators for oneBody and twoBody interactions
  *For GaussianSinc Basis
 */
-inta factoredInteraction(   sinc_label *f,double scalar, double * position,inta invert, blockType bl, double adjustOne,    division load,  metric_label metric,  spinType spin,  division basis ,inta particle1,  bodyType body,inta embed){
-      genusType hidden;
-      sinc_label f1 = *f;
-      division temp , currLoop, currChain,newLabel;
-    
-    double oneL,twoL;
-    inta perm[7],op[7];
-    
-    inta space1 = 0;
-    {
-        inta space;
-        for ( space = 0 ;space < SPACE  ; space++)
-            if ( f1.canon[space].body != nada )
-                if ( particle1 == f1.canon[space].label ){
-                    space1 = space;
-                    break;
-                }
-        
-    }
-    
-    {
-          division li = load;
-        while ( f1.name[li].chainNext != nullName)
-            li =f1.name[li].chainNext;
-        currChain = li;
-        temp = eikonBuffer;
-    } 
-    if ( metric.fn.fn == nullFunction){
-        printf("null func\n");
-        return 0;
-    }
-    inta n1[SPACE];
-    length1(f1,n1);
-    
-    inta beta,I1,space,N1;
-    
-    double constant,x,g;
-        
-    inta section=2,si,ngk, intv = metric.fn.interval,flagConstants=0;
-    
-    if ( metric.metric == interval )
-        section = 0;
-    if ( metric.metric == semiIndefinite)
-        section = 1;
-    if ( metric.metric == dirac)
-        section = 2;
-    
-    if ( metric.metric == pureSemiIndefinite){
-        section = 1;
-        flagConstants = 1;
-    }
-    if ( metric.metric == pureInterval){
-        flagConstants = 1;
-        section = 0;
-    }
-    if ( section < 2 ){
-        ngk = intv;
-    }
-    else {
-        ngk = 1;
-    }
-
-    for ( beta = 0; beta < ngk ; beta++){//beta is an index.
-        if ( section == 1 ){
-            g = gaussQuad(ngk,beta,1);// [1, inf)
-            constant = gaussQuad(ngk, beta, 0);
-            
-            x = ( g ) / (1. - g)+1 ;
-            constant /= (1.-g)*(1.-g);
-            
-            
-            x *=  metric.beta[0];
-            constant *= metric.beta[0];
-            if ( ! flagConstants )
-                constant *= inverseLaplaceTransform(x,&metric.fn)*scalar;
-            else
-                constant = 1;
-        }else if ( section == 0 ) {
-            g = gaussQuad(ngk,beta,1);//interval [0,1]
-            constant = gaussQuad(ngk, beta, 0);
-            
-            x = g;
-            
-            
-            x *=  (metric.beta[1]-metric.beta[0]);
-            constant *= (metric.beta[1]-metric.beta[0]);
-            x += metric.beta[0];
-            if ( ! flagConstants )
-                constant *= inverseLaplaceTransform(x,&metric.fn)*scalar;
-            else
-                constant = 1;
-
-        } else {
-            x = metric.beta[0];// value;
-            constant = scalar;
-        }
-        
-        //x is beta.
-        inta invertSign;
-    
-        newLabel = anotherLabel(f,0,nada);
-        f1.name[currChain].chainNext = newLabel;
-        f1.name[newLabel].species = eikon;
-        f1.name[newLabel].multId = beta;
-        f1.name[newLabel].spinor = spin;
-
-        ///all equal-beta chained Ops will multiply on each beta index. i.e. H2+
-        currChain = newLabel;
-        currLoop = currChain;
-        
-        
-        for ( hidden = eikonDiagonal ; hidden <= eikonDiagonal + imin(body,metric.fn.contr);hidden++ )
-            {
-                inta momentumIndex,momentumLength, bodyIndex ;
-                momentumLength = 2*f1.canon[space1].count1Basis;
-                for ( momentumIndex = -momentumLength ;  momentumIndex <= momentumLength ; momentumIndex++)
-                    for ( bodyIndex = 0 ; bodyIndex < body ; bodyIndex++)
-                {
-                
-                
-                    double iL,oneOri,twoOri,grpL,iO;
-                    invertSign = 1;
-
-                for ( space = 0 ;space < SPACE  ; space++)
-                    if ( f1.canon[space].body != nada )
-                        if ( f1.canon[space].label == particle1 )
-                    {
-                    ///conditional body 2
-                        {
-                            commandSA(f1.canon[space].body, f1.name[newLabel].space[space].act,e12 , bl, perm, op);
-                            oneL = f1.canon[space].particle[op[0]+1].lattice*adjustOne;
-                            oneOri = f1.canon[space].particle[op[0]+1].origin*adjustOne;
-                            
-                            if ( body == two) {
-                                twoL = f1.canon[space].particle[op[1]+1].lattice;
-                                twoOri = f1.canon[space].particle[op[1]+1].origin;
-                            }else {
-                                twoL= 0.;
-                                twoOri = 0.;
-                            }
-                            if ( oneL > twoL ){
-                                grpL = fabs(oneL);
-                            }else {
-                                grpL = fabs(twoL);
-
-                            }
-                            N1 = n1[space];
-
-
-                            DCOMPLEX tc;
-                            double * te = streams(f1, temp, 0, space);
-                            double * tec = streams(f1, temp, 1, space);
-                            f1.name[eikonBuffer].Current[0] = 1;
-                            f1.name[eikonBuffer].Current[1] = 1;
-                            si = 0;
-                            for ( I1 = 0 ; I1 < N1; I1++)
-                                {
-                                             
-                                             ///HERE,  assign a quadature pattern
-                                                 double momentum = (momentumIndex);
-                                                 if ( bodyIndex == 0){
-                                                     iL = oneL;
-                                                     iO = oneOri;
-                                                 }
-                                                 else{
-                                                     iL = twoL;
-                                                     iO = twoOri;
-                                                 }
-                                                 ///HERE somehow need to populate gamma-s
-                                                 ///ALSO NEED a Metric
-                                                 
-                                                 //tc = gaussianSincfourierIntegralInTrain(iL, <#double gammax#>, <#double x#>, <#double gammay#>, <#double y#>, si, momentum, hidden);
-                                                 te[si] = creal(tc);
-                                                 tec[si] = cimag(tc);
-                                                 
-                                                if ( invertSign && bodyIndex == 0 ){
-                                                    
-                                                    ///find a quadrature given
-                                                    ///momentumIndex
-                                                    ///
-                                                    double gaussianKernel = 1;
-                                                    
-                                                    ///multiply of Gaussian here one first particle.
-                                                    te[si] *= constant*gaussianKernel;
-                                                    tec[si] *= constant*gaussianKernel;
-                                                }
-                                             
-                                             if ( isnan(te[si]))
-                                                 printf("%f\n",te[si]);
-                                             si++;
-                                             if ( alloc(f1, temp, space) < si ){
-                                                 printf("creation of twoBody, somehow allocations of vectors are too small. %d\n",newLabel);
-                                                 exit(0);
-                                             }
-                                         
-                                    }
-                                }
-                    invertSign = 0;
-                }
-                
-            newLabel = anotherLabel(f,particle1,body);
-            ///if this is the first of two entries
-            f1.name[newLabel].multId = 0;
-            if ( f1.canon[space].basis == PeriodicSincBasisElement || f1.canon[space].basis == GaussianSincBasisElement )
-                if ( bodyIndex == 0 && body == two)
-                    f1.name[newLabel].multId = 1;
-            f1.name[newLabel].spinor = spin;
-            for ( space = 0 ;space < SPACE  ; space++)
-                if ( f1.canon[space].body != nada ){
-                    f1.name[newLabel].space[space].act = 1;
-                    if ( f1.canon[space].label == particle1 ){
-                        if ( f1.canon[space].basis == SincBasisElement )
-                            f1.name[newLabel].space[space].body = body;
-                        else
-                            f1.name[newLabel].space[space].body = one;
-                        if ( f1.canon[space].basis == SincBasisElement )
-                            f1.name[newLabel].space[space].block = bl;
-                        else if ( f1.canon[space].basis == PeriodicSincBasisElement ){
-                            switch( bl ){
-                                case e12:
-                                    if ( bodyIndex == 0 )
-                                        f1.name[newLabel].space[space].block= tv1;
-                                    else
-                                        f1.name[newLabel].space[space].block= tv2;
-                                break;
-                                case e13:
-                                    if ( bodyIndex == 0 )
-                                        f1.name[newLabel].space[space].block= tv1;
-                                    else
-                                        f1.name[newLabel].space[space].block= tv3;
-                                    break;
-                                case e23:
-                                    if ( bodyIndex == 0 )
-                                        f1.name[newLabel].space[space].block= tv2;
-                                    else
-                                        f1.name[newLabel].space[space].block= tv3;
-                                    break;
-                                case e14:
-                                    if ( bodyIndex == 0 )
-                                        f1.name[newLabel].space[space].block= tv1;
-                                    else
-                                        f1.name[newLabel].space[space].block= tv4;
-                                    break;
-                                case e24:
-                                    if ( bodyIndex == 0 )
-                                        f1.name[newLabel].space[space].block= tv2;
-                                    else
-                                        f1.name[newLabel].space[space].block= tv4;
-                                    break;
-                                case e34:
-                                    if ( bodyIndex == 0 )
-                                        f1.name[newLabel].space[space].block= tv3;
-                                    else
-                                        f1.name[newLabel].space[space].block= tv4;
-                                    break;
-                                default:
-                                    f1.name[newLabel].space[space].block= bl;
-                                ///distribute bl commands
-                            }
-                        }
-                    }
-            }
-                {
-                            inta n;
-                            for ( n = 0 ; n < spin ; n++){
-                                f1.name[temp].Current[n]= 1;
-                                tEqua(f1, newLabel, n, temp, n);
-                            }
-                }
-                f1.name[currLoop].loopNext = newLabel;
-                f1.name[newLabel].species = hidden;
-                currLoop = newLabel;
-                }
-            }
-        }
-    return 0;
-}
+//inta factoredInteraction(   sinc_label *f,double scalar, double * position,inta invert, blockType bl, double adjustOne,    division load,  metric_label metric,  spinType spin,  division basis ,inta particle1,  bodyType body,inta embed){
+//      genusType hidden;
+//      sinc_label f1 = *f;
+//      division temp , currLoop, currChain,newLabel;
+//
+//    double oneL,twoL;
+//    inta perm[7],op[7];
+//
+//    inta space1 = 0;
+//    {
+//        inta space;
+//        for ( space = 0 ;space < SPACE  ; space++)
+//            if ( f1.canon[space].body != nada )
+//                if ( particle1 == f1.canon[space].label ){
+//                    space1 = space;
+//                    break;
+//                }
+//
+//    }
+//
+//    {
+//          division li = load;
+//        while ( f1.name[li].chainNext != nullName)
+//            li =f1.name[li].chainNext;
+//        currChain = li;
+//        temp = eikonBuffer;
+//    }
+//    if ( metric.fn.fn == nullFunction){
+//        printf("null func\n");
+//        return 0;
+//    }
+//    inta n1[SPACE];
+//    length1(f1,n1);
+//
+//    inta beta,I1,space,N1;
+//
+//    double constant,x,g;
+//
+//    inta section=2,si,ngk, intv = metric.fn.interval,flagConstants=0;
+//
+//    if ( metric.metric == interval )
+//        section = 0;
+//    if ( metric.metric == semiIndefinite)
+//        section = 1;
+//    if ( metric.metric == dirac)
+//        section = 2;
+//
+//    if ( metric.metric == pureSemiIndefinite){
+//        section = 1;
+//        flagConstants = 1;
+//    }
+//    if ( metric.metric == pureInterval){
+//        flagConstants = 1;
+//        section = 0;
+//    }
+//    if ( section < 2 ){
+//        ngk = intv;
+//    }
+//    else {
+//        ngk = 1;
+//    }
+//
+//    for ( beta = 0; beta < ngk ; beta++){//beta is an index.
+//        if ( section == 1 ){
+//            g = gaussQuad(ngk,beta,1);// [1, inf)
+//            constant = gaussQuad(ngk, beta, 0);
+//
+//            x = ( g ) / (1. - g)+1 ;
+//            constant /= (1.-g)*(1.-g);
+//
+//
+//            x *=  metric.beta[0];
+//            constant *= metric.beta[0];
+//            if ( ! flagConstants )
+//                constant *= inverseLaplaceTransform(x,&metric.fn)*scalar;
+//            else
+//                constant = 1;
+//        }else if ( section == 0 ) {
+//            g = gaussQuad(ngk,beta,1);//interval [0,1]
+//            constant = gaussQuad(ngk, beta, 0);
+//
+//            x = g;
+//
+//
+//            x *=  (metric.beta[1]-metric.beta[0]);
+//            constant *= (metric.beta[1]-metric.beta[0]);
+//            x += metric.beta[0];
+//            if ( ! flagConstants )
+//                constant *= inverseLaplaceTransform(x,&metric.fn)*scalar;
+//            else
+//                constant = 1;
+//
+//        } else {
+//            x = metric.beta[0];// value;
+//            constant = scalar;
+//        }
+//
+//        //x is beta.
+//        inta invertSign;
+//
+//        newLabel = anotherLabel(f,0,nada);
+//        f1.name[currChain].chainNext = newLabel;
+//        f1.name[newLabel].species = eikon;
+//        f1.name[newLabel].spinor = spin;
+//
+//        ///all equal-beta chained Ops will multiply on each beta index. i.e. H2+
+//        currChain = newLabel;
+//        currLoop = currChain;
+//
+//
+//        for ( hidden = eikonDiagonal ; hidden <= eikonDiagonal + imin(body,metric.fn.contr);hidden++ )
+//            {
+//                inta momentumIndex,momentumLength, bodyIndex ;
+//                momentumLength = 2*f1.canon[space1].count1Basis;
+//                for ( momentumIndex = -momentumLength ;  momentumIndex <= momentumLength ; momentumIndex++)
+//                    for ( bodyIndex = 0 ; bodyIndex < body ; bodyIndex++)
+//                {
+//
+//
+//                    double iL,oneOri,twoOri,grpL,iO;
+//                    invertSign = 1;
+//
+//                for ( space = 0 ;space < SPACE  ; space++)
+//                    if ( f1.canon[space].body != nada )
+//                        if ( f1.canon[space].label == particle1 )
+//                    {
+//                    ///conditional body 2
+//                        {
+//                            commandSA(f1.canon[space].body, f1.name[newLabel].space[space].act,e12 , bl, perm, op);
+//                            oneL = f1.canon[space].particle[op[0]+1].lattice*adjustOne;
+//                            oneOri = f1.canon[space].particle[op[0]+1].origin*adjustOne;
+//
+//                            if ( body == two) {
+//                                twoL = f1.canon[space].particle[op[1]+1].lattice;
+//                                twoOri = f1.canon[space].particle[op[1]+1].origin;
+//                            }else {
+//                                twoL= 0.;
+//                                twoOri = 0.;
+//                            }
+//                            if ( oneL > twoL ){
+//                                grpL = fabs(oneL);
+//                            }else {
+//                                grpL = fabs(twoL);
+//
+//                            }
+//                            N1 = n1[space];
+//
+//
+//                            DCOMPLEX tc;
+//                            double * te = streams(f1, temp, 0, space);
+//                            double * tec = streams(f1, temp, 1, space);
+//                            f1.name[eikonBuffer].Current[0] = 1;
+//                            f1.name[eikonBuffer].Current[1] = 1;
+//                            si = 0;
+//                            for ( I1 = 0 ; I1 < N1; I1++)
+//                                {
+//
+//                                             ///HERE,  assign a quadature pattern
+//                                                 double momentum = (momentumIndex);
+//                                                 if ( bodyIndex == 0){
+//                                                     iL = oneL;
+//                                                     iO = oneOri;
+//                                                 }
+//                                                 else{
+//                                                     iL = twoL;
+//                                                     iO = twoOri;
+//                                                 }
+//                                                 ///HERE somehow need to populate gamma-s
+//                                                 ///ALSO NEED a Metric
+//
+//                                                 //tc = gaussianSincfourierIntegralInTrain(iL, <#double gammax#>, <#double x#>, <#double gammay#>, <#double y#>, si, momentum, hidden);
+//                                                 te[si] = creal(tc);
+//                                                 tec[si] = cimag(tc);
+//
+//                                                if ( invertSign && bodyIndex == 0 ){
+//
+//                                                    ///find a quadrature given
+//                                                    ///momentumIndex
+//                                                    ///
+//                                                    double gaussianKernel = 1;
+//
+//                                                    ///multiply of Gaussian here one first particle.
+//                                                    te[si] *= constant*gaussianKernel;
+//                                                    tec[si] *= constant*gaussianKernel;
+//                                                }
+//
+//                                             if ( isnan(te[si]))
+//                                                 printf("%f\n",te[si]);
+//                                             si++;
+//                                             if ( alloc(f1, temp, space) < si ){
+//                                                 printf("creation of twoBody, somehow allocations of vectors are too small. %d\n",newLabel);
+//                                                 exit(0);
+//                                             }
+//
+//                                    }
+//                                }
+//                    invertSign = 0;
+//                }
+//
+//            newLabel = anotherLabel(f,particle1,body);
+//            ///if this is the first of two entries
+//            if ( f1.canon[space].basis == PeriodicSincBasisElement || f1.canon[space].basis == GaussianSincBasisElement )
+//                if ( bodyIndex == 0 && body == two)
+//                    f1.name[newLabel].multId = 1;
+//            f1.name[newLabel].spinor = spin;
+//            for ( space = 0 ;space < SPACE  ; space++)
+//                if ( f1.canon[space].body != nada ){
+//                    f1.name[newLabel].space[space].act = 1;
+//                    if ( f1.canon[space].label == particle1 ){
+//                        if ( f1.canon[space].basis == SincBasisElement )
+//                            f1.name[newLabel].space[space].body = body;
+//                        else
+//                            f1.name[newLabel].space[space].body = one;
+//                        if ( f1.canon[space].basis == SincBasisElement )
+//                            f1.name[newLabel].space[space].block = bl;
+//                        else if ( f1.canon[space].basis == PeriodicSincBasisElement ){
+//                            switch( bl ){
+//                                case e12:
+//                                    if ( bodyIndex == 0 )
+//                                        f1.name[newLabel].space[space].block= tv1;
+//                                    else
+//                                        f1.name[newLabel].space[space].block= tv2;
+//                                break;
+//                                case e13:
+//                                    if ( bodyIndex == 0 )
+//                                        f1.name[newLabel].space[space].block= tv1;
+//                                    else
+//                                        f1.name[newLabel].space[space].block= tv3;
+//                                    break;
+//                                case e23:
+//                                    if ( bodyIndex == 0 )
+//                                        f1.name[newLabel].space[space].block= tv2;
+//                                    else
+//                                        f1.name[newLabel].space[space].block= tv3;
+//                                    break;
+//                                case e14:
+//                                    if ( bodyIndex == 0 )
+//                                        f1.name[newLabel].space[space].block= tv1;
+//                                    else
+//                                        f1.name[newLabel].space[space].block= tv4;
+//                                    break;
+//                                case e24:
+//                                    if ( bodyIndex == 0 )
+//                                        f1.name[newLabel].space[space].block= tv2;
+//                                    else
+//                                        f1.name[newLabel].space[space].block= tv4;
+//                                    break;
+//                                case e34:
+//                                    if ( bodyIndex == 0 )
+//                                        f1.name[newLabel].space[space].block= tv3;
+//                                    else
+//                                        f1.name[newLabel].space[space].block= tv4;
+//                                    break;
+//                                default:
+//                                    f1.name[newLabel].space[space].block= bl;
+//                                ///distribute bl commands
+//                            }
+//                        }
+//                    }
+//            }
+//                {
+//                            inta n;
+//                            for ( n = 0 ; n < spin ; n++){
+//                                f1.name[temp].Current[n]= 1;
+//                                tEqua(f1, newLabel, n, temp, n);
+//                            }
+//                }
+//                f1.name[currLoop].loopNext = newLabel;
+//                f1.name[newLabel].species = hidden;
+//                currLoop = newLabel;
+//                }
+//            }
+//        }
+//    return 0;
+//}
 
 
 /**
@@ -1968,8 +1979,6 @@ inta buildKinetic( calculation *c1, sinc_label *f1,double scalar,inta invert,int
                     f1->name[headLabel].loopNext = memoryLabel;
                     f1->name[memoryLabel].species = eikonKinetic;
                     f1->name[memoryLabel].Current[0] = 1;
-                    f1->name[headLabel].multId = id++;//aloways unique
-                    f1->name[memoryLabel].multId = 0;
 
             
                     for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
@@ -2029,8 +2038,6 @@ inta buildConstant(  calculation *c1,   sinc_label *f1,double scalar,inta invert
     f1->name[memoryLabel].species = eikonConstant;
     f1->name[memoryLabel].Current[0] = 1;
     f1->name[memoryLabel].Partition = 1;
-    f1->name[headLabel].multId = id++;
-    f1->name[memoryLabel].multId = 0;
 
     for ( space = 0 ; space < SPACE ; space++)
         if ( f1->canon[space].body != nada){
@@ -2086,15 +2093,12 @@ inta buildLinear(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
                        headLabel = anotherLabel(f1,0,nada);
                        f1->name[currLabel].chainNext = headLabel;
                        f1->name[headLabel].species = eikon;
-                       f1->name[headLabel].multId = id++;
                        
                        //new term
                          division memoryLabel = anotherLabel(f1,all,one);
                        f1->name[headLabel].loopNext = memoryLabel;
                        f1->name[memoryLabel].species = eikonLinear;
                        f1->name[memoryLabel].Current[0] = 1;
-                       f1->name[memoryLabel].multId = 0;
-
                
                        for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
                            if ( f1->canon[spacy].body != nada){
@@ -2154,13 +2158,11 @@ inta buildDeriv(  calculation *c1,   sinc_label *f1,double scalar,inta invert,in
                        headLabel = anotherLabel(f1,0,nada);
                        f1->name[currLabel].chainNext = headLabel;
                        f1->name[headLabel].species = eikon;
-                       f1->name[headLabel].multId = id++;
                        //new term
                          division memoryLabel = anotherLabel(f1,all,one);
                        f1->name[headLabel].loopNext = memoryLabel;
                        f1->name[memoryLabel].species = eikonDeriv;
                        f1->name[memoryLabel].Current[0] = 1;
-                       f1->name[memoryLabel].multId = 0;
 
                        ///set term across basis
                        for (spacy = 0 ; spacy < SPACE ; spacy++)
@@ -2218,11 +2220,9 @@ inta buildElement(  calculation *c1,   sinc_label *f1,double scalar,inta invert,
     f1->name[headLabel].species = eikon;
       division memoryLabel = anotherLabel(f1,all,one);
     f1->name[headLabel].loopNext = memoryLabel;
-    f1->name[headLabel].multId = 0;
 
     f1->name[memoryLabel].species = eikonElement;
     f1->name[memoryLabel].Current[0] = 1;
-    f1->name[memoryLabel].multId = 0;
 
     for ( space = 0 ; space < SPACE ; space++)
         if ( f1->canon[space].body != nada){
@@ -2286,13 +2286,11 @@ inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
                        f1->name[currLabel].chainNext = headLabel;
                        f1->name[headLabel].species = eikon;
                        //new term
-                       f1->name[headLabel].multId = id++;
 
                          division memoryLabel = anotherLabel(f1,all,one);
                        f1->name[headLabel].loopNext = memoryLabel;
                        f1->name[memoryLabel].species = eikonSpring;
                        f1->name[memoryLabel].Current[0] = 1;
-                       f1->name[memoryLabel].multId = 0;
 
                
                        for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
@@ -2393,12 +2391,11 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
             specs[1].metric = discreteMomentum;
             specs[0].opQ = 1;
             specs[1].opQ = 1;
-            specs[0].interval = f1->canon[0].count1Basis-1;
-            specs[1].interval = f1->canon[0].count1Basis-1;
-            periodicInteraction(f1, scalar,zero,invert,act,bl, pair , mu, cmpl,specs, 0, particle1,two);
-            
+            specs[0].interval = f1->canon[0].count1Basis;
+            specs[1].interval = f1->canon[0].count1Basis;
+            periodicInteraction(f1, scalar,zero,invert,act,bl, pair , mu, cmpl,specs, f1->canon[0].count1Basis*f1->canon[0].particle[one].lattice, 0, particle1,two);
         }
-        }
+    }
     return ra;
 }
 
@@ -2423,7 +2420,6 @@ inta assignDiagonalMatrix(calculation *c1,   field *f, char * filename, division
     f1->name[headLabel].Current[0] = 1;
  
     f1->name[headLabel].loopNext = vectorDiagonalMatrix;
-    f1->name[headLabel].multId = 101;
     
     f1->name[vectorDiagonalMatrix].species = diagonalMatrix;
 #ifndef APPLE
