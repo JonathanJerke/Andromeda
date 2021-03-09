@@ -2139,10 +2139,10 @@ inta defineTerms(  calculation * c,   field *f,   division head, inta memory){
                     buildElement(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label, 0, real,c->i.terms[i].bra,c->i.terms[i].ket);
                     break;
                 case 8:
-                    buildExternalPotential(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, c->i.terms[i].adjustOne,prevLink,  c->i.terms[i].label,c->i.terms[i].embed, 0, real,c->i.terms[i].mu,c->i.terms[i].atom);
+                    buildExternalPotential(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label,c->i.terms[i].embed, 0, real,c->i.terms[i].mu,c->i.terms[i].atom);
                     break;
                 case 9:
-                    buildPairWisePotential(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl,c->i.terms[i].adjustOne,prevLink,  c->i.terms[i].label, c->i.terms[i].embed,0, real,c->i.terms[i].mu);
+                    buildPairWisePotential(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl,prevLink,  c->i.terms[i].label, c->i.terms[i].embed,0, real,c->i.terms[i].mu);
                     break;
                 case 10:
                     assignDiagonalMatrix(c,f,c->i.terms[i].filename,prevLink);
@@ -2902,7 +2902,6 @@ double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin, 
  *
  *@param rank      OMP rank
  *@param f1          container
- *@param space   in canon which has SPACE components
  *@param equals output division
  *@param espin  output spin
  *@param left  matrix
@@ -2912,7 +2911,7 @@ double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin, 
  *@param r one of the input canonical ranks indexed
  *@param rspin input spin
  */
-inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,  division left,inta l,inta lspin,   division right,inta r, inta rspin ){
+inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin, floata scalar, division left,inta l,inta lspin,   division right,inta r, inta rspin ){
     if ( header(f1, left ) != header(f1, right ) ){
         printf("Two Head types GEMV\n %d %d %d %d %d %d",equals,header(f1, equals ) ,left,header(f1, left ) ,right,header(f1, right ) );
         exit(1);
@@ -3057,6 +3056,9 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                         }
                         
                         double flow = 1.;
+                        if (space == 0 )
+                            flow *= scalar;
+                        
                          ///the notion is to buffer on mid and accumlate on out
                         inta N3 = alloc(f1, su, space);
                         double * suP  = streams(f1, su , lspin, space)+l*N3;
@@ -3206,7 +3208,8 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                                     for ( i = 0 ; i < N1 ; i++)
                                         cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP+i,N1, 0.,laterP+i, N1  );
                                     break;
-                                    
+                                default:
+                                    break;
                             }
                         }
                         else if ( bd == three ){
@@ -3227,7 +3230,8 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                                         for ( i2 = 0 ; i2 < N1 ; i2++)
                                             cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1, inP+i+i2*N1,N1*N1, 0.,laterP+i+i2*N1,N1*N1  );
                                     break;
-
+                                default:
+                                    break;
                             }
                         }
                         else if ( bd == four ){
@@ -3264,7 +3268,8 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                                                 cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1,
                                                             inP +i +i2*N1 +i3*N1*N1,N1*N1*N1, 0.,laterP +i+ i2*N1+ i3*N1*N1, N1*N1*N1  );
                                     break;
-
+                                default:
+                                    break;
                             }
                         }
                     }
@@ -3398,22 +3403,25 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
         }
     else{ inta space;
         for ( space = 0 ; space < SPACE ; space++)
-            if ( f1.canon[space].body != nada )
+        if ( f1.canon[space].body != nada ){
                     if ( species(f1,left) == matrix && species(f1,right) == vector){
                         if ( bodies(f1,left) == bodies(f1,right))
                 {
                     inta N1 = vectorLen(f1, space);
-
-                        cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,
+                    
+                        cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,scalar,
                                 streams(f1,left,lspin,space)+l*N1*N1, N1,
                                 streams(f1,right,rspin,space)+r*N1,1, 0.,
                                 streams(f1,equals,espin,space)+e*N1, 1  );
+                    scalar = 1.0;
 
                 }else if ( bodies(f1,left) < bodies(f1,right))
                 {
                     inta N1 = outerVectorLen(f1,bodies(f1,left),space);
                     inta N2 = vectorLen(f1, space);
-                        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,1.,streams(f1, left, lspin,space)+l*N1*N1,N1,streams(f1,right,rspin,space)+r*N2,N1,0.,streams(f1, equals, espin,space)+e*N2,N1);
+                        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,N1,N2/N1,N1,scalar,streams(f1, left, lspin,space)+l*N1*N1,N1,streams(f1,right,rspin,space)+r*N2,N1,0.,streams(f1, equals, espin,space)+e*N2,N1);
+                    scalar = 1.0;
+
                 }
             
             }
@@ -3423,7 +3431,9 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
     
         inta N2 = vectorLen(f1, space);
         cblas_dcopy(N2, streams(f1, right,rspin,space)+r*N2, 1, streams( f1, equals, espin,space)+e*N2, 1);
+        cblas_dscal(N2, scalar, streams( f1, equals, espin,space)+e*N2, 1);
         cblas_dtbmv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, N2, 0,streams( f1, left, lspin,space )+l*N2, 1,streams( f1, equals, espin,space)+e*N2,1);
+        scalar = 1.0;
     }
     else if ( species(f1, left) == vector && species(f1,right) == vector && species(f1,equals) == vector){
     ///specifically for geminals * transpose-geminals = geminal
@@ -3431,9 +3441,11 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
     
         inta N1 = vector1Len(f1, space);
         inta N2 = N1*N1;
-        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,N1,N1,N1,1.,streams( f1, left, lspin,space )+l*N2,N1,streams(f1, right,rspin,space)+r*N2,N1, 0.,streams( f1, equals, espin,space)+e*N2,N1);
+        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,N1,N1,N1,scalar,streams( f1, left, lspin,space )+l*N2,N1,streams(f1, right,rspin,space)+r*N2,N1, 0.,streams( f1, equals, espin,space)+e*N2,N1);
+        scalar = 1.0;
+
     }
-        
+        }
     }
     return 0;
 }
@@ -3605,9 +3617,8 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
     division in=nullName,out=nullName;
     inta inSp,outSp,inRank,outRank;
     
-    inta N2,flag,lll;
-    inta dim;
-    
+    inta lll;
+
         
         if ( rank ){
             ///check for parallel allocations
@@ -3631,15 +3642,10 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
                         in = ket;
                         inRank = k;
                         inSp= sp2;
-                                        
-                        flag = 1;
-                        tGEMV(rank, f1,out,outRank,outSp, f1.name[ll].loopNext, lll, im,in, inRank,inSp);
-                        N2 = alloc(f1, out, dim);
-
-                        cblas_dscal(N2, prod, streams(f1,out,outSp, dim)+outRank*N2, 1);
-                        }
-                        mi += CanonicalRank(f1, ll, im);
-                    ll = f1.name[name(f1,ll)].chainNext;
+                        tGEMV(rank, f1,out,outRank,outSp,prod, f1.name[ll].loopNext, lll, im,in, inRank,inSp);
+                    }
+                mi += CanonicalRank(f1, ll, im);
+                ll = f1.name[name(f1,ll)].chainNext;
             }
     
     return 1;

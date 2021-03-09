@@ -42,8 +42,6 @@ inta foundationS(  calculation *c1,   field f1){
             gamma[2*i] = 0;
             gamma[2*i+1] = 1;
         }
-        printf("%d\n",f1.f.eikonLabels.currLabel);
-
         gamma[5] = 3;
         SG(f1.f, eigenVectors, 0, 1., gamma);
         printExpectationValues(c1, f1.f, Ha, eigenVectors );

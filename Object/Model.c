@@ -73,43 +73,6 @@
       i.f.canon[space].particle[four].attack = 0.5;
       i.f.canon[space].particle[four].lattice = lattice;
       i.f.canon[space].particle[four].origin = -basis/2*lattice ;
-
-      if (0){
-    space = 1;
-    i.f.canon[space].basis = PeriodicSincBasisElement;
-    i.f.canon[space].body = three;
-    //i.f.canon[space].component = 1;
-    i.f.canon[space].count1Basis = basis;
-    i.f.canon[space].space = 1;
-    i.f.canon[space].label = 1;
-    i.f.canon[space].particle[one].attack = 0.5;
-    i.f.canon[space].particle[one].lattice = lattice;
-    i.f.canon[space].particle[one].origin = -basis/2*lattice ;
-    i.f.canon[space].particle[two].attack = 0.5;
-    i.f.canon[space].particle[two].lattice = lattice;
-    i.f.canon[space].particle[two].origin = -basis/2*lattice ;
-      i.f.canon[space].particle[three].attack = 0.5;
-      i.f.canon[space].particle[three].lattice = lattice;
-      i.f.canon[space].particle[three].origin = -basis/2*lattice ;
-
-    space = 2;
-    i.f.canon[space].basis = PeriodicSincBasisElement;
-    i.f.canon[space].body = three;
-    //i.f.canon[space].component = 1;
-    i.f.canon[space].count1Basis = basis;
-    i.f.canon[space].space = 2;
-    i.f.canon[space].label = 1;
-    i.f.canon[space].particle[one].attack = 0.5;
-    i.f.canon[space].particle[one].lattice = lattice;
-    i.f.canon[space].particle[one].origin = -basis/2*lattice ;
-    i.f.canon[space].particle[two].attack = 0.5;
-    i.f.canon[space].particle[two].lattice = lattice;
-    i.f.canon[space].particle[two].origin = -basis/2*lattice;
-      i.f.canon[space].particle[three].attack = 0.5;
-      i.f.canon[space].particle[three].lattice = lattice;
-      i.f.canon[space].particle[three].origin = -basis/2*lattice ;
-      
-      }
       i.i.Iterations = 6;
 #endif
 //

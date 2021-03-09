@@ -632,12 +632,11 @@ inta quadrature( metric_label metric, floata *X, floata* W){
  *building quantum operators for oneBody and twoBody interactions
  *
  */
-inta splitInteraction(   sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, double adjustOne,    division load,  metric_label metric,  spinType spin,  division basis ,inta particle1,  bodyType body,inta embed){
-      genusType hidden;
+inta splitInteraction( sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl,  division load,  metric_label metric, spinType spin,momentumIntegralSpecs *specs,  division basis ,inta *particle1 , bodyType body,inta embed){
+      genusType hidden = eikonCrossDot;
       sinc_label f1 = *f;
       division temp , currLoop, currChain,newLabel;
     
-    double oneL,twoL;
     inta perm[7],op[7];
         
     {
@@ -651,42 +650,66 @@ inta splitInteraction(   sinc_label *f,double scalar, double * position,inta inv
         printf("null func\n");
         return 0;
     }
-    inta spacy, n1[SPACE];
+    inta n1[SPACE];
     length1(f1,n1);
     
     floata *Xbeta = NULL, *Wbeta = NULL;
     Xbeta = malloc(metric.fn.interval *sizeof(floata));
     Wbeta = malloc(metric.fn.interval *sizeof(floata));
 
-    
+
     
     inta beta, nbeta = quadrature(metric, Xbeta, Wbeta);
     inta invertSign,space,N1,m,si;
 
     
-    inta integralInterval = 15;
+    inta class;
     
     
     for ( beta = 0; beta < nbeta ; beta++){//beta is an index.
-        
-        
-        
-        tClear(f1,temp);
-        
-        newLabel = anotherLabel(f,0,nada);
-        f1.name[currChain].chainNext = newLabel;
-        f1.name[newLabel].species = eikon;
-        f1.name[newLabel].spinor = spin;
+        ///new canonRank and header
+        f1.name[currChain].chainNext = anotherLabel(f,all,nada);
+        currChain = f1.name[currChain].chainNext;
 
-        ///all equal-beta chained Ops will multiply on each beta index. i.e. H2+
-        currChain = newLabel;
+        ///header
+        f1.name[currChain].species = eikon;
+        f1.name[currChain].spinor = spin;
+        
+        ///
         currLoop = currChain;
+        ///
         
-
-        for ( hidden = eikonDiagonal ; hidden <= eikonDiagonal + imin(body,metric.fn.contr);hidden++ )
-            {
+        for ( class = -1 ; class <= 1 ; class+=2){///skip gap for now.
+            metric_label metric2;
+            switch(class){
+                case 1:
+                    metric2.fn.interval = specs->interval;
+                    metric2.metric = pureInterval;
+                    metric2.beta[0] = 0.;
+                    metric2.beta[1] = 2.*pi;
+                    break;
+                case 2:
+                    metric2.fn.interval = specs->interval;
+                    metric2.metric = pureInterval;
+                    metric2.beta[0] = -2.*pi;
+                    metric2.beta[1] = 0.;
+                    break;
+                default:
+                    break;
+            }
+            
+            
+    
+        
+        
+        floata *Xmomentum = NULL, *Wmomentum = NULL;
+        Xmomentum = malloc(metric.fn.interval *sizeof(floata));
+        Wmomentum = malloc(metric.fn.interval *sizeof(floata));
+        inta momentum, momentumLength = quadrature(metric2, Xmomentum, Wmomentum);
+            
+        
+            for ( momentum = 0; momentum < momentumLength ; momentum++){
                 
-                double oneOri,twoOri,grpL;
                 invertSign = 1;
 
             for ( space = 0 ;space < SPACE  ; space++)
@@ -696,8 +719,8 @@ inta splitInteraction(   sinc_label *f,double scalar, double * position,inta inv
                     {
                         commandSA(f1.canon[space].body, f1.name[newLabel].space[space].act,tv1 , bl, perm, op);
 
-                            oneL = f1.canon[space].particle[op[0]+1].lattice;
-                            oneOri = f1.canon[space].particle[op[0]+1].origin;
+//                            oneL = f1.canon[space].particle[op[0]+1].lattice;
+//                            oneOri = f1.canon[space].particle[op[0]+1].origin;
                             ///position of left edge...
 
                             double * te = streams(f1, temp, 0, space);
@@ -705,12 +728,13 @@ inta splitInteraction(   sinc_label *f,double scalar, double * position,inta inv
                             DCOMPLEX tc;
                             N1 = n1[space];
 
-                                for ( si = 0 ; si < N1; si++){
-                                        m = si;//
-                                        tc = cexp( I * m * (Xbeta[beta] + pi/oneL));
+                                for ( m = 0 ; m < N1; m++){
+                                        tc = cexp( I * m * (Xbeta[beta]));
                                         if ( invertSign ){
                                                 tc *= Wbeta[beta];
                                         }
+                                        si = m;
+
                                         if ( alloc(f1, temp, space) < si ){
                                             printf("creation of oneBody, somehow allocations of vectors are too small. %d\n",newLabel);
                                             exit(0);
@@ -742,6 +766,7 @@ inta splitInteraction(   sinc_label *f,double scalar, double * position,inta inv
             f1.name[newLabel].species = hidden;
             currLoop = newLabel;
             }
+        }
     }
     free(Xbeta);
     free(Wbeta);
@@ -751,11 +776,11 @@ inta splitInteraction(   sinc_label *f,double scalar, double * position,inta inv
 /**
  *building quantum operators for oneBody and twoBody interactions
  */
-inta separateInteraction(   sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, double adjustOne,    division load,  metric_label metric,  spinType cmpl,inta overline,   division basis ,inta particle1,  bodyType body,inta embed){
+inta separateInteraction(   sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, division load,  metric_label metric,  spinType cmpl,inta overline,   division basis ,inta particle1,  bodyType body,inta embed){
       genusType hidden;
       sinc_label f1 = *f;
       division temp , currLoop, currChain,newLabel;
-    
+    double adjustOne = 1.0;
     double oneL,twoL;
     inta perm[7],op[7];
     
@@ -1218,6 +1243,9 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
             }
         }
     }
+    free(Xbeta);
+    free(Wbeta);
+
     return 0;
 }
 
@@ -2322,7 +2350,6 @@ inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
  *@param invert switch to turn on a particle-1 inversion
  *@param act Symmetry Adaption related work, for group action
  *@param bl the address of the interaction, i.e. particle-1 or particle-12
- *@param adjustOne to change the defined basis lattice
  *@param[in] single linked list
  *@param particle1 the component group ID
  *@param embed the number of trivial argumented Gaussians
@@ -2331,7 +2358,7 @@ inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
  *@param mu the metric
  *@param a geometry/Z of a-th ion
  */
-inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, inta invert,inta act,  blockType bl, double adjustOne,   division single,  inta particle1,inta embed, inta overline,   spinType cmpl,  metric_label mu,inta a){
+inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, inta invert,inta act,  blockType bl,   division single,  inta particle1,inta embed, inta overline,   spinType cmpl,  metric_label mu,inta a){
     inta ra=0;
     printf("oneBody act %d block %d atom %d >%d<-- (%f)\n", act,bl, a,embed,scalar);
 
@@ -2340,7 +2367,7 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
             else if ( mu.metric == dirac )
                 ra++;
         if ( bootedQ(*f1) ){
-                    separateInteraction(f1,scalar*c1->i.atoms[a].Z, c1->i.atoms[a].position+1,invert,act,bl, adjustOne, single, mu, cmpl, 0, 0, particle1,one,embed);
+                    separateInteraction(f1,scalar*c1->i.atoms[a].Z, c1->i.atoms[a].position+1,invert,act,bl, single, mu, cmpl, 0, 0, particle1,one,embed);
         }
         
     if ( bootedQ(*f1) ){
@@ -2358,7 +2385,6 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
  *@param invert switch to turn on a particle-1 inversion
  *@param act Symmetry Adaption related work, for group action
  *@param bl the address of the interaction, i.e. particle-1 or particle-12
- *@param adjustOne to change the defined basis lattice
  *@param[in] pair linked list
  *@param particle1 the component group ID
  *@param embed the number of trivial argumented Gaussians
@@ -2366,9 +2392,9 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
  *@param cmpl make it real for now
  *@param mu the metric
 */
-inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,inta invert, inta act,  blockType bl, double adjustOne,  division pair,  inta particle1 ,inta embed, inta overline,   spinType cmpl,  metric_label mu){
+inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,inta invert, inta act,  blockType bl,  division pair,  inta particle1 ,inta embed, inta overline,   spinType cmpl,  metric_label mu){
     inta ra=0;
-    printf("twoBody act %d block %d [adjust (%f)] >%d<-- (%f)\n",act,bl,adjustOne,embed,scalar);
+    printf("twoBody act %d block %d >%d<-- (%f)\n",act,bl,embed,scalar);
     
     if ( mu.metric == interval || mu.metric == semiIndefinite)
         ra += (mu.fn.interval);
@@ -2384,7 +2410,7 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
             zero[4] = 0.;
             zero[5] = 0.;
         if ( f1->canon[0].basis == SincBasisElement )
-            separateInteraction(f1, scalar,zero,invert,act,bl, adjustOne, pair , mu, cmpl,0, 0, particle1,two,embed);
+            separateInteraction(f1, scalar,zero,invert,act,bl, pair , mu, cmpl,0, 0, particle1,two,embed);
         else{
             momentumIntegralSpecs specs[2];
             specs[0].metric = discreteMomentum;

@@ -233,6 +233,7 @@ enum genusType{
     outerVector,
     diagonalMatrix,
     eikon,
+    eikonCrossDot,
     eikonDiagonal,
     eikonOffDiagonal,
     eikonSemiDiagonal,
@@ -560,8 +561,6 @@ struct momentumIntegralSpecs{
     momentumType metric;
     ///is this an operating factor?
     inta opQ;
-    ///maximum momentum
-    floata maxMomentum;
     ///quadrature size
     inta interval;
 };
