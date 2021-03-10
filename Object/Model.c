@@ -187,7 +187,7 @@ calculation initCal (void ) {
     t.adjustOne = 1.;
     t.mu.beta[0] = 1;
     t.mu.beta[1] = 10;
-    t.mu.metric = dirac;
+    t.mu.metric = interval;
     t.mu.fn  = t.func;
     t.invert = 0;
     t.label  = 1;

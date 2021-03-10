@@ -752,7 +752,7 @@ inta CanonicalRank(   sinc_label f1 ,   division label , inta spin ){
     
     if ( f1.name[label].name == label){
         if ( spin < spins(f1, label) ){
-            if ( f1.name[label].species == eikon){
+            if ( f1.name[f1.name[label].loopNext].species >= eikon){
                 return 1;
             } else {
                 return f1.name[label].Current[spin];
@@ -2745,16 +2745,15 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
     ov = pMatrixElement( f1, vector, 0, nullOverlap, 0, vector,0);
     printf("------Edges------\n\n");
     division header = anotherLabel(&f1, 0, nada);
-    division eik    = anotherLabel(&f1, 0, nada);
     division mem    = anotherLabel(&f1, 0, one);
     char* desc [] = {"fourier","negative","positive"};
     for ( space = 0; space < SPACE ; space++){
         for (body = one ; body <=  f1.canon[space].body ; body++ )
             for ( ed = 0 ; ed < 3 ; ed++){
                 f1.name[header].species = matrix;
-                f1.name[header].chainNext = eik;
-                f1.name[eik].loopNext = mem;
-                f1.name[eik].species = eikon;
+                f1.name[header].Current[0] = 1;
+
+                f1.name[header].loopNext = mem;
                 f1.name[mem].species = eikonOuter;
                 f1.name[mem].Current[0] = 1;
                 f1.name[mem].space[space].body = one;
@@ -2969,9 +2968,6 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                 inta timer = 0,xlxl=0;
                 ///PRODUCT!
                 while ( su != nullName ){
-#if VERBOSE
-                    printf("in %f %d\n", cblas_dnrm2(N2, inP, 1),N1);
-#endif
                     
                     for ( space = 0; space < SPACE ; space++)
                     if ( f1.canon[space].body != nada ){
@@ -2981,7 +2977,7 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                         inta N1 = outerVectorLen(f1, one,space);
                         inta N2 = vectorLen(f1, space);
 
-                    
+
                     
                     
                         
@@ -3002,7 +2998,10 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                             
                             ///product by copying collected state back to input.
                             cblas_dcopy(N2, outP,1, inP,1);
+                      //      printf("in%d %f %d\n",su, cblas_dnrm2(N2, outP, 1),N1);
+
                         }
+                        //printf("in%d %f %d\n",su, cblas_dnrm2(N2, inP, 1),N1);
 
                     if ( f1.name[su].space[space].block == id0 )
                         xlxl = 1;
@@ -3241,32 +3240,38 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                             
                             switch (f1.name[su].space[space].block){
                                 case tv1:
+                                  //  printf("su%d %f %d\n",su, cblas_dnrm2(N1*N1, suP, 1),N1);
+
                                     for ( i = 0 ; i < N1 ; i++)
                                         for ( i2 = 0 ; i2 < N1 ; i2++)
-                                            for ( i3 = 0 ; i3 < N1 ; i3++)
+                                    for ( i3 = 0 ; i3 < N1 ; i3++){
                                                 cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1,
-                                                            inP +i*N1 +i2*N1*N1 +i3*N1*N1*N1,1, 0.,laterP +i*N1 +i2*N1*N1 +i3*N1*N1*N1, 1  );
+                                                            inP +i*N1 +i2*N1*N1 +i3*N1*N1*N1,1, 1.,laterP +i*N1 +i2*N1*N1 +i3*N1*N1*N1, 1  );
+                                      //  printf("later%d %f %d\n",su, cblas_dnrm2(N1, laterP+i*N1 +i2*N1*N1 +i3*N1*N1*N1, 1),N1);
+                                    }
+                                 //   printf("in%d %f %d\n",su, cblas_dnrm2(N2, inP, 1),N1);
+
                                     break;
                                 case tv2:
                                     for ( i = 0 ; i < N1 ; i++)
                                         for ( i2 = 0 ; i2 < N1 ; i2++)
                                             for ( i3 = 0 ; i3 < N1 ; i3++)
                                                 cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1,
-                                                            inP +i +i2*N1*N1 +i3*N1*N1*N1,N1, 0.,laterP +i +i2*N1*N1 +i3*N1*N1*N1, N1  );
+                                                            inP +i +i2*N1*N1 +i3*N1*N1*N1,N1, 1.,laterP +i +i2*N1*N1 +i3*N1*N1*N1, N1  );
                                     break;
                                 case tv3:
                                     for ( i = 0 ; i < N1 ; i++)
                                         for ( i2 = 0 ; i2 < N1 ; i2++)
                                             for ( i3 = 0 ; i3 < N1 ; i3++)
                                                 cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1,
-                                                            inP +i +i2*N1 +N1*N1*N1*i3,N1*N1, 0.,laterP +i +i2*N1 +i3*N1*N1*N1, N1*N1  );
+                                                            inP +i +i2*N1 +N1*N1*N1*i3,N1*N1, 1.,laterP +i +i2*N1 +i3*N1*N1*N1, N1*N1  );
                                     break;
                                 case tv4:
                                     for ( i = 0 ; i < N1 ; i++)
                                         for ( i2 = 0 ; i2 < N1 ; i2++)
                                             for ( i3 = 0 ; i3 < N1 ; i3++)
                                                 cblas_dgemv( CblasColMajor, CblasNoTrans,  N1, N1,1.,suP, N1,
-                                                            inP +i +i2*N1 +i3*N1*N1,N1*N1*N1, 0.,laterP +i+ i2*N1+ i3*N1*N1, N1*N1*N1  );
+                                                            inP +i +i2*N1 +i3*N1*N1,N1*N1*N1, 1.,laterP +i+ i2*N1+ i3*N1*N1, N1*N1*N1  );
                                     break;
                                 default:
                                     break;
@@ -3643,6 +3648,7 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
                         inRank = k;
                         inSp= sp2;
                         tGEMV(rank, f1,out,outRank,outSp,prod, f1.name[ll].loopNext, lll, im,in, inRank,inSp);
+                        break;
                     }
                 mi += CanonicalRank(f1, ll, im);
                 ll = f1.name[name(f1,ll)].chainNext;

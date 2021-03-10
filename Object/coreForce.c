@@ -1152,7 +1152,7 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                                          //printf("%f %f\n", creal(tc),cimag(tc));
                                             if ( invertSign && bodyIndex == 0 ){
                                                 ///multiply of Gaussian here one first particle.
-                                                tc *= Wbeta[beta]*gaussianKernel;
+                                                    tc *= Wbeta[beta]*gaussianKernel;
                                                 ///for periodic-dirac located external fields
 //                                                if ( body == one && specs[1].opQ == 0 )
 //                                                    tc *= cexp(-I*position[f1.canon[space].space]*momentumIndex/iL);
@@ -1228,7 +1228,7 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                 {
                 f1.name[eikonBuffer].Current[0] = 1;
                 f1.name[eikonBuffer].Current[1] = 1;
-
+                  //  printf("me %f\n", tMatrixElements(0, f1, eikonBuffer, 0, nullOverlap, 0, eikonBuffer, 0));
                 tEqua(f1, currMult, 0, eikonBuffer, 0);
                 if ( spin == cmpl)
                     tEqua(f1, currMult, 1, eikonBuffer, 1);
@@ -2417,8 +2417,8 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
             specs[1].metric = discreteMomentum;
             specs[0].opQ = 1;
             specs[1].opQ = 1;
-            specs[0].interval = f1->canon[0].count1Basis;
-            specs[1].interval = f1->canon[0].count1Basis;
+            specs[0].interval = f1->canon[0].count1Basis-1;
+            specs[1].interval = f1->canon[0].count1Basis-1;
             periodicInteraction(f1, scalar,zero,invert,act,bl, pair , mu, cmpl,specs, f1->canon[0].count1Basis*f1->canon[0].particle[one].lattice, 0, particle1,two);
         }
     }
