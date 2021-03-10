@@ -790,7 +790,6 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
         while ( f1.name[li].chainNext != nullName)
             li =f1.name[li].chainNext;
         currChain = li;
-        temp = eikonBuffer;
     }
     if ( metric.fn.fn == nullFunction){
         printf("null func\n");
@@ -802,22 +801,9 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
     inta i,beta,I1,space,I2,N1;
     spaces = 0;
     double constant,x,g;
-    floata  *stream[SPACE];
-    for ( i = 0; i < SPACE ; i++)
-        if ( f1.canon[i].body != nada )
-            stream[i] =  streams( f1, temp,0,i  );
     
     
     /////IGNORE TRAIN COMMAND
-    if ( basis ){
-       // f1.name[load].header = 0;
-//        f1.name[temp].header = Cube;
-    }
-    else {
-//        f1.name[temp].header = Cube;
-//        f1.name[load].header = Cube;
-    }
-    
     inta section=2,si,ngk, intv = metric.fn.interval,flagConstants=0;
     
     if ( metric.metric == interval )
@@ -837,20 +823,6 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
     }
     if ( section < 2 ){
         ngk = intv;
-//        if ( intv  == 0 ) {
-//            ngk = 3;
-//        }else if ( intv == 1 ){
-//            ngk = 7;
-//        }else if ( intv == 2 ){
-//            ngk = 15;
-//        }else if ( intv == 3 ){
-//            ngk = 35;
-//        }else if ( intv == 4 ){
-//            ngk = 99;
-//        }else {
-//            printf("unknown interval\n");
-//            exit(1);
-//        }
     }
     else {
         ngk = 1;
@@ -891,16 +863,14 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
             constant = scalar;
         }
         //printf("x %f \n const %f\n",x,constant);
-        tClear(f1,temp);
-        tId(f1,temp,0);
         
         //x is beta.
         if ( overline ){
             printf("periodic boundaries not implemented yet!");
             exit(0);
         }
-        tClear(f1,temp);
-        zero(f1,temp,0);
+        tClear(f1,eikonBuffer);
+        zero(f1,eikonBuffer,0);
         inta invertSign;
     
         newLabel = anotherLabel(f,0,nada);
@@ -926,7 +896,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                             oneOri = f1.canon[space].particle[op[0]+1].origin;
                             ///position of left edge...
 
-                            double * te = streams(f1, temp, 0, space);
+                            double * te = streams(f1, eikonBuffer, 0, space);
                             N1 = n1[space];
 
                                 for ( si = 0 ; si < N1; si++){
@@ -937,7 +907,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                                             for ( spacy = 0 ; spacy < embed ; spacy++)
                                                 te[si] *= momentumIntegralInTrain(x*oneL, 0,1, hidden, body);
                                     }
-                                    if ( alloc(f1, temp, space) < si ){
+                                    if ( alloc(f1, eikonBuffer, space) < si ){
                                         printf("creation of oneBody, somehow allocations of vectors are too small. %d\n",newLabel);
                                         exit(0);
                                     }
@@ -960,7 +930,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
 
 
                             
-                    double * te = streams(f1, temp, 0, space);
+                    double * te = streams(f1, eikonBuffer, 0, space);
 
                                 si = 0;
                                 for ( I2 = 0; I2 < N1; I2++){
@@ -974,14 +944,14 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                                          }
                                              
                                          si++;
-                                         if ( alloc(f1, temp, space) < si ){
+                                         if ( alloc(f1, eikonBuffer, space) < si ){
                                              printf("creation of twoBody, somehow allocations of vectors are too small. %d\n",newLabel);
                                              exit(0);
                                          }
 
                                      }
                                 }
-                                    if ( alloc(f1, temp, space) < si ){
+                                    if ( alloc(f1, eikonBuffer, space) < si ){
                                         printf("creation of twoBody, somehow allocations of vectors are too small. %d\n",newLabel);
                                         exit(0);
                                     }
@@ -1000,8 +970,8 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                         f1.name[newLabel].space[space].block = bl;
                     }
             }
-            f1.name[temp].Current[0]= 1;
-            tEqua(f1, newLabel, 0, temp, 0);
+            f1.name[eikonBuffer].Current[0]= 1;
+            tEqua(f1, newLabel, 0, eikonBuffer, 0);
             f1.name[currLoop].loopNext = newLabel;
             f1.name[newLabel].species = hidden;
             currLoop = newLabel;
@@ -1020,7 +990,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
  *---basically a split operator has all kinds of degrees of internal freedom, specifiy
  *
  */
-inta periodicInteraction( sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, division load,  metric_label metric,  spinType spin, momentumIntegralSpecs *specs,floata cellLength, division basis ,inta particle1,  bodyType body){
+inta periodicInteraction( sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, division load,  metric_label metric,  spinType spin, momentumIntegralSpecs specs,floata cellLength, division basis ,inta particle1,  bodyType body){
     
     
     sinc_label f1 = *f;
@@ -1071,11 +1041,10 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
         inta invertSign;
         floata gaussianKernel,momentum,momentumStep = 2. * pi / cellLength;
         inta momentumIndex,momentumLength=0, bodyIndex ;
-        bodyIndex = 0;
-        if ( specs[bodyIndex].metric == zeroMomentum )
+        if ( specs.metric == zeroMomentum )
             momentumLength = 0;
-        else if ( specs[bodyIndex].metric == discreteMomentum )
-            momentumLength = specs[bodyIndex].interval;
+        else if ( specs.metric == discreteMomentum )
+            momentumLength = specs.interval;
     
         for ( momentumIndex = -momentumLength ;  momentumIndex <= momentumLength ; momentumIndex++){
             momentum = momentumIndex*momentumStep;
@@ -1144,11 +1113,8 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                                                  iL = twoL;
                                                  iO = twoOri;
                                              }
-                                         if (specs[bodyIndex].opQ)
                                              tc = periodicSincfourierIntegralInTrain( (I1*iL+iO)/iL/(N1),
                                                                                   (I2*iL+iO)/iL/(N1),  N1,  (1-2*bodyIndex)*momentumIndex);
-                                         else
-                                             tc = 0.0;
                                          //printf("%f %f\n", creal(tc),cimag(tc));
                                             if ( invertSign && bodyIndex == 0 ){
                                                 ///multiply of Gaussian here one first particle.
@@ -1991,7 +1957,7 @@ inta buildKinetic( calculation *c1, sinc_label *f1,double scalar,inta invert,int
     }
     printf("Kinetic\tx %d act %d block %d (%f)\n", label,act,bl,scalar);
 
-      division headLabel,currLabel;
+      division currLabel,memoryLabel;
     currLabel = li;
     for ( dim = 0 ; dim < SPACE ; dim++)
         if ( f1->canon[dim].body != nada)
@@ -1999,12 +1965,12 @@ inta buildKinetic( calculation *c1, sinc_label *f1,double scalar,inta invert,int
             if ( f1->canon[dim].label == label)
                 {
                     
-                    headLabel = anotherLabel(f1,0,nada);
-                    f1->name[currLabel].chainNext = headLabel;
-                    f1->name[headLabel].species = eikon;
+                    f1->name[currLabel].chainNext = anotherLabel(f1,0,nada);
+                    currLabel = f1->name[currLabel].chainNext;
+                    f1->name[currLabel].species = eikon;
                     //new term
-                      division memoryLabel = anotherLabel(f1,all,one);
-                    f1->name[headLabel].loopNext = memoryLabel;
+                    f1->name[currLabel].loopNext = anotherLabel(f1,all,one);
+                    memoryLabel = f1->name[currLabel].loopNext;
                     f1->name[memoryLabel].species = eikonKinetic;
                     f1->name[memoryLabel].Current[0] = 1;
 
@@ -2022,8 +1988,7 @@ inta buildKinetic( calculation *c1, sinc_label *f1,double scalar,inta invert,int
                                 }
                     
                         }
-                    currLabel = headLabel;
-            }
+                }
         }
         
         
@@ -2057,16 +2022,16 @@ inta buildConstant(  calculation *c1,   sinc_label *f1,double scalar,inta invert
         exit(0);
     }
     printf("constant %f invert %d act %d block %d\n", scalar,invert,act,bl);
-      division headLabel;
-    headLabel = anotherLabel(f1,0,nada);
-    f1->name[li].chainNext = headLabel;
-    f1->name[headLabel].species = eikon;
-      division memoryLabel = anotherLabel(f1,all,one);
-    f1->name[headLabel].loopNext = memoryLabel;
+    division currLabel,memoryLabel;
+    f1->name[li].chainNext = anotherLabel(f1,0,nada);
+    currLabel = f1->name[li].chainNext;
+    f1->name[currLabel].species = eikon;
+    //new term
+    f1->name[currLabel].loopNext = anotherLabel(f1,all,one);
+    memoryLabel = f1->name[currLabel].loopNext;
     f1->name[memoryLabel].species = eikonConstant;
     f1->name[memoryLabel].Current[0] = 1;
-    f1->name[memoryLabel].Partition = 1;
-
+    
     for ( space = 0 ; space < SPACE ; space++)
         if ( f1->canon[space].body != nada){
             if ( f1->canon[space].label == label)
@@ -2110,7 +2075,7 @@ inta buildLinear(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
     }
     printf("Force\tx %d act %d block %d \t(%f)\n", label,act,bl,scalar);
 
-         division headLabel,currLabel;
+         division currLabel,memoryLabel;
        currLabel = li;
        for ( dim = 0 ; dim < SPACE ; dim++)
            if ( f1->canon[dim].body != nada)
@@ -2118,16 +2083,15 @@ inta buildLinear(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
                if ( f1->canon[dim].label == label)
                    {
                        
-                       headLabel = anotherLabel(f1,0,nada);
-                       f1->name[currLabel].chainNext = headLabel;
-                       f1->name[headLabel].species = eikon;
-                       
+                       f1->name[currLabel].chainNext = anotherLabel(f1,0,nada);
+                       currLabel = f1->name[currLabel].chainNext;
+                       f1->name[currLabel].species = eikon;
                        //new term
-                         division memoryLabel = anotherLabel(f1,all,one);
-                       f1->name[headLabel].loopNext = memoryLabel;
+                       f1->name[currLabel].loopNext = anotherLabel(f1,all,one);
+                       memoryLabel = f1->name[currLabel].loopNext;
                        f1->name[memoryLabel].species = eikonLinear;
                        f1->name[memoryLabel].Current[0] = 1;
-               
+
                        for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
                            if ( f1->canon[spacy].body != nada){
                                f1->name[memoryLabel].space[spacy].act = 1;//i think this is weak, but not concerning now...
@@ -2141,7 +2105,6 @@ inta buildLinear(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
                                    }
                        
                            }
-                       currLabel = headLabel;
                }
            }
 
@@ -2175,7 +2138,7 @@ inta buildDeriv(  calculation *c1,   sinc_label *f1,double scalar,inta invert,in
     }
     printf("Force\tx %d act %d block %d \t(%f)\n", label,act,bl,scalar);
 
-         division headLabel,currLabel;
+         division memoryLabel,currLabel;
        currLabel = li;
        for ( dim = 0 ; dim < SPACE ; dim++)
            if ( f1->canon[dim].body != nada)
@@ -2183,12 +2146,12 @@ inta buildDeriv(  calculation *c1,   sinc_label *f1,double scalar,inta invert,in
                if ( f1->canon[dim].label == label)
                    {
                        
-                       headLabel = anotherLabel(f1,0,nada);
-                       f1->name[currLabel].chainNext = headLabel;
-                       f1->name[headLabel].species = eikon;
+                       f1->name[currLabel].chainNext = anotherLabel(f1,0,nada);
+                       currLabel = f1->name[currLabel].chainNext;
+                       f1->name[currLabel].species = eikon;
                        //new term
-                         division memoryLabel = anotherLabel(f1,all,one);
-                       f1->name[headLabel].loopNext = memoryLabel;
+                       f1->name[currLabel].loopNext = anotherLabel(f1,all,one);
+                       memoryLabel = f1->name[currLabel].loopNext;
                        f1->name[memoryLabel].species = eikonDeriv;
                        f1->name[memoryLabel].Current[0] = 1;
 
@@ -2206,7 +2169,6 @@ inta buildDeriv(  calculation *c1,   sinc_label *f1,double scalar,inta invert,in
                                    }
                        
                            }
-                       currLabel = headLabel;
                }
            }
 
@@ -2242,19 +2204,18 @@ inta buildElement(  calculation *c1,   sinc_label *f1,double scalar,inta invert,
     }
     printf("Element\tx %d act %d block %d \t(%d,%d)->(%f)\n", label,act,bl,bra,ket,scalar);
 
-      division headLabel;
-    headLabel = anotherLabel(f1,0,nada);
-    f1->name[li].chainNext = headLabel;
-    f1->name[headLabel].species = eikon;
-      division memoryLabel = anotherLabel(f1,all,one);
-    f1->name[headLabel].loopNext = memoryLabel;
-
+      division currLabel;
+    f1->name[li].chainNext = anotherLabel(f1,0,nada);
+    currLabel = f1->name[li].chainNext;
+    f1->name[currLabel].species = eikon;
+    division memoryLabel = anotherLabel(f1,all,one);
+    f1->name[currLabel].loopNext = memoryLabel;
     f1->name[memoryLabel].species = eikonElement;
     f1->name[memoryLabel].Current[0] = 1;
 
     for ( space = 0 ; space < SPACE ; space++)
         if ( f1->canon[space].body != nada){
-            f1->name[headLabel].space[space].act = act;
+            f1->name[currLabel].space[space].act = act;
             if ( f1->canon[space].label == label)
                 {
                     f1->name[memoryLabel].space[space].body = one;
@@ -2302,7 +2263,7 @@ inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
     printf("Spring\tx %d act %d block %d (%f)\n", label,act,bl,scalar);
 
     
-         division headLabel,currLabel;
+         division memoryLabel,currLabel;
        currLabel = li;
        for ( dim = 0 ; dim < SPACE ; dim++)
            if ( f1->canon[dim].body != nada)
@@ -2310,13 +2271,12 @@ inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
                if ( f1->canon[dim].label == label)
                    {
 
-                       headLabel = anotherLabel(f1,0,nada);
-                       f1->name[currLabel].chainNext = headLabel;
-                       f1->name[headLabel].species = eikon;
+                       f1->name[currLabel].chainNext = anotherLabel(f1,0,nada);
+                       currLabel = f1->name[currLabel].chainNext;
+                       f1->name[currLabel].species = eikon;
                        //new term
-
-                         division memoryLabel = anotherLabel(f1,all,one);
-                       f1->name[headLabel].loopNext = memoryLabel;
+                       f1->name[currLabel].loopNext = anotherLabel(f1,all,one);
+                       memoryLabel = f1->name[currLabel].loopNext;
                        f1->name[memoryLabel].species = eikonSpring;
                        f1->name[memoryLabel].Current[0] = 1;
 
@@ -2334,7 +2294,6 @@ inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
                                    }
                        
                            }
-                       currLabel = headLabel;
                }
            }
                return 0;
@@ -2412,13 +2371,10 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
         if ( f1->canon[0].basis == SincBasisElement )
             separateInteraction(f1, scalar,zero,invert,act,bl, pair , mu, cmpl,0, 0, particle1,two,embed);
         else{
-            momentumIntegralSpecs specs[2];
-            specs[0].metric = discreteMomentum;
-            specs[1].metric = discreteMomentum;
-            specs[0].opQ = 1;
-            specs[1].opQ = 1;
-            specs[0].interval = f1->canon[0].count1Basis-1;
-            specs[1].interval = f1->canon[0].count1Basis-1;
+            momentumIntegralSpecs specs;
+            specs.metric = discreteMomentum;
+            specs.opQ = 1;
+            specs.interval = f1->canon[0].count1Basis-1;
             periodicInteraction(f1, scalar,zero,invert,act,bl, pair , mu, cmpl,specs, f1->canon[0].count1Basis*f1->canon[0].particle[one].lattice, 0, particle1,two);
         }
     }

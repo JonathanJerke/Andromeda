@@ -180,7 +180,7 @@ calculation initCal (void ) {
     term_label t;
     t.act = 1;
     t.atom = 1;
-    t.bl = 8;
+    t.bl = 4;
     t.func.contr = 0;
     t.func.fn = Coulomb;
     t.func.interval = 7;
@@ -193,7 +193,7 @@ calculation initCal (void ) {
     t.label  = 1;
     t.scalar = 1;
     t.headFlag = 1;
-    t.type   = 9;
+    t.type   = 5;
     i.i.terms[0] = t;
 
     
