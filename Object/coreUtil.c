@@ -2973,7 +2973,9 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                 inta timer = 0,xlxl=0;
                 ///PRODUCT!
                 while ( su != nullName ){
+#if VERBOSE
                     printf("p%d\n",su);
+#endif
                     for ( space = 0; space < SPACE ; space++)
                     if ( f1.canon[space].body != nada ){
                         inta firstFlag = 1;
@@ -3007,8 +3009,9 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                       //      printf("in%d %f %d\n",su, cblas_dnrm2(N2, outP, 1),N1);
 
                         }
+#if VERBOSE
                         printf("in%d %f %d\n",su, cblas_dnrm2(N2, inP, 1),N1);
-
+#endif
                     if ( f1.name[su].space[space].block == id0 )
                         xlxl = 1;
                     else
@@ -3653,7 +3656,6 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
                         in = ket;
                         inRank = k;
                         inSp= sp2;
-                    printf("%d %d\n",ll,f1.name[ll].chainNext);
                         tGEMV(rank, f1,out,outRank,outSp,prod, ll, lll, im,in, inRank,inSp);
                         break;
                     }
