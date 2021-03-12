@@ -45,8 +45,11 @@ inta foundationS(  calculation *c1,   field f1){
         //gamma[5] = 3;
         SG(f1.f, eigenVectors, 0, 1., gamma);
         printExpectationValues(c1, f1.f, Ha, eigenVectors );
+        division OpSpiral = defSpiralMatrix(&f1.f, Iterator);
+
         fModel(&f1.f);
     }
+
     return EV;
 }
 
@@ -660,7 +663,11 @@ double singlekrylov (   calculation *c1,   field f1){
     EV = 1;
 #endif
     division OpSpiral = defSpiralMatrix(&f1.f, Iterator);
-    
+    for (o = 0; f1.f.name[OpSpiral+o].species == matrix ; o++){
+        printf("\nterm%d\n", o+1);
+        analyzeChainElement(f1.f, OpSpiral+o ,0);
+    }
+
     if ( f1.i.Iterations == 2 ){
         {
             double norm = sqrt(pMatrixElement(f1.f, eigenVectors ,0,nullOverlap,0,eigenVectors ,0));
@@ -669,10 +676,6 @@ double singlekrylov (   calculation *c1,   field f1){
                 fflush(stdout);
                 tScaleOne(f1.f, eigenVectors, 0, 1./norm);
             }
-        }
-        for (o = 0; f1.f.name[OpSpiral+o].species == matrix ; o++){
-            printf("\nterm%d\n", o+1);
-            analyzeChainElement(f1.f, OpSpiral+o ,0);
         }
         ///may seem odd, but this produre is ment to only handle one term at a time.
         tHXpY( f1.f,  eigenVectors, OpSpiral, c1->i.shiftFlag , eigenVectors, f1.f.rt->TOLERANCE,f1.f.rt->relativeTOLERANCE,f1.f.rt->ALPHA,f1.f.rt->THRESHOLD,f1.f.rt->MAX_CYCLE,f1.f.rt->XCONDITION,  f1.f.name[eigenVectors].Partition,f1.f.rt->dynamic);
