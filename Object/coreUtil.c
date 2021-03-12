@@ -2784,6 +2784,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
     printf("------Terms------\n");
 
     division op = defSpiralMatrix(&f1, Hamiltonian);
+    analyzeChainElement(f1, op, 0);
     inta sp,o,scr=0,cr =0;;
     inta terms = 0,oo=0;
     
@@ -2966,7 +2967,7 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
         double * inP;
         double * outP ;
                 inta firstFlag = 1;
-                division su = left;
+                division su = f1.name[left].loopNext;
                 inta timer = 0,xlxl=0;
                 ///PRODUCT!
                 while ( su != nullName ){
@@ -3649,7 +3650,7 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
                         in = ket;
                         inRank = k;
                         inSp= sp2;
-                        tGEMV(rank, f1,out,outRank,outSp,prod, f1.name[ll].loopNext, lll, im,in, inRank,inSp);
+                        tGEMV(rank, f1,out,outRank,outSp,prod, f1.name[ll].name, lll, im,in, inRank,inSp);
                         break;
                     }
                 mi += CanonicalRank(f1, ll, im);
