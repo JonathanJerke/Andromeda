@@ -2148,7 +2148,7 @@ inta defineTerms(  calculation * c,   field *f,   division head, inta memory){
                     assignDiagonalMatrix(c,f,c->i.terms[i].filename,prevLink);
                     break;
             }
-            analyzeChainElement(*f1,f1->name[prevLink].chainNext,0);
+            analyzeChainElement(*f1,prevLink,0);
         }
     }
     return term;
@@ -3938,7 +3938,7 @@ void analyzeChainElement( sinc_label f1, division chainElement, inta spin ){
             analyzeLoopElement( f1, looper,spin);
         }
         printf("\n");
-        analyzeLoopElement(f1, f1.name[chainElement].chainNext, spin);
+        analyzeChainElement(f1, f1.name[chainElement].chainNext, spin);
     }
     return;
 }
