@@ -2969,15 +2969,15 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
         double * initP  ;
         double * inP;
         double * outP ;
-                inta firstFlag = 1;
                 division su = f1.name[left].loopNext;
                 inta timer = 0,xlxl=0;
                 ///PRODUCT!
                 while ( su != nullName ){
-                    
+                    printf("p%d\n",su);
                     for ( space = 0; space < SPACE ; space++)
                     if ( f1.canon[space].body != nada ){
-                    
+                        inta firstFlag = 1;
+
                     
                         bodyType bd = Bodies(f1, right,space);
                         inta N1 = outerVectorLen(f1, one,space);
@@ -3007,7 +3007,7 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                       //      printf("in%d %f %d\n",su, cblas_dnrm2(N2, outP, 1),N1);
 
                         }
-                        //printf("in%d %f %d\n",su, cblas_dnrm2(N2, inP, 1),N1);
+                        printf("in%d %f %d\n",su, cblas_dnrm2(N2, inP, 1),N1);
 
                     if ( f1.name[su].space[space].block == id0 )
                         xlxl = 1;
@@ -3653,7 +3653,8 @@ inta tHX(  inta rank,   sinc_label f1 ,division left, inta l, inta im, double pr
                         in = ket;
                         inRank = k;
                         inSp= sp2;
-                        tGEMV(rank, f1,out,outRank,outSp,prod, f1.name[ll].name, lll, im,in, inRank,inSp);
+                    printf("%d %d\n",ll,f1.name[ll].chainNext);
+                        tGEMV(rank, f1,out,outRank,outSp,prod, ll, lll, im,in, inRank,inSp);
                         break;
                     }
                 mi += CanonicalRank(f1, ll, im);
