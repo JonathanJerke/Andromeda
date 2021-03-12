@@ -2837,7 +2837,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
  *@param kspin  ket's spin
  */
 double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin,  division mat, inta mspin,  division ket, inta kspin ){
-    
+    mat = f1.name[mat].name;
     division holder ;
     inta holderRank, holderSpin;
     inta k,l,e,space;
@@ -2858,7 +2858,7 @@ double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin, 
     if (mat == nullOverlap  ){
         ca = imax(1, f1.name[overlap].Current[mspin]);
     }
-    else if ( f1.name[mat].species == matrix || f1.name[mat].species == vector || f1.name[mat].species == eikon)
+    else if ( f1.name[mat].species == matrix || f1.name[mat].species == vector || f1.name[mat].species >= eikon)
         ca = CanonicalOperator(f1,mat, mspin);
     else
         return 0.;
