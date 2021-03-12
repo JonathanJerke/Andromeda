@@ -3923,20 +3923,22 @@ inta tOuterProductSuOne(   sinc_label  f1,inta space,  division vector , inta a,
 void analyzeLoopElement( sinc_label f1, division loopElement, inta spin ){
     division multer;    
     for (multer = loopElement ; multer != nullName ; multer = f1.name[multer].multNext){
-        printf("++ %d %d ", multer,CanonicalRank(f1, multer, spin));
+        printf("++ %d ", multer);
     }
     printf("\n");
     return;
 }
 
 void analyzeChainElement( sinc_label f1, division chainElement, inta spin ){
-    
-    printf("%d cr %d\n", chainElement, CanonicalRank(f1, chainElement , spin));
-    division looper;
-    for (looper = f1.name[chainElement].loopNext ; looper != nullName ; looper = f1.name[looper].loopNext){
-        analyzeLoopElement( f1, looper,spin);
+    if ( chainElement != nullName){
+
+        printf("%d (%d)\n", chainElement, CanonicalRank(f1, chainElement , spin));
+        division looper;
+        for (looper = f1.name[chainElement].loopNext ; looper != nullName ; looper = f1.name[looper].loopNext){
+            analyzeLoopElement( f1, looper,spin);
+        }
+        printf("\n");
+        analyzeLoopElement(f1, f1.name[chainElement].chainNext, spin);
     }
-    
-    
     return;
 }
