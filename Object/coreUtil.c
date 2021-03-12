@@ -2737,6 +2737,13 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
     if ( !allowQ(f1.rt, blockPrintStuffblock))
         return 0.;
     
+    inta o;
+    division op = defSpiralMatrix(&f1, Hamiltonian);
+    division OpSpiral = defSpiralMatrix(&f1, Iterator);
+    for (o = 0; f1.name[OpSpiral+o].species == matrix ; o++){
+        printf("\nterm%d\n", o+1);
+        analyzeChainElement(f1, OpSpiral+o ,0);
+    }
 
     totx = 0.;
     printf("\n======Expectation========\n");
@@ -2752,8 +2759,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
     for ( space = 0; space < SPACE ; space++){
         for (body = one ; body <=  f1.canon[space].body ; body++ )
             for ( ed = 0 ; ed < 3 ; ed++){
-                f1.name[header].species = matrix;
-                f1.name[header].Current[0] = 1;
+                f1.name[header].species = eikon;
 
                 f1.name[header].loopNext = mem;
                 f1.name[mem].species = eikonOuter;
@@ -2782,13 +2788,6 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
     }
         
     printf("------Terms------\n");
-    inta o;
-    division op = defSpiralMatrix(&f1, Hamiltonian);
-    division OpSpiral = defSpiralMatrix(&f1, Iterator);
-    for (o = 0; f1.name[OpSpiral+o].species == matrix ; o++){
-        printf("\nterm%d\n", o+1);
-        analyzeChainElement(f1, OpSpiral+o ,0);
-    }
     inta sp,scr=0,cr =0;;
     inta terms = 0,oo=0;
     
@@ -2859,7 +2858,7 @@ double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin, 
     if (mat == nullOverlap  ){
         ca = imax(1, f1.name[overlap].Current[mspin]);
     }
-    else if ( f1.name[mat].species == matrix || f1.name[mat].species == vector )
+    else if ( f1.name[mat].species == matrix || f1.name[mat].species == vector || f1.name[mat].species == eikon)
         ca = CanonicalOperator(f1,mat, mspin);
     else
         return 0.;
