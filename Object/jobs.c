@@ -622,7 +622,7 @@ double traces ( calculation *c1, field f1){
  *totalVector is blocked with 'blockMemory 1'
  */
 double singlekrylov (   calculation *c1,   field f1){
-    inta EV = 0,o;
+    inta EV = 0;
 #ifndef APPLE
     inta cmpl,g,fi;
     {
@@ -661,11 +661,6 @@ double singlekrylov (   calculation *c1,   field f1){
     EV = 1;
 #endif
     division OpSpiral = defSpiralMatrix(&f1.f, Iterator);
-    for (o = 0; f1.f.name[OpSpiral+o].species == matrix ; o++){
-        printf("\nterm%d\n", o+1);
-        analyzeChainElement(f1.f, OpSpiral+o ,0);
-    }
-
     if ( f1.i.Iterations == 2 ){
         {
             double norm = sqrt(pMatrixElement(f1.f, eigenVectors ,0,nullOverlap,0,eigenVectors ,0));

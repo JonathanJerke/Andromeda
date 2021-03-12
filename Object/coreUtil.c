@@ -2782,10 +2782,14 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
     }
         
     printf("------Terms------\n");
-
+    inta o;
     division op = defSpiralMatrix(&f1, Hamiltonian);
-    analyzeChainElement(f1, op, 0);
-    inta sp,o,scr=0,cr =0;;
+    division OpSpiral = defSpiralMatrix(&f1, Iterator);
+    for (o = 0; f1.name[OpSpiral+o].species == matrix ; o++){
+        printf("\nterm%d\n", o+1);
+        analyzeChainElement(f1, OpSpiral+o ,0);
+    }
+    inta sp,scr=0,cr =0;;
     inta terms = 0,oo=0;
     
     
