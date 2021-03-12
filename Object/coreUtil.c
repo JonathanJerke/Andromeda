@@ -1370,6 +1370,7 @@ division defSpiralMatrix( sinc_label *f1, division H){
                 f1->name[prev].linkNext = buf;
             }
             f1->name[buf].name = pt;
+            f1->name[buf].chainNext = pt;
             f1->name[buf].species = matrix;
             term++;
             prev = buf;

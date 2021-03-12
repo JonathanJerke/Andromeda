@@ -46,7 +46,7 @@ inta foundationS(  calculation *c1,   field f1){
         SG(f1.f, eigenVectors, 0, 1., gamma);
         printExpectationValues(c1, f1.f, Ha, eigenVectors );
         division OpSpiral = defSpiralMatrix(&f1.f, Iterator);
-
+        analyzeChainElement(f1.f, OpSpiral, 0);
         fModel(&f1.f);
     }
 
