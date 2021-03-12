@@ -752,7 +752,7 @@ inta CanonicalRank(   sinc_label f1 ,   division label , inta spin ){
     
     if ( f1.name[label].name == label){
         if ( spin < spins(f1, label) ){
-            if ( f1.name[f1.name[label].loopNext].species >= eikon){
+            if ( f1.name[f1.name[label].name].species >= eikon){
                 return 1;
             } else {
                 return f1.name[label].Current[spin];
@@ -2148,6 +2148,7 @@ inta defineTerms(  calculation * c,   field *f,   division head, inta memory){
                     assignDiagonalMatrix(c,f,c->i.terms[i].filename,prevLink);
                     break;
             }
+            analyzeChainElement(*f1,f1->name[prevLink].chainNext,0);
         }
     }
     return term;
@@ -3919,3 +3920,23 @@ inta tOuterProductSuOne(   sinc_label  f1,inta space,  division vector , inta a,
 //    return 0;
 //}
 
+void analyzeLoopElement( sinc_label f1, division loopElement, inta spin ){
+    division multer;    
+    for (multer = loopElement ; multer != nullName ; multer = f1.name[multer].multNext){
+        printf("++ %d %d ", multer,CanonicalRank(f1, multer, spin));
+    }
+    printf("\n");
+    return;
+}
+
+void analyzeChainElement( sinc_label f1, division chainElement, inta spin ){
+    
+    printf("%d cr %d\n", chainElement, CanonicalRank(f1, chainElement , spin));
+    division looper;
+    for (looper = f1.name[chainElement].loopNext ; looper != nullName ; looper = f1.name[looper].loopNext){
+        analyzeLoopElement( f1, looper,spin);
+    }
+    
+    
+    return;
+}

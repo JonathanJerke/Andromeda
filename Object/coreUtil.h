@@ -131,5 +131,5 @@ double tDOT (inta rank, sinc_label  f1,inta dim,char leftChar, division left,int
 inta tHX(  inta rank, sinc_label f1 ,division left, inta l, inta im, double prod, division ket , inta k, inta sp2,   division oket, inta o,inta ospin );
 void tHXpY (   sinc_label f1 ,  division bra,   division left,inta shiftFlag,  division right ,  double tolerance ,double relativeTolerance,double condition,double threshold, inta maxCycle, double maxCondition, inta canon,inta X1);
 
-
+void analyzeChainElement( sinc_label f1, division chainElement ,inta spin);
 #endif /* coreUtil_h */
