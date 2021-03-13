@@ -253,8 +253,12 @@ DCOMPLEX gaussianSincfourierIntegralInTrain (double d, double gammax, double x, 
 }
 
 
+/**
+ * Spatial one-body Sinc elements
+ * This can be further reduced, may be helpful for quantum computing...
+ */
 
-DCOMPLEX spatialSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2, floata lattice2, floata momentum ){
+DCOMPLEX spatialSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2, floata lattice2, floata origin,floata momentum ){
     floata d ;
     floata b ;
     inta m,n;
@@ -269,22 +273,22 @@ DCOMPLEX spatialSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2, 
         m = m2;
         n = m1;
     }
-    
+    DCOMPLEX phase = cexp(-I*momentum*origin);
     
     if ( m1 == m2 ){
         if ( fabs(momentum) < (pi/b -pi/d)){
             ///m
-            return sqrt(b*d)/4./pi/pi * cexp(I*m*b*momentum)* 2 * pi / d;
+            return phase*sqrt(b*d)/2./pi * cexp(I*m*b*momentum)* 2 * pi / d;
         }else if ( momentum >= 0 ){
             ///r
             if ( momentum < pi/b + pi/d )
-                return sqrt(b*d)/4./pi/pi * cexp(I*m*b*momentum)* 2 * ( pi/d + pi/b - momentum );
+                return phase*sqrt(b*d)/2./pi * cexp(I*m*b*momentum)* 2 * ( pi/d + pi/b - momentum );
             else
                 return 0.;
         }else if ( momentum < 0 ){
             ///l
             if ( momentum > -pi/b - pi/d )
-                return sqrt(b*d)/4./pi/pi * cexp(I*m*b*momentum)* 2 * ( pi/d + pi/b + momentum );
+                return phase*sqrt(b*d)/2./pi * cexp(I*m*b*momentum)* 2 * ( pi/d + pi/b + momentum );
             else
                 return 0.;
         }
@@ -296,13 +300,13 @@ DCOMPLEX spatialSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2, 
         }else if ( momentum >= 0 ){
             ///r
             if ( momentum < pi/d + pi/b )
-                return I/(-b*m+d*n)*sqrt(b*d)/4./pi/pi * (- cexp(I*m*b*(momentum-pi/d)+I*n*pi)+cexp(I*n*b*(momentum-pi/d)+I*m*pi));
+                return phase*I/(-b*m+d*n)*sqrt(b*d)/2./pi * (- cexp(I*m*b*(momentum-pi/d)+I*n*pi)+cexp(I*n*b*(momentum-pi/d)+I*m*pi));
             else
                 return 0.;
         }else if ( momentum < 0 ){
             ///l
             if ( momentum > -pi/b - pi/d )
-                return -I/(-b*m+d*n)*sqrt(b*d)/4./pi/pi * (- cexp(I*m*b*(momentum+pi/d)+I*n*pi)+cexp(I*n*b*(momentum+pi/d)+I*m*pi));
+                return -phase*I/(-b*m+d*n)*sqrt(b*d)/2./pi* (- cexp(I*m*b*(momentum+pi/d)+I*n*pi)+cexp(I*n*b*(momentum+pi/d)+I*m*pi));
             else
                 return 0.;
         }
@@ -322,8 +326,10 @@ DCOMPLEX spatialSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2, 
  *
  * MAY NEED A BLOCH K
  */
-DCOMPLEX periodicSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2,floata lattice2 , inta N1, inta momentumIndex ){
+DCOMPLEX periodicSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2,floata lattice2 , floata origin,inta N1, inta momentumIndex ){
     DCOMPLEX su = 0.;
+    DCOMPLEX phase = cexp(-I*momentumIndex*2.*pi/N1*origin/lattice2);
+
     inta n,m, N12 = (N1-1)/2;
     for ( n = -N12; n <= N12 ; n++){
         for ( m = -N12 ; m <= N12 ;m++){
@@ -332,7 +338,7 @@ DCOMPLEX periodicSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2,
             }
         }
     }
-    return 2.0*pi*su/(N1);
+    return su/(N1)*phase;
 }
   
 /**

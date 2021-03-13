@@ -744,7 +744,7 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
                                                      iL = twoL;
                                                      iO = twoOri;
                                                  }
-                                                 tc = spatialSincfourierIntegralInTrain( I1+iO/iL,iL,I2+iO/iL,iL, (1-2*bodyIndex)*Xmomentum[momentum]);
+                                                 tc = spatialSincfourierIntegralInTrain( I1,iL,I2,iL,iO+position[space], (1-2*bodyIndex)*Xmomentum[momentum]);
                                              si++;
                                             if ( alloc(f1, eikonBuffer, space) < si ){
                                                 printf("creation of oneBody, somehow allocations of vectors are too small. %d\n",si);
@@ -1177,7 +1177,7 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                                                  iL = twoL;
                                                  iO = twoOri;
                                              }
-                                             tc = periodicSincfourierIntegralInTrain( I1+iO/iL,iL,I2+iO/iL,iL, N1,  (1-2*bodyIndex)*momentumIndex);
+                                             tc = periodicSincfourierIntegralInTrain( I1,iL,I2,iL,iO+position[space], N1,  (1-2*bodyIndex)*momentumIndex);
                                          //printf("%f %f\n", creal(tc),cimag(tc));
                                             if ( invertSign && bodyIndex == 0 ){
                                                 ///multiply of Gaussian here one first particle.
@@ -2387,8 +2387,39 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
             else if ( mu.metric == dirac )
                 ra++;
         if ( bootedQ(*f1) ){
-                    separateInteraction(f1,scalar*c1->i.atoms[a].Z, c1->i.atoms[a].position+1,invert,act,bl, single, mu, cmpl, 0, 0, particle1,one,embed);
+            
+            {
+                            separateInteraction(f1,scalar*c1->i.atoms[a].Z, c1->i.atoms[a].position+1,invert,act,bl, single, mu, cmpl, 0, 0, particle1,one,embed);
+            }
+            
+            if(0){
+            
+            
+        if ( f1->canon[0].basis == SincBasisElement ){
+            inta space,body;
+            momentumIntegralSpecs specs;
+            specs.metric = continousMomentum;
+            specs.interval = 15;
+            floata ml = f1->canon[0].particle[one].lattice;
+            for (space = 0 ; space < SPACE ; space++)
+            if ( f1->canon[space].body != nada){
+                if ( f1->canon[space].label == particle1 )
+                    for ( body = one ; body <= f1->canon[space].body ; body++)
+                        ml = fmin( ml, f1->canon[space].particle[body].lattice);
+                }
+            specs.maxMomentum = 2.*pi/ml;
+            splitInteraction(f1, scalar*c1->i.atoms[a].Z, c1->i.atoms[a].position+1, invert, act, bl, single, mu, cmpl, specs, 0, &particle1, one, embed);
         }
+        else{
+            momentumIntegralSpecs specs;
+            specs.metric = discreteMomentum;
+            specs.interval = f1->canon[0].count1Basis-1;
+            periodicInteraction(f1, scalar*c1->i.atoms[a].Z,c1->i.atoms[a].position+1,invert,act,bl, single , mu, cmpl,specs, f1->canon[0].count1Basis*f1->canon[0].particle[one].lattice, 0, &particle1,one);
+        }
+            }
+    }
+                
+//
         
     if ( bootedQ(*f1) ){
     }
@@ -2421,7 +2452,7 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
     else if ( mu.metric == dirac )
         ra++;
 
-    if ( bootedQ(*f1)  ){
+    if ( bootedQ(*f1) ){
             double zero[6];
             zero[0] = 0.;
             zero[1] = 0.;
