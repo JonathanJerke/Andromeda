@@ -284,7 +284,6 @@ cdef extern from "../Object/constants.h":
         
     cdef struct momentumIntegralSpecs:
         momentumType metric
-        inta opQ
         floata maxMomentum
         inta interval
 
