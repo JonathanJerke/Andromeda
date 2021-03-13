@@ -745,9 +745,7 @@ inta iModel(   calculation * c1,   field *f){
             {
                 division label1 = f1->eikonLabels.head+ii;
                 f1->name[label1].Partition = 1;
-                f1->name[label1].spinor = real;
-                if ( f->i.cmpl == cmpl )
-                    f1->name[label1].spinor = cmpl;
+                f1->name[label1].spinor = cmpl;
                 assignParticle(*f1, label1, 0, one);
                 f1->name[label1].species = eikon;
                 fromBeginning(*f1,label1,prev);

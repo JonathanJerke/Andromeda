@@ -44,6 +44,8 @@ inta foundationS(  calculation *c1,   field f1){
         }
         gamma[7] = 3;
         SG(f1.f, eigenVectors, 0, 1., gamma);
+        division op = defSpiralMatrix(&f1.f, Iterator);
+        floata x = tMatrixElements(0, f1.f, eigenVectors, 0, op, 1, eigenVectors, 0);
         printExpectationValues(c1, f1.f, Ha, eigenVectors );
         fModel(&f1.f);
     }

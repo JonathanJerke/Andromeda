@@ -683,18 +683,19 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
         metric2.beta[1] =  specs.maxMomentum;//lattice
 
         
-        inta momentum, momentumLength = quadrature(metric2, Xmomentum, Wmomentum);
+        inta re, momentum, momentumLength = quadrature(metric2, Xmomentum, Wmomentum);
         floata gaussianKernel;
 
             
-        for ( momentum = 0; momentum < momentumLength ; momentum++){
+        for ( momentum = 0; momentum < momentumLength ; momentum++)
+        for (re = 0 ; re < 2 ; re++){
             ///
             ///
-            gaussianKernel = Wbeta[beta]*Wmomentum[momentum]*exp(-pow(Xmomentum[momentum]/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
+            gaussianKernel = (1-2*re)*Wbeta[beta]*Wmomentum[momentum]*exp(-pow(Xmomentum[momentum]/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
             if ( gaussianKernel > f1.rt->THRESHOLD ){
                 ///new canonRank and header
                 ///tGEMV will take first loop as content...
-                f1.name[currLoop].loopNext = anotherLabel(f,all,two);
+                f1.name[currLoop].loopNext = anotherLabel(f,all,one);
                 currLoop = f1.name[currLoop].loopNext;
                 
                 f1.name[currLoop].species = eikonSplit;
@@ -813,14 +814,13 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
                     f1.name[eikonBuffer].Current[0] = 1;
                     f1.name[eikonBuffer].Current[1] = 1;
                       //  printf("me %f\n", tMatrixElements(0, f1, eikonBuffer, 0, nullOverlap, 0, eikonBuffer, 0));
-                    tEqua(f1, currMult, 0, eikonBuffer, 0);
-                    if ( spin == cmpl)
-                        tEqua(f1, currMult, 1, eikonBuffer, 1);
+                    tEqua(f1, currMult, 0, eikonBuffer, re);
+                    //tEqua(f1, currMult, 1, eikonBuffer, 1);
                     f1.name[currMult].species = eikonSplit;
 
                     }
                     if ( body == two && bodyIndex == 0){
-                        f1.name[currMult].multNext = anotherLabel(f,all,two);
+                        f1.name[currMult].multNext = anotherLabel(f,all,one);
                         currMult = f1.name[currMult].multNext;
                 }
             }
@@ -2388,11 +2388,12 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
                 ra++;
         if ( bootedQ(*f1) ){
             
+#ifdef SEPARATE_ONE_BODY
             {
-                            separateInteraction(f1,scalar*c1->i.atoms[a].Z, c1->i.atoms[a].position+1,invert,act,bl, single, mu, cmpl, 0, 0, particle1,one,embed);
+            separateInteraction(f1,scalar*c1->i.atoms[a].Z, c1->i.atoms[a].position+1,invert,act,bl, single, mu, cmpl, 0, 0, particle1,one,embed);
             }
-            
-            if(0){
+#else
+        {
             
             
         if ( f1->canon[0].basis == SincBasisElement ){
@@ -2417,8 +2418,10 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
             periodicInteraction(f1, scalar*c1->i.atoms[a].Z,c1->i.atoms[a].position+1,invert,act,bl, single , mu, cmpl,specs, f1->canon[0].count1Basis*f1->canon[0].particle[one].lattice, 0, &particle1,one);
         }
             }
+#endif
+
+            
     }
-                
 //
         
     if ( bootedQ(*f1) ){
