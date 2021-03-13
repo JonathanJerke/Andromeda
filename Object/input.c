@@ -699,12 +699,12 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                 
         }
         
-    inta NINT_TYPE = 17;
+    inta NINT_TYPE = 18;
     char *list_INT_TYPE []= {"#",
         "invert","block","act","newTerm","buffer",
-        "interval","offDiagonals","funcType","atom","axis1",
+        "interval","offDiagonals","funcType","atom","axis",
         "bra","ket","flags","embed","revise",
-        "reset","axis2"
+        "reset","axis1","axis2"
     };
     inta NDOUBLE = 10;
     char *list_DOUBLE []= {"#",
@@ -755,6 +755,7 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                         return i;
                     case 10:
                         particle1 = ivalue;
+                        particle2 = ivalue;
                         return i;
                     case 11:
                         bra = ivalue;
@@ -775,6 +776,9 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                         c->i.termNumber = 0;
                         return i;
                     case 17:
+                        particle1 = ivalue;
+                        return i;
+                    case 18:
                         particle2 = ivalue;
                         return i;
 
