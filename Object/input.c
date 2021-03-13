@@ -610,7 +610,8 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
     static double xBeta = 10;
     static inta bra = 0;
     static inta ket = 0;
-    static inta particle = 1;
+    static inta particle1 = 1;
+    static inta particle2 = 1;
     static inta funcType = 3;
     char test_line [MAXSTRING];
     inta i,d,ivalue,space;
@@ -646,7 +647,9 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                 sprintf( c->i.terms[c->i.termNumber].filename,"%s",filename);
                     strcpy(c->i.terms[c->i.termNumber].filename,filename);
                 c->i.terms[c->i.termNumber].atom     = atom;
-                c->i.terms[c->i.termNumber].label = particle;
+                c->i.terms[c->i.termNumber].label[0] = particle1;
+                c->i.terms[c->i.termNumber].label[1] = particle2;
+
                     newTerm = 0;
                 metric.fn.fn = funcType;
                 metric.fn.param[0] = 1.;
@@ -696,12 +699,12 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                 
         }
         
-    inta NINT_TYPE = 16;
+    inta NINT_TYPE = 17;
     char *list_INT_TYPE []= {"#",
         "invert","block","act","newTerm","buffer",
-        "interval","offDiagonals","funcType","atom","axis",
+        "interval","offDiagonals","funcType","atom","axis1",
         "bra","ket","flags","embed","revise",
-        "reset"
+        "reset","axis2"
     };
     inta NDOUBLE = 10;
     char *list_DOUBLE []= {"#",
@@ -751,7 +754,7 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                         atom = ivalue;
                         return i;
                     case 10:
-                        particle = ivalue;
+                        particle1 = ivalue;
                         return i;
                     case 11:
                         bra = ivalue;
@@ -770,6 +773,9 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                         return i;
                     case 16:
                         c->i.termNumber = 0;
+                        return i;
+                    case 17:
+                        particle2 = ivalue;
                         return i;
 
                 }

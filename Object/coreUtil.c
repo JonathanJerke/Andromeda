@@ -2119,31 +2119,31 @@ inta defineTerms(  calculation * c,   field *f,   division head, inta memory){
         if ( memory== -1 || term == memory ){
             switch ( c->i.terms[i].type){
                 case 1:
-                    buildConstant(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink, c->i.terms[i].label, 0, real);
+                    buildConstant(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink, c->i.terms[i].label[0], 0, real);
                     break;
                 case 2:
-                    buildLinear(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label, 0, real);
+                    buildLinear(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label[0], 0, real);
                     break;
                 case 3:
-                    buildSpring(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label, 0, real);
+                    buildSpring(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label[0], 0, real);
                     break;
                 case 4:
-                    buildDeriv(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink, c->i.terms[i].label,0, real);
+                    buildDeriv(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink, c->i.terms[i].label[0],0, real);
                     break;
                 case 5:
-                    buildKinetic(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label, 0, real);
+                    buildKinetic(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label[0], 0, real);
                     break;
                 case 6:
 //                    buildClampKinetic(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label, 0, real);
                     break;
                 case 7:
-                    buildElement(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label, 0, real,c->i.terms[i].bra,c->i.terms[i].ket);
+                    buildElement(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label[0], 0, real,c->i.terms[i].bra,c->i.terms[i].ket);
                     break;
                 case 8:
-                    buildExternalPotential(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label,c->i.terms[i].embed, 0, real,c->i.terms[i].mu,c->i.terms[i].atom);
+                    buildExternalPotential(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label[0],c->i.terms[i].embed, 0, real,c->i.terms[i].mu,c->i.terms[i].atom);
                     break;
                 case 9:
-                    buildPairWisePotential(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl,prevLink,  c->i.terms[i].label, c->i.terms[i].embed,0, real,c->i.terms[i].mu);
+                    buildPairWisePotential(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl,prevLink, c->i.terms[i].label, c->i.terms[i].embed,0, real,c->i.terms[i].mu);
                     break;
                 case 10:
                     assignDiagonalMatrix(c,f,c->i.terms[i].filename,prevLink);

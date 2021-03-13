@@ -56,7 +56,7 @@
     floata lattice = 0.5;
     inta basis = 9;
     space = 0;
-    i.f.canon[space].basis = PeriodicSincBasisElement;
+    i.f.canon[space].basis = SincBasisElement;
     i.f.canon[space].body = four;
     i.f.canon[space].count1Basis = basis;
     i.f.canon[space].space = 0;
@@ -73,6 +73,8 @@
       i.f.canon[space].particle[four].attack = 0.5;
       i.f.canon[space].particle[four].lattice = lattice;
       i.f.canon[space].particle[four].origin = -basis/2*lattice ;
+
+      
       i.i.Iterations = 6;
 #endif
 //
@@ -180,7 +182,7 @@ calculation initCal (void ) {
     term_label t;
     t.act = 1;
     t.atom = 1;
-    t.bl = 4;
+    t.bl = 7;
     t.func.contr = 0;
     t.func.fn = Coulomb;
     t.func.interval = 7;
@@ -190,10 +192,12 @@ calculation initCal (void ) {
     t.mu.metric = interval;
     t.mu.fn  = t.func;
     t.invert = 0;
-    t.label  = 1;
+    t.label[0]  = 1;
+    t.label[1]  = 1;
+
     t.scalar = 1;
     t.headFlag = 1;
-    t.type   = 5;
+    t.type   = 9;
     i.i.terms[0] = t;
 
     
@@ -731,7 +735,7 @@ inta iModel(   calculation * c1,   field *f){
     f1->name[eikonBuffer].Partition = !(!f1->eikonLabels.maxLabel);
     f1->name[eikonBuffer].species = eikon;
     f1->name[eikonBuffer].spinor = cmpl;
-    assignParticle(*f1, eikonBuffer, all, two);
+    assignParticle(*f1, eikonBuffer, all, one);
         
     
     {
@@ -744,7 +748,7 @@ inta iModel(   calculation * c1,   field *f){
                 f1->name[label1].spinor = real;
                 if ( f->i.cmpl == cmpl )
                     f1->name[label1].spinor = cmpl;
-                assignParticle(*f1, label1, 0, two);
+                assignParticle(*f1, label1, 0, one);
                 f1->name[label1].species = eikon;
                 fromBeginning(*f1,label1,prev);
                 prev = label1;

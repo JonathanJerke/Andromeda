@@ -559,10 +559,10 @@ struct atom_label {
 struct momentumIntegralSpecs{
     ///mathematically descrete sum or continuous integral
     momentumType metric;
-    ///is this an operating factor?
-    inta opQ;
     ///quadrature size
     inta interval;
+    ///maximum momentum
+    floata maxMomentum;
 };
 
 struct basisElement_label {
@@ -631,8 +631,6 @@ struct term_label {
     char filename[MAXSTRING];
     ///internal potential parameters
     function_label func;
-    ///momentum integral specs
-    momentumIntegralSpecs spec[MAX_SPLIT];
     ///description of term
     char desc[16];
     ///external multiplication of term
@@ -646,7 +644,7 @@ struct term_label {
     ///rescaling particle 1 of twoBody interaction
     double adjustOne;
     ///ID of component group to address
-    inta label;
+    inta label[MAX_SPLIT];
     ///invert flag on particle 1
     inta invert;
     ///new term flag, may be 0 or 1

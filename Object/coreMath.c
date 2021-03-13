@@ -254,6 +254,64 @@ DCOMPLEX gaussianSincfourierIntegralInTrain (double d, double gammax, double x, 
 
 
 
+DCOMPLEX spatialSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2, floata lattice2, floata momentum ){
+    floata d ;
+    floata b ;
+    inta m,n;
+    if ( lattice1 > lattice2 ){
+        d = lattice1;
+        b = lattice2;
+        m = m1;
+        n = m2;
+    }else {
+        d = lattice2;
+        b = lattice1;
+        m = m2;
+        n = m1;
+    }
+    
+    
+    if ( m1 == m2 ){
+        if ( fabs(momentum) < (pi/b -pi/d)){
+            ///m
+            return sqrt(b*d)/4./pi/pi * cexp(I*m*b*momentum)* 2 * pi / d;
+        }else if ( momentum >= 0 ){
+            ///r
+            if ( momentum < pi/b + pi/d )
+                return sqrt(b*d)/4./pi/pi * cexp(I*m*b*momentum)* 2 * ( pi/d + pi/b - momentum );
+            else
+                return 0.;
+        }else if ( momentum < 0 ){
+            ///l
+            if ( momentum > -pi/b - pi/d )
+                return sqrt(b*d)/4./pi/pi * cexp(I*m*b*momentum)* 2 * ( pi/d + pi/b + momentum );
+            else
+                return 0.;
+        }
+    }
+    else {
+        if ( fabs(momentum) < fabs(pi/b -pi/d)){
+            ///m
+            return 0.;
+        }else if ( momentum >= 0 ){
+            ///r
+            if ( momentum < pi/d + pi/b )
+                return I/(-b*m+d*n)*sqrt(b*d)/4./pi/pi * (- cexp(I*m*b*(momentum-pi/d)+I*n*pi)+cexp(I*n*b*(momentum-pi/d)+I*m*pi));
+            else
+                return 0.;
+        }else if ( momentum < 0 ){
+            ///l
+            if ( momentum > -pi/b - pi/d )
+                return -I/(-b*m+d*n)*sqrt(b*d)/4./pi/pi * (- cexp(I*m*b*(momentum+pi/d)+I*n*pi)+cexp(I*n*b*(momentum+pi/d)+I*m*pi));
+            else
+                return 0.;
+        }
+
+        
+        
+    }
+    return 0.;
+}
 
 
 
@@ -264,13 +322,13 @@ DCOMPLEX gaussianSincfourierIntegralInTrain (double d, double gammax, double x, 
  *
  * MAY NEED A BLOCH K
  */
-DCOMPLEX periodicSincfourierIntegralInTrain ( double k, double l , inta N1, inta momentumIndex ){
+DCOMPLEX periodicSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2,floata lattice2 , inta N1, inta momentumIndex ){
     DCOMPLEX su = 0.;
     inta n,m, N12 = (N1-1)/2;
     for ( n = -N12; n <= N12 ; n++){
         for ( m = -N12 ; m <= N12 ;m++){
             if ( n + m == momentumIndex ){
-                su += cexp( 2.0/N1 * pi * ( n * k + m * l ) );
+                su += cexp( 2.0/(N1*N1) * pi* ( n * m1 + m * m2 ) );
             }
         }
     }
