@@ -2984,7 +2984,6 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                         division su0 = su;
                         inta timer = 0,xlxl=0;
                         ///PRODUCT!
-                        while ( su != nullName ){
                     
                         bodyType bd = Bodies(f1, right,space);
                         inta N1 = outerVectorLen(f1, one,space);
@@ -3000,6 +2999,7 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                         bufferP  = streams(f1, bufferT, bufferS,space)+bufferR*N2;
                         inP = NULL;
                         outP = streams(f1, outT, outS,space)+outR*N2;
+                        while ( su != nullName ){
 
                         if ( firstFlag ){
                             inP = initP;
@@ -3009,7 +3009,7 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                             }
                             firstFlag = 0;
                         }
-#if VERBOSE
+#if 1
                         printf("in%d %f %d\n",su, cblas_dnrm2(N2, inP, 1),N1);
 #endif
                     if ( f1.name[su].space[space].block == id0 )
