@@ -3003,8 +3003,10 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
 
                         if ( firstFlag ){
                             inP = initP;
-                            for ( i = 0 ; i < N2 ; i++)
+                            for ( i = 0 ; i < N2 ; i++){
                                 outP[i] = 0.;
+                                bufferP[i] = 0.;
+                            }
                             firstFlag = 0;
                         }
 #if VERBOSE
@@ -3059,8 +3061,8 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                         for ( i = 0 ; i < N2 ; i++){
                             midP[i] = 0.;
                             laterP[i] = 0.;
+                            bufferP[i] = 0.;
                         }
-                        
                         double flow = 1.;
                         if (space == 0 )
                             flow *= scalar;
@@ -3413,7 +3415,7 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                                 inP = streams(f1, inT, inS,space)+inR*N2;
                                 cblas_dcopy(N2, bufferP,1, inP,1);
                                 ///link ot last multiply only
-                            }else {
+                            }else{
                                 su = f1.name[su0].loopNext;//sum channel
                                 su0 = su;
                                 cblas_daxpy(N2, 1.0, bufferP, 1, outP, 1);
