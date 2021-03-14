@@ -282,13 +282,13 @@ DCOMPLEX spatialSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2, 
         }else if ( momentum >= 0 ){
             ///r
             if ( momentum < pi/b + pi/d )
-                return phase*sqrt(b*d)/2./pi * cexp(I*m*b*momentum)* 2 * ( pi/d + pi/b - momentum );
+                return phase*sqrt(b*d)/2./pi * cexp(I*m*b*momentum)* ( pi/d + pi/b - momentum );
             else
                 return 0.;
         }else if ( momentum < 0 ){
             ///l
             if ( momentum > -pi/b - pi/d )
-                return phase*sqrt(b*d)/2./pi * cexp(I*m*b*momentum)* 2 * ( pi/d + pi/b + momentum );
+                return phase*sqrt(b*d)/2./pi * cexp(I*m*b*momentum)* ( pi/d + pi/b + momentum );
             else
                 return 0.;
         }

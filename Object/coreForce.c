@@ -893,7 +893,7 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
 
             
         for ( momentum = 0; momentum < momentumLength ; momentum++)
-        for (re = 0 ; re < 2 ; re++){
+        for (re = 0 ; re < body ; re++){
             ///
             ///
             gaussianKernel = (1-2*re)*Wmomentum[momentum]*exp(-pow(Xmomentum[momentum]/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
@@ -2406,7 +2406,7 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
             inta space,body;
             momentumIntegralSpecs specs;
             specs.metric = continousMomentum;
-            specs.interval = 99;
+            specs.interval = 35;
             floata ml = f1->canon[0].particle[one].lattice;
             for (space = 0 ; space < SPACE ; space++)
             if ( f1->canon[space].body != nada){
