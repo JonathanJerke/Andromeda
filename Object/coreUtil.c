@@ -2929,8 +2929,8 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
         }
     }
     
-    division inT,outT,midT,laterT,initT;
-    inta space,inR,outR,inS,outS,midR,midS,laterR,laterS,initR,initS;
+    division inT,outT,midT,laterT,initT,bufferT;
+    inta space,inR,outR,inS,outS,midR,midS,laterR,laterS,initR,initS,bufferR,bufferS;
     f1.name[canonicalmvVector].Current[rank] = 0;
     f1.name[canonicalmv2Vector].Current[rank] = 1;
     f1.name[canonicalmv3Vector].Current[rank] = 0;
@@ -2960,7 +2960,11 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
         inR = 2;
         inS = rank;
 
-        
+        bufferT = canonicalmv3Vector;
+        bufferR = 3;
+        bufferS = rank;
+
+
             
                 
                 inta i;
@@ -2969,29 +2973,31 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
         double * initP  ;
         double * inP;
         double * outP ;
-                division su = f1.name[left].loopNext;
-                inta timer = 0,xlxl=0;
-                ///PRODUCT!
-                while ( su != nullName ){
+        double * bufferP;
 #if VERBOSE
                     printf("p%d\n",su);
 #endif
                     for ( space = 0; space < SPACE ; space++)
                     if ( f1.canon[space].body != nada ){
-                        inta firstFlag = 1;
-
+                        
+                        division su = f1.name[left].loopNext;
+                        division su0 = su;
+                        inta timer = 0,xlxl=0;
+                        ///PRODUCT!
+                        while ( su != nullName ){
                     
                         bodyType bd = Bodies(f1, right,space);
                         inta N1 = outerVectorLen(f1, one,space);
                         inta N2 = vectorLen(f1, space);
 
-
+                            inta firstFlag =1 ;
                     
                     
                         
                         midP = streams(f1, midT, midS,space)+midR*N2;
                         laterP = streams(f1, laterT, laterS,space)+laterR*N2;
                         initP  = streams(f1, initT, initS,space)+initR*N2;
+                        bufferP  = streams(f1, bufferT, bufferS,space)+bufferR*N2;
                         inP = NULL;
                         outP = streams(f1, outT, outS,space)+outR*N2;
 
@@ -3000,14 +3006,6 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                             for ( i = 0 ; i < N2 ; i++)
                                 outP[i] = 0.;
                             firstFlag = 0;
-                        }
-                        else {
-                            inP = streams(f1, inT, inS,space)+inR*N2;
-                            
-                            ///product by copying collected state back to input.
-                            cblas_dcopy(N2, outP,1, inP,1);
-                      //      printf("in%d %f %d\n",su, cblas_dnrm2(N2, outP, 1),N1);
-
                         }
 #if VERBOSE
                         printf("in%d %f %d\n",su, cblas_dnrm2(N2, inP, 1),N1);
@@ -3407,12 +3405,25 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                                 }
                             }
                         }
-                        cblas_daxpy(N2, flow, laterP, 1, outP, 1);
+                        cblas_daxpy(N2, flow, laterP, 1, bufferP, 1);
                         ///sum collect to outP.
                     }
+                            if ( f1.name[su].multNext != nullName){
+                                su =f1.name[su].multNext;
+                                inP = streams(f1, inT, inS,space)+inR*N2;
+                                cblas_dcopy(N2, bufferP,1, inP,1);
+                                ///link ot last multiply only
+                            }else {
+                                su = f1.name[su0].loopNext;//sum channel
+                                su0 = su;
+                                cblas_daxpy(N2, 1.0, bufferP, 1, outP, 1);
+                                inP = initP;///link to begin
+                            }
+                        
+                        }
+
                     }
-                    su = f1.name[su].multNext;//sum channel
-                }
+                
             
         }
     else{ inta space;

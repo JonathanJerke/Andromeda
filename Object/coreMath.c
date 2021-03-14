@@ -273,7 +273,7 @@ DCOMPLEX spatialSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2, 
         m = m2;
         n = m1;
     }
-    DCOMPLEX phase = cexp(-I*momentum*origin);
+    DCOMPLEX phase = cexp(I*momentum*origin);
     
     if ( m1 == m2 ){
         if ( fabs(momentum) < (pi/b -pi/d)){
@@ -328,7 +328,7 @@ DCOMPLEX spatialSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2, 
  */
 DCOMPLEX periodicSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2,floata lattice2 , floata origin,inta N1, inta momentumIndex ){
     DCOMPLEX su = 0.;
-    DCOMPLEX phase = cexp(-I*momentumIndex*2.*pi/N1*origin/lattice2);
+    DCOMPLEX phase = cexp(I*momentumIndex*2.*pi/N1*origin/lattice2);
 
     inta n,m, N12 = (N1-1)/2;
     for ( n = -N12; n <= N12 ; n++){

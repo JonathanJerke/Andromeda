@@ -57,7 +57,7 @@
     inta basis = 9;
     space = 0;
     i.f.canon[space].basis = SincBasisElement;
-    i.f.canon[space].body = four;
+    i.f.canon[space].body = one;
     i.f.canon[space].count1Basis = basis;
     i.f.canon[space].space = 0;
     i.f.canon[space].label = 1;
@@ -141,18 +141,18 @@ calculation initCal (void ) {
     i.rt.MAX_CYCLE = 24;
     i.rt.relativeTOLERANCE = 0.000000000000001;
     i.rt.THRESHOLD = 1e-12; 
-    i.i.numNames = 1000;
-    i.i.numVectors = 1000;
+    i.i.numNames = 10000;
+    i.i.numVectors = 100000;
     i.rt.dynamic = 0;
     i.i.iocsb = 1;
     i.i.nocsb = 1;
 #ifdef APPLE
-    i.i.Na = 3;
-    i.i.atoms[1].position[1] = 4;
+    i.i.Na = 1;
+    i.i.atoms[1].position[1] = 0;
     i.i.atoms[1].position[2] = 0.;
     i.i.atoms[1].position[3] = 0.;
     i.i.atoms[1].Z = 1;
-    i.i.atoms[2].position[1] = -4;
+    i.i.atoms[2].position[1] = 0;
     i.i.atoms[2].position[2] = 0.;
     i.i.atoms[2].position[3] = 0.;
     i.i.atoms[2].Z = 1;
@@ -182,14 +182,14 @@ calculation initCal (void ) {
     term_label t;
     t.act = 1;
     t.atom = 1;
-    t.bl = 7;
-    t.func.contr = 0;
+    t.bl = 1;
+    t.func.contr = 1;
     t.func.fn = Coulomb;
-    t.func.interval = 7;
+    t.func.interval = 15;
     t.adjustOne = 1.;
     t.mu.beta[0] = 1;
-    t.mu.beta[1] = 10;
-    t.mu.metric = interval;
+    t.mu.beta[1] = 1;
+    t.mu.metric = dirac;
     t.mu.fn  = t.func;
     t.invert = 0;
     t.label[0]  = 1;
@@ -197,7 +197,7 @@ calculation initCal (void ) {
 
     t.scalar = 1;
     t.headFlag = 1;
-    t.type   = 9;
+    t.type   = 8;
     i.i.terms[0] = t;
 
     
@@ -586,7 +586,7 @@ inta iModel(   calculation * c1,   field *f){
         f1->name[canonicalmv2Vector].species = vector;
 
         fromBeginning(*f1,canonicalmv3Vector,canonicalmv2Vector);
-        f1->name[canonicalmv3Vector].Partition = 3;
+    f1->name[canonicalmv3Vector].Partition = 4;
         f1->name[canonicalmv3Vector].species = vector;
         if ( allowQ(f1->rt, blockParallelMultiplyblock) )
             f1->name[canonicalmv3Vector].spinor = parallel;
@@ -735,7 +735,7 @@ inta iModel(   calculation * c1,   field *f){
     f1->name[eikonBuffer].Partition = !(!f1->eikonLabels.maxLabel);
     f1->name[eikonBuffer].species = eikon;
     f1->name[eikonBuffer].spinor = cmpl;
-    assignParticle(*f1, eikonBuffer, all, one);
+    assignParticle(*f1, eikonBuffer, all, two);
         
     
     {
@@ -745,8 +745,8 @@ inta iModel(   calculation * c1,   field *f){
             {
                 division label1 = f1->eikonLabels.head+ii;
                 f1->name[label1].Partition = 1;
-                f1->name[label1].spinor = cmpl;
-                assignParticle(*f1, label1, 0, one);
+                f1->name[label1].spinor = real;
+                assignParticle(*f1, label1, 0, two);
                 f1->name[label1].species = eikon;
                 fromBeginning(*f1,label1,prev);
                 prev = label1;

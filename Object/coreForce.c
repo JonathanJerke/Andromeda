@@ -600,8 +600,6 @@ inta quadrature( metric_label metric, floata *X, floata* W){
             constant *= metric.beta[0];
             if ( ! flagConstants )
                 constant *= inverseLaplaceTransform(x,&metric.fn);
-            else
-                constant = 1;
         } else if ( section == 0 ) {
             g = gaussQuad(ngk,beta,1);//interval [0,1]
             constant = gaussQuad(ngk, beta, 0);
@@ -614,8 +612,6 @@ inta quadrature( metric_label metric, floata *X, floata* W){
             x += metric.beta[0];
             if ( ! flagConstants )
                 constant *= inverseLaplaceTransform(x,&metric.fn);
-            else
-                constant = 1;
 
         } else {
             x = metric.beta[0];// value;
@@ -627,223 +623,13 @@ inta quadrature( metric_label metric, floata *X, floata* W){
     return ngk;
 }
 
-
-/**
- *building quantum operators for oneBody and twoBody interactions
- *
- */
-inta splitInteraction( sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl,  division load,  metric_label metric, spinType spin,momentumIntegralSpecs specs,  division basis ,inta *particle1 , bodyType body,inta embed){
-    sinc_label f1 = *f;
-    division  currLoop, currChain,currMult;
-    
-    inta perm[7],op[7];
-        
-    {
-          division li = load;
-        while ( f1.name[li].chainNext != nullName)
-            li =f1.name[li].chainNext;
-        currChain = li;
-    }
-    if ( metric.fn.fn == nullFunction){
-        printf("null func\n");
-        return 0;
-    }
-    inta n1[SPACE],I1,I2;
-    length1(f1,n1);
-    
-    floata *Xbeta = NULL, *Wbeta = NULL;
-    Xbeta = malloc(metric.fn.interval *sizeof(floata));
-    Wbeta = malloc(metric.fn.interval *sizeof(floata));
-
-    floata *Xmomentum = NULL, *Wmomentum = NULL;
-    Xmomentum = malloc(specs.interval *sizeof(floata));
-    Wmomentum = malloc(specs.interval *sizeof(floata));
-
-    
-    inta bodyIndex,beta, nbeta = quadrature(metric, Xbeta, Wbeta);
-    inta invertSign,space,N1,si;
-
-    
-    for ( beta = 0; beta < nbeta ; beta++){//beta is an index.
-        ///new canonRank and header
-        f1.name[currChain].chainNext = anotherLabel(f,all,nada);
-        currChain = f1.name[currChain].chainNext;
-
-        ///header
-        f1.name[currChain].species = eikon;
-        f1.name[currChain].spinor = spin;
-        
-        ///
-        currLoop = currChain;
-        ///
-        metric_label metric2;
-        metric2.fn.interval = specs.interval;
-        metric2.metric = pureInterval;
-        metric2.beta[0] = -specs.maxMomentum;//lattice
-        metric2.beta[1] =  specs.maxMomentum;//lattice
-
-        
-        inta re, momentum, momentumLength = quadrature(metric2, Xmomentum, Wmomentum);
-        floata gaussianKernel;
-
-            
-        for ( momentum = 0; momentum < momentumLength ; momentum++)
-        for (re = 0 ; re < 2 ; re++){
-            ///
-            ///
-            gaussianKernel = (1-2*re)*Wbeta[beta]*Wmomentum[momentum]*exp(-pow(Xmomentum[momentum]/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
-            if ( gaussianKernel > f1.rt->THRESHOLD ){
-                ///new canonRank and header
-                ///tGEMV will take first loop as content...
-                f1.name[currLoop].loopNext = anotherLabel(f,all,one);
-                currLoop = f1.name[currLoop].loopNext;
-                
-                f1.name[currLoop].species = eikonSplit;
-                f1.name[currLoop].spinor = spin;
-                
-                currMult = currLoop;
-
-            
-            for ( bodyIndex = 0 ; bodyIndex < body ; bodyIndex++)
-            {
-                invertSign = 1;
-
-                for ( space = 0 ;space < SPACE  ; space++)
-                    if ( f1.canon[space].body != nada )
-                        if ( f1.canon[space].label == particle1[bodyIndex] )
-                    {
-                        {
-                            floata oneL,twoL,oneOri,twoOri,iL,iO;
-
-                            commandSA(f1.canon[space].body, act,e12 , bl, perm, op);
-                            oneL = f1.canon[space].particle[op[0]+1].lattice;
-                            oneOri = f1.canon[space].particle[op[0]+1].origin;
-                                
-                            if ( body == two) {
-                                twoL = f1.canon[space].particle[op[1]+1].lattice;
-                                twoOri = f1.canon[space].particle[op[1]+1].origin;
-                            }else {
-                                twoL= 0.;
-                                twoOri = 0.;
-                            }
-                            N1 = n1[space];
-
-                                double * te = streams(f1, eikonBuffer, 0, space);
-                                double * te2 = streams(f1, eikonBuffer, 1, space);
-                                DCOMPLEX tc;
-                                N1 = n1[space];
-
-                            si = 0;
-                            for ( I2 = 0; I2 < N1; I2++)
-                                for ( I1 = 0 ; I1 < N1; I1++)
-                                         {
-                                            if ( bodyIndex == 0){
-                                                     iL = oneL;
-                                                     iO = oneOri;
-                                                 }
-                                                 else{
-                                                     iL = twoL;
-                                                     iO = twoOri;
-                                                 }
-                                                 tc = spatialSincfourierIntegralInTrain( I1,iL,I2,iL,iO+position[space], (1-2*bodyIndex)*Xmomentum[momentum]);
-                                             si++;
-                                            if ( alloc(f1, eikonBuffer, space) < si ){
-                                                printf("creation of oneBody, somehow allocations of vectors are too small. %d\n",si);
-                                                exit(0);
-                                            }
-                                            te[si] = creal(tc);
-                                            te2[si] = cimag(tc);
-                                        }
-                            
-                        }
-                        invertSign = 0;
-                    }
-                
-                    for ( space = 0 ;space < SPACE  ; space++)
-                        if ( f1.canon[space].body != nada ){
-                            f1.name[currMult].space[space].act = act;
-                            if ( f1.canon[space].label == particle1[bodyIndex] ){
-                                f1.name[currMult].space[space].body = one;
-                                {
-                                    switch( bl ){
-                                        case e12:
-                                            if ( bodyIndex == 0 )
-                                                f1.name[currMult].space[space].block= tv1;
-                                            else
-                                                f1.name[currMult].space[space].block= tv2;
-                                        break;
-                                        case e13:
-                                            if ( bodyIndex == 0 )
-                                                f1.name[currMult].space[space].block= tv1;
-                                            else
-                                                f1.name[currMult].space[space].block= tv3;
-                                            break;
-                                        case e23:
-                                            if ( bodyIndex == 0 )
-                                                f1.name[currMult].space[space].block= tv2;
-                                            else
-                                                f1.name[currMult].space[space].block= tv3;
-                                            break;
-                                        case e14:
-                                            if ( bodyIndex == 0 )
-                                                f1.name[currMult].space[space].block= tv1;
-                                            else
-                                                f1.name[currMult].space[space].block= tv4;
-                                            break;
-                                        case e24:
-                                            if ( bodyIndex == 0 )
-                                                f1.name[currMult].space[space].block= tv2;
-                                            else
-                                                f1.name[currMult].space[space].block= tv4;
-                                            break;
-                                        case e34:
-                                            if ( bodyIndex == 0 )
-                                                f1.name[currMult].space[space].block= tv3;
-                                            else
-                                                f1.name[currMult].space[space].block= tv4;
-                                            break;
-                                        default:
-                                            f1.name[currMult].space[space].block= bl;
-                                        ///distribute bl commands
-                                    }
-                                }
-                            }
-                    }
-                
-                {
-                    f1.name[eikonBuffer].Current[0] = 1;
-                    f1.name[eikonBuffer].Current[1] = 1;
-                      //  printf("me %f\n", tMatrixElements(0, f1, eikonBuffer, 0, nullOverlap, 0, eikonBuffer, 0));
-                    tEqua(f1, currMult, 0, eikonBuffer, re);
-                    //tEqua(f1, currMult, 1, eikonBuffer, 1);
-                    f1.name[currMult].species = eikonSplit;
-
-                    }
-                    if ( body == two && bodyIndex == 0){
-                        f1.name[currMult].multNext = anotherLabel(f,all,one);
-                        currMult = f1.name[currMult].multNext;
-                }
-            }
-        }
-            
-
-        }
-    }
-    free(Xmomentum);
-    free(Wmomentum);
-
-    free(Xbeta);
-    free(Wbeta);
-    return 0;
-}
-
 /**
  *building quantum operators for oneBody and twoBody interactions
  */
 inta separateInteraction(   sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, division load,  metric_label metric,  spinType cmpl,inta overline,   division basis ,inta particle1,  bodyType body,inta embed){
       genusType hidden;
       sinc_label f1 = *f;
-      division temp , currLoop, currChain,newLabel;
+      division currLoop, currChain,newLabel;
     double adjustOne = 1.0;
     double oneL,twoL;
     inta perm[7],op[7];
@@ -1032,7 +818,9 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                     if ( f1.canon[space].label == particle1 ){
                         f1.name[newLabel].space[space].body = body;
                         f1.name[newLabel].space[space].block = bl;
-                    }
+                    }else{
+                        f1.name[newLabel].space[space].block = id0;
+                }
             }
             f1.name[eikonBuffer].Current[0]= 1;
             tEqua(f1, newLabel, 0, eikonBuffer, 0);
@@ -1042,6 +830,222 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
         }
     }
     
+    return 0;
+}
+
+/**
+ *building quantum operators for oneBody and twoBody interactions
+ *
+ */
+inta splitInteraction( sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl,  division load,  metric_label metric, spinType spin,momentumIntegralSpecs specs,  division basis ,inta *particle1 , bodyType body,inta embed){
+    sinc_label f1 = *f;
+    division  currLoop, currChain,currMult;
+    
+    inta perm[7],op[7];
+        
+    {
+          division li = load;
+        while ( f1.name[li].chainNext != nullName)
+            li =f1.name[li].chainNext;
+        currChain = li;
+    }
+    if ( metric.fn.fn == nullFunction){
+        printf("null func\n");
+        return 0;
+    }
+    inta n1[SPACE],I1,I2;
+    length1(f1,n1);
+    
+    floata *Xbeta = NULL, *Wbeta = NULL;
+    Xbeta = malloc(metric.fn.interval *sizeof(floata));
+    Wbeta = malloc(metric.fn.interval *sizeof(floata));
+
+    floata *Xmomentum = NULL, *Wmomentum = NULL;
+    Xmomentum = malloc(specs.interval *sizeof(floata));
+    Wmomentum = malloc(specs.interval *sizeof(floata));
+
+    
+    inta bodyIndex,beta, nbeta = quadrature(metric, Xbeta, Wbeta);
+    inta invertSign,space,N1,si;
+
+    
+    for ( beta = 0; beta < nbeta ; beta++){//beta is an index.
+        ///new canonRank and header
+        f1.name[currChain].chainNext = anotherLabel(f,all,nada);
+        currChain = f1.name[currChain].chainNext;
+
+        ///header
+        f1.name[currChain].species = eikon;
+        f1.name[currChain].spinor = spin;
+        
+        ///
+        currLoop = currChain;
+        ///
+        metric_label metric2;
+        metric2.fn.interval = specs.interval;
+        metric2.metric = pureInterval;
+        metric2.beta[0] = -specs.maxMomentum;//lattice
+        metric2.beta[1] =  specs.maxMomentum;//lattice
+
+        
+        inta re, momentum, momentumLength = quadrature(metric2, Xmomentum, Wmomentum);
+        floata gaussianKernel;
+
+            
+        for ( momentum = 0; momentum < momentumLength ; momentum++)
+        for (re = 0 ; re < 2 ; re++){
+            ///
+            ///
+            gaussianKernel = (1-2*re)*Wmomentum[momentum]*exp(-pow(Xmomentum[momentum]/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
+            if ( gaussianKernel > f1.rt->THRESHOLD ){
+                ///new canonRank and header
+                ///tGEMV will take first loop as content...
+                f1.name[currLoop].loopNext = anotherLabel(f,all,one);
+                currLoop = f1.name[currLoop].loopNext;
+                
+                f1.name[currLoop].species = eikonSplit;
+                f1.name[currLoop].spinor = spin;
+                
+                currMult = currLoop;
+
+            
+            for ( bodyIndex = 0 ; bodyIndex < body ; bodyIndex++)
+            {
+                invertSign = 1;
+
+                for ( space = 0 ;space < SPACE  ; space++)
+                    if ( f1.canon[space].body != nada )
+                        if ( f1.canon[space].label == particle1[bodyIndex] )
+                    {
+                        {
+                            floata oneL,twoL,oneOri,twoOri,iL,iO;
+                            if ( body == one )
+                                commandSA(f1.canon[space].body, act,tv1 , bl, perm, op);
+                            else
+                                commandSA(f1.canon[space].body, act,e12 , bl, perm, op);
+
+                            oneL = f1.canon[space].particle[op[0]+1].lattice;
+                            oneOri = f1.canon[space].particle[op[0]+1].origin;
+                                
+                            if ( body == two) {
+                                twoL = f1.canon[space].particle[op[1]+1].lattice;
+                                twoOri = f1.canon[space].particle[op[1]+1].origin;
+                            }else {
+                                twoL= 0.;
+                                twoOri = 0.;
+                            }
+                            N1 = n1[space];
+
+                                double * te = streams(f1, eikonBuffer, 0, space);
+                                double * te2 = streams(f1, eikonBuffer, 1, space);
+                                DCOMPLEX tc;
+                                N1 = n1[space];
+
+                            si = 0;
+                            for ( I2 = 0; I2 < N1; I2++)
+                                for ( I1 = 0 ; I1 < N1; I1++)
+                                         {
+                                            if ( bodyIndex == 0){
+                                                     iL = oneL;
+                                                     iO = oneOri;
+                                                 }
+                                                 else{
+                                                     iL = twoL;
+                                                     iO = twoOri;
+                                                 }
+                                                 tc =  gaussianKernel* spatialSincfourierIntegralInTrain( I1,iL,I2,iL,iO+position[space], (1-2*bodyIndex)*Xmomentum[momentum]);
+                                            if ( alloc(f1, eikonBuffer, space) < si ){
+                                                printf("creation of oneBody, somehow allocations of vectors are too small. %d\n",si);
+                                                exit(0);
+                                            }
+                                             if ( invertSign )
+                                                 tc *= Wbeta[beta];
+                                             
+                                            te[si] = creal(tc);
+                                            te2[si] = cimag(tc);
+                                             si++;
+
+                                        }
+                            
+                        }
+                        invertSign = 0;
+                    }
+                
+                    for ( space = 0 ;space < SPACE  ; space++)
+                        if ( f1.canon[space].body != nada ){
+                            f1.name[currMult].space[space].act = act;
+                            if ( f1.canon[space].label == particle1[bodyIndex] ){
+                                f1.name[currMult].space[space].body = one;
+                                {
+                                    switch( bl ){
+                                        case e12:
+                                            if ( bodyIndex == 0 )
+                                                f1.name[currMult].space[space].block= tv1;
+                                            else
+                                                f1.name[currMult].space[space].block= tv2;
+                                        break;
+                                        case e13:
+                                            if ( bodyIndex == 0 )
+                                                f1.name[currMult].space[space].block= tv1;
+                                            else
+                                                f1.name[currMult].space[space].block= tv3;
+                                            break;
+                                        case e23:
+                                            if ( bodyIndex == 0 )
+                                                f1.name[currMult].space[space].block= tv2;
+                                            else
+                                                f1.name[currMult].space[space].block= tv3;
+                                            break;
+                                        case e14:
+                                            if ( bodyIndex == 0 )
+                                                f1.name[currMult].space[space].block= tv1;
+                                            else
+                                                f1.name[currMult].space[space].block= tv4;
+                                            break;
+                                        case e24:
+                                            if ( bodyIndex == 0 )
+                                                f1.name[currMult].space[space].block= tv2;
+                                            else
+                                                f1.name[currMult].space[space].block= tv4;
+                                            break;
+                                        case e34:
+                                            if ( bodyIndex == 0 )
+                                                f1.name[currMult].space[space].block= tv3;
+                                            else
+                                                f1.name[currMult].space[space].block= tv4;
+                                            break;
+                                        default:
+                                            f1.name[currMult].space[space].block= bl;
+                                        ///distribute bl commands
+                                    }
+                                }
+                            }
+                    }
+                
+                {
+                    f1.name[eikonBuffer].Current[0] = 1;
+                    f1.name[eikonBuffer].Current[1] = 1;
+                      //  printf("me %f\n", tMatrixElements(0, f1, eikonBuffer, 0, nullOverlap, 0, eikonBuffer, 0));
+                    tEqua(f1, currMult, 0, eikonBuffer, re);
+                    //tEqua(f1, currMult, 1, eikonBuffer, 1);
+                    f1.name[currMult].species = eikonSplit;
+
+                    }
+                    if ( body == two && bodyIndex == 0){
+                        f1.name[currMult].multNext = anotherLabel(f,all,one);
+                        currMult = f1.name[currMult].multNext;
+                }
+            }
+        }
+            
+
+        }
+    }
+    free(Xmomentum);
+    free(Wmomentum);
+
+    free(Xbeta);
+    free(Wbeta);
     return 0;
 }
 
@@ -1556,6 +1560,8 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
 //        }
 //    return 0;
 //}
+
+
 
 
 /**
@@ -2400,7 +2406,7 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
             inta space,body;
             momentumIntegralSpecs specs;
             specs.metric = continousMomentum;
-            specs.interval = 15;
+            specs.interval = 99;
             floata ml = f1->canon[0].particle[one].lattice;
             for (space = 0 ; space < SPACE ; space++)
             if ( f1->canon[space].body != nada){
@@ -2423,9 +2429,7 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
             
     }
 //
-        
-    if ( bootedQ(*f1) ){
-    }
+    
 
     return ra;
 }
