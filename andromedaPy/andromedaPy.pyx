@@ -114,7 +114,7 @@ cdef class galaxy:
 			print("warning, already booted")
 			return self
 
-		readShell(1, [str(filepy).encode('utf-8')],&self.calculation,&self.field)
+		readShell(1, [str(filepy).encode('utf-8')],self.calculation,self.field)
 		return self
         
 	def dims(self, lattice:floata = 1, attack:floata =0.5, origin:floata =0.0,
@@ -283,9 +283,9 @@ cdef class galaxy:
 		'total-parallel':blockMemoryType.blockTotalVectorParallelBlock,
 		'component':blockMemoryType.blockComponentblock,
 		'diagonal':blockMemoryType.blockDiagonalMatrixblock})
-		resetA(&self.calculation.rt)
+		resetA(self.calculation.rt)
 		for bl in blockDescs:
-			blockA(&self.calculation.rt,blockNames[bl])
+			blockA(self.calculation.rt,blockNames[bl])
 		return self
 			
 	def i(self):
@@ -294,7 +294,7 @@ cdef class galaxy:
 		if self.isbooted() :
 			print("warning, already booted")
 			return self
-		iModel(&self.calculation, &self.field)
+		iModel(self.calculation, self.field)
 		return self
 						
 	def calculationInputs ( self, numNames:inta=-1, numVectors:inta=-1, shiftFlag:inta=-1,
@@ -467,7 +467,7 @@ cdef class galaxy:
 			Number of vectors loaded
 		"""
 		cdef inta count = 0
-		tLoadEigenWeights (  &self.calculation, self.field ,filename.encode('utf-8'), 
+		tLoadEigenWeights (  self.calculation, self.field ,filename.encode('utf-8'), 
 				&count,  vector, collect)
 		return count
 		
@@ -502,7 +502,7 @@ cdef class galaxy:
 		-------
 		self
 		"""
-		printOut(  &self.calculation, self.field,reset, index, vector)
+		printOut(  self.calculation, self.field,reset, index, vector)
 		return self
 		
 	def gaussian ( self, vector : division = division.eigenVectors, spin : inta = 0, 
@@ -627,7 +627,7 @@ cdef class galaxy:
 			if self.calculation.rt.memBlock[b] == blockMemoryType.blockPrintStuffblock:
 				self.calculation.rt.memBlock[b] = blockMemoryType.passBlock
 		
-		printExpectationValues (  &self.calculation,   self.field.f ,  division.Ha  , vector)
+		printExpectationValues (  self.calculation,   self.field.f ,  division.Ha  , vector)
 		return self
 		
 	def terms ( self ):
