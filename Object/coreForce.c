@@ -1069,7 +1069,7 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
     division currLoop, currChain,currMult;
     
     double oneL,twoL;
-    inta perm[7],op[7];
+    inta re,perm[7],op[7];
     
     
     
@@ -1118,13 +1118,15 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
         else if ( specs.metric == discreteMomentum )
             momentumLength = specs.interval;
     
-        for ( momentumIndex = -momentumLength ;  momentumIndex <= momentumLength ; momentumIndex++){
+        for ( momentumIndex = -momentumLength ;  momentumIndex <= momentumLength ; momentumIndex++)
+        for (re = 0 ; re < body ; re++){
+
             momentum = momentumIndex*momentumStep;
             ///
             
             ///
             
-            gaussianKernel = Wbeta[beta]*exp(-pow(momentum/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
+            gaussianKernel = (1-2*re)*exp(-pow(momentum/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
             if ( gaussianKernel > f1.rt->THRESHOLD ){
                 ///new canonRank and header
                 ///tGEMV will take first loop as content...
@@ -1264,9 +1266,7 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                 f1.name[eikonBuffer].Current[0] = 1;
                 f1.name[eikonBuffer].Current[1] = 1;
                   //  printf("me %f\n", tMatrixElements(0, f1, eikonBuffer, 0, nullOverlap, 0, eikonBuffer, 0));
-                tEqua(f1, currMult, 0, eikonBuffer, 0);
-                if ( spin == cmpl)
-                    tEqua(f1, currMult, 1, eikonBuffer, 1);
+                tEqua(f1, currMult, 0, eikonBuffer, re);
                 f1.name[currMult].species = eikonSplit;
 
                 }
