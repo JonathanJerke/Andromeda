@@ -73,10 +73,12 @@ from libc.string cimport strcpy
 
 
 cdef class galaxy:
-	cdef calculation calculation
-	cdef field field
+	cdef calculation * calculation
+	cdef field * field
 
 	def __cinit__(self):
+		calculation = malloc(sizeof(calculation))
+		field = malloc(sizeof(field))
 		self.calculation = initCal()
 		self.field = initField()
 		self.calculation.rt.NLanes = 1
@@ -84,6 +86,8 @@ cdef class galaxy:
 
 	def __dealloc__(self):
 		fModel(&self.field.f)
+		free(calculation)
+		free(field)
 	
 	def isbooted(self):
 		return self.field.f.bootedMemory == 1
