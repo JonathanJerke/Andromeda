@@ -36,6 +36,9 @@
 
 #ifndef system_h
 #define system_h
+#define MOMENTUM_INTERVAL 15
+//#define SEPARATE_ONE_BODY
+
 //#define VERBOSE_ALS
 #define writeHDF5
 #define readHDF5
