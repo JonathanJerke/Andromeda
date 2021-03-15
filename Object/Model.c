@@ -186,7 +186,7 @@ calculation initCal (void ) {
     t.func.fn = Coulomb;
     t.func.interval = 15;
     t.adjustOne = 1.;
-    t.mu.beta[0] = 1;
+    t.mu.beta[0] = 0.01;
     t.mu.beta[1] = 1;
     t.mu.metric = dirac;
     t.mu.fn  = t.func;

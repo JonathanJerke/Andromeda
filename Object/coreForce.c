@@ -884,8 +884,11 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
         metric_label metric2;
         metric2.fn.interval = specs.interval;
         metric2.metric = pureInterval;
-        metric2.beta[0] = -specs.maxMomentum;//lattice
-        metric2.beta[1] =  specs.maxMomentum;//lattice
+    
+        floata width = min(specs.maxMomentum,2 *Xbeta[beta] * sqrt(log(1/1e-15/(2.*sqrt(pi)*Xbeta[beta]))));
+        
+        metric2.beta[0] = -width;//lattice
+        metric2.beta[1] =  width;//lattice
 
         
         inta re, momentum, momentumLength = quadrature(metric2, Xmomentum, Wmomentum);
@@ -940,10 +943,9 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
                                 double * te2 = streams(f1, eikonBuffer, 1, space);
                                 DCOMPLEX tc;
                                 N1 = n1[space];
-
                             si = 0;
                             for ( I2 = 0; I2 < N1; I2++)
-                                for ( I1 = 0 ; I1 < N1; I1++)
+                            for ( I1 = 0 ; I1 < N1; I1++){
                                          {
                                             if ( bodyIndex == 0){
                                                      iL = oneL;
@@ -958,14 +960,16 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
                                                 printf("creation of oneBody, somehow allocations of vectors are too small. %d\n",si);
                                                 exit(0);
                                             }
-                                             if ( invertSign )
+                                             if ( invertSign && bodyIndex == 0 )
                                                  tc *= Wbeta[beta];
                                              
                                             te[si] = creal(tc);
                                             te2[si] = cimag(tc);
-                                             si++;
 
                                         }
+                                si++;
+
+                            }
                             
                         }
                         invertSign = 0;
@@ -1181,11 +1185,11 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                                                  iL = twoL;
                                                  iO = twoOri;
                                              }
-                                             tc = periodicSincfourierIntegralInTrain( I1,iL,I2,iL,iO+position[space], N1,  (1-2*bodyIndex)*momentumIndex);
+                                             tc = gaussianKernel* periodicSincfourierIntegralInTrain( I1,I2,iL,iO+position[space], N1,  (1-2*bodyIndex)*momentumIndex);
                                          //printf("%f %f\n", creal(tc),cimag(tc));
                                             if ( invertSign && bodyIndex == 0 ){
                                                 ///multiply of Gaussian here one first particle.
-                                                    tc *= gaussianKernel;
+                                                    tc *= Wbeta[beta];
                                                 ///for periodic-dirac located external fields
                                             }
                                          te[si] = creal(tc);
