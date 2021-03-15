@@ -33,8 +33,8 @@ from constants cimport field
 from constants cimport calculation
 from constants cimport division
 
-cdef typedef calculation calculation_type
-cdef typedef field field_type
+ctypedef calculation calculation_type
+ctypedef field field_type
 
 
 from Model cimport initCal
