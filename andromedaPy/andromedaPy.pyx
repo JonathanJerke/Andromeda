@@ -467,7 +467,7 @@ cdef class galaxy:
 			Number of vectors loaded
 		"""
 		cdef inta count = 0
-		tLoadEigenWeights (  self.calculation,*self.field ,filename.encode('utf-8'), 
+		tLoadEigenWeights (  self.calculation,self.field[0] ,filename.encode('utf-8'), 
 				&count,  vector, collect)
 		return count
 		
@@ -502,7 +502,7 @@ cdef class galaxy:
 		-------
 		self
 		"""
-		printOut(  self.calculation, *self.field,reset, index, vector)
+		printOut(  self.calculation, self.field[0],reset, index, vector)
 		return self
 		
 	def gaussian ( self, vector : division = division.eigenVectors, spin : inta = 0, 
