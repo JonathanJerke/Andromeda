@@ -961,7 +961,7 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
                                                 exit(0);
                                             }
                                              if ( invertSign && bodyIndex == 0 )
-                                                 tc *= Wbeta[beta];
+                                                 tc *= Wbeta[beta]*scalar;
                                              
                                             te[si] = creal(tc);
                                             te2[si] = cimag(tc);
@@ -1189,7 +1189,7 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                                          //printf("%f %f\n", creal(tc),cimag(tc));
                                             if ( invertSign && bodyIndex == 0 ){
                                                 ///multiply of Gaussian here one first particle.
-                                                    tc *= Wbeta[beta];
+                                                    tc *= Wbeta[beta]*scalar;
                                                 ///for periodic-dirac located external fields
                                             }
                                          te[si] = creal(tc);
