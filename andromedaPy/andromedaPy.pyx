@@ -283,9 +283,9 @@ cdef class galaxy:
 		'total-parallel':blockMemoryType.blockTotalVectorParallelBlock,
 		'component':blockMemoryType.blockComponentblock,
 		'diagonal':blockMemoryType.blockDiagonalMatrixblock})
-		resetA(self.calculation.rt)
+		resetA(&self.calculation.rt)
 		for bl in blockDescs:
-			blockA(self.calculation.rt,blockNames[bl])
+			blockA(&self.calculation.rt,blockNames[bl])
 		return self
 			
 	def i(self):
@@ -467,7 +467,7 @@ cdef class galaxy:
 			Number of vectors loaded
 		"""
 		cdef inta count = 0
-		tLoadEigenWeights (  self.calculation, self.field ,filename.encode('utf-8'), 
+		tLoadEigenWeights (  self.calculation,*self.field ,filename.encode('utf-8'), 
 				&count,  vector, collect)
 		return count
 		
@@ -502,7 +502,7 @@ cdef class galaxy:
 		-------
 		self
 		"""
-		printOut(  self.calculation, self.field,reset, index, vector)
+		printOut(  self.calculation, *self.field,reset, index, vector)
 		return self
 		
 	def gaussian ( self, vector : division = division.eigenVectors, spin : inta = 0, 
