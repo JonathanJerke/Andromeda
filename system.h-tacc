@@ -26,7 +26,7 @@
 /**
  *Andromeda: a few-body plane wave calculator
  *
- *v9.7
+ *v9.8
  *quantumGalaxies.org
  *
  *Jonathan Jerke
@@ -37,6 +37,10 @@
 
 #ifndef system_h
 #define system_h
+
+#define MOMENTUM_INTERVAL 35
+//#define SEPARATE_ONE_BODY
+
 #define VERBOSE_ALS
 #define RAND_FOUNDATION
 #define readHDF5
