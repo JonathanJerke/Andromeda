@@ -74,6 +74,8 @@ from constants cimport blockMemoryType
 from Compression cimport canonicalRankCompression
 
 from libc.string cimport strcpy
+from libc.stdlib cimport malloc
+from libc.stdlib cimport free
 
 
 cdef class galaxy:
@@ -90,8 +92,8 @@ cdef class galaxy:
 
 	def __dealloc__(self):
 		fModel(&self.field.f)
-		free(calculation)
-		free(field)
+		free(self.calculation)
+		free(self.field)
 	
 	def isbooted(self):
 		return self.field.f.bootedMemory == 1
