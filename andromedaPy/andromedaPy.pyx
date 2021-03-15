@@ -33,6 +33,10 @@ from constants cimport field
 from constants cimport calculation
 from constants cimport division
 
+cdef typedef calculation calculation_type
+cdef typedef field field_type
+
+
 from Model cimport initCal
 from Model cimport initField
 from Model cimport iModel
@@ -77,10 +81,10 @@ cdef class galaxy:
 	cdef field * field
 
 	def __cinit__(self):
-		calculation = malloc(sizeof(calculation))
-		field = malloc(sizeof(field))
-		self.calculation = initCal()
-		self.field = initField()
+		calculation = malloc(sizeof(calculation_type))
+		field = malloc(sizeof(field_type))
+		*self.calculation = initCal()
+		*self.field = initField()
 		self.calculation.rt.NLanes = 1
 		self.calculation.rt.NSlot = 1
 
