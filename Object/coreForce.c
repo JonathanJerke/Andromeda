@@ -2410,7 +2410,7 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
             inta space,body;
             momentumIntegralSpecs specs;
             specs.metric = continousMomentum;
-            specs.interval = 35;
+            specs.interval = MOMENTUM_INTERVAL;
             floata ml = f1->canon[0].particle[one].lattice;
             for (space = 0 ; space < SPACE ; space++)
             if ( f1->canon[space].body != nada){
@@ -2475,7 +2475,7 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
             inta space,body;
             momentumIntegralSpecs specs;
             specs.metric = continousMomentum;
-            specs.interval = 15;
+            specs.interval = MOMENTUM_INTERVAL;
             floata ml = f1->canon[0].particle[one].lattice;
             for (space = 0 ; space < SPACE ; space++)
             if ( f1->canon[space].body != nada){
