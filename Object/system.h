@@ -36,7 +36,7 @@
 
 #ifndef system_h
 #define system_h
-#define MOMENTUM_INTERVAL 15
+#define MOMENTUM_INTERVAL 35
 //#define SEPARATE_ONE_BODY
 
 //#define VERBOSE_ALS
