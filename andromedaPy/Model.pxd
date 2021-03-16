@@ -31,7 +31,7 @@ from constants cimport field
 from constants cimport calculation
 
 cdef extern from "../Object/Model.h":
-    calculation initCal ()
+    void initCal (calculation* c1)
     inta iModel(  calculation * c1,  field *f1)
     inta fModel(  sinc_label *f1)
-    field initField ()
+    void initField (field * f1)

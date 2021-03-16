@@ -77,8 +77,8 @@ cdef class galaxy:
 	cdef field field
 
 	def __cinit__(self):
-		self.calculation = initCal()
-		self.field = initField()
+		initCal(&self.calculation)
+		initField(&self.field)
 		self.calculation.rt.NLanes = 1
 		self.calculation.rt.NSlot = 1
 
