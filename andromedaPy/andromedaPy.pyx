@@ -79,19 +79,23 @@ from libc.stdlib cimport malloc,free
 cdef class galaxy:
 	cdef calculation *calculation
 	cdef field *field
+	cdef calculation calculation0
+	cdef field field0
 
 	def __cinit__(self):
-		self.calculation = <calculation *>malloc(sizeof(calculation_type))
+		#self.calculation = <calculation *>malloc(sizeof(calculation))
+		self.calculation = &self.calculation0
 		initCal(self.calculation)
-		self.field = <field *>malloc(sizeof(field_type))
+		#self.field = <field *>malloc(sizeof(field))
+		self.field = &self.field0
 		initField(self.field)
 		self.calculation.rt.NLanes = 1
 		self.calculation.rt.NSlot = 1
 
 	def __dealloc__(self):
 		fModel(&self.field.f)
-		free(self.calculation)
-		free(self.field)
+		#free(self.calculation)
+		#free(self.field)
 	
 	def isbooted(self):
 		return self.field.f.bootedMemory == 1
