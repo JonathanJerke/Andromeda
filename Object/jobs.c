@@ -442,8 +442,10 @@ inta iterateOcsb(  calculation *c1,   field f1){
  *
  */
 double testPermutations (){
-    calculation c2 = initCal();
-    field f2 = initField();
+    calculation c2;
+    initCal(&c2);
+    field f2;
+    initField(&f2);
     c2.i.numNames = 1000;
     c2.i.numVectors = 0;
 

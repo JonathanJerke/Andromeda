@@ -31,8 +31,8 @@
 #include "interfaceMath.h"
 #include "coreForce.h"
 
-calculation initCal (void);
+void initCal ( calculation * c1);
 inta iModel(  calculation * c1,  field *f1);
 inta fModel(  sinc_label *f1);
-field initField (void );
+void initField (field * f1);
 #endif /* Model_h */

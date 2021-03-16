@@ -1370,8 +1370,8 @@ inta bootShell (inta argc , char * argv[], calculation * c1,  field *f){
     
     inta i,c,EV,EV2,ER;
     char str[MAXSTRING];
-    *f = initField();
-    *c1 = initCal();
+    initField(f);
+    initCal(c1);
     initCalculation(c1);
     {
         broke = readInput(c1,f,in);
@@ -1384,8 +1384,8 @@ inta bootShell (inta argc , char * argv[], calculation * c1,  field *f){
         fclose(in);
     }
 #else
-    *c1 =initCal();
-    *f = initField();
+    initCal(c1);
+    initField(f);
 #endif
 #ifdef GSL_LIB
         gsl_set_error_handler_off ();

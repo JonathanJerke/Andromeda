@@ -222,8 +222,9 @@ mea tFromReadToFilename (char * cycleName, char * read , char * filename,inta cm
 
 inta ioArray(  calculation *c1,   field f,char * name,inta N1, floata * array, inta ioIn){
     inta space,i;
-      field f2 = initField();
-      calculation c2;
+    field f2 ;
+    initField(&f2);
+    calculation c2;
     c2 = *c1;
     c2.i.numNames = 0;
     c2.i.numVectors = 0;
@@ -538,7 +539,8 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                     if ( cabs(Occ) > c1->rt.THRESHOLD){
                         
                             f1.name[inputVectors+*ct].Current[cmpl] = 0;
-                            field f2 = initField();
+                        field f2;
+                        initField(&f2);
                             calculation c2;
                             c2 = *c1;
                             c2.i.numNames = 100+ 3*inputFormat(f1, name, nullName, 2);

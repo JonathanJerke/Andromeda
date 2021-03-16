@@ -29,52 +29,51 @@
  *initialize field parameters
  *
 */
-  field initField (void ) {
+  void initField ( field * i ) {
     inta space;
-    field i;
-    i.i.body = nada;
-    i.i.nStates = 0;
-    i.i.qFloor = 0;
-    i.i.nOperator = 0;
-    i.i.OpIndex = 0;
-    i.i.canonRank = 0;
-    i.i.iRank = 0;
-    i.i.xRank = 0;
-    i.i.filter = 0;
-    i.i.cmpl = real;
-    i.i.irrep = 0;
-    i.i.collect = 0;
-    i.i.body = one;
-    i.i.Iterations = 0;
-    i.f.boot = noMatrices;
+    i->i.body = nada;
+    i->i.nStates = 0;
+    i->i.qFloor = 0;
+    i->i.nOperator = 0;
+    i->i.OpIndex = 0;
+    i->i.canonRank = 0;
+    i->i.iRank = 0;
+    i->i.xRank = 0;
+    i->i.filter = 0;
+    i->i.cmpl = real;
+    i->i.irrep = 0;
+    i->i.collect = 0;
+    i->i.body = one;
+    i->i.Iterations = 0;
+    i->f.boot = noMatrices;
     for( space = 0 ; space <= SPACE ; space++){
-        i.f.canon[space].stream = NULL;
-        i.f.canon[space].body = nada;//place holder...
-        i.f.canon[space].label = 0;
+        i->f.canon[space].stream = NULL;
+        i->f.canon[space].body = nada;//place holder...
+        i->f.canon[space].label = 0;
     }
 #ifdef APPLE
     floata lattice = 0.5;
     inta basis = 9;
     space = 0;
-    i.f.canon[space].basis = SincBasisElement;
-    i.f.canon[space].body = one;
-    i.f.canon[space].count1Basis = basis;
-    i.f.canon[space].space = 0;
-    i.f.canon[space].label = 1;
-    i.f.canon[space].particle[one].attack = 0.5;
-    i.f.canon[space].particle[one].lattice = lattice;
-    i.f.canon[space].particle[one].origin = -basis/2*lattice ;
-    i.f.canon[space].particle[two].attack = 0.5;
-    i.f.canon[space].particle[two].lattice = lattice;
-    i.f.canon[space].particle[two].origin = -basis/2*lattice ;
-      i.f.canon[space].particle[three].attack = 0.5;
-      i.f.canon[space].particle[three].lattice = lattice;
-      i.f.canon[space].particle[three].origin = -basis/2*lattice ;
-      i.f.canon[space].particle[four].attack = 0.5;
-      i.f.canon[space].particle[four].lattice = lattice;
-      i.f.canon[space].particle[four].origin = -basis/2*lattice ;
+      i->f.canon[space].basis = SincBasisElement;
+      i->f.canon[space].body = one;
+      i->f.canon[space].count1Basis = basis;
+      i->f.canon[space].space = 0;
+      i->f.canon[space].label = 1;
+      i->f.canon[space].particle[one].attack = 0.5;
+      i->f.canon[space].particle[one].lattice = lattice;
+      i->f.canon[space].particle[one].origin = -basis/2*lattice ;
+      i->f.canon[space].particle[two].attack = 0.5;
+      i->f.canon[space].particle[two].lattice = lattice;
+      i->f.canon[space].particle[two].origin = -basis/2*lattice ;
+      i->f.canon[space].particle[three].attack = 0.5;
+      i->f.canon[space].particle[three].lattice = lattice;
+      i->f.canon[space].particle[three].origin = -basis/2*lattice ;
+      i->f.canon[space].particle[four].attack = 0.5;
+      i->f.canon[space].particle[four].lattice = lattice;
+      i->f.canon[space].particle[four].origin = -basis/2*lattice ;
 
-      i.i.Iterations = 6;
+      i->i.Iterations = 6;
 #endif
 //
 //
@@ -89,14 +88,14 @@
 //        i.f.canon[space].space = space-1;
 //
 //    }
-    i.f.bootedMemory = 0;
-    i.f.name = NULL;
-    i.i.files = 0;
-    i.i.filesVectorOperator = 0;
-    i.f.nullLabels.currLabel = 0;
-    i.f.eikonLabels.currLabel = 0;
-    i.f.nullLabels.maxLabel = 10000;
-    i.f.eikonLabels.maxLabel = 100;
+      i->f.bootedMemory = 0;
+      i->f.name = NULL;
+      i->i.files = 0;
+      i->i.filesVectorOperator = 0;
+      i->f.nullLabels.currLabel = 0;
+      i->f.eikonLabels.currLabel = 0;
+      i->f.nullLabels.maxLabel = 10000;
+      i->f.eikonLabels.maxLabel = 100;
 
 #ifdef APPLE
 
@@ -105,79 +104,78 @@
     
     
 #ifdef OVERFLAG
-        i.i.cmpl = cmpl;
-        i.i.canonRank = 4;
-        i.i.iRank = 1;
-        i.i.nStates = 1;
-        i.i.qFloor = 9*9*9;
-        i.f.boot = fullMatrices;
-        i.i.body = one;
-        i.i.irrep = 1;
+      i->i.cmpl = cmpl;
+      i->i.canonRank = 4;
+      i->i.iRank = 1;
+      i->i.nStates = 1;
+      i->i.qFloor = 9*9*9;
+      i->f.boot = fullMatrices;
+      i->i.body = one;
+      i->i.irrep = 1;
 #else
-    i.i.OpIndex =-1;
-    i.i.cmpl = real;
-    i.i.canonRank = 1;
-    i.i.iRank = 1;
-    i.i.nStates = 1;
-    i.i.qFloor = 
-    i.f.boot  = fullMatrices;
-    i.i.irrep = 2;
+      i->i.OpIndex =-1;
+      i->i.cmpl = real;
+      i->i.canonRank = 1;
+      i->i.iRank = 1;
+      i->i.nStates = 1;
+      i->i.qFloor =
+      i->f.boot  = fullMatrices;
+      i->i.irrep = 2;
 #endif
-    return i;
+    return ;
 }
 
 /**
  *initialize calculation parameters
  *
  */
-calculation initCal (void ) {
-      calculation i;
-    i.i.build = 1;
-    i.i.minIterationPrint = 0;
-    i.i.termNumber = 0;
+void initCal ( calculation * i ) {
+    i->i.build = 1;
+    i->i.minIterationPrint = 0;
+    i->i.termNumber = 0;
   //  i.i.shiftVector[0] = 0;
    // i.i.shiftVector[1] = 1;
-    i.rt.MAX_CYCLE = 24;
-    i.rt.relativeTOLERANCE = 0.000000000000001;
-    i.rt.THRESHOLD = 1e-12; 
-    i.i.numNames = 10000;
-    i.i.numVectors = 100000;
-    i.rt.dynamic = 0;
-    i.i.iocsb = 1;
-    i.i.nocsb = 1;
+    i->rt.MAX_CYCLE = 24;
+    i->rt.relativeTOLERANCE = 0.000000000000001;
+    i->rt.THRESHOLD = 1e-12;
+    i->i.numNames = 10000;
+    i->i.numVectors = 100000;
+    i->rt.dynamic = 0;
+    i->i.iocsb = 1;
+    i->i.nocsb = 1;
 #ifdef APPLE
-    i.i.Na = 1;
-    i.i.atoms[1].position[1] = 0;
-    i.i.atoms[1].position[2] = 0.;
-    i.i.atoms[1].position[3] = 0.;
-    i.i.atoms[1].Z = 1;
-    i.i.atoms[2].position[1] = 0;
-    i.i.atoms[2].position[2] = 0.;
-    i.i.atoms[2].position[3] = 0.;
-    i.i.atoms[2].Z = 1;
+    i->i.Na = 1;
+    i->i.atoms[1].position[1] = 0;
+    i->i.atoms[1].position[2] = 0.;
+    i->i.atoms[1].position[3] = 0.;
+    i->i.atoms[1].Z = 1;
+    i->i.atoms[2].position[1] = 0;
+    i->i.atoms[2].position[2] = 0.;
+    i->i.atoms[2].position[3] = 0.;
+    i->i.atoms[2].Z = 1;
 
-    resetA(&i.rt);
+    resetA(&i->rt);
     //blockA(&i.rt, 3);
-    blockA(&i.rt, 4);
+    blockA(&i->rt, 4);
    // blockA(&i.rt, 5);
-    i.i.RAMmax = 6;
-    i.i.Angstroms = 0;
-    i.rt.boost = 1;
-    i.rt.TOLERANCE = 1e-3;
-    i.rt.relativeTOLERANCE = 1e-4;
-    i.rt.THRESHOLD = 1e-12;
+    i->i.RAMmax = 6;
+    i->i.Angstroms = 0;
+    i->rt.boost = 1;
+    i->rt.TOLERANCE = 1e-3;
+    i->rt.relativeTOLERANCE = 1e-4;
+    i->rt.THRESHOLD = 1e-12;
 
-    i.rt.ALPHA = 1e-9;
-    i.rt.XCONDITION = 1e5;
+    i->rt.ALPHA = 1e-9;
+    i->rt.XCONDITION = 1e5;
     
-    i.rt.calcType = electronicStuctureCalculation;
-    i.rt.phaseType = buildFoundation;
-    i.rt.calcType = electronicStuctureCalculation;
-    i.i.Lambda = 200 ;
-    i.i.SymmetrizedGaussianLevel = 1;
-    i.i.SymmetrizedGaussianWidth = 1;
+    i->rt.calcType = electronicStuctureCalculation;
+    i->rt.phaseType = buildFoundation;
+    i->rt.calcType = electronicStuctureCalculation;
+    i->i.Lambda = 200 ;
+    i->i.SymmetrizedGaussianLevel = 1;
+    i->i.SymmetrizedGaussianWidth = 1;
     
-    i.i.termNumber = 1;
+    i->i.termNumber = 1;
     term_label t;
     t.act = 1;
     t.atom = 1;
@@ -197,23 +195,23 @@ calculation initCal (void ) {
     t.scalar = 1;
     t.headFlag = 1;
     t.type   = 8;
-    i.i.terms[0] = t;
+    i->i.terms[0] = t;
 
     
     
     
 #else
-    i.i.RAMmax = 1;
-    i.i.Angstroms = 0;
-    i.rt.TOLERANCE = 1e-7;
-    i.rt.relativeTOLERANCE = 1e-7;
-    i.rt.ALPHA = 1e-8;
-    i.rt.THRESHOLD = 1e-13;
-    i.rt.XCONDITION = 1e5;
-    i.rt.calcType = nullCalculation;
-    i.rt.phaseType = buildFoundation ;
+    i->i.RAMmax = 1;
+    i->i.Angstroms = 0;
+    i->rt.TOLERANCE = 1e-7;
+    i->rt.relativeTOLERANCE = 1e-7;
+    i->rt.ALPHA = 1e-8;
+    i->rt.THRESHOLD = 1e-13;
+    i->rt.XCONDITION = 1e5;
+    i->rt.calcType = nullCalculation;
+    i->rt.phaseType = buildFoundation ;
 #endif
-    return i;
+    return ;
 }
 
 /**
