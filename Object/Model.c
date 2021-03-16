@@ -32,6 +32,7 @@
   void initField ( field * i ) {
     inta space;
     i->i.body = nada;
+      i->i.flex = 0;
     i->i.nStates = 0;
     i->i.qFloor = 0;
     i->i.nOperator = 0;
@@ -51,7 +52,11 @@
         i->f.canon[space].body = nada;//place holder...
         i->f.canon[space].label = 0;
     }
+      i->i.OpIndex =0;
+
 #ifdef APPLE
+      i->i.OpIndex =-1;
+
     floata lattice = 0.5;
     inta basis = 9;
     space = 0;
@@ -91,37 +96,18 @@
       i->f.bootedMemory = 0;
       i->f.name = NULL;
       i->i.files = 0;
+      i->i.matrices = 0;
       i->i.filesVectorOperator = 0;
       i->f.nullLabels.currLabel = 0;
       i->f.eikonLabels.currLabel = 0;
-      i->f.nullLabels.maxLabel = 10000;
-      i->f.eikonLabels.maxLabel = 100;
-
-#ifdef APPLE
-
-
-#endif
-    
-    
-#ifdef OVERFLAG
-      i->i.cmpl = cmpl;
-      i->i.canonRank = 4;
-      i->i.iRank = 1;
-      i->i.nStates = 1;
-      i->i.qFloor = 9*9*9;
-      i->f.boot = fullMatrices;
-      i->i.body = one;
-      i->i.irrep = 1;
-#else
-      i->i.OpIndex =-1;
+      i->i.collect = 0;
       i->i.cmpl = real;
       i->i.canonRank = 1;
       i->i.iRank = 1;
       i->i.nStates = 1;
-      i->i.qFloor =
+      i->i.qFloor =  0 ;
       i->f.boot  = fullMatrices;
-      i->i.irrep = 2;
-#endif
+      i->i.irrep = 0;
     return ;
 }
 
@@ -131,6 +117,7 @@
  */
 void initCal ( calculation * i ) {
     i->i.build = 1;
+    i->i.shiftFlag = 0;
     i->i.minIterationPrint = 0;
     i->i.termNumber = 0;
   //  i.i.shiftVector[0] = 0;
@@ -139,10 +126,13 @@ void initCal ( calculation * i ) {
     i->rt.relativeTOLERANCE = 0.000000000000001;
     i->rt.THRESHOLD = 1e-12;
     i->i.numNames = 10000;
-    i->i.numVectors = 100000;
+    i->i.numVectors = 1000;
     i->rt.dynamic = 0;
     i->i.iocsb = 1;
     i->i.nocsb = 1;
+    resetA(&i->rt);
+    i->i.Na = 0;
+
 #ifdef APPLE
     i->i.Na = 1;
     i->i.atoms[1].position[1] = 0;
