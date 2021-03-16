@@ -57,7 +57,7 @@ inta printVector (  calculation *c,  sinc_label f1, char * name,char * vectorNam
     return 0;
 }
 
-inta printOut(  calculation *c ,   field f1,inta reset, inta lv,  division vector){
+inta printOut(  calculation *c ,   field *f1,inta reset, inta lv,  division vector){
     inta irrep;
     inta jjj=1,cmpl;
     char str [SUPERMAXSTRING];
@@ -71,27 +71,27 @@ inta printOut(  calculation *c ,   field f1,inta reset, inta lv,  division vecto
     }
         {
                 
-                    printf("State%d: %1.15f, body%d, irrep%d, %1.15f\n", lv+1,f1.f.name[vector].value.value,bodies(f1.f,vector),f1.f.name[vector].value.symmetry, f1.f.name[vector].value.value2);
+                    printf("State%d: %1.15f, body%d, irrep%d, %1.15f\n", lv+1,f1->f.name[vector].value.value,bodies(f1->f,vector),f1->printOutf.name[vector].value.symmetry, f1->f.name[vector].value.value2);
             
-                    printVector(c,f1.f, c->name,c->name, lv,irrep, &one);
-                    for ( cmpl = 0 ; cmpl < spins(f1.f, vector) ; cmpl++)
+                    printVector(c,f1->f, c->name,c->name, lv,irrep, &one);
+                    for ( cmpl = 0 ; cmpl < spins(f1->f, vector) ; cmpl++)
                     {
 #ifndef APPLE
-                        tFilename(c->name,lv+1,bodies(f1.f, vector) ,irrep, cmpl,str);
+                        tFilename(c->name,lv+1,bodies(f1->f, vector) ,irrep, cmpl,str);
                         
                         
 #ifdef writeHDF5
                         {
                             inta space;
                         for ( space = 0; space < SPACE ; space++)
-                            if ( f1.f.canon[space].body != nada)
-                                writeFast(f1.f, str, space, vector,cmpl);
+                            if ( f1->f.canon[space].body != nada)
+                                writeFast(f1->f, str, space, vector,cmpl);
                         }
 #else
                         FILE * out = NULL;
                         out = fopen ( str,"w" );
                         if ( out != NULL ){
-                            outputFormat(f1.f, out, vector,cmpl  );
+                            outputFormat(f1->f, out, vector,cmpl  );
                             fclose(out);
                         }
 #endif

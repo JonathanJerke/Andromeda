@@ -149,7 +149,7 @@ inta foundationB(  calculation *c1,   field f1){
             if (1)
              //|| printExpectationValues(c1,f1.f, Ha, eigenVectors) < level )
             {
-                printOut(c1,f1,!counter,counter , eigenVectors);
+                printOut(c1,&f1,!counter,counter , eigenVectors);
                 fflush(stdout);
                 counter++;
             }
@@ -191,7 +191,7 @@ inta formOcsb(  calculation *c1,   field f1){
             va[ii] = tComponentPoint(c1,f1.f,Ha,space,ii);
 #endif
         }
-    printOut(c1, f1, 1, c1->i.iocsb-1, eigenVectors);
+    printOut(c1, &f1, 1, c1->i.iocsb-1, eigenVectors);
     fModel(&f1.f);
     return 0;
 }
@@ -430,7 +430,7 @@ inta iterateOcsb(  calculation *c1,   field f1){
                 }
         f1.f.name[eigenVectors+e].Current[0] = CanonicalRank(fc.f, eigenVectors+e, 0);
         sprintf(c1->name,"%s-%d", name0,e+1);
-        printOut(c1, f1, 1, 0, eigenVectors+e);
+        printOut(c1, &f1, 1, 0, eigenVectors+e);
     }
     fModel(&f1.f);
     return 0;
@@ -689,7 +689,7 @@ double singlekrylov (   calculation *c1,   field f1){
         }
     }
     printExpectationValues(c1, f1.f, Iterator, eigenVectors);
-    printOut(c1,f1,1,0,eigenVectors);
+    printOut(c1,&f1,1,0,eigenVectors);
     fModel(&f1.f);
     return 0;
 }
