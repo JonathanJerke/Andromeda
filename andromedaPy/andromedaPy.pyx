@@ -33,6 +33,10 @@ from constants cimport field
 from constants cimport calculation
 from constants cimport division
 
+ctypedef calculation calculation_type
+ctypedef field field_type
+
+
 from Model cimport initCal
 from Model cimport initField
 from Model cimport iModel
@@ -70,20 +74,24 @@ from constants cimport blockMemoryType
 from Compression cimport canonicalRankCompression
 
 from libc.string cimport strcpy
-
+from libc.stdlib cimport malloc,free
 
 cdef class galaxy:
-	cdef calculation calculation
-	cdef field field
+	cdef calculation *calculation
+	cdef field *field
 
 	def __cinit__(self):
-		initCal(&self.calculation)
-		initField(&self.field)
+		self.calculation = malloc(sizeof(calculation_type)
+		initCal(self.calculation)
+		self.field = malloc(sizeof(field_type))
+		initField(self.field)
 		self.calculation.rt.NLanes = 1
 		self.calculation.rt.NSlot = 1
 
 	def __dealloc__(self):
 		fModel(&self.field.f)
+		free(self.calculation)
+		free(self.field)
 	
 	def isbooted(self):
 		return self.field.f.bootedMemory == 1
