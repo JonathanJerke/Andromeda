@@ -640,7 +640,7 @@ cdef class galaxy:
 		self
 		"""
 		f1 = self.field.f
-		matrix = defSpiralMatrix(f1, division.Iterator)
+		matrix = defSpiralMatrix(&f1, division.Iterator)
 		term = 0
 		while matrix != division.nullName:
 			matrix = f1.name[matrix].linkNext
