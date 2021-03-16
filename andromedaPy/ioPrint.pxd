@@ -43,7 +43,7 @@ cdef extern from "../Object/ioPrint.h":
     inta writeFast( sinc_label f1,char * filename, inta space, division label ,inta spin)
     inta readFast ( sinc_label f1,char * filename, inta command ,inta space, division label ,inta spin, inta space2)
     void tFilename (char * cycleName, inta count, inta body ,inta IRREP, inta cmpl, char * filename)
-    inta printOut(  calculation *c,  field f1, inta reset,inta lv,  division vector )
+    inta printOut(  calculation *c,  field *f1, inta reset,inta lv,  division vector )
     inta printVector (  calculation *c,  sinc_label f1,char * name,char * vectorName,inta iv, inta irrep, mea * vector)
     double evaluateDensityBracket( double x [], size_t dim , void * params )
     double evaluateVectorBracket( double x [], size_t dim , void * params )

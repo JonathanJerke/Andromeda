@@ -500,7 +500,7 @@ cdef class galaxy:
 		-------
 		self
 		"""
-		printOut(  self.calculation, *(self.field),reset, index, vector)
+		printOut(  self.calculation, (self.field),reset, index, vector)
 		return self
 		
 	def gaussian ( self, vector : division = division.eigenVectors, spin : inta = 0, 
