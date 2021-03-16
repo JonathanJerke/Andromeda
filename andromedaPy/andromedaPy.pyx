@@ -465,7 +465,7 @@ cdef class galaxy:
 			Number of vectors loaded
 		"""
 		cdef inta count = 0
-		tLoadEigenWeights (  self.calculation, *(self.field) ,filename.encode('utf-8'), 
+		tLoadEigenWeights (  self.calculation, self.field ,filename.encode('utf-8'), 
 				&count,  vector, collect)
 		return count
 		
@@ -625,7 +625,7 @@ cdef class galaxy:
 			if self.calculation.rt.memBlock[b] == blockMemoryType.blockPrintStuffblock:
 				self.calculation.rt.memBlock[b] = blockMemoryType.passBlock
 		
-		printExpectationValues (  &self.calculation,   self.field.f ,  division.Ha  , vector)
+		printExpectationValues (  self.calculation,   self.field.f ,  division.Ha  , vector)
 		return self
 		
 	def terms ( self ):
@@ -640,7 +640,7 @@ cdef class galaxy:
 		self
 		"""
 		f1 = self.field.f
-		matrix = defSpiralMatrix(&f1, division.Iterator)
+		matrix = defSpiralMatrix(f1, division.Iterator)
 		term = 0
 		while matrix != division.nullName:
 			matrix = f1.name[matrix].linkNext
