@@ -135,8 +135,8 @@ calculation initCal (void ) {
     i.i.build = 1;
     i.i.minIterationPrint = 0;
     i.i.termNumber = 0;
-    i.i.shiftVector[0] = 0;
-    i.i.shiftVector[1] = 1;
+  //  i.i.shiftVector[0] = 0;
+   // i.i.shiftVector[1] = 1;
     i.rt.MAX_CYCLE = 24;
     i.rt.relativeTOLERANCE = 0.000000000000001;
     i.rt.THRESHOLD = 1e-12; 

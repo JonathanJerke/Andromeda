@@ -339,8 +339,8 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
                     return d;
                 case 4:
                 {
-                    c->i.shiftVector[0] = 1.;
-                    c->i.shiftVector[1] = value;
+              //      c->i.shiftVector[0] = 1.;
+                //    c->i.shiftVector[1] = value;
                     c->i.shiftFlag = 1;
                 }
                     return d;
@@ -349,8 +349,8 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
                     return d;
                 case 6:
                 {
-                    c->i.shiftVector[0] = 0;
-                    c->i.shiftVector[1] = value;
+            //        c->i.shiftVector[0] = 0;
+              //      c->i.shiftVector[1] = value;
                     c->i.shiftFlag = 0;
                     return d;
                 }
@@ -1344,8 +1344,8 @@ inta initCalculation(struct calculation * c ){
     for ( i = 0 ; i < BLOCK_COUNT ; i++)
         c->rt.memBlock[i] = passBlock;
 
-    c->i.shiftVector[0] = 0;
-    c->i.shiftVector[1] = 1;
+  //  c->i.shiftVector[0] = 0;
+  //  c->i.shiftVector[1] = 1;
 
     return 0;
 }
