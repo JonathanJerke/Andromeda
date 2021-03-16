@@ -81,7 +81,7 @@ cdef class galaxy:
 	cdef field *field
 
 	def __cinit__(self):
-		self.calculation = malloc(sizeof(calculation_type)
+		self.calculation = malloc(sizeof(calculation_type))
 		initCal(self.calculation)
 		self.field = malloc(sizeof(field_type))
 		initField(self.field)
