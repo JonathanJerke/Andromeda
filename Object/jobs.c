@@ -776,8 +776,8 @@ inta ritz(   calculation * c1,   field f1){
 int run (inta argc , char * argv[]){
     argc--;///erase ./andromeda...
     argv++;
-      calculation c;
-      field f;
+      calculation *c = malloc(sizeof(calculation));
+      field *f = malloc(sizeof(field));
 
     
     if ( argc > 0 ){
@@ -787,7 +787,7 @@ int run (inta argc , char * argv[]){
                 argv++;
                 ///andromeda -1 inputFile
                 ///runs normally from file
-                bootShell(argc, argv,&c,&f);
+                bootShell(argc, argv,c,f);
                 break;
 
             case 1 :
@@ -795,8 +795,8 @@ int run (inta argc , char * argv[]){
                 argv++;
                 ///andromeda 1 inputFile
                 ///spits out memory requirements only
-                bootShell(argc, argv,&c,&f);
-                c.i.RAMmax = 0;
+                bootShell(argc, argv,c,f);
+                c->i.RAMmax = 0;
                 break;
 
             case 0 :
@@ -810,32 +810,34 @@ int run (inta argc , char * argv[]){
 
     }else {
         ///andromeda inputFile
-        bootShell(argc, argv,&c,&f);
+        bootShell(argc, argv,c,f);
     }
-    defineCores(&c,&f);
-    assignCores(f.f,1 );
-    if ( c.rt.phaseType == buildFoundation ){//0
+    defineCores(c,f);
+    assignCores(f->f,1 );
+    if ( c->rt.phaseType == buildFoundation ){//0
 #ifdef SPHERE
-        foundationS(&c,f);
+        foundationS(c,*f);
 #else
-        foundationB(&c,f);
+        foundationB(c,*f);
 #endif
     }
-    else if ( c.rt.phaseType == productKrylov ){
-        singlekrylov(&c,f);
+    else if ( c->rt.phaseType == productKrylov ){
+        singlekrylov(c,*f);
     }
-    else if ( c.rt.phaseType == solveRitz ){
-        ritz(&c,f);
+    else if ( c->rt.phaseType == solveRitz ){
+        ritz(c,*f);
     }
-    else if ( c.rt.phaseType == buildTraces ){
-        traces(&c,f);
+    else if ( c->rt.phaseType == buildTraces ){
+        traces(c,*f);
     }
-    else if ( c.rt.phaseType == formOCSB ){
-        formOcsb(&c,f);
+    else if ( c->rt.phaseType == formOCSB ){
+        formOcsb(c,*f);
     }
-    else if ( c.rt.phaseType == iterateOCSB ){
-        iterateOcsb(&c,f);
+    else if ( c->rt.phaseType == iterateOCSB ){
+        iterateOcsb(c,*f);
     }
+    free(c);
+    free(f);
     ///Scripts look for this ...
     printf("\n\nFINIS.\n\n");
     return 0;

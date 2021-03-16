@@ -38,19 +38,18 @@
 #define system_h
 #define MOMENTUM_INTERVAL 35
 //#define SEPARATE_ONE_BODY
-
 //#define VERBOSE_ALS
-#define writeHDF5
-#define readHDF5
+//#define writeHDF5
+//#define readHDF5
 //#define READ_FAST
 #define RAND_FOUNDATION
 //#define CHERRY_PICKER
 ///to compile with acceleration in APPLE, not for distribution
-///#define APPLE
+#define APPLE
 ///Number of components, no limit
-#define SPACE 12
+#define SPACE 3
 ///Number of 'atoms' under geometry,  really no reason to to keep this big
-#define MAXATOM 16
+#define MAXATOM 3
 ///All internal numbers are in au, including Hartrees.
 ///input in Angstroms unless 'Angstroms 0' set
 #define a0  0.52917721
@@ -63,7 +62,7 @@
 ///print info on ALS decomposition
 //#define VERBOSE_ALS
 ///Maximum number of input terms at prompt, at minor cost to increase
-#define MAXTERM 1000
+#define MAXTERM 100
 
 ///Maximum bodies per component currently supported
 ///only coded for 4bodies with PBC
@@ -79,15 +78,15 @@
 ///basically overwritten, will remove
 #define MAX_PARAM_FUNC 4
 ///The block-memory commands act to negate memory allocations,  this is the maximum number of blocks.  Leave this alone, unless you add blocks.
-#define BLOCK_COUNT 16
+#define BLOCK_COUNT 24
 
 #ifdef APPLE
     #define SPHERE
     #define BIT_INT
-    #define MAXSTRING 4
-    #define SUPERMAXSTRING 10
-    #define MAX_FILE 1
-    #define MAX_CORE 2
+    #define MAXSTRING 88
+    #define SUPERMAXSTRING 176
+    #define MAX_FILE 1000
+    #define MAX_CORE 12
 #else
 ///for including omp.h
     #define OMP
@@ -100,9 +99,9 @@
     #define BIT_INT
 #endif
 ///Probably too much, but dont care,
-    #define MAXSTRING 176
+    #define MAXSTRING 88
 ///Probably too much, but dont care,
-    #define SUPERMAXSTRING 400
+    #define SUPERMAXSTRING 176
 ///Maximum number of .mac files that are loadable,  (not vectors, rather files of .vector)
     #define MAX_FILE 1000
 ///Maybe necessary for integrating momentums in GaussianSinc-basis--otherwise, not used.
@@ -110,7 +109,7 @@
 ///Set true if you want to use GSL cblas
 //#define GSL_CBLAS
 ///Normal super computer size, could be more or less,
-    #define MAX_CORE 36
+    #define MAX_CORE 12
 #endif
 
 #endif /* system_h */

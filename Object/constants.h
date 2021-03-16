@@ -346,7 +346,6 @@ enum metricType {
 
 
 
-
 /**
  *Enumerate memory controls
  *
@@ -859,7 +858,7 @@ struct input {
     ///dir for 'control'
     char controlPath[MAXSTRING];
     ///shiftVector[0] + H shiftVector[1]
-    double shiftVector[2];
+   // double shiftVector[2];
     ///switch shift of H
     inta shiftFlag ;
 #ifdef OMP
