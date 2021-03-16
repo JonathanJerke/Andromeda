@@ -45,7 +45,6 @@
 #define RAND_FOUNDATION
 //#define CHERRY_PICKER
 ///to compile with acceleration in APPLE, not for distribution
-#define APPLE
 ///Number of components, no limit
 #define SPACE 3
 ///Number of 'atoms' under geometry,  really no reason to to keep this big
