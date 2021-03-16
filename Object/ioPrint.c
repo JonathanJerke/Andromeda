@@ -509,8 +509,8 @@ inta inputFormat(  sinc_label f1,char * name,    division buffer, inta input){
 }
 
 
-inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,  division inputVectors, inta collect){
-      sinc_label f1 = f.f;
+inta tLoadEigenWeights (  calculation * c1,   field *f,char * filename, inta *ct,  division inputVectors, inta collect){
+      sinc_label f1 = f->f;
     inta space,cmpl;
     FILE * in = NULL;
     in = fopen(filename, "r");
@@ -550,7 +550,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                             c2.rt.NLanes = 1;
                             f2.f.rt = &c2.rt;
                             f2.f.rt->phaseType = productKrylov;
-                            f2.i = f.i;
+                            f2.i = f->i;
 
                             f2.i.Iterations = 1;
                             f2.i.files = 0;
@@ -558,7 +558,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                             f2.i.qFloor = 0;
                             c2.i.Lambda = 6;
                             resetA(f2.f.rt);
-                            if ( (f.i.filter/2)%2 == 0 ){
+                            if ( (f->i.filter/2)%2 == 0 ){
                                 blockA(f2.f.rt, blockTotalVectorBlock);
                                 blockA(f2.f.rt, blockTrainVectorsblock);
                                 blockA(f2.f.rt, blockPermutationsblock);
@@ -615,7 +615,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                         {
                             inta sp;
                             ///filter with +2,  will filter input vector.
-                            if ( (((f.i.filter/2)%2)==1)*f.f.irrep ) {
+                            if ( (((f->i.filter/2)%2)==1)*f->f.irrep ) {
                                 if ( ! allowQ(f2.f.rt,blockTotalVectorBlock)){
                                     printf("blockTotalVectorBlock Allow!\n");
                                     fflush(stdout);
@@ -624,7 +624,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
 
                                 for ( sp = 0; sp < spins(f1, eigenVectors);sp++){
                                     f2.f.name[totalVector].Current[0] = 0;
-                                    tBuildIrr(0, f2.f, f.f.irrep, eigenVectors, sp, totalVector, 0);
+                                    tBuildIrr(0, f2.f, f->f.irrep, eigenVectors, sp, totalVector, 0);
                                     CanonicalRankDecomposition( f2.f, NULL,totalVector, 0,eigenVectors,sp, f1.rt->TOLERANCE,f1.rt->relativeTOLERANCE, f1.rt->ALPHA,f1.rt->THRESHOLD, f1.rt->MAX_CYCLE,f1.rt->XCONDITION, part(f2.f,eigenVectors),f2.f.rt->dynamic);
                                 }
                             }
@@ -634,7 +634,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                                 flagLoad = 0;
                                 if ( tSelect(f1, *ct, 0, inputVectors, 1) ) {
                                     
-                                    if ( (((f.i.filter)%2)==1)*f.f.irrep ){
+                                    if ( (((f->i.filter)%2)==1)*f->f.irrep ){
                                         f1.name[inputVectors+*ct].value.symmetry = tClassify( f1, inputVectors+*ct);
                                         printf("%s\tcollect-SA%d\n", name,  f1.name[inputVectors+*ct].value.symmetry);
                                         fflush(stdout);
@@ -642,7 +642,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                                     else {
                                         f1.name[inputVectors+*ct].value.symmetry = 0;
                                     }
-                                    if ( ((f.i.filter%2)==1) && (f1.name[inputVectors+*ct].value.symmetry != f.f.irrep) && f.f.irrep)
+                                    if ( ((f->i.filter%2)==1) && (f1.name[inputVectors+*ct].value.symmetry != f->f.irrep) && f->f.irrep)
                                         flagLoad = 0;
                                     else
                                         flagLoad = 1;
@@ -651,7 +651,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                             } else {
                                 xEqua(f1,inputVectors+*ct, cmpl, f2.f, eigenVectors,0);
 
-                                if ( (((f.i.filter)%2)==1)*f.f.irrep ){
+                                if ( (((f->i.filter)%2)==1)*f->f.irrep ){
                                     f1.name[inputVectors+*ct].value.symmetry = tClassify( f1, inputVectors+*ct);
                                     printf("%s\tSA%d\n", name,  f1.name[inputVectors+*ct].value.symmetry);
                                     fflush(stdout);
@@ -659,7 +659,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                                 else {
                                     f1.name[inputVectors+*ct].value.symmetry = 0;
                                 }
-                                if ( ((f.i.filter%2)==1) && (f1.name[inputVectors+*ct].value.symmetry != f.f.irrep) && f.f.irrep)
+                                if ( ((f->i.filter%2)==1) && (f1.name[inputVectors+*ct].value.symmetry != f->f.irrep) && f->f.irrep)
                                     flagLoad = 0;
                                 else
                                     flagLoad = 1;
@@ -674,7 +674,7 @@ inta tLoadEigenWeights (  calculation * c1,   field f,char * filename, inta *ct,
                 
 
 
-                if (( *ct > f.i.nOperator && inputVectors == f1.vectorOperator )){
+                if (( *ct > f->i.nOperator && inputVectors == f1.vectorOperator )){
                     printf("maxed out buffer of states\n");
                     exit(0);
                 }

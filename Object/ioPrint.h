@@ -57,7 +57,7 @@ inta printOutput (   sinc_label f1,inta number);
 inta printVectorOutput (   sinc_label f1,inta number);
 inta printFaceOutput (   sinc_label f1,inta number);
 inta ioArray(  calculation *c1,   field f,char * name,inta N1, floata * matrix, inta ioIn);
-inta tLoadEigenWeights (   calculation * c1,  field f1, char * filename ,inta *ct,   division input, inta collect);
+inta tLoadEigenWeights (   calculation * c1,  field *f1, char * filename ,inta *ct,   division input, inta collect);
 void tFilename (char * cycleName, inta count, inta body ,inta IRREP, inta cmpl, char * filename);
 mea tFromReadToFilename (char * cycleName, char * read , char * filename,inta cmplFlag, inta cmpl,char * title,inta *number);
 #endif /* ioPrint_h */

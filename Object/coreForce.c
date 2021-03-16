@@ -2521,7 +2521,7 @@ inta assignDiagonalMatrix(calculation *c1,   field *f, char * filename, division
     
     f1->name[vectorDiagonalMatrix].species = diagonalMatrix;
 #ifndef APPLE
-    tLoadEigenWeights(c1,*f,filename, &index, vectorDiagonalMatrix, 0);
+    tLoadEigenWeights(c1,f,filename, &index, vectorDiagonalMatrix, 0);
 #else
     tBoot(f->f, vectorDiagonalMatrix, 0, 1);
 #endif

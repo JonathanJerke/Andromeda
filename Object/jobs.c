@@ -211,11 +211,11 @@ inta iterateOcsb(  calculation *c1,   field f1){
 
     iModel(c1,&f1);
     for ( fi =0 ; fi < f1.i.files ; fi++){
-        tLoadEigenWeights (c1,f1, f1.i.fileList[fi],&EV, eigenVectors,0);
+        tLoadEigenWeights (c1,&f1, f1.i.fileList[fi],&EV, eigenVectors,0);
     }
     
     for ( fi =0 ; fi < f1.i.filesVectorOperator ; fi++){
-        tLoadEigenWeights (c1,f1, f1.i.fileVectorOperator[fi],&OV, f1.f.user,0);
+        tLoadEigenWeights (c1,&f1, f1.i.fileVectorOperator[fi],&OV, f1.f.user,0);
     }
 #else
     f1.i.nStates = 1;
@@ -496,7 +496,7 @@ double traces ( calculation *c1, field f1){
         f1.i.qFloor = f1.i.nStates*f1.i.nStates*f1.i.nStates*f1.i.nStates;
         iModel(c1,&f1);
         for ( fi = 0 ; fi < f1.i.files ; fi++){
-            tLoadEigenWeights (c1,f1, f1.i.fileList[fi], &EV,eigenVectors , 0);
+            tLoadEigenWeights (c1,&f1, f1.i.fileList[fi], &EV,eigenVectors , 0);
         }
         printf("loaded %d states\n",EV);
         ns = EV;
@@ -634,7 +634,7 @@ double singlekrylov (   calculation *c1,   field f1){
         f1.i.nStates = 1;
         iModel(c1,&f1);
         for ( fi = 0 ; fi < f1.i.files ; fi++){
-            tLoadEigenWeights (c1,f1, f1.i.fileList[fi], &EV,f1.f.user , f1.i.collect);
+            tLoadEigenWeights (c1,&f1, f1.i.fileList[fi], &EV,f1.f.user , f1.i.collect);
         }
         if ( EV > 1 ){
             for ( cmpl = 0 ; cmpl < 1 ; cmpl++){
@@ -713,7 +713,7 @@ inta ritz(   calculation * c1,   field f1){
     iModel(c1,&f1);
         
     for ( fi =0 ; fi < f1.i.files ; fi++){
-        tLoadEigenWeights (c1,f1, f1.i.fileList[fi],&EV, f1.f.user,f1.i.collect);
+        tLoadEigenWeights (c1,&f1, f1.i.fileList[fi],&EV, f1.f.user,f1.i.collect);
     }
     if (EV == 0 ){
         printf ("no ritz vectors!\n");
