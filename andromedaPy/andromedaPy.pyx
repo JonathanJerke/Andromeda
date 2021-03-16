@@ -77,14 +77,16 @@ from libc.string cimport strcpy
 from libc.stdlib cimport malloc,free
 
 cdef class galaxy:
-	cdef calculation *calculation
-	cdef field *field
+	#cdef calculation *calculation
+	#cdef field *field
 
 	def __cinit__(self):
-		self.calculation = (calculation *)malloc(sizeof(calculation_type))
-		initCal(self.calculation)
-		self.field = (field *)malloc(sizeof(field_type))
-		initField(self.field)
+		cdef calculation * c = (calculation *)malloc(sizeof(calculation_type))
+		initCal(c)
+		cdef field * f = (field *)malloc(sizeof(field_type))
+		initField(f)
+		self.calculation = c 
+		self.field = f
 		self.calculation.rt.NLanes = 1
 		self.calculation.rt.NSlot = 1
 
