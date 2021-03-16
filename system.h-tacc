@@ -106,7 +106,7 @@
 ///Set true if you want to use GSL cblas
 //#define GSL_CBLAS
 ///Normal super computer size, could be more or less,
-    #define MAX_CORE 48
+    #define MAX_CORE 12
 #endif
 
 #endif /* system_h */
