@@ -71,7 +71,7 @@ inta printOut(  calculation *c ,   field *f1,inta reset, inta lv,  division vect
     }
         {
                 
-                    printf("State%d: %1.15f, body%d, irrep%d, %1.15f\n", lv+1,f1->f.name[vector].value.value,bodies(f1->f,vector),f1->printOutf.name[vector].value.symmetry, f1->f.name[vector].value.value2);
+                    printf("State%d: %1.15f, body%d, irrep%d, %1.15f\n", lv+1,f1->f.name[vector].value.value,bodies(f1->f,vector),f1->f.name[vector].value.symmetry, f1->f.name[vector].value.value2);
             
                     printVector(c,f1->f, c->name,c->name, lv,irrep, &one);
                     for ( cmpl = 0 ; cmpl < spins(f1->f, vector) ; cmpl++)
