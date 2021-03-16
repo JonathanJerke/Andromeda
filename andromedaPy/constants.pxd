@@ -276,7 +276,7 @@ cdef extern from "../Object/constants.h":
         inta interval
         inta contr
         functionType fn
-        double param[4]
+        double param[MAX_PARAM_FUNC]
 
     cdef struct atom_label:
         double position[3+1]
@@ -310,7 +310,7 @@ cdef extern from "../Object/constants.h":
         inta count1Basis
         inta count1Inc
         inta space
-        dimensions_label particle[3+1]
+        dimensions_label particle[MAXBODY+1]
 
     cdef struct metric_label:
         inta pow[SPACE]
@@ -323,14 +323,13 @@ cdef extern from "../Object/constants.h":
     cdef struct term_label:
         char filename[MAXSTRING]
         function_label func
-        momentumIntegralSpecs spec[MAX_SPLIT];
         char desc[16]
         double scalar
         inta type
         blockType bl
         inta act
         double adjustOne
-        inta label
+        inta label[MAX_SPLIT]
         inta invert
         inta headFlag
         inta atom
@@ -342,7 +341,7 @@ cdef extern from "../Object/constants.h":
     cdef struct runTime:
         inta boost
         inta dynamic
-        blockMemoryType memBlock[16]
+        blockMemoryType memBlock[BLOCK_COUNT]
         inta NLanes
         inta NSlot
         inta NParallel
@@ -383,8 +382,8 @@ cdef extern from "../Object/constants.h":
         memoryType memory
         value_label value
         space_label space[SPACE+1]
-        inta Current[4]
-        inta Begin[4]
+        inta Current[MAX_CORE]
+        inta Begin[MAX_CORE]
 
     cdef struct nameDispenser_label:
         inta currLabel
@@ -412,11 +411,11 @@ cdef extern from "../Object/constants.h":
         inta body
         inta irrep
         inta matrices
-        char matrixList [1000][MAXSTRING]
+        char matrixList [MAX_FILE][MAXSTRING]
         inta files
-        char fileList [1000][MAXSTRING]
+        char fileList [MAX_FILE][MAXSTRING]
         inta filesVectorOperator
-        char fileVectorOperator [1000][MAXSTRING]
+        char fileVectorOperator [MAX_FILE][MAXSTRING]
         inta Iterations
         inta nStates
         inta iRank
@@ -437,10 +436,10 @@ cdef extern from "../Object/constants.h":
         inta numVectors
         inta build
         inta termNumber
-        term_label terms[100]
+        term_label terms[MAXTERM]
         inta minIterationPrint
         char controlPath[MAXSTRING]
-        double shiftVector[2]
+       // double shiftVector[2]
         inta shiftFlag
 #       inta omp
 #       inta mkl
@@ -449,7 +448,7 @@ cdef extern from "../Object/constants.h":
         inta Lambda
         inta RAMmax
         inta Angstroms
-        atom_label atoms[12+1]
+        atom_label atoms[MAXATOM+1]
         inta Na
         inta nocsb
         inta iocsb
