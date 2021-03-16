@@ -439,7 +439,7 @@ cdef extern from "../Object/constants.h":
         term_label terms[MAXTERM]
         inta minIterationPrint
         char controlPath[MAXSTRING]
-       // double shiftVector[2]
+#       double shiftVector[2]
         inta shiftFlag
 #       inta omp
 #       inta mkl
