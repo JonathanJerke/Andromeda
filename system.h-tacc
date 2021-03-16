@@ -49,9 +49,9 @@
 ///to compile with acceleration in APPLE, not for distribution
 //#define APPLE
 ///Number of components, no limit
-#define SPACE 12
+#define SPACE 3
 ///Number of 'atoms' under geometry,  really no reason to to keep this big
-#define MAXATOM 16
+#define MAXATOM 3
 ///All internal numbers are in au, including Hartrees.
 ///input in Angstroms unless 'Angstroms 0' set
 #define a0  0.52917721
@@ -72,7 +72,7 @@
 ///basically overwritten, will remove
 #define MAX_PARAM_FUNC 4
 ///The block-memory commands act to negate memory allocations,  this is the maximum number of blocks.  Leave this alone, unless you add blocks.
-#define BLOCK_COUNT 16
+#define BLOCK_COUNT 24
 
 ///basically a fundamental on ## bodies in interaction
 #define MAX_SPLIT 2
@@ -81,8 +81,8 @@
 #ifdef APPLE
     #define SPHERE
     #define BIT_INT
-    #define MAXSTRING 1
-    #define SUPERMAXSTRING 10
+    #define MAXSTRING 88
+    #define SUPERMAXSTRING 176
     #define MAX_FILE 1
     #define MAX_CORE 2
 #else
@@ -98,9 +98,9 @@
 ///Probably too much, but dont care,
     #define MAXSTRING 88
 ///Probably too much, but dont care,
-    #define SUPERMAXSTRING 200
+    #define SUPERMAXSTRING 176
 ///Maximum number of .mac files that are loadable,  (not vectors, ---> files of .vector)
-    #define MAX_FILE 100
+    #define MAX_FILE 1000
 ///Maybe necessary for integrating momentums in GaussianSinc-basis--otherwise, not used.
 //#define GSL_LIB
 ///Set true if you want to use GSL cblas
