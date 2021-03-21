@@ -2,6 +2,6 @@
 	*Term
 		newTerm 1
 		block 7
-		twoBody
+		twoBody e12
 	.Term
 .Body
