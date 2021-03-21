@@ -3,16 +3,16 @@
 		scalar 1.	
 		block 1
 		newTerm 1
-		kinetic
+		kinetic t1
 		block 2
 		newTerm 1
-		kinetic
+		kinetic t2
 		scalar 0.25
 		block 1
 		newTerm 1
-		spring
+		spring k1 
 		block 2
 		newTerm 1
-		spring 
+		spring k2
 	.Term
 .Body
