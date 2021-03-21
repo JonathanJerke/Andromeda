@@ -10,6 +10,9 @@ if [ $# -eq 2 ]
     cp $LAUNCH/control/two .
     cp $LAUNCH/control/inc .
     cp $LAUNCH/symmetry/$2 symmetry
+    echo 1 > hosts
+    echo 1 > ppn
+    echo 1 > spn
     echo "spam" > sums
 ##
 if [ -f ../cnfg ]
