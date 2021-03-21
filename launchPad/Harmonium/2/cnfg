@@ -1,26 +1,25 @@
 *Body	print
 
 *InputOutput
-	path collect
+	path direct
 .InputOutput
 
 *Parameters
-	eikons 1000
-	names 2000
-	states 10
+	eikons 10000
+	names 10000
+	states 18
 	#spam 9
 	body 2
-	canonRank 5
-	collect 1
-	filter 3
+	canonRank 24
 .Parameters
 
 *Dim
-	latticeAll 4.5
-	attackAll 0.4
+	latticeAll 0.600
+	attackAll 0.5
 	body 2
 	basis 1
-	count1Basis 2
+	count1Basis 33
+	count1Inc 2
 	threeComponent
 .Dim
 
@@ -29,64 +28,26 @@
 	block 1
 	scalar 1.
 	axis 1
-	interval 7
+	interval 15
 	minBeta 0
-	maxBeta 1
+	maxBeta 6
 .Term
 
-#1
 *InputOutput
 	read ../cn1
 .InputOutput
 
-
-
 *Term
-        minBeta 1
-        maxBeta 2 
+     	minBeta 6 
+        infBeta
 .Term
 
-#2
-*InputOutput
-       read ../cn1
-.InputOutput
-
-*Term
-        minBeta 2
-        maxBeta 4
-.Term
-
-
-#3
-*InputOutput
-       read ../cn1
-.InputOutput
-
-*Term
-     	minBeta 4
-        maxBeta 16
-.Term
-
-#4
-*InputOutput
-       read ../cn1
-.InputOutput
-
-*Term
-     	minBeta 16 
-        maxBeta -1
-.Term
-
-#5,6
 *InputOutput
   	  read ../cn1
 	read ../ke1
 .InputOutput
-		
-	*Geometry
-	.Geometry
-	
+			
 	*Parameters
-		lambda 8
+		lambda 16
 	.Parameters
 .Body
