@@ -1,3 +1,10 @@
+##file format,  
+
+##list in order component-particle information, ( n , gaussian-exponent, position ) 
+##each row gets an 'index' under a column of that name.
+
+
+
 import os
 from numpy import *
 import pandas as pd
