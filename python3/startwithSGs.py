@@ -3,6 +3,8 @@
 ##adding an 'index' on each row.
 ##
 
+##explicitly delete the found/found.vector file to reset.
+
 
 
 import os
