@@ -1,3 +1,10 @@
+##
+##file format, across component-particles, ( index-space, index-momentum ),
+##adding an 'index' on each row.
+##
+
+
+
 import os
 from numpy import *
 import pandas as pd
@@ -17,17 +24,13 @@ N = g.comps()[0][0]
 D = len(comps)
 
 gto = pd.read_csv('sg.csv')
+gto.index = gto['index']
+gto = gto.drop('index',axis=1)
 
 print(B,D,N)
-reset = 0
-index = 0
 for i in gto.index:
     g.setCurrent(Current = 0)
     gto1 = gto.loc[i]
     
     g.SG(gammaPy = reshape(gto1.values,(D,B,2)))
-    g.to_file(reset = reset, index = index )
-    index += 1
-    reset = 0
-
-
+    g.to_file(reset = 0, index = i )
