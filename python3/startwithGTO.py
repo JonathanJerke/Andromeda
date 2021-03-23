@@ -17,15 +17,15 @@ N = g.comps()[0][0]
 D = len(comps)
 
 gto = pd.read_csv('gto.csv')
+gto.index = gto['index']
+gto = gto.drop('index',axis=1)
 
 print(B,D,N)
 reset = 0
-index = 0
 for i in gto.index:
     g.setCurrent(Current = 0)
     gto1 = gto.loc[i]
     
     g.GTO(gammaPy = reshape(gto1.values,(D,B,3)))
-    g.to_file(reset = reset, index = index )
-    index += 1
+    g.to_file(reset = reset, index = i )
     reset = 0
