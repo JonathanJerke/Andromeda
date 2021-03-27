@@ -2707,7 +2707,7 @@ double xFourBand (  sinc_label f1,inta space,   division vector1 ,inta s1,   sin
                 //factor fourth particles,
                 // Vector_i'j'k--l band_kk'=> Vector_i'j'k'--l
                 for ( l = 0 ; l < L1 ;l++)
-                    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans  ,N2*N2,N2,L1,1.,buffer2+N2*N2*L1*l      ,N2,band+2*L1*N2 ,L1, 0.,  buffer + N2*N2*N2*l , N2   );
+                    cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans  ,N2*N2,N2,L1,1.,buffer2+N2*N2*L1*l      ,N2*N2,band+2*L1*N2 ,L1, 0.,  buffer + N2*N2*N2*l , N2   );
                 
                 //Vector_i'j'k'l band_ll' = Vector_i'j'k'l'
                 cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans  ,N2*N2*N2,N2,L1,1. ,buffer                  ,N2*N2*N2,band+3*L1*N2 ,L1, 0.,  streams( f2, out, s2,space)+r*N2*N2*N2*N2 , N2   );
