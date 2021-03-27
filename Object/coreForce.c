@@ -2518,9 +2518,10 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
             {
             separateInteraction(f1,scalar*c1->i.atoms[a].Z, c1->i.atoms[a].position+1,invert,act,bl, single, mu, cmpl, 0, 0, particle1,one,embed);
             }
+    }
 #else
-        {
-            
+    if ( bootedQ(*f1) ){
+
             
         if ( f1->canon[0].basis == SincBasisElement ){
             inta space,body;
@@ -2544,12 +2545,8 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
             periodicInteraction(f1, scalar*c1->i.atoms[a].Z,c1->i.atoms[a].position+1,invert,act,bl, single , mu, cmpl,specs, f1->canon[0].count1Basis*f1->canon[0].particle[one].lattice, 0, &particle1,one);
         }
             }
-#endif
 
-            
-    }
-//
-    
+#endif
 
     return ra;
 }
