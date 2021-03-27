@@ -1238,7 +1238,7 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
             
             ///
             
-            gaussianKernel = (1-2*re)*exp(-pow(momentum/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
+            gaussianKernel = exp(-pow(momentum/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
             if ( gaussianKernel > f1.rt->THRESHOLD ){
                 ///new canonRank and header
                 ///tGEMV will take first loop as content...
