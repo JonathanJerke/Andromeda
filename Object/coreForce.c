@@ -1007,8 +1007,8 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
         for ( momentum = 0; momentum < momentumLength ; momentum++)
         for (re = 0 ; re < body ; re++){
             ///
-            ///
-            gaussianKernel = (1-2*re)*Wmomentum[momentum]*exp(-pow(Xmomentum[momentum]/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
+            ///CHANGE  (1-2*re)
+            gaussianKernel = Wmomentum[momentum]*exp(-pow(Xmomentum[momentum]/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
             if ( gaussianKernel > f1.rt->THRESHOLD ){
                 ///new canonRank and header
                 ///tGEMV will take first loop as content...
@@ -2511,9 +2511,10 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
                 ra += (mu.fn.interval);
             else if ( mu.metric == dirac )
                 ra++;
-        if ( bootedQ(*f1) ){
             
 #ifdef SEPARATE_ONE_BODY
+    if ( bootedQ(*f1) ){
+
             {
             separateInteraction(f1,scalar*c1->i.atoms[a].Z, c1->i.atoms[a].position+1,invert,act,bl, single, mu, cmpl, 0, 0, particle1,one,embed);
             }
@@ -2577,7 +2578,11 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
         ra += (mu.fn.interval);
     else if ( mu.metric == dirac )
         ra++;
-
+#ifdef SEPARATE_ONE_BODY
+    if ( bootedQ(*f1) ){
+        separateInteraction(f1, scalar,zero,invert,act,bl, pair , mu, cmpl,0, 0, particle1,two,embed);
+    }
+#else
     if ( bootedQ(*f1) ){
             double zero[6];
             zero[0] = 0.;
@@ -2600,7 +2605,6 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
                 }
             specs.maxMomentum = 2.*pi/ml;
             splitInteraction(f1, scalar, zero, invert, act, bl, pair, mu, cmpl, specs, 0, particle1, two, embed);
-            //separateInteraction(f1, scalar,zero,invert,act,bl, pair , mu, cmpl,0, 0, particle1,two,embed);
         }
         else{
             momentumIntegralSpecs specs;
@@ -2609,6 +2613,7 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
             periodicInteraction(f1, scalar,zero,invert,act,bl, pair , mu, cmpl,specs, f1->canon[0].count1Basis*f1->canon[0].particle[one].lattice, 0, particle1,two);
         }
     }
+#endif
     return ra;
 }
 
