@@ -2695,22 +2695,22 @@ double xFourBand (  sinc_label f1,inta space,   division vector1 ,inta s1,   sin
             for ( r = 0 ; r < CanonicalRank(f1, vector1, s1); r++){
                 
                 //particle 1
-                //                //band_ii' Vector_ijkl = Vector_i'jkl
+                //                //band_i'i Vector_ijkl = Vector_i'jkl
 
                 cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans,N2,L1*L1*L1,L1,1. ,band         ,L1,streams( f1, vector1, s1,space )+r*L1*L1*L1*L1,L1, 0.,  buffer  , N2   );
                 //factor third-fourth particles,
-                // Vector_i'j--ml band_jj'=> Vector_i'j'--ml
+                // Vector_i'j--kl band_jj'=> Vector_i'j'--kl
                 for ( l = 0 ; l < L1 ;l++)
                     for ( k = 0 ; k < L1 ;k++)
                         cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans  ,N2,N2,L1,1.,buffer+L1*N2*k+L1*L1*N2*l      ,N2,band+1*L1*N2 ,L1, 0.,  buffer2 + N2*N2*k+L1*N2*N2*l , N2   );
                 
                 //factor fourth particles,
-                // Vector_i'j'm--l band_k'k=> Vector_i'j'k'--l
+                // Vector_i'j'k--l band_kk'=> Vector_i'j'k'--l
                 for ( l = 0 ; l < L1 ;l++)
                     cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans  ,N2*N2,N2,L1,1.,buffer2+N2*N2*L1*l      ,N2,band+2*L1*N2 ,L1, 0.,  buffer + N2*N2*N2*l , N2   );
                 
                 //Vector_i'j'k'l band_ll' = Vector_i'j'k'l'
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans  ,N2*N2*N2,N2,L1,1. ,buffer                  ,L1,band+3*L1*N2 ,L1, 0.,  streams( f2, out, s2,space)+r*N2*N2*N2*N2 , N2   );
+                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans  ,N2*N2*N2,N2,L1,1. ,buffer                  ,N2*N2*N2,band+3*L1*N2 ,L1, 0.,  streams( f2, out, s2,space)+r*N2*N2*N2*N2 , N2   );
                                 
             }
         }
@@ -3942,15 +3942,18 @@ inta tOuterProductSuOne(   sinc_label  f1,inta space,  division vector , inta a,
 //}
 
 void analyzeLoopElement( sinc_label f1, division loopElement, inta spin ){
-    division multer;    
+#ifdef PRINT_LOOP_STRUCTURE
+    division multer;
     for (multer = loopElement ; multer != nullName ; multer = f1.name[multer].multNext){
         printf("++ %d ", multer);
     }
     printf("\n");
+#endif
     return;
 }
 
 void analyzeChainElement( sinc_label f1, division chainElement, inta spin ){
+#ifdef PRINT_CHAIN_STRUCTURE
     if ( chainElement != nullName){
 
         printf("%d (%d)\n", chainElement, CanonicalRank(f1, chainElement , spin));
@@ -3961,5 +3964,7 @@ void analyzeChainElement( sinc_label f1, division chainElement, inta spin ){
         printf("\n");
         analyzeChainElement(f1, f1.name[chainElement].chainNext, spin);
     }
+#endif
     return;
+
 }

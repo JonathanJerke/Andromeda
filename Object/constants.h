@@ -253,8 +253,6 @@ enum genusType{
 
 
 
-
-
 /**
  *The function type, defined in InverseLaplaceTransform
  */
@@ -341,6 +339,8 @@ enum metricType {
     pureInterval,
     pureSemiIndefinite
 };
+
+
 
 
 
