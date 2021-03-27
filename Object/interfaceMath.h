@@ -33,7 +33,6 @@ inta tzheev( inta rank,   sinc_label f1, char job , inta n,DCOMPLEX * ar, inta n
 inta tzhegv( inta rank,   sinc_label f1, char job , inta n,DCOMPLEX * sr, DCOMPLEX * ar, inta ns , double * w );
 void transpose(inta N, inta M, floata * orig, floata* targ);
 double Sinc( double d , double x);
-double pSinc( double d , double x, inta N1);
 double SS( double d1 , double x , double d2, double y ) ;
 double pSS( double d1 , double x , inta N1, double d2, double y, inta N2 );
 inta tdpotrf ( inta L1, double * array ,inta LS1) ;
