@@ -334,7 +334,7 @@ DCOMPLEX periodicSincfourierIntegralInTrain ( inta m1, inta m2,floata lattice , 
     for ( n = -N12; n <= N12 ; n++){
         for ( m = -N12 ; m <= N12 ;m++){
             if ( n + m == momentumIndex ){
-                su += cexp( 2.0 * pi* ( n * m1 + m * m2 )/(lattice*N1) );
+                su += cexp( 2.0 * pi* ( n * m1 + m * m2 )/(lattice*N1*N1) );///forgot Lambda last time...
             }
         }
     }
