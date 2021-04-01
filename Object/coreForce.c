@@ -1238,7 +1238,7 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
             
             ///
             
-            gaussianKernel = exp(-pow(momentum/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
+            gaussianKernel = momentumStep*exp(-pow(momentum/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
             if ( gaussianKernel > f1.rt->THRESHOLD ){
                 ///new canonRank and header
                 ///tGEMV will take first loop as content...
@@ -1299,7 +1299,7 @@ inta periodicInteraction( sinc_label *f,double scalar, double * position,inta in
                                                  iL = twoL;
                                                  iO = twoOri;
                                              }
-                                             tc =  periodicSincfourierIntegralInTrain( I1,I2,iL,iO+position[space], N1,  (1-2*bodyIndex)*momentumIndex);
+                                             tc =  periodicSincfourierIntegralInTrain( I1,I2,iL,iO+position[space], N1,  (1-2*bodyIndex),0);
                                          
                                             if ( bodyIndex == 0 )
                                                 tc *= gaussianKernel;
@@ -2157,23 +2157,52 @@ inta buildKinetic( calculation *c1, sinc_label *f1,double scalar,inta invert,int
                     //new term
                     f1->name[currLabel].loopNext = anotherLabel(f1,all,one);
                     memoryLabel = f1->name[currLabel].loopNext;
-                    f1->name[memoryLabel].species = eikonKinetic;
-                    f1->name[memoryLabel].Current[0] = 1;
-
-            
-                    for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
-                        if ( f1->canon[spacy].body != nada){
-                            f1->name[memoryLabel].space[spacy].act = act;
-                            if ( f1->canon[spacy].label == label && spacy == dim)
-                                {
-                                    f1->name[memoryLabel].space[spacy].body = one;
-                                    f1->name[memoryLabel].space[spacy].block = bl;
-                                    streams(*f1, memoryLabel, 0, spacy)[0] = -0.500*scalar;
-                                }else{
-                                        f1->name[memoryLabel].space[spacy].block = id0;
-                                }
                     
-                        }
+                    if (f1->canon[dim].basis == SincBasisElement){
+                    
+                        f1->name[memoryLabel].species = eikonKinetic;
+                        f1->name[memoryLabel].Current[0] = 1;
+
+                
+                        for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
+                            if ( f1->canon[spacy].body != nada){
+                                f1->name[memoryLabel].space[spacy].act = act;
+                                if ( f1->canon[spacy].label == label && spacy == dim)
+                                    {
+                                        f1->name[memoryLabel].space[spacy].body = one;
+                                        f1->name[memoryLabel].space[spacy].block = bl;
+                                        streams(*f1, memoryLabel, 0, spacy)[0] = -0.500*scalar;
+                                    }else{
+                                            f1->name[memoryLabel].space[spacy].block = id0;
+                                    }
+                        
+                            }
+                    }else {
+                        f1->name[memoryLabel].species = eikonSplit;
+                        f1->name[memoryLabel].Current[0] = 1;
+                        for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
+                            if ( f1->canon[spacy].body != nada){
+                                f1->name[memoryLabel].space[spacy].act = act;
+                                if ( f1->canon[spacy].label == label && spacy == dim)
+                                    {
+                                        f1->name[memoryLabel].space[spacy].body = one;
+                                        f1->name[memoryLabel].space[spacy].block = bl;
+                                        inta I1,I2,n1;
+                                        n1 = vector1Len(*f1,dim);
+                                        for ( I1 = 0; I1 < n1; I1++)
+                                            for ( I2 = 0; I2 < n1; I2++)
+                                                streams(*f1, memoryLabel, 0, spacy)[I1*n1+I2] = -0.500*scalar*periodicSincfourierIntegralInTrain( I1,I2,f1->canon[dim].particle[bl].lattice,f1->canon[dim].particle[bl].origin, n1,  0,2);
+
+                                        
+                                        
+                                    }else{
+                                            f1->name[memoryLabel].space[spacy].block = id0;
+                                    }
+                        
+                            }
+                        
+                        
+                    }
                 }
         }
         

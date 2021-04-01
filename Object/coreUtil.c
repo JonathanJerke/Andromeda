@@ -255,9 +255,6 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                 if (pw == 2 ){
                     cblas_dcopy(N1, vector, 1, vectorOut, 1);
                     cblas_dscal(N1, -pi*pi/3./lattice/lattice, vectorOut, 1);
-                }else if ( pw == 1002 ){
-                    cblas_dcopy(N1, vector, 1, vectorOut, 1);
-                    cblas_dscal(N1, -1./3.*(N1-1)*(N1+1)*pi*pi/lattice/lattice, vectorOut, 1);
                 }
 
                 for (n = 1 ; n < N1 ; n++){
@@ -265,25 +262,16 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                         mult = 1./n/lattice;
                     }else if ( pw == 2){
                         mult = 2*1./(n*n)/lattice/lattice;
-                    }else if ( pw == 1002 ){
-                        inta m ,N12=(N1-1)/2;
-                        mult = 0.;
-                        for ( m = -N12; m <= N12; m++ )
-                            mult += m*m*cos( m * 2. * pi * ( n *1./ N1 ) ) ;
-                        mult /= -lattice*lattice*(N1)/(2.0*pi)/(2.0*pi);
                     }
                     cblas_daxpy(N1-n, sign*mult, vector+n, 1, vectorOut, 1);
-
-                    
                     cblas_daxpy(N1-n, sign1*sign*mult, vector, 1, vectorOut+n,1);
-                    if ( pw < 1000 )
-                        sign *= -1;
+                    sign *= -1;
 
                 }
             }
             break;
         case two:
-            if ( pw != 1 && pw != 1001 )
+            if ( pw != 1 )
             for ( m = 0; m < N1 ; m++)
             {
                 if ( pw == 0 ){
@@ -300,16 +288,12 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                         if (pw == 2) {
                             cblas_dcopy(N1, vector+n1[perm[op[1]]]*m, n1[perm[op[0]]], vectorOut+n1[op[1]]*m, n1[op[0]]);
                              cblas_dscal(N1, -pi*pi/3./lattice/lattice, vectorOut+n1[op[1]]*m, n1[op[0]]);
-                        }else if ( pw == 1002 ){
-                            cblas_dcopy(N1, vector+n1[perm[op[1]]]*m, n1[perm[op[0]]], vectorOut+n1[op[1]]*m, n1[op[0]]);
-                             cblas_dscal(N1, -pi*pi/3./lattice/lattice*(N1-1)*(N1+1), vectorOut+n1[op[1]]*m, n1[op[0]]);
-
                         }
                 }
             }
             
             
-            if (pw == 2 || pw == 1 || pw == 1002) {
+            if (pw == 2 || pw == 1 ) {
                 for ( m = 0; m < N1 ; m++)
                 {
                     sign = 1.;
@@ -319,16 +303,9 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                             mult = 1./n/lattice;
                         }else if ( pw == 2){
                             mult = 2*1./(n*n)/lattice/lattice;
-                        }else if ( pw == 1002 ){
-                            inta m ,N12=(N1-1)/2;
-                            mult = 0.;
-                            for ( m = -N12; m <= N12; m++ )
-                                mult += m*m*cos( m * 2. * pi * ( n *1./ N1 ) ) ;
-                            mult /= -lattice*lattice*(N1)/(2.0*pi)/(2.0*pi);
                         }
                         cblas_daxpy(N1-n, sign*mult      , vector+n1[perm[op[0]]]*n+n1[perm[op[1]]]*m ,n1[perm[op[0]]], vectorOut+n1[op[1]]*m ,n1[op[0]]);
                         cblas_daxpy(N1-n, sign1*sign*mult, vector+n1[perm[op[1]]]*m , n1[perm[op[0]]], vectorOut+n1[op[0]]*n+n1[op[1]]*m ,n1[op[0]]);
-                        if ( pw < 1000 )
 
                         sign *= -1;
                     }
@@ -338,7 +315,7 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
             
             break;
         case three:
-            if ( pw != 1 && pw != 1001 )
+            if ( pw != 1 )
 
             for ( m = 0; m < N1 ; m++)
                 for ( m2 = 0; m2 < N1 ; m2++)
@@ -357,14 +334,11 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                         if (pw == 2) {
                              cblas_dcopy(N1, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2, n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
                              cblas_dscal(N1, -pi*pi/3./lattice/lattice, vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
-                         }else {
-                             cblas_dcopy(N1, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2, n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
-                             cblas_dscal(N1, -pi*pi/3./lattice/lattice*(N1-1)*(N1+1), vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
                          }
                      }
                 }
             
-            if (pw == 2 || pw == 1 || pw == 1002 ) {
+            if (pw == 2 || pw == 1  ) {
                 for ( m = 0; m < N1 ; m++)
                     for ( m2 = 0; m2 < N1 ; m2++)
                     {
@@ -376,18 +350,10 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                                     mult = 1./n/lattice;
                                 }else if ( pw == 2){
                                     mult = 2*1./(n*n)/lattice/lattice;
-                                }else if ( pw == 1002 ){
-                                    inta m ,N12=(N1-1)/2;
-                                    mult = 0.;
-                                    for ( m = -N12; m <= N12; m++ )
-                                        mult += m*m*cos( m * 2. * pi * ( n *1./ N1 ) ) ;
-                                    mult /= -lattice*lattice*(N1)/(2.0*pi)/(2.0*pi);
                                 }
 
                                        cblas_daxpy(N1-n, sign*mult, vector+n1[perm[op[0]]]*n+n1[perm[op[1]]]*m +n1[perm[op[2]]]*m2 ,n1[perm[op[0]]], vectorOut+n1[op[1]]*m +n1[op[2]]*m2,n1[op[0]]);
                                        cblas_daxpy(N1-n, sign1*sign*mult, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2 ,n1[perm[op[0]]], vectorOut+n1[op[0]]*n +n1[op[1]]*m+n1[op[2]]*m2 ,n1[op[0]]);
-                                if ( pw < 1000 )
-
                                     sign *= -1;
 
                                    }
@@ -395,7 +361,7 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
             }
             break;
         case four:
-            if ( pw != 1 && pw != 1001 )
+            if ( pw != 1 )
 
             for ( m = 0; m < N1 ; m++)
                 for ( m2 = 0; m2 < N1 ; m2++)
@@ -416,14 +382,11 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                         if (pw == 2) {
                              cblas_dcopy(N1, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2+n1[op[3]]*m3, n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2+n1[op[3]]*m3, n1[op[0]]);
                              cblas_dscal(N1, -pi*pi/3./lattice/lattice, vectorOut+n1[op[1]]*m+n1[op[2]]*m2+n1[op[3]]*m3, n1[op[0]]);
-                         }else {
-                             cblas_dcopy(N1, vector+n1[perm[op[1]]]*m+n1[perm[op[2]]]*m2+n1[op[3]]*m3, n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2+n1[op[3]]*m3, n1[op[0]]);
-                             cblas_dscal(N1,-pi*pi/3./lattice/lattice*(N1-1)*(N1+1), vectorOut+n1[op[1]]*m+n1[op[2]]*m2+n1[op[3]]*m3, n1[op[0]]);
                          }
                      }
                 }
             
-            if (pw == 2 || pw == 1 || pw == 1002) {
+            if (pw == 2 || pw == 1 ) {
                 for ( m1 = 0; m1 < N1 ; m1++)
                     for ( m2 = 0; m2 < N1 ; m2++)
                         for ( m3 = 0; m3 < N1 ; m3++)
@@ -436,17 +399,10 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
                                     mult = 1./n/lattice;
                                 }else if ( pw == 2){
                                     mult = 2*1./(n*n)/lattice/lattice;
-                                }else if ( pw == 1002 ){
-                                    inta m ,N12=(N1-1)/2;
-                                    mult = 0.;
-                                    for ( m = -N12; m <= N12; m++ )
-                                        mult += m*m*cos( m * 2. * pi * ( n *1./ N1 ) ) ;
-                                    mult /= -lattice*lattice*(N1)/(2.0*pi)/(2.0*pi);
                                 }
 
                                        cblas_daxpy(N1-n, sign*mult, vector+n1[perm[op[0]]]*n+n1[perm[op[1]]]*m1 +n1[perm[op[2]]]*m2+n1[op[3]]*m3 ,n1[perm[op[0]]], vectorOut+n1[op[1]]*m1 +n1[op[2]]*m2+n1[op[3]]*m3,n1[op[0]]);
                                        cblas_daxpy(N1-n, sign1*sign*mult, vector+n1[perm[op[1]]]*m1+n1[perm[op[2]]]*m2+n1[op[3]]*m3 ,n1[perm[op[0]]], vectorOut+n1[op[0]]*n +n1[op[1]]*m1+n1[op[2]]*m2 +n1[op[3]]*m3,n1[op[0]]);
-                                if ( pw < 1000 )
 
                                     sign *= -1;
 
@@ -2880,7 +2836,7 @@ double tMatrixElements ( inta rank,  sinc_label  f1 , division bra, inta bspin, 
                         }
                         else {
                             tHX(rank, f1, mat, l, mspin, 1., ket, k, kspin,canonicalmeVector, 0, rank);
-                            
+                            f1.name[canonicalmeVector].Current[0] = 1;
                             holder = canonicalmeVector;
                             holderRank = 0;
                             holderSpin = rank;
@@ -3076,11 +3032,11 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                         if ( Bodies ( f1,su,space) == one ){
                              if ( species(f1,su) == eikonDeriv){
                                 flow *= *suP;
-                                topezOp(0,f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,1+1000*(f1.canon[space].basis == PeriodicSincBasisElement), laterP);
+                                topezOp(0,f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,1, laterP);
                             } else
                         if ( species(f1,su) == eikonKinetic ){
                                 flow *= *suP;
-                                topezOp(0, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,2+1000*(f1.canon[space].basis == PeriodicSincBasisElement), laterP);
+                                topezOp(0, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,2, laterP);
                             }
                         else if ( species(f1,su) == eikonConstant){
                             ///action can happen!
@@ -3091,13 +3047,13 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                             flow *= *suP;
                             ///relative to grid only
                             floata center = (f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
-                            topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-1+1000*(f1.canon[space].basis == PeriodicSincBasisElement), laterP);
+                            topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-1, laterP);
                         }
                         else if ( species(f1,su) == eikonSpring){
                             flow *= *suP;
                             ///relative to grid only
                             floata center = 0.5* (f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
-                            topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-2+1000*(f1.canon[space].basis == PeriodicSincBasisElement), laterP);
+                            topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-2, laterP);
 
                         }
                         else if ( species(f1,su) == eikonElement){

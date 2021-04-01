@@ -58,10 +58,10 @@
       i->i.OpIndex =-1;
 
     floata lattice = 0.5;
-    inta basis = 9;
+    inta basis = 51;
     space = 0;
-      i->f.canon[space].basis = SincBasisElement;
-      i->f.canon[space].body = one;
+      i->f.canon[space].basis = PeriodicSincBasisElement;
+      i->f.canon[space].body = two;
       i->f.canon[space].count1Basis = basis;
       i->f.canon[space].space = 0;
       i->f.canon[space].label = 1;
@@ -108,6 +108,15 @@
       i->i.qFloor =  0 ;
       i->f.boot  = fullMatrices;
       i->i.irrep = 0;
+      
+#ifdef OMP
+    i->i.omp = 1;
+#endif
+
+#ifdef MKL
+    i->i.mkl = 1;
+#endif
+
     return ;
 }
 
@@ -165,16 +174,16 @@ void initCal ( calculation * i ) {
     i->i.SymmetrizedGaussianLevel = 1;
     i->i.SymmetrizedGaussianWidth = 1;
     
-    i->i.termNumber = 1;
+    i->i.termNumber = 3;
     term_label t;
     t.act = 1;
     t.atom = 1;
-    t.bl = 1;
-    t.func.contr = 1;
+    t.bl = 7;
+    t.func.contr = 2;
     t.func.fn = Coulomb;
     t.func.interval = 15;
     t.adjustOne = 1.;
-    t.mu.beta[0] = 0.01;
+    t.mu.beta[0] = 0.0001;
     t.mu.beta[1] = 1;
     t.mu.metric = dirac;
     t.mu.fn  = t.func;
@@ -184,10 +193,15 @@ void initCal ( calculation * i ) {
 
     t.scalar = 1;
     t.headFlag = 1;
-    t.type   = 8;
+    t.type   = 9;
     i->i.terms[0] = t;
+    t.type = 5;
+    t.bl = 1;
 
-    
+    i->i.terms[1] = t;
+    t.bl = 2;
+    i->i.terms[2] = t;
+
     
     
 #else

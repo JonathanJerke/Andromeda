@@ -326,19 +326,23 @@ DCOMPLEX spatialSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2, 
  *
  * MAY NEED A BLOCH K
  */
-DCOMPLEX periodicSincfourierIntegralInTrain ( inta m1, inta m2,floata lattice , floata origin,inta N1, inta momentumIndex ){
-    DCOMPLEX su = 0.;
-    DCOMPLEX phase = cexp(I*momentumIndex*2.*pi/N1*origin/lattice);
+DCOMPLEX periodicSincfourierIntegralInTrain ( inta m1, inta m2,floata lattice , floata origin,inta N1, inta momentumIndex , inta order){
+    DCOMPLEX su = 0.,s;
+    DCOMPLEX phase = 1;//cexp(I*momentumIndex*2.*pi/N1*origin/lattice);
 
     inta n,m, N12 = (N1-1)/2;
     for ( n = -N12; n <= N12 ; n++){
         for ( m = -N12 ; m <= N12 ;m++){
             if ( n + m == momentumIndex ){
-                su += cexp( 2.0 * pi* ( n * m1 + m * m2 )/(lattice*N1*N1) );///forgot Lambda last time...
+                s = cexp( I * 2.0/(N1) * pi* ( n * m1 + m * m2 ) );
+                if ( order > 0 )
+                    s *= cpow( I * 2.* pi *m/lattice/N1,order );
+                su += s;
+                ///all variables are in ratio against total length, so no lattice required.
             }
         }
     }
-    return su/(N1)*phase;
+    return su*phase/N1;
 }
   
 /**
