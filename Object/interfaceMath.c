@@ -51,14 +51,15 @@ double SS( double d1 , double x , double d2, double y )    {
 }
 
 double pSS( double d1 , double x , inta N1, double d2, double y, inta N2 )    {
-    double su = 0.;
+    double su = 0.,sun = 0;
     inta i,j;
     for  ( i = -(N1-1)/2 ; i<= (N1-1)/2 ; i++ )
-        for ( j = -(N2-1)/2 ; j <= (N2-1)/2; j++)
-            if ( fabs( i / d1/N1 - j / d2/N2 ) < 0.00001)
+        for ( j = -(N2-1)/2 ; j <= (N2-1)/2; j++ )
+            if ( fabs( i*d2*N2- j*d1*N1) < 0.0001 ){
                 su += cos(2.*pi*i/d1/N1*x - 2.*pi*j/d2/N2*y) ;
-    
-    return su;
+                sun += 1.;
+            }
+    return su/sun;
 }
 
 
