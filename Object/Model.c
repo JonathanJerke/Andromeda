@@ -109,14 +109,6 @@
       i->f.boot  = fullMatrices;
       i->i.irrep = 0;
       
-#ifdef OMP
-    i->i.omp = 1;
-#endif
-
-#ifdef MKL
-    i->i.mkl = 1;
-#endif
-
     return ;
 }
 
