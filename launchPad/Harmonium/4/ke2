@@ -1,0 +1,31 @@
+*Body
+    *Term
+        scalar 1
+        newTerm 1
+        block 1
+        kinetic t1
+        newTerm 1
+        block 2
+        kinetic t2
+        newTerm 1
+        block 3
+        kinetic t3
+        newTerm 1
+        block 4
+        kinetic t4
+        #
+	scalar 0.25
+        newTerm 1
+        block 1
+        spring k1
+        newTerm 1
+        block 2
+        spring k2
+        newTerm 1
+        block 3
+        spring k3
+        newTerm 1
+        block 4
+        spring k4
+    .Term
+.Body
