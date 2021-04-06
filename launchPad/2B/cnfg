@@ -35,7 +35,7 @@
 *Term
         act 1
         interval 7
-        minBeta 1
+        minBeta 4
         maxBeta -1
 .Term
 *InputOutput
