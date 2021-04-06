@@ -1,0 +1,18 @@
+*Body
+	*Term
+                block 1
+                scalar 1
+                newTerm 1
+                atom 1
+                #oneBody
+                newTerm 1
+                block 2
+                atom 1
+               # oneBody
+                newTerm 1
+                scalar 1
+                block 7
+                newTerm 1
+                twoBody e12
+       	.Term
+.Body
