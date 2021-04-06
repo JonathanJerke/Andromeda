@@ -35,4 +35,4 @@ for i in gto.index:
     gto1 = gto.loc[i]
     
     g.SG(gammaPy = reshape(gto1.values,(D,B,2)))
-    g.to_file(reset = !i, index = i )
+    g.to_file(reset = i==0, index = i )
