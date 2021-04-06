@@ -1,0 +1,53 @@
+*Body print
+
+*InputOutput
+	path direct
+.InputOutput
+
+*Parameters
+	eikons 3000
+	names 3000
+		#spam 8
+		states 12
+	#	body 2
+	#	canonRank 8
+.Parameters
+	
+*Dim
+	latticeAll 0.5
+	attackAll 0.75
+	body 2
+	basis 1
+	count1Basis 15
+	threeComponent
+.Dim
+
+*Term
+	act 1
+	interval 15
+	minBeta 0
+	maxBeta 4
+.Term
+*InputOutput
+	read ../cn1
+.InputOutput
+
+*Term
+        act 1
+        interval 7
+        minBeta 1
+        maxBeta -1
+.Term
+*InputOutput
+        read ../cn1
+	read ../ke2
+.InputOutput
+		
+#	*Geometry
+#		2 0 0 0
+#	.Geometry
+	
+	*Parameters
+	lambda 16
+	.Parameters
+.Body
