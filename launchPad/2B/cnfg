@@ -15,7 +15,7 @@
 	
 *Dim
 	latticeAll 0.5
-	attackAll 0.75
+	attackAll 1.0
 	body 2
 	basis 1
 	count1Basis 15
