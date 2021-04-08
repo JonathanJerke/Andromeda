@@ -132,7 +132,7 @@ double inverseLaplaceTransform(double beta,   function_label * fl){
  *
  * https://keisan.casio.com/exec/system/1329114617
  */
-double gaussQuad(inta pt , inta nm, inta which ){
+double gaussQuad(inta pt , inta nm, inta which , inta truncate){
 
     double gk1X [] = {
         0
@@ -183,7 +183,6 @@ double gaussQuad(inta pt , inta nm, inta which ){
                      0.809016994374947424102,
         0.9510565162951535721164};
     ///Chebyshev 2nd
-
     double cy9W[] = {0.02999954037160816652789,
         0.1085393567113529974895,
         0.2056199086476263263568,
@@ -813,11 +812,18 @@ double gaussQuad(inta pt , inta nm, inta which ){
     }else {
         exit(0);
     }
-    
-    if ( which )
-        return 0.5*(1+gkX[ngk-1-nm]);
-    else
-        return 0.5*gkW[ngk-1-nm];//shift to interval [0,1]
+    if ( truncate){
+        if ( which )
+            return 0.5*(1+gkX[ngk-1-nm]);
+        else
+            return 0.5*gkW[ngk-1-nm];//shift to interval [0,1]
+    }else {
+        // interval [-1,1]
+        if ( which )
+            return gkX[nm];
+        else
+            return gkW[nm];
+    }
 }
 
 
@@ -833,19 +839,25 @@ inta quadrature( metric_label metric, floata *X, floata* W){
     inta beta,section=2,flagConstants=0,ngk;
     if ( metric.metric == interval )
         section = 0;
-    if ( metric.metric == semiIndefinite)
+   else  if ( metric.metric == semiIndefinite)
         section = 1;
-    if ( metric.metric == dirac)
+   else if ( metric.metric == dirac)
         section = 2;
 
-    if ( metric.metric == pureSemiIndefinite){
+    else if ( metric.metric == pureSemiIndefinite){
         section = 1;
         flagConstants = 1;
     }
-    if ( metric.metric == pureInterval){
+    else if ( metric.metric == pureInterval){
         flagConstants = 1;
         section = 0;
     }
+    else if ( metric.metric == pureWholeInterval ){
+        flagConstants = 1;
+        section = -1;
+    }
+
+    
     if ( section < 2 ){
         ngk = metric.fn.interval;
     }
@@ -854,9 +866,9 @@ inta quadrature( metric_label metric, floata *X, floata* W){
     }
     
     for ( beta = 0; beta < ngk ; beta++){//beta is an index.
-        if ( section == 1 ){
-            g = gaussQuad(ngk,beta,1);// [1, inf)
-            constant = gaussQuad(ngk, beta, 0);
+        if (  section == 1 ){
+            g = gaussQuad(ngk,beta,1,1);// [1, inf)
+            constant = gaussQuad(ngk, beta, 0,1);
             
             x = ( g ) / (1. - g)+1 ;
             constant /= (1.-g)*(1.-g);
@@ -867,8 +879,8 @@ inta quadrature( metric_label metric, floata *X, floata* W){
             if ( ! flagConstants )
                 constant *= inverseLaplaceTransform(x,&metric.fn);
         } else if ( section == 0 ) {
-            g = gaussQuad(ngk,beta,1);//interval [0,1]
-            constant = gaussQuad(ngk, beta, 0);
+            g = gaussQuad(ngk,beta,1,1);//interval [0,1]
+            constant = gaussQuad(ngk, beta, 0,1);
             
             x = g;
             
@@ -879,7 +891,20 @@ inta quadrature( metric_label metric, floata *X, floata* W){
             if ( ! flagConstants )
                 constant *= inverseLaplaceTransform(x,&metric.fn);
 
-        } else {
+        }else if ( section == -1 ) {
+            g = gaussQuad(ngk,beta,1,0);//interval [-1,1]
+            constant = gaussQuad(ngk, beta, 0,0);
+            
+            x = g;
+            
+            
+            x *=  metric.beta[0];
+            constant *= metric.beta[0];
+            if ( ! flagConstants )
+                constant *= inverseLaplaceTransform(x,&metric.fn);
+
+        }
+        else {
             x = metric.beta[0];// value;
             constant = 1;
         }
@@ -946,8 +971,8 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
 
     for ( beta = 0; beta < ngk ; beta++){//beta is an index.
         if ( section == 1 ){
-            g = gaussQuad(ngk,beta,1);// [1, inf)
-            constant = gaussQuad(ngk, beta, 0);
+            g = gaussQuad(ngk,beta,1,1);// [1, inf)
+            constant = gaussQuad(ngk, beta, 0,1);
             
             x = ( g ) / (1. - g)+1 ;
             constant /= (1.-g)*(1.-g);
@@ -960,8 +985,8 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
             else
                 constant = 1;
         }else if ( section == 0 ) {
-            g = gaussQuad(ngk,beta,1);//interval [0,1]
-            constant = gaussQuad(ngk, beta, 0);
+            g = gaussQuad(ngk,beta,1,1);//interval [0,1]
+            constant = gaussQuad(ngk, beta, 0,1);
             
             x = g;
             
@@ -1149,13 +1174,11 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
         ///
         metric_label metric2;
         metric2.fn.interval = specs.interval;
-        metric2.metric = pureInterval;
+        metric2.metric = pureWholeInterval;
     
         floata width = min(specs.maxMomentum,2 *Xbeta[beta] * sqrt(log(1/1e-15/(2.*sqrt(pi)*Xbeta[beta]))));
         
-        metric2.beta[0] = -width;//lattice
-        metric2.beta[1] =  width;//lattice
-
+        metric2.beta[0] = width;//lattice
         
         inta re, momentum, momentumLength = quadrature(metric2, Xmomentum, Wmomentum);
         floata gaussianKernel;
@@ -1165,6 +1188,7 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
         for (re = 0 ; re < body ; re++){
             ///
             ///CHANGE  (1-2*re)
+            printf("%f\n",Xmomentum[momentum]);
             gaussianKernel = Wmomentum[momentum]*exp(-pow(Xmomentum[momentum]/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
             if ( gaussianKernel > f1.rt->THRESHOLD ){
                 ///new canonRank and header

@@ -337,7 +337,8 @@ enum metricType {
     interval,
     semiIndefinite,
     pureInterval,
-    pureSemiIndefinite
+    pureSemiIndefinite,
+    pureWholeInterval
 };
 
 
