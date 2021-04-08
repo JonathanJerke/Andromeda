@@ -333,11 +333,13 @@ enum noteType {
  */
 enum metricType {
     dirac,
+    ///[0,1]
     separateDirac,
     interval,
     semiIndefinite,
     pureInterval,
     pureSemiIndefinite,
+    ///[-1,1]
     pureWholeInterval
 };
 
@@ -623,9 +625,10 @@ struct metric_label {
     ///metric type, i.e. point, interval, or indefinite interval
     metricType metric;
     ///lower and upper bounds,  where -1 => infinity
-    double beta[2];//lower and upper bound
+    ///for [0,1]:   [ beta[0] , beta[1] ]
+    ///for [-1,1]:  [- beta[0],beta[0] ]
+    double beta[2];
 };
-
 struct term_label {
     ///optional, loaded for diagonalMatrix
     char filename[MAXSTRING];
