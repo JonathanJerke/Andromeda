@@ -36,7 +36,9 @@
 
 #ifndef system_h
 #define system_h
-#define MOMENTUM_INTERVAL 36
+#define MOMENTUM_INTERVAL 37
+#define MOMENTUM_INTERVAL_RE 36
+#define MOMENTUM_INTERVAL_IM 37
 //#define SEPARATE_ONE_BODY
 //#define VERBOSE_ALS
 #define writeHDF5
