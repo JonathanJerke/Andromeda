@@ -1483,12 +1483,20 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
         
         metric2.beta[0] = width;//lattice
         
-        inta re, momentum, momentumLength = quadrature(metric2, Xmomentum, Wmomentum);
+        inta re, momentum, momentumLength;
         floata gaussianKernel;
 
             
-        for ( momentum = 0; momentum < momentumLength ; momentum++)
         for (re = 0 ; re < body ; re++){
+            if ( re == 0 ){
+                metric2.fn.interval = MOMENTUM_INTERVAL_RE;
+                momentumLength = quadrature(metric2, Xmomentum, Wmomentum);
+            }else {
+                metric2.fn.interval = MOMENTUM_INTERVAL_IM;
+                momentumLength = quadrature(metric2, Xmomentum, Wmomentum);
+            }
+            for ( momentum = 0; momentum < momentumLength ; momentum++){
+
             ///
             ///CHANGE  (1-2*re)
           //  printf("%f\n",Xmomentum[momentum]);
@@ -1638,7 +1646,7 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
             }
         }
             
-
+            }
         }
     }
     free(Xmomentum);
