@@ -1188,7 +1188,7 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
         for (re = 0 ; re < body ; re++){
             ///
             ///CHANGE  (1-2*re)
-            printf("%f\n",Xmomentum[momentum]);
+          //  printf("%f\n",Xmomentum[momentum]);
             gaussianKernel = Wmomentum[momentum]*exp(-pow(Xmomentum[momentum]/(2*Xbeta[beta]),2.))/(2.*sqrt(pi)*Xbeta[beta]);
             if ( gaussianKernel > f1.rt->THRESHOLD ){
                 ///new canonRank and header
