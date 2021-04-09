@@ -764,9 +764,36 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
        
     
     int canonRank = CanonicalRank(f1,label,spin),genus=1,particle,body = f1.canon[space].body ,count1 = vector1Len(f1,space);
+
+    
+    
+#ifdef MODULARIZE_OUTPUT
+    
+    char tokens[2][MAXSTRING];
+    char * stage = &(tokens[0]);
+    char * phase = &(tokens[1]);
+    char str[SUPERMAXSTRING];
+    const char * pstr;
+    sprintf(str,"%s-%d-%d",filename,space,spin);
+    pstr = &str[0];
+
+
+
+
+
+    stage = strtok(filename, "/");
+    phase = strtok(NULL, ".");
+    if ( strcmp(phase,"D")){
+        file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
+    }else {
+        char fileout[MAXSTRING];
+        sprintf(fileout,"%s/%s", stage, "T");
+        file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
+    }
+    
+#else
     char str[6];
     const char * pstr;
-
     sprintf(str,"%3d-%1d",space,spin);
     pstr = &str[0];
 
@@ -777,6 +804,8 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
         file = H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     else
         file = H5Fopen(filename, H5F_ACC_RDWR, H5P_DEFAULT);
+#endif
+    
     
     dims[0] = canonRank*vectorLen(f1,space);
     dataspace = H5Screate_simple(1, dims, NULL);
@@ -939,20 +968,41 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
     herr_t      status, status_n;
    
     int canonRank,genus,particle,body,count1;
-    char str[6];
-    const char * pstr;
     /*
      * Open the file and the dataset.
      */
+#ifdef MODULARIZE_INPUT
+    
+    char tokens[2][MAXSTRING];
+    char * stage = &(tokens[0]);
+    char * phase = &(tokens[1]);
+    char str[SUPERMAXSTRING];
+    const char * pstr;
+    sprintf(str,"%s-%d-%d",filename,space,spin);
+    pstr = &str[0];
+
+    stage = strtok(filename, "/");
+    phase = strtok(NULL, ".");
+    if ( strcmp(phase,"D")){
+        file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
+    }else {
+        char fileout[MAXSTRING];
+        sprintf(fileout,"%s/%s", stage, "T");
+        file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
+    }
+    
+#else
+    char str[6];
+    const char * pstr;
 
     file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
-
-    {///
+    sprintf(str,"%3d-%1d",space,spin);
+    pstr = &str[0];
+#endif
+    ///
         ///
         ///
-        sprintf(str,"%3d-%1d",space,spin);
-        pstr = &str[0];
-
+    {
         dataset = H5Dopen(file, pstr, H5P_DEFAULT);
         
         if ( command == 0 ){
