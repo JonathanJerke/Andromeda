@@ -785,6 +785,7 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     phase = strtok(NULL, ".");
     
     printf("%s, %s", stage, phase);
+    fflush(stdout);
     if ( strcmp(phase,"D")){
         file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
     }else {
