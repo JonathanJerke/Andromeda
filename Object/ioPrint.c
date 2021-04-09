@@ -775,7 +775,6 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     char * remainder = &*(tokens[2]);
     char str[SUPERMAXSTRING];
     const char * pstr;
-    tR
 
     stage = strtok(filename, "/");
     phase = strtok(NULL, ".");
