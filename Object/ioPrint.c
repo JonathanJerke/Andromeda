@@ -782,7 +782,7 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     phase = strtok(NULL, ".");
     remainder = strtok(NULL, "_");
 
-    sprintf(str , "%s.%s.%d.%d", phase,remainder,space,spin);
+    sprintf(str , "%s.%s.%s.%d.%d", stage,phase,remainder,space,spin);
     pstr = &str[0];
     
     fflush(stdout);
@@ -987,7 +987,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
     phase = strtok(NULL, ".");
     remainder = strtok(NULL, "_");
 
-    sprintf(str , "%s.%s.%d.%d", phase,remainder,space,spin);
+    sprintf(str , "%s.%s.%s.%d.%d", stage,phase,remainder,space,spin);
     pstr = &str[0];
     
     fflush(stdout);
