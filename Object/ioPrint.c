@@ -783,7 +783,6 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     remainder = strtok(NULL, "_");
 
     sprintf(str , "%s.%s.%d.%d", phase,remainder,space,spin);
-    printf("%s", str);
     pstr = &str[0];
     
     fflush(stdout);
@@ -975,18 +974,24 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
      * Open the file and the dataset.
      */
 #ifdef MODULARIZE_INPUT
-    
-    char tokens[2][MAXSTRING];
+    char tokens[3][MAXSTRING];
     char * stage = &*(tokens[0]);
     char * phase = &*(tokens[1]);
+    char * remainder = &*(tokens[2]);
     char str[SUPERMAXSTRING];
+    char destroy [SUPERMAXSTRING];
+    strcpy(destroy, filename);
     const char * pstr;
-    sprintf(str,"%s-%d-%d",filename,space,spin);
-    pstr = &str[0];
 
-    stage = strtok(filename, "/");
+    stage = strtok(destroy, "/");
     phase = strtok(NULL, ".");
-    if ( strcmp(phase,"D")){
+    remainder = strtok(NULL, "_");
+
+    sprintf(str , "%s.%s.%d.%d", phase,remainder,space,spin);
+    pstr = &str[0];
+    
+    fflush(stdout);
+    if ( !strcmp(phase,"D") ){
         file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
     }else {
         char fileout[MAXSTRING];
