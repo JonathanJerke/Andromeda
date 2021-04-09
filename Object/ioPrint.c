@@ -774,13 +774,15 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     char * phase = &*(tokens[1]);
     char * remainder = &*(tokens[2]);
     char str[SUPERMAXSTRING];
+    char destroy [SUPERMAXSTRING];
+    strcpy(destroy, filename);
     const char * pstr;
 
-    stage = strtok(filename, "/");
+    stage = strtok(destroy, "/");
     phase = strtok(NULL, ".");
     remainder = strtok(NULL, "_");
 
-    sprintf(str , "%s-%s-%s", stage, phase,remainder);
+    sprintf(str , "%s.%s", phase,remainder);
     printf("%s", str);
     pstr = &str[0];
 
@@ -792,7 +794,6 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
         sprintf(fileout,"%s/%s", stage, "T");
         file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
     }
-    
 #else
     char str[6];
     const char * pstr;
