@@ -5,7 +5,7 @@
 .InputOutput
 
 *Parameters
-	eikons 1000
+	eikons 10000
 	names 2000
 	#spam 6
 	states 1
