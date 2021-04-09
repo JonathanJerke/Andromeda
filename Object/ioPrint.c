@@ -777,12 +777,14 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     sprintf(str,"%s-%d-%d",filename,space,spin);
     pstr = &str[0];
 
-
+    printf("%s", str);
 
 
 
     stage = strtok(filename, "/");
     phase = strtok(NULL, ".");
+    
+    printf("%s, %s", stage, phase);
     if ( strcmp(phase,"D")){
         file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
     }else {
