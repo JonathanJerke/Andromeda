@@ -769,22 +769,22 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     
 #ifdef MODULARIZE_OUTPUT
     
-    char tokens[2][MAXSTRING];
+    char tokens[3][MAXSTRING];
     char * stage = &*(tokens[0]);
     char * phase = &*(tokens[1]);
+    char * remainder = &*(tokens[2]);
     char str[SUPERMAXSTRING];
     const char * pstr;
-    sprintf(str,"%s-%d-%d",filename,space,spin);
-    pstr = &str[0];
-
-    printf("%s", str);
-
-
+    tR
 
     stage = strtok(filename, "/");
     phase = strtok(NULL, ".");
-    
-    printf("%s, %s", stage, phase);
+    remainder = strtok(NULL, "_");
+
+    sprintf(str , "%s-%s-%s", stage, phase,remainder);
+    printf("%s", str);
+    pstr = &str[0];
+
     fflush(stdout);
     if ( strcmp(phase,"D")){
         file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
