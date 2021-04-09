@@ -770,8 +770,8 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
 #ifdef MODULARIZE_OUTPUT
     
     char tokens[2][MAXSTRING];
-    char * stage = &(tokens[0]);
-    char * phase = &(tokens[1]);
+    char * stage = &*(tokens[0]);
+    char * phase = &*(tokens[1]);
     char str[SUPERMAXSTRING];
     const char * pstr;
     sprintf(str,"%s-%d-%d",filename,space,spin);
@@ -977,8 +977,8 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
 #ifdef MODULARIZE_INPUT
     
     char tokens[2][MAXSTRING];
-    char * stage = &(tokens[0]);
-    char * phase = &(tokens[1]);
+    char * stage = &*(tokens[0]);
+    char * phase = &*(tokens[1]);
     char str[SUPERMAXSTRING];
     const char * pstr;
     sprintf(str,"%s-%d-%d",filename,space,spin);
