@@ -782,12 +782,12 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     phase = strtok(NULL, ".");
     remainder = strtok(NULL, "_");
 
-    sprintf(str , "%s.%s", phase,remainder);
+    sprintf(str , "%s.%s.%d.%d", phase,remainder,space,spin);
     printf("%s", str);
     pstr = &str[0];
-
+    
     fflush(stdout);
-    if ( strcmp(phase,"D")){
+    if ( !strcmp(phase,"D") ){
         file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
     }else {
         char fileout[MAXSTRING];
