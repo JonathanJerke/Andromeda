@@ -14,11 +14,11 @@
 .Parameters
 
 *Dim
-	latticeAll 4.5
+	latticeAll 0.8
 	attackAll 0.5
 	body 1
 	basis 1
-	count1Basis 2
+	count1Basis 17
 	threeComponent
 .Dim
 
@@ -26,7 +26,7 @@
 	act 1
 	interval 7
 	minBeta 0
-	maxBeta 1
+	maxBeta 0.25
 .Term
 
 #1
@@ -37,8 +37,8 @@
 
 
 *Term
-        minBeta 1
-        maxBeta 2 
+        minBeta 0.25
+        maxBeta 0.50
 .Term
 
 #2
@@ -47,8 +47,8 @@
 .InputOutput
 
 *Term
-        minBeta 2
-        maxBeta 4
+        minBeta 0.50
+        maxBeta 1
 .Term
 
 
@@ -58,8 +58,8 @@
 .InputOutput
 
 *Term
-     	minBeta 4
-        maxBeta 16
+     	minBeta 1
+        maxBeta 4
 .Term
 
 #4
@@ -68,7 +68,7 @@
 .InputOutput
 
 *Term
-     	minBeta 16 
+     	minBeta 4 
         maxBeta -1
 .Term
 
