@@ -36,14 +36,19 @@
 
 #ifndef system_h
 #define system_h
-#define MOMENTUM_INTERVAL 37
-#define MOMENTUM_INTERVAL_RE 36
-#define MOMENTUM_INTERVAL_IM 37
+#define MOMENTUM_INTERVAL 51
+#define MOMENTUM_INTERVAL_RE 51
+#define MOMENTUM_INTERVAL_IM 51
 //#define SEPARATE_ONE_BODY
 //#define VERBOSE_ALS
 #define writeHDF5
 #define readHDF5
-//#define READ_FAST
+
+///These additions do work now,  be careful about legacy
+#define READ_FAST
+#define WRITE_FAST
+///to preserve info, may need to incrementally bootup.
+
 #define RAND_FOUNDATION
 //#define CHERRY_PICKER
 ///to compile with acceleration in APPLE, not for distribution
