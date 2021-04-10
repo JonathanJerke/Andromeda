@@ -21,8 +21,8 @@ for curr in $*
                     rm commands
                 fi
                 
-				go.sh found/found
-                wait
+		#		go.sh found/found
+                #wait
                 ritzab.sh found found states spam
                 wait
                 ritzas.sh found found states spam
