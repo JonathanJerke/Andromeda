@@ -49,6 +49,10 @@
 #define WRITE_FAST
 ///to preserve info, may need to incrementally bootup.
 
+#define MODULARIZE_INPUT
+#define MODULARIZE_OUTPUT
+
+
 #define RAND_FOUNDATION
 //#define CHERRY_PICKER
 ///to compile with acceleration in APPLE, not for distribution
