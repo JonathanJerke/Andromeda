@@ -1332,9 +1332,10 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
 
         }
         
-        H5Dclose(dataset);
-        H5Sclose(filespace);
         H5Sclose(memspace);
+        H5Sclose(filespace);
+
+        H5Dclose(dataset);
 
      }///spin,space
 
