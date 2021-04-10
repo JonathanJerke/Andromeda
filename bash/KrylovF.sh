@@ -4,7 +4,7 @@ if [ $# -eq 3 ]
     then
      src=$1
      dir=$2
-     prev=$src/e.riz
+     prev=$src/c.riz
     for i in `cat $3`
         do
         file=$dir/D.kry.${i}
