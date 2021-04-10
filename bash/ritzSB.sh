@@ -6,7 +6,7 @@ if [ $# -eq 2 ]
     dir=$2
     for h in `cat spam`
         do
-            file=$dir/E.$h.riz
+            file=$dir/C.$h.riz
             echo "*Body $file " > $file
             echo "*InputOutput" >> $file
             echo "read found/found" >> $file
