@@ -1871,10 +1871,10 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
             
         for (re = 0 ; re < body ; re++){
             if ( re == 0 ){
-                metric2.fn.interval = MOMENTUM_INTERVAL_RE;
+                metric2.fn.interval = MOMENTUM_INTERVAL;
                 momentumLength = quadrature(metric2, Xmomentum, Wmomentum);
             }else {
-                metric2.fn.interval = MOMENTUM_INTERVAL_IM;
+                metric2.fn.interval = MOMENTUM_INTERVAL;
                 momentumLength = quadrature(metric2, Xmomentum, Wmomentum);
             }
             for ( momentum = 0; momentum < momentumLength ; momentum++){

@@ -958,7 +958,7 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     for ( s = 0 ; s < dims[0] ; s++)
         ptr[s] = streams(f1,label,spin,space)+s*dims[1];
     status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
-              H5P_DEFAULT, ptr);
+              H5P_DEFAULT, ptr[0]);
     
     
     
@@ -1325,7 +1325,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
             * Read dataset
             */
 
-            status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace,H5P_DEFAULT, ptr );
+            status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace,H5P_DEFAULT, ptr[0] );
                    
          
          
