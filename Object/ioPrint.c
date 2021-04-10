@@ -926,12 +926,7 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
 
     /*
      * Open the file and the dataset.
-     */
-    if ( !space )
-        file = H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    else
-        file = H5Fopen(filename, H5F_ACC_RDWR, H5P_DEFAULT);
-    
+     */    
     
     dataspace = H5Screate_simple(2, dims, NULL);
     //dapl!!!
@@ -1200,7 +1195,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
     const char * pstr;
 
     file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
-    sprintf(str,"%3d-2-%1d",space,spin);
+    sprintf(str,"%3d-2- %1d",space,spin);
     pstr = &str[0];
 #endif
 
