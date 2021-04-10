@@ -1069,7 +1069,13 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
         sprintf(fileout,"%s/%s", stage, "T");
         file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
     }
-    
+#ifdef BACKWARDS
+    if ( ! H5Lexists(file,pstr,H5P_DEFAULT)){
+        H5Fclose(file);
+        readBackwards(f1,filename,command,space,label,spin,space2);
+    }
+#endif
+
 #else
     char str[6];
     const char * pstr;
@@ -1226,6 +1232,15 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
         file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
     }
     
+#ifdef BACKWARDS
+    if ( ! H5Lexists(file,pstr,H5P_DEFAULT)){
+        H5Fclose(file);
+        readBackwards(f1,filename,command,space,label,spin,space2);
+    }
+#endif
+    
+    
+    
 #else
     char str2[8];
 
@@ -1345,4 +1360,134 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
     return 0;
 }
 #endif
+#endif
+
+
+#ifdef readHDF5
+
+/**
+ *An IO solution for big systems
+ *@param f1          container
+ *@param filename  char*
+ *@param command to program, may read various attributes or file
+ *0 output genus
+ *1 read vector
+ *2 output CanonRank
+ *3 body
+ *4 count1Basis
+ *@param space to read from disk
+ *@param label  the destination of the input
+ *@param space2 to place into label
+*/
+inta readBackwards( sinc_label f1, char * filename, inta command, inta space, division label ,inta spin, inta space2){
+    
+    hid_t       file;                        /* handles */
+    hid_t       dataset;
+    hid_t       filespace;
+    hid_t       attr;
+    hid_t       ret;
+    hid_t       memspace;
+    hsize_t     dims[1];                     /* dataset */
+
+    herr_t      status, status_n;
+   
+    int canonRank,genus,particle,body,count1;
+    /*
+     * Open the file and the dataset.
+     */
+    char str[6];
+    const char * pstr;
+
+    file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+    sprintf(str,"%3d-%1d",space,spin);
+    pstr = &str[0];
+
+    {
+        dataset = H5Dopen(file, pstr, H5P_DEFAULT);
+        
+        if ( command == 0 ){
+            attr = H5Aopen_name(dataset,"genus");
+            ret  = H5Aread(attr, H5T_NATIVE_INT, &genus);
+            ///close.
+            H5Aclose(attr);
+            H5Dclose(dataset);
+            H5Fclose(file);
+            
+            return genus;
+        }
+        
+        if ( command == 2 ){
+            attr = H5Aopen_name(dataset,"canonRank");
+            ret  = H5Aread(attr, H5T_NATIVE_INT, &canonRank);
+            ///close.
+            H5Aclose(attr);
+            H5Dclose(dataset);
+            H5Fclose(file);
+
+            return canonRank;
+        }
+                
+        if ( command == 3 ){
+            attr = H5Aopen_name(dataset,"body");
+            ret  = H5Aread(attr, H5T_NATIVE_INT, &body);
+            ///close.
+            H5Aclose(attr);
+            H5Dclose(dataset);
+            H5Fclose(file);
+
+            return body;
+        }
+
+        if ( command == 4 ){
+            attr = H5Aopen_name(dataset,"count1Basis");
+            ret  = H5Aread(attr, H5T_NATIVE_INT, &count1);
+            ///close.
+            H5Aclose(attr);
+
+            H5Dclose(dataset);
+            H5Fclose(file);
+
+            return count1;
+        }
+        attr = H5Aopen_name(dataset,"canonRank");
+        ret  = H5Aread(attr, H5T_NATIVE_INT, &canonRank);
+        H5Aclose(attr);
+
+        attr = H5Aopen_name(dataset,"genus");
+        ret  = H5Aread(attr, H5T_NATIVE_INT, &genus);
+        H5Aclose(attr);
+
+        attr = H5Aopen_name(dataset,"body");
+        ret  = H5Aread(attr, H5T_NATIVE_INT, &body);
+        H5Aclose(attr);
+
+        attr = H5Aopen_name(dataset,"count1Basis");
+        ret  = H5Aread(attr, H5T_NATIVE_INT, &count1);
+        H5Aclose(attr);
+
+        ///close.
+        dims[0] = canonRank*pow(count1,body * genus );
+
+
+        filespace = H5Dget_space(dataset);    /* Get filespace handle first. */
+        memspace = H5Screate_simple(1,dims,NULL);
+         
+        /*
+        * Read dataset
+        */
+        status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace,H5P_DEFAULT, streams(f1,label,spin,space2) );
+        
+        H5Sclose(filespace);
+        
+        H5Sclose(memspace);
+        
+        H5Dclose(dataset);
+
+     }///spin,space
+
+    f1.name[label].Current[spin] = canonRank;
+    H5Fclose(file);
+
+    return 0;
+}
 #endif
