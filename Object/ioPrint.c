@@ -812,8 +812,13 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     dims[0] = canonRank*vectorLen(f1,space);
     dataspace = H5Screate_simple(1, dims, NULL);
         
-    dataset = H5Dcreate2(file, pstr, H5T_NATIVE_DOUBLE, dataspace,
+    if ( ! H5Lexists(file,pstr,H5P_DEFAULT))
+        dataset = H5Dcreate2(file, pstr, H5T_NATIVE_DOUBLE, dataspace,
                         H5P_DEFAULT,H5P_DEFAULT,H5P_DEFAULT);
+    else
+        dataset = H5Dopen2(file, pstr,H5P_DEFAULT);
+
+    
     status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
               H5P_DEFAULT, streams(f1,label,spin,space));
     
@@ -930,8 +935,13 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     
     dataspace = H5Screate_simple(2, dims, NULL);
     //dapl!!!
-    dataset = H5Dcreate2(file, pstr, H5T_NATIVE_DOUBLE, dataspace,
+    if ( ! H5Lexists(file,pstr,H5P_DEFAULT))
+        dataset = H5Dcreate2(file, pstr, H5T_NATIVE_DOUBLE, dataspace,
                         H5P_DEFAULT,H5P_DEFAULT,H5P_DEFAULT);
+    else
+        dataset = H5Dopen2(file, pstr,H5P_DEFAULT);
+
+    
     
     double *ptr[dims[0]];
     for ( s = 0 ; s < dims[0] ; s++)
