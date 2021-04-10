@@ -822,23 +822,34 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
               H5P_DEFAULT, streams(f1,label,spin,space));
     
+    
     aid2  = H5Screate(H5S_SCALAR);
+    
+    if ( H5Aexists(dataset, "genus"))
+            H5Adelete(dataset , "genus");
+
     attr1 = H5Acreate2(dataset, "genus", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
                       H5P_DEFAULT);
     ret = H5Awrite(attr1, H5T_NATIVE_INT, &genus);
     H5Aclose(attr1);
+    if ( H5Aexists(dataset, "canonRank"))
+            H5Adelete(dataset , "canonRank");
 
     attr2 = H5Acreate2(dataset, "canonRank", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
                       H5P_DEFAULT);
     ret = H5Awrite(attr2, H5T_NATIVE_INT, &canonRank);
     H5Aclose(attr2);
 
-    
+    if ( H5Aexists(dataset, "count1Basis"))
+            H5Adelete(dataset , "count1Basis");
+
     attr3 = H5Acreate2(dataset, "count1Basis", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
                       H5P_DEFAULT);
     ret = H5Awrite(attr3, H5T_NATIVE_INT, &count1);
     H5Aclose(attr3);
 
+    if ( H5Aexists(dataset, "body"))
+            H5Adelete(dataset , "body");
 
     attr4 = H5Acreate2(dataset, "body", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
                       H5P_DEFAULT);
@@ -949,11 +960,20 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
               H5P_DEFAULT, ptr);
     
+    
+    
     aid2  = H5Screate(H5S_SCALAR);
+    if ( H5Aexists(dataset, "genus"))
+            H5Adelete(dataset , "genus");
+    
     attr1 = H5Acreate2(dataset, "genus", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
                       H5P_DEFAULT);
     ret = H5Awrite(attr1, H5T_NATIVE_INT, &genus);
     H5Aclose(attr1);
+
+    
+    if ( H5Aexists(dataset, "canonRank"))
+            H5Adelete(dataset , "canonRank");
 
     attr2 = H5Acreate2(dataset, "canonRank", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
                       H5P_DEFAULT);
@@ -961,10 +981,18 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     H5Aclose(attr2);
 
     
+    if ( H5Aexists(dataset, "count1Basis"))
+            H5Adelete(dataset , "count1Basis");
+
+    
     attr3 = H5Acreate2(dataset, "count1Basis", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
                       H5P_DEFAULT);
     ret = H5Awrite(attr3, H5T_NATIVE_INT, &count1);
     H5Aclose(attr3);
+    
+    if ( H5Aexists(dataset, "body"))
+            H5Adelete(dataset , "body");
+
 
 
     attr4 = H5Acreate2(dataset, "body", H5T_NATIVE_INT, aid2,H5P_DEFAULT,
