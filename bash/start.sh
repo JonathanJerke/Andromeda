@@ -12,8 +12,10 @@ if [ $# -eq 2 ]
     cp $LAUNCH/symmetry/$2 symmetry
     echo 1 > hosts
     echo 1 > ppn
-    echo 1 > spn
+    echo 10000 > spn
     echo "spam" > sums
+    python3 $LAUNCH/../python3/touch.py D
+    python3 $LAUNCH/../python3/touch.py found/T
 ##
 if [ -f ../cnfg ]
     then
