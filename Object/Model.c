@@ -3,6 +3,7 @@
  *
  *
  *  Copyright 2021 Jonathan Jerke and Bill Poirier.
+ *  Ongoing support for this program is coordinated through quantumgalaxies.org.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and the Army Research Office.
  *
@@ -60,7 +61,7 @@
     floata lattice = 0.5;
     inta basis = 51;
     space = 0;
-      i->f.canon[space].basis = PeriodicSincBasisElement;
+      i->f.canon[space].basis =SincBasisElement;
       i->f.canon[space].body = two;
       i->f.canon[space].count1Basis = basis;
       i->f.canon[space].space = 0;
@@ -127,7 +128,7 @@ void initCal ( calculation * i ) {
     i->rt.relativeTOLERANCE = 0.000000000000001;
     i->rt.THRESHOLD = 1e-12;
     i->i.numNames = 10000;
-    i->i.numVectors = 1000;
+    i->i.numVectors = 10000;
     i->rt.dynamic = 0;
     i->i.iocsb = 1;
     i->i.nocsb = 1;
@@ -177,7 +178,7 @@ void initCal ( calculation * i ) {
     t.adjustOne = 1.;
     t.mu.beta[0] = 0.0001;
     t.mu.beta[1] = 1;
-    t.mu.metric = dirac;
+    t.mu.metric = interval;
     t.mu.fn  = t.func;
     t.invert = 0;
     t.label[0]  = 1;

@@ -1,26 +1,27 @@
 /**
-*  Compression.c
-*
-*
-*  Copyright 2021 Jonathan Jerke and Bill Poirier.
-*  We acknowledge the generous support of Texas Tech University,
-*  the Robert A. Welch Foundation, and the Army Research Office.
-*
-
-*   *   This file is part of Andromeda.
-
-*   *   Andromeda is free software: you can redistribute it and/or modify
-*   *   it under the terms of the GNU General Public License as published by
-*   *   the Free Software Foundation, either version 3 of the License.
-
-*   *   Andromeda is distributed in the hope that it will be useful,
-*   *   but WITHOUT ANY WARRANTY; without even the implied warranty of
-*   *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*   *   GNU General Public License for more details.
-
-*   *   You should have received a copy of the GNU General Public License
-*   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ *  coreMath.h
+ *
+ *
+ *  Copyright 2021 Jonathan Jerke and Bill Poirier.
+ *  Ongoing support for this program is coordinated through quantumgalaxies.org.
+ *  We acknowledge the generous support of Texas Tech University,
+ *  the Robert A. Welch Foundation, and the Army Research Office.
+ *
+ 
+ *   *   This file is part of Andromeda.
+ 
+ *   *   Andromeda is free software: you can redistribute it and/or modify
+ *   *   it under the terms of the GNU General Public License as published by
+ *   *   the Free Software Foundation, either version 3 of the License.
+ 
+ *   *   Andromeda is distributed in the hope that it will be useful,
+ *   *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   *   GNU General Public License for more details.
+ 
+ *   *   You should have received a copy of the GNU General Public License
+ *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 
 #include "Compression.h"
@@ -581,7 +582,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                                                     if ( bufferDim == M2[space2] ){
                                                         tracker[m] += cblas_ddot(M2[space2], bufferPointer, 1, alloyStream[space2][m], 1)*(guide)[m+L1*n];
 #if VERBOSE
-                                                        printf("%d %d %f\n",ii,space2,tracker[m]);
+                                                        printf("%d %d %1.16f\n",ii,space2,tracker[m]);
 #endif
                                                     } else {
                                                         bufferDim /= M2[space2] ;
@@ -630,7 +631,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
             
             
             ///at end of loop,,,
-            if ( dim[0] == 0){
+            if ( dim[0] == 0 ){
                 
                 ///get norms
                 { inta m;
@@ -658,7 +659,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                     
                     ///all inner track
                     for ( m =0  ; m < L1 ; m++)
-                        cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array[dim[0]]+m*LS1,1, track+LS1*LS1+m*LS1,1 );
+                        cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,L1, 0,array[0]+m*LS1,1, track+LS1*LS1+m*LS1,1 );
 
                     ///all inner guide
                     for ( n = 0; n < G1 ; n++ ){
@@ -672,6 +673,7 @@ floata canonicalRankCompression( inta  spatial[SPACE][SPACE], floata * cofact,si
                         for ( l = 0; l < L1 ; l++)
                             for ( ll = 0 ; ll < L1 ; ll++)
                             {
+                                printf("%d %d %f %f %f\n",l,ll,norm[0][l],(track+LS1*LS1)[ l*LS1+ll ],norm[0][ll] );
                                 iFF += norm[0][l]*(track+LS1*LS1)[ l*LS1+ll ]*norm[0][ll];
                             }
                     

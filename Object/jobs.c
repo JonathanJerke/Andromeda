@@ -3,6 +3,7 @@
  *
  *
  *  Copyright 2021 Jonathan Jerke and Bill Poirier.
+ *  Ongoing support for this program is coordinated through quantumgalaxies.org.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and the Army Research Office.
  *
@@ -803,7 +804,7 @@ int run (inta argc , char * argv[]){
 
             case 0 :
                 ///andromeda 0
-                printf("----\n v9.8\n\n%s\n\n",getenv("LAUNCH"));
+                printf("----\n v9.9\n\n%s\n\n",getenv("LAUNCH"));
                 printf("cat file |  andromeda 1 \n\t\t--> MEMORY AND TERM output without committing\n");
                 printf("cat file |  andromeda  \n");
                 printf("andromeda -1 file \n");

@@ -3,6 +3,7 @@
  *
  *
  *  Copyright 2021 Jonathan Jerke and Bill Poirier.
+ *  Ongoing support for this program is coordinated through quantumgalaxies.org.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and the Army Research Office.
  *
@@ -21,20 +22,6 @@
  *   *   You should have received a copy of the GNU General Public License
  *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-/**
- *Andromeda: a few-body plane wave calculator
- *
- *v9.8
- *quantumGalaxies.org
- *
- *Jonathan Jerke
- *Bill Poirier
- *
- *Texas Tech University
- *Welch Foundation
- *Army Research Office
- */
 
 #ifndef CONSTANTS_H
 #define CONSTANTS_H

@@ -3,6 +3,8 @@
  *
  *
  *  Copyright 2021 Jonathan Jerke and Bill Poirier.
+ *  Ongoing support for this program is coordinated through quantumgalaxies.org.
+ *  Ongoing support for this program is coordinated through quantumgalaxies.org.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and the Army Research Office.
  *
@@ -22,41 +24,23 @@
  *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- *Andromeda: a few-body plane wave calculator
- *
- *v9.8
- *quantumGalaxies.org
- *
- *Jonathan Jerke
- *Bill Poirier
- *
- *Texas Tech University
-*/
-
 #ifndef system_h
 #define system_h
 #define MOMENTUM_INTERVAL 51
-#define MOMENTUM_INTERVAL_RE 51
-#define MOMENTUM_INTERVAL_IM 51
 //#define SEPARATE_ONE_BODY
 //#define VERBOSE_ALS
 #define writeHDF5
 #define readHDF5
-
-///These additions do work now,  be careful about legacy
 #define READ_FAST
 #define WRITE_FAST
-///to preserve info, may need to incrementally bootup.
-
 #define MODULARIZE_INPUT
 #define MODULARIZE_OUTPUT
-
 #define BACKWARDS
 
 #define RAND_FOUNDATION
 //#define CHERRY_PICKER
 ///to compile with acceleration in APPLE, not for distribution
+//#define APPLE
 ///Number of components, no limit
 #define SPACE 3
 ///Number of 'atoms' under geometry,  really no reason to to keep this big

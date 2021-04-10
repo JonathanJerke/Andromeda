@@ -3,6 +3,7 @@
  *
  *
  *  Copyright 2021 Jonathan Jerke and Bill Poirier.
+ *  Ongoing support for this program is coordinated through quantumgalaxies.org.
  *  We acknowledge the generous support of Texas Tech University,
  *  the Robert A. Welch Foundation, and the Army Research Office.
  *
@@ -173,7 +174,7 @@ double gaussQuad(inta pt , inta nm, inta which , inta truncate){
         ,0.129484966168870};
     
     ///Chebyshev 2nd
-    double cy9X[] = {-0.9510565162951535721164,
+    double cB9X[] = {-0.9510565162951535721164,
                      -0.809016994374947424102,
                      -0.5877852522924731291687,
                      -0.3090169943749474241023,
@@ -183,7 +184,7 @@ double gaussQuad(inta pt , inta nm, inta which , inta truncate){
                      0.809016994374947424102,
         0.9510565162951535721164};
     ///Chebyshev 2nd
-    double cy9W[] = {0.02999954037160816652789,
+    double cB9W[] = {0.02999954037160816652789,
         0.1085393567113529974895,
         0.2056199086476263263568,
         0.2841597249873711573184,
@@ -1432,8 +1433,8 @@ double gaussQuad(inta pt , inta nm, inta which , inta truncate){
         ngk = 7;
     }else
     if ( pt == 9 ) {
-        gkX = cy9X;
-        gkW = cy9W;
+        gkX = cB9X;
+        gkW = cB9W;
         ngk = 9;
     }
 
