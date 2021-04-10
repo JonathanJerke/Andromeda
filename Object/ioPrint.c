@@ -878,11 +878,49 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
        
     
     int s,canonRank = CanonicalRank(f1,label,spin),genus=1,particle,body = f1.canon[space].body ,count1 = vector1Len(f1,space);
-    char str2[8];
+
+#ifdef MODULARIZE_OUTPUT
+    
+    char tokens[3][MAXSTRING];
+    char * stage = &*(tokens[0]);
+    char * phase = &*(tokens[1]);
+    char * remainder = &*(tokens[2]);
+    char str[SUPERMAXSTRING];
+    char destroy [SUPERMAXSTRING];
+    strcpy(destroy, filename);
     const char * pstr;
 
-    sprintf(str2,"%3d-2-%1d",space,spin);
-    pstr = &str2[0];
+    stage = strtok(destroy, "/");
+    phase = strtok(NULL, ".");
+    remainder = strtok(NULL, "_");
+
+    sprintf(str , "%s.%s.%s.%d.%d", stage,phase,remainder,space,spin);
+    pstr = &str[0];
+    
+    fflush(stdout);
+    if ( !strcmp(phase,"D") ){
+        file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
+    }else {
+        char fileout[MAXSTRING];
+        sprintf(fileout,"%s/%s", stage, "T");
+        file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
+    }
+#else
+    char str[6];
+    const char * pstr;
+    sprintf(str,"%3d-%1d",space,spin);
+    pstr = &str[0];
+
+    /*
+     * Open the file and the dataset.
+     */
+    if ( !space )
+        file = H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    else
+        file = H5Fopen(filename, H5F_ACC_RDWR, H5P_DEFAULT);
+#endif
+
+
     dims[0] = canonRank;
     dims[1] = vectorLen(f1,space);
 
@@ -1129,32 +1167,49 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
     
     
     int type2,s,canonRank,genus,particle,body,count1;
+#ifdef MODULARIZE_INPUT
+    char tokens[3][MAXSTRING];
+    char * stage = &*(tokens[0]);
+    char * phase = &*(tokens[1]);
+    char * remainder = &*(tokens[2]);
+    char str[SUPERMAXSTRING];
+    char destroy [SUPERMAXSTRING];
+    strcpy(destroy, filename);
+    const char * pstr;
+
+    stage = strtok(destroy, "/");
+    phase = strtok(NULL, ".");
+    remainder = strtok(NULL, "_");
+
+    sprintf(str , "%s.%s.%s.%d.%d", stage,phase,remainder,space,spin);
+    pstr = &str[0];
+    
+    fflush(stdout);
+    if ( !strcmp(phase,"D") ){
+        file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
+    }else {
+        char fileout[MAXSTRING];
+        sprintf(fileout,"%s/%s", stage, "T");
+        file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
+    }
+    
+#else
     char str2[8];
+
     char str[6];
     const char * pstr;
-    /*
-     * Open the file and the dataset.
-     */
 
     file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+    sprintf(str,"%3d-2-%1d",space,spin);
+    pstr = &str[0];
+#endif
 
     {///
         ///first attempt to open -2-
         ///
         type2 = 1;
-        sprintf(str2,"%3d-2-%1d",space,spin);
-        pstr = &str2[0];
         dataset = H5Dopen(file, pstr, H5P_DEFAULT);
-        if ( dataset < 0 ){
-            sprintf(str,"%3d-%1d",space,spin);
-            pstr = &str[0];
-            dataset = H5Dopen(file, pstr, H5P_DEFAULT);
-            type2 = 0;
-        }
-        
-        
-        
-        
+                
         
         if ( command == 0 ){
             attr = H5Aopen_name(dataset,"genus");
@@ -1217,7 +1272,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
         H5Aclose(attr);
 
         
-        if (type2 ){
+        {
             ///close.
             dims[0] = canonRank;
             dims[1] = pow(count1, body);
@@ -1243,18 +1298,6 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
           
          
          
-
-        }else {
-            
-            dims[0] = canonRank*pow(count1,body * genus );
-
-            filespace = H5Dget_space(dataset);    /* Get filespace handle first. */
-            memspace = H5Screate_simple(1,dims,NULL);
-             
-            /*
-            * Read dataset
-            */
-            status = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace,H5P_DEFAULT, streams(f1,label,spin,space2) );
 
         }
         
