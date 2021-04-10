@@ -1321,9 +1321,6 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
             double *ptr[dims[0]];
             for ( s = 0 ; s < dims[0] ; s++)
                 ptr[s] = streams(f1,label,spin,space)+s*dims[1];
-            status = H5Dwrite(dataset, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
-                      H5P_DEFAULT, ptr);
-
             /*
             * Read dataset
             */
