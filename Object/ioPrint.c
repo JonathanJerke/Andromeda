@@ -1072,7 +1072,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
 #ifdef BACKWARDS
     if ( ! H5Lexists(file,pstr,H5P_DEFAULT)){
         H5Fclose(file);
-        readBackwards(f1,filename,command,space,label,spin,space2);
+        return readBackwards(f1,filename,command,space,label,spin,space2);
     }
 #endif
 
@@ -1235,7 +1235,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
 #ifdef BACKWARDS
     if ( ! H5Lexists(file,pstr,H5P_DEFAULT)){
         H5Fclose(file);
-        readBackwards(f1,filename,command,space,label,spin,space2);
+        return readBackwards(f1,filename,command,space,label,spin,space2);
     }
 #endif
     
