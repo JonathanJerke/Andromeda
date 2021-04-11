@@ -1,8 +1,8 @@
 ### from ubuntu
-#apt-get update && apt-get install -y apt-utils build-essential &&
-#apt-get install -y make git nano &&
-#apt-get install -y libatlas-base-dev liblapack-dev liblapacke-dev gfortran libhdf5-serial-dev &&
-#git clone https://github.com/JonathanJerke/Andromeda
+#sudo apt-get update 
+#sudo apt-get install -y apt-utils build-essential libatlas-base-dev liblapack-dev liblapacke-dev gfortran libhdf5-serial-dev python3-pip hdf5-tools
+#git clone https://github.com/JonathanJerke/Andromeda 
+#git clone https://github.com/TACC/launcher.git
 ###
 #
 
