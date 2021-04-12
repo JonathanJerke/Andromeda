@@ -1669,8 +1669,8 @@ double gaussQuad(inta pt , inta nm, inta which , inta truncate){
         }
             else
             if ( pt == 48 ) {
-                    gkX = cA48X;
-                    gkW = cA48W;
+                    gkX = la48X;
+                    gkW = la48W;
                     ngk = 48;
                 
             }else if ( pt == 49 ){
