@@ -28,7 +28,6 @@
 #undef __cplusplus
 #ifndef FADDEEVA
 #include "../Faddeeva/Faddeeva.cc"
-#define FADDEEVA
 #endif
 
 /**
