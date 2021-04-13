@@ -787,12 +787,17 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     pstr = &str[0];
     
     fflush(stdout);
-    if ( !strcmp(phase,"D") ){
-        file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
-    }else {
-        char fileout[MAXSTRING];
-        sprintf(fileout,"%s/%s", stage, "T");
-        file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
+    file = -1;
+    
+    while ( file < 0 ){
+        if ( !strcmp(phase,"D") ){
+            file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
+        }else {
+            char fileout[MAXSTRING];
+            sprintf(fileout,"%s/%s", stage, "T");
+            file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
+        }
+        sleep(SLEEP_DURATION)
     }
 #else
     char str[6];
@@ -803,10 +808,15 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     /*
      * Open the file and the dataset.
      */
-    if ( !space )
-        file = H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    else
-        file = H5Fopen(filename, H5F_ACC_RDWR, H5P_DEFAULT);
+    file = -1;
+    
+    while ( file < 0 ){
+        if ( !space )
+            file = H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+        else
+            file = H5Fopen(filename, H5F_ACC_RDWR, H5P_DEFAULT);
+        sleep (SLEEP_DURATION);
+    }
 #endif
     
     
@@ -915,12 +925,16 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     pstr = &str[0];
     
     fflush(stdout);
-    if ( !strcmp(phase,"D") ){
-        file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
-    }else {
-        char fileout[MAXSTRING];
-        sprintf(fileout,"%s/%s", stage, "T");
-        file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
+    file = -1;
+    while ( file < 0 ){
+        if ( !strcmp(phase,"D") ){
+            file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
+        }else {
+            char fileout[MAXSTRING];
+            sprintf(fileout,"%s/%s", stage, "T");
+            file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
+        }
+        sleep(SLEEP_DURATION)
     }
 #else
     char str[6];
@@ -931,10 +945,13 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     /*
      * Open the file and the dataset.
      */
-    if ( !space )
-        file = H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    else
-        file = H5Fopen(filename, H5F_ACC_RDWR, H5P_DEFAULT);
+    while ( file < 0 ){
+        if ( !space )
+            file = H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+        else
+            file = H5Fopen(filename, H5F_ACC_RDWR, H5P_DEFAULT);
+        sleep (SLEEP_DURATION);
+    }
 #endif
 
 
@@ -1005,7 +1022,11 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
 
     H5Sclose(dataspace);
     H5Dclose(dataset);
+    printf("pre-close\n");
+    fflush(stdout);
     H5Fclose(file);
+    printf("close\n");
+    fflush(stdout);
 
 }
 
@@ -1063,13 +1084,19 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
     pstr = &str[0];
     
     fflush(stdout);
-    if ( !strcmp(phase,"D") ){
-        file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
-    }else {
-        char fileout[MAXSTRING];
-        sprintf(fileout,"%s/%s", stage, "T");
-        file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
+    
+    file = -1;
+    while ( file < 0 ){
+        if ( !strcmp(phase,"D") ){
+            file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
+        }else {
+            char fileout[MAXSTRING];
+            sprintf(fileout,"%s/%s", stage, "T");
+            file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
+        }
+        sleep(SLEEP_DURATION)
     }
+
 #ifdef BACKWARDS
     if ( ! H5Lexists(file,pstr,H5P_DEFAULT)){
         H5Fclose(file);
@@ -1225,14 +1252,18 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
     pstr = &str[0];
     
     fflush(stdout);
-    if ( !strcmp(phase,"D") ){
-        file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
-    }else {
-        char fileout[MAXSTRING];
-        sprintf(fileout,"%s/%s", stage, "T");
-        file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
+    file = -1;
+    while ( file < 0 ){
+        if ( !strcmp(phase,"D") ){
+            file = H5Fopen("D", H5F_ACC_RDWR, H5P_DEFAULT);
+        }else {
+            char fileout[MAXSTRING];
+            sprintf(fileout,"%s/%s", stage, "T");
+            file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
+        }
+        sleep(SLEEP_DURATION)
     }
-    
+
 #ifdef BACKWARDS
     if ( ! H5Lexists(file,pstr,H5P_DEFAULT)){
         H5Fclose(file);
@@ -1399,7 +1430,11 @@ inta readBackwards( sinc_label f1, char * filename, inta command, inta space, di
     char str[6];
     const char * pstr;
 
-    file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+    file = -1;
+    while ( file < 0 ){
+        file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+        sleep(SLEEP_DURATION);
+    }
     sprintf(str,"%3d-%1d",space,spin);
     pstr = &str[0];
 
