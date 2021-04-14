@@ -1801,7 +1801,7 @@ inta quadrature( metric_label metric, floata *X, floata* W){
 /**
  *building quantum operators for oneBody and twoBody interactions
  */
-inta separateInteraction(   sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, division load,  metric_label metric,  spinType cmpl,inta overline,   division basis ,inta particle1,  bodyType body,inta embed){
+inta separateInteraction(   sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, division load,  metric_label metric,  spinType cmpl,inta overline,   division basis ,inta * particle1,  bodyType body,inta embed){
       genusType hidden;
       sinc_label f1 = *f;
       division currLoop, currChain,newLabel;
@@ -1911,7 +1911,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
 
             for ( space = 0 ;space < SPACE  ; space++)
                 if ( f1.canon[space].body != nada )
-                    if ( f1.canon[space].label == particle1 )
+                    if ( f1.canon[space].label == particle1[0] )
                 {
                     //printf("space-%d position %f\n",space,position[f1.canon[space].space]);
                     if ( body == one ){
@@ -1986,11 +1986,11 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                 }
                 
                 
-            newLabel = anotherLabel(f,particle1,body);
+            newLabel = anotherLabel(f,all,body);
             for ( space = 0 ;space < SPACE  ; space++)
                 if ( f1.canon[space].body != nada ){
                     f1.name[newLabel].space[space].act = act;
-                    if ( f1.canon[space].label == particle1 ){
+                    if ( f1.canon[space].label == particle1[0] ){
                         f1.name[newLabel].space[space].body = body;
                         f1.name[newLabel].space[space].block = bl;
                     }else{
