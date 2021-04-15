@@ -1439,7 +1439,7 @@ inta readBackwards( sinc_label f1, char * filename, inta command, inta space, di
     file = -1;
     while ( file < 0 ){
         file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
-        sleep(rand() % SLEEP_DURATION +SLEEP_DURATION );
+        sleep(SLEEP_DURATION );
     }
     sprintf(str,"%3d-%1d",space,spin);
     pstr = &str[0];
