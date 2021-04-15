@@ -1286,7 +1286,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
         file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
         sleep(SLEEP_DURATION );
     }
-    sprintf(str,"%3d-2- %1d",space,spin);
+    sprintf(str,"%3d-%1d",space,spin);
     pstr = &str[0];
 #endif
 
