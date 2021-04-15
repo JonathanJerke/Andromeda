@@ -1264,7 +1264,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
             sprintf(fileout,"%s/%s", stage, "T");
             file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
         }
-        sleep(SLEEP_DURATION );
+        sleep(rand()%SLEEP_DURATION+ SLEEP_DURATION );
     }
 
 #ifdef BACKWARDS
@@ -1284,7 +1284,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
     file = -1;
     while ( file < 0 ){
         file = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
-        sleep(rand() % SLEEP_DURATION +SLEEP_DURATION );
+        sleep(SLEEP_DURATION );
     }
     sprintf(str,"%3d-2- %1d",space,spin);
     pstr = &str[0];
