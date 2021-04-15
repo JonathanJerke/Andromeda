@@ -941,7 +941,7 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
     const char * pstr;
     sprintf(str,"%3d-%1d",space,spin);
     pstr = &str[0];
-
+    file = -1;
     /*
      * Open the file and the dataset.
      */
