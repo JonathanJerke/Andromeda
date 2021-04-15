@@ -797,7 +797,7 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
             sprintf(fileout,"%s/%s", stage, "T");
             file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
         }
-        sleep(rand() % SLEEP_DURATION +SLEEP_DURATION );
+        sleep(SLEEP_DURATION );
     }
 #else
     char str[6];
@@ -950,7 +950,7 @@ inta writeFast( sinc_label f1, char * filename, inta space, division label ,inta
             file = H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
         else
             file = H5Fopen(filename, H5F_ACC_RDWR, H5P_DEFAULT);
-        sleep(rand() % SLEEP_DURATION +SLEEP_DURATION );
+        sleep(SLEEP_DURATION );
     }
 #endif
 
@@ -1094,7 +1094,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
             sprintf(fileout,"%s/%s", stage, "T");
             file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
         }
-        sleep(rand() % SLEEP_DURATION +SLEEP_DURATION );
+        sleep(SLEEP_DURATION );
     }
 
 #ifdef BACKWARDS
@@ -1264,7 +1264,7 @@ inta readFast( sinc_label f1, char * filename, inta command, inta space, divisio
             sprintf(fileout,"%s/%s", stage, "T");
             file = H5Fopen(fileout, H5F_ACC_RDWR, H5P_DEFAULT);
         }
-        sleep(rand() % SLEEP_DURATION +SLEEP_DURATION );
+        sleep(SLEEP_DURATION );
     }
 
 #ifdef BACKWARDS
