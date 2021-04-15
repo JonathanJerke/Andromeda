@@ -2640,14 +2640,15 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
         metric2.fn.interval = specs.interval;
         metric2.metric = pureWholeInterval;
     
-        floata width = min(specs.maxMomentum,2 *Xbeta[beta] * sqrt(log(1/1e-15/(2.*sqrt(pi)*Xbeta[beta]))));
+        floata width = min(specs.maxMomentum/2/Xbeta[beta],sqrt(log(1/1e-15/(2.*sqrt(pi)))));
         
-        metric2.beta[0] = specs.maxMomentum/2/Xbeta[beta];//lattice
+        metric2.beta[0] = width;//lattice
         
         inta re, momentum, momentumLength;
         floata gaussianKernel;
 
-            
+        
+        double su = 0.;
         for (re = 0 ; re < body ; re++){
             if ( re == 0 ){
                 metric2.fn.interval = MOMENTUM_INTERVAL;
@@ -2661,7 +2662,7 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
             ///
             ///CHANGE  (1-2*re)
           //  printf("%f\n",Xmomentum[momentum]);
-            gaussianKernel = Wmomentum[momentum]*exp(-pow(Xmomentum[momentum],2.))/(sqrt(pi));
+            gaussianKernel = Wmomentum[momentum]*exp(-Xmomentum[momentum]*Xmomentum[momentum])/(sqrt(pi));
             if ( gaussianKernel > f1.rt->THRESHOLD ){
                 ///new canonRank and header
                 ///tGEMV will take first loop as content...
@@ -2730,7 +2731,7 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
                                              
                                             te[si] = creal(tc);
                                             te2[si] = cimag(tc);
-
+                                             su += creal(tc);
                                         }
                                 si++;
 
