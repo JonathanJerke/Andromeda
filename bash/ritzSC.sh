@@ -4,7 +4,7 @@ if [ $# -eq 1 ]
     then
     dir=$1
      
-    file=$dir/c.riz
+    file=$dir/$ritzSolve.riz
     echo "*Body $file" > $file
     echo "*InputOutput" >> $file
     echo "read found/found" >> $file
