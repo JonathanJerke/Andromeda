@@ -9,6 +9,7 @@ if [ $# -eq 2 ]
     cp $LAUNCH/control/stage found
     cp $LAUNCH/control/two .
     cp $LAUNCH/control/inc .
+    cp $LAUNCH/control/inc1 .
     cp $LAUNCH/symmetry/$2 symmetry
     echo 1 > hosts
     echo 1 > ppn
