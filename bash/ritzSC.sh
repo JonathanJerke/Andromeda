@@ -11,14 +11,14 @@ if [ $# -eq 1 ]
     echo "read $dir/stage " >> $file
     for s in `cat states`
         do
-            for i in `grep D.kry.$s $dir/summa`
+            for i in `grep $krylovBuild.kry.$s $dir/summa`
                 do
                 echo "vector $i" >> $file
             done
     done
     for h in `cat spam`
         do
-            echo "sum $dir/C.$h.riz " >> $file
+            echo "sum $dir/$ritzBuild.$h.riz " >> $file
         done
     echo "control ritzPhase" >> $file
     echo ".InputOutput" >> $file

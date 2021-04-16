@@ -21,7 +21,7 @@ for curr in $*
                     rm commands
                 fi
                 
-		#		go.sh found/found
+		#SG and GTO are far superior		go.sh found/found
                 #wait
                 ritzab.sh found found states spam
                 wait

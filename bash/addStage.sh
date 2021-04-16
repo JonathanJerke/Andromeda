@@ -6,7 +6,7 @@ if [ $# -eq 2 ]
     newStage=$dir/stage
     src=$1
     mkdir $dir
-    python3 $LAUNCH/../python3/touch.py $dir/T
+#NO NEED, FOR MODULARIZE    python3 $LAUNCH/../python3/touch.py $dir/T
     #if [ ! -f $newStage ]
      #    then
         echo "*Body print " > $newStage

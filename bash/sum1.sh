@@ -4,10 +4,10 @@ if [ $# -eq 4 ]
     then
          src=$1
          dir=$2
-         prev=$src/B.kry
+         prev=$src/$krylovMultiply.kry
          for i in `cat $3`
             do
-            file=$dir/b.sum.$4.$i
+            file=$dir/$krylovSum.sum.$4.$i
             echo "*Body $file" > $file
             echo "*InputOutput" >> $file
             echo "read found/found" >> $file

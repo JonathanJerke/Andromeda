@@ -4,11 +4,11 @@ if [ $# -eq 4 ]
     then
     src=$1
     dir=$2
-    prev=$src/D.kry
-    curr=$dir/b.sum
+    prev=$src/$krylovBuild.kry
+    curr=$dir/$krylovSum.sum
     for h in `cat $4`
         do
-        file=$dir/C.$h.riz
+        file=$dir/$ritzBuild.$h.riz
         echo "*Body $file " > $file
         echo "*InputOutput" >> $file
         echo "read found/found" >> $file

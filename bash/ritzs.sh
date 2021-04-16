@@ -4,9 +4,9 @@ if [ $# -eq 5 ]
     then
      src=$1
      dir=$2
-     prev=$src/D.kry
-     curr=$dir/b.sum
-     file=$dir/c.riz
+     prev=$src/$krylovBuild.kry
+     curr=$dir/$krylovSum.sum
+     file=$dir/$ritzSolve.riz
     echo "*Body $file" > $file
     echo "*InputOutput" >> $file
     echo "read found/found" >> $file
@@ -21,7 +21,7 @@ if [ $# -eq 5 ]
     done
     for h in `cat $4`
         do
-        echo "sum $dir/C.$h.riz " >> $file
+        echo "sum $dir/$ritzSolve.$h.riz " >> $file
     done
     echo "control ritzPhase" >> $file
     echo ".InputOutput" >> $file

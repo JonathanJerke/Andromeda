@@ -6,14 +6,14 @@ if [ $# -eq 2 ]
     dir=$2
     for h in `cat spam`
         do
-            file=$dir/C.$h.riz
+            file=$dir/$ritzBuild.$h.riz
             echo "*Body $file " > $file
             echo "*InputOutput" >> $file
             echo "read found/found" >> $file
             echo "read $src/stage " >> $file
             for s in `cat states`
                 do
-                    for i in `grep D.kry.$s $dir/summa`
+                    for i in `grep $krylovBuild.kry.$s $dir/summa`
                         do
                         echo "vector $i" >> $file
                     done
