@@ -35,7 +35,7 @@
 //#define MODULARIZE_INPUT
 //#define MODULARIZE_OUTPUT
 #define BACKWARDS
-#define SLEEP_DURATION 3
+#define SLEEP_DURATION 0
 
 #define RAND_FOUNDATION
 #define MKL
