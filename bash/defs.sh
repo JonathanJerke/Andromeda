@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export krylovMultiply=B
+export krylovMultiply=a
 export krylovSum=b
-export ritzBuild=C
-export ritzSolve=c
-export krylovBuild=D
+export ritzBuild=c
+export ritzSolve=d
+export krylovBuild=e
