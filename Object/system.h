@@ -32,8 +32,8 @@
 #define readHDF5
 #define READ_FAST
 #define WRITE_FAST
-#define MODULARIZE_INPUT
-#define MODULARIZE_OUTPUT
+//#define MODULARIZE_INPUT
+//#define MODULARIZE_OUTPUT
 #define BACKWARDS
 #define SLEEP_DURATION 3
 
