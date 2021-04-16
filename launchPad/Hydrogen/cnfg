@@ -19,6 +19,7 @@
 	body 1
 	basis 1
 	count1Basis 17
+	count1Inc 7
 	threeComponent
 .Dim
 
