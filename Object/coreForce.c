@@ -4186,7 +4186,7 @@ inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
  *@param mu the metric
  *@param a geometry/Z of a-th ion
  */
-inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, inta invert,inta act,  blockType bl,   division single,  inta particle1,inta embed, inta overline,   spinType cmpl,  metric_label mu,inta a){
+inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, inta invert,inta act,  blockType bl,   division single,  inta *particle1,inta embed, inta overline,   spinType cmpl,  metric_label mu,inta a){
     inta ra=0;
     printf("oneBody act %d block %d atom %d >%d<-- (%f)\n", act,bl, a,embed,scalar);
 

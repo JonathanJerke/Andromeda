@@ -2097,7 +2097,7 @@ inta defineTerms(  calculation * c,   field *f,   division head, inta memory){
                     buildElement(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label[0], 0, real,c->i.terms[i].bra,c->i.terms[i].ket);
                     break;
                 case 8:
-                    buildExternalPotential(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label[0],c->i.terms[i].embed, 0, real,c->i.terms[i].mu,c->i.terms[i].atom);
+                    buildExternalPotential(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label,c->i.terms[i].embed, 0, real,c->i.terms[i].mu,c->i.terms[i].atom);
                     break;
                 case 9:
                     buildPairWisePotential(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl,prevLink, c->i.terms[i].label, c->i.terms[i].embed,0, real,c->i.terms[i].mu);
