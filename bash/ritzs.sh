@@ -21,7 +21,7 @@ if [ $# -eq 5 ]
     done
     for h in `cat $4`
         do
-        echo "sum $dir/$ritzSolve.$h.riz " >> $file
+        echo "sum $dir/$ritzBuild.$h.riz " >> $file
     done
     echo "control ritzPhase" >> $file
     echo ".InputOutput" >> $file
