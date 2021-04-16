@@ -1,19 +1,5 @@
 start.sh neo  <SA>
 --Where <SA> in all,A1,A2, or E
-pathFinder.sh found `seq 1 10` 
+
+tryThis.sh 
 launcher.sh
-
-Added Symmetrized Gaussians as an arbitary basis sized foundation.
-
-The new bootup can start at any basis size, the foundation^(Dim+1) vectors will automatically be created in any basis size.
-Same as usual to run, but summa.sh is more useful now, as it significantly accelerates this potent foundations.
-
-cp your favorate D's from commands to summa in working directory and execute summa.sh, like pathFinder, it will forge a path, this time, summa-ing all D's in summa.
-
-summa.sh takes two inputs,  previous and next folder, while creating the next folder.
-PathFinder.sh will stage off the results naturally, of course.
-
-Study FlashHelium for a vision of future buildout .  
-
-With this, one can START with L in the hundreds, avoiding costly --and slow-- staging operations from small Ls'.
-
