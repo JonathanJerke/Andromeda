@@ -872,16 +872,16 @@ double CanonicalRankDecompositionBoost (  sinc_label  f0 ,double * coeff,   divi
     }
     zero(F1.f, totalVector, 0);
     
-//    #ifdef OMP
-//    #pragma omp parallel for private (space,rank) schedule(dynamic,1)
-//    #endif
+    #ifdef OMP
+    #pragma omp parallel for private (space,rank) schedule(dynamic,1)
+    #endif
     for ( space = 0; space < SPACE ; space++)
         if ( f0.canon[space].body != nada){
-//            #ifdef OMP
-//                    rank = omp_get_thread_num();
-//            #else
+            #ifdef OMP
+                    rank = omp_get_thread_num();
+            #else
             rank = 0;
-//            #endif
+            #endif
             if ( part(f0,CanonicalBuffers) < G1 ){
                 printf("CanonicalBuffers0 \n");
                 exit(0);
@@ -975,6 +975,12 @@ double CanonicalRankDecompositionBoost (  sinc_label  f0 ,double * coeff,   divi
     }
 
         
+        
+        
+#ifdef OMP
+#pragma omp parallel for private (ii,m,n) schedule(dynamic,1)
+#endif
+
         ///now determine a overlap of terms
     for ( ii= 0; ii < G1*G1 ; ii++){
 
