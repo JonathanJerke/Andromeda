@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+
 ##file format,  
 
 ##list in order component-particle information, ( n , gaussian-exponent, position ) 
