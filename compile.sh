@@ -24,4 +24,13 @@ export PYTHONPATH=$PYTHONPATH:`pwd`
 python3 setup.py build_ext -i
 cd ..
 
+cd bash
+chmod +x *
+cd ..
+
+cd python3
+chmod +x *
+cd ..
+
+
 ##run python3 
