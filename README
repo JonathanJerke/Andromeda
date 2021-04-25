@@ -21,9 +21,8 @@
 *   *   along with Andromeda.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-Andromeda is an advance of Quantum Dynamics technologies, i.e. Sums of Products, 
-into an area of electronic structure using the Gaussian-Sinc method for development of
-interactions.  
+Andromeda advances Quantum Dynamics technologies, i.e. Sums of Products, 
+to electronic and other fundamental interactions.  
 
 Added commands to build runtime in each species subdirectory.
 New distributed programming can effectively compute Lithum in normal super computer.
