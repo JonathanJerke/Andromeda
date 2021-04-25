@@ -4,6 +4,8 @@
 ##RELINKS python so that installations issues do not arise
 
 
+#run in Andromeda directory
+
 
 export PATH=$PATH:`pwd`/bash:`pwd`/Object:`pwd`/python3
 
