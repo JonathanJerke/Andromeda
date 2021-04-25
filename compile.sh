@@ -25,5 +25,3 @@ python3 setup.py build_ext -i
 cd ..
 
 ##run python3 
-##import andromedaPy as apy
-##code still under development
