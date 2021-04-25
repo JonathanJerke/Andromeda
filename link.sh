@@ -1,6 +1,12 @@
 #!/bin/bash
 
-##compile first
+##MEANT FOR new bash shell without recompiling binary
+##RELINKS python so that installations issues do not arise
+
+
+
+export PATH=$PATH:`pwd`/bash:`pwd`/Object:`pwd`/python3
+
 cd Object
 export LDFLAGS=-L`pwd`
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`pwd`
