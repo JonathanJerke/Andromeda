@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 ##
 ##file format, across component-particles, ( index-space, index-momentum ),
 ##adding an 'index' on each row.
