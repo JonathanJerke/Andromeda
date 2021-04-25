@@ -36,3 +36,5 @@ from constants cimport calculation
 cdef extern from "../Object/Decompose.h":
     floata canonicalRankDecomposition( sinc_label  f1 , floata * cofact,inta G,floata *GG, division origin,inta l1,inta l2,inta os, inta neo,division alloy ,inta l3 , inta l4,  inta spin ,floata tolerance,floata relativeTolerance, floata condition,floata maxCondition, inta maxCycle)
     floata CanonicalRankDecomposition ( sinc_label  f1 , floata * cofact, division origin,inta os, division alloy,inta spin,  floata tolerance ,  floata relativeTolerance, floata condition,floata threshold, inta maxCycle ,floata maxCondition, inta canon,inta X1 )
+    floata CanonicalRankDecompositionBoost ( sinc_label  f1 , floata * cofact, division origin,inta os, division alloy,inta spin,  floata tolerance ,  floata relativeTolerance, floata condition,floata threshold, inta maxCycle ,floata maxCondition, inta canon,inta X1 )
+    floata CanonicalRankDecompositionFibonacci ( sinc_label  f1 , floata * cofact, division origin,inta os, division alloy,inta spin,  floata tolerance ,  floata relativeTolerance, floata condition,floata threshold, inta maxCycle ,floata maxCondition, inta canon )

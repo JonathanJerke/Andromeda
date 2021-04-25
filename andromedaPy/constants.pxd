@@ -146,7 +146,9 @@ cdef extern from "../Object/constants.h":
         interval,
         semiIndefinite,
         pureInterval,
-        pureSemiIndefinite
+        pureSemiIndefinite,
+        pureWholeInterval
+
 
     cdef enum blockMemoryType:
         passBlock,
@@ -285,8 +287,9 @@ cdef extern from "../Object/constants.h":
         
     cdef struct momentumIntegralSpecs:
         momentumType metric
-        floata maxMomentum
         inta interval
+        floata maxMomentum
+
 
     cdef struct basisElement_label:
         basisElementType basis
