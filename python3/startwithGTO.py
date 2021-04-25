@@ -16,7 +16,6 @@ import pandas as pd
 from andromedaPy import galaxy
 if os.getenv('LAUNCH')==None :
     print('warning,  bootup Jupyter after ignition.sh')
-from scipy import linalg
 import itertools
 
 g = galaxy()
