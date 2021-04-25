@@ -7,7 +7,7 @@
 
 
 
-#run in Andromeda directory for best effect
+#run in Andromeda directory 
 
 ##compile first
 cd Object
