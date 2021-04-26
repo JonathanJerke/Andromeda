@@ -2616,8 +2616,8 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
     Wbeta = malloc(metric.fn.interval *sizeof(floata));
 
     floata *Xmomentum = NULL, *Wmomentum = NULL;
-    Xmomentum = malloc(specs.interval *sizeof(floata));
-    Wmomentum = malloc(specs.interval *sizeof(floata));
+    Xmomentum = malloc(metric.fn.momentumInterval *sizeof(floata));
+    Wmomentum = malloc(metric.fn.momentumInterval *sizeof(floata));
 
     
     inta bodyIndex,beta, nbeta = quadrature(metric, Xbeta, Wbeta);
