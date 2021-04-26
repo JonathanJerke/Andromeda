@@ -601,6 +601,7 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
     static inta newTerm = 1;
     static inta invert = 0;
     static inta Interval = 1;
+    static inta momentumInterval = 217;
     static inta contr = 2;
     static double adjustOne = 1.;
     static double scalar = 1;
@@ -658,6 +659,7 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                 metric.fn.param[2] = param1;
                 metric.fn.param[3] = param2;
                 metric.fn.interval = Interval;
+                metric.fn.momentumInterval = momentumInterval;
                 metric.fn.contr    = contr;
                 metric.beta[0]     = mBeta;
                 //add gaussian!
@@ -700,12 +702,12 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                 
         }
         
-    inta NINT_TYPE = 18;
+    inta NINT_TYPE = 19;
     char *list_INT_TYPE []= {"#",
         "invert","block","act","newTerm","buffer",
         "interval","offDiagonals","funcType","atom","axis",
         "bra","ket","flags","embed","revise",
-        "reset","axis1","axis2"
+        "reset","axis1","axis2","momentumInterval"
     };
     inta NDOUBLE = 10;
     char *list_DOUBLE []= {"#",
@@ -782,7 +784,9 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                     case 18:
                         particle2 = ivalue;
                         return i;
-
+                    case 19:
+                        momentumInterval = ivalue;
+                        return i;
                 }
 //
             }

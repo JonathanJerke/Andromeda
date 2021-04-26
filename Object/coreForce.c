@@ -2637,7 +2637,7 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
         currLoop = currChain;
         ///
         metric_label metric2;
-        metric2.fn.interval = specs.interval;
+        metric2.fn.interval = metric.fn.momentumInterval;
         metric2.metric = pureWholeInterval;
     
         floata width = min(specs.maxMomentum/2/Xbeta[beta],sqrt(log(1/1e-15/(2.*sqrt(pi)))));
@@ -2651,10 +2651,8 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
         double su = 0.;
         for (re = 0 ; re < body ; re++){
             if ( re == 0 ){
-                metric2.fn.interval = MOMENTUM_INTERVAL;
                 momentumLength = quadrature(metric2, Xmomentum, Wmomentum);
             }else {
-                metric2.fn.interval = MOMENTUM_INTERVAL;
                 momentumLength = quadrature(metric2, Xmomentum, Wmomentum);
             }
             for ( momentum = 0; momentum < momentumLength ; momentum++){
@@ -4195,22 +4193,20 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
             else if ( mu.metric == dirac )
                 ra++;
             
-#ifdef SEPARATE_ONE_BODY
     if ( bootedQ(*f1) ){
-
+        
+            if ( mu.fn.momentumInterval < 0 && f1->canon[0].basis == SincBasisElement )
             {
             separateInteraction(f1,scalar*c1->i.atoms[a].Z, c1->i.atoms[a].position+1,invert,act,bl, single, mu, cmpl, 0, 0, particle1,one,embed);
             }
-    }
-#else
-    if ( bootedQ(*f1) ){
+    else
+    {
 
             
         if ( f1->canon[0].basis == SincBasisElement ){
             inta space,body;
             momentumIntegralSpecs specs;
             specs.metric = continousMomentum;
-            specs.interval = MOMENTUM_INTERVAL;
             floata ml = f1->canon[0].particle[one].lattice;
             for (space = 0 ; space < SPACE ; space++)
             if ( f1->canon[space].body != nada){
@@ -4229,8 +4225,7 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
         }
             }
 
-#endif
-
+    }
     return ra;
 }
 
@@ -4275,7 +4270,6 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
             inta space,body;
             momentumIntegralSpecs specs;
             specs.metric = continousMomentum;
-            specs.interval = MOMENTUM_INTERVAL;
             floata ml = f1->canon[0].particle[one].lattice;
             for (space = 0 ; space < SPACE ; space++)
             if ( f1->canon[space].body != nada){

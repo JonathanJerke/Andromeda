@@ -58,7 +58,7 @@
 #ifdef APPLE
       i->i.OpIndex =-1;
 
-    floata lattice = 2;
+    floata lattice = 1;
     inta basis = 1;
     space = 0;
       i->f.canon[space].basis =SincBasisElement;
@@ -174,9 +174,11 @@ void initCal ( calculation * i ) {
     t.func.contr = 2;
     t.func.fn = Coulomb;
     t.func.interval = 15;
+    t.func.momentumInterval = -1;
+
     t.adjustOne = 1.;
-    t.mu.beta[0] = 2;
-    t.mu.beta[1] = 1;
+    t.mu.beta[0] = 0.1;
+    t.mu.beta[1] = 2;
     t.mu.metric = dirac;
     t.mu.fn  = t.func;
     t.invert = 0;
@@ -190,7 +192,7 @@ void initCal ( calculation * i ) {
     t.bl = 7;
     t.type   = 9;
     
-    t.bl = 1;
+   t.bl = 1;
     t.type = 8;
     
     i->i.terms[0] = t;

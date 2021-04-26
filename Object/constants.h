@@ -531,6 +531,8 @@ typedef struct calculation calculation;
 struct function_label{
     ///number of canonical ranks of function per chain element
     inta interval;
+    ///number of quadrature points in momentum integral
+    inta momentumInterval;
     ///degree of off-diagonal
     inta contr;
     ///function type
