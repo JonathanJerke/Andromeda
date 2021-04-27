@@ -162,7 +162,7 @@ ci = 0
 cf = 1
 
 le = [-1]
-ri = [-1]
+ri = [0]
 
 while ( cf >= ci ):
 	for i in range( ci,cf ):
@@ -184,7 +184,12 @@ while ( cf >= ci ):
 	ci = cf + 1
 	cf = len(pot)
 
-dat = pd.DataFrame( data = gogo )
+found = []
+for iii in range(len(gogo)):
+	if ri[iii] >= 0:
+		found += gogo[iii]
+
+dat = pd.DataFrame( data = found )
 dat['index'] = dat.index
 dat.to_csv('sg.csv',index = False)
 print( 'vbarTOT ', vbarTOT )
