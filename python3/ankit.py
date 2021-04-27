@@ -142,17 +142,17 @@ arrae = []
 for dd in range(d):
 	##spatial +
 	v = [ 0.] * 2 * d
-	v[2*dd] = 1
+	v[2*dd] = 1.
 	arrae += [v]
 	
 	#spatial - -
 	v = [ 0.] * 2 * d
-	v[2*dd] = -1
+	v[2*dd] = -1.
 	arrae += [v]
 
 	#momentum + 
 	v = [ 0.] * 2 * d
-	v[2*dd+1] = 1
+	v[2*dd+1] = 1.
 	arrae += [v]
 
 qq  = gogo[0]
