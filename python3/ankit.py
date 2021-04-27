@@ -10,7 +10,7 @@
 import os
 from sys import argv
 
-varTOT = 0.
+vbarTOT = 0.
 if len(argv)!= 2:
 	print(" Ecut ")
 	exit()
