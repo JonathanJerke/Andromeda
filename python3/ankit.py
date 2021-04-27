@@ -14,8 +14,6 @@ if len(argv)!= 4:
 	print(" Ecut max-m max-n")
 	exit()
 vbarTOT = 0.	
-vbarMAX = -10000000
-vbarMIN =  10000000
 	
 Ecut  = float(argv[1])
 mMax  = int(argv[2])
@@ -165,6 +163,8 @@ pot = [epot(gogo[0])]
 ci = 0
 cf = 1
 
+vbarMAX = pot[0]
+vbarMIN = pot[0]
 le = [-1]
 if pot[0] < Ecut:
 	ri = [0]
