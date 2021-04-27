@@ -10,7 +10,6 @@
 import os
 from sys import argv
 
-vbarTOT = 0.
 if len(argv)!= 2:
 	print(" Ecut ")
 	exit()
@@ -157,6 +156,7 @@ for dd in range(d):
 
 qq  = gogo[0]
 pot = [epot(gogo[0])]
+vbarTOT = pot[0]
 
 ci = 0
 cf = 1
