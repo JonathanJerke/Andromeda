@@ -187,3 +187,4 @@ while ( cf >= ci ):
 dat = pd.DataFrame( data = gogo )
 dat['index'] = dat.index
 dat.to_csv('sg.csv',index = False)
+print( 'vbarTOT ', vbarTOT )
