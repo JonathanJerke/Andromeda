@@ -168,19 +168,19 @@ while ( cf >= ci ):
 	for i in range( ci,cf ):
 		for dr in arrae:
 			qq = list(array(gogo[i]) + array(dr))
-			
-			vbartemp = epot(qq)
+			if not qq in gogo:
+				vbartemp = epot(qq)
 		
-			if ( vbartemp < Ecut ):
-				le,ri,un = sort ( le,ri,gogo,qq)
-			
-				if ( un == 1 ):
-					ri,gogo,pot = addTo(ri,gogo,pot, qq, vbartemp )
-					le += [-1]
-				elif ( un == -1 ):
-					le,gogo,pot = addTo(le,gogo,pot, qq, vbartemp )
-					ri += [-1]
-					vbarTOT += vbartemp	
+				if ( vbartemp < Ecut ):
+					le,ri,un = sort ( le,ri,gogo,qq)
+
+					if ( un == 1 ):
+						ri,gogo,pot = addTo(ri,gogo,pot, qq, vbartemp )
+						le += [-1]
+					elif ( un == -1 ):
+						le,gogo,pot = addTo(le,gogo,pot, qq, vbartemp )
+						ri += [-1]
+						vbarTOT += vbartemp	
 	ci = cf + 1
 	cf = len(pot)
 
