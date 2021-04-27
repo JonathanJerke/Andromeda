@@ -14,6 +14,9 @@ if len(argv)!= 4:
 	print(" Ecut max-m max-n")
 	exit()
 	
+vbarMAX = -10000000
+vbarMIN =  10000000
+	
 Ecut  = float(argv[1])
 mMax  = int(argv[2])
 nMax  = int(argv[3])
@@ -50,6 +53,10 @@ def epot( go ):
 	su = 0.
 	for term in g.terms():
 		su += g.dot(vector = 100 , term = term , vector2 = 100 )
+	if su < vbarMIN:
+		vbarMIN = su
+	if su > vbarMAX:
+		vbarMAX = su
 	return su
 
 def leth ( qq, go ):
@@ -205,4 +212,5 @@ for iii in range(len(gogo)):
 dat = pd.DataFrame( data = found )
 dat['index'] = dat.index
 dat.to_csv('sg.csv',index = False)
+print( 'vbarMIN ',vbarMIN, 'varMAX', vbarMAX)
 print( 'vbarTOT ', vbarTOT )
