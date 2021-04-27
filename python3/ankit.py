@@ -156,14 +156,17 @@ for dd in range(d):
 
 qq  = gogo[0]
 pot = [epot(gogo[0])]
-vbarTOT = pot[0]
 
 ci = 0
 cf = 1
 
 le = [-1]
-ri = [0]
-
+if pot[0] < Ecut:
+	ri = [0]
+	vbarTOT = pot[0]
+else:
+	ri = [-1]
+	
 while ( cf >= ci ):
 	for i in range( ci,cf ):
 		for dr in arrae:
