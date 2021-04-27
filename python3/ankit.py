@@ -12,7 +12,7 @@ from sys import argv
 
 if len(argv)!= 2:
 	print(" Ecut ")
-	exit
+	exit()
 	
 Ecut  = argv[1]
 
