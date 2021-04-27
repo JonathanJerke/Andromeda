@@ -13,7 +13,7 @@ from sys import argv
 if len(argv)!= 4:
 	print(" Ecut max-m max-n")
 	exit()
-	
+vbarTOT = 0.	
 vbarMAX = -10000000
 vbarMIN =  10000000
 	
