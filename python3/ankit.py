@@ -10,11 +10,12 @@
 import os
 from sys import argv
 
-if len(argv)!= 2:
-	print(" Ecut ")
+if len(argv)!= 3:
+	print(" Ecut max-n")
 	exit()
 	
 Ecut  = float(argv[1])
+nMax  = int(argv[2])
 
 from numpy import *
 import pandas as pd
@@ -171,7 +172,12 @@ while ( cf >= ci ):
 	for i in range( ci,cf ):
 		for dr in arrae:
 			qq = list(array(gogo[i]) + array(dr))
-			if not qq in gogo:
+			flag = False
+			for n in range(d):
+				if qq[2*n+1] > nMax :
+					flag = True
+					
+			if (not qq in gogo) and (not flag):
 				vbartemp = epot(qq)
 		
 				if ( vbartemp < Ecut ):
