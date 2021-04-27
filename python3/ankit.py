@@ -53,10 +53,6 @@ def epot( go ):
 	su = 0.
 	for term in g.terms():
 		su += g.dot(vector = 100 , term = term , vector2 = 100 )
-	if su < vbarMIN:
-		vbarMIN = su
-	if su > vbarMAX:
-		vbarMAX = su
 	return su
 
 def leth ( qq, go ):
@@ -190,7 +186,11 @@ while ( cf >= ci ):
 		
 			if (not qq in gogo) and (not flag):
 				vbartemp = epot(qq)
-		
+				if vbartemp < vbarMIN:
+					vbarMIN = vbartemp
+				if vbartemp > vbarMAX:
+					vbarMAX = vbartemp
+
 				if ( vbartemp < Ecut ):
 					le,ri,un = sort ( le,ri,gogo,qq)
 
