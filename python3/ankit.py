@@ -14,7 +14,7 @@ if len(argv)!= 2:
 	print(" Ecut ")
 	exit()
 	
-Ecut  = argv[1]
+Ecut  = float(argv[1])
 
 from numpy import *
 import pandas as pd
