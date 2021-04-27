@@ -1,11 +1,7 @@
 #!/bin/bash
-#source this file
-
-# apt-get update
-# apt-get install python3.6
-# pip3 install cython
-
-
+##source compile.sh
+##if you run this a second time just run 
+##bash compile.sh
 
 #run in Andromeda directory 
 
