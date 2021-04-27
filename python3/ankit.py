@@ -10,12 +10,13 @@
 import os
 from sys import argv
 
-if len(argv)!= 3:
-	print(" Ecut max-n")
+if len(argv)!= 4:
+	print(" Ecut max-m max-n")
 	exit()
 	
 Ecut  = float(argv[1])
-nMax  = int(argv[2])
+mMax  = int(argv[2])
+nMax  = int(argv[3])
 
 from numpy import *
 import pandas as pd
@@ -176,7 +177,10 @@ while ( cf >= ci ):
 			for n in range(d):
 				if qq[2*n+1] > nMax :
 					flag = True
-					
+			for n in range(d):
+				if qq[2*n] > mMax :
+					flag = True
+		
 			if (not qq in gogo) and (not flag):
 				vbartemp = epot(qq)
 		
