@@ -204,12 +204,7 @@ while ( cf >= ci ):
 	ci = cf + 1
 	cf = len(pot)
 
-found = []
-for iii in range(len(gogo)):
-	if ri[iii] >= 0:
-		found += [gogo[iii]]
-
-dat = pd.DataFrame( data = found )
+dat = pd.DataFrame( data = gogo )
 dat['index'] = dat.index
 dat.to_csv('sg.csv',index = False)
 print( 'vbarMIN ',vbarMIN, 'varMAX', vbarMAX)
