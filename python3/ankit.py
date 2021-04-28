@@ -13,7 +13,6 @@ from sys import argv
 if len(argv)!= 4:
 	print(" Ecut max-m max-n")
 	exit()
-vbarTOT = 0.	
 	
 Ecut  = float(argv[1])
 mMax  = int(argv[2])
@@ -165,12 +164,11 @@ cf = 1
 
 vbarMAX = pot[0]
 vbarMIN = pot[0]
+
 le = [-1]
-if pot[0] < Ecut:
-	ri = [0]
-	vbarTOT = pot[0]
-else:
-	ri = [-1]
+ri = [-1]
+
+vbarTOT = pot[0]
 	
 while ( cf >= ci ):
 	for i in range( ci,cf ):
