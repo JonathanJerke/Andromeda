@@ -178,10 +178,10 @@ while ( cf >= ci ):
 			qq = list(array(gogo[i]) + array(dr))
 			flag = False
 			for n in range(d):
-				if qq[2*n+1] > nMax :
+				if abs(qq[2*n]) > mMax :
 					flag = True
 			for n in range(d):
-				if qq[2*n] > mMax :
+				if (qq[2*n+1]) > nMax :
 					flag = True
 		
 			if (not qq in gogo) and (not flag):
