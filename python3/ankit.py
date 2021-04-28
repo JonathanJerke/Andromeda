@@ -197,6 +197,7 @@ while ( cf >= ci ):
 					if ( un == 1 ):
 						ri,gogo,pot = addTo(ri,gogo,pot, qq, vbartemp )
 						le += [-1]
+						vbarTOT += vbartemp	
 					elif ( un == -1 ):
 						le,gogo,pot = addTo(le,gogo,pot, qq, vbartemp )
 						ri += [-1]
