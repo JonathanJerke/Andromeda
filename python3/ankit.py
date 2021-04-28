@@ -207,7 +207,7 @@ while ( cf >= ci ):
 found = []
 for iii in range(len(gogo)):
 	if ri[iii] >= 0:
-		found += gogo[iii]
+		found += [gogo[iii]]
 
 dat = pd.DataFrame( data = found )
 dat['index'] = dat.index
