@@ -7,7 +7,9 @@ if [ $# -eq 2 ]
     mkdir found
     cp $LAUNCH/control/found found
     cp $LAUNCH/control/stage found
+    cp $LAUNCH/control/one .
     cp $LAUNCH/control/two .
+    cp $LAUNCH/control/many .
     cp $LAUNCH/control/inc .
     cp $LAUNCH/control/inc1 .
     cp $LAUNCH/symmetry/$2 symmetry
