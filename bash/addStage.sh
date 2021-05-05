@@ -16,6 +16,11 @@ if [ $# -eq 2 ]
         cp inc $dir
         echo ".InputOutput" >> $newStage
         echo ".Body" >> $newStage
+        cp $krylovMultiply $dir
+        cp $krylovSum $dir
+        cp $ritzBuild $dir
+        cp $ritzSolve $dir
+        cp $krylovBuild $dir
    # fi
 fi
 
