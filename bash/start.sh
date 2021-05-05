@@ -13,6 +13,11 @@ if [ $# -eq 2 ]
     cp $LAUNCH/control/inc .
     cp $LAUNCH/control/inc1 .
     cp $LAUNCH/symmetry/$2 symmetry
+    echo 1 > $krylovMultiply
+    echo 1 > $krylovSum
+    echo 1 > $ritzBuild
+    echo 1 > $ritzSolve
+    echo 1 > $krylovBuild
     echo 1 > hosts
     echo 1 > ppn
     echo 10000 > spn
