@@ -11,7 +11,7 @@ import os
 from sys import argv
 
 if len(argv)!= 5:
-	print(" Ecut min-out max-m max-n")
+	print("  min-out Ecut max-m max-n")
 	exit()
 	
 minOut = int(argv[1])
