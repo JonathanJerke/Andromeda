@@ -177,7 +177,7 @@ else:
 	vbarTOT = 0
 	
 tried = [qq]	
-while ( cf >= ci ) or ( cf < minOut ) :
+while ( cf >= ci ) :
 	for i in range( ci,cf ):
 		for dr in arrae:
 			qq = list(array(gogo[i]) + array(dr))
@@ -210,6 +210,8 @@ while ( cf >= ci ) or ( cf < minOut ) :
 						vbarTOT += vbartemp	
 	ci = cf + 1
 	cf = len(pot)
+	if ( cf < minOut ):
+		cf += 1
 
 dat = pd.DataFrame( data = gogo )
 dat['index'] = dat.index
