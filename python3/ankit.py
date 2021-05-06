@@ -169,7 +169,7 @@ le = [-1]
 ri = [-1]
 
 vbarTOT = pot[0]
-	
+tried = []	
 while ( cf >= ci ):
 	for i in range( ci,cf ):
 		for dr in arrae:
@@ -182,7 +182,8 @@ while ( cf >= ci ):
 				if (qq[2*n+1]) > nMax :
 					flag = True
 		
-			if (not qq in gogo) and (not flag):
+			if (qq not in tried) and (not flag):
+				tried += [qq]
 				vbartemp = epot(qq)
 				if vbartemp < vbarMIN:
 					vbarMIN = vbartemp
