@@ -7,7 +7,14 @@
 
 ##explicitly delete the found/found.vector file to reset.
 
+from sys import argv
 
+##first argv is opinional -- Ecut 
+
+if len(argv) >= 2:
+    Ecut = float(argv[2])
+else:
+    Ecut = 1000000000000000000000
 
 import os
 from numpy import *
@@ -29,6 +36,12 @@ D = len(comps)
 gto = pd.read_csv('sg.csv')
 gto.index = gto['index']
 gto = gto.drop('index',axis=1)
+try:
+    gto = gto[gto['pot'] < Ecut]
+    gto = gto.drop('pot',axis=1)
+    print('Ecut to ', len(gto))
+except:
+    1
 
 print(B,D,N)
 for i in gto.index:
