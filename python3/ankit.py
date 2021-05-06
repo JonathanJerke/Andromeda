@@ -217,6 +217,7 @@ while ( cf >= ci ) :
 	cf = len(pot)
 
 dat = pd.DataFrame( data = gogo )
+dat['pot'] = pot
 dat['index'] = dat.index
 dat.to_csv('sg.csv',index = False)
 print( 'vbarMIN ',vbarMIN, 'varMAX', vbarMAX)
