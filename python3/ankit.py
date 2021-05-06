@@ -10,14 +10,13 @@
 import os
 from sys import argv
 
-if len(argv)!= 5:
-	print("  min-out Ecut max-m max-n")
+if len(argv)!= 4:
+	print(" Ecut max-m max-n")
 	exit()
 	
-minOut = int(argv[1])
-Ecut  = float(argv[2])
-mMax  = int(argv[3])
-nMax  = int(argv[4])
+Ecut  = float(argv[1])
+mMax  = int(argv[2])
+nMax  = int(argv[3])
 
 from numpy import *
 import pandas as pd
