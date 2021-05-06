@@ -210,9 +210,8 @@ while ( cf >= ci ) :
 						vbarTOT += vbartemp	
 	ci = cf + 1
 	cf = len(pot)
-	if ( cf < minOut ):
-		cf += 1
-
+	if ( ci == cf ) and ( cf < minOut ):
+		cf +=1
 dat = pd.DataFrame( data = gogo )
 dat['index'] = dat.index
 dat.to_csv('sg.csv',index = False)
