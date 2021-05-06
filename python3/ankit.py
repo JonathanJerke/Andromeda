@@ -162,14 +162,20 @@ pot = [epot(gogo[0])]
 ci = 0
 cf = 1
 
-vbarMAX = pot[0]
-vbarMIN = pot[0]
-
-le = [-1]
-ri = [-1]
-
-vbarTOT = pot[0]
-tried = []	
+if pot[0] < Ecut:
+	vbarMAX = pot[0]
+	vbarMIN = pot[0]
+	le = [-1]
+	ri = [-1]
+	vbarTOT = pot[0]
+else:
+	vbarMAX = -100000000
+	vbarMIN =  100000000
+	le = [-1]
+	ri = [-1]
+	vbarTOT = 0
+	
+tried = [qq]	
 while ( cf >= ci ):
 	for i in range( ci,cf ):
 		for dr in arrae:
