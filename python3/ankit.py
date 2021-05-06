@@ -10,13 +10,14 @@
 import os
 from sys import argv
 
-if len(argv)!= 4:
-	print(" Ecut max-m max-n")
+if len(argv)!= 5:
+	print(" Ecut min-out max-m max-n")
 	exit()
 	
-Ecut  = float(argv[1])
-mMax  = int(argv[2])
-nMax  = int(argv[3])
+minOut = int(argv[1])
+Ecut  = float(argv[2])
+mMax  = int(argv[3])
+nMax  = int(argv[4])
 
 from numpy import *
 import pandas as pd
@@ -176,7 +177,7 @@ else:
 	vbarTOT = 0
 	
 tried = [qq]	
-while ( cf >= ci ):
+while ( cf >= ci ) or ( cf < minOut ) :
 	for i in range( ci,cf ):
 		for dr in arrae:
 			qq = list(array(gogo[i]) + array(dr))
