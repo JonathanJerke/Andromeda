@@ -138,7 +138,13 @@ def sort (le,ri,gogo,qq):
 
 
 d = B * D
-gogo =  [[0.,0.5] * d ]
+try:
+        gogo= []
+        x = pd.read_csv('init.csv')
+        for index in [x.index[0]]:
+                gogo += [list(x.drop('index',axis=1).loc[index].values)]
+except :
+	gogo =  [[0.,0.5] * d ]
 
 arrae = []
 for dd in range(d):
@@ -210,8 +216,7 @@ while ( cf >= ci ) :
 						vbarTOT += vbartemp	
 	ci = cf + 1
 	cf = len(pot)
-	if ( ci == cf ) and ( cf < minOut ):
-		cf +=1
+
 dat = pd.DataFrame( data = gogo )
 dat['index'] = dat.index
 dat.to_csv('sg.csv',index = False)
