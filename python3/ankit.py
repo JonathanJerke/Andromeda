@@ -186,16 +186,19 @@ while ( cf >= ci ) :
 	for i in range( ci,cf ):
 		for dr in arrae:
 			qq = list(array(gogo[i]) + array(dr))
-			flag = False
-			for n in range(d):
-				if abs(qq[2*n]) > mMax :
-					flag = True
-			for n in range(d):
-				if (qq[2*n+1]) > nMax :
-					flag = True
+			
 		
-			if (qq not in tried) and (not flag):
+			if (qq not in tried) :
 				tried += [qq]
+				flag = False
+				for n in range(d):
+					if abs(qq[2*n]) > mMax :
+						flag = True
+				for n in range(d):
+					if (qq[2*n+1]) > nMax :
+						flag = True
+				if flag:
+					continue
 				vbartemp = epot(qq)
 				if vbartemp < vbarMIN:
 					vbarMIN = vbartemp
