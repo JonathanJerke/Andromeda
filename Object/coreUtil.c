@@ -2713,6 +2713,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
     division header = anotherLabel(&f1, 0, nada);
     division mem    = anotherLabel(&f1, 0, one);
     char* desc [] = {"fourier","negative","positive"};
+    if(0)
     for ( space = 0; space < SPACE ; space++){
         for (body = one ; body <=  f1.canon[space].body ; body++ )
             for ( ed = 0 ; ed < 3 ; ed++){
@@ -3014,11 +3015,14 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                                 break;
 
                     }
+                            for ( i = 0 ; i < N2 ; i++){
+                                bufferP[i] = 0.;
+                            }
+
                     for ( timer = 0 ; timer < xlxl ; timer++){
                         for ( i = 0 ; i < N2 ; i++){
                             midP[i] = 0.;
                             laterP[i] = 0.;
-                            bufferP[i] = 0.;
                         }
                         double flow = 1.;
                         if (space == 0 )

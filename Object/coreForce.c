@@ -2400,80 +2400,18 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
         printf("null func\n");
         return 0;
     }
-    inta spaces,spacy, n1[SPACE];
+    inta n1[SPACE];
     length1(f1,n1);
     
-    inta i,beta,I1,space,I2,N1;
-    spaces = 0;
-    double constant,x,g;
+    inta I1,space,I2,N1;
+    floata x;
     
-    
-    /////IGNORE TRAIN COMMAND
-    inta section=2,si,ngk, intv = metric.fn.interval,flagConstants=0;
-    
-    if ( metric.metric == interval )
-        section = 0;
-    if ( metric.metric == semiIndefinite)
-        section = 1;
-    if ( metric.metric == dirac)
-        section = 2;
-    
-    if ( metric.metric == pureSemiIndefinite){
-        section = 1;
-        flagConstants = 1;
-    }
-    if ( metric.metric == pureInterval){
-        flagConstants = 1;
-        section = 0;
-    }
-    if ( section < 2 ){
-        ngk = intv;
-    }
-    else {
-        ngk = 1;
-    }
+    floata *Xbeta = NULL, *Wbeta = NULL;
+    Xbeta = malloc(metric.fn.interval *sizeof(floata));
+    Wbeta = malloc(metric.fn.interval *sizeof(floata));
+    inta si,beta, nbeta = quadrature(metric, Xbeta, Wbeta);
 
-    for ( beta = 0; beta < ngk ; beta++){//beta is an index.
-        if ( section == 1 ){
-            g = gaussQuad(ngk,beta,1,1);// [1, inf)
-            constant = gaussQuad(ngk, beta, 0,1);
-            
-            x = ( g ) / (1. - g)+1 ;
-            constant /= (1.-g)*(1.-g);
-            
-            
-            x *=  metric.beta[0];
-            constant *= metric.beta[0];
-            if ( ! flagConstants )
-                constant *= inverseLaplaceTransform(x,&metric.fn)*scalar;
-            else
-                constant = 1;
-        }else if ( section == 0 ) {
-            g = gaussQuad(ngk,beta,1,1);//interval [0,1]
-            constant = gaussQuad(ngk, beta, 0,1);
-            
-            x = g;
-            
-            
-            x *=  (metric.beta[1]-metric.beta[0]);
-            constant *= (metric.beta[1]-metric.beta[0]);
-            x += metric.beta[0];
-            if ( ! flagConstants )
-                constant *= inverseLaplaceTransform(x,&metric.fn)*scalar;
-            else
-                constant = 1;
-
-        } else {
-            x = metric.beta[0];// value;
-            constant = scalar;
-        }
-        //printf("x %f \n const %f\n",x,constant);
-        
-        //x is beta.
-        if ( overline ){
-            printf("periodic boundaries not implemented yet!");
-            exit(0);
-        }
+    for ( beta = 0; beta < nbeta ; beta++){//beta is an index.
         tClear(f1,eikonBuffer);
         zero(f1,eikonBuffer,0);
         inta invertSign;
@@ -2488,7 +2426,8 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
             {
                 double oneOri,twoOri;
                 invertSign = 1;
-
+                x = Xbeta[beta];
+                
             for ( space = 0 ;space < SPACE  ; space++)
                 if ( f1.canon[space].body != nada )
                     if ( f1.canon[space].label == particle1[0] )
@@ -2506,12 +2445,10 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
 
                                 for ( si = 0 ; si < N1; si++){
                                         I1 = si;//
-                                    te[si] = momentumIntegralInTrain(x*oneL, ((I1*oneL+oneOri)-position[f1.canon[space].space])/oneL,1, hidden, body);
-                                    if ( invertSign  ){
-                                            te[si] *= constant;
-                                            for ( spacy = 0 ; spacy < embed ; spacy++)
-                                                te[si] *= momentumIntegralInTrain(x*oneL, 0,1, hidden, body);
-                                    }
+                                        te[si] = momentumIntegralInTrain(x*oneL, ((I1*oneL+oneOri)-position[f1.canon[space].space])/oneL,1, hidden, body);
+                                    if ( invertSign  )
+                                            te[si] *= scalar*Wbeta[beta];
+                                    
                                     if ( alloc(f1, eikonBuffer, space) < si ){
                                         printf("creation of oneBody, somehow allocations of vectors are too small. %d\n",newLabel);
                                         exit(0);
@@ -2543,9 +2480,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                                      {
                                         te[si] = momentumIntegralInTrain(x*max(fabs(oneL),twoL), ((oneL*I1+oneOri)-(twoL*I2+twoOri))/max(fabs(oneL),twoL),1, hidden, body);
                                          if ( invertSign ){
-                                             te[si] *= constant;
-                                             for ( spacy = 0 ; spacy < embed ; spacy++)
-                                                 te[si] *= momentumIntegralInTrain(x*max(fabs(oneL),twoL), 0,1, hidden, body);
+                                             te[si] *= scalar*Wbeta[beta];
                                          }
                                              
                                          si++;
@@ -4248,24 +4183,22 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
 inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,inta invert, inta act,  blockType bl,  division pair,  inta *particle1 ,inta embed, inta overline,   spinType cmpl,  metric_label mu){
     inta ra=0;
     printf("twoBody act %d block %d >%d<-- (%f)\n",act,bl,embed,scalar);
-    
+    double zero[6];
+    zero[0] = 0.;
+    zero[1] = 0.;
+    zero[2] = 0.;
+    zero[3] = 0.;
+    zero[4] = 0.;
+    zero[5] = 0.;
+
     if ( mu.metric == interval || mu.metric == semiIndefinite)
         ra += (mu.fn.interval);
     else if ( mu.metric == dirac )
         ra++;
-#ifdef SEPARATE_ONE_BODY
     if ( bootedQ(*f1) ){
-        separateInteraction(f1, scalar,zero,invert,act,bl, pair , mu, cmpl,0, 0, particle1,two,embed);
-    }
-#else
-    if ( bootedQ(*f1) ){
-            double zero[6];
-            zero[0] = 0.;
-            zero[1] = 0.;
-            zero[2] = 0.;
-            zero[3] = 0.;
-            zero[4] = 0.;
-            zero[5] = 0.;
+        if ( mu.fn.momentumInterval < 0 && f1->canon[0].basis == SincBasisElement ){
+            separateInteraction(f1, scalar,zero,invert,act,bl, pair , mu, cmpl,0, 0, particle1,two,embed);
+        }else {
         if ( f1->canon[0].basis == SincBasisElement ){
             inta space,body;
             momentumIntegralSpecs specs;
@@ -4287,7 +4220,7 @@ inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,in
             periodicInteraction(f1, scalar,zero,invert,act,bl, pair , mu, cmpl,specs, f1->canon[0].count1Basis*f1->canon[0].particle[one].lattice, 0, particle1,two);
         }
     }
-#endif
+    }
     return ra;
 }
 
