@@ -219,9 +219,10 @@ while ( cf >= ci ) :
 	ci = cf + 1
 	cf = len(pot)
 
-dat = pd.DataFrame( data = gogo )
-dat['pot'] = pot
-dat['index'] = dat.index
-dat.to_csv('sg.csv',index = False)
-print( 'vbarMIN ',vbarMIN, 'varMAX', vbarMAX)
-print( 'vbarTOT ', vbarTOT )
+	dat = pd.DataFrame( data = gogo )
+	dat['pot'] = pot
+	dat['index'] = dat.index
+	dat.to_csv('sg.csv',index = False)
+	print(ci,cf)
+	print( 'vbarMIN ',vbarMIN, 'varMAX', vbarMAX)
+	print( 'vbarTOT ', vbarTOT )
