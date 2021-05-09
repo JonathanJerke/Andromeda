@@ -479,7 +479,7 @@ inta topezOp(double origin, double lattice,  bodyType bd,inta act,   blockType c
 
 inta diagonalOp(  bodyType bd,  inta act,   blockType cl,   blockType bl, inta N1,floata * vector, floata * toep, floata* vectorOut){
     //COULD ALWAYS TRANSLATE WITH TRANSLATION OPERATOR
-    inta perm[7],m,m2,n;
+    inta perm[7],m,m2,m3,n;
     inta n1[7];
     inta op[7];
     switch (commandSA(bd,act,cl,bl,perm,op)){
@@ -506,6 +506,18 @@ inta diagonalOp(  bodyType bd,  inta act,   blockType cl,   blockType bl, inta N
                         for ( m2 = 0 ; m2 < N1 ; m2++){
                             cblas_dcopy(N1, vector+m*n1[perm[op[1]]]+m2*n1[perm[op[2]]],n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
                             cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,N1,0,toep,1, vectorOut+n1[op[1]]*m+n1[op[2]]*m2, n1[op[0]]);
+                        }
+                    return 0;
+                case four:
+                    n1[0] = 1;
+                    n1[1] = N1;
+                    n1[2] = N1*N1;
+                    n1[3] = N1*N1*N1;
+                    for ( m = 0 ; m < N1 ; m++)
+                        for ( m2 = 0 ; m2 < N1 ; m2++)
+                            for ( m3 = 0 ; m3 < N1 ; m3++){
+                            cblas_dcopy(N1, vector+m*n1[perm[op[1]]]+m2*n1[perm[op[2]]]+m3*n1[perm[op[3]]],n1[perm[op[0]]], vectorOut+n1[op[1]]*m+n1[op[2]]*m2+m3*n1[perm[op[3]]], n1[op[0]]);
+                            cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,N1,0,toep,1, vectorOut+n1[op[1]]*m+n1[op[2]]*m2+m3*n1[perm[op[3]]], n1[op[0]]);
                         }
                 return 0;
                     default:
@@ -555,6 +567,21 @@ inta diagonalOp(  bodyType bd,  inta act,   blockType cl,   blockType bl, inta N
 
                         }
                     return 0;
+                    
+                case four:
+                    n1[0] = 1;
+                    n1[1] = N1;
+                    n1[2] = N1*N1;
+                    n1[3] = N1*N1*N1;
+                    for ( m3 = 0 ; m3 < N1 ; m3++)
+                    for ( m = 0 ; m < N1 ; m++)
+                        for ( n = 0 ; n < N1 ; n++){
+                            cblas_dcopy(N1, vector+n1[perm[op[1]]]*n+m*n1[perm[op[2]]]+m3*n1[perm[op[3]]], n1[perm[op[0]]], vectorOut+n1[op[1]]*n+m*n1[op[2]]+m3*n1[perm[op[3]]], n1[op[0]]);
+                                cblas_dtbmv(CblasColMajor, CblasUpper,CblasNoTrans,CblasNonUnit,N1,0,toep+n*N1,1, vectorOut+n*n1[op[1]]+m*n1[op[2]]+m3*n1[perm[op[3]]],n1[op[0]]);
+
+                        }
+                    return 0;
+
                 default:
                     break;
 
