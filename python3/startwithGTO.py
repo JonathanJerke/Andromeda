@@ -9,6 +9,14 @@
 
 ##explicitly delete the found/found.vector file to reset.
 
+from sys import argv
+
+##first argv is opinional -- Ecut 
+
+if len(argv) >= 2:
+    Ecut = float(argv[2])
+else:
+    Ecut = 1000000000000000000000
 
 import os
 from numpy import *
