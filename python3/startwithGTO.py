@@ -31,6 +31,15 @@ gto = pd.read_csv('gto.csv')
 gto.index = gto['index']
 gto = gto.drop('index',axis=1)
 
+try:
+    gto = gto[gto['pot'] < Ecut]
+    gto = gto.drop('pot',axis=1)
+    print('Ecut to ', len(gto))
+except:
+    1
+
+
+
 print(B,D,N)
 for i in gto.index:
     g.setCurrent(Current = 0)
