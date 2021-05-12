@@ -14,7 +14,7 @@ from sys import argv
 ##first argv is opinional -- Ecut 
 
 if len(argv) >= 2:
-    Ecut = float(argv[2])
+    Ecut = float(argv[1])
 else:
     Ecut = 1000000000000000000000
 
