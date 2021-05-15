@@ -440,6 +440,7 @@ cdef extern from "../Object/constants.h":
         inta numVectors
         inta build
         inta termNumber
+        inta dimNumber
         term_label terms[MAXTERM]
         inta minIterationPrint
         char controlPath[MAXSTRING]
