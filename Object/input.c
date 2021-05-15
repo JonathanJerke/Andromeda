@@ -997,7 +997,7 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                             break;
                             ///  allocate 3 space.
                     }
-                    for ( dim = space ; dim < space + components ; dim++){
+                    for ( dim = c->i.dimNumber ; dim < c->i.dimNumber + components ; dim++){
                         f->f.canon[dim].basis = basisType;
                         f->f.canon[dim].body = body;
                         f->f.canon[dim].count1Basis = count1Basis;
@@ -1032,7 +1032,7 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                     }
                     if ( components ){
                         label++;
-                        space += components;
+                        c->i.dimNumber += components;
                     }
                     return components;
                 }

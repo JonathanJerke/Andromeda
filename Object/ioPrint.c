@@ -230,6 +230,7 @@ inta ioArray(  calculation *c1,   field f,char * name,inta N1, floata * array, i
     c2.i.numNames = 0;
     c2.i.numVectors = 0;
     c2.i.termNumber = 0;
+    c2.i.dimNumber = 1;
     c2.rt.NLanes = 1;
     f2.f.rt = &c2.rt;
     f2.f.rt->phaseType = productKrylov;

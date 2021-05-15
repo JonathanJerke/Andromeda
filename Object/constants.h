@@ -845,6 +845,8 @@ struct input {
     inta build;
     ///number of chain elements, not terms exactly
     inta termNumber ;
+    ///number of allocated dimensions
+    inta dimNumber ;
     ///*Term input container
     struct term_label terms[MAXTERM];
     ///avoid printing to disk lower iterations

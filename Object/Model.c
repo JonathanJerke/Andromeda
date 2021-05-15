@@ -59,7 +59,7 @@
       i->i.OpIndex =-1;
 
     floata lattice = 1;
-    inta basis = 1;
+      inta basis = 11;
     space = 0;
       i->f.canon[space].basis =SincBasisElement;
       i->f.canon[space].body = two;
@@ -122,7 +122,8 @@ void initCal ( calculation * i ) {
     i->i.shiftFlag = 0;
     i->i.minIterationPrint = 0;
     i->i.termNumber = 0;
-  //  i.i.shiftVector[0] = 0;
+    i->i.dimNumber = 0;
+    //  i.i.shiftVector[0] = 0;
    // i.i.shiftVector[1] = 1;
     i->rt.MAX_CYCLE = 24;
     i->rt.relativeTOLERANCE = 0.000000000000001;
@@ -192,8 +193,6 @@ void initCal ( calculation * i ) {
     t.bl = 7;
     t.type   = 9;
     
-   t.bl = 1;
-    t.type = 8;
     
     i->i.terms[0] = t;
     t.type = 5;
