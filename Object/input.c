@@ -1125,7 +1125,7 @@ inta getDimensionalDefinitions(struct calculation * c,struct field * f, const ch
                                     }
                             return i;
                         case 5:
-                            for ( dim = 0 ; dim < space ; dim++)
+                            for ( dim = 0 ; dim < c->i.dimNumber ; dim++)
                                 if ( ivalue == f->f.canon[dim].label ){
                                     f->f.canon[dim].particle[one].origin   += lattice1*floor(origin1/lattice1);
                                     f->f.canon[dim].particle[two].origin   += lattice2*floor(origin2/lattice2);
