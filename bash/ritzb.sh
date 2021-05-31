@@ -22,10 +22,13 @@ if [ $# -eq 5 ]
             done
         done
         
-        for include in `cat include`
-            do 
-            echo "vector $prev.$state" >> $file
-        done
+        if [ -e include ] 
+        then 
+            for include in `cat include`
+                do 
+                echo "vector $prev.$state" >> $file
+            done
+        fi
         
         echo "control ritzPhase" >> $file
         echo ".InputOutput" >> $file
