@@ -19,6 +19,15 @@ if [ $# -eq 5 ]
             echo "vector $curr.$sum.$state" >> $file
         done
     done
+    
+    if [ -e include ]
+    then
+        for include in `cat include`
+            do 
+                echo "vector $prev.$state" >> $file
+        done
+    fi
+    
     for h in `cat $4`
         do
         echo "sum $dir/$ritzBuild.$h.riz " >> $file
