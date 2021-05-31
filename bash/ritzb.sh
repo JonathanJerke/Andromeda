@@ -26,7 +26,7 @@ if [ $# -eq 5 ]
         then 
             for include in `cat include`
                 do 
-                echo "vector $prev.$state" >> $file
+                echo "vector $prev.$include" >> $file
             done
         fi
         
