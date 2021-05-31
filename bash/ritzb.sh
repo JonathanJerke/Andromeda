@@ -21,6 +21,12 @@ if [ $# -eq 5 ]
                 echo "vector $curr.$sum.$state" >> $file
             done
         done
+        
+        for include in `cat include`
+            do 
+            echo "vector $prev.$state" >> $file
+        done
+        
         echo "control ritzPhase" >> $file
         echo ".InputOutput" >> $file
         echo "*Parameters" >>$file
