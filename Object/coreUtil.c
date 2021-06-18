@@ -2911,7 +2911,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
     {
         
         while ( terms <= o && oo < c->i.termNumber ){
-            if ( c->i.terms[oo].headFlag ) {
+            if ( c->i.terms[oo].headFlag == 1 ) {
                 terms++;
             }
             printf("%s ", c->i.terms[oo].desc);
