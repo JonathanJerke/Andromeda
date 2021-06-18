@@ -34,7 +34,7 @@
 //#define MODULARIZE_OUTPUT
 #define BACKWARDS
 #define SLEEP_DURATION 0
-
+#define MAX_PRODUCT 12
 #define RAND_FOUNDATION
 //#define CHERRY_PICKER
 ///to compile with acceleration in APPLE, not for distribution
