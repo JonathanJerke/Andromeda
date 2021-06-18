@@ -2104,31 +2104,31 @@ inta defineTerms (  calculation * c,   field *f,   division head, inta memory){
             sinc_label *f1 = &f->f;
             inta term=0,i,productIndex=0,index, intvType[MAX_PRODUCT];
             //tied to bra.
-            division prevLink = head,newTerm[MAX_PRODUCT] ;
+            division prevLink = head,newTerm[MAX_PRODUCT],walkLink = head ;
             
             for ( i = 0; i < c->i.termNumber ; i++)
             {
                     if ( c->i.terms[i].headFlag == 1 ){
                             term++;
-                        if ( memory== -1 || term == memory ){
-                            if ( term > 1 ){
-                                for ( index = 0 ;index < productIndex ; index++){
-                                    if ( intvType[index] == -1 ){
-                                        ///mult
-                                        if ( CanonicalRank(f->f, newTerm[index],0) > 1 ) {
-                                            printf("oops, only coded multiply for 1 canon");
-                                            exit(0);
-                                        }
-                                        f1->name[prevLink].multNext = f1->name[newTerm[index]].chainNext;
-                                    } else if ( intvType[index] >= 0 ){
-                                        ///add
-                                        while ( f1->name[prevLink].chainNext != nullName)
-                                            prevLink =f1->name[prevLink].chainNext;
-                                        f1->name[prevLink].chainNext = f1->name[newTerm[index]].chainNext;
+                            if ( memory== -1 || term == memory ){
+                                if ( term > 1 ){
+                                    for ( index = 0 ;index < productIndex ; index++){
+                                        if ( intvType[index] == -1 ){
+                                            ///mult
+                                            if ( CanonicalRank(f->f, newTerm[index],0) > 1 ) {
+                                                printf("oops, only coded multiply for 1 canon");
+                                                exit(0);
+                                            }
+                                            f1->name[walkLink].multNext = f1->name[newTerm[index]].chainNext;
+                                        } else if ( intvType[index] >= 0 ){
+                                            ///add
+                                            while ( f1->name[walkLink].chainNext != nullName)
+                                                walkLink =f1->name[walkLink].chainNext;
+                                            f1->name[walkLink].chainNext = f1->name[newTerm[index]].chainNext;
 
+                                        }
+                                
                                     }
-                            
-                                }
                                 
                             }
                             productIndex = 0;
@@ -2136,7 +2136,8 @@ inta defineTerms (  calculation * c,   field *f,   division head, inta memory){
                             f1->name[prevLink].linkNext = anotherLabel(f1, all, nada);
                             prevLink = f1->name[prevLink].linkNext;
                             f1->name[prevLink].species = matrix;
-                            printf("newTerm %d\n", term);
+                            walkLink = prevLink;
+                            printf("newTerm\t%d\t%s\n", term,c->i.terms[i].desc);
                         }
                  }
 
@@ -2194,12 +2195,12 @@ inta defineTerms (  calculation * c,   field *f,   division head, inta memory){
                     printf("oops, only coded multiply for 1 canon");
                     exit(0);
                 }
-                f1->name[prevLink].multNext = f1->name[newTerm[index]].chainNext;
+                f1->name[walkLink].multNext = f1->name[newTerm[index]].chainNext;
             } else if ( intvType[index] >= 0 ){
                 ///add
-                while ( f1->name[prevLink].chainNext != nullName)
-                    prevLink =f1->name[prevLink].chainNext;
-                f1->name[prevLink].chainNext = f1->name[newTerm[index]].chainNext;
+                while ( f1->name[walkLink].chainNext != nullName)
+                    walkLink =f1->name[walkLink].chainNext;
+                f1->name[walkLink].chainNext = f1->name[newTerm[index]].chainNext;
 
             }
         }
