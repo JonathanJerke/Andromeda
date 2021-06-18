@@ -122,6 +122,10 @@ DCOMPLEX expErf ( DCOMPLEX z ){
 
 /**
  *Center of the magic, the implementation of the Sinc integrals
+ *
+ *only reference to length in beta, so scale beta by lattice
+ *
+ *Incorporated 1/2/sqrt(pi)/beta
  */
 double momentumIntegralInTrain ( double beta, double kl , double d,   genusType hidden,   bodyType body ){
     switch(hidden){
@@ -177,7 +181,36 @@ double momentumIntegralInTrain ( double beta, double kl , double d,   genusType 
     return 0.;
 }
 
-
+/**
+ *Center of the magic, the implementation of the periodic grid integrals
+ *
+ */
+double PeriodicMomentumIntegralInTrain ( double beta, double kl ,double lattice, double position, genusType hidden, inta N1,  bodyType body ){
+    inta k;
+    floata gamma,su=0;
+    switch(hidden){
+        case eikonDiagonal:
+            switch(body){
+                case two:
+                    for ( k = -N1+1; k <= N1-1 ; k++){
+                        gamma = 2. *pi * k*1. / N1/lattice;
+                        su += cos( kl*gamma )                                   *exp(-(beta*beta/4./gamma/gamma));
+                    }
+                    return su/2./sqrt(pi)/beta/(N1);
+                case one:
+                    for ( k = -N1+1; k <= N1-1; k++){
+                        gamma = 2. *pi * k*1. / N1/lattice;
+                        su += cos( (kl-position)*gamma )                        *exp(-(beta*beta/4./gamma/gamma));
+                    }
+                    return su/2./sqrt(pi)/beta/(N1);
+            }
+            break;
+        case eikonSemiDiagonal:
+        case eikonOffDiagonal:
+            break;
+    }
+    return 0.;
+}
 
 /**
  *Center of the magic Gaussian-Sinc novelity, the implementation of the GaussianSinc integrals
@@ -258,7 +291,7 @@ DCOMPLEX gaussianSincfourierIntegralInTrain (double d, double gammax, double x, 
  * This can be further reduced, may be helpful for quantum computing...
  */
 
-DCOMPLEX spatialSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2, floata lattice2, floata origin,floata momentum ){
+DCOMPLEX spatialSincfourierIntegralInTrain  ( inta m1, floata lattice1, floata origin1, inta N1, inta m2, floata lattice2, floata origin2, inta N2, floata momentum){
     floata d ;
     floata b ;
     inta m,n;
@@ -273,7 +306,7 @@ DCOMPLEX spatialSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2, 
         m = m2;
         n = m1;
     }
-    DCOMPLEX phase = cexp(I*momentum*origin);
+    DCOMPLEX phase = cexp(I*momentum*origin1);
     DCOMPLEX base  = sqrt(b*d)/(2. *pi);
     if ( m1 == m2 ){
         if ( fabs(momentum) < (pi/b -pi/d)){
@@ -326,25 +359,22 @@ DCOMPLEX spatialSincfourierIntegralInTrain ( inta m1, floata lattice1, inta m2, 
  *
  * MAY NEED A BLOCH K
  */
-DCOMPLEX periodicSincfourierIntegralInTrain ( inta m1, inta m2,floata lattice , floata origin,inta N1, inta momentumIndex , inta order){
-    DCOMPLEX su = 0.,s;
-    DCOMPLEX phase = 1;//cexp(I*momentumIndex*2.*pi/N1*origin/lattice);
-
-    inta n,m, N12 = (N1-1)/2;
-    for ( n = -N12; n <= N12 ; n++){
-        for ( m = -N12 ; m <= N12 ;m++){
-            if ( n + m == momentumIndex ){
-                s = cexp( I * 2.0/(N1) * pi* ( n * m1 + m * m2 ) );
-                if ( order > 0 )
-                    s *= cpow( I * 2.* pi *m/lattice/N1,order );
-                su += s;
-                ///all variables are in ratio against total length, so no lattice required.
-            }
-        }
+DCOMPLEX periodicSincfourierIntegralInTrain  ( inta m1, floata lattice1, floata origin1, inta N1, inta m2, floata lattice2, floata origin2, inta N2, floata crystal,floata momentum,inta order){
+    ///Basis counts to (n1-1)/2
+    DCOMPLEX suc = 0.;
+    inta k,N12 = (N1-1)/2;
+    floata p ;
+    for ( k = -N12 ; k <= N12 ; k++){
+        p = 2*pi*k*1./N1+crystal;
+        if ( order != 0 )
+            suc += cexp(I*(m1-m2)*p)*pow(p,order);
+        else
+            suc += cexp(I*(m1-m2)*p);
     }
-    return su*phase/N1;
+    return suc/N1;
 }
-  
+
+
 /**
  *Bill's Magic
  * n=1 -> 1/2, n = 3 -> 3/2 ...

@@ -177,7 +177,6 @@ void length1(  sinc_label f1, inta *len){
 
 
 
-
 inta matrixLen(  sinc_label f1,   bodyType body, inta space){
     if ( body == one )
         return f1.canon[space].count1Basis*f1.canon[space].count1Basis ;
@@ -1640,6 +1639,35 @@ inta xAddTw(   sinc_label f1 ,   division left, inta lspin,  sinc_label f2 ,    
 //    return 0;
 //}
 
+int double_cmp( const void * a ,const void * b ){
+    const double* A = (const double* )a;
+    const double* B = (const double* )b;
+    if ( *A < * B )
+        return 1;
+    else if ( *A == *B )
+        return 0;
+    else return -1;
+}
+
+
+double levelDetermine ( inta M1 , double * array , double level){
+    double *temp = array+M1*M1*M1,sum,psum;
+    inta i;
+    cblas_dcopy(M1*M1*M1, array, 1, temp, 1);
+    qsort(temp, M1*M1*M1, sizeof(double), &double_cmp);
+    sum = 0.;
+    for ( i = 0 ;i < M1*M1*M1 ; i++)
+        sum += temp[i];
+    i= 0;
+    psum = 0.;
+    while (psum < level*sum ){
+        psum += temp[i++];
+    }
+    
+    return temp[i-1];
+}
+
+
 inta tId (   sinc_label f1 ,   division label,inta spin ){
     
     inta I1,I2,space;
@@ -2003,19 +2031,6 @@ void linkDetails(  sinc_label f1,   division linkHeader){
 
 
 
-
-int double_cmp( const void * a ,const void * b ){
-    const double* A = (const double* )a;
-    const double* B = (const double* )b;
-    if ( *A < * B )
-        return 1;
-    else if ( *A == *B )
-        return 0;
-    else return -1;
-}
-
-
-
 inta  countLinesFromFile(  calculation *c1,   field f1,inta location, inta *ir, inta *ix ){
     *ix = 0;
     inta fi,cmpl,lines = 0,num;
@@ -2081,6 +2096,121 @@ inta  countLinesFromFile(  calculation *c1,   field f1,inta location, inta *ir, 
     return lines;
 }
 
+#if 1
+
+inta defineTerms (  calculation * c,   field *f,   division head, inta memory){
+    
+    
+            sinc_label *f1 = &f->f;
+            inta term=0,i,productIndex=0,index, intvType[MAX_PRODUCT];
+            //tied to bra.
+            division prevLink = head,newTerm[MAX_PRODUCT] ;
+            
+            for ( i = 0; i < c->i.termNumber ; i++)
+            {
+                    if ( c->i.terms[i].headFlag == 1 || i == 0  ){
+                            term++;
+                            productIndex = 0;
+                        if ( memory== -1 || term == memory ){
+                            if ( i > 0 ){
+                                for ( index = 0 ;index < productIndex ; index++){
+                                    if ( intvType[index] == -1 ){
+                                        ///mult
+                                        if ( CanonicalRank(f->f, newTerm[index],0) > 1 ) {
+                                            printf("oops, only coded multiply for 1 canon");
+                                            exit(0);
+                                        }
+                                        f1->name[prevLink].multNext = f1->name[newTerm[index]].chainNext;
+                                    } else if ( intvType[index] == 0 ){
+                                        ///add
+                                        f1->name[prevLink].chainNext = f1->name[newTerm[index]].chainNext;
+                                        while ( f1->name[prevLink].chainNext != nullName)
+                                            prevLink =f1->name[prevLink].chainNext;
+                                    }
+                            
+                                }
+                                
+                            }
+                            f1->name[prevLink].linkNext = anotherLabel(f1, all, nada);
+                            prevLink = f1->name[prevLink].linkNext;
+                            f1->name[prevLink].species = matrix;
+
+                        }
+                 }
+
+                if ( memory== -1 || term == memory ){
+                    newTerm[productIndex] = anotherLabel(&f->f, all, nada);
+                    switch ( c->i.terms[i].type){
+                        case 1:
+                            buildConstant(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex], c->i.terms[i].label[0], 0, real);
+                            break;
+                        case 2:
+                            buildLinear(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label[0], 0, real);
+                            break;
+                        case 3:
+                            buildSpring(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label[0], 0, real);
+                            break;
+                        case 4:
+                            buildDeriv(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex], c->i.terms[i].label[0],0, real);
+                            break;
+                        case 5:
+                            buildKinetic(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label[0], 0, real);
+                            break;
+                        case 6:
+                            break;
+                        case 7:
+                            buildElement(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label[0], 0, real,c->i.terms[i].bra,c->i.terms[i].ket);
+                            break;
+                        case 8:
+                            buildExternalPotential(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label,c->i.terms[i].embed, 0, real,c->i.terms[i].mu,c->i.terms[i].atom);
+                            break;
+                        case 9:
+                            buildPairWisePotential(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl,newTerm[productIndex], c->i.terms[i].label, c->i.terms[i].embed,0, real,c->i.terms[i].mu);
+                            break;
+                        case 10:
+                            assignDiagonalMatrix(c,f,c->i.terms[i].filename,newTerm[productIndex]);
+                            break;
+                        }
+                    
+                        intvType[productIndex] = c->i.terms[i].headFlag;
+                        productIndex += 1;
+                
+                        if ( productIndex == MAX_PRODUCT ){
+                            printf("Issue,  too many products(!)");
+                            exit(0);
+                        }
+
+                    }
+
+            }
+    
+    {
+        for ( index = 0 ;index < productIndex ; index++){
+            if ( intvType[index] == -1 ){
+                ///mult
+                if ( CanonicalRank(f->f, newTerm[index],0) > 1 ) {
+                    printf("oops, only coded multiply for 1 canon");
+                    exit(0);
+                }
+                f1->name[prevLink].multNext = f1->name[newTerm[index]].chainNext;
+            } else if ( intvType[index] >= 0 ){
+                ///add
+                f1->name[prevLink].chainNext = f1->name[newTerm[index]].chainNext;
+                while ( f1->name[prevLink].chainNext != nullName)
+                    prevLink =f1->name[prevLink].chainNext;
+            }
+        }
+        
+    }
+    
+    
+    
+            analyzeChainElement(*f1,f->f.name[head].linkNext,0);
+            return term;
+        }
+
+#else
+
 inta defineTerms(  calculation * c,   field *f,   division head, inta memory){
     sinc_label *f1 = &f->f;
     inta term=0,i;
@@ -2138,6 +2268,7 @@ inta defineTerms(  calculation * c,   field *f,   division head, inta memory){
     }
     return term;
 }
+#endif
 
 inta defineCores(  calculation *c,  field *f ){
     inta i;
@@ -2740,7 +2871,6 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
     division header = anotherLabel(&f1, 0, nada);
     division mem    = anotherLabel(&f1, 0, one);
     char* desc [] = {"fourier","negative","positive"};
-    if(0)
     for ( space = 0; space < SPACE ; space++){
         for (body = one ; body <=  f1.canon[space].body ; body++ )
             for ( ed = 0 ; ed < 3 ; ed++){
@@ -3709,7 +3839,7 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
             else if ( shiftFlag  == -1){
                 tEqua(f1, totalVector, rank0, right, targSpin);
                 mea ME;
-                ME = tMatrixElements(rank0, f1, right, targSpin, left, 0, right, targSpin);
+                ME = pMatrixElement(f1, right, targSpin, left, 0, right, targSpin);
                 tScaleOne(f1, totalVector, rank0, -ME);
             }
             else

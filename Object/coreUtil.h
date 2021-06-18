@@ -51,6 +51,7 @@ inta pZero (   sinc_label  *f1 ,   division label, inta spin );
 inta zero (   sinc_label  f1 ,   division label, inta spin );
 inta myZero (   sinc_label  f1 ,   division label, inta spin );
 double tTrace(   sinc_label f1 ,   division label );
+double levelDetermine ( inta M1 , double * array , double level);
 inta pClear (   sinc_label * f1 ,   division label );
 inta tClear (   sinc_label  f1 ,   division label );
 inta CanonicalRank(   sinc_label  f1 ,   division label , inta spin );

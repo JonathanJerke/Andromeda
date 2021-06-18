@@ -24,13 +24,90 @@
  */
 
 #include "Model.h"
+void resetExternal(struct calculation * i, inta number, double scale ){
+    if ( number == 1 ){
+        i->i.Na = 1;
+        i->i.atoms[1].Z = 1;
+        i->i.atoms[1].position[1] = 0;
+        i->i.atoms[1].position[2] = 0;
+        i->i.atoms[1].position[3] = 0;
+        
+    } else
+        if ( number== 2 ){
+            i->i.Na = 2;
 
+            i->i.atoms[1].Z = 1;
+            i->i.atoms[1].position[1] = scale;
+            i->i.atoms[1].position[2] = 0;
+            i->i.atoms[1].position[3] = 0;
+            i->i.atoms[2].Z = 1;
+            i->i.atoms[2].position[1] = -scale;
+            i->i.atoms[2].position[2] = 0;
+            i->i.atoms[2].position[3] = 0;
+            
+        }
+        else
+            if ( number == 3 ){
+                i->i.Na = 3;
+
+                i->i.atoms[1].Z = 1;
+                i->i.atoms[1].position[1] = 2*scale;
+                i->i.atoms[1].position[2] = -scale;
+                i->i.atoms[1].position[3] = -scale;
+                i->i.atoms[2].Z = 1;
+                i->i.atoms[2].position[1] = -scale;
+                i->i.atoms[2].position[2] = -scale;
+                i->i.atoms[2].position[3] = 2*scale;
+                i->i.atoms[3].Z = 1;
+                i->i.atoms[3].position[1] = -scale;
+                i->i.atoms[3].position[2] = 2*scale;
+                i->i.atoms[3].position[3] = -scale;
+                
+            }
+            else
+                if ( number == 4 ){
+                    
+                    i->i.Na = 4;
+
+                    i->i.atoms[1].Z = 1;
+                    i->i.atoms[1].position[1] = scale;
+                    i->i.atoms[1].position[2] = 0;
+                    i->i.atoms[1].position[3] = -scale/sqrt(2.);
+                    i->i.atoms[2].Z = 1;
+                    i->i.atoms[2].position[1] = -scale;
+                    i->i.atoms[2].position[2] = 0;
+                    i->i.atoms[2].position[3] = -scale/sqrt(2.);
+                    i->i.atoms[3].Z = 1;
+                    i->i.atoms[3].position[1] = 0;
+                    i->i.atoms[3].position[2] = scale;
+                    i->i.atoms[3].position[3] = scale/sqrt(2.);
+                    i->i.atoms[4].Z = 1;
+                    i->i.atoms[4].position[1] = 0;
+                    i->i.atoms[4].position[2] = -scale;
+                    i->i.atoms[4].position[3] = scale/sqrt(2.);
+                    
+                }
+                else
+                    if ( number == 5 ){
+                        
+                        i->i.Na = 1;
+                        
+                        i->i.atoms[1].Z = 2;
+                        i->i.atoms[1].position[1] = 0;
+                        i->i.atoms[1].position[2] = 0;
+                        i->i.atoms[1].position[3] = 0;
+                        
+                    }
+
+    }
 
 /**
  *initialize field parameters
  *
 */
-  void initField ( field * i ) {
+  field initField (void) {
+      field f;
+      field * i = &f;
     inta space;
     i->i.body = nada;
       i->i.flex = 0;
@@ -58,11 +135,11 @@
 #ifdef APPLE
       i->i.OpIndex =-1;
 
-    floata lattice = 1;
-      inta basis = 11;
+      floata lattice = 0.25;
+      inta basis = 51;
     space = 0;
-      i->f.canon[space].basis =SincBasisElement;
-      i->f.canon[space].body = two;
+      i->f.canon[space].basis = SincBasisElement;
+      i->f.canon[space].body = one;
       i->f.canon[space].count1Basis = basis;
       i->f.canon[space].space = 0;
       i->f.canon[space].label = 1;
@@ -79,6 +156,26 @@
       i->f.canon[space].particle[four].lattice = lattice;
       i->f.canon[space].particle[four].origin = -basis/2*lattice ;
 
+      space++;
+      i->f.canon[space].basis = DiracDeltaElement;
+      i->f.canon[space].body = one;
+      i->f.canon[space].count1Basis = 2;
+      i->f.canon[space].space = 0;
+      i->f.canon[space].label = 2;
+      i->f.canon[space].particle[one].attack = 0.5;
+      i->f.canon[space].particle[one].lattice = lattice;
+      i->f.canon[space].particle[one].origin = -basis/2*lattice ;
+      i->f.canon[space].particle[two].attack = 0.5;
+      i->f.canon[space].particle[two].lattice = lattice;
+      i->f.canon[space].particle[two].origin = -basis/2*lattice ;
+      i->f.canon[space].particle[three].attack = 0.5;
+      i->f.canon[space].particle[three].lattice = lattice;
+      i->f.canon[space].particle[three].origin = -basis/2*lattice ;
+      i->f.canon[space].particle[four].attack = 0.5;
+      i->f.canon[space].particle[four].lattice = lattice;
+      i->f.canon[space].particle[four].origin = -basis/2*lattice ;
+
+      
       i->i.Iterations = 6;
 #endif
 //
@@ -110,14 +207,16 @@
       i->f.boot  = fullMatrices;
       i->i.irrep = 0;
       
-    return ;
+    return f;
 }
 
 /**
  *initialize calculation parameters
  *
  */
-void initCal ( calculation * i ) {
+calculation initCal (void ) {
+    calculation c;
+    calculation * i = &c;
     i->i.build = 1;
     i->i.shiftFlag = 0;
     i->i.minIterationPrint = 0;
@@ -174,13 +273,14 @@ void initCal ( calculation * i ) {
     t.atom = 1;
     t.func.contr = 2;
     t.func.fn = Coulomb;
+    t.func.param[0] = 1;
     t.func.interval = 15;
     t.func.momentumInterval = -1;
 
     t.adjustOne = 1.;
-    t.mu.beta[0] = 0.1;
-    t.mu.beta[1] = 2;
-    t.mu.metric = dirac;
+    t.mu.beta[0] = 0;
+    t.mu.beta[1] = 100;
+    t.mu.metric = interval;
     t.mu.fn  = t.func;
     t.invert = 0;
     t.label[0]  = 1;
@@ -189,19 +289,31 @@ void initCal ( calculation * i ) {
     t.scalar = 1;
     t.headFlag = 1;
     
-    
-    t.bl = 7;
-    t.type   = 9;
-    
-    
-    i->i.terms[0] = t;
-    t.type = 5;
+    if ( 0 ) {
     t.bl = 1;
-
+    t.type   = 8;
+    } else {
+        t.bl = 7;
+        t.type = 9;
+    }
+    i->i.terms[0] = t;
+    
+    t.headFlag = 1;
+    t.label[0] = 1;
+    t.label[1] = 1;
+    t.bl = 1;
+    t.scalar = 1;
+    t.type = 2;
+    i->i.terms[0] = t;
+    
+    t.label[0] = 2;
+    t.label[1] = 2;
+    t.headFlag = -1;
+    t.bra = 0;
+    t.ket = 0;
+    t.type = 7;
     i->i.terms[1] = t;
-    t.bl = 2;
-    i->i.terms[2] = t;
-
+    i->i.termNumber = 2;
     
     
 #else
@@ -215,8 +327,10 @@ void initCal ( calculation * i ) {
     i->rt.calcType = nullCalculation;
     i->rt.phaseType = buildFoundation ;
 #endif
-    return ;
+    return c;
 }
+
+
 
 /**
  * Deallocation of resources
@@ -650,8 +764,16 @@ inta iModel(   calculation * c1,   field *f){
             f1->name[copyFourVector].Partition =    maxVector;
         f1->name[copyFourVector].species = vector;
         
+#ifdef APPLE
+    fromBeginning(*f1,threeArray,copyFourVector);
+    f1->name[threeArray].Partition = 2*c1->i.M1*c1->i.M1*c1->i.M1;
+    f1->name[threeArray].memory = bufferAllocation;
+    fromBeginning(*f1,totalVector,threeArray);
+#else
+    
+    
         fromBeginning(*f1,totalVector,copyFourVector);
-  
+#endif
     
     {
         inta ra = 1;

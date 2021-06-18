@@ -638,66 +638,65 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                     c->i.terms[c->i.termNumber].type = io;
                     c->i.terms[c->i.termNumber].act = act;
                     c->i.terms[c->i.termNumber].bl = bl;
-                c->i.terms[c->i.termNumber].embed = embed;
+                    c->i.terms[c->i.termNumber].embed = embed;
                     c->i.terms[c->i.termNumber].scalar = scalar;
                     c->i.terms[c->i.termNumber].invert = invert;
                     strcpy(c->i.terms[c->i.termNumber].desc,input);
                     c->i.terms[c->i.termNumber].headFlag = newTerm;
                     c->i.terms[c->i.termNumber].adjustOne = adjustOne;
-                c->i.terms[c->i.termNumber].bra = bra;
-                c->i.terms[c->i.termNumber].ket = ket;
-                sprintf( c->i.terms[c->i.termNumber].filename,"%s",filename);
+                    c->i.terms[c->i.termNumber].bra = bra;
+                    c->i.terms[c->i.termNumber].ket = ket;
+                    sprintf( c->i.terms[c->i.termNumber].filename,"%s",filename);
                     strcpy(c->i.terms[c->i.termNumber].filename,filename);
-                c->i.terms[c->i.termNumber].atom     = atom;
-                c->i.terms[c->i.termNumber].label[0] = particle1;
-                c->i.terms[c->i.termNumber].label[1] = particle2;
-
+                    c->i.terms[c->i.termNumber].atom     = atom;
+                    c->i.terms[c->i.termNumber].label[0] = particle1;
+                    c->i.terms[c->i.termNumber].label[1] = particle2;
                     newTerm = 0;
-                metric.fn.fn = funcType;
-                metric.fn.param[0] = 1.;
-                metric.fn.param[1] = turn;
-                metric.fn.param[2] = param1;
-                metric.fn.param[3] = param2;
-                metric.fn.interval = Interval;
-                metric.fn.momentumInterval = momentumInterval;
-                metric.fn.contr    = contr;
-                metric.beta[0]     = mBeta;
-                //add gaussian!
-                if ( !flagScalar ){
-                    if ( xBeta > 0 ){
-                        metric.beta[1] = xBeta;
-                        metric.metric = interval;
-                    } else {
-                        metric.metric = semiIndefinite;
+                    metric.fn.fn = funcType;
+                    metric.fn.param[0] = 1.;
+                    metric.fn.param[1] = turn;
+                    metric.fn.param[2] = param1;
+                    metric.fn.param[3] = param2;
+                    metric.fn.interval = Interval;
+                    metric.fn.momentumInterval = momentumInterval;
+                    metric.fn.contr    = contr;
+                    metric.beta[0]     = mBeta;
+                    //add gaussian!
+                    if ( !flagScalar ){
+                        if ( xBeta > 0 ){
+                            metric.beta[1] = xBeta;
+                            metric.metric = interval;
+                        } else {
+                            metric.metric = semiIndefinite;
+                        }
+                    }else {
+                        if ( xBeta > 0 ){
+                            metric.beta[1] = xBeta;
+                            metric.metric = pureInterval;
+                        } else {
+                            metric.metric = pureSemiIndefinite;
+                        }
                     }
-                }else {
-                    if ( xBeta > 0 ){
-                        metric.beta[1] = xBeta;
-                        metric.metric = pureInterval;
-                    } else {
-                        metric.metric = pureSemiIndefinite;
+                    if ( Interval == 1 ){
+                        //only mBeta matters
+                        metric.metric = dirac;
                     }
-                }
-                if ( Interval == 1 ){
-                    //only mBeta matters
-                    metric.metric = dirac;
-                }
-                
-                for ( space = 0; space < SPACE ; space++){
-                    metric.pow[space] = 0;
-                    metric.deriv[space] = 0;
-                }
-                if ( io >= 8 ){
-                    c->i.terms[c->i.termNumber].mu = metric;
-                }
-                c->i.termNumber++;
-                return io;
                     
-                } else switch(io){
-                    case 11:
-                        sprintf(filename, "%s.vector",input);
-                        return io;
-                }
+                    for ( space = 0; space < SPACE ; space++){
+                        metric.pow[space] = 0;
+                        metric.deriv[space] = 0;
+                    }
+                    if ( io >= 8 ){
+                        c->i.terms[c->i.termNumber].mu = metric;
+                    }
+                    c->i.termNumber++;
+                    return io;
+                        
+                    } else switch(io){
+                        case 11:
+                            sprintf(filename, "%s.vector",input);
+                            return io;
+                    }
             }
                 
         }

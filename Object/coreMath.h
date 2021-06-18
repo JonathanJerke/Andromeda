@@ -41,7 +41,8 @@ inta imin( inta x1, inta x2 );
 double max( double x1, double x2 );
 double min( double x1, double x2 );
 double momentumIntegralInTrain ( double beta, double kl , double d,  genusType hidden,   bodyType body );
+double PeriodicMomentumIntegralInTrain ( double beta, double kl ,double lattice, double position, genusType hidden, inta N1,  bodyType body );
 DCOMPLEX gaussianSincfourierIntegralInTrain (double d, double gammax, double x, double gammay, double y, double kl, double momentum, genusType hidden );
-DCOMPLEX periodicSincfourierIntegralInTrain ( inta m1, inta m2,floata lattice , floata origin,inta N1, inta momentumIndex ,inta order);
-DCOMPLEX spatialSincfourierIntegralInTrain  ( inta m1, floata lattice1, inta m2,floata lattice2 , floata origin, floata momentum );
+DCOMPLEX periodicSincfourierIntegralInTrain  ( inta m1, floata lattice1, floata origin1, inta N1, inta m2, floata lattice2, floata origin2, inta N2, floata crystal,floata momentum,inta order);
+DCOMPLEX spatialSincfourierIntegralInTrain  ( inta m1, floata lattice1, floata origin1, inta N1, inta m2, floata lattice2, floata origin2, inta N2, floata momentum);
 #endif /* coreMath_h */

@@ -336,7 +336,6 @@ enum metricType {
 
 
 
-
 /**
  *Enumerate memory controls
  *
@@ -399,7 +398,7 @@ enum division{
     bra4,
     bra5,
     bra6,
-    bra7,
+    threeArray,
     lowdinVec,
     lowdinMatrix,
     overlap,
@@ -864,6 +863,11 @@ struct input {
 #ifdef MKL
     inta mkl;
 #endif
+    
+#ifdef APPLE
+    inta M1;
+#endif
+    
     ///wave-let momentum domain ,  counts from 0,1,2,3,...
     inta SymmetrizedGaussianLevel;
     ///length scale of cloud

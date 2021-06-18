@@ -781,7 +781,10 @@ int run (inta argc , char * argv[]){
     argv++;
       calculation *c = malloc(sizeof(calculation));
       field *f = malloc(sizeof(field));
-
+    *c = initCal();
+    *f = initField();
+    
+    
     
     if ( argc > 0 ){
         switch ( atoi( argv[0])){
