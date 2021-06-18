@@ -2108,11 +2108,10 @@ inta defineTerms (  calculation * c,   field *f,   division head, inta memory){
             
             for ( i = 0; i < c->i.termNumber ; i++)
             {
-                    if ( c->i.terms[i].headFlag == 1 || i == 0  ){
+                    if ( c->i.terms[i].headFlag == 1 ){
                             term++;
-                            productIndex = 0;
                         if ( memory== -1 || term == memory ){
-                            if ( i > 0 ){
+                            if ( term > 1 ){
                                 for ( index = 0 ;index < productIndex ; index++){
                                     if ( intvType[index] == -1 ){
                                         ///mult
@@ -2121,20 +2120,23 @@ inta defineTerms (  calculation * c,   field *f,   division head, inta memory){
                                             exit(0);
                                         }
                                         f1->name[prevLink].multNext = f1->name[newTerm[index]].chainNext;
-                                    } else if ( intvType[index] == 0 ){
+                                    } else if ( intvType[index] >= 0 ){
                                         ///add
-                                        f1->name[prevLink].chainNext = f1->name[newTerm[index]].chainNext;
                                         while ( f1->name[prevLink].chainNext != nullName)
                                             prevLink =f1->name[prevLink].chainNext;
+                                        f1->name[prevLink].chainNext = f1->name[newTerm[index]].chainNext;
+
                                     }
                             
                                 }
                                 
                             }
+                            productIndex = 0;
+
                             f1->name[prevLink].linkNext = anotherLabel(f1, all, nada);
                             prevLink = f1->name[prevLink].linkNext;
                             f1->name[prevLink].species = matrix;
-
+                            printf("newTerm %d\n", term);
                         }
                  }
 
@@ -2195,9 +2197,10 @@ inta defineTerms (  calculation * c,   field *f,   division head, inta memory){
                 f1->name[prevLink].multNext = f1->name[newTerm[index]].chainNext;
             } else if ( intvType[index] >= 0 ){
                 ///add
-                f1->name[prevLink].chainNext = f1->name[newTerm[index]].chainNext;
                 while ( f1->name[prevLink].chainNext != nullName)
                     prevLink =f1->name[prevLink].chainNext;
+                f1->name[prevLink].chainNext = f1->name[newTerm[index]].chainNext;
+
             }
         }
         
@@ -2205,7 +2208,7 @@ inta defineTerms (  calculation * c,   field *f,   division head, inta memory){
     
     
     
-            analyzeChainElement(*f1,f->f.name[head].linkNext,0);
+            //analyzeChainElement(*f1,f->f.name[head].linkNext,0);
             return term;
         }
 
@@ -2872,6 +2875,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
     division mem    = anotherLabel(&f1, 0, one);
     char* desc [] = {"fourier","negative","positive"};
     for ( space = 0; space < SPACE ; space++){
+        if ( f1.canon[space].basis != DiracDeltaElement)
         for (body = one ; body <=  f1.canon[space].body ; body++ )
             for ( ed = 0 ; ed < 3 ; ed++){
                 f1.name[header].species = eikon;
@@ -2913,8 +2917,8 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
         while ( terms <= o && oo < c->i.termNumber ){
             if ( c->i.terms[oo].headFlag == 1 ) {
                 terms++;
+                printf("%s ", c->i.terms[oo].desc);
             }
-            printf("%s ", c->i.terms[oo].desc);
             oo++;
         }
         me = 0.0;
