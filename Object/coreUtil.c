@@ -3213,7 +3213,7 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                         else if ( species(f1,su) == eikonLinear){
                             flow *= *suP;
                             ///relative to grid only
-                            floata center = (f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
+                            floata center = 0.5*(f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
                             topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-1, laterP);
                         }
                         else if ( species(f1,su) == eikonSpring){
