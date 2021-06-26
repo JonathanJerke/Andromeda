@@ -9,6 +9,9 @@ pip3 install numpy
 pip3 install Cython
 pip3 install h5py
 pip3 install scipy
+pip3 install qutip
+pip3 install matplotlib
+pip3 install jupyter
 ##compile Andromeda
 
 source compile.sh
