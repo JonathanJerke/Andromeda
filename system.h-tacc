@@ -43,6 +43,7 @@
 #define SPACE 3
 ///Number of 'atoms' under geometry,  really no reason to to keep this big
 #define MAXATOM 3
+#define MAX_PRODUCT 12
 ///All internal numbers are in au, including Hartrees.
 ///input in Angstroms unless 'Angstroms 0' set
 #define a0  0.52917721
