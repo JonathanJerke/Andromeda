@@ -340,6 +340,7 @@ cdef extern from "../Object/constants.h":
         inta bra
         inta ket
         inta embed
+        double omega
         metric_label mu
 
     cdef struct runTime:
