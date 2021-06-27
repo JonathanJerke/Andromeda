@@ -649,6 +649,8 @@ struct term_label {
     inta ket;
     ///multiply each Gaussian Term by more G(0)'s
     inta embed;
+    ///for SHO ladder operators writen in terms of space
+    floata omega;
     ///the metric of the beta
     struct metric_label mu;
 };

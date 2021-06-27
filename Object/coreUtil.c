@@ -2173,8 +2173,17 @@ inta defineTerms (  calculation * c,   field *f,   division head, inta memory){
                         case 10:
                             assignDiagonalMatrix(c,f,c->i.terms[i].filename,newTerm[productIndex]);
                             break;
-                        }
-                    
+                        
+                        case 11:
+                            buildNumber(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label[0], 0, real, c->i.terms[i].omega);
+                            break;
+                        case 12:
+                            buildCreate(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label[0], 0, real, c->i.terms[i].omega);
+                            break;
+                        case 13:
+                            buildDestroy(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, prevLink,  c->i.terms[i].label[0], 0, real, c->i.terms[i].omega);
+                            break;
+                    }
                         intvType[productIndex] = c->i.terms[i].headFlag;
                         productIndex += 1;
                 

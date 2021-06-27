@@ -2184,7 +2184,7 @@ double gaussQuad(inta pt , inta nm, inta which , inta truncate){
     
     
     double *gkX,*gkW;
-    inta ngk;
+    inta ngk=0;
     if ( pt ==1 ){
         gkX = gk1X;
         gkW = gk1W;
@@ -3660,6 +3660,261 @@ inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
                return 0;
 }
 
+
+/**
+ *Eikon of Number Operator
+ *
+ *@param c1 parameters
+ *@param f1 container
+ *@param scalar overall scalar multiply
+ *@param invert switch to turn on a particle-1 inversion
+ *@param act Symmetry Adaption related work, for group action
+ *@param bl the address of the interaction, i.e. particle-1 or particle-12
+ *@param[in] single linked list
+ *@param label the component group ID
+ *@param overline legacy
+ *@param cmpl make it real for now
+ *@param omega spatial definition of SHO
+*/
+inta buildNumber(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl, floata omega){
+    inta dim,spacy;
+      division li = single;
+    while ( f1->name[li].chainNext != nullName)
+        li =f1->name[li].chainNext;
+    //x is beta.
+    if ( overline ){
+        printf("periodic boundary conditions not implemented yet!");
+        exit(0);
+    }
+    printf("Number\tx %d act %d block %d (%f)\n", label,act,bl,scalar);
+
+    
+         division memoryLabel,currLabel;
+       currLabel = li;
+       for ( dim = 0 ; dim < SPACE ; dim++)
+           if ( f1->canon[dim].body != nada)
+           {
+               if ( f1->canon[dim].label == label)
+                   {
+
+                       f1->name[currLabel].chainNext = anotherLabel(f1,0,nada);
+                       currLabel = f1->name[currLabel].chainNext;
+                       f1->name[currLabel].species = eikon;
+                       //new term
+                       f1->name[currLabel].loopNext = anotherLabel(f1,all,one);
+                       memoryLabel = f1->name[currLabel].loopNext;
+                       f1->name[memoryLabel].species = eikonSpring;
+                       f1->name[memoryLabel].Current[0] = 1;
+
+               
+                       for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
+                           if ( f1->canon[spacy].body != nada){
+                               f1->name[memoryLabel].space[spacy].act = act;
+                               if ( f1->canon[spacy].label == label && spacy == dim)
+                                   {
+                                       f1->name[memoryLabel].space[spacy].body = one;
+                                       f1->name[memoryLabel].space[spacy].block = bl;
+                                       streams(*f1, memoryLabel, 0, spacy)[0] = 0.500*scalar*omega*omega;
+                                   }else{
+                                           f1->name[memoryLabel].space[spacy].block = id0;
+                                   }
+                       
+                           }
+                       
+                       f1->name[memoryLabel].loopNext = anotherLabel(f1,all,one);
+                       memoryLabel = f1->name[memoryLabel].loopNext;
+                       f1->name[memoryLabel].species = eikonKinetic;
+                       f1->name[memoryLabel].Current[0] = 1;
+
+               
+                       for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
+                           if ( f1->canon[spacy].body != nada){
+                               f1->name[memoryLabel].space[spacy].act = act;
+                               if ( f1->canon[spacy].label == label && spacy == dim)
+                                   {
+                                       f1->name[memoryLabel].space[spacy].body = one;
+                                       f1->name[memoryLabel].space[spacy].block = bl;
+                                       streams(*f1, memoryLabel, 0, spacy)[0] = 0.500*scalar;
+                                   }else{
+                                           f1->name[memoryLabel].space[spacy].block = id0;
+                                   }
+                       
+                           }
+                       
+               }
+           }
+               return 0;
+}
+
+/**
+ *Eikon of Creation Operator
+ *
+ *@param c1 parameters
+ *@param f1 container
+ *@param scalar overall scalar multiply
+ *@param invert switch to turn on a particle-1 inversion
+ *@param act Symmetry Adaption related work, for group action
+ *@param bl the address of the interaction, i.e. particle-1 or particle-12
+ *@param[in] single linked list
+ *@param label the component group ID
+ *@param overline legacy
+ *@param cmpl make it real for now
+ *@param omega spatial definition of SHO
+*/
+inta buildCreate(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl, floata omega){
+    inta dim,spacy;
+      division li = single;
+    while ( f1->name[li].chainNext != nullName)
+        li =f1->name[li].chainNext;
+    //x is beta.
+    if ( overline ){
+        printf("periodic boundary conditions not implemented yet!");
+        exit(0);
+    }
+    printf("Number\tx %d act %d block %d (%f)\n", label,act,bl,scalar);
+
+    
+         division memoryLabel,currLabel;
+       currLabel = li;
+       for ( dim = 0 ; dim < SPACE ; dim++)
+           if ( f1->canon[dim].body != nada)
+           {
+               if ( f1->canon[dim].label == label)
+                   {
+
+                       f1->name[currLabel].chainNext = anotherLabel(f1,0,nada);
+                       currLabel = f1->name[currLabel].chainNext;
+                       f1->name[currLabel].species = eikon;
+                       //new term
+                       f1->name[currLabel].loopNext = anotherLabel(f1,all,one);
+                       memoryLabel = f1->name[currLabel].loopNext;
+                       f1->name[memoryLabel].species = eikonLinear;
+                       f1->name[memoryLabel].Current[0] = 1;
+
+               
+                       for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
+                           if ( f1->canon[spacy].body != nada){
+                               f1->name[memoryLabel].space[spacy].act = act;
+                               if ( f1->canon[spacy].label == label && spacy == dim)
+                                   {
+                                       f1->name[memoryLabel].space[spacy].body = one;
+                                       f1->name[memoryLabel].space[spacy].block = bl;
+                                       streams(*f1, memoryLabel, 0, spacy)[0] = sqrt(0.500*omega)*scalar;
+                                   }else{
+                                           f1->name[memoryLabel].space[spacy].block = id0;
+                                   }
+                       
+                           }
+                       
+                       f1->name[memoryLabel].loopNext = anotherLabel(f1,all,one);
+                       memoryLabel = f1->name[memoryLabel].loopNext;
+                       f1->name[memoryLabel].species = eikonDeriv;
+                       f1->name[memoryLabel].Current[0] = 1;
+
+               
+                       for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
+                           if ( f1->canon[spacy].body != nada){
+                               f1->name[memoryLabel].space[spacy].act = act;
+                               if ( f1->canon[spacy].label == label && spacy == dim)
+                                   {
+                                       f1->name[memoryLabel].space[spacy].body = one;
+                                       f1->name[memoryLabel].space[spacy].block = bl;
+                                       streams(*f1, memoryLabel, 0, spacy)[0] = sqrt(0.500/omega)*scalar;
+                                   }else{
+                                           f1->name[memoryLabel].space[spacy].block = id0;
+                                   }
+                       
+                           }
+                       
+               }
+           }
+               return 0;
+}
+
+/**
+ *Eikon of Destruction Operator
+ *
+ *@param c1 parameters
+ *@param f1 container
+ *@param scalar overall scalar multiply
+ *@param invert switch to turn on a particle-1 inversion
+ *@param act Symmetry Adaption related work, for group action
+ *@param bl the address of the interaction, i.e. particle-1 or particle-12
+ *@param[in] single linked list
+ *@param label the component group ID
+ *@param overline legacy
+ *@param cmpl make it real for now
+ *@param omega spatial definition of SHO
+*/
+inta buildDestroy(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl, floata omega){
+    inta dim,spacy;
+      division li = single;
+    while ( f1->name[li].chainNext != nullName)
+        li =f1->name[li].chainNext;
+    //x is beta.
+    if ( overline ){
+        printf("periodic boundary conditions not implemented yet!");
+        exit(0);
+    }
+    printf("Number\tx %d act %d block %d (%f)\n", label,act,bl,scalar);
+
+    
+         division memoryLabel,currLabel;
+       currLabel = li;
+       for ( dim = 0 ; dim < SPACE ; dim++)
+           if ( f1->canon[dim].body != nada)
+           {
+               if ( f1->canon[dim].label == label)
+                   {
+
+                       f1->name[currLabel].chainNext = anotherLabel(f1,0,nada);
+                       currLabel = f1->name[currLabel].chainNext;
+                       f1->name[currLabel].species = eikon;
+                       //new term
+                       f1->name[currLabel].loopNext = anotherLabel(f1,all,one);
+                       memoryLabel = f1->name[currLabel].loopNext;
+                       f1->name[memoryLabel].species = eikonLinear;
+                       f1->name[memoryLabel].Current[0] = 1;
+
+               
+                       for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
+                           if ( f1->canon[spacy].body != nada){
+                               f1->name[memoryLabel].space[spacy].act = act;
+                               if ( f1->canon[spacy].label == label && spacy == dim)
+                                   {
+                                       f1->name[memoryLabel].space[spacy].body = one;
+                                       f1->name[memoryLabel].space[spacy].block = bl;
+                                       streams(*f1, memoryLabel, 0, spacy)[0] = sqrt(0.500*omega)*scalar;
+                                   }else{
+                                           f1->name[memoryLabel].space[spacy].block = id0;
+                                   }
+                       
+                           }
+                       
+                       f1->name[memoryLabel].loopNext = anotherLabel(f1,all,one);
+                       memoryLabel = f1->name[memoryLabel].loopNext;
+                       f1->name[memoryLabel].species = eikonDeriv;
+                       f1->name[memoryLabel].Current[0] = 1;
+
+               
+                       for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
+                           if ( f1->canon[spacy].body != nada){
+                               f1->name[memoryLabel].space[spacy].act = act;
+                               if ( f1->canon[spacy].label == label && spacy == dim)
+                                   {
+                                       f1->name[memoryLabel].space[spacy].body = one;
+                                       f1->name[memoryLabel].space[spacy].block = bl;
+                                       streams(*f1, memoryLabel, 0, spacy)[0] = -sqrt(0.500/omega)*scalar;
+                                   }else{
+                                           f1->name[memoryLabel].space[spacy].block = id0;
+                                   }
+                       
+                           }
+                       
+               }
+           }
+               return 0;
+}
 
 /**
  *Eikon of oneBody interaction

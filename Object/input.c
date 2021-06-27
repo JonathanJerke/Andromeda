@@ -601,7 +601,7 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
     static inta newTerm = 1;
     static inta invert = 0;
     static inta Interval = 1;
-    static inta momentumInterval = 217;
+    static inta momentumInterval = -1;
     static inta contr = 2;
     static double adjustOne = 1.;
     static double scalar = 1;
@@ -615,17 +615,19 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
     static inta particle1 = 1;
     static inta particle2 = 1;
     static inta funcType = 3;
+    static double omega = 0.5;
     char test_line [MAXSTRING];
     inta i,d,ivalue,space;
     metric_label metric;
     double value;    
     inta io;
-    inta Nio = 11;
+    inta Nio = 14;
     char *list_IO[] = {"#",
         "constant","linear","spring",
         "deriv","kinetic","clamp",
         "element","oneBody","twoBody",
-        "diagonal",
+        "diagonal","number","create",
+        "destroy",
         
         "filename"
     };
@@ -634,7 +636,7 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
     for( io = 1 ; io <= Nio ; io++){
         if ( strstr( input_line, list_IO [io])!=NULL){
                 sscanf(input_line,"%s %s", test_line,  input);
-                if ( io <= 10 ){
+                if ( io <= 13 ){
                     c->i.terms[c->i.termNumber].type = io;
                     c->i.terms[c->i.termNumber].act = act;
                     c->i.terms[c->i.termNumber].bl = bl;
@@ -693,7 +695,7 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                     return io;
                         
                     } else switch(io){
-                        case 11:
+                        case 14:
                             sprintf(filename, "%s.vector",input);
                             return io;
                     }
@@ -708,10 +710,11 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
         "bra","ket","flags","embed","revise",
         "reset","axis1","axis2","momentumInterval"
     };
-    inta NDOUBLE = 10;
+    inta NDOUBLE = 11;
     char *list_DOUBLE []= {"#",
         "placeholder","scalar","funcTurn","funcParam1","funcParam2",
-        "adjustOne","minBeta","maxBeta","infBeta","soloBeta"
+        "adjustOne","minBeta","maxBeta","infBeta","soloBeta",
+        "omega"
     };
     
     for ( i = 1 ; i <= NINT_TYPE ; i++){
@@ -830,6 +833,9 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                         mBeta = value;
                         Interval = 1;
                         funcType = 8;
+                        return d;
+                    case 11:
+                        omega = value;
                         return d;
                 }
             }
