@@ -232,7 +232,9 @@ enum genusType{
     eikonSpring,
     eikonElement,
     eikonOuter,
-    eikonSplit
+    eikonSplit,
+    eikonCreate,
+    eikonDestroy
 };
 
 

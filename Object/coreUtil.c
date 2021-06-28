@@ -3154,6 +3154,8 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                             case eikonElement:
                             case eikonOuter:
                             case eikonSplit:
+                            case eikonCreate:
+                            case eikonDestroy:
                                 xlxl = 1;
                                 break;
                             case eikonSemiDiagonal:
@@ -3225,6 +3227,24 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                             floata center = 0.5*(f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
                             topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-1, laterP);
                         }
+                        else if ( species(f1,su) == eikonCreate){
+                            flow *= *suP*sqrt(OMEGA*0.500);
+                            ///relative to grid only
+                            floata center = 0.5*(f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
+                            topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-1, laterP);
+                            topezOp(0,f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,1, midP);
+                            cblas_daxpy(N1, 1./OMEGA, midP, 1, laterP, 1);
+
+                        }
+                        else if ( species(f1,su) == eikonDestroy){
+                            flow *= *suP*sqrt(OMEGA*0.500);
+                            ///relative to grid only
+                            floata center = 0.5*(f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
+                            topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-1, laterP);
+                            topezOp(0,f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,1, midP);
+                            cblas_daxpy(N1, -1./OMEGA, midP, 1, laterP, 1);
+                        }
+
                         else if ( species(f1,su) == eikonSpring){
                             flow *= *suP;
                             ///relative to grid only

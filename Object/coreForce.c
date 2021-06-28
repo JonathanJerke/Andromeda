@@ -3686,7 +3686,7 @@ inta buildNumber(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
         printf("periodic boundary conditions not implemented yet!");
         exit(0);
     }
-    printf("Number\tx %d act %d block %d (%f)\n", label,act,bl,scalar);
+    printf("Number\tx %d act %d block %d (%f) --%f\n", label,act,bl,scalar,omega);
 
     
          division memoryLabel,currLabel;
@@ -3734,7 +3734,7 @@ inta buildNumber(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
                                    {
                                        f1->name[memoryLabel].space[spacy].body = one;
                                        f1->name[memoryLabel].space[spacy].block = bl;
-                                       streams(*f1, memoryLabel, 0, spacy)[0] = 0.500*scalar;
+                                       streams(*f1, memoryLabel, 0, spacy)[0] = -0.500*scalar;
                                    }else{
                                            f1->name[memoryLabel].space[spacy].block = id0;
                                    }
@@ -3771,7 +3771,7 @@ inta buildCreate(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
         printf("periodic boundary conditions not implemented yet!");
         exit(0);
     }
-    printf("Number\tx %d act %d block %d (%f)\n", label,act,bl,scalar);
+    printf("Create\tx %d act %d block %d (%f) (%f)\n", label,act,bl,scalar,omega);
 
     
          division memoryLabel,currLabel;
@@ -3788,7 +3788,7 @@ inta buildCreate(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
                        //new term
                        f1->name[currLabel].loopNext = anotherLabel(f1,all,one);
                        memoryLabel = f1->name[currLabel].loopNext;
-                       f1->name[memoryLabel].species = eikonLinear;
+                       f1->name[memoryLabel].species = eikonCreate;
                        f1->name[memoryLabel].Current[0] = 1;
 
                
@@ -3799,32 +3799,13 @@ inta buildCreate(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
                                    {
                                        f1->name[memoryLabel].space[spacy].body = one;
                                        f1->name[memoryLabel].space[spacy].block = bl;
-                                       streams(*f1, memoryLabel, 0, spacy)[0] = sqrt(0.500*omega)*scalar;
+                                       streams(*f1, memoryLabel, 0, spacy)[0] = scalar;
                                    }else{
                                            f1->name[memoryLabel].space[spacy].block = id0;
                                    }
                        
                            }
                        
-                       f1->name[memoryLabel].loopNext = anotherLabel(f1,all,one);
-                       memoryLabel = f1->name[memoryLabel].loopNext;
-                       f1->name[memoryLabel].species = eikonDeriv;
-                       f1->name[memoryLabel].Current[0] = 1;
-
-               
-                       for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
-                           if ( f1->canon[spacy].body != nada){
-                               f1->name[memoryLabel].space[spacy].act = act;
-                               if ( f1->canon[spacy].label == label && spacy == dim)
-                                   {
-                                       f1->name[memoryLabel].space[spacy].body = one;
-                                       f1->name[memoryLabel].space[spacy].block = bl;
-                                       streams(*f1, memoryLabel, 0, spacy)[0] = sqrt(0.500/omega)*scalar;
-                                   }else{
-                                           f1->name[memoryLabel].space[spacy].block = id0;
-                                   }
-                       
-                           }
                        
                }
            }
@@ -3856,7 +3837,7 @@ inta buildDestroy(  calculation *c1,   sinc_label *f1,double scalar,inta invert,
         printf("periodic boundary conditions not implemented yet!");
         exit(0);
     }
-    printf("Number\tx %d act %d block %d (%f)\n", label,act,bl,scalar);
+    printf("Destroy\tx %d act %d block %d (%f) (%f)\n", label,act,bl,scalar,omega);
 
     
          division memoryLabel,currLabel;
@@ -3873,7 +3854,7 @@ inta buildDestroy(  calculation *c1,   sinc_label *f1,double scalar,inta invert,
                        //new term
                        f1->name[currLabel].loopNext = anotherLabel(f1,all,one);
                        memoryLabel = f1->name[currLabel].loopNext;
-                       f1->name[memoryLabel].species = eikonLinear;
+                       f1->name[memoryLabel].species = eikonDestroy;
                        f1->name[memoryLabel].Current[0] = 1;
 
                
@@ -3884,32 +3865,14 @@ inta buildDestroy(  calculation *c1,   sinc_label *f1,double scalar,inta invert,
                                    {
                                        f1->name[memoryLabel].space[spacy].body = one;
                                        f1->name[memoryLabel].space[spacy].block = bl;
-                                       streams(*f1, memoryLabel, 0, spacy)[0] = sqrt(0.500*omega)*scalar;
+                                       streams(*f1, memoryLabel, 0, spacy)[0] = scalar;
                                    }else{
                                            f1->name[memoryLabel].space[spacy].block = id0;
                                    }
                        
                            }
                        
-                       f1->name[memoryLabel].loopNext = anotherLabel(f1,all,one);
-                       memoryLabel = f1->name[memoryLabel].loopNext;
-                       f1->name[memoryLabel].species = eikonDeriv;
-                       f1->name[memoryLabel].Current[0] = 1;
-
-               
-                       for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
-                           if ( f1->canon[spacy].body != nada){
-                               f1->name[memoryLabel].space[spacy].act = act;
-                               if ( f1->canon[spacy].label == label && spacy == dim)
-                                   {
-                                       f1->name[memoryLabel].space[spacy].body = one;
-                                       f1->name[memoryLabel].space[spacy].block = bl;
-                                       streams(*f1, memoryLabel, 0, spacy)[0] = -sqrt(0.500/omega)*scalar;
-                                   }else{
-                                           f1->name[memoryLabel].space[spacy].block = id0;
-                                   }
-                       
-                           }
+                      
                        
                }
            }

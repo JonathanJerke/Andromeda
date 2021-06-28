@@ -626,7 +626,7 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
         "constant","linear","spring",
         "deriv","kinetic","clamp",
         "element","oneBody","twoBody",
-        "diagonal","number","create",
+        "diagonal","create",
         "destroy",
         
         "filename"
@@ -653,7 +653,8 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                     c->i.terms[c->i.termNumber].atom     = atom;
                     c->i.terms[c->i.termNumber].label[0] = particle1;
                     c->i.terms[c->i.termNumber].label[1] = particle2;
-                    newTerm = 0;
+                    c->i.terms[c->i.termNumber].omega = omega;
+			newTerm = 0;
                     metric.fn.fn = funcType;
                     metric.fn.param[0] = 1.;
                     metric.fn.param[1] = turn;
