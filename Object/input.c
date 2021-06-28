@@ -626,7 +626,7 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
         "constant","linear","spring",
         "deriv","kinetic","clamp",
         "element","oneBody","twoBody",
-        "diagonal","create",
+        "diagonal","number","create",
         "destroy",
         
         "filename"
