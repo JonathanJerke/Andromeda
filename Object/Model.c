@@ -156,25 +156,6 @@ void resetExternal(struct calculation * i, inta number, double scale ){
       i->f.canon[space].particle[four].lattice = lattice;
       i->f.canon[space].particle[four].origin = -basis/2*lattice ;
 
-      space++;
-      i->f.canon[space].basis = DiracDeltaElement;
-      i->f.canon[space].body = one;
-      i->f.canon[space].count1Basis = 2;
-      i->f.canon[space].space = 0;
-      i->f.canon[space].label = 2;
-      i->f.canon[space].particle[one].attack = 0.5;
-      i->f.canon[space].particle[one].lattice = lattice;
-      i->f.canon[space].particle[one].origin = -basis/2*lattice ;
-      i->f.canon[space].particle[two].attack = 0.5;
-      i->f.canon[space].particle[two].lattice = lattice;
-      i->f.canon[space].particle[two].origin = -basis/2*lattice ;
-      i->f.canon[space].particle[three].attack = 0.5;
-      i->f.canon[space].particle[three].lattice = lattice;
-      i->f.canon[space].particle[three].origin = -basis/2*lattice ;
-      i->f.canon[space].particle[four].attack = 0.5;
-      i->f.canon[space].particle[four].lattice = lattice;
-      i->f.canon[space].particle[four].origin = -basis/2*lattice ;
-
       
       i->i.Iterations = 6;
 #endif
@@ -297,25 +278,22 @@ calculation initCal (void ) {
         t.type = 9;
     }
     i->i.terms[0] = t;
-    
+    t.scalar = -1;
     t.headFlag = 1;
     t.label[0] = 1;
-    t.label[1] = 1;
     t.bl = 1;
-    t.scalar = 1;
-    t.type = 2;
+    t.type = 13;
     i->i.terms[0] = t;
     
-    t.label[0] = 2;
-    t.label[1] = 2;
-    t.headFlag = -1;
-    t.bra = 0;
-    t.ket = 0;
-    t.type = 7;
+    
+    t.headFlag =-1;
+    t.type = 12;
     i->i.terms[1] = t;
+    
+
     i->i.termNumber = 2;
     
-    
+
 #else
     i->i.RAMmax = 1;
     i->i.Angstroms = 0;

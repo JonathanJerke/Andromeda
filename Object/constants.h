@@ -210,6 +210,8 @@ enum blockType{
     d12
 };
 
+
+
 /**
  *Controling aspects of Hamiltonian Terms and more generally
  *the concept of a division.
