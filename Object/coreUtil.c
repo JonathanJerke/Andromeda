@@ -2123,8 +2123,9 @@ while ( f1->name[walkLink].chainNext != nullName)
                                                 printf("oops, only coded multiply for 1 canon");
                                                 exit(0);
                                             }
-
-						walkLink = f1->name[walkLink].chainNext;						
+//printf("%d %d\n", walkLink, f1->name[walkLink].loopNext);
+//        printf("%d %d %d\n", newTerm[index], f1->name[newTerm[index]].chainNext , f1->name[f1->name[newTerm[index]].chainNext].loopNext );
+					//	walkLink = f1->name[walkLink].chainNext;						
                                             f1->name[f1->name[walkLink].loopNext].multNext = f1->name[f1->name[newTerm[index]].chainNext].loopNext;
                                         } else if ( intvType[index] >= 0 ){
                                             ///add
