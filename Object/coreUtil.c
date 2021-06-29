@@ -2106,6 +2106,10 @@ inta defineTerms (  calculation * c,   field *f,   division head, inta memory){
             //tied to bra.
             division prevLink = head,newTerm[MAX_PRODUCT],walkLink = head ;
             
+while ( f1->name[walkLink].chainNext != nullName)
+                                                walkLink =f1->name[walkLink].chainNext;
+
+
             for ( i = 0; i < c->i.termNumber ; i++)
             {
                     if ( c->i.terms[i].headFlag == 1 ){
@@ -2119,13 +2123,16 @@ inta defineTerms (  calculation * c,   field *f,   division head, inta memory){
                                                 printf("oops, only coded multiply for 1 canon");
                                                 exit(0);
                                             }
-                                            f1->name[walkLink].multNext = f1->name[newTerm[index]].chainNext;
+
+						walkLink = f1->name[walkLink].chainNext;						
+                                            f1->name[f1->name[walkLink].loopNext].multNext = f1->name[f1->name[newTerm[index]].chainNext].loopNext;
                                         } else if ( intvType[index] >= 0 ){
                                             ///add
                                             while ( f1->name[walkLink].chainNext != nullName)
                                                 walkLink =f1->name[walkLink].chainNext;
                                             f1->name[walkLink].chainNext = f1->name[newTerm[index]].chainNext;
-
+while ( f1->name[walkLink].chainNext != nullName)
+                                                walkLink =f1->name[walkLink].chainNext;
                                         }
                                 
                                     }
@@ -2137,6 +2144,8 @@ inta defineTerms (  calculation * c,   field *f,   division head, inta memory){
                             prevLink = f1->name[prevLink].linkNext;
                             f1->name[prevLink].species = matrix;
                             walkLink = prevLink;
+while ( f1->name[walkLink].chainNext != nullName)
+                                                walkLink =f1->name[walkLink].chainNext;
                             printf("newTerm\t%d\t%s\n", term,c->i.terms[i].desc);
                         }
                  }
@@ -2204,7 +2213,11 @@ inta defineTerms (  calculation * c,   field *f,   division head, inta memory){
                     printf("oops, only coded multiply for 1 canon");
                     exit(0);
                 }
-                f1->name[walkLink].multNext = f1->name[newTerm[index]].chainNext;
+		walkLink = f1->name[walkLink].chainNext;
+	///	printf("%d %d\n", walkLink, f1->name[walkLink].loopNext);
+	///	printf("%d %d %d\n", newTerm[index], f1->name[newTerm[index]].chainNext , f1->name[f1->name[newTerm[index]].chainNext].loopNext );
+
+                f1->name[f1->name[walkLink].loopNext].multNext =f1->name[f1->name[newTerm[index]].chainNext].loopNext;
             } else if ( intvType[index] >= 0 ){
                 ///add
                 while ( f1->name[walkLink].chainNext != nullName)
@@ -3138,7 +3151,7 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                             }
                             firstFlag = 0;
                         }
-#if VERBOSE
+#if 1
                         printf("in%d %f %d\n",su, cblas_dnrm2(N2, inP, 1),N1);
 #endif
                     if ( f1.name[su].space[space].block == id0 )
@@ -3233,7 +3246,7 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                             floata center = 0.5*(f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
                             topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-1, laterP);
                             topezOp(0,f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,1, midP);
-                            cblas_daxpy(N1, 1./OMEGA, midP, 1, laterP, 1);
+                            cblas_daxpy(N2, 1./OMEGA, midP, 1, laterP, 1);
 
                         }
                         else if ( species(f1,su) == eikonDestroy){
@@ -3242,7 +3255,7 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                             floata center = 0.5*(f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
                             topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-1, laterP);
                             topezOp(0,f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,1, midP);
-                            cblas_daxpy(N1, -1./OMEGA, midP, 1, laterP, 1);
+                            cblas_daxpy(N2, -1./OMEGA, midP, 1, laterP, 1);
                         }
 
                         else if ( species(f1,su) == eikonSpring){
@@ -3563,7 +3576,8 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                         ///sum collect to outP.
                     }
                             if ( f1.name[su].multNext != nullName){
-                                su =f1.name[su].multNext;
+                        	printf("multi\n");        
+				su =f1.name[su].multNext;
                                 inP = streams(f1, inT, inS,space)+inR*N2;
                                 cblas_dcopy(N2, bufferP,1, inP,1);
                                 ///link ot last multiply only
