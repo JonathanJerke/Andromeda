@@ -34,8 +34,8 @@
 
 
 void resetExternal(calculation * i, inta number, double scale );
-calculation initCal();
+calculation initCal( void );
 inta iModel(  calculation * c1,  field *f1);
 inta fModel(  sinc_label *f1);
-field initField();
+field initField( void );
 #endif /* Model_h */

@@ -1395,8 +1395,8 @@ inta bootShell (inta argc , char * argv[], calculation * c1,  field *f){
         fclose(in);
     }
 #else
-    initCal(c1);
-    initField(f);
+    *c1 = initCal();
+    *f = initField();
 #endif
 #ifdef GSL_LIB
         gsl_set_error_handler_off ();
