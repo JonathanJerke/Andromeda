@@ -103,7 +103,9 @@ cdef extern from "../Object/constants.h":
         eikonSpring,
         eikonElement,
         eikonOuter,
-        eikonSplit
+        eikonSplit,
+        eikonCreate,
+        eikonDestroy
 
     cdef enum functionType:
         nullFunction,
@@ -184,7 +186,7 @@ cdef extern from "../Object/constants.h":
         bra4,
         bra5,
         bra6,
-        bra7,
+        threeArray,
         lowdinVec,
         lowdinMatrix,
         overlap,
@@ -274,9 +276,11 @@ cdef extern from "../Object/constants.h":
         vectorHbuild,
         twoBodyProjector,
         eigenVectors
-
+    
+    
     cdef struct function_label:
         inta interval
+        inta momentumInterval;
         inta contr
         functionType fn
         double param[MAX_PARAM_FUNC]
