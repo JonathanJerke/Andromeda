@@ -201,7 +201,7 @@ while ( cf >= ci ) :
 					if abs(qq[2*n]) > mMax :
 						flag = True
 				for n in range(d):
-					if (qq[2*n+1]) > nMax :
+					if ((qq[2*n+1]) > nMax) or ( qq[2*n+1] < 0 ) :
 						flag = True
 				if flag:
 					continue
