@@ -78,25 +78,17 @@ from libc.string cimport strcpy
 from libc.stdlib cimport malloc,free
 
 cdef class galaxy:
-	cdef calculation *calculation
-	cdef field *field
-	cdef calculation calculation0
-	cdef field field0
+	cdef calculation calculation
+	cdef field field
 
 	def __cinit__(self):
-		#self.calculation = <calculation *>malloc(sizeof(calculation))
-		self.calculation = &self.calculation0
-		initCal(self.calculation)
-		#self.field = <field *>malloc(sizeof(field))
-		self.field = &self.field0
-		initField(self.field)
+		self.calculation = initCal()
+		self.field = initField()
 		self.calculation.rt.NLanes = 1
 		self.calculation.rt.NSlot = 1
 
 	def __dealloc__(self):
 		fModel(&self.field.f)
-		#free(self.calculation)
-		#free(self.field)
 	
 	def isbooted(self):
 		return self.field.f.bootedMemory == 1
@@ -528,7 +520,7 @@ cdef class galaxy:
 	def SG ( self, gammaPy : [[[float]]] ,amplitude :floata = 1.0, vector : division = division.eigenVectors, 
 	spin : inta = 0):
 		"""Places a correctly band-limited Symmetrized Gaussian.
-		
+		Per dimension: (integer position, integer momentum)
 		Parameters
 		----------
 		vector : division
@@ -555,7 +547,7 @@ cdef class galaxy:
 	def GTO ( self, gammaPy : [[[float]]] , amplitude :floata = 1.0,
 	vector : division = division.eigenVectors, spin : inta = 0):
 		"""Places a correctly band-limited Gaussian Type Orbital.
-		
+		Per dimension: (angular, exponent, position)
 		Parameters
 		----------
 		vector : division
@@ -588,7 +580,7 @@ cdef class galaxy:
 		self.field.f.name[int(vector)].Current[spin] = Current
 		return self.field.f.name[int(vector)].Current[spin]			
 	
-	def streams( self, space : inta =0,vector: division = division.eigenVectors, 
+	def streams( self, space : inta = 0,vector: division = division.eigenVectors, 
 	 index : inta = 0, spin : inta = 0, inputStream : [floata]= [] ):
 		"""Streams will input/output the Andromeda structures.
 		inputStream empty will lead to accessing Andromeda structures,
