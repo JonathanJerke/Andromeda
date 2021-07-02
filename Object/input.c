@@ -1381,8 +1381,8 @@ inta bootShell (inta argc , char * argv[], calculation * c1,  field *f){
     
     inta i,c,EV,EV2,ER;
     char str[MAXSTRING];
-    initField(f);
-    initCal(c1);
+    *f = initField();
+    *c1 = initCal();
     initCalculation(c1);
     {
         broke = readInput(c1,f,in);
