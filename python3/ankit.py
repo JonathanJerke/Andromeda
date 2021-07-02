@@ -223,7 +223,7 @@ while ( cf >= ci ) :
 						ri += [-1]
 						vbarTOT += vbartemp	
 	ci = cf + 1
-	cf = len(pot)
+	cf = max(ci,len(pot))
 
 	dat = pd.DataFrame( data = gogo )
 	dat['pot'] = pot
