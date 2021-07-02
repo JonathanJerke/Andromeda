@@ -49,7 +49,7 @@ def epot( go ):
 	g.SG(gammaPy = reshape(go,(D,B,2)))
 	su = 0.
 	for term in g.terms():
-		su += g.dot(vector = 100 , term = term , vector2 = 100 )
+		su += g.dot(vector = 100 , term = term , vector2 = 100 )/g.dot(vector=100,term = -1,vector2 = 100)
 	return su
 
 def leth ( qq, go ):
