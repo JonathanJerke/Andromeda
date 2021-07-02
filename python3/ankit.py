@@ -189,9 +189,10 @@ else:
 	
 tried = [qq]	
 while ( cf >= ci ) :
-	for i in range( ci,cf ):
+	for i in range( ci,cf+1 ):
 		for dr in arrae:
-			qq = list(array(gogo[i]) + array(dr))
+			if i < len(gogo):
+				qq = list(array(gogo[i]) + array(dr))
 			
 		
 			if (qq not in tried) :
@@ -223,7 +224,7 @@ while ( cf >= ci ) :
 						ri += [-1]
 						vbarTOT += vbartemp	
 	ci = cf + 1
-	cf = max(ci,len(pot))
+	cf = len(pot)
 
 	dat = pd.DataFrame( data = gogo )
 	dat['pot'] = pot
