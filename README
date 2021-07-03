@@ -24,8 +24,6 @@
 Andromeda advances Quantum Dynamics technologies, i.e. Sums of Products, 
 to electronic and other fundamental interactions.  
 
-Added commands to build runtime in each species subdirectory.
-New distributed programming can effectively compute Lithum in normal super computer.
 v9.0 has been tested extensively and the code is much more readable.
 v9.1 has cut the pork and now can easily allocate my systems of choice.
 v9.2 has implemented HDF5 because I had a huge IO issue.
@@ -36,11 +34,11 @@ v9.7 has added a compression algorthms, which is much like SVD in some cases.  T
 v9.8 has added periodic boundary conditions with more flexiable 2-body operator structure, similar work was done on spatial boundary conditions.
 v9.9 has spiffed up interface with python and other considerations/ also give path to demonstrate basic operator value.
 
-See quantumgalaxies.org for expert user advise.
+See quantumgalaxies.org
 
-See (Count Down) on WIKI for the beginning.
+See (Count Down) on WIKI for the beginning of documentation.
 
-Please cite these two papers until a proper writeup of Andromeda is published.
+Please cite these three papers until a proper writeup of Andromeda is published.
 
 Jerke, Jonathan and Poirier Bill. "Two-Body Schrödinger Wave Functions in a Plane-Wave Basis Via Separation of Dimensions." The Journal of Chemical Physics 148, no. 10 (2018): 104101.
 Jerke, Jonathan, Jacek Karwowski, and Bill Poirier. "Exact Matrix Elements for General Two-Body Central-Force Interactions, Expressed as Sums of Products." Molecular Physics  (2018): 1-12.
