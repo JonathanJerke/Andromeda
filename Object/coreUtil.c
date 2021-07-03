@@ -1060,7 +1060,7 @@ double xEqua ( sinc_label f1 , division targ ,inta tspin, sinc_label  f2 , divis
                     }
                 }
             //f1.name[name(f1,targ)].header = header(f2, name(f2,orig));
-        } 
+        }
     }
     return 0;
 }
@@ -1501,7 +1501,7 @@ inta tScaleOne(   sinc_label f1,   division label,inta spin, double scalar ){
     
     
     
-//    
+//
 //    if ( SPACE == 3 ){
 //        scale = pow ( scale , 1./3.);
 //        if ( scalar < 0 )
@@ -1550,7 +1550,7 @@ inta tScale(   sinc_label f1,   division label, DCOMPLEX scalar ){
 //            tScaleOne(f1, scalarTemp, 0,  cimag(scalar));
 //            tCycleDecompostionListOneMP(-1, f1, scalarTemp, 0, NULL, label, 1, f1.rt->vCANON, part(f1,label), 1);
 //
-//        }else 
+//        }else
         
         if ( fabs(cimag(scalar)) < f1.rt->THRESHOLD && fabs(creal(scalar)) > f1.rt->THRESHOLD)
         {
@@ -1728,11 +1728,11 @@ inta tId (   sinc_label f1 ,   division label,inta spin ){
 }
 
 //inta tOv (   sinc_label f1 ,   division label,inta spin ){
-//    
+//
 //    inta I1,I2,space;
 //    inta Current ;
 //    {
-//        
+//
 //        if ( f1.name[label].Current[spin] >= f1.name[label].Partition ){
 //            printf("%d %d\n", label, spin);
 //            printf("tryed to add to full array\n");
@@ -1740,28 +1740,28 @@ inta tId (   sinc_label f1 ,   division label,inta spin ){
 //        }
 //        Current =  f1.name[label].Current[spin]++;
 //    }
-//    
+//
 //    {
 //        if ( f1.name[label].species == vector || f1.name[label].species == outerVector){
-//            
+//
 //            inta B1[SPACE];
 //            length(f1, label, B1);
 //            for ( space = 0; space < SPACE ; space++)
 //                if ( f1.canon[space].body != nada)
 //                {
-//                    
+//
 //                    floata  * stream = streams(f1,label,spin,space)+Current*B1[space];
 //                    for ( I2 = 0 ; I2 < B1[space] ; I2++){
 //                        stream[I2] = sign(I2);
 //                    }
 //                }
 //        }
-//        
+//
 //        else if  ( f1.name[label].species == matrix && bodies(f1, label) == one) {
 //            inta B1;
-//            
-//            
-//            
+//
+//
+//
 //            for ( space = 0; space < SPACE ; space++)
 //                if ( f1.canon[space].body != nada)
 //                {
@@ -1770,11 +1770,11 @@ inta tId (   sinc_label f1 ,   division label,inta spin ){
 //                    for ( I1 = 0 ; I1 < B1 ; I1++)
 //                        for ( I2 = 0 ; I2 < B1 ; I2++)
 //                            stream[I1*B1+I2] =creal(BoB(f1.canon[space].basisList[I1], f1.canon[space].basisList[I2]));
-//                    
+//
 //                }
 //        }
-//        
-//        
+//
+//
 //    }
 //    return 0;
 //}
@@ -2125,7 +2125,7 @@ while ( f1->name[walkLink].chainNext != nullName)
                                             }
 //printf("%d %d\n", walkLink, f1->name[walkLink].loopNext);
 //        printf("%d %d %d\n", newTerm[index], f1->name[newTerm[index]].chainNext , f1->name[f1->name[newTerm[index]].chainNext].loopNext );
-					//	walkLink = f1->name[walkLink].chainNext;						
+                    //    walkLink = f1->name[walkLink].chainNext;
                                             f1->name[f1->name[walkLink].loopNext].multNext = f1->name[f1->name[newTerm[index]].chainNext].loopNext;
                                         } else if ( intvType[index] >= 0 ){
                                             ///add
@@ -2214,9 +2214,9 @@ while ( f1->name[walkLink].chainNext != nullName)
                     printf("oops, only coded multiply for 1 canon");
                     exit(0);
                 }
-		walkLink = f1->name[walkLink].chainNext;
-	///	printf("%d %d\n", walkLink, f1->name[walkLink].loopNext);
-	///	printf("%d %d %d\n", newTerm[index], f1->name[newTerm[index]].chainNext , f1->name[f1->name[newTerm[index]].chainNext].loopNext );
+        walkLink = f1->name[walkLink].chainNext;
+    ///    printf("%d %d\n", walkLink, f1->name[walkLink].loopNext);
+    ///    printf("%d %d %d\n", newTerm[index], f1->name[newTerm[index]].chainNext , f1->name[f1->name[newTerm[index]].chainNext].loopNext );
 
                 f1->name[f1->name[walkLink].loopNext].multNext =f1->name[f1->name[newTerm[index]].chainNext].loopNext;
             } else if ( intvType[index] >= 0 ){
@@ -2237,7 +2237,6 @@ while ( f1->name[walkLink].chainNext != nullName)
         }
 
 #else
-
 inta defineTerms(  calculation * c,   field *f,   division head, inta memory){
     sinc_label *f1 = &f->f;
     inta term=0,i;
@@ -2251,12 +2250,11 @@ inta defineTerms(  calculation * c,   field *f,   division head, inta memory){
                 
                 if ( memory== -1 || term == memory ){
                     f1->name[prevLink].linkNext = anotherLabel(f1, all, nada);
-                    prevLink = f1->name[prevLink].linkNext;                    
+                    prevLink = f1->name[prevLink].linkNext;
                     f1->name[prevLink].species = matrix;
                     printf("newTerm\n");
                 }
          }
-
         if ( memory== -1 || term == memory ){
             switch ( c->i.terms[i].type){
                 case 1:
@@ -3247,7 +3245,7 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                             floata center = 0.5*(f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
                             topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-1, laterP);
                             topezOp(0,f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,1, midP);
-                            cblas_daxpy(N2, 1./OMEGA, midP, 1, laterP, 1);
+                            cblas_daxpy(N2, -1./OMEGA, midP, 1, laterP, 1);
 
                         }
                         else if ( species(f1,su) == eikonDestroy){
@@ -3256,7 +3254,7 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                             floata center = 0.5*(f1.canon[space].count1Basis-1)*f1.canon[space].particle[f1.name[su].space[space].block].lattice;
                             topezOp(center, f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,-1, laterP);
                             topezOp(0,f1.canon[space].particle[f1.name[su].space[space].block].lattice, bd,f1.name[su].space[space].act,tv1, f1.name[su].space[space].block,N1,inP,1, midP);
-                            cblas_daxpy(N2, -1./OMEGA, midP, 1, laterP, 1);
+                            cblas_daxpy(N2, +1./OMEGA, midP, 1, laterP, 1);
                         }
 
                         else if ( species(f1,su) == eikonSpring){
@@ -3577,8 +3575,8 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                         ///sum collect to outP.
                     }
                             if ( f1.name[su].multNext != nullName){
-                        	printf("multi\n");        
-				su =f1.name[su].multNext;
+                            printf("multi\n");
+                su =f1.name[su].multNext;
                                 inP = streams(f1, inT, inS,space)+inR*N2;
                                 cblas_dcopy(N2, bufferP,1, inP,1);
                                 ///link ot last multiply only
@@ -3970,7 +3968,6 @@ void tHXpY ( sinc_label f1 , division bra, division left,inta shiftFlag, divisio
  *@param ospin operator spin
  *@param alloy2 vector
  *@param spin2 vector's spin
-
  */
 double pMatrixElement ( sinc_label  f1 ,   division alloy1 , inta spin1, division op, inta ospin, division alloy2 , inta spin2 ){
 #ifndef CHERRY_PICKER
