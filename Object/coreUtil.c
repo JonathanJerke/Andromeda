@@ -1994,6 +1994,8 @@ void GTO( sinc_label f1, division vector ,inta spin,floata amplitude, inta *gamm
     for  ( space =0; space < SPACE ; space++){
         if ( f1.canon[space].body != nada){
             v0 = vectorLen(f1, space);
+            if ( f1.canon[space].basis == SincBasisElement){
+
             for ( vc = 0; vc < v0 ; vc++){
                 vsp = 1;
                 variable = 1.0;
@@ -2012,6 +2014,29 @@ void GTO( sinc_label f1, division vector ,inta spin,floata amplitude, inta *gamm
                     variable *= amplitude;
 
                 streams(f1,vector,spin,space)[vc+Current*v0] = variable;
+            }
+            }
+            else if ( f1.canon[space].basis == StateBasisElement ){
+                for ( vc = 0; vc < v0 ; vc++){
+                    vsp = 1;
+                    variable = 1.0;
+                    vn1 = vector1Len(f1,space);
+                    mss = msp ;
+                    for ( body = one ; body <= f1.canon[space].body ; body++){
+                        v = (vc/vsp)%vn1-(vn1-1)/2;
+                        vsp *= vn1;
+                        m = (gamma[mss]);
+                        n = (gamma[mss+1]);
+                        mss += 2;
+                        if ( n == 1 && m == vc )
+                            variable = 1.0;
+                        else
+                            variable = 0.0;
+                    }
+                    if ( ! space )
+                        variable *= amplitude;
+                    streams(f1,vector,0,space)[vc+Current*v0] = variable;
+                }
             }
             msp = mss;
         }
