@@ -3150,7 +3150,7 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                             }
                             firstFlag = 0;
                         }
-#if 1
+#if VERBOSE
                         printf("in%d %f %d\n",su, cblas_dnrm2(N2, inP, 1),N1);
 #endif
                     if ( f1.name[su].space[space].block == id0 )
@@ -3575,7 +3575,7 @@ inta tGEMV (inta rank,    sinc_label  f1,   division equals, inta e, inta espin,
                         ///sum collect to outP.
                     }
                             if ( f1.name[su].multNext != nullName){
-                            printf("multi\n");
+                    
                 su =f1.name[su].multNext;
                                 inP = streams(f1, inT, inS,space)+inR*N2;
                                 cblas_dcopy(N2, bufferP,1, inP,1);
