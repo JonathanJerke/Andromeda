@@ -1976,6 +1976,7 @@ void SG( sinc_label f1, division vector ,inta spin,floata amplitude,  inta *gamm
                         variable *= amplitude;
                     streams(f1,vector,0,space)[vc+Current*v0] = variable;
                 }
+            }
             msp = mss;
         }
     }
