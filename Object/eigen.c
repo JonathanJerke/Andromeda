@@ -132,6 +132,7 @@ inta tSelect(  sinc_label  f1, inta Ve, inta irrep,   division usr, inta testFla
 #endif
     if ( complete ){
         printf("eigensolve of overlap failed\n");
+        exit(1);
     } else 
 
     if ( testFlag ){
