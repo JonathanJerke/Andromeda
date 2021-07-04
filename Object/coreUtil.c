@@ -2920,7 +2920,7 @@ double printExpectationValues (  calculation *c,   sinc_label  f1 ,  division Ha
     division mem    = anotherLabel(&f1, 0, one);
     char* desc [] = {"fourier","negative","positive"};
     for ( space = 0; space < SPACE ; space++){
-        if ( f1.canon[space].basis != DiracDeltaElement)
+        if ( f1.canon[space].basis != StateBasisElement )
         for (body = one ; body <=  f1.canon[space].body ; body++ )
             for ( ed = 0 ; ed < 3 ; ed++){
                 f1.name[header].species = eikon;
