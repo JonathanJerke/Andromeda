@@ -1983,7 +1983,7 @@ void SG( sinc_label f1, division vector ,inta spin,floata amplitude,  inta *gamm
 }
 
 void GTO( sinc_label f1, division vector ,inta spin,floata amplitude, inta *gamma, floata *delta ){
-    inta space,vc,vsp,msp,mss=0,vn1,v,n,Current,v0;
+    inta space,vc,vsp,msp,mss=0,vn1,v,n,Current,v0,m;
     floata variable,alpha,y ;
     bodyType body ;
     if ( f1.name[vector].Current[spin] >= f1.name[vector].Partition )
