@@ -21,7 +21,7 @@ if [ $# -eq 2 ]
     echo 1 > hosts
     echo 1 > ppn
     echo 10000 > spn
-    echo "spam" > sums
+    echo "ham" > sums
 #MODLULARIZE good luck with that!    python3 $LAUNCH/../python3/touch.py D
 #    python3 $LAUNCH/../python3/touch.py found/T
 ##
