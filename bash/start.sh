@@ -38,11 +38,12 @@ if [ -f ../cnfg ]
     seq 1 $spam  > spam
 fi
 
+echo "spam" > sums
 if [ -f ../ops ]
     then
-    echo "spam ../ops" > sums
+    echo "spam ../ops" > sumx
 else
-    echo "spam" > sums
+    echo "spam" > sumx
 fi
 
 else
