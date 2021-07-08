@@ -146,7 +146,7 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
     double value;
 
     
-    inta NINT_TYPE = 32;
+    inta NINT_TYPE = 33;
     char *list_INT_TYPE []= {"#",
         "lambda",
         "initRank",
@@ -180,6 +180,7 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
         "seed",
         "iocsb",
         "nocsb",
+        "ham"
     };
     inta NDOUBLE = 8;
     char *list_DOUBLE []= {"#",
@@ -315,6 +316,10 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
                 case 32:
                     c->i.nocsb = ivalue;
                     return i;
+                case 33:
+                    f1->OpMax = ivalue ;
+                    return i;
+
             }
         
         }

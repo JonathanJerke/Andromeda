@@ -271,7 +271,6 @@ enum spinType {
     parallel
 };
 
-
 /**
  *Exclusively canon[space<SPACE] for objectAllocation
  *and canon[SPACE] for bufferAllocation
@@ -792,6 +791,8 @@ struct input_label {
     inta flex;
     ///0 - no terms, -1 - all terms, n -- nth term
     inta OpIndex;
+    ///maximum number of terms to use in definition of Hamiltonian
+    inta OpMax;
     ///used in slightly antiquited SA
     inta body;
     ///used in slightly antiquited SA

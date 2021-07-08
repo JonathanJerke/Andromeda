@@ -115,6 +115,7 @@ void resetExternal(struct calculation * i, inta number, double scale ){
     i->i.qFloor = 0;
     i->i.nOperator = 0;
     i->i.OpIndex = 0;
+      i->i.OpMax = 0;
     i->i.canonRank = 0;
     i->i.iRank = 0;
     i->i.xRank = 0;
