@@ -40,7 +40,7 @@ for curr in $*
                 sum1.sh $curr $curr states $f
             done
             wait
-            ritzb.sh $prev $curr states spam sums
+            ritzb.sh $prev $curr states spam sumx
             wait
             ritzs.sh $prev $curr states spam sums
             wait
