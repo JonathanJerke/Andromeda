@@ -417,6 +417,7 @@ cdef extern from "../Object/constants.h":
     cdef struct input_label:
         inta flex
         inta OpIndex
+        inta OpMax
         inta body
         inta irrep
         inta matrices

@@ -634,7 +634,7 @@ cdef class galaxy:
 		
 		Returns
 		-------
-		self
+		iterator -- operator indices (not operator number)
 		"""
 		f1 = self.field.f
 		matrix = defSpiralMatrix(&f1, division.Iterator)
@@ -642,7 +642,7 @@ cdef class galaxy:
 		while matrix != division.nullName:
 			matrix = f1.name[matrix].linkNext
 			term += 1
-		return range(term)
+		return range(max(term,self.field.i.OpMax))
 		
 	def dot(self, vector : division = division.eigenVectors, term : int = -1,
 	 vector2: division = division.eigenVectors):
