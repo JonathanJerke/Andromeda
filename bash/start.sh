@@ -39,12 +39,6 @@ if [ -f ../cnfg ]
 fi
 
 echo "spam" > sums
-if [ -f ../ops ]
-    then
-    echo "spam ../ops" > sumx
-else
-    echo "spam" > sumx
-fi
 
 else
     echo "start.sh <name> SA"
