@@ -47,15 +47,12 @@ def epot( go ):
 	
 	g.setCurrent( Current = 0 ) 
 	g.SG(gammaPy = reshape(go,(D,B,2)))
-	norm2 = g.dot(vector=100,term=-1,vector2 = 100 )
 	su = 0.
-	if norm2 > 0.001 :
-		for term in g.terms():
-			su += g.dot(vector = 100 , term = term , vector2 = 100 )/norm2
-		return su
-	else:
-		return 1000000000000
-
+	for term in g.terms():
+		print(su)xy
+		su += g.dot(vector = 100 , term = term , vector2 = 100 )
+	
+	return su
 
 def leth ( qq, go ):
 	"""least than?
@@ -167,12 +164,6 @@ for dd in range(d):
 	v[2*dd+1] = 1.
 	arrae += [v]
 
-	#momentum - 
-	v = [ 0.] * 2 * d
-	v[2*dd+1] = -1.
-	arrae += [v]
-
-	
 qq  = gogo[0]
 pot = [epot(gogo[0])]
 
@@ -194,10 +185,9 @@ else:
 	
 tried = [qq]	
 while ( cf >= ci ) :
-	for i in range( ci,cf+1 ):
+	for i in range( ci,cf ):
 		for dr in arrae:
-			if i < len(gogo):
-				qq = list(array(gogo[i]) + array(dr))
+			qq = list(array(gogo[i]) + array(dr))
 			
 		
 			if (qq not in tried) :
@@ -207,7 +197,7 @@ while ( cf >= ci ) :
 					if abs(qq[2*n]) > mMax :
 						flag = True
 				for n in range(d):
-					if ((qq[2*n+1]) > nMax) or ( qq[2*n+1] < 0 ) :
+					if (qq[2*n+1]) > nMax :
 						flag = True
 				if flag:
 					continue
