@@ -33,6 +33,7 @@ v9.6 has added Python via cythonization routines which are in andromedaPy.
 v9.7 has added a compression algorthms, which is much like SVD in some cases.  The GTO interface was also added.
 v9.8 has added periodic boundary conditions with more flexiable 2-body operator structure, similar work was done on spatial boundary conditions.
 v9.9 has spiffed up interface with python and other considerations/ also give path to demonstrate basic operator value.
+v10.0 will include Jupyter Notebooks for creating and solving various interesting second quantization species.
 
 See quantumgalaxies.org
 
