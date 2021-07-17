@@ -365,11 +365,22 @@ enum blockMemoryType{
 
 
 
-enum momentumType{
-    zeroMomentum,
-    discreteMomentum,
-    continousMomentum
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -503,12 +514,10 @@ typedef enum basisElementType basisElementType;
 typedef enum noteType noteType;
 typedef enum metricType metricType;
 typedef enum blockMemoryType blockMemoryType;
-typedef enum momentumType momentumType;
 typedef enum division division;
 
 typedef struct function_label function_label;
 typedef struct atom_label atom_label;
-typedef struct momentumIntegralSpecs momentumIntegralSpecs;
 typedef struct basisElement_label basisElement_label;
 typedef struct canon_label canon_label;
 typedef struct metric_label metric_label;
@@ -529,30 +538,19 @@ typedef struct calculation calculation;
 struct function_label{
     ///number of canonical ranks of function per chain element
     inta interval;
-    ///number of quadrature points in momentum integral
-    inta momentumInterval;
     ///degree of off-diagonal
     inta contr;
     ///function type
     functionType fn;
     ///allowances for function parameters, not used
-    double param[MAX_PARAM_FUNC];
+    float param[MAX_PARAM_FUNC];
 };
 
 struct atom_label {
     ///count begins with 1, 3 components allocated
-    double position[3+1];
+    float position[3+1];
     ///ion charge
     inta Z;
-};
-
-struct momentumIntegralSpecs{
-    ///mathematically descrete sum or continuous integral
-    momentumType metric;
-    ///quadrature size
-    inta interval;
-    ///maximum momentum
-    floata maxMomentum;
 };
 
 struct basisElement_label {
@@ -564,22 +562,22 @@ struct basisElement_label {
     inta index;
     ///boost for periodicBoostComponent
     inta index2;
-    double length;
+    float length;
     ///the position on the axis of the left edge of the grid
-    double origin;
+    float origin;
     ///L , number of grid sites in 1 dimension
     inta grid;
 };
 
 struct dimensions_label {
     ///1D lattice spacing
-    double lattice;
+    float lattice;
     ///in [0,1], larger values will stage basis into momentum more
-    double attack;
+    float attack;
     ///spatial posiiton of the anchor
-    double origin;
+    float origin;
     ///the fraction of grid for which origin attached; internally anchor is transformed to 0.
-    double anchor;
+    float anchor;
 };
 
 struct canon_label {
@@ -603,11 +601,11 @@ struct canon_label {
 
 struct metric_label {
     ///future
-    inta pow[SPACE];
+    //inta pow[SPACE];
     ///future
-    inta powB[SPACE];
+   // inta powB[SPACE];
     ///future
-    inta deriv[SPACE];
+    //inta deriv[SPACE];
     ///a potential and inner parameters
     function_label fn;
     ///metric type, i.e. point, interval, or indefinite interval
@@ -615,7 +613,7 @@ struct metric_label {
     ///lower and upper bounds,  where -1 => infinity
     ///for [0,1]:   [ beta[0] , beta[1] ]
     ///for [-1,1]:  [- beta[0],beta[0] ]
-    double beta[2];
+    float beta[2];
 };
 struct term_label {
     ///optional, loaded for diagonalMatrix
@@ -625,21 +623,19 @@ struct term_label {
     ///description of term
     char desc[16];
     ///external multiplication of term
-    double scalar ;
+    float scalar ;
     ///internal indicator of interaction type, i.e. 'kinetic','spring',...
     inta type;
     ///multiply type and particle address, i.e. e2= 2 and 7 = e12
     blockType bl ;
     ///Symmetry Adpated action on vector multiply
     inta act;
-    ///rescaling particle 1 of twoBody interaction
-    double adjustOne;
     ///ID of component group to address
-    inta label[MAX_SPLIT];
+    inta label;
     ///invert flag on particle 1
-    inta invert;
+    char invert;
     ///new term flag, may be 0 or 1
-    inta headFlag ;
+    char headFlag ;
     ///tieing oneBody field to atomic geometry and Z
     inta atom;
     ///for state elements
@@ -648,8 +644,6 @@ struct term_label {
     inta ket;
     ///multiply each Gaussian Term by more G(0)'s
     inta embed;
-    ///for SHO ladder operators writen in terms of space
-    floata omega;
     ///the metric of the beta
     struct metric_label mu;
 };
@@ -699,7 +693,7 @@ struct space_label{
     ///for SA action
     inta act;
     ///will invert particle 1
-    inta invert;
+    char invert;
     ///for explicit matrix elements, called state elements
     inta bra;
     ///for explicit matrix elements, called state elements
@@ -844,7 +838,7 @@ struct input {
     ///number of twoBody names
     inta numVectors;
     ///switch for loading krylov matrix elements
-    inta build;
+    char build;
     ///number of chain elements, not terms exactly
     inta termNumber ;
     ///number of allocated dimensions
@@ -871,10 +865,6 @@ struct input {
     inta M1;
 #endif
     
-    ///wave-let momentum domain ,  counts from 0,1,2,3,...
-    inta SymmetrizedGaussianLevel;
-    ///length scale of cloud
-    floata SymmetrizedGaussianWidth;
     ///for krylov, max rank per term
     inta Lambda;
     ///Gb of of total allocated ram cap

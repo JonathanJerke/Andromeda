@@ -203,10 +203,14 @@ double PeriodicMomentumIntegralInTrain ( double beta, double kl ,double lattice,
                         su += cos( (kl-position)*gamma )                        *exp(-(beta*beta/4./gamma/gamma));
                     }
                     return su/2./sqrt(pi)/beta/(N1);
+                default:
+                    break;
             }
             break;
         case eikonSemiDiagonal:
         case eikonOffDiagonal:
+            break;
+        default:
             break;
     }
     return 0.;

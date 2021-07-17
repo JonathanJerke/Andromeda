@@ -2152,7 +2152,7 @@ inta defineTerms (  calculation * c,   field *f,   division head, inta memory){
             sinc_label *f1 = &f->f;
             inta term=0,i,productIndex=0,index, intvType[MAX_PRODUCT];
             //tied to bra.
-            division prevLink = head,newTerm[MAX_PRODUCT],walkLink = head ;
+            division prevLink = head,newTerm[MAX_PRODUCT],walkLink = head,walkMult;
             
 while ( f1->name[walkLink].chainNext != nullName)
                                                 walkLink =f1->name[walkLink].chainNext;
@@ -2174,7 +2174,10 @@ while ( f1->name[walkLink].chainNext != nullName)
 //printf("%d %d\n", walkLink, f1->name[walkLink].loopNext);
 //        printf("%d %d %d\n", newTerm[index], f1->name[newTerm[index]].chainNext , f1->name[f1->name[newTerm[index]].chainNext].loopNext );
                     //    walkLink = f1->name[walkLink].chainNext;
-                                            f1->name[f1->name[walkLink].loopNext].multNext = f1->name[f1->name[newTerm[index]].chainNext].loopNext;
+                                            walkMult = f1->name[walkLink].loopNext;
+                                            while ( f1->name[walkMult].multNext != nullName)
+                                                walkMult =f1->name[walkMult].multNext;
+                                            f1->name[walkMult].multNext = f1->name[f1->name[newTerm[index]].chainNext].loopNext;
                                         } else if ( intvType[index] >= 0 ){
                                             ///add
                                             while ( f1->name[walkLink].chainNext != nullName)
@@ -2203,24 +2206,24 @@ while ( f1->name[walkLink].chainNext != nullName)
                     newTerm[productIndex] = anotherLabel(&f->f, all, nada);
                     switch ( c->i.terms[i].type){
                         case 1:
-                            buildConstant(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex], c->i.terms[i].label[0], 0, real);
+                            buildConstant(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex], c->i.terms[i].label, 0, real);
                             break;
                         case 2:
-                            buildLinear(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label[0], 0, real);
+                            buildLinear(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label, 0, real);
                             break;
                         case 3:
-                            buildSpring(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label[0], 0, real);
+                            buildSpring(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label, 0, real);
                             break;
                         case 4:
-                            buildDeriv(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex], c->i.terms[i].label[0],0, real);
+                            buildDeriv(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex], c->i.terms[i].label,0, real);
                             break;
                         case 5:
-                            buildKinetic(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label[0], 0, real);
+                            buildKinetic(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label, 0, real);
                             break;
                         case 6:
                             break;
                         case 7:
-                            buildElement(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label[0], 0, real,c->i.terms[i].bra,c->i.terms[i].ket);
+                            buildElement(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label, 0, real,c->i.terms[i].bra,c->i.terms[i].ket);
                             break;
                         case 8:
                             buildExternalPotential(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label,c->i.terms[i].embed, 0, real,c->i.terms[i].mu,c->i.terms[i].atom);
@@ -2232,14 +2235,11 @@ while ( f1->name[walkLink].chainNext != nullName)
                             assignDiagonalMatrix(c,f,c->i.terms[i].filename,newTerm[productIndex]);
                             break;
                         
-                        case 11:
-                            buildNumber(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label[0], 0, real, c->i.terms[i].omega);
-                            break;
                         case 12:
-                            buildCreate(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label[0], 0, real, c->i.terms[i].omega);
+                            buildCreate(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label, 0, real);
                             break;
                         case 13:
-                            buildDestroy(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label[0], 0, real, c->i.terms[i].omega);
+                            buildDestroy(c, f1, c->i.terms[i].scalar,c->i.terms[i].invert,c->i.terms[i].act, c->i.terms[i].bl, newTerm[productIndex],  c->i.terms[i].label, 0, real);
                             break;
                     }
                         intvType[productIndex] = c->i.terms[i].headFlag;
@@ -2262,16 +2262,21 @@ while ( f1->name[walkLink].chainNext != nullName)
                     printf("oops, only coded multiply for 1 canon");
                     exit(0);
                 }
-        walkLink = f1->name[walkLink].chainNext;
-    ///    printf("%d %d\n", walkLink, f1->name[walkLink].loopNext);
-    ///    printf("%d %d %d\n", newTerm[index], f1->name[newTerm[index]].chainNext , f1->name[f1->name[newTerm[index]].chainNext].loopNext );
+      
+                
+                
+                
 
-                f1->name[f1->name[walkLink].loopNext].multNext =f1->name[f1->name[newTerm[index]].chainNext].loopNext;
+                walkMult = f1->name[walkLink].loopNext;
+                while ( f1->name[walkMult].multNext != nullName)
+                    walkMult =f1->name[walkMult].multNext;
+                f1->name[walkMult].multNext = f1->name[f1->name[newTerm[index]].chainNext].loopNext;
             } else if ( intvType[index] >= 0 ){
                 ///add
                 while ( f1->name[walkLink].chainNext != nullName)
                     walkLink =f1->name[walkLink].chainNext;
                 f1->name[walkLink].chainNext = f1->name[newTerm[index]].chainNext;
+                walkLink = f1->name[walkLink].chainNext;
 
             }
         }

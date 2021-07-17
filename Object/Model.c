@@ -136,8 +136,8 @@ void resetExternal(struct calculation * i, inta number, double scale ){
 #ifdef APPLE
       i->i.OpIndex =-1;
 
-      floata lattice = 0.25;
-      inta basis = 51;
+      floata lattice = 0.5;
+      inta basis = 25;
     space = 0;
       i->f.canon[space].basis = SincBasisElement;
       i->f.canon[space].body = one;
@@ -209,8 +209,8 @@ calculation initCal (void ) {
     i->rt.MAX_CYCLE = 24;
     i->rt.relativeTOLERANCE = 0.000000000000001;
     i->rt.THRESHOLD = 1e-12;
-    i->i.numNames = 10000;
-    i->i.numVectors = 10000;
+    i->i.numNames = 100;
+    i->i.numVectors = 10;
     i->rt.dynamic = 0;
     i->i.iocsb = 1;
     i->i.nocsb = 1;
@@ -246,9 +246,7 @@ calculation initCal (void ) {
     i->rt.phaseType = buildFoundation;
     i->rt.calcType = electronicStuctureCalculation;
     i->i.Lambda = 200 ;
-    i->i.SymmetrizedGaussianLevel = 1;
-    i->i.SymmetrizedGaussianWidth = 1;
-    
+
     i->i.termNumber = 1;
     term_label t;
     t.act = 1;
@@ -257,16 +255,13 @@ calculation initCal (void ) {
     t.func.fn = Coulomb;
     t.func.param[0] = 1;
     t.func.interval = 15;
-    t.func.momentumInterval = -1;
 
-    t.adjustOne = 1.;
     t.mu.beta[0] = 0;
     t.mu.beta[1] = 100;
     t.mu.metric = interval;
     t.mu.fn  = t.func;
     t.invert = 0;
-    t.label[0]  = 1;
-    t.label[1]  = 1;
+    t.label  = 1;
 
     t.scalar = 1;
     t.headFlag = 1;
@@ -279,9 +274,8 @@ calculation initCal (void ) {
         t.type = 9;
     }
     i->i.terms[0] = t;
-    t.scalar = -1;
+    t.scalar = 1;
     t.headFlag = 1;
-    t.label[0] = 1;
     t.bl = 1;
     t.type = 13;
     i->i.terms[0] = t;
@@ -290,9 +284,15 @@ calculation initCal (void ) {
     t.headFlag =-1;
     t.type = 12;
     i->i.terms[1] = t;
-    
+    t.headFlag =-1;
+    t.type = 13;
+    i->i.terms[2] = t;
+    t.headFlag =-1;
+    t.type = 12;
+    i->i.terms[3] = t;
 
-    i->i.termNumber = 2;
+
+    i->i.termNumber = 4;
     
 
 #else

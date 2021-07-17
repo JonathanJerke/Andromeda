@@ -63,8 +63,8 @@ void getMetric (   metric_label mu,FILE * outString){
             break;
         case separateDirac:
             fprintf(outString,"\tseparated Dirac @ %f \n", mu.beta[0]);
-            fprintf(outString,"\tpowA %d %d %d\n" , mu.pow[0],mu.pow[1],mu.pow[2]);
-            fprintf(outString,"\tpowB %d %d %d\n" , mu.powB[0],mu.powB[1],mu.powB[2]);
+          //  fprintf(outString,"\tpowA %d %d %d\n" , mu.pow[0],mu.pow[1],mu.pow[2]);
+          //  fprintf(outString,"\tpowB %d %d %d\n" , mu.powB[0],mu.powB[1],mu.powB[2]);
             break;
         case interval:
             fprintf(outString,"\tInterval [%f,%f]\n", mu.beta[0],mu.beta[1]);
@@ -2382,11 +2382,10 @@ inta quadrature( metric_label metric, floata *X, floata* W){
 /**
  *building quantum operators for oneBody and twoBody interactions
  */
-inta separateInteraction(   sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, division load,  metric_label metric,  spinType cmpl,inta overline,   division basis ,inta * particle1,  bodyType body,inta embed){
+inta separateInteraction(   sinc_label *f,double scalar, float * position,inta invert,inta act,  blockType bl, division load,  metric_label metric,  spinType cmpl,inta overline,   division basis ,inta particle1,  bodyType body,inta embed){
       genusType hidden;
       sinc_label f1 = *f;
       division currLoop, currChain,newLabel;
-    double adjustOne = 1.0;
     double oneL,twoL;
     inta perm[7],op[7];
     
@@ -2431,7 +2430,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                 
             for ( space = 0 ;space < SPACE  ; space++)
                 if ( f1.canon[space].body != nada )
-                    if ( f1.canon[space].label == particle1[0] )
+                    if ( f1.canon[space].label == particle1 )
                 {
                     //printf("space-%d position %f\n",space,position[f1.canon[space].space]);
                     if ( body == one ){
@@ -2468,8 +2467,8 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
                     ///conditional body 2
                     if ( body == two ){
                         commandSA(f1.canon[space].body, f1.name[newLabel].space[space].act,e12 , bl, perm, op);
-                        oneL = f1.canon[space].particle[op[0]+1].lattice*adjustOne;
-                        oneOri = f1.canon[space].particle[op[0]+1].origin*adjustOne;
+                        oneL = f1.canon[space].particle[op[0]+1].lattice;
+                        oneOri = f1.canon[space].particle[op[0]+1].origin;
                         twoL = f1.canon[space].particle[op[1]+1].lattice;
                         twoOri = f1.canon[space].particle[op[1]+1].origin;
                         
@@ -2514,7 +2513,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
             for ( space = 0 ;space < SPACE  ; space++)
                 if ( f1.canon[space].body != nada ){
                     f1.name[newLabel].space[space].act = act;
-                    if ( f1.canon[space].label == particle1[0] ){
+                    if ( f1.canon[space].label == particle1 ){
                         f1.name[newLabel].space[space].body = body;
                         f1.name[newLabel].space[space].block = bl;
                     }else{
@@ -2536,7 +2535,7 @@ inta separateInteraction(   sinc_label *f,double scalar, double * position,inta 
  *building quantum operators for oneBody and twoBody interactions
  *
  */
-inta splitInteraction( sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl,  division load,  metric_label metric, spinType spin,momentumIntegralSpecs specs,  division basis ,inta *particle1 , bodyType body,inta embed);
+//inta splitInteraction( sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl,  division load,  metric_label metric, spinType spin,momentumIntegralSpecs specs,  division basis ,inta *particle1 , bodyType body,inta embed);
 
 
 /**
@@ -2547,7 +2546,7 @@ inta splitInteraction( sinc_label *f,double scalar, double * position,inta inver
  *---basically a split operator has all kinds of degrees of internal freedom, specifiy
  *
  */
-inta periodicInteraction( sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, division load,  metric_label metric,  spinType spin, momentumIntegralSpecs specs,floata cellLength, division basis ,inta *particle1,  bodyType body);
+//inta periodicInteraction( sinc_label *f,double scalar, double * position,inta invert,inta act,  blockType bl, division load,  metric_label metric,  spinType spin, momentumIntegralSpecs specs,floata cellLength, division basis ,inta *particle1,  bodyType body);
 
 
 /**
@@ -2881,8 +2880,8 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
                 metric[nMet].beta[0] = 0;
                 metric[nMet].beta[1] = 1./func.param[2];
                 for ( space = 0; space < SPACE ; space++){
-                    metric[nMet].pow[space] = 0;
-                    metric[nMet].deriv[space] = 0;
+                  //  metric[nMet].pow[space] = 0;
+                  //  metric[nMet].deriv[space] = 0;
                 }
                 nMet++;
             }else {
@@ -2897,8 +2896,8 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
                 metric[nMet].beta[0] = 0;
                 metric[nMet].beta[1] = latticePause;
                 for ( space = 0; space < SPACE ; space++){
-                    metric[nMet].pow[space] = 0;
-                    metric[nMet].deriv[space] = 0;
+                 //   metric[nMet].pow[space] = 0;
+                 //   metric[nMet].deriv[space] = 0;
                 }
 
                 nMet++;
@@ -2911,8 +2910,8 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
                 metric[nMet].beta[0] = latticePause;
                 metric[nMet].beta[1] = 1./func.param[2];
                 for ( space = 0; space < SPACE ; space++){
-                    metric[nMet].pow[space] = 0;
-                    metric[nMet].deriv[space] = 0;
+                   // metric[nMet].pow[space] = 0;
+                  //  metric[nMet].deriv[space] = 0;
                 }
 
                 nMet++;
@@ -2931,8 +2930,8 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
             metric[nMet].beta[0] = 0;
             metric[nMet].beta[1] = latticePause;
             for ( space = 0; space < SPACE ; space++){
-                metric[nMet].pow[space] = 0;
-                metric[nMet].deriv[space] = 0;
+              //  metric[nMet].pow[space] = 0;
+              //  metric[nMet].deriv[space] = 0;
             }
 
             nMet++;
@@ -2944,8 +2943,8 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
             metric[nMet].metric = semiIndefinite;
             metric[nMet].beta[0] = latticePause;
             for ( space = 0; space < SPACE ; space++){
-                metric[nMet].pow[space] = 0;
-                metric[nMet].deriv[space] = 0;
+               // metric[nMet].pow[space] = 0;
+               // metric[nMet].deriv[space] = 0;
             }
 
             nMet++;
@@ -2983,8 +2982,8 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
                 metric[nMet].beta[0] = 0;
                 metric[nMet].beta[1] =  1./(sqrt(2.)*PSU[5]);
                 for ( space = 0; space < SPACE ; space++){
-                    metric[nMet].pow[space] = 0;
-                    metric[nMet].deriv[space] = 0;
+                   // metric[nMet].pow[space] = 0;
+                   // metric[nMet].deriv[space] = 0;
                 }
 
                 nMet++;
@@ -3000,8 +2999,8 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
                 metric[nMet].beta[0] = 0;
                 metric[nMet].beta[1] = latticePause;
                 for ( space = 0; space < SPACE ; space++){
-                    metric[nMet].pow[space] = 0;
-                    metric[nMet].deriv[space] = 0;
+                 //   metric[nMet].pow[space] = 0;
+                 //   metric[nMet].deriv[space] = 0;
                 }
 
                 nMet++;
@@ -3014,8 +3013,8 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
                 metric[nMet].beta[0] = latticePause;
                 metric[nMet].beta[1] =  1./(sqrt(2.)*PSU[5]);
                 for ( space = 0; space < SPACE ; space++){
-                    metric[nMet].pow[space] = 0;
-                    metric[nMet].deriv[space] = 0;
+                  //  metric[nMet].pow[space] = 0;
+                  //  metric[nMet].deriv[space] = 0;
                 }
 
                 nMet++;
@@ -3028,8 +3027,8 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
                 metric[nMet].metric = dirac;
                 metric[nMet].beta[0] =  1./(sqrt(2.)*PSU[5]);
                 for ( space = 0; space < SPACE ; space++){
-                    metric[nMet].pow[space] = 0;
-                    metric[nMet].deriv[space] = 0;
+                   /// metric[nMet].pow[space] = 0;
+                  //  metric[nMet].deriv[space] = 0;
                 }
 
                 nMet++;
@@ -3045,10 +3044,10 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
                     metric[nMet].metric = dirac;
                     metric[nMet].beta[0] =  1./(sqrt(2.)*PSU[5]);
                     for ( space = 0; space < SPACE ; space++){
-                        metric[nMet].pow[space] = 0;
-                        metric[nMet].deriv[space] = 0;
+                      //  metric[nMet].pow[space] = 0;
+                    //    metric[nMet].deriv[space] = 0;
                     }
-                    metric[nMet].pow[dim] = 2;
+                   // metric[nMet].pow[dim] = 2;
                     
                     nMet++;
                     if ( nMet > am )
@@ -3064,35 +3063,35 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
                     metric[nMet].metric = dirac;
                     metric[nMet].beta[0] =  1./(sqrt(2.)*PSU[5]);
                     for ( space = 0; space < SPACE ; space++){
-                        metric[nMet].pow[space] = 0;
-                        metric[nMet].deriv[space] = 0;
+                      //  metric[nMet].pow[space] = 0;
+                      //  metric[nMet].deriv[space] = 0;
                     }
                     //a^2 + 2 a b + b^2 + 2 a c + 2 b c + c^2
 
                     switch( dim ){
                         case 0:
-                            metric[nMet].pow[0] = 4;
+                         //   metric[nMet].pow[0] = 4;
                             break;
                         case 1:
                             metric[nMet].fn.param[0] *= 2;
-                            metric[nMet].pow[0] = 2;
-                            metric[nMet].pow[1] = 2;
+                         //   metric[nMet].pow[0] = 2;
+                         //   metric[nMet].pow[1] = 2;
                             break;
                         case 2:
-                            metric[nMet].pow[1] = 4;
+                          //  metric[nMet].pow[1] = 4;
                             break;
                         case 3:
                             metric[nMet].fn.param[0] *= 2;
-                            metric[nMet].pow[1] = 2;
-                            metric[nMet].pow[2] = 2;
+                        //    metric[nMet].pow[1] = 2;
+                         //   metric[nMet].pow[2] = 2;
                             break;
                         case 4:
-                            metric[nMet].pow[2] =4;
+                         //   metric[nMet].pow[2] =4;
                             break;
                         case 5:
                             metric[nMet].fn.param[0] *= 2;
-                            metric[nMet].pow[0] = 2;
-                            metric[nMet].pow[2] = 2;
+                         //   metric[nMet].pow[0] = 2;
+                         //   metric[nMet].pow[2] = 2;
                             break;
                             
                     }
@@ -3116,8 +3115,8 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
                     metric[nMet].metric = dirac;
                     metric[nMet].beta[0] =  1./(sqrt(2.)*PSU[5]);
                     for ( space = 0; space < SPACE ; space++){
-                        metric[nMet].pow[space] = 0;
-                        metric[nMet].deriv[space] = 0;
+                    //    metric[nMet].pow[space] = 0;
+                     //   metric[nMet].deriv[space] = 0;
                     }
                     //a^3 + 3 a^2 b + 3 a b^2 + b^3 + 3 a^2 c + 6 a b c + 3 b^2 c +
                     //3 a c^2 + 3 b c^2 + c^3
@@ -3125,49 +3124,49 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
 
                     switch( dim ){
                         case 0:
-                            metric[nMet].pow[0] = 6;
+                          //  metric[nMet].pow[0] = 6;
                             break;
                         case 1:
                             metric[nMet].fn.param[0] *= 3;
-                            metric[nMet].pow[0] = 4;
-                            metric[nMet].pow[1] = 2;
+                         //   metric[nMet].pow[0] = 4;
+                         //   metric[nMet].pow[1] = 2;
                             break;
                         case 2:
                             metric[nMet].fn.param[0] *= 3;
-                            metric[nMet].pow[0] = 2;
-                            metric[nMet].pow[1] = 4;
+                          //  metric[nMet].pow[0] = 2;
+                          ///  metric[nMet].pow[1] = 4;
                             break;
                         case 3:
-                            metric[nMet].pow[1] = 6;
+                          //  metric[nMet].pow[1] = 6;
                             break;
                         case 4:
                             metric[nMet].fn.param[0] *= 3;
-                            metric[nMet].pow[0] = 4;
-                            metric[nMet].pow[2] = 2;
+                          //  metric[nMet].pow[0] = 4;
+                          //  metric[nMet].pow[2] = 2;
                             break;
                         case 5:
                             metric[nMet].fn.param[0] *= 6;
-                            metric[nMet].pow[0] = 2;
-                            metric[nMet].pow[1] = 2;
-                            metric[nMet].pow[2] = 2;
+                          //  metric[nMet].pow[0] = 2;
+                          //  metric[nMet].pow[1] = 2;
+                          //  metric[nMet].pow[2] = 2;
                             break;
                         case 6:
                             metric[nMet].fn.param[0] *= 3;
-                            metric[nMet].pow[1] = 4;
-                            metric[nMet].pow[2] = 2;
+                         //   metric[nMet].pow[1] = 4;
+                         //   metric[nMet].pow[2] = 2;
                             break;
                         case 7:
                             metric[nMet].fn.param[0] *= 3;
-                            metric[nMet].pow[0] = 2;
-                            metric[nMet].pow[2] = 4;
+                          //  metric[nMet].pow[0] = 2;
+                         //   metric[nMet].pow[2] = 4;
                             break;
                         case 8:
                             metric[nMet].fn.param[0] *= 3;
-                            metric[nMet].pow[1] = 2;
-                            metric[nMet].pow[2] = 4;
+                          //  metric[nMet].pow[1] = 2;
+                          //  metric[nMet].pow[2] = 4;
                             break;
                         case 9:
-                            metric[nMet].pow[2] = 6;
+                        //    metric[nMet].pow[2] = 6;
                             break;
                     }
                 
@@ -3185,9 +3184,9 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
                 metric[nMet].metric = separateDirac;
                 metric[nMet].beta[0] =  1./(sqrt(2.)*PSU[5]);
                 for ( space = 0; space < SPACE ; space++){
-                    metric[nMet].pow[space] = 0;
-                    metric[nMet].powB[space] = 0;
-                    metric[nMet].deriv[space] = 0;
+                   // metric[nMet].pow[space] = 0;
+                  ///  metric[nMet].powB[space] = 0;
+                  //  metric[nMet].deriv[space] = 0;
                 }
 
                 nMet++;
@@ -3204,13 +3203,13 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
                         metric[nMet].metric = separateDirac;
                         metric[nMet].beta[0] =  1./(sqrt(2.)*PSU[11]);
                         for ( space = 0; space < SPACE ; space++){
-                            metric[nMet].pow[space] = 0;
-                            metric[nMet].powB[space] = 0;
-                            metric[nMet].deriv[space] = 0;
+                       //     metric[nMet].pow[space] = 0;
+                       //     metric[nMet].powB[space] = 0;
+                       //     metric[nMet].deriv[space] = 0;
                         }
                         //(x2 + y2 + z2 ) ( x'2 + y'2 + z'2 )
-                        metric[nMet].pow[dim] = 2;
-                        metric[nMet].powB[dimB] = 2;
+                       // metric[nMet].pow[dim] = 2;
+                      //  metric[nMet].powB[dimB] = 2;
                         
                         nMet++;
                         if ( nMet > am )
@@ -3226,11 +3225,11 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
                     metric[nMet].metric = separateDirac;
                     metric[nMet].beta[0] =  1./(sqrt(2.)*PSU[15]);
                     for ( space = 0; space < SPACE ; space++){
-                        metric[nMet].pow[space] = 0;
-                        metric[nMet].deriv[space] = 0;
+                       // metric[nMet].pow[space] = 0;
+                       // metric[nMet].deriv[space] = 0;
                     }
-                    metric[nMet].pow[dim]  = 1;
-                    metric[nMet].powB[dim] = 1;
+                   // metric[nMet].pow[dim]  = 1;
+                   // metric[nMet].powB[dim] = 1;
 
                     nMet++;
                     if ( nMet > am )
@@ -3248,8 +3247,8 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
                 metric[nMet].metric = dirac;
                 metric[nMet].beta[0] = func.param[2];
                 for ( space = 0; space < SPACE ; space++){
-                    metric[nMet].pow[space] = 0;
-                    metric[nMet].deriv[space] = 0;
+                 //   metric[nMet].pow[space] = 0;
+                 //   metric[nMet].deriv[space] = 0;
                 }
                 nMet++;
                 if ( nMet > am )
@@ -3281,7 +3280,7 @@ inta buildMetric( double latticePause,inta Z,   function_label func,inta am,   m
  *@param overline periodic
  *@param cmpl make it real for now
  */
-inta buildKinetic( calculation *c1, sinc_label *f1,double scalar,inta invert,inta act, blockType bl, division single,inta label, inta overline, spinType cmpl){
+inta buildKinetic( calculation *c1, sinc_label *f1,double scalar,char invert,inta act, blockType bl, division single,inta label, inta overline, spinType cmpl){
     inta dim,spacy;
       division li = single;
     while ( f1->name[li].chainNext != nullName)
@@ -3372,7 +3371,7 @@ inta buildKinetic( calculation *c1, sinc_label *f1,double scalar,inta invert,int
  *@param overline legacy
  *@param cmpl make it real for now
 */
-inta buildConstant(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl){
+inta buildConstant(  calculation *c1,   sinc_label *f1,double scalar,char invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl){
     inta space;
       division li = single;
     while ( f1->name[li].chainNext != nullName)
@@ -3424,7 +3423,7 @@ inta buildConstant(  calculation *c1,   sinc_label *f1,double scalar,inta invert
  *@param overline legacy
  *@param cmpl make it real for now
 */
-inta buildLinear(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl){
+inta buildLinear(  calculation *c1,   sinc_label *f1,double scalar,char invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl){
     inta dim,spacy;
       division li = single;
     while ( f1->name[li].chainNext != nullName)
@@ -3487,8 +3486,8 @@ inta buildLinear(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
  *@param overline legacy
  *@param cmpl make it real for now
 */
-inta buildDeriv(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl){
-    inta dim,spacy,id=0;
+inta buildDeriv(  calculation *c1,   sinc_label *f1,double scalar,char invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl){
+    inta dim,spacy;
       division li = single;
     while ( f1->name[li].chainNext != nullName)
         li =f1->name[li].chainNext;
@@ -3611,8 +3610,8 @@ inta buildElement(  calculation *c1,   sinc_label *f1,double scalar,inta invert,
  *@param overline legacy
  *@param cmpl make it real for now
 */
-inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl){
-    inta dim,spacy,id=0;
+inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,char invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl){
+    inta dim,spacy;
       division li = single;
     while ( f1->name[li].chainNext != nullName)
         li =f1->name[li].chainNext;
@@ -3662,91 +3661,6 @@ inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
 
 
 /**
- *Eikon of Number Operator
- *
- *@param c1 parameters
- *@param f1 container
- *@param scalar overall scalar multiply
- *@param invert switch to turn on a particle-1 inversion
- *@param act Symmetry Adaption related work, for group action
- *@param bl the address of the interaction, i.e. particle-1 or particle-12
- *@param[in] single linked list
- *@param label the component group ID
- *@param overline legacy
- *@param cmpl make it real for now
- *@param omega spatial definition of SHO
-*/
-inta buildNumber(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl, floata omega){
-    inta dim,spacy;
-      division li = single;
-    while ( f1->name[li].chainNext != nullName)
-        li =f1->name[li].chainNext;
-    //x is beta.
-    if ( overline ){
-        printf("periodic boundary conditions not implemented yet!");
-        exit(0);
-    }
-    printf("Number\tx %d act %d block %d (%f) --%f\n", label,act,bl,scalar,omega);
-
-    
-         division memoryLabel,currLabel;
-       currLabel = li;
-       for ( dim = 0 ; dim < SPACE ; dim++)
-           if ( f1->canon[dim].body != nada)
-           {
-               if ( f1->canon[dim].label == label)
-                   {
-
-                       f1->name[currLabel].chainNext = anotherLabel(f1,0,nada);
-                       currLabel = f1->name[currLabel].chainNext;
-                       f1->name[currLabel].species = eikon;
-                       //new term
-                       f1->name[currLabel].loopNext = anotherLabel(f1,all,one);
-                       memoryLabel = f1->name[currLabel].loopNext;
-                       f1->name[memoryLabel].species = eikonSpring;
-                       f1->name[memoryLabel].Current[0] = 1;
-
-               
-                       for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
-                           if ( f1->canon[spacy].body != nada){
-                               f1->name[memoryLabel].space[spacy].act = act;
-                               if ( f1->canon[spacy].label == label && spacy == dim)
-                                   {
-                                       f1->name[memoryLabel].space[spacy].body = one;
-                                       f1->name[memoryLabel].space[spacy].block = bl;
-                                       streams(*f1, memoryLabel, 0, spacy)[0] = 0.500*scalar*omega*omega;
-                                   }else{
-                                           f1->name[memoryLabel].space[spacy].block = id0;
-                                   }
-                       
-                           }
-                       
-                       f1->name[memoryLabel].loopNext = anotherLabel(f1,all,one);
-                       memoryLabel = f1->name[memoryLabel].loopNext;
-                       f1->name[memoryLabel].species = eikonKinetic;
-                       f1->name[memoryLabel].Current[0] = 1;
-
-               
-                       for (spacy = 0 ; spacy < SPACE ; spacy++)//set term across basis
-                           if ( f1->canon[spacy].body != nada){
-                               f1->name[memoryLabel].space[spacy].act = act;
-                               if ( f1->canon[spacy].label == label && spacy == dim)
-                                   {
-                                       f1->name[memoryLabel].space[spacy].body = one;
-                                       f1->name[memoryLabel].space[spacy].block = bl;
-                                       streams(*f1, memoryLabel, 0, spacy)[0] = -0.500*scalar;
-                                   }else{
-                                           f1->name[memoryLabel].space[spacy].block = id0;
-                                   }
-                       
-                           }
-                       
-               }
-           }
-               return 0;
-}
-
-/**
  *Eikon of Creation Operator
  *
  *@param c1 parameters
@@ -3759,9 +3673,8 @@ inta buildNumber(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
  *@param label the component group ID
  *@param overline legacy
  *@param cmpl make it real for now
- *@param omega spatial definition of SHO
 */
-inta buildCreate(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl, floata omega){
+inta buildCreate(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl){
     inta dim,spacy;
       division li = single;
     while ( f1->name[li].chainNext != nullName)
@@ -3771,7 +3684,7 @@ inta buildCreate(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
         printf("periodic boundary conditions not implemented yet!");
         exit(0);
     }
-    printf("Create\tx %d act %d block %d (%f) (%f)\n", label,act,bl,scalar,omega);
+    printf("Create\tx %d act %d block %d (%f)\n", label,act,bl,scalar);
 
     
          division memoryLabel,currLabel;
@@ -3825,9 +3738,8 @@ inta buildCreate(  calculation *c1,   sinc_label *f1,double scalar,inta invert,i
  *@param label the component group ID
  *@param overline legacy
  *@param cmpl make it real for now
- *@param omega spatial definition of SHO
 */
-inta buildDestroy(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl, floata omega){
+inta buildDestroy(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl){
     inta dim,spacy;
       division li = single;
     while ( f1->name[li].chainNext != nullName)
@@ -3837,7 +3749,7 @@ inta buildDestroy(  calculation *c1,   sinc_label *f1,double scalar,inta invert,
         printf("periodic boundary conditions not implemented yet!");
         exit(0);
     }
-    printf("Destroy\tx %d act %d block %d (%f) (%f)\n", label,act,bl,scalar,omega);
+    printf("Destroy\tx %d act %d block %d (%f)\n", label,act,bl,scalar);
 
     
          division memoryLabel,currLabel;
@@ -3896,7 +3808,7 @@ inta buildDestroy(  calculation *c1,   sinc_label *f1,double scalar,inta invert,
  *@param mu the metric
  *@param a geometry/Z of a-th ion
  */
-inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, inta invert,inta act,  blockType bl,   division single,  inta *particle1,inta embed, inta overline,   spinType cmpl,  metric_label mu,inta a){
+inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, char invert,inta act,  blockType bl,   division single,  inta particle1,inta embed, inta overline,   spinType cmpl,  metric_label mu,inta a){
     inta ra=0;
     printf("oneBody act %d block %d atom %d >%d<\n", act,bl, a,embed);
     getDescription(&mu.fn, scalar, stdout);
@@ -3956,12 +3868,12 @@ inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar, i
  *@param cmpl make it real for now
  *@param mu the metric
 */
-inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,inta invert, inta act,  blockType bl,  division pair,  inta *particle1 ,inta embed, inta overline,   spinType cmpl,  metric_label mu){
+inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,char invert, inta act,  blockType bl,  division pair,  inta particle1 ,inta embed, inta overline,   spinType cmpl,  metric_label mu){
     inta ra=0;
     printf("twoBody act %d block %d >%d<\n",act,bl,embed);
     getDescription(&mu.fn, scalar, stdout);
     getMetric(mu, stdout);
-    double zero[6];
+    float zero[6];
     zero[0] = 0.;
     zero[1] = 0.;
     zero[2] = 0.;

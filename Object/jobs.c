@@ -46,7 +46,6 @@ inta foundationS(  calculation *c1,   field f1){
         gamma[7] = 3;
         SG(f1.f, eigenVectors, 0, 1., gamma);
         division op = defSpiralMatrix(&f1.f, Iterator);
-        floata x = tMatrixElements(0, f1.f, eigenVectors, 0, op, 1, eigenVectors, 0);
         printExpectationValues(c1, f1.f, Ha, eigenVectors );
         fModel(&f1.f);
     }
@@ -59,108 +58,108 @@ inta foundationS(  calculation *c1,   field f1){
  *Needs to be updated for Molecules...
  *One vector per vector element
  */
-inta foundationB(  calculation *c1,   field f1){
-    floata s2pi = sqrt(2*pi);
-    ///Variables
-    ///Assume we have a uniform lattice across all dimensions
-    inta mx = 9,nx = c1->i.SymmetrizedGaussianLevel;
-    f1.i.Iterations = 1;
-    inta space,m,n,mc,v ;
-    inta tot = f1.i.qFloor;
-    f1.i.qFloor = 0 ;
-    f1.i.nStates = 1;
-    inta counter = 0;
-    inta msp,vsp,vc,mpp,vn1, basis = 0;
-    long long int stars = 1;
-    floata variable;
-    bodyType body;
-    for ( space = 0 ;space < SPACE ; space++)
-        if ( f1.f.canon[space].body != nada){
-            basis += vectorLen(f1.f, space);
-            stars *= pow(mx,f1.f.canon[space].body);
-        }
-    floata su = 0.;
-    for ( mc = 0 ; mc < stars ; mc++){
-        mpp = 1;
-        inta dim = 0;
-        floata ex2 = 0;
-        for  ( space =0; space < SPACE ; space++){
-            if ( f1.f.canon[space].body != nada){
-                for ( body = one ; body <= f1.f.canon[space].body ; body++){
-                    m = (mc/(mpp))%mx-(mx-1)/2;
-                    mpp *= mx;
-                    ex2 += m*m;
-                    dim++;
-                }
-            }
-        }
-        su += exp(-ex2/c1->i.SymmetrizedGaussianWidth);
-    }
-    
-    
-    ///spatial lattice is sqrt-pi grid,
-    ///n = 1/2 occupies 2 sincs, 3/2 occupies 3 sincs, 5/2 occupies 4 sincs
-    if ( 1 ){
-         iModel(c1,&f1);
-        fflush(stdout);
-        n = nx;
-        for ( mc = 0; mc < stars ; mc++){
-#ifdef RAND_FOUNDATION
-            mpp = 1;
-            inta dim = 0;
-            floata ex2 = 0;
-            for  ( space =0; space < SPACE ; space++){
-                if ( f1.f.canon[space].body != nada){
-                    for ( body = one ; body <= f1.f.canon[space].body ; body++){
-                        m = (mc/(mpp))%mx-(mx-1)/2;
-                        mpp *= mx;
-                        ex2 += m*m;
-                        dim++;
-                    }
-                }
-            }
-            
-            if ( rand()*1./RAND_MAX < tot/su*exp(-ex2/c1->i.SymmetrizedGaussianWidth) )
-#endif
-        {
-            f1.f.name[eigenVectors].Current[0] = 1;
-            zero(f1.f, eigenVectors, 0);
-            msp = 1;
-            for  ( space =0; space < SPACE ; space++){
-                if ( f1.f.canon[space].body != nada){
-                    for ( vc = 0; vc < vectorLen(f1.f, space) ; vc++){
-                        vsp = 1;
-                        mpp = 1;
-                        variable = 1;
-                        vn1 = vector1Len(f1.f,space);
-                        for ( body = one ; body <= f1.f.canon[space].body ; body++){
-                            v = (vc/vsp)%vn1-(vn1-1)/2;
-                            vsp *= vn1;
-                            m = (mc/(msp*mpp))%mx-(mx-1)/2;
-                            mpp *= mx;
-                            ///n = 1 --> 1/2 internally, which is the lowest level...
-                            variable *= SymmetrizedGaussianInSinc(pi/f1.f.canon[space].particle[body].lattice,2*n+1,m,f1.f.canon[space].particle[body].lattice * v );
-                            variable *= f1.f.canon[space].particle[body].lattice/s2pi;
-                        }
-                        streams(f1.f,eigenVectors,0,space)[vc] = variable;
-                    }
-                    msp *= pow(mx,f1.f.canon[space].body);
-                }
-            }
-            if (1)
-             //|| printExpectationValues(c1,f1.f, Ha, eigenVectors) < level )
-            {
-                printOut(c1,&f1,!counter,counter , eigenVectors);
-                fflush(stdout);
-                counter++;
-            }
-        }
-    
-    }
-    fModel(&f1.f);
-    }
-    return counter;
-}
+//inta foundationB(  calculation *c1,   field f1){
+//    floata s2pi = sqrt(2*pi);
+//    ///Variables
+//    ///Assume we have a uniform lattice across all dimensions
+//    inta mx = 9,nx = c1->i.SymmetrizedGaussianLevel;
+//    f1.i.Iterations = 1;
+//    inta space,m,n,mc,v ;
+//    inta tot = f1.i.qFloor;
+//    f1.i.qFloor = 0 ;
+//    f1.i.nStates = 1;
+//    inta counter = 0;
+//    inta msp,vsp,vc,mpp,vn1, basis = 0;
+//    long long int stars = 1;
+//    floata variable;
+//    bodyType body;
+//    for ( space = 0 ;space < SPACE ; space++)
+//        if ( f1.f.canon[space].body != nada){
+//            basis += vectorLen(f1.f, space);
+//            stars *= pow(mx,f1.f.canon[space].body);
+//        }
+//    floata su = 0.;
+//    for ( mc = 0 ; mc < stars ; mc++){
+//        mpp = 1;
+//        inta dim = 0;
+//        floata ex2 = 0;
+//        for  ( space =0; space < SPACE ; space++){
+//            if ( f1.f.canon[space].body != nada){
+//                for ( body = one ; body <= f1.f.canon[space].body ; body++){
+//                    m = (mc/(mpp))%mx-(mx-1)/2;
+//                    mpp *= mx;
+//                    ex2 += m*m;
+//                    dim++;
+//                }
+//            }
+//        }
+//        su += exp(-ex2/c1->i.SymmetrizedGaussianWidth);
+//    }
+//
+//
+//    ///spatial lattice is sqrt-pi grid,
+//    ///n = 1/2 occupies 2 sincs, 3/2 occupies 3 sincs, 5/2 occupies 4 sincs
+//    if ( 1 ){
+//         iModel(c1,&f1);
+//        fflush(stdout);
+//        n = nx;
+//        for ( mc = 0; mc < stars ; mc++){
+//#ifdef RAND_FOUNDATION
+//            mpp = 1;
+//            inta dim = 0;
+//            floata ex2 = 0;
+//            for  ( space =0; space < SPACE ; space++){
+//                if ( f1.f.canon[space].body != nada){
+//                    for ( body = one ; body <= f1.f.canon[space].body ; body++){
+//                        m = (mc/(mpp))%mx-(mx-1)/2;
+//                        mpp *= mx;
+//                        ex2 += m*m;
+//                        dim++;
+//                    }
+//                }
+//            }
+//
+//            if ( rand()*1./RAND_MAX < tot/su*exp(-ex2/c1->i.SymmetrizedGaussianWidth) )
+//#endif
+//        {
+//            f1.f.name[eigenVectors].Current[0] = 1;
+//            zero(f1.f, eigenVectors, 0);
+//            msp = 1;
+//            for  ( space =0; space < SPACE ; space++){
+//                if ( f1.f.canon[space].body != nada){
+//                    for ( vc = 0; vc < vectorLen(f1.f, space) ; vc++){
+//                        vsp = 1;
+//                        mpp = 1;
+//                        variable = 1;
+//                        vn1 = vector1Len(f1.f,space);
+//                        for ( body = one ; body <= f1.f.canon[space].body ; body++){
+//                            v = (vc/vsp)%vn1-(vn1-1)/2;
+//                            vsp *= vn1;
+//                            m = (mc/(msp*mpp))%mx-(mx-1)/2;
+//                            mpp *= mx;
+//                            ///n = 1 --> 1/2 internally, which is the lowest level...
+//                            variable *= SymmetrizedGaussianInSinc(pi/f1.f.canon[space].particle[body].lattice,2*n+1,m,f1.f.canon[space].particle[body].lattice * v );
+//                            variable *= f1.f.canon[space].particle[body].lattice/s2pi;
+//                        }
+//                        streams(f1.f,eigenVectors,0,space)[vc] = variable;
+//                    }
+//                    msp *= pow(mx,f1.f.canon[space].body);
+//                }
+//            }
+//            if (1)
+//             //|| printExpectationValues(c1,f1.f, Ha, eigenVectors) < level )
+//            {
+//                printOut(c1,&f1,!counter,counter , eigenVectors);
+//                fflush(stdout);
+//                counter++;
+//            }
+//        }
+//
+//    }
+//    fModel(&f1.f);
+//    }
+//    return counter;
+//}
 
 
 /**

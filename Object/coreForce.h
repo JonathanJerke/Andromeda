@@ -36,18 +36,17 @@ void getMetric (   metric_label mu ,FILE * outString);
 
 mea BoB (  basisElement_label b1,   basisElement_label b2);
 inta buildMetric( double ,inta Z,   function_label func,inta am,   metric_label * metric);
-inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,  blockType bl, division pair,   inta *particle1 ,inta embed, inta overline,  spinType cmpl,   metric_label mu);
-inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,  blockType bl, division single,   inta * particle1,inta embed, inta overline,  spinType cmpl,   metric_label mu,inta a);
-inta buildConstant(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl);
-inta buildDeriv(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl);
-inta buildKinetic(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl);
-inta buildClampKinetic(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,  inta particle1, inta overline,   spinType cmpl);
-inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl);
-inta buildLinear(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl);
+inta buildPairWisePotential(  calculation *c1,   sinc_label *f1,double scalar,char invert,inta act,  blockType bl, division pair,   inta particle1 ,inta embed, inta overline,  spinType cmpl,   metric_label mu);
+inta buildExternalPotential(  calculation *c1,   sinc_label *f1,double scalar,char invert,inta act,  blockType bl, division single,   inta particle1,inta embed, inta overline,  spinType cmpl,   metric_label mu,inta a);
+inta buildConstant(  calculation *c1,   sinc_label *f1,double scalar,char invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl);
+inta buildDeriv(  calculation *c1,   sinc_label *f1,double scalar,char invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl);
+inta buildKinetic(  calculation *c1,   sinc_label *f1,double scalar,char invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl);
+inta buildClampKinetic(  calculation *c1,   sinc_label *f1,double scalar,char invert,inta act,   blockType bl,  division single,  inta particle1, inta overline,   spinType cmpl);
+inta buildSpring(  calculation *c1,   sinc_label *f1,double scalar,char invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl);
+inta buildLinear(  calculation *c1,   sinc_label *f1,double scalar,char invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl);
 inta buildElement(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl,inta bra, inta ket);
-inta buildNumber(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl, floata omega);
-inta buildCreate(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl, floata omega);
-inta buildDestroy(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl, floata omega);
+inta buildCreate(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl);
+inta buildDestroy(  calculation *c1,   sinc_label *f1,double scalar,inta invert,inta act,   blockType bl,  division single,inta label, inta overline,   spinType cmpl);
 
 inta assignDiagonalMatrix(calculation *c1,field *f, char * filename, division single );
 #endif /* coreForce_h */

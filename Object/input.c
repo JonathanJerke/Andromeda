@@ -305,8 +305,7 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
                     c->rt.dynamic = ivalue;
                     return i;
                 case 29:
-                    c->i.SymmetrizedGaussianLevel = ivalue;
-                    return i;
+                    return 0;
                 case 30:
                     srand(ivalue);
                     return i;
@@ -366,7 +365,7 @@ inta getParam (   calculation * c,  input_label *f1, const char * input_line ){
                     return d;
                 }
                 case 8:
-                    c->i.SymmetrizedGaussianWidth = value;
+                  //  c->i.SymmetrizedGaussianWidth = value;
                     return d;
             }
 
@@ -604,11 +603,9 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
     static blockType bl = id0;
     static inta act = 1;
     static inta newTerm = 1;
-    static inta invert = 0;
+    static char invert = 0;
     static inta Interval = 1;
-    static inta momentumInterval = -1;
     static inta contr = 2;
-    static double adjustOne = 1.;
     static double scalar = 1;
     static double turn = 1;
     static double param1 = 1;
@@ -618,9 +615,7 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
     static inta bra = 0;
     static inta ket = 0;
     static inta particle1 = 1;
-    static inta particle2 = 1;
     static inta funcType = 3;
-    static double omega = 0.5;
     char test_line [MAXSTRING];
     inta i,d,ivalue,space;
     metric_label metric;
@@ -650,15 +645,12 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                     c->i.terms[c->i.termNumber].invert = invert;
                     strcpy(c->i.terms[c->i.termNumber].desc,input);
                     c->i.terms[c->i.termNumber].headFlag = newTerm;
-                    c->i.terms[c->i.termNumber].adjustOne = adjustOne;
                     c->i.terms[c->i.termNumber].bra = bra;
                     c->i.terms[c->i.termNumber].ket = ket;
                     sprintf( c->i.terms[c->i.termNumber].filename,"%s",filename);
                     strcpy(c->i.terms[c->i.termNumber].filename,filename);
                     c->i.terms[c->i.termNumber].atom     = atom;
-                    c->i.terms[c->i.termNumber].label[0] = particle1;
-                    c->i.terms[c->i.termNumber].label[1] = particle2;
-                    c->i.terms[c->i.termNumber].omega = omega;
+                    c->i.terms[c->i.termNumber].label = particle1;
 			newTerm = 0;
                     metric.fn.fn = funcType;
                     metric.fn.param[0] = 1.;
@@ -666,7 +658,6 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                     metric.fn.param[2] = param1;
                     metric.fn.param[3] = param2;
                     metric.fn.interval = Interval;
-                    metric.fn.momentumInterval = momentumInterval;
                     metric.fn.contr    = contr;
                     metric.beta[0]     = mBeta;
                     //add gaussian!
@@ -691,8 +682,8 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                     }
                     
                     for ( space = 0; space < SPACE ; space++){
-                        metric.pow[space] = 0;
-                        metric.deriv[space] = 0;
+                     //   metric.pow[space] = 0;
+                     //   metric.deriv[space] = 0;
                     }
                     if ( io >= 8 ){
                         c->i.terms[c->i.termNumber].mu = metric;
@@ -709,18 +700,17 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                 
         }
         
-    inta NINT_TYPE = 19;
+    inta NINT_TYPE = 17;
     char *list_INT_TYPE []= {"#",
         "invert","block","act","newTerm","buffer",
         "interval","offDiagonals","funcType","atom","axis",
         "bra","ket","flags","embed","revise",
-        "reset","axis1","axis2","momentumInterval"
+        "reset","axis1"
     };
-    inta NDOUBLE = 11;
+    inta NDOUBLE = 10;
     char *list_DOUBLE []= {"#",
         "placeholder","scalar","funcTurn","funcParam1","funcParam2",
-        "adjustOne","minBeta","maxBeta","infBeta","soloBeta",
-        "omega"
+        "SPOT","minBeta","maxBeta","infBeta","soloBeta",
     };
     
     for ( i = 1 ; i <= NINT_TYPE ; i++){
@@ -766,7 +756,6 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                         return i;
                     case 10:
                         particle1 = ivalue;
-                        particle2 = ivalue;
                         return i;
                     case 11:
                         bra = ivalue;
@@ -788,12 +777,6 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                         return i;
                     case 17:
                         particle1 = ivalue;
-                        return i;
-                    case 18:
-                        particle2 = ivalue;
-                        return i;
-                    case 19:
-                        momentumInterval = ivalue;
                         return i;
                 }
 //
@@ -824,8 +807,7 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                         param2 = value;
                         return d;
                     case 6:
-                        adjustOne = value;
-                        return d;
+                        return 0;
                     case 7:
                         mBeta = value;
                         return d;
@@ -839,9 +821,6 @@ inta getTermDefinitions(  calculation * c, const char * input_line ){
                         mBeta = value;
                         Interval = 1;
                         funcType = 8;
-                        return d;
-                    case 11:
-                        omega = value;
                         return d;
                 }
             }
