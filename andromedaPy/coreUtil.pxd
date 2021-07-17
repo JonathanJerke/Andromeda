@@ -122,7 +122,7 @@ cdef extern from "../Object/coreUtil.h":
     basisElement_label transformBasis( inta flip,floata scale,   basisElement_label ba )
     inta  countLinesFromFile(   calculation *c1,  field f1,inta location, inta * ir,inta *ix)
     inta defineTerms(  calculation * c,   field *f,   division head, inta memory)
-    inta InvertOp(  bodyType bd,inta invert, inta N1,floata * vector, floata* vectorOut)
+    inta InvertOp(  bodyType bd,char invert, inta N1,floata * vector, floata* vectorOut)
     inta balance (  sinc_label f1,    division alloy, inta spin)
     void linkDetails(  sinc_label f1,   division linkHeader)
     void chainDetails(  sinc_label f1,   division chainHeader)

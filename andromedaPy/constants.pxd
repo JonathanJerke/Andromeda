@@ -168,11 +168,6 @@ cdef extern from "../Object/constants.h":
         blockComponentblock,
         blockDiagonalMatrixblock,
         blockCompressionBlock
-
-    cdef enum momentumType:
-        zeroMomentum,
-        discreteMomentum,
-        continousMomentum
         
     cdef enum division:
         nullName,
@@ -280,35 +275,28 @@ cdef extern from "../Object/constants.h":
     
     cdef struct function_label:
         inta interval
-        inta momentumInterval;
         inta contr
         functionType fn
-        double param[MAX_PARAM_FUNC]
+        float param[MAX_PARAM_FUNC]
 
     cdef struct atom_label:
-        double position[3+1]
+        float position[3+1]
         inta Z
         
-    cdef struct momentumIntegralSpecs:
-        momentumType metric
-        inta interval
-        floata maxMomentum
-
-
     cdef struct basisElement_label:
         basisElementType basis
         noteType note
         inta index
         inta index2
-        double length
-        double origin
+        float length
+        float origin
         inta grid
 
     cdef struct dimensions_label:
-        double lattice
-        double attack
-        double origin
-        double anchor
+        float lattice
+        float attack
+        float origin
+        float anchor
     
     cdef struct canon_label:
         floata *stream
@@ -332,19 +320,17 @@ cdef extern from "../Object/constants.h":
         char filename[MAXSTRING]
         function_label func
         char desc[16]
-        double scalar
+        float scalar
         inta type
         blockType bl
         inta act
-        double adjustOne
-        inta label[MAX_SPLIT]
-        inta invert
-        inta headFlag
+        inta label
+        char invert
+        char headFlag
         inta atom
         inta bra
         inta ket
         inta embed
-        double omega
         metric_label mu
 
     cdef struct runTime:
@@ -368,7 +354,7 @@ cdef extern from "../Object/constants.h":
         bodyType body
         blockType block
         inta act
-        inta invert
+        char invert
         inta bra
         inta ket
 
@@ -444,7 +430,7 @@ cdef extern from "../Object/constants.h":
     cdef struct input:
         inta numNames
         inta numVectors
-        inta build
+        char build
         inta termNumber
         inta dimNumber
         term_label terms[MAXTERM]
@@ -454,8 +440,6 @@ cdef extern from "../Object/constants.h":
         inta shiftFlag
 #       inta omp
 #       inta mkl
-        inta SymmetrizedGaussianLevel
-        floata SymmetrizedGaussianWidth
         inta Lambda
         inta RAMmax
         inta Angstroms
