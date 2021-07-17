@@ -9,13 +9,13 @@ if [ $# -eq 1 ]
     echo "*InputOutput" >> $file
     echo "read found/found" >> $file
     echo "read $dir/stage " >> $file
-    for s in `cat states`
-        do
-            for i in `grep $krylovBuild.kry.$s $dir/summa`
+#    for s in `cat states`
+#        do
+            for i in `cat $dir/summa`
                 do
                 echo "vector $i" >> $file
             done
-    done
+ #   done
     for h in `cat spam`
         do
             echo "sum $dir/$ritzBuild.$h.riz " >> $file

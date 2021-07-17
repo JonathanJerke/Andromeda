@@ -15,7 +15,12 @@ if [ -f summa ]
     cp $prev/inc $curr/inc
     cp summa $curr
     touch waiter
-    ritzSB.sh  $1 $2
+    ritzSB.sh  $1 $2 spam
+    wait
+    if [ -f ../ops ]
+	then
+	    ritzSB.sh $1 $2 ../ops
+    fi
     wait
     ritzSC.sh  $2
     wait

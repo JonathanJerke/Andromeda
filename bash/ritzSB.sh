@@ -1,23 +1,23 @@
 #!/bin/bash
 
-if [ $# -eq 2 ]
+if [ $# -eq 3 ]
     then
     src=$1
     dir=$2
-    for h in `cat spam`
+    for h in `cat $3`
         do
             file=$dir/$ritzBuild.$h.riz
             echo "*Body $file " > $file
             echo "*InputOutput" >> $file
             echo "read found/found" >> $file
             echo "read $src/stage " >> $file
-            for s in `cat states`
-                do
-                    for i in `grep $krylovBuild.kry.$s $dir/summa`
+#            for s in `cat states`
+ #               do
+                    for i in `cat $dir/summa`
                         do
                         echo "vector $i" >> $file
                     done
-            done
+  #          done
             echo "control ritzPhase" >> $file
             echo ".InputOutput" >> $file
             echo "*Parameters" >>$file
